@@ -143,6 +143,6 @@ Follow the rule references below. This plan file does not redefine rules—only 
 ## Completion Criteria
 - ✅ All cross-cutting hooks implemented and tested
 - ✅ No feature hooks that import `src/features/**` or `src/store/slices/*feature*` yet
-- ✅ Hook APIs are generic and reusable (no “products/cart/orders” knowledge)
+- ✅ Hook APIs are generic and reusable (no domain-specific module knowledge)
 
 **Next Phase**: `P006_platform-ui-foundation.md`

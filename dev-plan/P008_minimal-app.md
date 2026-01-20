@@ -846,5 +846,5 @@ Create a **minimal runnable application** with a landing page and home screen to
 - ✅ Verify responsive design works
 - ✅ Verify accessibility works (basic checks)
 
-**Next Phase**: `P009_core-features.md` (Implement all 21 core marketplace features)
+**Next Phase**: `P009_core-features.md` (Implement HMS core modules)
 
