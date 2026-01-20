@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+# NOTE: lockfiles MUST be committed for reproducible builds (see `.cursor/rules/tech-stack.mdc`)
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+

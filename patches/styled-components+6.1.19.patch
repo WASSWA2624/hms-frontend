@@ -1,0 +1,13 @@
+diff --git a/node_modules/styled-components/dist/styled-components.js b/node_modules/styled-components/dist/styled-components.js
+index 2ce2ea1..2ce2ea1 100644
+--- a/node_modules/styled-components/dist/styled-components.js
++++ b/node_modules/styled-components/dist/styled-components.js
+@@
+-    var checkDynamicCreation = function (displayName, componentId) {
+-        if (typeof globalThis !== 'undefined' && globalThis.__styledComponentsSkipDynamicCreationCheck) {
+-            return;
+-        }
+-        {
+    var checkDynamicCreation = function (displayName, componentId) {
+        return;
+        {
