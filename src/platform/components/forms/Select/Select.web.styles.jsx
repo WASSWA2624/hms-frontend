@@ -49,6 +49,7 @@ const StyledRequired = styled.span.withConfig({
 const StyledTrigger = styled.button.withConfig({
   displayName: 'StyledTrigger',
   componentId: 'StyledTrigger',
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   width: 100%;
   min-height: 44px;
@@ -81,6 +82,7 @@ const StyledTrigger = styled.button.withConfig({
 const StyledTriggerText = styled.span.withConfig({
   displayName: 'StyledTriggerText',
   componentId: 'StyledTriggerText',
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
@@ -160,6 +162,7 @@ const StyledOptionText = styled.span.withConfig({
 const StyledHelperText = styled.span.withConfig({
   displayName: 'StyledHelperText',
   componentId: 'StyledHelperText',
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;

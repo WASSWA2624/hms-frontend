@@ -38,6 +38,9 @@
     "emptyState": "Empty state",
     "message": "Message"
   },
+  "greeting": {
+    "hello": "Hello, {{name}}"
+  },
   "errors": {
     "fallback": {
       "title": "Something went wrong",

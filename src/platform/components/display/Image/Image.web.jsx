@@ -66,6 +66,7 @@ const ImageWeb = ({
   const theme = useTheme();
   const { t } = useI18n();
   const imageSrc = typeof currentSource === 'string' ? currentSource : currentSource?.uri || '';
+  const resolvedSrc = imageSrc ? imageSrc : undefined;
 
   // Compute object-fit CSS value from resizeMode
   const getObjectFit = (mode) => {
@@ -104,6 +105,10 @@ const ImageWeb = ({
     placeholder: _placeholder,
     errorComponent: _errorComponent,
     source: _source,
+    accessibilityRole: _accessibilityRole,
+    accessibilityLabel: _accessibilityLabel,
+    accessibilityHint: _accessibilityHint,
+    testID: _testID,
     ...domProps
   } = rest;
 
@@ -116,7 +121,7 @@ const ImageWeb = ({
       data-testid={testID ? `${testID}-container` : undefined}
     >
       <StyledImage
-        src={imageSrc || ''}
+        src={resolvedSrc}
         style={{
           objectFit: objectFitValue,
           objectPosition: objectPositionValue,

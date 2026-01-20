@@ -1,5 +1,6 @@
 module.exports = {
   preset: 'jest-expo',
+  cacheDirectory: '<rootDir>/.jest-cache',
   setupFiles: ['<rootDir>/jest.setup.js'],
   setupFilesAfterEnv: [],
   transformIgnorePatterns: [
@@ -14,6 +15,7 @@ module.exports = {
       displayName: 'native',
       testMatch: ['**/__tests__/**/*.test.js', '!**/__tests__/**/*.web.test.js'],
       preset: 'jest-expo',
+      cacheDirectory: '<rootDir>/.jest-cache/native',
       setupFiles: ['<rootDir>/jest.setup.js'],
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
@@ -52,6 +54,7 @@ module.exports = {
       displayName: 'web',
       testMatch: ['**/__tests__/**/*.web.test.js'],
       testEnvironment: 'jsdom',
+      cacheDirectory: '<rootDir>/.jest-cache/web',
       setupFiles: ['<rootDir>/jest.setup.web.js'],
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
