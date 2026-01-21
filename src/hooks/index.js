@@ -40,4 +40,10 @@ export { default as useApiKey } from './useApiKey';
 export { default as useApiKeyPermission } from './useApiKeyPermission';
 export { default as useUserMfa } from './useUserMfa';
 export { default as useOauthAccount } from './useOauthAccount';
+export { default as useAppointment } from './useAppointment';
+export { default as useAppointmentParticipant } from './useAppointmentParticipant';
+export { default as useAppointmentReminder } from './useAppointmentReminder';
+export { default as useProviderSchedule } from './useProviderSchedule';
+export { default as useAvailabilitySlot } from './useAvailabilitySlot';
+export { default as useVisitQueue } from './useVisitQueue';
 

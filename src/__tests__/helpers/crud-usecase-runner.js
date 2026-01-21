@@ -23,6 +23,7 @@ const runCrudUsecaseTests = (
 
     if (list) {
       await expect(list(listParams)).resolves.toBeDefined();
+      await expect(list()).resolves.toBeDefined();
     }
     if (get) {
       await expect(get(id)).resolves.toBeDefined();
