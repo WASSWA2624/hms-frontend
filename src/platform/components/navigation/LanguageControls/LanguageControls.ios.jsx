@@ -12,11 +12,10 @@ import { StyledLanguageControls } from './LanguageControls.ios.styles';
  * LanguageControls component for iOS
  * @param {Object} props
  * @param {string} [props.testID]
- * @param {Object} [props.style]
  * @param {string} [props.accessibilityLabel]
  * @param {string} [props.accessibilityHint]
  */
-const LanguageControlsIOS = ({ testID, style, accessibilityLabel, accessibilityHint }) => {
+const LanguageControlsIOS = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
   const { locale, options, setLocale } = useLanguageControls();
   const label = t('settings.language.label');
@@ -24,7 +23,7 @@ const LanguageControlsIOS = ({ testID, style, accessibilityLabel, accessibilityH
   const resolvedHint = accessibilityHint || t('settings.language.hint');
 
   return (
-    <StyledLanguageControls testID={testID} style={style}>
+    <StyledLanguageControls testID={testID}>
       <Select
         label={label}
         value={locale}

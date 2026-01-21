@@ -12,11 +12,10 @@ import { StyledThemeControls } from './ThemeControls.ios.styles';
  * ThemeControls component for iOS
  * @param {Object} props
  * @param {string} [props.testID]
- * @param {Object} [props.style]
  * @param {string} [props.accessibilityLabel]
  * @param {string} [props.accessibilityHint]
  */
-const ThemeControlsIOS = ({ testID, style, accessibilityLabel, accessibilityHint }) => {
+const ThemeControlsIOS = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
   const { theme, options, setTheme } = useThemeControls();
   const label = t('settings.theme.label');
@@ -24,7 +23,7 @@ const ThemeControlsIOS = ({ testID, style, accessibilityLabel, accessibilityHint
   const resolvedHint = accessibilityHint || t('settings.theme.hint');
 
   return (
-    <StyledThemeControls testID={testID} style={style}>
+    <StyledThemeControls testID={testID}>
       <Select
         label={label}
         value={theme}

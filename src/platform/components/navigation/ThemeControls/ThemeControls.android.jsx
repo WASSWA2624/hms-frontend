@@ -12,11 +12,10 @@ import { StyledThemeControls } from './ThemeControls.android.styles';
  * ThemeControls component for Android
  * @param {Object} props
  * @param {string} [props.testID]
- * @param {Object} [props.style]
  * @param {string} [props.accessibilityLabel]
  * @param {string} [props.accessibilityHint]
  */
-const ThemeControlsAndroid = ({ testID, style, accessibilityLabel, accessibilityHint }) => {
+const ThemeControlsAndroid = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
   const { theme, options, setTheme } = useThemeControls();
   const label = t('settings.theme.label');
@@ -24,7 +23,7 @@ const ThemeControlsAndroid = ({ testID, style, accessibilityLabel, accessibility
   const resolvedHint = accessibilityHint || t('settings.theme.hint');
 
   return (
-    <StyledThemeControls testID={testID} style={style}>
+    <StyledThemeControls testID={testID}>
       <Select
         label={label}
         value={theme}

@@ -31,7 +31,6 @@ const LanguageControlsWeb = ({ testID, className, accessibilityLabel, accessibil
         options={options}
         onValueChange={setLocale}
         compact
-        style={{ minWidth: 140 }}
         accessibilityLabel={resolvedLabel}
         accessibilityHint={resolvedHint}
         testID={testID ? `${testID}-select` : undefined}

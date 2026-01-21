@@ -31,7 +31,6 @@ const ThemeControlsWeb = ({ testID, className, accessibilityLabel, accessibility
         options={options}
         onValueChange={setTheme}
         compact
-        style={{ minWidth: 140 }}
         accessibilityLabel={resolvedLabel}
         accessibilityHint={resolvedHint}
         testID={testID ? `${testID}-select` : undefined}

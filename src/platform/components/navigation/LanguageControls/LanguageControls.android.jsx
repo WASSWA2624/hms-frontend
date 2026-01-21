@@ -12,11 +12,10 @@ import { StyledLanguageControls } from './LanguageControls.android.styles';
  * LanguageControls component for Android
  * @param {Object} props
  * @param {string} [props.testID]
- * @param {Object} [props.style]
  * @param {string} [props.accessibilityLabel]
  * @param {string} [props.accessibilityHint]
  */
-const LanguageControlsAndroid = ({ testID, style, accessibilityLabel, accessibilityHint }) => {
+const LanguageControlsAndroid = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
   const { locale, options, setLocale } = useLanguageControls();
   const label = t('settings.language.label');
@@ -24,7 +23,7 @@ const LanguageControlsAndroid = ({ testID, style, accessibilityLabel, accessibil
   const resolvedHint = accessibilityHint || t('settings.language.hint');
 
   return (
-    <StyledLanguageControls testID={testID} style={style}>
+    <StyledLanguageControls testID={testID}>
       <Select
         label={label}
         value={locale}
