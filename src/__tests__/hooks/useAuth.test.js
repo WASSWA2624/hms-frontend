@@ -25,11 +25,16 @@ const createStore = (preloadedState = {}) =>
         theme: 'light',
         locale: 'en',
         isLoading: false,
-        isAuthenticated: false,
-        user: null,
       },
       network: {
         isOnline: true,
+      },
+      auth: {
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        errorCode: null,
+        lastUpdated: null,
       },
       ...preloadedState,
     },
@@ -52,16 +57,16 @@ describe('useAuth', () => {
 
   it('returns normalized roles when authenticated', () => {
     const store = createStore({
-      ui: {
-        theme: 'light',
-        locale: 'en',
-        isLoading: false,
-        isAuthenticated: true,
+      auth: {
         user: {
           id: '1',
           role: 'Patient',
           roles: ['Patient', 'Admin'],
         },
+        isAuthenticated: true,
+        isLoading: false,
+        errorCode: null,
+        lastUpdated: null,
       },
     });
     let result;

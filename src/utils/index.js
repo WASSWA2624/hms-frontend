@@ -8,4 +8,6 @@ export * from './validator';
 export * from './helpers';
 export * from './shellBanners';
 export * from './networkQuality';
+export * from './crudRules';
+export * from './crudModel';
 

@@ -38,7 +38,7 @@ For each module step, implement the full feature template:
 
 ## Definition of Done (per module)
 - Feature files exist and follow structure
-- Unit tests pass with required coverage
+- Unit tests pass with 100% coverage
 - No UI imports in features/store/services
 - Errors are normalized and domain-specific
 - Public APIs exported via `index.js`

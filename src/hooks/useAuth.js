@@ -3,9 +3,10 @@
  * Provides minimal auth state from Redux for UI guards/navigation.
  * File: useAuth.js
  */
-import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useCallback, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectIsAuthenticated, selectUser } from '@store/selectors';
+import { actions as authActions } from '@store/slices/auth.slice';
 
 const normalizeRole = (role) => {
   if (!role) return null;
@@ -23,6 +24,7 @@ const normalizeRoles = (roles) => {
  * @returns {Object} auth state and normalized roles
  */
 const useAuth = () => {
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectUser);
 
@@ -36,6 +38,11 @@ const useAuth = () => {
     user: user || null,
     roles,
     role: roles[0] || null,
+    login: useCallback((payload) => dispatch(authActions.login(payload)), [dispatch]),
+    register: useCallback((payload) => dispatch(authActions.register(payload)), [dispatch]),
+    logout: useCallback(() => dispatch(authActions.logout()), [dispatch]),
+    refreshSession: useCallback(() => dispatch(authActions.refreshSession()), [dispatch]),
+    loadCurrentUser: useCallback(() => dispatch(authActions.loadCurrentUser()), [dispatch]),
   };
 };
 

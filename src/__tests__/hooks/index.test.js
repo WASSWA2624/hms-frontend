@@ -4,6 +4,7 @@
  */
 import {
   useAsyncState,
+  useCrud,
   useDebounce,
   useI18n,
   useNetworkBanner,
@@ -22,6 +23,7 @@ describe('@hooks barrel', () => {
     expect(typeof useDebounce).toBe('function');
     expect(typeof usePagination).toBe('function');
     expect(typeof useAsyncState).toBe('function');
+    expect(typeof useCrud).toBe('function');
     expect(typeof useUiState).toBe('function');
     expect(typeof useNetworkBanner).toBe('function');
     expect(typeof useShellBanners).toBe('function');

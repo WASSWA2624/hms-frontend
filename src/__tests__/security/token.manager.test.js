@@ -26,8 +26,14 @@ const base64Encode = (value) => {
 };
 
 describe('Token Manager', () => {
+  const originalAtob = globalThis.atob;
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    globalThis.atob = originalAtob;
   });
 
   describe('getAccessToken', () => {
@@ -131,6 +137,37 @@ describe('Token Manager', () => {
 
     it('should return true for token with invalid base64 payload', () => {
       const token = 'header.invalid-base64.signature';
+      expect(tokenManager.isTokenExpired(token)).toBe(true);
+    });
+
+    it('should return true when payload is not valid JSON', () => {
+      const token = `header.${base64Encode('not-json')}.signature`;
+      expect(tokenManager.isTokenExpired(token)).toBe(true);
+    });
+
+    it('should return true when exp is not a number', () => {
+      const payload = { exp: 'nope' };
+      const token = `header.${base64Encode(JSON.stringify(payload))}.signature`;
+      expect(tokenManager.isTokenExpired(token)).toBe(true);
+    });
+
+    it('uses atob when available', () => {
+      globalThis.atob = jest.fn((value) => {
+        // Reverse base64url normalization for testing.
+        return Buffer.from(value, 'base64').toString('utf8');
+      });
+      const futureTime = Math.floor((Date.now() + 3600000) / 1000);
+      const payload = { exp: futureTime };
+      const token = `header.${base64Encode(JSON.stringify(payload))}.signature`;
+      expect(tokenManager.isTokenExpired(token)).toBe(false);
+      expect(globalThis.atob).toHaveBeenCalled();
+    });
+
+    it('returns true when atob fails', () => {
+      globalThis.atob = jest.fn(() => {
+        throw new Error('ATOB_FAIL');
+      });
+      const token = `header.${base64Encode(JSON.stringify({ exp: 1 }))}.signature`;
       expect(tokenManager.isTokenExpired(token)).toBe(true);
     });
   });

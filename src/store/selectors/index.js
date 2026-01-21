@@ -18,10 +18,19 @@ const selectIsSidebarCollapsed = createSelector([selectUI], (ui) => ui.isSidebar
 const selectIsHeaderHidden = createSelector([selectUI], (ui) => ui.isHeaderHidden);
 const selectHeaderActionVisibility = createSelector([selectUI], (ui) => ui.headerActionVisibility);
 
-// Minimal Auth Selectors (Phase 0-7 - for guards)
-// These read from UI slice until full auth feature is implemented in Phase 9
-const selectIsAuthenticated = createSelector([selectUI], (ui) => ui.isAuthenticated);
-const selectUser = createSelector([selectUI], (ui) => ui.user);
+// Auth Selectors
+const selectAuth = (state) => {
+  const auth = state.auth || {};
+  const ui = state.ui || {};
+  if (auth.isAuthenticated || auth.user || auth.isLoading || auth.errorCode) {
+    return auth;
+  }
+  return ui;
+};
+const selectIsAuthenticated = createSelector([selectAuth], (auth) => auth.isAuthenticated);
+const selectUser = createSelector([selectAuth], (auth) => auth.user);
+const selectAuthErrorCode = createSelector([selectAuth], (auth) => auth.errorCode);
+const selectAuthLoading = createSelector([selectAuth], (auth) => auth.isLoading);
 
 // Network Selectors
 const selectNetwork = (state) => state.network;
@@ -46,6 +55,8 @@ export {
   // Auth (minimal - Phase 0-7)
   selectIsAuthenticated,
   selectUser,
+  selectAuthErrorCode,
+  selectAuthLoading,
   // Network
   selectIsOnline,
   selectIsOffline,
@@ -66,6 +77,8 @@ export default {
   // Auth (minimal - Phase 0-7)
   selectIsAuthenticated,
   selectUser,
+  selectAuthErrorCode,
+  selectAuthLoading,
   // Network
   selectIsOnline,
   selectIsOffline,
