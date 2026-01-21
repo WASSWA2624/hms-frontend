@@ -53,6 +53,7 @@ import {
   StyledHeaderUtilityRow,
   StyledHamburgerIcon,
   StyledHamburgerLine,
+  StyledOverflowMenuButton,
   StyledMobileCloseButton,
   StyledMobileSidebarBackdrop,
   StyledMobileSidebarContent,
@@ -411,12 +412,13 @@ const MainRouteLayoutWeb = () => {
     () => [
       {
         id: 'toggle-sidebar',
-        label: '',
+        label: null,
         icon: HamburgerIcon,
         onPress: handleToggleSidebar,
         placement: ACTION_PLACEMENTS.SECONDARY,
         variant: ACTION_VARIANTS.GHOST,
         accessibilityLabel: t('common.toggleMenu'),
+        isCircular: false,
       },
     ],
     [HamburgerIcon, handleToggleSidebar, t]
@@ -513,7 +515,7 @@ const MainRouteLayoutWeb = () => {
   const shouldShowOverflowMenu = isMobile || overflowItems.length > 0;
   const overflowMenu = shouldShowOverflowMenu ? (
     <StyledHeaderMenuWrapper ref={overflowWrapperRef}>
-      <StyledHeaderMenuButton
+      <StyledOverflowMenuButton
         type="button"
         onClick={handleToggleOverflowMenu}
         aria-haspopup="menu"
@@ -521,9 +523,13 @@ const MainRouteLayoutWeb = () => {
         aria-label={t('navigation.header.showMore')}
         data-testid="main-header-overflow-toggle"
       >
-        <Icon glyph="..." decorative accessibilityLabel={t('navigation.header.showMore')} />
-        {!isMobile ? t('navigation.header.showMore') : null}
-      </StyledHeaderMenuButton>
+        <Icon
+          glyph="⋮"
+          size="lg"
+          decorative
+          accessibilityLabel={t('navigation.header.showMore')}
+        />
+      </StyledOverflowMenuButton>
       {isOverflowOpen ? (
         <StyledHeaderMenu
           role="menu"
@@ -791,7 +797,6 @@ const MainRouteLayoutWeb = () => {
                   data-testid="main-header-customize-toggle"
                 >
                   <Icon glyph="⚙" decorative accessibilityLabel={t('navigation.header.customize')} />
-                  {!isMobile ? t('navigation.header.customize') : null}
                 </StyledHeaderMenuButton>
                 {isHeaderCustomizationOpen ? (
                   <StyledHeaderMenu
@@ -844,10 +849,8 @@ const MainRouteLayoutWeb = () => {
                 onPress={handleHideHeader}
                 accessibilityLabel={t('navigation.header.hideHeader')}
                 testID="main-header-toggle"
-                icon={<Icon glyph="-" decorative accessibilityLabel={t('navigation.header.hideHeader')} />}
-              >
-                {!isMobile ? t('navigation.header.hideHeader') : null}
-              </StyledHeaderToggleButton>
+                icon={<Icon glyph="˄" decorative accessibilityLabel={t('navigation.header.hideHeader')} />}
+              />
             ) : null}
             {overflowMenu}
           </StyledHeaderUtilityRow>
@@ -916,7 +919,7 @@ const MainRouteLayoutWeb = () => {
           accessibilityLabel={t('navigation.header.showHeader')}
           testID="main-header-reveal"
         >
-          {t('navigation.header.showHeader')}
+          <Icon glyph="˅" decorative accessibilityLabel={t('navigation.header.showHeader')} />
         </StyledHeaderRevealButton>
       ) : null}
       {isMobile ? (

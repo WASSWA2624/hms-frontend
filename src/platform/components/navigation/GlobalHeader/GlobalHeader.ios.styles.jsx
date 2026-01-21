@@ -76,9 +76,14 @@ const StyledActionButton = styled(Pressable).withConfig({
   flex-direction: row;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => theme.spacing.sm}px;
+  padding: 0;
   min-height: 44px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  min-width: 44px;
+  border-radius: ${({ theme, isCircular }) =>
+    isCircular ? theme.radius.full : theme.spacing.xxl}px;
+  border-width: 1px;
+  border-color: ${({ theme, isPrimary }) =>
+    isPrimary ? theme.colors.primary : theme.colors.background.tertiary};
   background-color: ${({ theme, isPrimary }) =>
     isPrimary ? theme.colors.primary : theme.colors.background.secondary};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};

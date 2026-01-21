@@ -5,7 +5,8 @@
  */
 import React from 'react';
 import { useI18n, useNetwork } from '@hooks';
-import { StyledIndicator, StyledLabel, StyledStatusDot } from './NetworkIndicator.web.styles';
+import { Icon } from '@platform/components';
+import { StyledIndicator, StyledStatusDot } from './NetworkIndicator.web.styles';
 
 const resolveStatus = ({ isOffline, isLowQuality, isSyncing }) => {
   if (isOffline) {
@@ -32,6 +33,8 @@ const NetworkIndicatorWeb = ({ testID, className }) => {
   const status = resolveStatus({ isOffline, isLowQuality, isSyncing });
   const label = t(`navigation.network.status.${status.key}`);
   const a11yLabel = `${t('navigation.network.label')}: ${label}`;
+  const isOfflineStatus = status.key === 'offline';
+  const networkGlyph = isOfflineStatus ? '🚫' : '📶';
 
   return (
     <StyledIndicator
@@ -41,8 +44,14 @@ const NetworkIndicatorWeb = ({ testID, className }) => {
       data-testid={testID}
       className={className}
     >
+      <Icon
+        glyph={networkGlyph}
+        size="sm"
+        tone="muted"
+        decorative
+        accessibilityLabel={t('navigation.network.label')}
+      />
       <StyledStatusDot status={status.key} />
-      <StyledLabel>{label}</StyledLabel>
     </StyledIndicator>
   );
 };

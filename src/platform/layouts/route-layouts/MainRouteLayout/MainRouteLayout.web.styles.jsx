@@ -73,8 +73,11 @@ const StyledHamburgerIcon = styled.span.withConfig({
 })`
   display: inline-flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 3px;
   width: 18px;
+  height: 16px;
 `;
 
 const StyledHamburgerLine = styled.span.withConfig({
@@ -83,8 +86,8 @@ const StyledHamburgerLine = styled.span.withConfig({
 })`
   height: 2px;
   width: 100%;
-  background-color: ${({ theme }) => theme.colors.text.primary};
-  border-radius: ${({ theme }) => theme.radius.sm}px;
+  background-color: currentColor;
+  border-radius: ${({ theme }) => theme.radius.full}px;
 `;
 
 const StyledBrand = styled.div.withConfig({
@@ -103,7 +106,7 @@ const StyledBrandLogo = styled.div.withConfig({
 })`
   width: 32px;
   height: 32px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
   background-color: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.text.inverse};
   display: flex;
@@ -170,7 +173,7 @@ const StyledSidebarResizeHandle = styled.div.withConfig({
     content: '';
     width: 2px;
     height: ${({ theme }) => theme.spacing.xxl}px;
-    border-radius: ${({ theme }) => theme.radius.sm}px;
+    border-radius: ${({ theme }) => theme.radius.full}px;
     background-color: ${({ theme }) => theme.colors.background.tertiary};
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -224,13 +227,15 @@ const StyledFullscreenButton = styled(Button).withConfig({
 })`
   && {
     min-height: ${({ theme }) => theme.spacing.xxl}px;
-    padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.xs}px`};
+    padding: 0;
+    border-radius: ${({ theme }) => theme.radius.full}px;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     && {
       min-height: ${({ theme }) => theme.spacing.xxl}px;
-      padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.md}px`};
+      padding: 0;
+      border-radius: ${({ theme }) => theme.radius.full}px;
     }
   }
 `;
@@ -273,23 +278,27 @@ const StyledHeaderMenuButton = styled.button.withConfig({
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   min-height: ${({ theme }) => theme.spacing.xxl}px;
   min-width: ${({ theme }) => theme.spacing.xxl}px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  padding: 0;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  color: ${({ theme }) => theme.colors.text.primary};
+  background-color: transparent;
+  color: ${({ theme }) => theme.colors.text.secondary};
   cursor: pointer;
   white-space: nowrap;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.1s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.background.tertiary};
+    color: ${({ theme }) => theme.colors.text.primary};
   }
 
   &:active {
-    background-color: ${({ theme }) => theme.colors.background.tertiary};
+    color: ${({ theme }) => theme.colors.text.primary};
+    transform: scale(0.96);
   }
 
   &:focus-visible {
@@ -301,12 +310,56 @@ const StyledHeaderMenuButton = styled.button.withConfig({
     min-height: ${({ theme }) => theme.spacing.xxl}px;
     min-width: ${({ theme }) => theme.spacing.xxl}px;
     padding: 0;
-    border: none;
+    border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
     background-color: transparent;
 
     &:active {
-      background-color: ${({ theme }) => theme.colors.background.secondary};
+      background-color: transparent;
     }
+  }
+`;
+
+const StyledOverflowMenuButton = styled.button.withConfig({
+  displayName: 'StyledOverflowMenuButton',
+  componentId: 'StyledOverflowMenuButton',
+})`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: ${({ theme }) => theme.spacing.xxl}px;
+  min-width: ${({ theme }) => theme.spacing.xxl}px;
+  padding: 0;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  background-color: transparent;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.1s ease;
+
+  & > span {
+    color: ${({ theme }) => theme.colors.text.tertiary};
+    line-height: 1;
+  }
+
+  &:hover {
+    & > span {
+      color: ${({ theme }) => theme.colors.text.primary};
+    }
+    background-color: transparent;
+  }
+
+  &:active {
+    transform: scale(0.96);
+    & > span {
+      color: ${({ theme }) => theme.colors.text.primary};
+    }
+    background-color: transparent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
   }
 `;
 
@@ -448,13 +501,19 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
 })`
   && {
     min-height: ${({ theme }) => theme.spacing.xxl}px;
-    padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.sm}px`};
+    padding: 0;
+    border-color: ${({ theme }) => theme.colors.background.tertiary};
+    border-radius: ${({ theme }) => theme.radius.sm}px;
+    background-color: transparent;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     && {
       min-height: ${({ theme }) => theme.spacing.xxl}px;
-      padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.md}px`};
+      padding: 0;
+      border-color: ${({ theme }) => theme.colors.background.tertiary};
+      border-radius: ${({ theme }) => theme.radius.full}px;
+      background-color: transparent;
     }
   }
 `;
@@ -469,7 +528,11 @@ const StyledHeaderRevealButton = styled(Button).withConfig({
     right: ${({ theme }) => theme.spacing.sm}px;
     z-index: 1400;
     min-height: ${({ theme }) => theme.spacing.xxl}px;
-    padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.sm}px`};
+    min-width: ${({ theme }) => theme.spacing.xxl}px;
+    padding: 0;
+    border-color: ${({ theme }) => theme.colors.background.tertiary};
+    background-color: transparent;
+    border-radius: ${({ theme }) => theme.radius.full}px;
   }
 `;
 
@@ -491,15 +554,15 @@ const StyledNotificationsButton = styled.button.withConfig({
   justify-content: center;
   min-height: ${({ theme }) => theme.spacing.xxl}px;
   min-width: ${({ theme }) => theme.spacing.xxl}px;
-  padding: ${({ theme }) => theme.spacing.xs}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  padding: 0;
+  border-radius: ${({ theme }) => theme.radius.full}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  background-color: ${({ theme }) => theme.colors.background.secondary};
+  background-color: transparent;
   color: ${({ theme }) => theme.colors.text.primary};
   cursor: pointer;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.background.tertiary};
+    background-color: ${({ theme }) => theme.colors.background.secondary};
   }
 
   &:active {
@@ -701,6 +764,7 @@ export {
   StyledHamburgerLine,
   StyledHeaderMenu,
   StyledHeaderMenuButton,
+  StyledOverflowMenuButton,
   StyledHeaderMenuItem,
   StyledHeaderMenuItemContent,
   StyledHeaderMenuItemIcon,

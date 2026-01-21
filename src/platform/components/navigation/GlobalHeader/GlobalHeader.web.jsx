@@ -30,6 +30,7 @@ const buildActionItems = ({ actions, testID }) => {
     const actionTestID = action.testID || (testID ? `${testID}-action-${actionKey}` : undefined);
     const isPrimary = action.variant === ACTION_VARIANTS.PRIMARY;
     const isDisabled = action.disabled || !action.onPress;
+    const isCircular = action.isCircular !== false;
     const label = action.label;
     const labelColor = isPrimary ? 'onPrimary' : 'text.primary';
 
@@ -41,6 +42,7 @@ const buildActionItems = ({ actions, testID }) => {
         disabled={isDisabled}
         isPrimary={isPrimary}
         isDisabled={isDisabled}
+        isCircular={isCircular}
         aria-label={action.accessibilityLabel || label}
         data-testid={actionTestID}
         testID={actionTestID}

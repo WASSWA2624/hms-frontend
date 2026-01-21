@@ -97,21 +97,24 @@ const StyledActionButton = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding: 0;
   min-height: 44px;
   min-width: 44px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-radius: ${({ theme, isCircular }) =>
+    isCircular ? theme.radius.full : theme.radius.sm}px;
   border: 1px solid
     ${({ theme, isPrimary }) => (isPrimary ? theme.colors.primary : theme.colors.background.tertiary)};
   background-color: ${({ theme, isPrimary }) =>
     isPrimary ? theme.colors.primary : theme.colors.background.secondary};
+  color: ${({ theme, isPrimary }) => (isPrimary ? theme.colors.text.inverse : theme.colors.text.secondary)};
   cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, color 0.15s ease, transform 0.2s ease;
 
   &:hover {
     background-color: ${({ theme, isPrimary }) =>
       isPrimary ? theme.colors.primary : theme.colors.background.tertiary};
+    color: ${({ theme, isPrimary }) => (isPrimary ? theme.colors.text.inverse : theme.colors.text.primary)};
   }
 
   &:active {
@@ -128,7 +131,8 @@ const StyledActionButton = styled.button.withConfig({
     min-width: ${({ theme }) => theme.spacing.xxl}px;
     padding: 0;
     background-color: transparent;
-    border: none;
+    border: 1px solid
+      ${({ theme, isPrimary }) => (isPrimary ? theme.colors.primary : theme.colors.background.tertiary)};
   }
 `;
 
@@ -139,6 +143,7 @@ const StyledActionIcon = styled.span.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: inherit;
 `;
 
 const StyledBreadcrumbsRow = styled.nav.withConfig({

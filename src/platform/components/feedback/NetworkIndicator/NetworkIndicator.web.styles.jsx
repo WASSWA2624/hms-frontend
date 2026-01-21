@@ -13,8 +13,8 @@ const StyledIndicator = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.sm}px`};
   border-radius: ${({ theme }) => theme.radius.md}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: transparent;
+  border: none;
   white-space: nowrap;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
@@ -38,16 +38,4 @@ const StyledStatusDot = styled.span.withConfig({
   flex: 0 0 auto;
 `;
 
-const StyledLabel = styled.span.withConfig({
-  displayName: 'StyledLabel',
-  componentId: 'StyledLabel',
-})`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
-    display: none;
-  }
-`;
-
-export { StyledIndicator, StyledLabel, StyledStatusDot };
+export { StyledIndicator, StyledStatusDot };

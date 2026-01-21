@@ -25,7 +25,6 @@ export { default as Dropdown } from './forms/Dropdown';
 export { default as Slider } from './forms/Slider';
 
 // Navigation Components
-export { default as Header } from './navigation/Header';
 export { default as GlobalHeader } from './navigation/GlobalHeader';
 export { default as GlobalFooter } from './navigation/GlobalFooter';
 export { default as Sidebar } from './navigation/Sidebar';
