@@ -7,7 +7,7 @@
 // 1. Default export (component) - REQUIRED
 // For Jest and tools that don't support React Native platform resolution,
 // export the web version as default. React Native will use platform-specific files at runtime.
-export { default } from './TextField.web';
+export { default } from './TextField';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useTextField } from './useTextField';

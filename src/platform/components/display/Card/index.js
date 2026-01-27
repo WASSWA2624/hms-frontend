@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Card.web';
+export { default } from './Card';
 export { VARIANTS } from './types';
 

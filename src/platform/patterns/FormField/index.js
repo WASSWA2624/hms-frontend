@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-import FormFieldWeb from './FormField.web';
+import FormFieldWeb from './FormField';
 export default FormFieldWeb;
 

@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Dropdown.web';
+export { default } from './Dropdown';
 export { default as useDropdown } from './useDropdown';
 

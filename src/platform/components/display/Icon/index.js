@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Icon.web';
+export { default } from './Icon';
 export { SIZES, TONES } from './types';
 

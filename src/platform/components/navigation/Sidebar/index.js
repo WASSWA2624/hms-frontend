@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Sidebar.web';
+export { default } from './Sidebar';
 export { default as useSidebar } from './useSidebar';
 

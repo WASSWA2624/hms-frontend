@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Divider.web';
+export { default } from './Divider';
 export { ORIENTATIONS } from './types';
 

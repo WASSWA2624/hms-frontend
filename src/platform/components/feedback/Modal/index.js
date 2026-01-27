@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './Modal.web';
+export { default } from './Modal';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useModal } from './useModal';

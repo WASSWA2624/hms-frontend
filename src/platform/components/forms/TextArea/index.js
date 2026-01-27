@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './TextArea.web';
+export { default } from './TextArea';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useTextArea } from './useTextArea';

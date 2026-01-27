@@ -1,7 +1,7 @@
 export default {
   expo: {
-    name: "biomed",
-    slug: "biomed",
+    name: "hms",
+    slug: "hms",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/favicon.png",
@@ -14,12 +14,14 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.hms.ios",
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/favicon.png",
         backgroundColor: "#ffffff",
       },
+      package: "com.hms.android",
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -27,9 +29,9 @@ export default {
       bundler: "metro",
       output: "static",
       // PWA configuration
-      name: "Biomedical Marketplace",
-      shortName: "BiomedMarket",
-      description: "B2B e-commerce platform for healthcare",
+      name: "Hospital Management System",
+      shortName: "HMS",
+      description: "Hospital Management System",
       themeColor: "#007AFF",
       backgroundColor: "#ffffff",
       display: "standalone",
@@ -38,7 +40,12 @@ export default {
       scope: "/",
     },
     plugins: ["expo-router", "expo-secure-store"],
-    scheme: "biomed",
+    scheme: "hms",
+    "extra": {
+      "eas": {
+        "projectId": "c9c95111-8919-4161-874d-cdc473ef1a9f"       
+      }
+    },
   },
 };
 

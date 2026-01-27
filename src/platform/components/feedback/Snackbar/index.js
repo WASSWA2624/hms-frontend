@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './Snackbar.web';
+export { default } from './Snackbar';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useSnackbar } from './useSnackbar';

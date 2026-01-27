@@ -84,7 +84,7 @@ Platform UI specific:
 ### Exports (`index.js` pattern)
 
 ```js
-export { default } from './ComponentName.web';
+export { default } from './ComponentName'; //Plaform specific impots
 export { default as useComponentName } from './useComponentName';
 export { VARIANTS, SIZES, STATES } from './types';
 ```

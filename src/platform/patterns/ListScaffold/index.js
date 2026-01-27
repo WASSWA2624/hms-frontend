@@ -5,5 +5,5 @@
  */
 
 // Export default from web platform (platform selection handled by bundler/metro)
-export { default } from './ListScaffold.web';
+export { default } from './ListScaffold';
 

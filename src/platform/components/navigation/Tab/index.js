@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './Tab.web';
+export { default } from './Tab';
 

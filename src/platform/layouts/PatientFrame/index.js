@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './PatientFrame.web';
+export { default } from './PatientFrame';
 export { default as usePatientFrame } from './usePatientFrame';
 export { FRAME_SLOTS, FRAME_VARIANTS } from './types';

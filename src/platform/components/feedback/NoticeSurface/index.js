@@ -1,2 +1,2 @@
-export { default } from './NoticeSurface.web';
+export { default } from './NoticeSurface';
 export { SURFACE_VARIANTS } from './types';

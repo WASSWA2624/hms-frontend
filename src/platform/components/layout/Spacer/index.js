@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Spacer.web';
+export { default } from './Spacer';
 export * from './types';
 

@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './Tabs.web';
+export { default } from './Tabs';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useTabs } from './useTabs';

@@ -4,7 +4,7 @@
  * File: index.js
  */
 
-export { default } from './Screen.web';
+export { default } from './Screen';
 export { BACKGROUNDS, PADDING } from './types';
 
 

@@ -5,4 +5,4 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './PatientRouteLayout.web';
+export { default } from './PatientRouteLayout';

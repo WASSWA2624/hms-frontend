@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './AuthFrame.web';
+export { default } from './AuthFrame';
 export { FRAME_SLOTS, FRAME_VARIANTS } from './types';

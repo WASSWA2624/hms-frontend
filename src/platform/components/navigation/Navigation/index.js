@@ -6,6 +6,6 @@
 // Note: Header is now exported from @platform/components/Header
 // Sidebar and TabBar are exported from their own folders
 
-export { default as Sidebar } from './Sidebar.web';
-export { default as TabBar } from './TabBar.web';
+export { default as Sidebar } from './Sidebar';
+export { default as TabBar } from './TabBar';
 

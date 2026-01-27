@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from '../Sidebar.web';
+export { default } from '../Sidebar';
 

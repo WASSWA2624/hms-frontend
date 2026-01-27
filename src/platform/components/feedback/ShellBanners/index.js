@@ -1,2 +1,2 @@
-export { default } from './ShellBanners.web';
+export { default } from './ShellBanners';
 export { STACK_SPACING } from './types';

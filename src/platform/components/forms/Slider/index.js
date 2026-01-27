@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './Slider.web';
+export { default } from './Slider';
 

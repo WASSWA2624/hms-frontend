@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './GlobalHeader.web';
+export { default } from './GlobalHeader';
 export { default as useGlobalHeader } from './useGlobalHeader';
 export { ACTION_PLACEMENTS, ACTION_VARIANTS } from './types';

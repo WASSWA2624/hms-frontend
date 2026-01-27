@@ -4,6 +4,6 @@
  * File: index.js
  */
 
-export { default } from './Stack.web';
+export { default } from './Stack';
 export * from './types';
 

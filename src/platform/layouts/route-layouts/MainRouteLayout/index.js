@@ -7,5 +7,5 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './MainRouteLayout.web';
+export { default } from './MainRouteLayout';
 

@@ -6,6 +6,6 @@
  * Per component-structure.mdc: Barrel files must use index.js (not index.jsx)
  */
 
-export { default } from './Accordion.web';
+export { default } from './Accordion';
 export { default as useAccordion } from './useAccordion';
 

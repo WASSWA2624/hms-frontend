@@ -4,5 +4,6 @@
  * File: index.js
  */
 
-export { default } from './MainLayout.web';
+import MainLayout from './MainLayout';
 
+export default MainLayout;

@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './ProgressBar.web';
+export { default } from './ProgressBar';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useProgressBar } from './useProgressBar';

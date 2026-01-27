@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './Chip.web';
+export { default } from './Chip';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { useChip } from './useChip';

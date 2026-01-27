@@ -4,7 +4,7 @@
  * File: index.js
  */
 
-import SearchBarWeb from './SearchBar.web';
+import SearchBarWeb from './SearchBar';
 
 // Ensure module is executed for coverage
 const SearchBar = SearchBarWeb;

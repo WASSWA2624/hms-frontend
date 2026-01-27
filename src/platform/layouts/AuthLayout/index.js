@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './AuthLayout.web';
+export { default } from './AuthLayout';
 

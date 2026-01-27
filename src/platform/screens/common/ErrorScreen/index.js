@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './ErrorScreen.web';
+export { default } from './ErrorScreen';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useErrorScreen } from './useErrorScreen';

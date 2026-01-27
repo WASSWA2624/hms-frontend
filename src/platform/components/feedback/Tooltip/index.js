@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './Tooltip.web';
+export { default } from './Tooltip';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useTooltip } from './useTooltip';

@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './List.web';
+export { default } from './List';
 

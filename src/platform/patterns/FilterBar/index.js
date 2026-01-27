@@ -4,7 +4,7 @@
  * File: index.js
  */
 
-import FilterBarWeb from './FilterBar.web';
+import FilterBarWeb from './FilterBar';
 
 // Ensure module is executed for coverage
 const FilterBar = FilterBarWeb;

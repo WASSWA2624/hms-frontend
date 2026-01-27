@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './Switch.web';
+export { default } from './Switch';
 

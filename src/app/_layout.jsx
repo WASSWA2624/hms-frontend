@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ActivityIndicator } from 'react-native';
 import { Slot } from 'expo-router';
 import { ErrorBoundary } from '@errors';
 import { I18nProvider } from '@i18n';

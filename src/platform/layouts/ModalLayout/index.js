@@ -5,7 +5,7 @@
  */
 
 // Default export (component)
-export { default } from './ModalLayout.web';
+export { default } from './ModalLayout';
 
 // Type/constant exports
 export { MODAL_SIZES } from './types';

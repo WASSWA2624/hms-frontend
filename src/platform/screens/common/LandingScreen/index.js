@@ -5,7 +5,7 @@
  */
 
 // 1. Default export (component) - REQUIRED
-export { default } from './LandingScreen.web';
+export { default } from './LandingScreen';
 
 // 2. Hook exports (if applicable) - OPTIONAL
 export { default as useLandingScreen } from './useLandingScreen';

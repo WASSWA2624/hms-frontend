@@ -4,5 +4,5 @@
  * File: index.js
  */
 
-export { default } from './Breadcrumbs.web';
+export { default } from './Breadcrumbs';
 
