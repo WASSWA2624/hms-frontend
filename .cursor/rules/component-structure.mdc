@@ -67,10 +67,19 @@ platform/
    - Component files should handle rendering only.
 
 5. **Barrel/Index Files**:  
-   - **Single Source of Truth**: See `coding-conventions.mdc` for complete barrel file rules.
+   - **Single Source of Truth**: See `coding-conventions.mdc` for full barrel file rules.
    - Always use `index.js` (never `index.jsx`) for barrel files.  
-   - Export default component first (from platform file, e.g., `.web`).  
-   - Then export hooks, then types/constants.
+   - For the main component export, only do:
+     ```js
+     export { default } from './ComponentName';
+     ```
+     Rely on Metro bundler for platform file resolution (do not include platform suffix in the path).
+   - Additional exports (hooks, types/constants) follow:
+     ```js
+     export { default as useComponentName } from './useComponentName';
+     export { VARIANTS, SIZES, STATES } from './types';
+     ```
+   - Export order: Component → Hooks → Types/constants
 
 ### Naming Conventions
 **Single Source of Truth**: See `coding-conventions.mdc` for complete naming rules.
@@ -84,7 +93,7 @@ Platform UI specific:
 ### Exports (`index.js` pattern)
 
 ```js
-export { default } from './ComponentName.web';
+export { default } from './ComponentName'; // Let Metro handle platform file selection
 export { default as useComponentName } from './useComponentName';
 export { VARIANTS, SIZES, STATES } from './types';
 ```

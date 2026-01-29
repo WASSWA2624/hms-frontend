@@ -1,0 +1,37 @@
+// Centralized route menu items for the sidebar (app-router.mdc: paths omit group segments)
+export const SIDE_MENU_ITEMS = [
+  // Root & main (root / redirects via index; home is first page when logged in)
+  { id: 'home', label: 'Home', icon: 'home-outline', path: '/home' },
+  { id: 'settings', label: 'Settings', icon: 'settings-outline', path: '/settings' },
+  // Auth (for reference; typically not in main sidebar)
+  { id: 'login', label: 'Login', icon: 'log-in-outline', path: '/login' },
+  { id: 'register', label: 'Register', icon: 'person-add-outline', path: '/register' },
+  { id: 'forgot-password', label: 'Forgot Password', icon: 'key-outline', path: '/forgot-password' },
+  { id: 'reset-password', label: 'Reset Password', icon: 'key-outline', path: '/reset-password' },
+  { id: 'facility-selection', label: 'Facility Selection', icon: 'business-outline', path: '/facility-selection' },
+  { id: 'tenant-selection', label: 'Tenant Selection', icon: 'layers-outline', path: '/tenant-selection' },
+  { id: 'verify-email', label: 'Verify Email', icon: 'mail-outline', path: '/verify-email' },
+  { id: 'verify-phone', label: 'Verify Phone', icon: 'call-outline', path: '/verify-phone' },
+  // Settings children
+  { id: 'settings-addresses', label: 'Addresses', icon: 'map-outline', path: '/settings/addresses' },
+  { id: 'settings-api-keys', label: 'API Keys', icon: 'key-outline', path: '/settings/api-keys' },
+  { id: 'settings-api-key-permissions', label: 'API Key Permissions', icon: 'shield-outline', path: '/settings/api-key-permissions' },
+  { id: 'settings-beds', label: 'Beds', icon: 'bed-outline', path: '/settings/beds' },
+  { id: 'settings-branches', label: 'Branches', icon: 'git-branch-outline', path: '/settings/branches' },
+  { id: 'settings-contacts', label: 'Contacts', icon: 'people-outline', path: '/settings/contacts' },
+  { id: 'settings-departments', label: 'Departments', icon: 'folder-outline', path: '/settings/departments' },
+  { id: 'settings-facilities', label: 'Facilities', icon: 'business-outline', path: '/settings/facilities' },
+  { id: 'settings-oauth-accounts', label: 'OAuth Accounts', icon: 'lock-open-outline', path: '/settings/oauth-accounts' },
+  { id: 'settings-permissions', label: 'Permissions', icon: 'shield-outline', path: '/settings/permissions' },
+  { id: 'settings-role-permissions', label: 'Role Permissions', icon: 'shield-checkmark-outline', path: '/settings/role-permissions' },
+  { id: 'settings-roles', label: 'Roles', icon: 'people-outline', path: '/settings/roles' },
+  { id: 'settings-rooms', label: 'Rooms', icon: 'home-outline', path: '/settings/rooms' },
+  { id: 'settings-tenants', label: 'Tenants', icon: 'layers-outline', path: '/settings/tenants' },
+  { id: 'settings-units', label: 'Units', icon: 'grid-outline', path: '/settings/units' },
+  { id: 'settings-user-mfas', label: 'User MFAs', icon: 'lock-closed-outline', path: '/settings/user-mfas' },
+  { id: 'settings-user-profiles', label: 'User Profiles', icon: 'person-outline', path: '/settings/user-profiles' },
+  { id: 'settings-user-roles', label: 'User Roles', icon: 'people-outline', path: '/settings/user-roles' },
+  { id: 'settings-user-sessions', label: 'User Sessions', icon: 'time-outline', path: '/settings/user-sessions' },
+  { id: 'settings-users', label: 'Users', icon: 'people-outline', path: '/settings/users' },
+  { id: 'settings-wards', label: 'Wards', icon: 'medkit-outline', path: '/settings/wards' },
+];

@@ -9,6 +9,7 @@ import { logger } from '@logging';
 import store from '@store';
 import { StyledLoadingContainer, StyledActivityIndicator } from '@platform/layouts/common/RootLayoutStyles';
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
+import { View } from 'react-native';
 
 /**
  * Root Layout Component
@@ -111,7 +112,9 @@ const RootLayout = () => {
         >
           <ThemeProviderWrapper>
             <I18nProvider>
-              <Slot />
+              <View style={{ flex: 1, height: '100%' }}>
+                <Slot />
+              </View>
             </I18nProvider>
           </ThemeProviderWrapper>
         </PersistGate>

@@ -25,12 +25,10 @@ import { AppFrame } from '@platform/layouts';
 import {
   GlobalHeader,
   Icon,
-  LanguageControls,
   LoadingOverlay,
   NetworkIndicator,
   NoticeSurface,
   Sidebar,
-  ThemeControls,
 } from '@platform/components';
 import {
   useHeaderActions,
@@ -956,12 +954,7 @@ const MainRouteLayoutWeb = () => {
               items={mainItems}
               isItemVisible={isItemVisible}
               collapsed={isSidebarCollapsed}
-              footerSlot={shouldShowSidebarControls ? (
-                <StyledSidebarControls>
-                  <LanguageControls testID="main-language-controls" />
-                  <ThemeControls testID="main-theme-controls" />
-                </StyledSidebarControls>
-              ) : null}
+              footerSlot={null}
               testID="main-sidebar"
             />
             {!isMobile && !isSidebarCollapsed ? (
@@ -1037,12 +1030,7 @@ const MainRouteLayoutWeb = () => {
                 items={mainItems}
                 isItemVisible={isItemVisible}
                 collapsed
-                footerSlot={shouldShowSidebarControls ? (
-                  <StyledSidebarControls>
-                    <LanguageControls testID="main-language-controls-mobile" />
-                    <ThemeControls testID="main-theme-controls-mobile" />
-                  </StyledSidebarControls>
-                ) : null}
+                footerSlot={null}
                 testID="main-sidebar-mobile"
               />
             </StyledMobileSidebarContent>

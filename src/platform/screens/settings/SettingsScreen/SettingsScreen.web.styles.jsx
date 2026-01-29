@@ -26,7 +26,10 @@ export const StyledTabBarContainer = styled.View`
 export const StyledTabBar = styled.View`
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   gap: 0;
+  min-width: 0;
 `;

@@ -59,13 +59,6 @@ const usePrimaryNavigation = () => {
         roles: STAFF_ROLES,
       },
       {
-        id: 'overview',
-        label: t('navigation.items.main.overview'),
-        href: '/',
-        icon: 'O',
-        roles: STAFF_ROLES,
-      },
-      {
         id: 'settings',
         label: t('navigation.items.main.settings'),
         href: '/settings',

@@ -5,6 +5,7 @@
  */
 import { useState, useMemo } from 'react';
 import { usePathname } from 'expo-router';
+import { SIDE_MENU_ITEMS } from '@config/sideMenu';
 
 /**
  * Sidebar hook
@@ -69,4 +70,12 @@ const useSidebar = ({
 };
 
 export default useSidebar;
+
+// Export a simple sidebarMenu mapping for platform components to reuse
+export const sidebarMenu = SIDE_MENU_ITEMS.map((it) => ({
+  id: it.id,
+  label: it.label,
+  icon: it.icon,
+  href: it.path || it.href || it.path,
+}));
 

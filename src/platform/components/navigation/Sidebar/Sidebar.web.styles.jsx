@@ -103,15 +103,6 @@ const StyledNavItemContent = styled(View).withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledNavItemIcon = styled(Text).withConfig({
-  displayName: 'StyledNavItemIcon',
-  componentId: 'StyledNavItemIcon',
-})`
-  font-size: 20px;
-  min-width: 24px;
-  text-align: center;
-`;
-
 const StyledNavItemLabel = styled(Text).withConfig({
   displayName: 'StyledNavItemLabel',
   componentId: 'StyledNavItemLabel',
@@ -157,7 +148,6 @@ export {
   StyledNavSectionTitle,
   StyledNavItem,
   StyledNavItemContent,
-  StyledNavItemIcon,
   StyledNavItemLabel,
   StyledNavItemBadge,
   StyledNavItemChildren,

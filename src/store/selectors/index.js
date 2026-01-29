@@ -8,15 +8,15 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { NETWORK_QUALITY } from '@utils/networkQuality';
 
-// UI Selectors
-const selectUI = (state) => state.ui;
-const selectTheme = createSelector([selectUI], (ui) => ui.theme);
-const selectLocale = createSelector([selectUI], (ui) => ui.locale);
-const selectIsLoading = createSelector([selectUI], (ui) => ui.isLoading);
-const selectSidebarWidth = createSelector([selectUI], (ui) => ui.sidebarWidth);
-const selectIsSidebarCollapsed = createSelector([selectUI], (ui) => ui.isSidebarCollapsed);
-const selectIsHeaderHidden = createSelector([selectUI], (ui) => ui.isHeaderHidden);
-const selectHeaderActionVisibility = createSelector([selectUI], (ui) => ui.headerActionVisibility);
+// UI Selectors (defensive for undefined state before rehydration / SSR)
+const selectUI = (state) => state?.ui ?? null;
+const selectTheme = createSelector([selectUI], (ui) => ui?.theme ?? 'light');
+const selectLocale = createSelector([selectUI], (ui) => ui?.locale ?? 'en');
+const selectIsLoading = createSelector([selectUI], (ui) => ui?.isLoading ?? false);
+const selectSidebarWidth = createSelector([selectUI], (ui) => ui?.sidebarWidth ?? 260);
+const selectIsSidebarCollapsed = createSelector([selectUI], (ui) => ui?.isSidebarCollapsed ?? false);
+const selectIsHeaderHidden = createSelector([selectUI], (ui) => ui?.isHeaderHidden ?? false);
+const selectHeaderActionVisibility = createSelector([selectUI], (ui) => ui?.headerActionVisibility ?? {});
 
 // Auth Selectors
 const selectAuth = (state) => {
@@ -32,12 +32,12 @@ const selectUser = createSelector([selectAuth], (auth) => auth.user);
 const selectAuthErrorCode = createSelector([selectAuth], (auth) => auth.errorCode);
 const selectAuthLoading = createSelector([selectAuth], (auth) => auth.isLoading);
 
-// Network Selectors
-const selectNetwork = (state) => state.network;
-const selectIsOnline = createSelector([selectNetwork], (network) => network.isOnline);
+// Network Selectors (defensive for undefined state)
+const selectNetwork = (state) => state?.network ?? null;
+const selectIsOnline = createSelector([selectNetwork], (network) => network?.isOnline ?? true);
 const selectIsOffline = createSelector([selectIsOnline], (isOnline) => !isOnline);
-const selectIsSyncing = createSelector([selectNetwork], (network) => network.isSyncing);
-const selectNetworkQuality = createSelector([selectNetwork], (network) => network.quality);
+const selectIsSyncing = createSelector([selectNetwork], (network) => network?.isSyncing ?? false);
+const selectNetworkQuality = createSelector([selectNetwork], (network) => network?.quality ?? null);
 const selectIsLowQuality = createSelector(
   [selectIsOnline, selectNetworkQuality],
   (isOnline, quality) => isOnline && quality === NETWORK_QUALITY.LOW

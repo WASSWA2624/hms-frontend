@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { useI18n } from '@hooks';
+import { useSidebarNavigation } from '@hooks';
 import {
   StyledContainer,
   StyledHeader,
@@ -16,6 +17,7 @@ import {
   StyledBreadcrumbs,
   StyledSkipLink,
 } from './MainLayout.web.styles';
+import SidebarItem from '@platform/components/navigation/SidebarItem';
 
 /**
  * MainLayout component for Web
@@ -33,14 +35,14 @@ const MainLayoutWeb = ({
   children,
   header,
   footer,
-  sidebar,
   breadcrumbs,
   accessibilityLabel,
   testID,
   className,
 }) => {
   const { t } = useI18n();
-  const hasSidebar = !!sidebar;
+  const { sidebarMenu, activeMenuId, navigateToMenu } = useSidebarNavigation();
+  const hasSidebar = sidebarMenu && sidebarMenu.length > 0;
 
   return (
     <StyledContainer
@@ -63,9 +65,18 @@ const MainLayoutWeb = ({
         </StyledBreadcrumbs>
       )}
       <StyledBody>
-        {sidebar && (
+        {hasSidebar && (
           <StyledSidebar role="complementary" aria-label={t('navigation.sidebar.label')}>
-            {sidebar}
+            {sidebarMenu.map((item) => (
+              <SidebarItem
+                key={item.id}
+                icon={item.icon}
+                label={t(`navigation.sidebar.${item.id}`)}
+                collapsed={false}
+                active={activeMenuId === item.id}
+                onClick={() => navigateToMenu(item.id)}
+              />
+            ))}
           </StyledSidebar>
         )}
         <StyledContent id="main-content" hasSidebar={hasSidebar}>

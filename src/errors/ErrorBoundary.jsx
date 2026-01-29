@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { logger } from '@logging';
+import { ThemeProvider as BaseThemeProvider } from '@theme';
 import { handleError } from './error.handler';
 import FallbackUI from './fallback.ui';
 
@@ -30,10 +31,12 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <FallbackUI
-          error={this.state.error}
-          onRetry={() => this.setState({ hasError: false, error: null })}
-        />
+        <BaseThemeProvider theme="light">
+          <FallbackUI
+            error={this.state.error}
+            onRetry={() => this.setState({ hasError: false, error: null })}
+          />
+        </BaseThemeProvider>
       );
     }
 

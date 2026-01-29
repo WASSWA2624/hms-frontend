@@ -8,7 +8,6 @@
  */
 
 // Common screens (public/common screens)
-export { default as LandingScreen } from './common/LandingScreen';
 export { default as NotFoundScreen } from './common/NotFoundScreen';
 export { default as ErrorScreen } from './common/ErrorScreen';
 

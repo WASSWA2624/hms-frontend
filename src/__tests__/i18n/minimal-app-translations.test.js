@@ -7,46 +7,6 @@
 const enTranslations = require('@i18n/locales/en.json');
 
 describe('Minimal App Translations (Phase 8)', () => {
-  describe('Landing Screen Translations', () => {
-    it('should have landing.title', () => {
-      expect(enTranslations.landing).toBeDefined();
-      expect(enTranslations.landing.title).toBeDefined();
-      expect(typeof enTranslations.landing.title).toBe('string');
-    });
-
-    it('should have landing.hero.title', () => {
-      expect(enTranslations.landing.hero).toBeDefined();
-      expect(enTranslations.landing.hero.title).toBeDefined();
-      expect(typeof enTranslations.landing.hero.title).toBe('string');
-    });
-
-    it('should have landing.hero.description', () => {
-      expect(enTranslations.landing.hero.description).toBeDefined();
-      expect(typeof enTranslations.landing.hero.description).toBe('string');
-    });
-
-    it('should have landing.cta.getStarted', () => {
-      expect(enTranslations.landing.cta).toBeDefined();
-      expect(enTranslations.landing.cta.getStarted).toBeDefined();
-      expect(typeof enTranslations.landing.cta.getStarted).toBe('string');
-    });
-
-    it('should have landing.cta.getStartedHint', () => {
-      expect(enTranslations.landing.cta.getStartedHint).toBeDefined();
-      expect(typeof enTranslations.landing.cta.getStartedHint).toBe('string');
-    });
-
-    it('should have landing.cta.learnMore', () => {
-      expect(enTranslations.landing.cta.learnMore).toBeDefined();
-      expect(typeof enTranslations.landing.cta.learnMore).toBe('string');
-    });
-
-    it('should have landing.cta.learnMoreHint', () => {
-      expect(enTranslations.landing.cta.learnMoreHint).toBeDefined();
-      expect(typeof enTranslations.landing.cta.learnMoreHint).toBe('string');
-    });
-  });
-
   describe('Home Screen Translations', () => {
     it('should have home.title', () => {
       expect(enTranslations.home).toBeDefined();

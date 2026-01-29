@@ -11,11 +11,15 @@ const StyledHeader = styled.header.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.md}px ${({ theme }) => theme.spacing.lg}px;
+  min-height: 56px;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const StyledHeaderRow = styled.div.withConfig({
@@ -25,13 +29,13 @@ const StyledHeaderRow = styled.div.withConfig({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
   width: 100%;
   flex-wrap: nowrap;
   min-width: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
-    gap: ${({ theme }) => theme.spacing.xs}px;
+    gap: ${({ theme }) => theme.spacing.sm}px;
   }
 `;
 
@@ -50,7 +54,7 @@ const StyledTitleGroup = styled.div.withConfig({
 })`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
   flex: 1;
   min-width: 0;
   flex-wrap: nowrap;
@@ -74,7 +78,7 @@ const StyledActionsGroup = styled.div.withConfig({
 })`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
   flex-wrap: nowrap;
   flex-shrink: 0;
 `;
@@ -96,12 +100,13 @@ const StyledActionButton = styled.button.withConfig({
 })`
   display: inline-flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: 0;
-  min-height: 44px;
-  min-width: 44px;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  padding: 0 ${({ theme }) => theme.spacing.sm}px;
+  min-height: 40px;
+  min-width: 40px;
   border-radius: ${({ theme, isCircular }) =>
-    isCircular ? theme.radius.full : theme.radius.sm}px;
+    isCircular ? theme.radius.full : theme.radius.md}px;
   border: 1px solid
     ${({ theme, isPrimary }) => (isPrimary ? theme.colors.primary : theme.colors.background.tertiary)};
   background-color: ${({ theme, isPrimary }) =>
@@ -109,7 +114,7 @@ const StyledActionButton = styled.button.withConfig({
   color: ${({ theme, isPrimary }) => (isPrimary ? theme.colors.text.inverse : theme.colors.text.secondary)};
   cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
-  transition: background-color 0.2s ease, color 0.15s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 
   &:hover {
     background-color: ${({ theme, isPrimary }) =>
@@ -150,7 +155,9 @@ const StyledBreadcrumbsRow = styled.nav.withConfig({
   displayName: 'StyledBreadcrumbsRow',
   componentId: 'StyledBreadcrumbsRow',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.md}px;
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+  border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   width: 100%;
 `;
 

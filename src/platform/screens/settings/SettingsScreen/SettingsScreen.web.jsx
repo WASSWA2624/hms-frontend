@@ -11,6 +11,7 @@ import { View } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useI18n } from '@hooks';
 import { Text } from '@platform/components';
+import { ThemeControls, LanguageControls } from '@platform/components';
 import { StyledContainer, StyledContent, StyledTabBar, StyledTabBarContainer } from './SettingsScreen.web.styles';
 import useSettingsScreen from './useSettingsScreen';
 
@@ -78,6 +79,11 @@ const SettingsScreenWeb = () => {
         >
           {t('settings.title')}
         </Text>
+        {/* Theme and language moved from sidebar into settings for centralized control */}
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
+          <LanguageControls testID="settings-language-controls" />
+          <ThemeControls testID="settings-theme-controls" />
+        </div>
         
         <StyledTabBarContainer testID="settings-tabs-container">
           <StyledTabBar>
@@ -93,6 +99,7 @@ const SettingsScreenWeb = () => {
                   fontWeight: getCurrentTabId === tab.id ? '600' : '400',
                   transition: 'all 0.3s ease',
                   whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
                 testID={tab.testID}
               >
