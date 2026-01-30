@@ -259,6 +259,7 @@
     },
     "tabs": {
       "accessibilityLabel": "Settings tabs navigation",
+      "general": "General",
       "facility": "Facilities",
       "tenant": "Tenants",
       "branch": "Branches",
@@ -304,6 +305,37 @@
       "label": "Show footer",
       "accessibilityLabel": "Toggle footer visibility",
       "hint": "Show or hide the footer at the bottom of the layout (desktop only)"
+    },
+    "sidebar": {
+      "resize": "Resize settings sidebar",
+      "menu": "Settings menu",
+      "menuOpen": "Open settings menu",
+      "menuClose": "Close settings menu",
+      "groups": {
+        "general": "General",
+        "organization": "Organization",
+        "usersAndAccess": "Users & access",
+        "security": "Security"
+      }
+    }
+  },
+  "auth-account": {
+    "list": {
+      "title": "OAuth Accounts",
+      "accessibilityLabel": "OAuth accounts list",
+      "emptyTitle": "No OAuth accounts",
+      "emptyMessage": "No OAuth accounts have been linked yet.",
+      "delete": "Remove",
+      "deleteHint": "Remove this OAuth account",
+      "itemLabel": "OAuth account {{name}}"
+    },
+    "detail": {
+      "title": "OAuth Account"
+    }
+  },
+  "oauthAccount": {
+    "detail": {
+      "title": "OAuth Account"
     }
   },
   "listScaffold": {

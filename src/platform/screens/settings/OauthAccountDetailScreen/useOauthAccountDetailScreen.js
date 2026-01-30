@@ -43,8 +43,8 @@ const useOauthAccountDetailScreen = () => {
   }, [id, get, reset]);
 
   useEffect(() => {
-    fetchItem();
-  }, [fetchItem]);
+    if (id) fetchItem();
+  }, [id, fetchItem]);
 
   const handleRetry = useCallback(() => {
     fetchItem();

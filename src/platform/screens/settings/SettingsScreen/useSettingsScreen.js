@@ -6,9 +6,9 @@
  * Per features-domain.mdc: Business logic separated from UI
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter, usePathname } from 'expo-router';
-import { SETTINGS_TABS, SETTINGS_TAB_ORDER } from './types';
+import { SETTINGS_TABS, SETTINGS_TAB_ORDER, SETTINGS_SIDEBAR_GROUPS, SETTINGS_TAB_ICONS } from './types';
 
 /**
  * useSettingsScreen hook
@@ -26,8 +26,11 @@ const useSettingsScreen = () => {
     const parts = pathname.split('/');
     const lastPart = parts[parts.length - 1];
     
-    // Map route names to tab names
+    // Map route names to tab names (index /settings or general → General)
     const tabMap = {
+      '': SETTINGS_TABS.GENERAL,
+      'general': SETTINGS_TABS.GENERAL,
+      'settings': SETTINGS_TABS.GENERAL,
       'users': SETTINGS_TABS.USER,
       'user-profiles': SETTINGS_TABS.USER_PROFILE,
       'roles': SETTINGS_TABS.ROLE,
@@ -51,22 +54,34 @@ const useSettingsScreen = () => {
       'oauth-accounts': SETTINGS_TABS.OAUTH_ACCOUNT,
     };
     
-    return tabMap[lastPart] || SETTINGS_TABS.TENANT;
+    return tabMap[lastPart] ?? SETTINGS_TABS.GENERAL;
   }, [pathname]);
 
-  const [selectedTab, setSelectedTab] = useState(getCurrentTab());
+  const selectedTab = getCurrentTab();
+  const currentTabId = selectedTab;
 
   const tabs = useMemo(() => SETTINGS_TAB_ORDER.map(tabKey => ({
     id: tabKey,
     label: `settings.tabs.${tabKey}`,
     testID: `settings-tab-${tabKey}`,
+    icon: SETTINGS_TAB_ICONS[tabKey] ?? null,
+  })), []);
+
+  const groupedTabs = useMemo(() => SETTINGS_SIDEBAR_GROUPS.map(group => ({
+    id: group.id,
+    labelKey: group.labelKey,
+    tabs: group.tabs.map(tabKey => ({
+      id: tabKey,
+      label: `settings.tabs.${tabKey}`,
+      testID: `settings-tab-${tabKey}`,
+      icon: SETTINGS_TAB_ICONS[tabKey] ?? null,
+    })),
   })), []);
 
   const handleTabChange = useCallback((tabId) => {
-    setSelectedTab(tabId);
-    
-    // Map tab to route path
+    // Map tab to route path; navigation updates pathname and currentTabId follows
     const routeMap = {
+      [SETTINGS_TABS.GENERAL]: '/settings',
       [SETTINGS_TABS.USER]: '/settings/users',
       [SETTINGS_TABS.USER_PROFILE]: '/settings/user-profiles',
       [SETTINGS_TABS.ROLE]: '/settings/roles',
@@ -98,7 +113,9 @@ const useSettingsScreen = () => {
 
   return {
     selectedTab,
+    currentTabId,
     tabs,
+    groupedTabs,
     onTabChange: handleTabChange,
     testID: 'settings-screen',
     accessibilityLabel: 'settings.screen.label',

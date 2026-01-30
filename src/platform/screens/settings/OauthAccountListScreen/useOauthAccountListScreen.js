@@ -48,7 +48,7 @@ const useOauthAccountListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
-      router.push(`/settings/auth-accounts/${id}`);
+      router.push(`/settings/oauth-accounts/${id}`);
     },
     [router]
   );

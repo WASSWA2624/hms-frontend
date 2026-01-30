@@ -1,130 +1,173 @@
 /**
  * SettingsScreen - Web
- * Main settings screen displaying tabs for all settings sub-screens
- * File: SettingsScreen.web.jsx
- *
- * Per platform-ui.mdc: Platform-specific implementations for cross-platform compatibility
+ * Template: tablet/desktop = resizable sidebar + content; mobile = drawer nav + full-width content.
+ * Per platform-ui.mdc: presentation-only; theme via styles.
  */
-
-import React, { useMemo } from 'react';
-import { View } from 'react-native';
-import { useRouter, usePathname } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useI18n } from '@hooks';
-import { useDispatch, useSelector } from 'react-redux';
-import { Text, Switch } from '@platform/components';
-import { ThemeControls, LanguageControls } from '@platform/components';
-import { selectFooterVisible } from '@store/selectors';
-import { actions as uiActions } from '@store/slices/ui.slice';
-import { StyledContainer, StyledContent, StyledTabBar, StyledTabBarContainer } from './SettingsScreen.web.styles';
+import { getMenuIconGlyph } from '@config/sideMenu';
+import {
+  StyledContainer,
+  StyledMobileHeader,
+  StyledMobileMenuButton,
+  StyledDrawerOverlay,
+  StyledSidebarWrapper,
+  StyledSidebar,
+  StyledSidebarTitle,
+  StyledGroup,
+  StyledGroupToggle,
+  StyledGroupChevron,
+  StyledGroupContent,
+  StyledNavList,
+  StyledNavItem,
+  StyledNavLink,
+  StyledNavLinkIcon,
+  StyledNavLinkLabel,
+  StyledResizeHandle,
+  StyledContent,
+} from './SettingsScreen.web.styles';
 import useSettingsScreen from './useSettingsScreen';
+import useSettingsSidebarResize from './useSettingsSidebarResize';
 
-/**
- * SettingsScreen Web Component
- * Displays a tab-based interface for managing all settings
- */
-const SettingsScreenWeb = () => {
+const SettingsScreenWeb = ({ children }) => {
   const { t } = useI18n();
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const pathname = usePathname();
-  const footerVisible = useSelector(selectFooterVisible);
-  const { selectedTab, tabs, onTabChange } = useSettingsScreen();
-  const handleFooterVisibleChange = (value) => dispatch(uiActions.setFooterVisible(value));
+  const { groupedTabs, onTabChange, currentTabId } = useSettingsScreen();
+  const {
+    sidebarWidth,
+    sidebarMinWidth,
+    sidebarMaxWidth,
+    handleResizeStart,
+    handleResizeKeyDown,
+  } = useSettingsSidebarResize();
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState(() =>
+    new Set(groupedTabs.map((g) => g.id))
+  );
 
-  // Determine which tab is currently active based on pathname
-  const getCurrentTabId = useMemo(() => {
-    const parts = pathname.split('/');
-    const lastPart = parts[parts.length - 1];
-    
-    const tabMap = {
-      'users': 'user',
-      'user-profiles': 'user-profile',
-      'roles': 'role',
-      'permissions': 'permission',
-      'role-permissions': 'role-permission',
-      'user-roles': 'user-role',
-      'user-sessions': 'user-session',
-      'tenants': 'tenant',
-      'facilities': 'facility',
-      'branches': 'branch',
-      'departments': 'department',
-      'units': 'unit',
-      'rooms': 'room',
-      'wards': 'ward',
-      'beds': 'bed',
-      'addresses': 'address',
-      'contacts': 'contact',
-      'api-keys': 'api-key',
-      'api-key-permissions': 'api-key-permission',
-      'user-mfas': 'user-mfa',
-      'oauth-accounts': 'oauth-account',
+  const toggleGroup = useCallback((groupId) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  }, []);
+
+  const handleNavSelect = useCallback(
+    (tabId) => {
+      onTabChange(tabId);
+      setMobileDrawerOpen(false);
+    },
+    [onTabChange]
+  );
+
+  const openDrawer = useCallback(() => setMobileDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setMobileDrawerOpen(false), []);
+
+  useEffect(() => {
+    if (!mobileDrawerOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') closeDrawer();
     };
-    
-    return tabMap[lastPart] || 'tenant';
-  }, [pathname]);
-
-  // Define tab items with labels from i18n
-  const tabItems = useMemo(() => tabs.map(tab => ({
-    id: tab.id,
-    label: t(`settings.tabs.${tab.id}`),
-    testID: tab.testID,
-  })), [tabs, t]);
-
-  const handleTabPress = (tabId) => {
-    onTabChange(tabId);
-  };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileDrawerOpen, closeDrawer]);
 
   return (
-    <StyledContainer testID="settings-screen" role="main">
-      <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="settings-screen-title"
-          style={{ marginBottom: 24 }}
+    <StyledContainer testID="settings-screen" role="main" aria-label={t('settings.screen.label')}>
+      <StyledMobileHeader>
+        <StyledMobileMenuButton
+          type="button"
+          onClick={openDrawer}
+          aria-label={t('settings.sidebar.menuOpen')}
+          aria-expanded={mobileDrawerOpen}
+          data-testid="settings-mobile-menu-button"
         >
-          {t('settings.title')}
-        </Text>
-        {/* Theme and language moved from sidebar into settings for centralized control */}
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
-          <LanguageControls testID="settings-language-controls" />
-          <ThemeControls testID="settings-theme-controls" />
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
-          <Switch
-            value={footerVisible}
-            onValueChange={handleFooterVisibleChange}
-            label={t('settings.footerVisible.label')}
-            accessibilityLabel={t('settings.footerVisible.accessibilityLabel')}
-            accessibilityHint={t('settings.footerVisible.hint')}
-            testID="settings-footer-visible-toggle"
-          />
-        </div>
-        
-        <StyledTabBarContainer testID="settings-tabs-container">
-          <StyledTabBar>
-            {tabItems.map(tab => (
-              <div
-                key={tab.id}
-                onClick={() => handleTabPress(tab.id)}
-                style={{
-                  padding: '12px 16px',
-                  cursor: 'pointer',
-                  borderBottom: getCurrentTabId === tab.id ? '3px solid #0066cc' : '3px solid transparent',
-                  color: getCurrentTabId === tab.id ? '#0066cc' : '#666',
-                  fontWeight: getCurrentTabId === tab.id ? '600' : '400',
-                  transition: 'all 0.3s ease',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                }}
-                testID={tab.testID}
-              >
-                {tab.label}
-              </div>
-            ))}
-          </StyledTabBar>
-        </StyledTabBarContainer>
-      </StyledContent>
+          <span aria-hidden>☰</span>
+          <span>{t('settings.sidebar.menu')}</span>
+        </StyledMobileMenuButton>
+      </StyledMobileHeader>
+
+      <StyledDrawerOverlay
+        $open={mobileDrawerOpen}
+        onClick={closeDrawer}
+        aria-hidden={!mobileDrawerOpen}
+        data-testid="settings-drawer-overlay"
+      />
+
+      <StyledSidebarWrapper $drawerOpen={mobileDrawerOpen}>
+        <StyledSidebar
+          aria-label={t('settings.tabs.accessibilityLabel')}
+          $width={sidebarWidth}
+          $minWidth={sidebarMinWidth}
+        >
+          <StyledSidebarTitle id="settings-nav-title">{t('settings.title')}</StyledSidebarTitle>
+          {groupedTabs.map((group) => {
+            const isExpanded = expandedGroups.has(group.id);
+            return (
+              <StyledGroup key={group.id} aria-labelledby={`settings-group-${group.id}`}>
+                <StyledGroupToggle
+                  type="button"
+                  id={`settings-group-${group.id}`}
+                  onClick={() => toggleGroup(group.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`settings-group-content-${group.id}`}
+                  data-testid={`settings-group-toggle-${group.id}`}
+                >
+                  <span>{t(group.labelKey)}</span>
+                  <StyledGroupChevron $expanded={isExpanded} aria-hidden>
+                    ▼
+                  </StyledGroupChevron>
+                </StyledGroupToggle>
+                <StyledGroupContent
+                  id={`settings-group-content-${group.id}`}
+                  $expanded={isExpanded}
+                  role="region"
+                  aria-labelledby={`settings-group-${group.id}`}
+                >
+                  <StyledNavList>
+                    {group.tabs.map((tab) => {
+                      const active = currentTabId === tab.id;
+                      const iconGlyph = tab.icon ? getMenuIconGlyph(tab.icon) : null;
+                      return (
+                        <StyledNavItem key={tab.id}>
+                          <StyledNavLink
+                            type="button"
+                            $active={active}
+                            onClick={() => handleNavSelect(tab.id)}
+                            data-testid={tab.testID}
+                            aria-current={active ? 'page' : undefined}
+                            aria-label={t(tab.label)}
+                          >
+                            {iconGlyph ? (
+                              <StyledNavLinkIcon $active={active} aria-hidden>
+                                {iconGlyph}
+                              </StyledNavLinkIcon>
+                            ) : null}
+                            <StyledNavLinkLabel>{t(tab.label)}</StyledNavLinkLabel>
+                          </StyledNavLink>
+                        </StyledNavItem>
+                      );
+                    })}
+                  </StyledNavList>
+                </StyledGroupContent>
+              </StyledGroup>
+            );
+          })}
+        </StyledSidebar>
+        <StyledResizeHandle
+          role="slider"
+          aria-orientation="vertical"
+          aria-label={t('settings.sidebar.resize')}
+          aria-valuemin={sidebarMinWidth}
+          aria-valuemax={sidebarMaxWidth}
+          aria-valuenow={sidebarWidth}
+          tabIndex={0}
+          onMouseDown={handleResizeStart}
+          onKeyDown={handleResizeKeyDown}
+        />
+      </StyledSidebarWrapper>
+      <StyledContent>{children}</StyledContent>
     </StyledContainer>
   );
 };
