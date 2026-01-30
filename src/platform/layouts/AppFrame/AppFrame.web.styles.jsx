@@ -93,28 +93,21 @@ const StyledSidebar = styled.aside.withConfig({
 const StyledContent = styled.main.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
-  shouldForwardProp: (prop) => prop !== 'hasSidebar',
+  shouldForwardProp: (prop) => !['hasSidebar', 'hasFooter'].includes(prop),
 })`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing.md}px;
+  padding: 0;
+  margin: 0;
   min-width: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;
   background-color: ${({ theme }) => theme.colors.background.primary};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
-  max-width: ${({ hasSidebar }) => (hasSidebar ? '100%' : '1200px')};
-  margin: 0;
+  gap: 0;
+  max-width: 100%;
   width: 100%;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
-    padding: ${({ theme }) => theme.spacing.sm}px;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.desktop}px) {
-    padding: ${({ theme }) => theme.spacing.lg}px;
-  }
+  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? '32px' : 0)};
 `;
 
 const StyledContentBody = styled.div.withConfig({
@@ -129,11 +122,18 @@ const StyledFooter = styled.footer.withConfig({
   displayName: 'StyledFooter',
   componentId: 'StyledFooter',
 })`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  flex-shrink: 0;
+  z-index: 2;
   /* Footer surface is owned by the footer component (e.g. GlobalFooter). */
   background-color: transparent;
   border-top: none;
   padding: 0;
-  margin-top: auto;
+  margin: 0;
 `;
 
 const StyledOverlay = styled.div.withConfig({

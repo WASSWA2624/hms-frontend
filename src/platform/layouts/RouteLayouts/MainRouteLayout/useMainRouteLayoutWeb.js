@@ -33,6 +33,7 @@ export default function useMainRouteLayoutWeb() {
     isSidebarCollapsed: storedSidebarCollapsed,
     isHeaderHidden,
     headerActionVisibility,
+    footerVisible,
   } = useUiState();
   const { isAuthenticated, logout, roles } = useAuth();
   const canAccessRegister = useMemo(() => {
@@ -472,5 +473,6 @@ export default function useMainRouteLayoutWeb() {
     isFullscreen,
     onLogout: logout,
     isAuthenticated,
+    footerVisible,
   };
 }

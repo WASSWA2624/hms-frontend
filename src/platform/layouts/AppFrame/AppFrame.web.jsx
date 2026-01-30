@@ -100,15 +100,15 @@ const AppFrameWeb = ({
             {sidebar}
           </StyledSidebar>
         )}
-        <StyledContent id="main-content" hasSidebar={hasSidebar}>
+        <StyledContent id="main-content" hasSidebar={hasSidebar} hasFooter={hasFooter}>
           <StyledContentBody>{children}</StyledContentBody>
-          {hasFooter && (
-            <StyledFooter role="contentinfo">
-              {footer}
-            </StyledFooter>
-          )}
         </StyledContent>
       </StyledBody>
+      {hasFooter && (
+        <StyledFooter role="contentinfo">
+          {footer}
+        </StyledFooter>
+      )}
       {notices}
       {hasOverlay && <StyledOverlay>{overlay}</StyledOverlay>}
     </StyledContainer>

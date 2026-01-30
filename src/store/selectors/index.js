@@ -17,6 +17,7 @@ const selectSidebarWidth = createSelector([selectUI], (ui) => ui?.sidebarWidth ?
 const selectIsSidebarCollapsed = createSelector([selectUI], (ui) => ui?.isSidebarCollapsed ?? false);
 const selectIsHeaderHidden = createSelector([selectUI], (ui) => ui?.isHeaderHidden ?? false);
 const selectHeaderActionVisibility = createSelector([selectUI], (ui) => ui?.headerActionVisibility ?? {});
+const selectFooterVisible = createSelector([selectUI], (ui) => ui?.footerVisible ?? true);
 
 // Auth Selectors
 const selectAuth = (state) => {
@@ -52,6 +53,7 @@ export {
   selectIsSidebarCollapsed,
   selectIsHeaderHidden,
   selectHeaderActionVisibility,
+  selectFooterVisible,
   // Auth (minimal - Phase 0-7)
   selectIsAuthenticated,
   selectUser,
@@ -74,6 +76,7 @@ export default {
   selectIsSidebarCollapsed,
   selectIsHeaderHidden,
   selectHeaderActionVisibility,
+  selectFooterVisible,
   // Auth (minimal - Phase 0-7)
   selectIsAuthenticated,
   selectUser,

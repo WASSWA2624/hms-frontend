@@ -1,3 +1,4 @@
+8207818ffd0619c39a8f14adbfd84715
 {
   "common": {
     "save": "Save",
@@ -122,9 +123,9 @@
     },
     "footer": {
       "title": "Global footer",
-      "copyright": "© {{year}} {{appName}}. All rights reserved.",
-      "supportEmail": "Support (email)",
-      "supportPhone": "Support (phone)",
+      "copyright": "© {{year}}",
+      "email": "support@example.com",
+      "phone": "+1 234 567 8900",
       "status": {
         "title": "Application status",
         "auth": "Secure sign-in enabled",
@@ -292,11 +293,6 @@
       "options": {
         "en": "English"
       }
-    },
-    "footerVisible": {
-      "label": "Show footer",
-      "accessibilityLabel": "Toggle footer visibility",
-      "hint": "Show or hide the footer at the bottom of the layout (desktop only)"
     }
   },
   "listScaffold": {

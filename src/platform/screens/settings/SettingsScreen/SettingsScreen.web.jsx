@@ -10,8 +10,11 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useI18n } from '@hooks';
-import { Text } from '@platform/components';
+import { useDispatch, useSelector } from 'react-redux';
+import { Text, Switch } from '@platform/components';
 import { ThemeControls, LanguageControls } from '@platform/components';
+import { selectFooterVisible } from '@store/selectors';
+import { actions as uiActions } from '@store/slices/ui.slice';
 import { StyledContainer, StyledContent, StyledTabBar, StyledTabBarContainer } from './SettingsScreen.web.styles';
 import useSettingsScreen from './useSettingsScreen';
 
@@ -21,9 +24,12 @@ import useSettingsScreen from './useSettingsScreen';
  */
 const SettingsScreenWeb = () => {
   const { t } = useI18n();
+  const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
+  const footerVisible = useSelector(selectFooterVisible);
   const { selectedTab, tabs, onTabChange } = useSettingsScreen();
+  const handleFooterVisibleChange = (value) => dispatch(uiActions.setFooterVisible(value));
 
   // Determine which tab is currently active based on pathname
   const getCurrentTabId = useMemo(() => {
@@ -83,6 +89,16 @@ const SettingsScreenWeb = () => {
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
           <LanguageControls testID="settings-language-controls" />
           <ThemeControls testID="settings-theme-controls" />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
+          <Switch
+            value={footerVisible}
+            onValueChange={handleFooterVisibleChange}
+            label={t('settings.footerVisible.label')}
+            accessibilityLabel={t('settings.footerVisible.accessibilityLabel')}
+            accessibilityHint={t('settings.footerVisible.hint')}
+            testID="settings-footer-visible-toggle"
+          />
         </div>
         
         <StyledTabBarContainer testID="settings-tabs-container">

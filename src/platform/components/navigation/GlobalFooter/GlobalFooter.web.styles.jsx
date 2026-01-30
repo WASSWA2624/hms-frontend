@@ -1,6 +1,6 @@
 /**
  * GlobalFooter Component Styles - Web
- * Styled-components for GlobalFooter web implementation
+ * Minimal compact footer styles
  * File: GlobalFooter.web.styles.jsx
  */
 import styled from 'styled-components';
@@ -11,9 +11,89 @@ const StyledFooter = styled.footer.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.secondary};
   border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: 0;
 `;
 
+const StyledFooterRow = styled.div.withConfig({
+  displayName: 'StyledFooterRow',
+  componentId: 'StyledFooterRow',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  font-size: ${({ theme }) => theme.typography?.fontSize?.xs ?? 12}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledFooterBrand = styled.span.withConfig({
+  displayName: 'StyledFooterBrand',
+  componentId: 'StyledFooterBrand',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFooterLogo = styled.span.withConfig({
+  displayName: 'StyledFooterLogo',
+  componentId: 'StyledFooterLogo',
+})`
+  width: 18px;
+  height: 18px;
+  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.text.inverse};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${({ theme }) => theme.typography?.fontWeight?.bold ?? 600};
+  font-size: 10px;
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+  text-transform: uppercase;
+`;
+
+const StyledFooterCopyright = styled.span.withConfig({
+  displayName: 'StyledFooterCopyright',
+  componentId: 'StyledFooterCopyright',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledFooterSeparator = styled.span.withConfig({
+  displayName: 'StyledFooterSeparator',
+  componentId: 'StyledFooterSeparator',
+})`
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  user-select: none;
+`;
+
+const StyledFooterLink = styled.a.withConfig({
+  displayName: 'StyledFooterLink',
+  componentId: 'StyledFooterLink',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+/* Legacy exports for Auth/Patient variants if needed */
 const StyledFooterContent = styled.div.withConfig({
   displayName: 'StyledFooterContent',
   componentId: 'StyledFooterContent',
@@ -24,17 +104,6 @@ const StyledFooterContent = styled.div.withConfig({
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-`;
-
-const StyledFooterRow = styled.div.withConfig({
-  displayName: 'StyledFooterRow',
-  componentId: 'StyledFooterRow',
-})`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  flex-wrap: wrap;
 `;
 
 const StyledStatusGroup = styled.div.withConfig({
@@ -198,8 +267,13 @@ const StyledQuickActionsSlot = styled.div.withConfig({
 
 export {
   StyledFooter,
-  StyledFooterContent,
   StyledFooterRow,
+  StyledFooterBrand,
+  StyledFooterLogo,
+  StyledFooterCopyright,
+  StyledFooterLink,
+  StyledFooterSeparator,
+  StyledFooterContent,
   StyledStatusGroup,
   StyledStatusBadge,
   StyledEnvironmentInfo,

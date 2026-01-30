@@ -53,6 +53,7 @@ const MainRouteLayoutWeb = () => {
     handleMobileOverlayKeyDown,
     closeButtonRef,
     mobileSidebarRef,
+    footerVisible,
   } = layout;
 
   const hamburgerIcon = useMemo(() => <HamburgerIcon />, []);
@@ -114,11 +115,13 @@ const MainRouteLayoutWeb = () => {
         sidebar={sidebarSlot}
         header={headerSlot}
         footer={
-          <GlobalFooter
-            variant={FOOTER_VARIANTS.MAIN}
-            accessibilityLabel={t('navigation.footer.title')}
-            testID="main-footer"
-          />
+          !isMobile && footerVisible ? (
+            <GlobalFooter
+              variant={FOOTER_VARIANTS.MAIN}
+              accessibilityLabel={t('navigation.footer.title')}
+              testID="main-footer"
+            />
+          ) : null
         }
         overlay={overlaySlot}
         notices={<NoticeSurface testID="main-notice-surface" />}

@@ -18,6 +18,7 @@ const initialState = {
     network: true,
     fullscreen: true,
   },
+  footerVisible: true,
   // Minimal auth state for Phase 0-7 (guards need this)
   // Full auth feature will be implemented in Phase 9
   isAuthenticated: false,
@@ -64,6 +65,12 @@ const uiSlice = createSlice({
       }
       const currentValue = state.headerActionVisibility[key];
       state.headerActionVisibility[key] = currentValue === undefined ? false : !currentValue;
+    },
+    setFooterVisible: (state, action) => {
+      state.footerVisible = action.payload;
+    },
+    toggleFooterVisible: (state) => {
+      state.footerVisible = !state.footerVisible;
     },
     // Minimal auth reducers for Phase 0-7 (guards need this)
     setAuthenticated: (state, action) => {

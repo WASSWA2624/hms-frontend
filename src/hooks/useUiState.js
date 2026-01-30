@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import {
+  selectFooterVisible,
   selectHeaderActionVisibility,
   selectIsHeaderHidden,
   selectIsLoading,
@@ -19,6 +20,7 @@ const useUiState = () => {
   const isSidebarCollapsed = useSelector(selectIsSidebarCollapsed);
   const isHeaderHidden = useSelector(selectIsHeaderHidden);
   const headerActionVisibility = useSelector(selectHeaderActionVisibility);
+  const footerVisible = useSelector(selectFooterVisible);
 
   return useMemo(
     () => ({
@@ -27,8 +29,9 @@ const useUiState = () => {
       isSidebarCollapsed,
       isHeaderHidden,
       headerActionVisibility,
+      footerVisible,
     }),
-    [headerActionVisibility, isHeaderHidden, isLoading, sidebarWidth, isSidebarCollapsed]
+    [footerVisible, headerActionVisibility, isHeaderHidden, isLoading, sidebarWidth, isSidebarCollapsed]
   );
 };
 

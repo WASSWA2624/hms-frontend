@@ -1,212 +1,34 @@
 /**
  * GlobalFooter Component - Web
- * Shared global footer with status, legal, and quick actions
+ * Minimal footer: app name, logo, copyright, support email & phone
  * File: GlobalFooter.web.jsx
  */
-import React, { useMemo } from 'react';
-import Text from '@platform/components/display/Text';
+import React from 'react';
 import { useI18n } from '@hooks';
-import { APP_ENVIRONMENT, APP_VERSION, BUILD_NUMBER } from '@config/env';
-import useGlobalFooter from './useGlobalFooter';
-import { ACTION_VARIANTS, FOOTER_VARIANTS, STATUS_TONES } from './types';
+import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@config/env';
 import {
   StyledFooter,
-  StyledFooterContent,
   StyledFooterRow,
-  StyledStatusGroup,
-  StyledStatusBadge,
-  StyledEnvironmentInfo,
-  StyledLegalLinks,
-  StyledLegalLink,
-  StyledLegalButton,
-  StyledLegalText,
-  StyledQuickActionsGroup,
-  StyledQuickActionButton,
-  StyledQuickActionIcon,
-  StyledQuickActionsSlot,
+  StyledFooterLogo,
+  StyledFooterBrand,
+  StyledFooterCopyright,
+  StyledFooterLink,
+  StyledFooterSeparator,
 } from './GlobalFooter.web.styles';
 
-const normalizeVariant = (variant) => {
-  if (typeof variant !== 'string') return FOOTER_VARIANTS.MAIN;
-  const normalized = variant.trim().toLowerCase();
-  if (normalized === FOOTER_VARIANTS.AUTH) return FOOTER_VARIANTS.AUTH;
-  if (normalized === FOOTER_VARIANTS.PATIENT) return FOOTER_VARIANTS.PATIENT;
-  return FOOTER_VARIANTS.MAIN;
-};
-
-const getDefaultStatusTone = (variant) => {
-  if (variant === FOOTER_VARIANTS.AUTH) return STATUS_TONES.SUCCESS;
-  if (variant === FOOTER_VARIANTS.PATIENT) return STATUS_TONES.NEUTRAL;
-  return STATUS_TONES.SUCCESS;
-};
-
-const getDefaultStatusLabel = (variant, t) => {
-  if (variant === FOOTER_VARIANTS.AUTH) return t('navigation.footer.status.auth');
-  if (variant === FOOTER_VARIANTS.PATIENT) return t('navigation.footer.status.patient');
-  return t('navigation.footer.status.main');
-};
-
-const getDefaultLegalLinks = (variant, t) => {
-  const baseLinks = [
-    { key: 'terms', label: t('navigation.footer.legal.terms') },
-    { key: 'privacy', label: t('navigation.footer.legal.privacy') },
-  ];
-  if (variant === FOOTER_VARIANTS.AUTH) {
-    return baseLinks;
-  }
-  return [...baseLinks, { key: 'support', label: t('navigation.footer.legal.support') }];
-};
-
-const getItemKey = (item, index) => item.key || item.id || item.label || `item-${index}`;
-
-const buildLegalItems = ({ links, testID }) => {
-  return links.map((link, index) => {
-    const itemKey = getItemKey(link, index);
-    const itemTestID = link.testID || (testID ? `${testID}-legal-${itemKey}` : undefined);
-    const label = link.label;
-    const renderedLabel = typeof label === 'string'
-      ? (
-        <Text variant="caption" color="text.secondary">
-          {label}
-        </Text>
-      )
-      : label;
-
-    if (link.href) {
-      return (
-        <StyledLegalLink
-          key={itemKey}
-          href={link.href}
-          aria-label={link.accessibilityLabel || label}
-          data-testid={itemTestID}
-          testID={itemTestID}
-        >
-          {renderedLabel}
-        </StyledLegalLink>
-      );
-    }
-
-    if (link.onPress) {
-      return (
-        <StyledLegalButton
-          key={itemKey}
-          type="button"
-          onClick={link.onPress}
-          disabled={link.disabled}
-          aria-label={link.accessibilityLabel || label}
-          data-testid={itemTestID}
-          testID={itemTestID}
-        >
-          {renderedLabel}
-        </StyledLegalButton>
-      );
-    }
-
-    return (
-      <StyledLegalText key={itemKey} data-testid={itemTestID} testID={itemTestID}>
-        {renderedLabel}
-      </StyledLegalText>
-    );
-  });
-};
-
-const buildQuickActionItems = ({ actions, testID }) => {
-  return actions.map((action, index) => {
-    const actionKey = getItemKey(action, index);
-    const actionTestID = action.testID || (testID ? `${testID}-action-${actionKey}` : undefined);
-    const isPrimary = action.variant === ACTION_VARIANTS.PRIMARY;
-    const isDisabled = action.disabled || !action.onPress;
-    const label = action.label;
-    const labelColor = isPrimary ? 'onPrimary' : 'text.primary';
-
-    return (
-      <StyledQuickActionButton
-        key={actionKey}
-        type="button"
-        onClick={action.onPress}
-        disabled={isDisabled}
-        isPrimary={isPrimary}
-        isDisabled={isDisabled}
-        aria-label={action.accessibilityLabel || label}
-        data-testid={actionTestID}
-        testID={actionTestID}
-      >
-        {action.icon ? <StyledQuickActionIcon>{action.icon}</StyledQuickActionIcon> : null}
-        {label ? (
-          <Text variant="label" color={labelColor}>
-            {label}
-          </Text>
-        ) : null}
-      </StyledQuickActionButton>
-    );
-  });
-};
-
-/**
- * GlobalFooter component for Web
- * @param {Object} props - GlobalFooter props
- * @param {string} props.variant - Footer variant (auth/main/patient)
- * @param {string|React.ReactNode} props.status - Status content
- * @param {string} props.statusTone - Status tone (neutral/success/warning/error)
- * @param {Array} props.legalLinks - Legal link definitions
- * @param {Array} props.quickActions - Quick action definitions
- * @param {React.ReactNode} props.quickActionsSlot - Custom quick actions slot
- * @param {string} props.currentRole - Current user role
- * @param {string} props.accessibilityLabel - Accessibility label
- * @param {string} props.testID - Test identifier
- * @param {string} props.className - Additional CSS class
- */
 const GlobalFooterWeb = ({
-  variant = FOOTER_VARIANTS.MAIN,
-  status,
-  statusTone,
-  legalLinks,
-  quickActions = [],
-  quickActionsSlot,
-  currentRole,
   accessibilityLabel,
   testID,
   className,
   ...rest
 }) => {
   const { t } = useI18n();
-  const resolvedVariant = normalizeVariant(variant);
-  const resolvedStatus = status ?? getDefaultStatusLabel(resolvedVariant, t);
-  const resolvedStatusTone = statusTone || getDefaultStatusTone(resolvedVariant);
-
-  const resolvedLegalLinks = useMemo(() => {
-    if (Array.isArray(legalLinks)) return legalLinks;
-    if (legalLinks === null) return [];
-    return getDefaultLegalLinks(resolvedVariant, t);
-  }, [legalLinks, resolvedVariant, t]);
-
-  const {
-    visibleLegalLinks,
-    visibleQuickActions,
-    hasLegalLinks,
-    hasQuickActions,
-  } = useGlobalFooter({
-    legalLinks: resolvedLegalLinks,
-    quickActions,
-    currentRole,
-  });
-
-  const quickActionItems = useMemo(() => {
-    return buildQuickActionItems({ actions: visibleQuickActions, testID });
-  }, [visibleQuickActions, testID]);
-
-  const legalLinkItems = useMemo(() => {
-    return buildLegalItems({ links: visibleLegalLinks, testID });
-  }, [visibleLegalLinks, testID]);
-
-  const showStatus = resolvedStatus !== null && resolvedStatus !== undefined;
-  const showQuickActions = Boolean(quickActionsSlot) || hasQuickActions;
-  const environmentInfo = t('navigation.footer.environment', {
-    env: APP_ENVIRONMENT,
-    version: APP_VERSION,
-    build: BUILD_NUMBER,
-  });
-  const statusTextColor = resolvedStatusTone === STATUS_TONES.NEUTRAL ? 'text.secondary' : 'text.inverse';
+  const appName = t('app.name');
+  const appShortName = t('app.shortName');
+  const year = new Date().getFullYear();
+  const copyright = t('navigation.footer.copyright', { year, appName });
+  const showEmail = Boolean(SUPPORT_EMAIL);
+  const showPhone = Boolean(SUPPORT_PHONE);
 
   return (
     <StyledFooter
@@ -217,38 +39,37 @@ const GlobalFooterWeb = ({
       className={className}
       {...rest}
     >
-      <StyledFooterContent>
-        {(showStatus || showQuickActions) && (
-          <StyledFooterRow>
-            <StyledStatusGroup>
-              {showStatus && (
-                <StyledStatusBadge tone={resolvedStatusTone} aria-label={t('navigation.footer.status.title')}>
-                  {typeof resolvedStatus === 'string' ? (
-                    <Text variant="caption" color={statusTextColor}>
-                      {resolvedStatus}
-                    </Text>
-                  ) : (
-                    resolvedStatus
-                  )}
-                </StyledStatusBadge>
-              )}
-              <StyledEnvironmentInfo>{environmentInfo}</StyledEnvironmentInfo>
-            </StyledStatusGroup>
-            {showQuickActions && (
-              quickActionsSlot ? (
-                <StyledQuickActionsSlot>{quickActionsSlot}</StyledQuickActionsSlot>
-              ) : (
-                <StyledQuickActionsGroup>{quickActionItems}</StyledQuickActionsGroup>
-              )
-            )}
-          </StyledFooterRow>
+      <StyledFooterRow>
+        <StyledFooterBrand>
+          <StyledFooterLogo aria-hidden="true">{appShortName}</StyledFooterLogo>
+          <span>{appName}</span>
+        </StyledFooterBrand>
+        <StyledFooterCopyright>{copyright}</StyledFooterCopyright>
+        {showEmail && (
+          <>
+            <StyledFooterSeparator aria-hidden="true">·</StyledFooterSeparator>
+            <StyledFooterLink
+              href={`mailto:${SUPPORT_EMAIL}`}
+              aria-label={t('navigation.footer.supportEmail')}
+              data-testid={testID ? `${testID}-email` : undefined}
+            >
+              {SUPPORT_EMAIL}
+            </StyledFooterLink>
+          </>
         )}
-        {hasLegalLinks && (
-          <StyledFooterRow aria-label={t('navigation.footer.legal.title')}>
-            <StyledLegalLinks>{legalLinkItems}</StyledLegalLinks>
-          </StyledFooterRow>
+        {showPhone && (
+          <>
+            <StyledFooterSeparator aria-hidden="true">·</StyledFooterSeparator>
+            <StyledFooterLink
+              href={`tel:${SUPPORT_PHONE.replace(/\s/g, '')}`}
+              aria-label={t('navigation.footer.supportPhone')}
+              data-testid={testID ? `${testID}-phone` : undefined}
+            >
+              {SUPPORT_PHONE}
+            </StyledFooterLink>
+          </>
         )}
-      </StyledFooterContent>
+      </StyledFooterRow>
     </StyledFooter>
   );
 };
