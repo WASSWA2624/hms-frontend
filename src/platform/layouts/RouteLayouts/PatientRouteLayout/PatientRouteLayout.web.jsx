@@ -44,6 +44,7 @@ const PatientRouteLayoutWeb = () => {
         <Sidebar
           accessibilityLabel={t('navigation.sidebar.title')}
           items={patientItems}
+          itemsI18nPrefix="navigation.items.patient"
           isItemVisible={isItemVisible}
           testID="patient-sidebar"
         />

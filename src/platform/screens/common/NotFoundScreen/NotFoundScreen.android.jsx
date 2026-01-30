@@ -33,7 +33,7 @@ import { STATES } from './types';
  */
 const NotFoundScreenAndroid = (props) => {
   const { t } = useI18n();
-  const { handleGoHome } = useNotFoundScreen();
+  const { handleBack, handleGoHome } = useNotFoundScreen();
 
   return (
     <ScrollView
@@ -65,6 +65,16 @@ const NotFoundScreenAndroid = (props) => {
 
           <Button
             variant="primary"
+            size="large"
+            onPress={handleBack}
+            accessibilityLabel={t('notFound.back')}
+            accessibilityHint={t('notFound.backHint')}
+            testID="not-found-back-button"
+          >
+            {t('notFound.back')}
+          </Button>
+          <Button
+            variant="secondary"
             size="large"
             onPress={handleGoHome}
             accessibilityLabel={t('notFound.goHome')}

@@ -37,13 +37,7 @@ jest.mock('@hooks', () => ({
     },
     locale: 'en',
   }),
-  usePrimaryNavigation: () => ({
-    mainItems: [
-      { id: 'home', label: 'Home', href: '/home' },
-    ],
-    patientItems: [
-      { id: 'home', label: 'Home', href: '/' },
-    ],
+  useNavigationVisibility: () => ({
     isItemVisible: jest.fn(() => true),
   }),
   useFocusTrap: jest.fn(),

@@ -71,11 +71,10 @@ const useSidebar = ({
 
 export default useSidebar;
 
-// Export a simple sidebarMenu mapping for platform components to reuse
+/** Sidebar items for native (labels resolved via t('navigation.items.main.<id>') in component). */
 export const sidebarMenu = SIDE_MENU_ITEMS.map((it) => ({
   id: it.id,
-  label: it.label,
   icon: it.icon,
-  href: it.path || it.href || it.path,
+  href: it.path || it.href,
 }));
 

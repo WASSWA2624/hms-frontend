@@ -6,7 +6,8 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth, useI18n, usePrimaryNavigation, useUiState } from '@hooks';
+import { useAuth, useI18n, useNavigationVisibility, useUiState } from '@hooks';
+import { PATIENT_MENU_ITEMS } from '@config/sideMenu';
 import { useAuthGuard } from '@navigation/guards';
 import { ACTION_VARIANTS } from '@platform/components/navigation/GlobalHeader/types';
 import { LoadingOverlay } from '@platform/components';
@@ -21,7 +22,8 @@ const usePatientRouteLayout = () => {
   const router = useRouter();
   const { isAuthenticated, logout } = useAuth();
   const { isLoading } = useUiState();
-  const { patientItems, isItemVisible } = usePrimaryNavigation();
+  const { isItemVisible } = useNavigationVisibility();
+  const patientItems = PATIENT_MENU_ITEMS;
 
   const headerActions = useMemo(
     () =>

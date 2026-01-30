@@ -38,7 +38,7 @@ const SidebarIOS = ({ accessibilityLabel, testID, style, ...rest }) => {
             <SidebarItem
               key={item.id}
               icon={item.icon}
-              label={t(`navigation.${item.id}`)}
+              label={t(`navigation.items.main.${item.id}`)}
               path={item.href}
               collapsed={false}
               active={false}

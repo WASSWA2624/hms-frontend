@@ -1,32 +1,8 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import Icon from '@platform/components/display/Icon';
+import { getMenuIconGlyph } from '@config/sideMenu';
 import { Row, IconWrapper, Label } from './SidebarItem.web.styles.jsx';
-
-const ICON_GLYPHS = {
-  H: '🏠',
-  Home: '🏠',
-  Cog: '⚙',
-  Building: '🏢',
-  Users: '👥',
-  MapPin: '📍',
-  Layers: '📚',
-  Grid: '▦',
-  Square: '□',
-  Heart: '❤',
-  Phone: '📞',
-  User: '👤',
-  UserCheck: '✓',
-  Shield: '🛡',
-  Lock: '🔒',
-  LockOpen: '🔓',
-  UserShield: '👤',
-  Clock: '🕐',
-  Key: '🔑',
-  KeyOff: '🔑',
-  Smartphone: '📱',
-  LogIn: '🔐',
-};
 
 const normalize = (props) => {
   if (props.item) {
@@ -46,7 +22,7 @@ const normalize = (props) => {
 const SidebarItemWeb = (props) => {
   const router = useRouter();
   const { path, label, icon, collapsed, active, onClick } = normalize(props);
-  const glyph = icon ? (ICON_GLYPHS[icon] ?? '•') : '•';
+  const glyph = getMenuIconGlyph(icon);
   const handleClick = (e) => {
     e?.preventDefault?.();
     if (onClick) onClick();

@@ -3,9 +3,10 @@
  * Reusable route layout for patient-facing routes on iOS
  * File: PatientRouteLayout.ios.jsx
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
+import { getMenuIconGlyph } from '@config/sideMenu';
 import PatientFrame from '../../PatientFrame';
 import {
   GlobalHeader,
@@ -24,6 +25,16 @@ import usePatientRouteLayout from './usePatientRouteLayout';
 const PatientRouteLayoutIOS = () => {
   const { t } = useI18n();
   const { headerActions, overlaySlot, patientItems, isItemVisible } = usePatientRouteLayout();
+  const tabBarItems = useMemo(
+    () =>
+      patientItems.map((it) => ({
+        ...it,
+        href: it.path,
+        label: t(`navigation.items.patient.${it.id}`),
+        icon: getMenuIconGlyph(it.icon),
+      })),
+    [patientItems, t]
+  );
   const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="patient-shell-banners" />
@@ -54,7 +65,7 @@ const PatientRouteLayoutIOS = () => {
           quickActionsSlot={(
             <TabBar
               accessibilityLabel={t('navigation.tabBar.title')}
-              items={patientItems}
+              items={tabBarItems}
               isTabVisible={isItemVisible}
               testID="patient-tabbar"
             />

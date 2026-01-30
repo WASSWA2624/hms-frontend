@@ -21,6 +21,7 @@ const isItemActive = (pathname, href) => {
  */
 const SidebarWeb = ({
   items = SIDE_MENU_ITEMS,
+  itemsI18nPrefix = 'navigation.items.main',
   collapsed = false,
   accessibilityLabel,
   testID,
@@ -45,7 +46,9 @@ const SidebarWeb = ({
       <StyledSidebarContent $collapsed={collapsed}>
         {topLevel.map((item) => {
           const href = item.href ?? item.path;
-          const label = item.label ?? (item.id ? t(`navigation.items.main.${item.id}`) : '');
+          const i18nKey = item.id ? `${itemsI18nPrefix}.${item.id}` : '';
+const translated = i18nKey ? t(i18nKey) : '';
+const label = (translated && translated !== i18nKey) ? translated : (item.label ?? '');
           const active = isItemActive(pathname, href);
           return (
             <SidebarItem

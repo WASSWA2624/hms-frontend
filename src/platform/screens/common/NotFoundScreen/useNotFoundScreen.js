@@ -13,11 +13,21 @@ import { useRouter } from 'expo-router';
 const useNotFoundScreen = () => {
   const router = useRouter();
 
+  const handleBack = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      if (window.history?.length > 1) router.back();
+      else router.replace('/');
+    } else {
+      router.back();
+    }
+  }, [router]);
+
   const handleGoHome = useCallback(() => {
     router.push('/');
   }, [router]);
 
   return {
+    handleBack,
     handleGoHome,
   };
 };

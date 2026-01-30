@@ -33,7 +33,7 @@ import { STATES } from './types';
  */
 const NotFoundScreenWeb = (props) => {
   const { t } = useI18n();
-  const { handleGoHome } = useNotFoundScreen();
+  const { handleBack, handleGoHome } = useNotFoundScreen();
 
   return (
     <ScrollView
@@ -63,8 +63,19 @@ const NotFoundScreenWeb = (props) => {
             </StyledMessageWrapper>
           </StyledMessageSection>
 
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <Button
             variant="primary"
+            size="large"
+            onPress={handleBack}
+            accessibilityLabel={t('notFound.back')}
+            accessibilityHint={t('notFound.backHint')}
+            testID="not-found-back-button"
+          >
+            {t('notFound.back')}
+          </Button>
+          <Button
+            variant="secondary"
             size="large"
             onPress={handleGoHome}
             accessibilityLabel={t('notFound.goHome')}
@@ -73,6 +84,7 @@ const NotFoundScreenWeb = (props) => {
           >
             {t('notFound.goHome')}
           </Button>
+        </div>
         </StyledContent>
       </StyledNotFoundContainer>
     </ScrollView>

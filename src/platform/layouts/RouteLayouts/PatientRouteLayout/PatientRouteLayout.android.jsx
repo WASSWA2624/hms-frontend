@@ -3,9 +3,10 @@
  * Reusable route layout for patient-facing routes on Android
  * File: PatientRouteLayout.android.jsx
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
+import { getMenuIconGlyph } from '@config/sideMenu';
 import PatientFrame from '../../PatientFrame';
 import {
   GlobalHeader,
@@ -54,7 +55,7 @@ const PatientRouteLayoutAndroid = () => {
           quickActionsSlot={(
             <TabBar
               accessibilityLabel={t('navigation.tabBar.title')}
-              items={patientItems}
+              items={tabBarItems}
               isTabVisible={isItemVisible}
               testID="patient-tabbar"
             />

@@ -1,6 +1,8 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { Row, Icon, Label } from './SidebarItem.android.styles.jsx';
+import Icon from '@platform/components/display/Icon';
+import { getMenuIconGlyph } from '@config/sideMenu';
+import { Row, Icon: IconBox, Label } from './SidebarItem.android.styles.jsx';
 
 const normalize = (props) => {
   if (props.item) {
@@ -35,7 +37,9 @@ const SidebarItemAndroid = (props) => {
   return (
     <TouchableOpacity onPress={handlePress} accessibilityLabel={label} accessibilityState={{ selected: !!active }}>
       <Row active={active}>
-        <Icon name={icon} />
+        <IconBox>
+          <Icon glyph={getMenuIconGlyph(icon)} size="sm" decorative />
+        </IconBox>
         <Label collapsed={collapsed}>{label}</Label>
       </Row>
     </TouchableOpacity>

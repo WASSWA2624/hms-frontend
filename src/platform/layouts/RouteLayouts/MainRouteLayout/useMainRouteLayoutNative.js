@@ -6,7 +6,8 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth, useI18n, usePrimaryNavigation, useUiState } from '@hooks';
+import { useAuth, useI18n, useNavigationVisibility, useUiState } from '@hooks';
+import { MAIN_NAV_ITEMS, getMenuIconGlyph } from '@config/sideMenu';
 import { useAuthGuard } from '@navigation/guards';
 import { AUTH } from '@config';
 import { ACTION_VARIANTS } from '@platform/components/navigation/GlobalHeader/types';
@@ -22,7 +23,17 @@ const useMainRouteLayoutNative = () => {
   const router = useRouter();
   const { isAuthenticated, logout, roles } = useAuth();
   const { isLoading } = useUiState();
-  const { mainItems, isItemVisible } = usePrimaryNavigation();
+  const { isItemVisible } = useNavigationVisibility();
+  const mainItems = useMemo(
+    () =>
+      MAIN_NAV_ITEMS.map((it) => ({
+        ...it,
+        href: it.path,
+        label: t(`navigation.items.main.${it.id}`),
+        icon: getMenuIconGlyph(it.icon),
+      })),
+    [t]
+  );
 
   const canAccessRegister = useMemo(
     () =>

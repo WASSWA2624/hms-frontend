@@ -26,7 +26,7 @@ const StyledIcon = styled.span.withConfig({
   displayName: 'StyledIcon',
   componentId: 'StyledIcon',
 })`
-  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${(props) => resolveFontSize(props)}px;
   line-height: ${(props) => Math.round(resolveFontSize(props) * 1.2)}px;
   color: ${(props) => resolveColor(props)};

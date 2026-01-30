@@ -16,7 +16,7 @@ export { default as useAsyncState } from './useAsyncState';
 export { default as useCrud } from './useCrud';
 export { default as useAuth } from './useAuth';
 export { default as useBiometricAuth } from './useBiometricAuth';
-export { default as usePrimaryNavigation } from './usePrimaryNavigation';
+export { default as useNavigationVisibility } from './useNavigationVisibility';
 export { default as useUiState } from './useUiState';
 export { default as useNetworkBanner } from './useNetworkBanner';
 export { default as useShellBanners } from './useShellBanners';
