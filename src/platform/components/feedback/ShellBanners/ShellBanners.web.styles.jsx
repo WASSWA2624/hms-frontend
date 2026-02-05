@@ -7,16 +7,6 @@ import styled from 'styled-components';
 
 const spacingMap = (spacing, theme) => theme.spacing?.[spacing] || theme.spacing.xs;
 
-const StyledContainer = styled.div.withConfig({
-  displayName: 'StyledContainer',
-  componentId: 'StyledContainer',
-})`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-`;
-
 const StyledStack = styled.div.withConfig({
   displayName: 'StyledStack',
   componentId: 'StyledStack',
@@ -32,4 +22,4 @@ const StyledStackItem = styled.div.withConfig({
   margin-bottom: ${({ isLast, spacing, theme }) => (isLast ? 0 : `${spacingMap(spacing, theme)}px`)};
 `;
 
-export { StyledContainer, StyledStack, StyledStackItem };
+export { StyledStack, StyledStackItem };

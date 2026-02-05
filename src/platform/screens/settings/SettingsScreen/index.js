@@ -1,16 +1,11 @@
 /**
  * SettingsScreen Index
  * File: index.js
- * 
- * Per component-structure.mdc: Barrel export for platform-specific implementations
+ *
+ * Per component-structure.mdc: Barrel export for platform-specific implementations.
+ * Default is platform-resolved so native loads .android/.ios (not .web.styles with withConfig).
  */
-
-import SettingsScreenWeb from './SettingsScreen.web';
-import SettingsScreenAndroid from './SettingsScreen.android';
-import SettingsScreenIOS from './SettingsScreen.ios';
-
-// Metro bundler will resolve platform-specific implementations automatically
-export default SettingsScreenWeb;
+export { default } from './SettingsScreen';
 export { default as SettingsScreenWeb } from './SettingsScreen.web';
 export { default as SettingsScreenAndroid } from './SettingsScreen.android';
 export { default as SettingsScreenIOS } from './SettingsScreen.ios';

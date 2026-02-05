@@ -41,6 +41,7 @@ logStream.write(`--- logcat started ${timestamp()} (filter: React Native / Expo 
 // Clear logcat so this run only contains fresh output; filter for RN/Expo/crashes
 const clear = spawn(adbPath, ['logcat', '-c'], { stdio: 'ignore', shell: false });
 clear.on('close', () => {
+  logStream.write(`--- adb logcat stream started ${timestamp()} ---\n`);
   const child = spawn(adbPath, [
     'logcat', '-v', 'time',
     'ReactNativeJS:V', 'ReactNative:V', 'AndroidRuntime:E', 'Expo:V', 'ExpoModulesCore:V',
@@ -66,8 +67,7 @@ clear.on('close', () => {
 
   child.on('exit', (code, signal) => {
     logStream.write(`--- logcat ended ${timestamp()} code=${code} signal=${signal} ---\n`);
-    logStream.end();
-    process.exit(code ?? (signal ? 1 : 0));
+    logStream.end(() => process.exit(code ?? (signal ? 1 : 0)));
   });
 
   process.on('SIGINT', () => child.kill('SIGINT'));

@@ -79,53 +79,41 @@ const RootLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Per bootstrap-config.mdc: Fatal errors must block rendering
-  // Per theme-design.mdc: Provide theme for loading/error UI (Fluent primary for indicator)
-  if (bootstrapError) {
-    return (
-      <ErrorBoundary>
-        <BootstrapThemeWrapper theme="light">
-          <StyledLoadingContainer>
-            <StyledActivityIndicator size="large" />
-          </StyledLoadingContainer>
-        </BootstrapThemeWrapper>
-      </ErrorBoundary>
-    );
-  }
+  // Per bootstrap-config.mdc: Redux Provider must wrap the app so routes (e.g. index) that use
+  // useSelector (e.g. useAuthGuard) have context on first paint on native. Provider from first paint.
+  const loadingOrErrorUI = (
+    <BootstrapThemeWrapper theme="light">
+      <StyledLoadingContainer>
+        <StyledActivityIndicator size="large" />
+      </StyledLoadingContainer>
+    </BootstrapThemeWrapper>
+  );
 
-  // Per bootstrap-config.mdc: Add loading state while bootstrap completes
-  if (!isBootstrapReady) {
-    return (
-      <ErrorBoundary>
-        <BootstrapThemeWrapper theme="light">
-          <StyledLoadingContainer>
-            <StyledActivityIndicator size="large" />
-          </StyledLoadingContainer>
-        </BootstrapThemeWrapper>
-      </ErrorBoundary>
-    );
-  }
-
-  // Bootstrap completed successfully, render providers
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <PersistGate
-          loading={
-            <StyledLoadingContainer>
-              <StyledActivityIndicator size="large" />
-            </StyledLoadingContainer>
-          }
-          persistor={store.persistor}
-        >
-          <ThemeProviderWrapper>
-            <I18nProvider>
-              <StyledSlotContainer>
-                <Slot />
-              </StyledSlotContainer>
-            </I18nProvider>
-          </ThemeProviderWrapper>
-        </PersistGate>
+        {bootstrapError ? (
+          loadingOrErrorUI
+        ) : !isBootstrapReady ? (
+          loadingOrErrorUI
+        ) : (
+          <PersistGate
+            loading={
+              <StyledLoadingContainer>
+                <StyledActivityIndicator size="large" />
+              </StyledLoadingContainer>
+            }
+            persistor={store.persistor}
+          >
+            <ThemeProviderWrapper>
+              <I18nProvider>
+                <StyledSlotContainer>
+                  <Slot />
+                </StyledSlotContainer>
+              </I18nProvider>
+            </ThemeProviderWrapper>
+          </PersistGate>
+        )}
       </Provider>
     </ErrorBoundary>
   );

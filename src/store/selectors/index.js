@@ -19,19 +19,12 @@ const selectIsHeaderHidden = createSelector([selectUI], (ui) => ui?.isHeaderHidd
 const selectHeaderActionVisibility = createSelector([selectUI], (ui) => ui?.headerActionVisibility ?? {});
 const selectFooterVisible = createSelector([selectUI], (ui) => ui?.footerVisible ?? true);
 
-// Auth Selectors
-const selectAuth = (state) => {
-  const auth = state.auth || {};
-  const ui = state.ui || {};
-  if (auth.isAuthenticated || auth.user || auth.isLoading || auth.errorCode) {
-    return auth;
-  }
-  return ui;
-};
-const selectIsAuthenticated = createSelector([selectAuth], (auth) => auth.isAuthenticated);
-const selectUser = createSelector([selectAuth], (auth) => auth.user);
-const selectAuthErrorCode = createSelector([selectAuth], (auth) => auth.errorCode);
-const selectAuthLoading = createSelector([selectAuth], (auth) => auth.isLoading);
+// Auth Selectors (always return auth slice; defensive for rehydration)
+const selectAuth = (state) => state?.auth ?? {};
+const selectIsAuthenticated = createSelector([selectAuth], (auth) => Boolean(auth?.isAuthenticated));
+const selectUser = createSelector([selectAuth], (auth) => auth?.user ?? null);
+const selectAuthErrorCode = createSelector([selectAuth], (auth) => auth?.errorCode ?? null);
+const selectAuthLoading = createSelector([selectAuth], (auth) => Boolean(auth?.isLoading));
 
 // Network Selectors (defensive for undefined state)
 const selectNetwork = (state) => state?.network ?? null;

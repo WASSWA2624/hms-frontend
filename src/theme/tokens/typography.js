@@ -1,12 +1,20 @@
 /**
  * Typography Tokens
  * File: typography.js
+ * Native: single font (RN style parser). Web: CSS font stack.
  */
+import { Platform } from 'react-native';
+
+const fontStack =
+  Platform.OS === 'web'
+    ? "'Segoe UI', System, -apple-system, sans-serif"
+    : Platform.select({ android: 'Roboto', default: 'System' });
 
 export default {
   fontFamily: {
-    regular: "'Segoe UI', System, -apple-system, sans-serif",
-    bold: "'Segoe UI', System, -apple-system, sans-serif",
+    regular: fontStack,
+    medium: fontStack,
+    bold: fontStack,
   },
   fontSize: {
     xs: 12,

@@ -24,8 +24,8 @@ export { default as FacilitySelectionScreen } from './auth/FacilitySelectionScre
 // Main screens (authenticated/main screens)
 export { default as HomeScreen } from './main/HomeScreen';
 
-// Settings screens
-export { default as SettingsScreen } from './settings/SettingsScreen';
+// Settings screens (direct platform path so Metro resolves .android/.web, not barrel)
+export { default as SettingsScreen } from './settings/SettingsScreen/SettingsScreen';
 export { default as GeneralSettingsPanel } from './settings/GeneralSettingsPanel';
 export { default as UserSessionListScreen } from './settings/UserSessionListScreen';
 export { default as UserSessionDetailScreen } from './settings/UserSessionDetailScreen';

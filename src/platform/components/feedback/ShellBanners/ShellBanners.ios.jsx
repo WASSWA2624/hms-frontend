@@ -1,16 +1,17 @@
 /**
  * ShellBanners Component - iOS
- * Container for system banners
+ * Dismissible modal for system banners (offline, maintenance, etc.)
  * File: ShellBanners.ios.jsx
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useI18n } from '@hooks';
+import Modal from '@platform/components/feedback/Modal';
 import SystemBanner from '@platform/components/feedback/SystemBanner';
-import { StyledContainer, StyledStack, StyledStackItem } from './ShellBanners.ios.styles';
+import { StyledStack, StyledStackItem } from './ShellBanners.ios.styles';
 import { STACK_SPACING } from './types';
 
 /**
- * ShellBanners component for iOS
+ * ShellBanners component for iOS – displays as a dismissible modal
  * @param {Object} props - ShellBanners props
  */
 const ShellBannersIOS = ({
@@ -20,13 +21,30 @@ const ShellBannersIOS = ({
   ...rest
 }) => {
   const { t } = useI18n();
-  if (!banners.length) return null;
+  const [dismissed, setDismissed] = useState(false);
+  const bannerKey = banners.map((b) => b.id).join(',');
 
+  useEffect(() => {
+    setDismissed(false);
+  }, [bannerKey]);
+
+  const visible = banners.length > 0 && !dismissed;
   const label = accessibilityLabel || t('shell.banners.surfaceLabel');
 
+  if (!visible) return null;
+
   return (
-    <StyledContainer accessibilityLabel={label} testID={testID} {...rest}>
-      <StyledStack>
+    <Modal
+      visible
+      onDismiss={() => setDismissed(true)}
+      size="small"
+      showCloseButton
+      dismissOnBackdrop
+      accessibilityLabel={label}
+      testID={testID}
+      {...rest}
+    >
+      <StyledStack accessibilityLabel={label}>
         {banners.map((banner, index) => (
           <StyledStackItem
             key={banner.id}
@@ -37,7 +55,7 @@ const ShellBannersIOS = ({
           </StyledStackItem>
         ))}
       </StyledStack>
-    </StyledContainer>
+    </Modal>
   );
 };
 

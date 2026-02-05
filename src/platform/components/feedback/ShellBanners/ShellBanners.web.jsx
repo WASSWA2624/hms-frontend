@@ -1,16 +1,17 @@
 /**
  * ShellBanners Component - Web
- * Container for system banners
+ * Dismissible modal for system banners (offline, maintenance, etc.)
  * File: ShellBanners.web.jsx
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useI18n } from '@hooks';
+import Modal from '@platform/components/feedback/Modal';
 import SystemBanner from '@platform/components/feedback/SystemBanner';
-import { StyledContainer, StyledStack, StyledStackItem } from './ShellBanners.web.styles';
+import { StyledStack, StyledStackItem } from './ShellBanners.web.styles';
 import { STACK_SPACING } from './types';
 
 /**
- * ShellBanners component for Web
+ * ShellBanners component for Web – displays as a dismissible modal
  * @param {Object} props - ShellBanners props
  * @param {Array} props.banners - Banner configurations
  * @param {string} props.accessibilityLabel - Accessibility label
@@ -25,20 +26,31 @@ const ShellBannersWeb = ({
   ...rest
 }) => {
   const { t } = useI18n();
-  if (!banners.length) return null;
+  const [dismissed, setDismissed] = useState(false);
+  const bannerKey = banners.map((b) => b.id).join(',');
 
+  useEffect(() => {
+    setDismissed(false);
+  }, [bannerKey]);
+
+  const visible = banners.length > 0 && !dismissed;
   const label = accessibilityLabel || t('shell.banners.surfaceLabel');
 
+  if (!visible) return null;
+
   return (
-    <StyledContainer
-      role="region"
-      aria-label={label}
-      data-testid={testID}
+    <Modal
+      visible
+      onDismiss={() => setDismissed(true)}
+      size="small"
+      showCloseButton
+      dismissOnBackdrop
+      accessibilityLabel={label}
       testID={testID}
       className={className}
       {...rest}
     >
-      <StyledStack>
+      <StyledStack role="region" aria-label={label}>
         {banners.map((banner, index) => (
           <StyledStackItem
             key={banner.id}
@@ -49,7 +61,7 @@ const ShellBannersWeb = ({
           </StyledStackItem>
         ))}
       </StyledStack>
-    </StyledContainer>
+    </Modal>
   );
 };
 

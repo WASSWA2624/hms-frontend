@@ -25,6 +25,11 @@ jest.mock('@platform/components/feedback/SystemBanner', () => ({
   default: (props) => mockBanner(props),
 }));
 
+jest.mock('@platform/components/feedback/Modal', () => ({
+  __esModule: true,
+  default: ({ visible, children }) => (visible ? children : null),
+}));
+
 describe('ShellBanners Component', () => {
   beforeEach(() => {
     mockBanner.mockClear();
