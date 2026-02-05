@@ -16,6 +16,7 @@ import { useI18n } from '@hooks';
 
 // 4. Styles (relative import - platform-specific)
 import { StyledContainer, StyledLabel } from './FormField.android.styles';
+import useFormField from './useFormField';
 
 /**
  * FormField component for Android
@@ -33,13 +34,13 @@ const FormFieldAndroid = ({
   disabled = false,
   textFieldProps = {},
   accessibilityLabel,
+  accessibilityHint,
   testID,
   style,
   ...rest
 }) => {
   const { t } = useI18n();
-  const hasError = !!errorMessage;
-  const validationState = hasError ? 'error' : 'default';
+  const { hasError, validationState } = useFormField({ name, testID, errorMessage });
 
   return (
     <StyledContainer
@@ -66,6 +67,7 @@ const FormFieldAndroid = ({
         helperText={!hasError ? helperText : undefined}
         disabled={disabled}
         accessibilityLabel={accessibilityLabel || label}
+        accessibilityHint={accessibilityHint}
         testID={testID ? `${testID}-input` : undefined}
         {...textFieldProps}
       />

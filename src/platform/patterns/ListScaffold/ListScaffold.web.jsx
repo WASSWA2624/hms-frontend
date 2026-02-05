@@ -8,7 +8,7 @@
 import React from 'react';
 
 // 2. Platform components (from barrel file)
-import { LoadingSpinner, EmptyState, ErrorState, OfflineState } from '@platform/components';
+import { LoadingSpinner, EmptyState, ErrorState, OfflineState, Button } from '@platform/components';
 
 // 3. Hooks and utilities (absolute imports via aliases)
 import { useI18n } from '@hooks';
@@ -88,9 +88,9 @@ const ListScaffoldWeb = ({
           <OfflineState
             action={
               onRetry ? (
-                <button onClick={onRetry} aria-label={t('common.retry')}>
+                <Button onPress={onRetry} accessibilityLabel={t('common.retry')} testID={testID ? `${testID}-retry` : undefined}>
                   {t('common.retry')}
-                </button>
+                </Button>
               ) : undefined
             }
             testID={testID ? `${testID}-offline-state` : undefined}
@@ -119,9 +119,9 @@ const ListScaffoldWeb = ({
             description={errorMessage}
             action={
               onRetry ? (
-                <button onClick={onRetry} aria-label={t('common.retry')}>
+                <Button onPress={onRetry} accessibilityLabel={t('common.retry')} testID={testID ? `${testID}-retry` : undefined}>
                   {t('common.retry')}
-                </button>
+                </Button>
               ) : undefined
             }
             testID={testID ? `${testID}-error-state` : undefined}

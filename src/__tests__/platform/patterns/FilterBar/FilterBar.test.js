@@ -542,17 +542,30 @@ describe('FilterBar Pattern', () => {
       expect(typeof indexModule.default).toBe('function');
     });
 
+    it('should export useFilterBar and types from index.js', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const indexModule = require('@platform/patterns/FilterBar');
+      expect(indexModule.useFilterBar).toBeDefined();
+      expect(typeof indexModule.useFilterBar).toBe('function');
+      expect(indexModule.types).toBeDefined();
+      expect(typeof indexModule.types).toBe('object');
+    });
+
     it('should execute index.js for coverage', () => {
       // Force execution of index.js by importing it
       expect(FilterBarIndex).toBeTruthy();
       expect(typeof FilterBarIndex).toBe('function');
-      // Verify it's the same as the default export
+      // Verify it's the same as the default export (platform-resolved)
       expect(FilterBarIndex).toBe(FilterBar);
-      // Verify it exports FilterBar.web component
-      // eslint-disable-next-line import/no-unresolved
+      // Index exports platform-resolved FilterBar (web/ios/android depending on env)
       const FilterBarWeb = require('@platform/patterns/FilterBar/FilterBar.web').default;
-      // The index exports FilterBar.web, so they should be the same
-      expect(FilterBarIndex).toBe(FilterBarWeb);
+      const FilterBarIOS = require('@platform/patterns/FilterBar/FilterBar.ios').default;
+      const FilterBarAndroid = require('@platform/patterns/FilterBar/FilterBar.android').default;
+      const isPlatformImplementation =
+        FilterBarIndex === FilterBarWeb ||
+        FilterBarIndex === FilterBarIOS ||
+        FilterBarIndex === FilterBarAndroid;
+      expect(isPlatformImplementation).toBe(true);
       // Render the component from index to ensure it's executed
       const filters = [{ id: '1', label: 'Filter 1', active: false }];
       const { getByTestId: getByTestIdIndex } = renderWithTheme(

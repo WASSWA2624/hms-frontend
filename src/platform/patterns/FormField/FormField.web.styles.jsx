@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FormField Web Styles
  * Styled-components for Web platform
  * File: FormField.web.styles.jsx
@@ -21,6 +21,7 @@ const StyledLabel = styled.label.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
   color: ${({ theme }) => theme.colors.text.primary};
   margin-bottom: ${({ theme }) => theme.spacing.xs}px;
   display: block;

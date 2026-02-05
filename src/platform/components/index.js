@@ -23,6 +23,7 @@ export { default as Switch } from './forms/Switch';
 export { default as Select } from './forms/Select';
 export { default as Dropdown } from './forms/Dropdown';
 export { default as Slider } from './forms/Slider';
+export { default as SearchBar, useSearchBar } from './forms/SearchBar';
 
 // Navigation Components
 export { default as Header } from './navigation/Header';

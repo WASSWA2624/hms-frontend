@@ -1,0 +1,56 @@
+7f0c77787af5d6934c7412174ed49c82
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "VALIDATION_STATES", {
+  enumerable: true,
+  get: function get() {
+    return _types.VALIDATION_STATES;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _FormField.default;
+  }
+});
+Object.defineProperty(exports, "useFormField", {
+  enumerable: true,
+  get: function get() {
+    return _useFormField.default;
+  }
+});
+var _FormField = _interopRequireDefault(require("./FormField"));
+var _useFormField = _interopRequireDefault(require("./useFormField"));
+var _types = require("./types");
+function cov_umy9qnkhq() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\patterns\\FormField\\index.js";
+  var hash = "0f7f45fe47d475ba37e13fca8216807a435cd989";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\patterns\\FormField\\index.js",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "0f7f45fe47d475ba37e13fca8216807a435cd989"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_umy9qnkhq = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_umy9qnkhq();
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfRm9ybUZpZWxkIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdXNlRm9ybUZpZWxkIiwiX3R5cGVzIiwiY292X3VteTlxbmtocSIsInBhdGgiLCJoYXNoIiwiZ2xvYmFsIiwiRnVuY3Rpb24iLCJnY3YiLCJjb3ZlcmFnZURhdGEiLCJzdGF0ZW1lbnRNYXAiLCJmbk1hcCIsImJyYW5jaE1hcCIsInMiLCJmIiwiYiIsIl9jb3ZlcmFnZVNjaGVtYSIsImNvdmVyYWdlIiwiYWN0dWFsQ292ZXJhZ2UiXSwic291cmNlcyI6WyJpbmRleC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogRm9ybUZpZWxkXHJcbiAqIEJhcnJlbDogTWV0cm8gcmVzb2x2ZXMgcGxhdGZvcm0gKC5hbmRyb2lkIC8gLmlvcyAvIC53ZWIpXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vRm9ybUZpZWxkJztcclxuZXhwb3J0IHsgZGVmYXVsdCBhcyB1c2VGb3JtRmllbGQgfSBmcm9tICcuL3VzZUZvcm1GaWVsZCc7XHJcbmV4cG9ydCB7IFZBTElEQVRJT05fU1RBVEVTIH0gZnJvbSAnLi90eXBlcyc7XHJcblxyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFNQSxJQUFBQSxVQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxhQUFBLEdBQUFGLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBRSxNQUFBLEdBQUFGLE9BQUE7QUFBNEMsU0FBQUcsY0FBQTtFQUFBLElBQUFDLElBQUE7RUFBQSxJQUFBQyxJQUFBO0VBQUEsSUFBQUMsTUFBQSxPQUFBQyxRQUFBO0VBQUEsSUFBQUMsR0FBQTtFQUFBLElBQUFDLFlBQUE7SUFBQUwsSUFBQTtJQUFBTSxZQUFBO0lBQUFDLEtBQUE7SUFBQUMsU0FBQTtJQUFBQyxDQUFBO0lBQUFDLENBQUE7SUFBQUMsQ0FBQTtJQUFBQyxlQUFBO0lBQUFYLElBQUE7RUFBQTtFQUFBLElBQUFZLFFBQUEsR0FBQVgsTUFBQSxDQUFBRSxHQUFBLE1BQUFGLE1BQUEsQ0FBQUUsR0FBQTtFQUFBLEtBQUFTLFFBQUEsQ0FBQWIsSUFBQSxLQUFBYSxRQUFBLENBQUFiLElBQUEsRUFBQUMsSUFBQSxLQUFBQSxJQUFBO0lBQUFZLFFBQUEsQ0FBQWIsSUFBQSxJQUFBSyxZQUFBO0VBQUE7RUFBQSxJQUFBUyxjQUFBLEdBQUFELFFBQUEsQ0FBQWIsSUFBQTtFQUFBO0lBQUFELGFBQUEsWUFBQUEsQ0FBQTtNQUFBLE9BQUFlLGNBQUE7SUFBQTtFQUFBO0VBQUEsT0FBQUEsY0FBQTtBQUFBO0FBQUFmLGFBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

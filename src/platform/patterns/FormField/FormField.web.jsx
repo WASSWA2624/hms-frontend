@@ -16,6 +16,7 @@ import { useI18n } from '@hooks';
 
 // 4. Styles (relative import - platform-specific)
 import { StyledContainer, StyledLabel } from './FormField.web.styles';
+import useFormField from './useFormField';
 
 /**
  * FormField component for Web
@@ -33,6 +34,7 @@ import { StyledContainer, StyledLabel } from './FormField.web.styles';
  * @param {boolean} props.disabled - Disabled state
  * @param {Object} props.textFieldProps - Additional TextField props
  * @param {string} props.accessibilityLabel - Accessibility label
+ * @param {string} [props.accessibilityHint] - Accessibility hint
  * @param {string} props.testID - Test identifier
  * @param {string} props.className - Additional CSS class
  */
@@ -50,16 +52,13 @@ const FormFieldWeb = ({
   disabled = false,
   textFieldProps = {},
   accessibilityLabel,
+  accessibilityHint,
   testID,
   className,
   ...rest
 }) => {
   const { t } = useI18n();
-  const hasError = !!errorMessage;
-  const validationState = hasError ? 'error' : 'default';
-  const inputId =
-    (typeof name === 'string' && name.length > 0 ? name : undefined) ||
-    (typeof testID === 'string' && testID.length > 0 ? `formfield-${testID}` : undefined);
+  const { inputId, hasError, validationState } = useFormField({ name, testID, errorMessage });
 
   return (
     <StyledContainer
@@ -89,6 +88,7 @@ const FormFieldWeb = ({
         helperText={!hasError ? helperText : undefined}
         disabled={disabled}
         accessibilityLabel={accessibilityLabel || label}
+        accessibilityHint={accessibilityHint}
         testID={testID ? `${testID}-input` : undefined}
         {...textFieldProps}
       />

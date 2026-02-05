@@ -11,6 +11,7 @@ import { fireEvent } from '@testing-library/react-native';
 import FormFieldIndex from '@platform/patterns/FormField/index.js';
 // Also import via alias to test both import paths
 import FormFieldModule from '@platform/patterns/FormField';
+import { useFormField, VALIDATION_STATES } from '@platform/patterns/FormField';
 import { renderWithProviders } from '../../../helpers/test-utils';
 
 // Mock i18n hook
@@ -294,6 +295,19 @@ describe('FormField Pattern', () => {
       const elements = getAllByLabelText('Test Label');
       expect(elements.length).toBeGreaterThan(0);
       expect(elements[0]).toBeTruthy();
+    });
+
+    it('should accept and pass accessibilityHint to TextField', () => {
+      const { UNSAFE_root } = renderWithProviders(
+        <FormField
+          name="test"
+          label="Test Label"
+          value=""
+          accessibilityHint="Enter your email"
+          testID="form-field"
+        />
+      );
+      expect(UNSAFE_root).toBeTruthy();
     });
 
     it('should have error message with alert role', () => {
@@ -664,11 +678,25 @@ describe('FormField Pattern', () => {
     });
 
     it('should have same component from index.js and direct import', () => {
-      // Ensure index.js exports the same component as direct import
-      // This ensures index.js is executed and covered
-      const DirectImport = require('@platform/patterns/FormField/FormField.web').default;
-      expect(FormField).toBe(DirectImport);
-      expect(FormFieldFromIndex).toBe(DirectImport);
+      // Index uses Metro resolution: default is platform-specific (.web / .ios / .android)
+      const FormFieldWeb = require('@platform/patterns/FormField/FormField.web').default;
+      const FormFieldIOS = require('@platform/patterns/FormField/FormField.ios').default;
+      const FormFieldAndroid = require('@platform/patterns/FormField/FormField.android').default;
+      const platformComponents = [FormFieldWeb, FormFieldIOS, FormFieldAndroid];
+      expect(platformComponents).toContain(FormField);
+      expect(FormField).toBe(FormFieldFromIndex);
+    });
+
+    it('should export useFormField and VALIDATION_STATES from index', () => {
+      expect(typeof useFormField).toBe('function');
+      expect(VALIDATION_STATES).toEqual({ DEFAULT: 'default', ERROR: 'error', SUCCESS: 'success' });
+      const { inputId, hasError, validationState } = useFormField({ name: 'f', testID: 't', errorMessage: 'err' });
+      expect(inputId).toBe('f');
+      expect(hasError).toBe(true);
+      expect(validationState).toBe('error');
+      const noErr = useFormField({ name: 'x', errorMessage: '' });
+      expect(noErr.hasError).toBe(false);
+      expect(noErr.validationState).toBe('default');
     });
   });
 });

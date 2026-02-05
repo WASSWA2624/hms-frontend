@@ -1,0 +1,53 @@
+c1fc352ca29329301baecc43fb53d1aa
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.VALIDATION_STATES = void 0;
+function cov_2fgunka5cu() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\patterns\\FormField\\types.js";
+  var hash = "8f5953431e478b0863f92161d8030d3b3d0090a4";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\patterns\\FormField\\types.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 7,
+          column: 26
+        },
+        end: {
+          line: 11,
+          column: 2
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "8f5953431e478b0863f92161d8030d3b3d0090a4"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_2fgunka5cu = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_2fgunka5cu();
+var VALIDATION_STATES = exports.VALIDATION_STATES = (cov_2fgunka5cu().s[0]++, Object.freeze({
+  DEFAULT: 'default',
+  ERROR: 'error',
+  SUCCESS: 'success'
+}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJWQUxJREFUSU9OX1NUQVRFUyIsImV4cG9ydHMiLCJjb3ZfMmZndW5rYTVjdSIsInMiLCJPYmplY3QiLCJmcmVlemUiLCJERUZBVUxUIiwiRVJST1IiLCJTVUNDRVNTIl0sInNvdXJjZXMiOlsidHlwZXMuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIEZvcm1GaWVsZCB0eXBlcyBhbmQgY29uc3RhbnRzXHJcbiAqIEZpbGU6IHR5cGVzLmpzXHJcbiAqL1xyXG5cclxuLyoqIFZhbGlkYXRpb24gc3RhdGVzIGZvciBmb3JtIGZpZWxkIGRpc3BsYXkgKi9cclxuY29uc3QgVkFMSURBVElPTl9TVEFURVMgPSBPYmplY3QuZnJlZXplKHtcclxuICBERUZBVUxUOiAnZGVmYXVsdCcsXHJcbiAgRVJST1I6ICdlcnJvcicsXHJcbiAgU1VDQ0VTUzogJ3N1Y2Nlc3MnLFxyXG59KTtcclxuXHJcbmV4cG9ydCB7IFZBTElEQVRJT05fU1RBVEVTIH07XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQU1BLElBQU1BLGlCQUFpQixHQUFBQyxPQUFBLENBQUFELGlCQUFBLElBQUFFLGNBQUEsR0FBQUMsQ0FBQSxPQUFHQyxNQUFNLENBQUNDLE1BQU0sQ0FBQztFQUN0Q0MsT0FBTyxFQUFFLFNBQVM7RUFDbEJDLEtBQUssRUFBRSxPQUFPO0VBQ2RDLE9BQU8sRUFBRTtBQUNYLENBQUMsQ0FBQyIsImlnbm9yZUxpc3QiOltdfQ==

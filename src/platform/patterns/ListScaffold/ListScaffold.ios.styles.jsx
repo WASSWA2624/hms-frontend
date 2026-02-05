@@ -15,7 +15,7 @@ const StyledContainer = styled.View.withConfig({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: ${({ theme }) => theme.spacing.xxl * 4}px;
   padding: ${({ theme }) => theme.spacing.lg}px;
 `;
 

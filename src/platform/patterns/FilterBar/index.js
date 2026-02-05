@@ -4,10 +4,7 @@
  * File: index.js
  */
 
-import FilterBarWeb from './FilterBar';
-
-// Ensure module is executed for coverage
-const FilterBar = FilterBarWeb;
-
-export default FilterBar;
+export { default } from './FilterBar';
+export { default as useFilterBar } from './useFilterBar';
+export { types } from './types';
 

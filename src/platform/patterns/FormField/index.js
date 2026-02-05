@@ -1,9 +1,10 @@
 /**
- * FormField Pattern
- * Platform selector export (platform file resolution)
+ * FormField
+ * Barrel: Metro resolves platform (.android / .ios / .web)
  * File: index.js
  */
 
-import FormFieldWeb from './FormField';
-export default FormFieldWeb;
+export { default } from './FormField';
+export { default as useFormField } from './useFormField';
+export { VALIDATION_STATES } from './types';
 

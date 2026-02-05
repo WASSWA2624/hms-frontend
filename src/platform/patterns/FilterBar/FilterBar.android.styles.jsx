@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FilterBar Android Styles
  * Styled-components for Android platform
  * File: FilterBar.android.styles.jsx
@@ -15,6 +15,9 @@ const StyledContainer = styled.View.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
   align-items: center;
   width: 100%;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-radius: ${({ theme }) => theme.radius.sm}px;
 `;
 
 export {
