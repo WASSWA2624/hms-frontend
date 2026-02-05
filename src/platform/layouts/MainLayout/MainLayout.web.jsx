@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { useI18n } from '@hooks';
+import useMainLayout from './useMainLayout';
 import {
   StyledContainer,
   StyledHeader,
@@ -41,12 +42,12 @@ const MainLayoutWeb = ({
   className,
 }) => {
   const { t } = useI18n();
-  const hasSidebar = Boolean(sidebar);
+  const { hasSidebar } = useMainLayout({ header, footer, sidebar, breadcrumbs });
 
   return (
     <StyledContainer
       className={className}
-      testID={testID}
+      data-testid={testID}
       role="main"
       aria-label={accessibilityLabel}
     >

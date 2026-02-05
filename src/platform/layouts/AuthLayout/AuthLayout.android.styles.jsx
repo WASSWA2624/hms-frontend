@@ -9,6 +9,7 @@ import { ScrollView, KeyboardAvoidingView } from 'react-native';
 
 const StyledContainer = styled.View.withConfig({
   displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
 })`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -19,6 +20,7 @@ const StyledContainer = styled.View.withConfig({
 
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
   displayName: 'StyledKeyboardAvoidingView',
+  componentId: 'StyledKeyboardAvoidingView',
 })`
   flex: 1;
   width: 100%;
@@ -27,6 +29,7 @@ const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
 
 const StyledScrollView = styled(ScrollView).withConfig({
   displayName: 'StyledScrollView',
+  componentId: 'StyledScrollView',
 }).attrs({
   contentContainerStyle: {
     flexGrow: 1,
@@ -39,21 +42,25 @@ const StyledScrollView = styled(ScrollView).withConfig({
 
 const StyledCard = styled.View.withConfig({
   displayName: 'StyledCard',
+  componentId: 'StyledCard',
 })`
   width: 100%;
   max-width: ${({ theme }) => theme.spacing.md * 25}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  border-radius: ${({ theme }) => theme.radius.lg}px;
+  border-radius: ${({ theme }) => theme.radius.md}px;
   padding: ${({ theme }) => theme.spacing.xl}px;
-  shadow-color: ${({ theme }) => theme.shadows?.md?.shadowColor || theme.colors.text.primary};
-  shadow-offset: ${({ theme }) => theme.shadows?.md?.shadowOffset?.width || 0}px ${({ theme }) => theme.shadows?.md?.shadowOffset?.height || 0}px;
-  shadow-opacity: ${({ theme }) => theme.shadows?.md?.shadowOpacity || 0};
-  shadow-radius: ${({ theme }) => theme.shadows?.md?.shadowRadius || 0}px;
-  elevation: ${({ theme }) => theme.shadows?.md?.elevation || 0};
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  shadow-color: ${({ theme }) => theme.shadows?.sm?.shadowColor || theme.colors.text.primary};
+  shadow-offset: ${({ theme }) => theme.shadows?.sm?.shadowOffset?.width || 0}px ${({ theme }) => theme.shadows?.sm?.shadowOffset?.height || 0}px;
+  shadow-opacity: ${({ theme }) => theme.shadows?.sm?.shadowOpacity || 0};
+  shadow-radius: ${({ theme }) => theme.shadows?.sm?.shadowRadius || 0}px;
+  elevation: ${({ theme }) => theme.shadows?.sm?.elevation || 0};
 `;
 
 const StyledBranding = styled.View.withConfig({
   displayName: 'StyledBranding',
+  componentId: 'StyledBranding',
 })`
   align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing.xl}px;
@@ -61,12 +68,14 @@ const StyledBranding = styled.View.withConfig({
 
 const StyledContent = styled.View.withConfig({
   displayName: 'StyledContent',
+  componentId: 'StyledContent',
 })`
   width: 100%;
 `;
 
 const StyledHelpLinks = styled.View.withConfig({
   displayName: 'StyledHelpLinks',
+  componentId: 'StyledHelpLinks',
 })`
   margin-top: ${({ theme }) => theme.spacing.md}px;
   align-items: center;

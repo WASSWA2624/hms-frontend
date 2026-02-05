@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ModalLayout iOS Styles
  * Styled-components for iOS platform
  * File: ModalLayout.ios.styles.jsx
@@ -9,6 +9,7 @@ import { ScrollView, KeyboardAvoidingView } from 'react-native';
 
 const StyledContainer = styled.View.withConfig({
   displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
 })`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background.primary};
@@ -16,12 +17,14 @@ const StyledContainer = styled.View.withConfig({
 
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
   displayName: 'StyledKeyboardAvoidingView',
+  componentId: 'StyledKeyboardAvoidingView',
 })`
   flex: 1;
 `;
 
 const StyledScrollView = styled(ScrollView).withConfig({
   displayName: 'StyledScrollView',
+  componentId: 'StyledScrollView',
 }).attrs({
   contentContainerStyle: {
     flexGrow: 1,

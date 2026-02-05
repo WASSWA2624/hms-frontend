@@ -588,6 +588,13 @@ describe('MainLayout Component', () => {
       expect(LAYOUT_VARIANTS.WITH_SIDEBAR).toBe('with-sidebar');
       expect(LAYOUT_VARIANTS.WITH_BREADCRUMBS).toBe('with-breadcrumbs');
     });
+
+    it('should export useMainLayout from index', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const { useMainLayout } = require('@platform/layouts/MainLayout');
+      expect(useMainLayout).toBeDefined();
+      expect(typeof useMainLayout).toBe('function');
+    });
   });
 
   describe('Style files', () => {

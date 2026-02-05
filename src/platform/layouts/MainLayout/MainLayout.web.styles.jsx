@@ -104,9 +104,22 @@ const StyledSkipLink = styled.a.withConfig({
   padding: ${({ theme }) => theme.spacing.xs}px;
   text-decoration: none;
   z-index: 1000;
+  border-radius: 0 0 ${({ theme }) => theme.radius.sm}px 0;
 
   &:focus {
     top: 0;
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
+    top: 0;
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
   }
 `;
 

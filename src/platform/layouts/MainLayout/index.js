@@ -5,4 +5,5 @@
  */
 
 export { default } from './MainLayout';
+export { default as useMainLayout } from './useMainLayout';
 export { LAYOUT_VARIANTS } from './types';
