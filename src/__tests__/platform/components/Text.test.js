@@ -12,12 +12,10 @@ import TextIOS from '@platform/components/display/Text/Text.ios';
 import TextWeb from '@platform/components/display/Text/Text.web';
 import lightTheme from '@theme/light.theme';
 import darkTheme from '@theme/dark.theme';
-import highContrastTheme from '@theme/high-contrast.theme';
 
 const THEMES = {
   light: lightTheme,
   dark: darkTheme,
-  highContrast: highContrastTheme,
 };
 
 const renderWebWithTheme = (theme, component) => {
@@ -30,7 +28,7 @@ const renderNativeWithTheme = (theme, component) => {
 
 describe('Text Component', () => {
   describe('Theme Integration', () => {
-    it('should render web Text across light/dark/high-contrast themes', () => {
+    it('should render web Text across light/dark themes', () => {
       Object.values(THEMES).forEach((theme) => {
         const { getByText, unmount } = renderWebWithTheme(theme,
           <Text variant={VARIANTS.BODY}>Theme Text</Text>
@@ -40,7 +38,7 @@ describe('Text Component', () => {
       });
     });
 
-    it('should render native Text across light/dark/high-contrast themes', () => {
+    it('should render native Text across light/dark themes', () => {
       Object.values(THEMES).forEach((theme) => {
         const { getByText: getAndroid, unmount: unmountAndroid } = renderNativeWithTheme(theme,
           <TextAndroid variant={VARIANTS.BODY}>Theme Android</TextAndroid>

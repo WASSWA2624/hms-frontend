@@ -21,8 +21,9 @@ web-build/
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs (debug/*.log per .cursor/rules/debug.mdc)
 *.log
+debug/*.log
 npm-debug.log*
 
 # Testing

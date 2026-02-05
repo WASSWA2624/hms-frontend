@@ -1,0 +1,1 @@
+{"version":3,"names":["default"],"sources":["ContactFormScreen.jsx"],"sourcesContent":["/**\r\n * ContactFormScreen\r\n * Platform-agnostic export\r\n */\r\nexport { default } from './ContactFormScreen.web';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAIA,SAASA,OAAO","ignoreList":[]}

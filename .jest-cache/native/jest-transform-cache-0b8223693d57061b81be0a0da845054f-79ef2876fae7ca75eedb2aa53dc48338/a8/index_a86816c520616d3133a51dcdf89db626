@@ -1,0 +1,13 @@
+11ce98062f18b94164f9722319c2dc03
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _Switch.default;
+  }
+});
+var _Switch = _interopRequireDefault(require("./Switch"));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfU3dpdGNoIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiXSwic291cmNlcyI6WyJpbmRleC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogU3dpdGNoIENvbXBvbmVudFxyXG4gKiBQbGF0Zm9ybSBzZWxlY3RvciBleHBvcnQgKHBsYXRmb3JtIGZpbGUgcmVzb2x1dGlvbilcclxuICogRmlsZTogaW5kZXguanNcclxuICovXHJcblxyXG5leHBvcnQgeyBkZWZhdWx0IH0gZnJvbSAnLi9Td2l0Y2gnO1xyXG5cclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7O0FBTUEsSUFBQUEsT0FBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBIiwiaWdub3JlTGlzdCI6W119

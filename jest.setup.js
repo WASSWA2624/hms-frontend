@@ -305,6 +305,14 @@ jest.mock(
   { virtual: true }
 );
 
+// expo-local-authentication (required: prevents EventEmitter error when tests import rootReducer/auth)
+jest.mock('expo-local-authentication', () => ({
+  hasHardwareAsync: jest.fn(() => Promise.resolve(false)),
+  isEnrolledAsync: jest.fn(() => Promise.resolve(false)),
+  authenticateAsync: jest.fn(() => Promise.resolve({ success: false, error: 'not_enrolled' })),
+  SecurityLevel: { NONE: 0, SECRET: 1, BIOMETRIC: 2, BIOMETRIC_STRONG: 3 },
+}), { virtual: true });
+
 // SecureStore (required: deterministic mock for tests)
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(async () => null),

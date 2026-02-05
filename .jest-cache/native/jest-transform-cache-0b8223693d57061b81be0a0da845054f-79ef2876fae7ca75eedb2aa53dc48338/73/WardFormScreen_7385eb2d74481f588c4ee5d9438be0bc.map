@@ -1,0 +1,1 @@
+{"version":3,"names":["default"],"sources":["WardFormScreen.jsx"],"sourcesContent":["/**\r\n * WardFormScreen\r\n * Platform-agnostic export\r\n */\r\nexport { default } from './WardFormScreen.web';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAIA,SAASA,OAAO","ignoreList":[]}

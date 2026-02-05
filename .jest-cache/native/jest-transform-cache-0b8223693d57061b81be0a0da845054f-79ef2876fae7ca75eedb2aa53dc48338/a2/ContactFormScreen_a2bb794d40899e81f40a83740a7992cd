@@ -1,0 +1,32 @@
+c28c182c94b55d7e3cf66d4a38b28052
+function cov_1hhcwaztlg() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\ContactFormScreen\\ContactFormScreen.jsx";
+  var hash = "0fdef65af7bb919b26bad0b702fa553b3b114766";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\ContactFormScreen\\ContactFormScreen.jsx",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "0fdef65af7bb919b26bad0b702fa553b3b114766"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1hhcwaztlg = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1hhcwaztlg();
+export { default } from "./ContactFormScreen.web";
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJkZWZhdWx0Il0sInNvdXJjZXMiOlsiQ29udGFjdEZvcm1TY3JlZW4uanN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBDb250YWN0Rm9ybVNjcmVlblxyXG4gKiBQbGF0Zm9ybS1hZ25vc3RpYyBleHBvcnRcclxuICovXHJcbmV4cG9ydCB7IGRlZmF1bHQgfSBmcm9tICcuL0NvbnRhY3RGb3JtU2NyZWVuLndlYic7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFJQSxTQUFTQSxPQUFPIiwiaWdub3JlTGlzdCI6W119

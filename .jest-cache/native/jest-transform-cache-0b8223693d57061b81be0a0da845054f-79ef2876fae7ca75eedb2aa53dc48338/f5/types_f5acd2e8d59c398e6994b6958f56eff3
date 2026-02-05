@@ -1,0 +1,60 @@
+b9a7e2fdb89ef02c8ecb8e06ac5685a1
+function cov_18e42fu1j4() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\FacilityFormScreen\\types.js";
+  var hash = "a3fb116110354cd82b4b3002dbf04ab6e7842579";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\FacilityFormScreen\\types.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 6,
+          column: 30
+        },
+        end: {
+          line: 12,
+          column: 1
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "a3fb116110354cd82b4b3002dbf04ab6e7842579"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_18e42fu1j4 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_18e42fu1j4();
+export var FACILITY_TYPES = (cov_18e42fu1j4().s[0]++, [{
+  value: 'HOSPITAL',
+  labelKey: 'facility.form.typeHOSPITAL'
+}, {
+  value: 'CLINIC',
+  labelKey: 'facility.form.typeCLINIC'
+}, {
+  value: 'LAB',
+  labelKey: 'facility.form.typeLAB'
+}, {
+  value: 'PHARMACY',
+  labelKey: 'facility.form.typePHARMACY'
+}, {
+  value: 'OTHER',
+  labelKey: 'facility.form.typeOTHER'
+}]);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJGQUNJTElUWV9UWVBFUyIsImNvdl8xOGU0MmZ1MWo0IiwicyIsInZhbHVlIiwibGFiZWxLZXkiXSwic291cmNlcyI6WyJ0eXBlcy5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogRmFjaWxpdHlGb3JtU2NyZWVuIFR5cGVzXHJcbiAqIEZpbGU6IHR5cGVzLmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IGNvbnN0IEZBQ0lMSVRZX1RZUEVTID0gW1xyXG4gIHsgdmFsdWU6ICdIT1NQSVRBTCcsIGxhYmVsS2V5OiAnZmFjaWxpdHkuZm9ybS50eXBlSE9TUElUQUwnIH0sXHJcbiAgeyB2YWx1ZTogJ0NMSU5JQycsIGxhYmVsS2V5OiAnZmFjaWxpdHkuZm9ybS50eXBlQ0xJTklDJyB9LFxyXG4gIHsgdmFsdWU6ICdMQUInLCBsYWJlbEtleTogJ2ZhY2lsaXR5LmZvcm0udHlwZUxBQicgfSxcclxuICB7IHZhbHVlOiAnUEhBUk1BQ1knLCBsYWJlbEtleTogJ2ZhY2lsaXR5LmZvcm0udHlwZVBIQVJNQUNZJyB9LFxyXG4gIHsgdmFsdWU6ICdPVEhFUicsIGxhYmVsS2V5OiAnZmFjaWxpdHkuZm9ybS50eXBlT1RIRVInIH0sXHJcbl07XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBS0EsT0FBTyxJQUFNQSxjQUFjLElBQUFDLGNBQUEsR0FBQUMsQ0FBQSxPQUFHLENBQzVCO0VBQUVDLEtBQUssRUFBRSxVQUFVO0VBQUVDLFFBQVEsRUFBRTtBQUE2QixDQUFDLEVBQzdEO0VBQUVELEtBQUssRUFBRSxRQUFRO0VBQUVDLFFBQVEsRUFBRTtBQUEyQixDQUFDLEVBQ3pEO0VBQUVELEtBQUssRUFBRSxLQUFLO0VBQUVDLFFBQVEsRUFBRTtBQUF3QixDQUFDLEVBQ25EO0VBQUVELEtBQUssRUFBRSxVQUFVO0VBQUVDLFFBQVEsRUFBRTtBQUE2QixDQUFDLEVBQzdEO0VBQUVELEtBQUssRUFBRSxPQUFPO0VBQUVDLFFBQVEsRUFBRTtBQUEwQixDQUFDLENBQ3hEIiwiaWdub3JlTGlzdCI6W119

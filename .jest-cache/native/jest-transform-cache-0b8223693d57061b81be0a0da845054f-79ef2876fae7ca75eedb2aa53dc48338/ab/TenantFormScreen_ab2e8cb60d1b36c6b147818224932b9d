@@ -1,0 +1,32 @@
+e7db31484d958fe7e8ddc66227336862
+function cov_2ppak8nv38() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\TenantFormScreen\\TenantFormScreen.jsx";
+  var hash = "8de7040a115d807a20132c3f1de789e52d652115";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\TenantFormScreen\\TenantFormScreen.jsx",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "8de7040a115d807a20132c3f1de789e52d652115"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_2ppak8nv38 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_2ppak8nv38();
+export { default } from "./TenantFormScreen.web";
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJkZWZhdWx0Il0sInNvdXJjZXMiOlsiVGVuYW50Rm9ybVNjcmVlbi5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFRlbmFudEZvcm1TY3JlZW4gLSBQbGF0Zm9ybSBleHBvcnRcclxuICovXHJcbmV4cG9ydCB7IGRlZmF1bHQgfSBmcm9tICcuL1RlbmFudEZvcm1TY3JlZW4ud2ViJztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUdBLFNBQVNBLE9BQU8iLCJpZ25vcmVMaXN0IjpbXX0=

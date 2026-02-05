@@ -4,12 +4,20 @@
  * File: tracker.js
  */
 import { featureFlags } from '@config';
+import { logger } from '@logging';
 
 const trackEvent = (eventName, properties = {}) => {
   if (!featureFlags.ANALYTICS_ENABLED) return;
 
-  // Fire-and-forget (no-op until an analytics provider is approved and integrated)
-  void Promise.resolve({ eventName, properties }).catch(() => undefined);
+  // Fire-and-forget
+  Promise.resolve()
+    .then(() => {
+      // TODO: Send to analytics service
+      logger.debug('Analytics event', { eventName, properties });
+    })
+    .catch(() => {
+      // Silently fail
+    });
 };
 
 const trackScreen = (screenName, properties = {}) => {

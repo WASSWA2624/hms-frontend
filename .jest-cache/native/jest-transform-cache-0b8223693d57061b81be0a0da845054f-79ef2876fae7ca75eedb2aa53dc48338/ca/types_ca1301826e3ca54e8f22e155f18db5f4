@@ -1,0 +1,63 @@
+715f96ec8f4c3d71ead84510a7be2144
+function cov_10wsgaa9hz() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\auth\\RegisterScreen\\types.js";
+  var hash = "3d042169d95f694b427fcd289b8ab825bf9d760e";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\auth\\RegisterScreen\\types.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 6,
+          column: 15
+        },
+        end: {
+          line: 8,
+          column: 1
+        }
+      },
+      "1": {
+        start: {
+          line: 10,
+          column: 14
+        },
+        end: {
+          line: 13,
+          column: 1
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "3d042169d95f694b427fcd289b8ab825bf9d760e"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_10wsgaa9hz = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_10wsgaa9hz();
+var STATES = (cov_10wsgaa9hz().s[0]++, {
+  DEFAULT: 'default'
+});
+var STEPS = (cov_10wsgaa9hz().s[1]++, {
+  ORGANIZATION: 'organization',
+  DETAILS: 'details'
+});
+export { STATES, STEPS };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJTVEFURVMiLCJjb3ZfMTB3c2dhYTloeiIsInMiLCJERUZBVUxUIiwiU1RFUFMiLCJPUkdBTklaQVRJT04iLCJERVRBSUxTIl0sInNvdXJjZXMiOlsidHlwZXMuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFJlZ2lzdGVyU2NyZWVuIFR5cGVzICYgQ29uc3RhbnRzXHJcbiAqIEZpbGU6IHR5cGVzLmpzXHJcbiAqL1xyXG5cclxuY29uc3QgU1RBVEVTID0ge1xyXG4gIERFRkFVTFQ6ICdkZWZhdWx0JyxcclxufTtcclxuXHJcbmNvbnN0IFNURVBTID0ge1xyXG4gIE9SR0FOSVpBVElPTjogJ29yZ2FuaXphdGlvbicsXHJcbiAgREVUQUlMUzogJ2RldGFpbHMnLFxyXG59O1xyXG5cclxuZXhwb3J0IHsgU1RBVEVTLCBTVEVQUyB9O1xyXG5cclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUtBLElBQU1BLE1BQU0sSUFBQUMsY0FBQSxHQUFBQyxDQUFBLE9BQUc7RUFDYkMsT0FBTyxFQUFFO0FBQ1gsQ0FBQztBQUVELElBQU1DLEtBQUssSUFBQUgsY0FBQSxHQUFBQyxDQUFBLE9BQUc7RUFDWkcsWUFBWSxFQUFFLGNBQWM7RUFDNUJDLE9BQU8sRUFBRTtBQUNYLENBQUM7QUFFRCxTQUFTTixNQUFNLEVBQUVJLEtBQUsiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -16,6 +16,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 // Mock SecureStore
 const mockSecureStore = {
+  isAvailableAsync: jest.fn().mockResolvedValue(true),
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),
   deleteItemAsync: jest.fn(),

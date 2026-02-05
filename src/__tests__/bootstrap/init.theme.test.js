@@ -66,14 +66,14 @@ describe('Theme Initialization', () => {
     expect(logger.info).toHaveBeenCalledWith('Theme initialized successfully', { theme: 'dark' });
   });
 
-  it('loads persisted high-contrast theme', async () => {
-    asyncStorage.getItem.mockResolvedValue('high-contrast');
+  it('loads persisted system theme', async () => {
+    asyncStorage.getItem.mockResolvedValue('system');
 
     await initTheme();
 
-    expect(store.dispatch).toHaveBeenCalledWith(actions.setTheme('high-contrast'));
+    expect(store.dispatch).toHaveBeenCalledWith(actions.setTheme('system'));
     expect(logger.info).toHaveBeenCalledWith('Theme initialized successfully', {
-      theme: 'high-contrast',
+      theme: 'system',
     });
   });
 

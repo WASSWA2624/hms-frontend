@@ -1,0 +1,32 @@
+e363b92a0c0509d7e761f47de15066c7
+function cov_1xahz4cajf() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\DepartmentFormScreen\\DepartmentFormScreen.jsx";
+  var hash = "9537a1385e9ab2af522de45279e3d33776fdbcfd";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\DepartmentFormScreen\\DepartmentFormScreen.jsx",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "9537a1385e9ab2af522de45279e3d33776fdbcfd"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1xahz4cajf = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1xahz4cajf();
+export { default } from "./DepartmentFormScreen.web";
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJkZWZhdWx0Il0sInNvdXJjZXMiOlsiRGVwYXJ0bWVudEZvcm1TY3JlZW4uanN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBEZXBhcnRtZW50Rm9ybVNjcmVlblxyXG4gKiBQbGF0Zm9ybS1hZ25vc3RpYyBleHBvcnRcclxuICovXHJcbmV4cG9ydCB7IGRlZmF1bHQgfSBmcm9tICcuL0RlcGFydG1lbnRGb3JtU2NyZWVuLndlYic7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFJQSxTQUFTQSxPQUFPIiwiaWdub3JlTGlzdCI6W119

@@ -7,7 +7,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getDeviceLocale } from '@i18n';
 
 const initialState = {
-  theme: 'light', // 'light', 'dark', 'high-contrast'
+  theme: 'light', // 'light' or 'dark' only (per theme-design.mdc)
   locale: getDeviceLocale(),
   isLoading: false,
   sidebarWidth: 260,

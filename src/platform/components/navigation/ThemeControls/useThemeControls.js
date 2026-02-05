@@ -24,7 +24,6 @@ const useThemeControls = () => {
       { label: t('settings.theme.options.system'), value: THEME_MODES.SYSTEM },
       { label: t('settings.theme.options.light'), value: THEME_MODES.LIGHT },
       { label: t('settings.theme.options.dark'), value: THEME_MODES.DARK },
-      { label: t('settings.theme.options.highContrast'), value: THEME_MODES.HIGH_CONTRAST },
     ],
     [t]
   );

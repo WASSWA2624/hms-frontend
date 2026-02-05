@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import useTheme from '@hooks/useTheme';
 import rootReducer from '@store/rootReducer';
-import { darkTheme, highContrastTheme, lightTheme } from '@theme';
+import { darkTheme, lightTheme } from '@theme';
 
 const createMockStore = (preloadedState = {}) =>
   configureStore({
@@ -59,9 +59,9 @@ describe('useTheme', () => {
     await waitFor(() => expect(result).toBe(darkTheme));
   });
 
-  it('returns high-contrast theme when theme mode is high-contrast', async () => {
+  it('returns light or dark theme when theme mode is system (resolved at runtime)', async () => {
     const store = createMockStore({
-      ui: { theme: 'high-contrast', locale: 'en', isLoading: false },
+      ui: { theme: 'system', locale: 'en', isLoading: false },
     });
 
     let result;
@@ -71,7 +71,8 @@ describe('useTheme', () => {
       </Provider>
     );
 
-    await waitFor(() => expect(result).toBe(highContrastTheme));
+    await waitFor(() => expect(result).toBeDefined());
+    expect([lightTheme, darkTheme]).toContain(result);
   });
 
   it('does not crash and falls back to light theme when theme mode is undefined', async () => {

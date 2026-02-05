@@ -1,0 +1,181 @@
+fa8f242e034f4425b174ee7f188f9f4f
+function cov_268p5qboci() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\DatabaseIndicator\\DatabaseIndicator.web.jsx";
+  var hash = "adbbf7bad51815508c3662c7b80d3c7a50509afc";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\DatabaseIndicator\\DatabaseIndicator.web.jsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 18,
+          column: 29
+        },
+        end: {
+          line: 35,
+          column: 1
+        }
+      },
+      "1": {
+        start: {
+          line: 19,
+          column: 16
+        },
+        end: {
+          line: 19,
+          column: 25
+        }
+      },
+      "2": {
+        start: {
+          line: 20,
+          column: 16
+        },
+        end: {
+          line: 20,
+          column: 54
+        }
+      },
+      "3": {
+        start: {
+          line: 21,
+          column: 18
+        },
+        end: {
+          line: 21,
+          column: 32
+        }
+      },
+      "4": {
+        start: {
+          line: 23,
+          column: 2
+        },
+        end: {
+          line: 34,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 18,
+            column: 29
+          },
+          end: {
+            line: 18,
+            column: 30
+          }
+        },
+        loc: {
+          start: {
+            line: 18,
+            column: 63
+          },
+          end: {
+            line: 35,
+            column: 1
+          }
+        },
+        line: 18
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 21,
+            column: 18
+          },
+          end: {
+            line: 21,
+            column: 32
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 21,
+            column: 18
+          },
+          end: {
+            line: 21,
+            column: 23
+          }
+        }, {
+          start: {
+            line: 21,
+            column: 27
+          },
+          end: {
+            line: 21,
+            column: 32
+          }
+        }],
+        line: 21
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {
+      "0": [0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "adbbf7bad51815508c3662c7b80d3c7a50509afc"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_268p5qboci = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_268p5qboci();
+import React from 'react';
+import { useI18n } from "../../../../hooks";
+import DatabaseConnectivityIcon from "../DatabaseConnectivityIcon";
+import { StyledIndicator } from "./DatabaseIndicator.web.styles";
+import { jsx as _jsx } from "react/jsx-runtime";
+cov_268p5qboci().s[0]++;
+var DatabaseIndicatorWeb = function DatabaseIndicatorWeb(_ref) {
+  var _ref3;
+  var testID = _ref.testID,
+    className = _ref.className,
+    title = _ref.title;
+  cov_268p5qboci().f[0]++;
+  var _ref2 = (cov_268p5qboci().s[1]++, useI18n()),
+    t = _ref2.t;
+  var label = (cov_268p5qboci().s[2]++, t('navigation.network.database.label'));
+  var tooltip = (cov_268p5qboci().s[3]++, (_ref3 = (cov_268p5qboci().b[0][0]++, title)) != null ? _ref3 : (cov_268p5qboci().b[0][1]++, label));
+  cov_268p5qboci().s[4]++;
+  return _jsx(StyledIndicator, {
+    role: "status",
+    "aria-live": "polite",
+    "aria-label": label,
+    title: tooltip,
+    "data-testid": testID,
+    className: className,
+    children: _jsx(DatabaseConnectivityIcon, {
+      title: tooltip
+    })
+  });
+};
+export default DatabaseIndicatorWeb;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsInVzZUkxOG4iLCJEYXRhYmFzZUNvbm5lY3Rpdml0eUljb24iLCJTdHlsZWRJbmRpY2F0b3IiLCJqc3giLCJfanN4IiwiY292XzI2OHA1cWJvY2kiLCJzIiwiRGF0YWJhc2VJbmRpY2F0b3JXZWIiLCJfcmVmIiwiX3JlZjMiLCJ0ZXN0SUQiLCJjbGFzc05hbWUiLCJ0aXRsZSIsImYiLCJfcmVmMiIsInQiLCJsYWJlbCIsInRvb2x0aXAiLCJiIiwicm9sZSIsImNoaWxkcmVuIl0sInNvdXJjZXMiOlsiRGF0YWJhc2VJbmRpY2F0b3Iud2ViLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogRGF0YWJhc2VJbmRpY2F0b3IgQ29tcG9uZW50IC0gV2ViXHJcbiAqIERpc3BsYXlzIGJhY2tlbmQgZGF0YWJhc2UgY29ubmVjdGl2aXR5IHVzaW5nIERhdGFiYXNlQ29ubmVjdGl2aXR5SWNvbi5cclxuICogRmlsZTogRGF0YWJhc2VJbmRpY2F0b3Iud2ViLmpzeFxyXG4gKi9cclxuaW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JztcclxuaW1wb3J0IHsgdXNlSTE4biB9IGZyb20gJ0Bob29rcyc7XHJcbmltcG9ydCBEYXRhYmFzZUNvbm5lY3Rpdml0eUljb24gZnJvbSAnLi4vRGF0YWJhc2VDb25uZWN0aXZpdHlJY29uJztcclxuaW1wb3J0IHsgU3R5bGVkSW5kaWNhdG9yIH0gZnJvbSAnLi9EYXRhYmFzZUluZGljYXRvci53ZWIuc3R5bGVzJztcclxuXHJcbi8qKlxyXG4gKiBEYXRhYmFzZUluZGljYXRvciBjb21wb25lbnQgZm9yIFdlYi5cclxuICogQHBhcmFtIHtPYmplY3R9IHByb3BzXHJcbiAqIEBwYXJhbSB7c3RyaW5nfSBbcHJvcHMudGVzdElEXVxyXG4gKiBAcGFyYW0ge3N0cmluZ30gW3Byb3BzLmNsYXNzTmFtZV1cclxuICogQHBhcmFtIHtzdHJpbmd9IFtwcm9wcy50aXRsZV0gLSBUb29sdGlwIHRleHQgKGZhbGxzIGJhY2sgdG8gYTExeSBsYWJlbClcclxuICovXHJcbmNvbnN0IERhdGFiYXNlSW5kaWNhdG9yV2ViID0gKHsgdGVzdElELCBjbGFzc05hbWUsIHRpdGxlIH0pID0+IHtcclxuICBjb25zdCB7IHQgfSA9IHVzZUkxOG4oKTtcclxuICBjb25zdCBsYWJlbCA9IHQoJ25hdmlnYXRpb24ubmV0d29yay5kYXRhYmFzZS5sYWJlbCcpO1xyXG4gIGNvbnN0IHRvb2x0aXAgPSB0aXRsZSA/PyBsYWJlbDtcclxuXHJcbiAgcmV0dXJuIChcclxuICAgIDxTdHlsZWRJbmRpY2F0b3JcclxuICAgICAgcm9sZT1cInN0YXR1c1wiXHJcbiAgICAgIGFyaWEtbGl2ZT1cInBvbGl0ZVwiXHJcbiAgICAgIGFyaWEtbGFiZWw9e2xhYmVsfVxyXG4gICAgICB0aXRsZT17dG9vbHRpcH1cclxuICAgICAgZGF0YS10ZXN0aWQ9e3Rlc3RJRH1cclxuICAgICAgY2xhc3NOYW1lPXtjbGFzc05hbWV9XHJcbiAgICA+XHJcbiAgICAgIDxEYXRhYmFzZUNvbm5lY3Rpdml0eUljb24gdGl0bGU9e3Rvb2x0aXB9IC8+XHJcbiAgICA8L1N0eWxlZEluZGljYXRvcj5cclxuICApO1xyXG59O1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgRGF0YWJhc2VJbmRpY2F0b3JXZWI7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFLQSxPQUFPQSxLQUFLLE1BQU0sT0FBTztBQUN6QixTQUFTQyxPQUFPO0FBQ2hCLE9BQU9DLHdCQUF3QjtBQUMvQixTQUFTQyxlQUFlO0FBQXlDLFNBQUFDLEdBQUEsSUFBQUMsSUFBQTtBQUFBQyxjQUFBLEdBQUFDLENBQUE7QUFTakUsSUFBTUMsb0JBQW9CLEdBQUcsU0FBdkJBLG9CQUFvQkEsQ0FBQUMsSUFBQSxFQUFxQztFQUFBLElBQUFDLEtBQUE7RUFBQSxJQUEvQkMsTUFBTSxHQUFBRixJQUFBLENBQU5FLE1BQU07SUFBRUMsU0FBUyxHQUFBSCxJQUFBLENBQVRHLFNBQVM7SUFBRUMsS0FBSyxHQUFBSixJQUFBLENBQUxJLEtBQUs7RUFBQVAsY0FBQSxHQUFBUSxDQUFBO0VBQ3RELElBQUFDLEtBQUEsSUFBQVQsY0FBQSxHQUFBQyxDQUFBLE9BQWNOLE9BQU8sQ0FBQyxDQUFDO0lBQWZlLENBQUMsR0FBQUQsS0FBQSxDQUFEQyxDQUFDO0VBQ1QsSUFBTUMsS0FBSyxJQUFBWCxjQUFBLEdBQUFDLENBQUEsT0FBR1MsQ0FBQyxDQUFDLG1DQUFtQyxDQUFDO0VBQ3BELElBQU1FLE9BQU8sSUFBQVosY0FBQSxHQUFBQyxDQUFBLFFBQUFHLEtBQUEsSUFBQUosY0FBQSxHQUFBYSxDQUFBLFVBQUdOLEtBQUssYUFBQUgsS0FBQSxJQUFBSixjQUFBLEdBQUFhLENBQUEsVUFBSUYsS0FBSztFQUFDWCxjQUFBLEdBQUFDLENBQUE7RUFFL0IsT0FDRUYsSUFBQSxDQUFDRixlQUFlO0lBQ2RpQixJQUFJLEVBQUMsUUFBUTtJQUNiLGFBQVUsUUFBUTtJQUNsQixjQUFZSCxLQUFNO0lBQ2xCSixLQUFLLEVBQUVLLE9BQVE7SUFDZixlQUFhUCxNQUFPO0lBQ3BCQyxTQUFTLEVBQUVBLFNBQVU7SUFBQVMsUUFBQSxFQUVyQmhCLElBQUEsQ0FBQ0gsd0JBQXdCO01BQUNXLEtBQUssRUFBRUs7SUFBUSxDQUFFO0VBQUMsQ0FDN0IsQ0FBQztBQUV0QixDQUFDO0FBRUQsZUFBZVYsb0JBQW9CIiwiaWdub3JlTGlzdCI6W119

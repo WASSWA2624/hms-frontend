@@ -1,5 +1,5 @@
 /**
- * Theme Provider & Resolver
+ * Theme Provider & Resolver (light and dark only)
  * File: index.js
  */
 import React from 'react';
@@ -8,14 +8,8 @@ import { ThemeProvider as WebThemeProvider } from 'styled-components';
 import { ThemeProvider as NativeThemeProvider } from 'styled-components/native';
 import lightTheme from './light.theme';
 import darkTheme from './dark.theme';
-import highContrastTheme from './high-contrast.theme';
 
 const ThemeProvider = Platform.OS === 'web' ? WebThemeProvider : NativeThemeProvider;
-
-// #region agent log
-globalThis.__themeProviderInitCount = (globalThis.__themeProviderInitCount || 0) + 1;
-fetch('http://127.0.0.1:7249/ingest/0ca3e34c-db2d-4973-878f-b50eb78eba91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'B',location:'theme/index.js:14',message:'Theme provider resolved',data:{count:globalThis.__themeProviderInitCount,platform:Platform.OS,provider:Platform.OS === 'web' ? 'web' : 'native'},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
 
 const resolveSystemTheme = () => {
   const systemScheme = Appearance.getColorScheme();
@@ -24,14 +18,7 @@ const resolveSystemTheme = () => {
 
 export function getTheme(mode = 'light') {
   const resolvedMode = mode === 'system' ? resolveSystemTheme() : mode;
-  switch (resolvedMode) {
-    case 'dark':
-      return darkTheme;
-    case 'high-contrast':
-      return highContrastTheme;
-    default:
-      return lightTheme;
-  }
+  return resolvedMode === 'dark' ? darkTheme : lightTheme;
 }
 
 export function ThemeProviderWrapper({ children, theme = 'light' }) {
@@ -44,13 +31,12 @@ export function ThemeProviderWrapper({ children, theme = 'light' }) {
 }
 
 export { ThemeProviderWrapper as ThemeProvider };
-export { lightTheme, darkTheme, highContrastTheme };
+export { lightTheme, darkTheme };
 
 export default {
   ThemeProvider: ThemeProviderWrapper,
   lightTheme,
   darkTheme,
-  highContrastTheme,
   getTheme,
 };
 

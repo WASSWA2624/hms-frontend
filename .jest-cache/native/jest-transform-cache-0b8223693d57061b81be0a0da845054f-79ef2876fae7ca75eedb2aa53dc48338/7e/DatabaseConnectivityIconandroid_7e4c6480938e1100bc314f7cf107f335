@@ -1,0 +1,195 @@
+34142e62a43f0b9948ca8fc84c921814
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+var _excluded = ["title", "accessibilityLabel", "testID"];
+function cov_1waqks330v() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\DatabaseConnectivityIcon\\DatabaseConnectivityIcon.android.jsx";
+  var hash = "4d75215eae6ed68d31aedfdc388136fb129a6a76";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\DatabaseConnectivityIcon\\DatabaseConnectivityIcon.android.jsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 10,
+          column: 24
+        },
+        end: {
+          line: 10,
+          column: 35
+        }
+      },
+      "1": {
+        start: {
+          line: 11,
+          column: 27
+        },
+        end: {
+          line: 11,
+          column: 38
+        }
+      },
+      "2": {
+        start: {
+          line: 13,
+          column: 40
+        },
+        end: {
+          line: 27,
+          column: 1
+        }
+      },
+      "3": {
+        start: {
+          line: 14,
+          column: 26
+        },
+        end: {
+          line: 14,
+          column: 45
+        }
+      },
+      "4": {
+        start: {
+          line: 15,
+          column: 15
+        },
+        end: {
+          line: 15,
+          column: 42
+        }
+      },
+      "5": {
+        start: {
+          line: 16,
+          column: 2
+        },
+        end: {
+          line: 26,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 13,
+            column: 40
+          },
+          end: {
+            line: 13,
+            column: 41
+          }
+        },
+        loc: {
+          start: {
+            line: 13,
+            column: 92
+          },
+          end: {
+            line: 27,
+            column: 1
+          }
+        },
+        line: 13
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 15,
+            column: 15
+          },
+          end: {
+            line: 15,
+            column: 42
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 15,
+            column: 15
+          },
+          end: {
+            line: 15,
+            column: 33
+          }
+        }, {
+          start: {
+            line: 15,
+            column: 37
+          },
+          end: {
+            line: 15,
+            column: 42
+          }
+        }],
+        line: 15
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {
+      "0": [0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "4d75215eae6ed68d31aedfdc388136fb129a6a76"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1waqks330v = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1waqks330v();
+import React from 'react';
+import { useDatabaseHealth } from "../../../../hooks";
+import { StyledIconWrap, StyledIconText } from "./DatabaseConnectivityIcon.android.styles";
+import { jsx as _jsx } from "react/jsx-runtime";
+var GLYPH_CONNECTED = (cov_1waqks330v().s[0]++, "\uD83D\uDCBE");
+var GLYPH_DISCONNECTED = (cov_1waqks330v().s[1]++, "\uD83D\uDCBE");
+cov_1waqks330v().s[2]++;
+var DatabaseConnectivityIconAndroid = function DatabaseConnectivityIconAndroid(_ref) {
+  var _ref3;
+  var title = _ref.title,
+    accessibilityLabel = _ref.accessibilityLabel,
+    testID = _ref.testID,
+    rest = _objectWithoutProperties(_ref, _excluded);
+  cov_1waqks330v().f[0]++;
+  var _ref2 = (cov_1waqks330v().s[3]++, useDatabaseHealth()),
+    isConnected = _ref2.isConnected;
+  var a11y = (cov_1waqks330v().s[4]++, (_ref3 = (cov_1waqks330v().b[0][0]++, accessibilityLabel)) != null ? _ref3 : (cov_1waqks330v().b[0][1]++, title));
+  cov_1waqks330v().s[5]++;
+  return _jsx(StyledIconWrap, Object.assign({
+    role: "img",
+    accessibilityLabel: a11y,
+    accessibilityRole: "image",
+    testID: testID
+  }, rest, {
+    children: _jsx(StyledIconText, {
+      $connected: isConnected,
+      children: GLYPH_DISCONNECTED
+    })
+  }));
+};
+export default DatabaseConnectivityIconAndroid;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsInVzZURhdGFiYXNlSGVhbHRoIiwiU3R5bGVkSWNvbldyYXAiLCJTdHlsZWRJY29uVGV4dCIsImpzeCIsIl9qc3giLCJHTFlQSF9DT05ORUNURUQiLCJjb3ZfMXdhcWtzMzMwdiIsInMiLCJHTFlQSF9ESVNDT05ORUNURUQiLCJEYXRhYmFzZUNvbm5lY3Rpdml0eUljb25BbmRyb2lkIiwiX3JlZiIsIl9yZWYzIiwidGl0bGUiLCJhY2Nlc3NpYmlsaXR5TGFiZWwiLCJ0ZXN0SUQiLCJyZXN0IiwiX29iamVjdFdpdGhvdXRQcm9wZXJ0aWVzIiwiX2V4Y2x1ZGVkIiwiZiIsIl9yZWYyIiwiaXNDb25uZWN0ZWQiLCJhMTF5IiwiYiIsIk9iamVjdCIsImFzc2lnbiIsInJvbGUiLCJhY2Nlc3NpYmlsaXR5Um9sZSIsImNoaWxkcmVuIiwiJGNvbm5lY3RlZCJdLCJzb3VyY2VzIjpbIkRhdGFiYXNlQ29ubmVjdGl2aXR5SWNvbi5hbmRyb2lkLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogRGF0YWJhc2VDb25uZWN0aXZpdHlJY29uIC0gQW5kcm9pZFxyXG4gKiBCYWNrZW5kIGRhdGFiYXNlIGNvbm5lY3Rpdml0eSBpY29uIChjb25uZWN0ZWQgLyBkaXNjb25uZWN0ZWQpLlxyXG4gKiBGaWxlOiBEYXRhYmFzZUNvbm5lY3Rpdml0eUljb24uYW5kcm9pZC5qc3hcclxuICovXHJcbmltcG9ydCBSZWFjdCBmcm9tICdyZWFjdCc7XHJcbmltcG9ydCB7IHVzZURhdGFiYXNlSGVhbHRoIH0gZnJvbSAnQGhvb2tzJztcclxuaW1wb3J0IHsgU3R5bGVkSWNvbldyYXAsIFN0eWxlZEljb25UZXh0IH0gZnJvbSAnLi9EYXRhYmFzZUNvbm5lY3Rpdml0eUljb24uYW5kcm9pZC5zdHlsZXMnO1xyXG5cclxuY29uc3QgR0xZUEhfQ09OTkVDVEVEID0gJ1xcdXsxRjRCRX0nOyAvLyDwn5K+XHJcbmNvbnN0IEdMWVBIX0RJU0NPTk5FQ1RFRCA9ICdcXHV7MUY0QkV9JzsgLy8gc2FtZSBnbHlwaCwgY29sb3IgaW5kaWNhdGVzIHN0YXRlXHJcblxyXG5jb25zdCBEYXRhYmFzZUNvbm5lY3Rpdml0eUljb25BbmRyb2lkID0gKHsgdGl0bGUsIGFjY2Vzc2liaWxpdHlMYWJlbCwgdGVzdElELCAuLi5yZXN0IH0pID0+IHtcclxuICBjb25zdCB7IGlzQ29ubmVjdGVkIH0gPSB1c2VEYXRhYmFzZUhlYWx0aCgpO1xyXG4gIGNvbnN0IGExMXkgPSBhY2Nlc3NpYmlsaXR5TGFiZWwgPz8gdGl0bGU7XHJcbiAgcmV0dXJuIChcclxuICAgIDxTdHlsZWRJY29uV3JhcFxyXG4gICAgICByb2xlPVwiaW1nXCJcclxuICAgICAgYWNjZXNzaWJpbGl0eUxhYmVsPXthMTF5fVxyXG4gICAgICBhY2Nlc3NpYmlsaXR5Um9sZT1cImltYWdlXCJcclxuICAgICAgdGVzdElEPXt0ZXN0SUR9XHJcbiAgICAgIHsuLi5yZXN0fVxyXG4gICAgPlxyXG4gICAgICA8U3R5bGVkSWNvblRleHQgJGNvbm5lY3RlZD17aXNDb25uZWN0ZWR9PntHTFlQSF9ESVNDT05ORUNURUR9PC9TdHlsZWRJY29uVGV4dD5cclxuICAgIDwvU3R5bGVkSWNvbldyYXA+XHJcbiAgKTtcclxufTtcclxuXHJcbmV4cG9ydCBkZWZhdWx0IERhdGFiYXNlQ29ubmVjdGl2aXR5SWNvbkFuZHJvaWQ7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBS0EsT0FBT0EsS0FBSyxNQUFNLE9BQU87QUFDekIsU0FBU0MsaUJBQWlCO0FBQzFCLFNBQVNDLGNBQWMsRUFBRUMsY0FBYztBQUFvRCxTQUFBQyxHQUFBLElBQUFDLElBQUE7QUFFM0YsSUFBTUMsZUFBZSxJQUFBQyxjQUFBLEdBQUFDLENBQUEsT0FBRyxjQUFXO0FBQ25DLElBQU1DLGtCQUFrQixJQUFBRixjQUFBLEdBQUFDLENBQUEsT0FBRyxjQUFXO0FBQUNELGNBQUEsR0FBQUMsQ0FBQTtBQUV2QyxJQUFNRSwrQkFBK0IsR0FBRyxTQUFsQ0EsK0JBQStCQSxDQUFBQyxJQUFBLEVBQXVEO0VBQUEsSUFBQUMsS0FBQTtFQUFBLElBQWpEQyxLQUFLLEdBQUFGLElBQUEsQ0FBTEUsS0FBSztJQUFFQyxrQkFBa0IsR0FBQUgsSUFBQSxDQUFsQkcsa0JBQWtCO0lBQUVDLE1BQU0sR0FBQUosSUFBQSxDQUFOSSxNQUFNO0lBQUtDLElBQUksR0FBQUMsd0JBQUEsQ0FBQU4sSUFBQSxFQUFBTyxTQUFBO0VBQUFYLGNBQUEsR0FBQVksQ0FBQTtFQUNuRixJQUFBQyxLQUFBLElBQUFiLGNBQUEsR0FBQUMsQ0FBQSxPQUF3QlAsaUJBQWlCLENBQUMsQ0FBQztJQUFuQ29CLFdBQVcsR0FBQUQsS0FBQSxDQUFYQyxXQUFXO0VBQ25CLElBQU1DLElBQUksSUFBQWYsY0FBQSxHQUFBQyxDQUFBLFFBQUFJLEtBQUEsSUFBQUwsY0FBQSxHQUFBZ0IsQ0FBQSxVQUFHVCxrQkFBa0IsYUFBQUYsS0FBQSxJQUFBTCxjQUFBLEdBQUFnQixDQUFBLFVBQUlWLEtBQUs7RUFBQ04sY0FBQSxHQUFBQyxDQUFBO0VBQ3pDLE9BQ0VILElBQUEsQ0FBQ0gsY0FBYyxFQUFBc0IsTUFBQSxDQUFBQyxNQUFBO0lBQ2JDLElBQUksRUFBQyxLQUFLO0lBQ1ZaLGtCQUFrQixFQUFFUSxJQUFLO0lBQ3pCSyxpQkFBaUIsRUFBQyxPQUFPO0lBQ3pCWixNQUFNLEVBQUVBO0VBQU8sR0FDWEMsSUFBSTtJQUFBWSxRQUFBLEVBRVJ2QixJQUFBLENBQUNGLGNBQWM7TUFBQzBCLFVBQVUsRUFBRVIsV0FBWTtNQUFBTyxRQUFBLEVBQUVuQjtJQUFrQixDQUFpQjtFQUFDLEVBQ2hFLENBQUM7QUFFckIsQ0FBQztBQUVELGVBQWVDLCtCQUErQiIsImlnbm9yZUxpc3QiOltdfQ==

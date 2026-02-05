@@ -23,28 +23,26 @@ describe('Theme Provider & Resolver (Step 3.11)', () => {
     expect(typeof api.getTheme).toBe('function');
   });
 
-  it('should switch themes correctly', () => {
+  it('should switch themes correctly (light and dark only)', () => {
     const themeIndex = require('@theme');
     const api = getCjsOrEsmDefault(themeIndex);
     const lightTheme = getCjsOrEsmDefault(require('@theme/light.theme'));
     const darkTheme = getCjsOrEsmDefault(require('@theme/dark.theme'));
-    const highContrastTheme = getCjsOrEsmDefault(
-      require('@theme/high-contrast.theme')
-    );
 
     expect(api.getTheme('light')).toEqual(lightTheme);
     expect(api.getTheme('dark')).toEqual(darkTheme);
-    expect(api.getTheme('high-contrast')).toEqual(highContrastTheme);
     expect(api.getTheme()).toEqual(lightTheme); // default
+    expect(['light', 'dark']).toContain(api.getTheme('system').mode);
   });
 
-  it('should export all themes', () => {
+  it('should export light and dark themes only', () => {
     const themeIndex = require('@theme');
     const api = getCjsOrEsmDefault(themeIndex);
 
     expect(api.lightTheme).toBeDefined();
     expect(api.darkTheme).toBeDefined();
-    expect(api.highContrastTheme).toBeDefined();
+    expect(api.lightTheme.mode).toBe('light');
+    expect(api.darkTheme.mode).toBe('dark');
   });
 });
 

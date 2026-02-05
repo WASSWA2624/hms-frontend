@@ -30,7 +30,7 @@ jest.mock('@platform/components/navigation/ThemeControls/useThemeControls', () =
     options: [
       { label: 'Light', value: 'light' },
       { label: 'Dark', value: 'dark' },
-      { label: 'High Contrast', value: 'high-contrast' },
+      { label: 'System', value: 'system' },
     ],
     setTheme: jest.fn(),
   }),

@@ -1,0 +1,153 @@
+5d45b1a89eac15c22fa3fb2535a11976
+function cov_5qsxc9rgf() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\hooks\\useUserMfa.js";
+  var hash = "b3867c1edb9d6816f1ad20a7851cfc8a020d7382";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\hooks\\useUserMfa.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 18,
+          column: 19
+        },
+        end: {
+          line: 33,
+          column: 1
+        }
+      },
+      "1": {
+        start: {
+          line: 19,
+          column: 18
+        },
+        end: {
+          line: 31,
+          column: 3
+        }
+      },
+      "2": {
+        start: {
+          line: 20,
+          column: 11
+        },
+        end: {
+          line: 29,
+          column: 5
+        }
+      },
+      "3": {
+        start: {
+          line: 32,
+          column: 2
+        },
+        end: {
+          line: 32,
+          column: 26
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 18,
+            column: 19
+          },
+          end: {
+            line: 18,
+            column: 20
+          }
+        },
+        loc: {
+          start: {
+            line: 18,
+            column: 25
+          },
+          end: {
+            line: 33,
+            column: 1
+          }
+        },
+        line: 18
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 20,
+            column: 4
+          },
+          end: {
+            line: 20,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 20,
+            column: 11
+          },
+          end: {
+            line: 29,
+            column: 5
+          }
+        },
+        line: 20
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "b3867c1edb9d6816f1ad20a7851cfc8a020d7382"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_5qsxc9rgf = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_5qsxc9rgf();
+import { useMemo } from 'react';
+import useCrud from "./useCrud";
+import { createUserMfa, deleteUserMfa, disableUserMfa, enableUserMfa, getUserMfa, listUserMfas, updateUserMfa, verifyUserMfa } from "../features/user-mfa";
+cov_5qsxc9rgf().s[0]++;
+var useUserMfa = function useUserMfa() {
+  cov_5qsxc9rgf().f[0]++;
+  var actions = (cov_5qsxc9rgf().s[1]++, useMemo(function () {
+    cov_5qsxc9rgf().f[1]++;
+    cov_5qsxc9rgf().s[2]++;
+    return {
+      list: listUserMfas,
+      get: getUserMfa,
+      create: createUserMfa,
+      update: updateUserMfa,
+      remove: deleteUserMfa,
+      verify: verifyUserMfa,
+      enable: enableUserMfa,
+      disable: disableUserMfa
+    };
+  }, []));
+  cov_5qsxc9rgf().s[3]++;
+  return useCrud(actions);
+};
+export default useUserMfa;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJ1c2VNZW1vIiwidXNlQ3J1ZCIsImNyZWF0ZVVzZXJNZmEiLCJkZWxldGVVc2VyTWZhIiwiZGlzYWJsZVVzZXJNZmEiLCJlbmFibGVVc2VyTWZhIiwiZ2V0VXNlck1mYSIsImxpc3RVc2VyTWZhcyIsInVwZGF0ZVVzZXJNZmEiLCJ2ZXJpZnlVc2VyTWZhIiwiY292XzVxc3hjOXJnZiIsInMiLCJ1c2VVc2VyTWZhIiwiZiIsImFjdGlvbnMiLCJsaXN0IiwiZ2V0IiwiY3JlYXRlIiwidXBkYXRlIiwicmVtb3ZlIiwidmVyaWZ5IiwiZW5hYmxlIiwiZGlzYWJsZSJdLCJzb3VyY2VzIjpbInVzZVVzZXJNZmEuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIHVzZVVzZXJNZmEgSG9va1xyXG4gKiBBY3Rpb25zIG1lbW9pemVkIHNvIGxpc3QgZmV0Y2hlcyBvbmNlIG9uIG1vdW50L3JldHJ5IChubyByZWZldGNoIGV2ZXJ5IHJlbmRlcikuXHJcbiAqL1xyXG5pbXBvcnQgeyB1c2VNZW1vIH0gZnJvbSAncmVhY3QnO1xyXG5pbXBvcnQgdXNlQ3J1ZCBmcm9tICdAaG9va3MvdXNlQ3J1ZCc7XHJcbmltcG9ydCB7XHJcbiAgY3JlYXRlVXNlck1mYSxcclxuICBkZWxldGVVc2VyTWZhLFxyXG4gIGRpc2FibGVVc2VyTWZhLFxyXG4gIGVuYWJsZVVzZXJNZmEsXHJcbiAgZ2V0VXNlck1mYSxcclxuICBsaXN0VXNlck1mYXMsXHJcbiAgdXBkYXRlVXNlck1mYSxcclxuICB2ZXJpZnlVc2VyTWZhLFxyXG59IGZyb20gJ0BmZWF0dXJlcy91c2VyLW1mYSc7XHJcblxyXG5jb25zdCB1c2VVc2VyTWZhID0gKCkgPT4ge1xyXG4gIGNvbnN0IGFjdGlvbnMgPSB1c2VNZW1vKFxyXG4gICAgKCkgPT4gKHtcclxuICAgICAgbGlzdDogbGlzdFVzZXJNZmFzLFxyXG4gICAgICBnZXQ6IGdldFVzZXJNZmEsXHJcbiAgICAgIGNyZWF0ZTogY3JlYXRlVXNlck1mYSxcclxuICAgICAgdXBkYXRlOiB1cGRhdGVVc2VyTWZhLFxyXG4gICAgICByZW1vdmU6IGRlbGV0ZVVzZXJNZmEsXHJcbiAgICAgIHZlcmlmeTogdmVyaWZ5VXNlck1mYSxcclxuICAgICAgZW5hYmxlOiBlbmFibGVVc2VyTWZhLFxyXG4gICAgICBkaXNhYmxlOiBkaXNhYmxlVXNlck1mYSxcclxuICAgIH0pLFxyXG4gICAgW11cclxuICApO1xyXG4gIHJldHVybiB1c2VDcnVkKGFjdGlvbnMpO1xyXG59O1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgdXNlVXNlck1mYTtcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBSUEsU0FBU0EsT0FBTyxRQUFRLE9BQU87QUFDL0IsT0FBT0MsT0FBTztBQUNkLFNBQ0VDLGFBQWEsRUFDYkMsYUFBYSxFQUNiQyxjQUFjLEVBQ2RDLGFBQWEsRUFDYkMsVUFBVSxFQUNWQyxZQUFZLEVBQ1pDLGFBQWEsRUFDYkMsYUFBYTtBQUNhQyxhQUFBLEdBQUFDLENBQUE7QUFFNUIsSUFBTUMsVUFBVSxHQUFHLFNBQWJBLFVBQVVBLENBQUEsRUFBUztFQUFBRixhQUFBLEdBQUFHLENBQUE7RUFDdkIsSUFBTUMsT0FBTyxJQUFBSixhQUFBLEdBQUFDLENBQUEsT0FBR1gsT0FBTyxDQUNyQixZQUFPO0lBQUFVLGFBQUEsR0FBQUcsQ0FBQTtJQUFBSCxhQUFBLEdBQUFDLENBQUE7SUFBQTtNQUNMSSxJQUFJLEVBQUVSLFlBQVk7TUFDbEJTLEdBQUcsRUFBRVYsVUFBVTtNQUNmVyxNQUFNLEVBQUVmLGFBQWE7TUFDckJnQixNQUFNLEVBQUVWLGFBQWE7TUFDckJXLE1BQU0sRUFBRWhCLGFBQWE7TUFDckJpQixNQUFNLEVBQUVYLGFBQWE7TUFDckJZLE1BQU0sRUFBRWhCLGFBQWE7TUFDckJpQixPQUFPLEVBQUVsQjtJQUNYLENBQUM7RUFBRCxDQUFFLEVBQ0YsRUFDRixDQUFDO0VBQUNNLGFBQUEsR0FBQUMsQ0FBQTtFQUNGLE9BQU9WLE9BQU8sQ0FBQ2EsT0FBTyxDQUFDO0FBQ3pCLENBQUM7QUFFRCxlQUFlRixVQUFVIiwiaWdub3JlTGlzdCI6W119

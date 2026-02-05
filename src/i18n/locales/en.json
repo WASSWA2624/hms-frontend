@@ -54,11 +54,11 @@
       "retryHint": "Try again"
     },
     "codes": {
-      "UNKNOWN_ERROR": "An unknown error occurred",
-      "NETWORK_ERROR": "Network connection failed",
+      "UNKNOWN_ERROR": "An unexpected error occurred",
+      "NETWORK_ERROR": "Network connection error",
       "UNAUTHORIZED": "Authentication required",
       "FORBIDDEN": "Access denied",
-      "SERVER_ERROR": "Server error occurred",
+      "SERVER_ERROR": "Server error",
       "ROUTE_ERROR": "An error occurred while loading this page",
       "INVALID_CREDENTIALS": "Invalid credentials",
       "MULTIPLE_TENANTS": "Multiple tenants found. Please select a tenant.",

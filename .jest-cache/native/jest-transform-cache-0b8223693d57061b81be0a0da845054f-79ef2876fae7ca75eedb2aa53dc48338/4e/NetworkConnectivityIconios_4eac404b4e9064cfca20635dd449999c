@@ -1,0 +1,229 @@
+1a587c99d213d2ae1c57076b21cfa111
+import _objectWithoutProperties from "@babel/runtime/helpers/objectWithoutProperties";
+var _excluded = ["title", "accessibilityLabel", "testID"];
+function cov_89y3ddgnw() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\NetworkConnectivityIcon\\NetworkConnectivityIcon.ios.jsx";
+  var hash = "ed6e5ffa506813933b13e277902e99b011595ec3";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\components\\feedback\\NetworkConnectivityIcon\\NetworkConnectivityIcon.ios.jsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 10,
+          column: 21
+        },
+        end: {
+          line: 10,
+          column: 32
+        }
+      },
+      "1": {
+        start: {
+          line: 11,
+          column: 22
+        },
+        end: {
+          line: 11,
+          column: 33
+        }
+      },
+      "2": {
+        start: {
+          line: 13,
+          column: 35
+        },
+        end: {
+          line: 29,
+          column: 1
+        }
+      },
+      "3": {
+        start: {
+          line: 14,
+          column: 24
+        },
+        end: {
+          line: 14,
+          column: 36
+        }
+      },
+      "4": {
+        start: {
+          line: 15,
+          column: 15
+        },
+        end: {
+          line: 15,
+          column: 42
+        }
+      },
+      "5": {
+        start: {
+          line: 16,
+          column: 2
+        },
+        end: {
+          line: 28,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 13,
+            column: 35
+          },
+          end: {
+            line: 13,
+            column: 36
+          }
+        },
+        loc: {
+          start: {
+            line: 13,
+            column: 87
+          },
+          end: {
+            line: 29,
+            column: 1
+          }
+        },
+        line: 13
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 15,
+            column: 15
+          },
+          end: {
+            line: 15,
+            column: 42
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 15,
+            column: 15
+          },
+          end: {
+            line: 15,
+            column: 33
+          }
+        }, {
+          start: {
+            line: 15,
+            column: 37
+          },
+          end: {
+            line: 15,
+            column: 42
+          }
+        }],
+        line: 15
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 25,
+            column: 9
+          },
+          end: {
+            line: 25,
+            column: 49
+          }
+        },
+        type: "cond-expr",
+        locations: [{
+          start: {
+            line: 25,
+            column: 21
+          },
+          end: {
+            line: 25,
+            column: 34
+          }
+        }, {
+          start: {
+            line: 25,
+            column: 37
+          },
+          end: {
+            line: 25,
+            column: 49
+          }
+        }],
+        line: 25
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {
+      "0": [0, 0],
+      "1": [0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "ed6e5ffa506813933b13e277902e99b011595ec3"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_89y3ddgnw = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_89y3ddgnw();
+import React from 'react';
+import { useNetwork } from "../../../../hooks";
+import { StyledIconWrap, StyledIconText } from "./NetworkConnectivityIcon.ios.styles";
+import { jsx as _jsx } from "react/jsx-runtime";
+var GLYPH_ONLINE = (cov_89y3ddgnw().s[0]++, "\uD83D\uDCF6");
+var GLYPH_OFFLINE = (cov_89y3ddgnw().s[1]++, "\uD83D\uDCF4");
+cov_89y3ddgnw().s[2]++;
+var NetworkConnectivityIconIOS = function NetworkConnectivityIconIOS(_ref) {
+  var _ref3;
+  var title = _ref.title,
+    accessibilityLabel = _ref.accessibilityLabel,
+    testID = _ref.testID,
+    rest = _objectWithoutProperties(_ref, _excluded);
+  cov_89y3ddgnw().f[0]++;
+  var _ref2 = (cov_89y3ddgnw().s[3]++, useNetwork()),
+    isOffline = _ref2.isOffline;
+  var a11y = (cov_89y3ddgnw().s[4]++, (_ref3 = (cov_89y3ddgnw().b[0][0]++, accessibilityLabel)) != null ? _ref3 : (cov_89y3ddgnw().b[0][1]++, title));
+  cov_89y3ddgnw().s[5]++;
+  return _jsx(StyledIconWrap, Object.assign({
+    role: "img",
+    accessibilityLabel: a11y,
+    accessibilityRole: "image",
+    testID: testID
+  }, rest, {
+    children: _jsx(StyledIconText, {
+      $offline: isOffline,
+      children: isOffline ? (cov_89y3ddgnw().b[1][0]++, GLYPH_OFFLINE) : (cov_89y3ddgnw().b[1][1]++, GLYPH_ONLINE)
+    })
+  }));
+};
+export default NetworkConnectivityIconIOS;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsInVzZU5ldHdvcmsiLCJTdHlsZWRJY29uV3JhcCIsIlN0eWxlZEljb25UZXh0IiwianN4IiwiX2pzeCIsIkdMWVBIX09OTElORSIsImNvdl84OXkzZGRnbnciLCJzIiwiR0xZUEhfT0ZGTElORSIsIk5ldHdvcmtDb25uZWN0aXZpdHlJY29uSU9TIiwiX3JlZiIsIl9yZWYzIiwidGl0bGUiLCJhY2Nlc3NpYmlsaXR5TGFiZWwiLCJ0ZXN0SUQiLCJyZXN0IiwiX29iamVjdFdpdGhvdXRQcm9wZXJ0aWVzIiwiX2V4Y2x1ZGVkIiwiZiIsIl9yZWYyIiwiaXNPZmZsaW5lIiwiYTExeSIsImIiLCJPYmplY3QiLCJhc3NpZ24iLCJyb2xlIiwiYWNjZXNzaWJpbGl0eVJvbGUiLCJjaGlsZHJlbiIsIiRvZmZsaW5lIl0sInNvdXJjZXMiOlsiTmV0d29ya0Nvbm5lY3Rpdml0eUljb24uaW9zLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogTmV0d29ya0Nvbm5lY3Rpdml0eUljb24gLSBpT1NcclxuICogSW50ZXJuZXQgY29ubmVjdGl2aXR5IGljb24gKHdpZmkgY29ubmVjdGVkIC8gb2ZmbGluZSkuIE5vIHN0YXR1cyBkb3QuXHJcbiAqIEZpbGU6IE5ldHdvcmtDb25uZWN0aXZpdHlJY29uLmlvcy5qc3hcclxuICovXHJcbmltcG9ydCBSZWFjdCBmcm9tICdyZWFjdCc7XHJcbmltcG9ydCB7IHVzZU5ldHdvcmsgfSBmcm9tICdAaG9va3MnO1xyXG5pbXBvcnQgeyBTdHlsZWRJY29uV3JhcCwgU3R5bGVkSWNvblRleHQgfSBmcm9tICcuL05ldHdvcmtDb25uZWN0aXZpdHlJY29uLmlvcy5zdHlsZXMnO1xyXG5cclxuY29uc3QgR0xZUEhfT05MSU5FID0gJ1xcdXsxRjRGNn0nOyAvLyDwn5O2XHJcbmNvbnN0IEdMWVBIX09GRkxJTkUgPSAnXFx1ezFGNEY0fSc7IC8vIPCfk7VcclxuXHJcbmNvbnN0IE5ldHdvcmtDb25uZWN0aXZpdHlJY29uSU9TID0gKHsgdGl0bGUsIGFjY2Vzc2liaWxpdHlMYWJlbCwgdGVzdElELCAuLi5yZXN0IH0pID0+IHtcclxuICBjb25zdCB7IGlzT2ZmbGluZSB9ID0gdXNlTmV0d29yaygpO1xyXG4gIGNvbnN0IGExMXkgPSBhY2Nlc3NpYmlsaXR5TGFiZWwgPz8gdGl0bGU7XHJcbiAgcmV0dXJuIChcclxuICAgIDxTdHlsZWRJY29uV3JhcFxyXG4gICAgICByb2xlPVwiaW1nXCJcclxuICAgICAgYWNjZXNzaWJpbGl0eUxhYmVsPXthMTF5fVxyXG4gICAgICBhY2Nlc3NpYmlsaXR5Um9sZT1cImltYWdlXCJcclxuICAgICAgdGVzdElEPXt0ZXN0SUR9XHJcbiAgICAgIHsuLi5yZXN0fVxyXG4gICAgPlxyXG4gICAgICA8U3R5bGVkSWNvblRleHQgJG9mZmxpbmU9e2lzT2ZmbGluZX0+XHJcbiAgICAgICAge2lzT2ZmbGluZSA/IEdMWVBIX09GRkxJTkUgOiBHTFlQSF9PTkxJTkV9XHJcbiAgICAgIDwvU3R5bGVkSWNvblRleHQ+XHJcbiAgICA8L1N0eWxlZEljb25XcmFwPlxyXG4gICk7XHJcbn07XHJcblxyXG5leHBvcnQgZGVmYXVsdCBOZXR3b3JrQ29ubmVjdGl2aXR5SWNvbklPUztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBS0EsT0FBT0EsS0FBSyxNQUFNLE9BQU87QUFDekIsU0FBU0MsVUFBVTtBQUNuQixTQUFTQyxjQUFjLEVBQUVDLGNBQWM7QUFBK0MsU0FBQUMsR0FBQSxJQUFBQyxJQUFBO0FBRXRGLElBQU1DLFlBQVksSUFBQUMsYUFBQSxHQUFBQyxDQUFBLE9BQUcsY0FBVztBQUNoQyxJQUFNQyxhQUFhLElBQUFGLGFBQUEsR0FBQUMsQ0FBQSxPQUFHLGNBQVc7QUFBQ0QsYUFBQSxHQUFBQyxDQUFBO0FBRWxDLElBQU1FLDBCQUEwQixHQUFHLFNBQTdCQSwwQkFBMEJBLENBQUFDLElBQUEsRUFBdUQ7RUFBQSxJQUFBQyxLQUFBO0VBQUEsSUFBakRDLEtBQUssR0FBQUYsSUFBQSxDQUFMRSxLQUFLO0lBQUVDLGtCQUFrQixHQUFBSCxJQUFBLENBQWxCRyxrQkFBa0I7SUFBRUMsTUFBTSxHQUFBSixJQUFBLENBQU5JLE1BQU07SUFBS0MsSUFBSSxHQUFBQyx3QkFBQSxDQUFBTixJQUFBLEVBQUFPLFNBQUE7RUFBQVgsYUFBQSxHQUFBWSxDQUFBO0VBQzlFLElBQUFDLEtBQUEsSUFBQWIsYUFBQSxHQUFBQyxDQUFBLE9BQXNCUCxVQUFVLENBQUMsQ0FBQztJQUExQm9CLFNBQVMsR0FBQUQsS0FBQSxDQUFUQyxTQUFTO0VBQ2pCLElBQU1DLElBQUksSUFBQWYsYUFBQSxHQUFBQyxDQUFBLFFBQUFJLEtBQUEsSUFBQUwsYUFBQSxHQUFBZ0IsQ0FBQSxVQUFHVCxrQkFBa0IsYUFBQUYsS0FBQSxJQUFBTCxhQUFBLEdBQUFnQixDQUFBLFVBQUlWLEtBQUs7RUFBQ04sYUFBQSxHQUFBQyxDQUFBO0VBQ3pDLE9BQ0VILElBQUEsQ0FBQ0gsY0FBYyxFQUFBc0IsTUFBQSxDQUFBQyxNQUFBO0lBQ2JDLElBQUksRUFBQyxLQUFLO0lBQ1ZaLGtCQUFrQixFQUFFUSxJQUFLO0lBQ3pCSyxpQkFBaUIsRUFBQyxPQUFPO0lBQ3pCWixNQUFNLEVBQUVBO0VBQU8sR0FDWEMsSUFBSTtJQUFBWSxRQUFBLEVBRVJ2QixJQUFBLENBQUNGLGNBQWM7TUFBQzBCLFFBQVEsRUFBRVIsU0FBVTtNQUFBTyxRQUFBLEVBQ2pDUCxTQUFTLElBQUFkLGFBQUEsR0FBQWdCLENBQUEsVUFBR2QsYUFBYSxLQUFBRixhQUFBLEdBQUFnQixDQUFBLFVBQUdqQixZQUFZO0lBQUEsQ0FDM0I7RUFBQyxFQUNILENBQUM7QUFFckIsQ0FBQztBQUVELGVBQWVJLDBCQUEwQiIsImlnbm9yZUxpc3QiOltdfQ==

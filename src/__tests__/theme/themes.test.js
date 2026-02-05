@@ -8,13 +8,11 @@ const getCjsOrEsmDefault = (mod) => mod?.default ?? mod;
 const themeKeys = (theme) => Object.keys(theme).sort();
 
 describe('themes', () => {
-  it('light/dark/high-contrast themes should have identical shape', () => {
+  it('light and dark themes should have identical shape', () => {
     const lightTheme = getCjsOrEsmDefault(require('@theme/light.theme'));
     const darkTheme = getCjsOrEsmDefault(require('@theme/dark.theme'));
-    const highContrastTheme = getCjsOrEsmDefault(require('@theme/high-contrast.theme'));
 
     expect(themeKeys(lightTheme)).toEqual(themeKeys(darkTheme));
-    expect(themeKeys(lightTheme)).toEqual(themeKeys(highContrastTheme));
   });
 
   it('themes should expose breakpoints and animations (used by UI)', () => {
@@ -48,7 +46,6 @@ describe('themes', () => {
         ThemeProvider: expect.any(Function),
         lightTheme: expect.any(Object),
         darkTheme: expect.any(Object),
-        highContrastTheme: expect.any(Object),
         getTheme: expect.any(Function),
       })
     );

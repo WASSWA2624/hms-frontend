@@ -1,0 +1,1 @@
+{"version":3,"names":["default"],"sources":["FacilityFormScreen.jsx"],"sourcesContent":["/**\r\n * FacilityFormScreen\r\n * Platform-agnostic export\r\n * File: FacilityFormScreen.jsx\r\n */\r\nexport { default } from './FacilityFormScreen.web';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAKA,SAASA,OAAO","ignoreList":[]}

@@ -23,6 +23,7 @@ describe('UI Slice', () => {
       network: true,
       fullscreen: true,
     },
+    footerVisible: true,
     isAuthenticated: false,
     user: null,
   };
@@ -44,9 +45,9 @@ describe('UI Slice', () => {
       expect(state.theme).toBe('dark');
     });
 
-    it('should update theme to high-contrast', () => {
-      const state = reducer(initialState, actions.setTheme('high-contrast'));
-      expect(state.theme).toBe('high-contrast');
+    it('should update theme to system (preference)', () => {
+      const state = reducer(initialState, actions.setTheme('system'));
+      expect(state.theme).toBe('system');
     });
 
     it('should update theme back to light', () => {

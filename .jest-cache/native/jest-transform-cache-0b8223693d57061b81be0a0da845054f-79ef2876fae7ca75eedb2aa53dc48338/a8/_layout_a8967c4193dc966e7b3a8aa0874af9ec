@@ -1,0 +1,93 @@
+d481bc6935bffc5d20340c40ec5e72e3
+function cov_1wjhd711ja() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\app\\(main)\\settings\\_layout.jsx";
+  var hash = "e2eb9d63146ae4140db1e6460a95f469fc0f1255";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\app\\(main)\\settings\\_layout.jsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 11,
+          column: 19
+        },
+        end: {
+          line: 11,
+          column: 32
+        }
+      },
+      "1": {
+        start: {
+          line: 12,
+          column: 2
+        },
+        end: {
+          line: 16,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "SettingsLayoutRoute",
+        decl: {
+          start: {
+            line: 10,
+            column: 24
+          },
+          end: {
+            line: 10,
+            column: 43
+          }
+        },
+        loc: {
+          start: {
+            line: 10,
+            column: 46
+          },
+          end: {
+            line: 17,
+            column: 1
+          }
+        },
+        line: 10
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "e2eb9d63146ae4140db1e6460a95f469fc0f1255"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1wjhd711ja = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1wjhd711ja();
+import { Slot, usePathname } from 'expo-router';
+import { SettingsScreen } from "../../../platform/screens";
+import { jsx as _jsx } from "react/jsx-runtime";
+export default function SettingsLayoutRoute() {
+  cov_1wjhd711ja().f[0]++;
+  var pathname = (cov_1wjhd711ja().s[0]++, usePathname());
+  cov_1wjhd711ja().s[1]++;
+  return _jsx(SettingsScreen, {
+    children: _jsx(Slot, {}, pathname)
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJTbG90IiwidXNlUGF0aG5hbWUiLCJTZXR0aW5nc1NjcmVlbiIsImpzeCIsIl9qc3giLCJTZXR0aW5nc0xheW91dFJvdXRlIiwiY292XzF3amhkNzExamEiLCJmIiwicGF0aG5hbWUiLCJzIiwiY2hpbGRyZW4iXSwic291cmNlcyI6WyJfbGF5b3V0LmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogU2V0dGluZ3Mgc2VnbWVudCBsYXlvdXQuXHJcbiAqIFJlbmRlcnMgU2V0dGluZ3NTY3JlZW4gYXMgdGVtcGxhdGUgKHNpZGViYXIgKyBzY3JvbGxhYmxlIGNvbnRlbnQpIHdpdGggU2xvdCBmb3Igc3ViLXJvdXRlcy5cclxuICogUGVyIGFwcC1yb3V0ZXIubWRjOiBncm91cCBsYXlvdXRzIHVzZSBfbGF5b3V0LmpzeCwgZGVmYXVsdCBleHBvcnQuXHJcbiAqIEtleSBTbG90IGJ5IHBhdGhuYW1lIHNvIG5lc3RlZCByb3V0ZXMgKGZhY2lsaXRpZXMsIHVzZXJzLCBldGMuKSBtb3VudCBjb3JyZWN0bHkgd2hlbiBuYXZpZ2F0aW5nIGZyb20gdGhlIHNpZGViYXIuXHJcbiAqL1xyXG5pbXBvcnQgeyBTbG90LCB1c2VQYXRobmFtZSB9IGZyb20gJ2V4cG8tcm91dGVyJztcclxuaW1wb3J0IHsgU2V0dGluZ3NTY3JlZW4gfSBmcm9tICdAcGxhdGZvcm0vc2NyZWVucyc7XHJcblxyXG5leHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBTZXR0aW5nc0xheW91dFJvdXRlKCkge1xyXG4gIGNvbnN0IHBhdGhuYW1lID0gdXNlUGF0aG5hbWUoKTtcclxuICByZXR1cm4gKFxyXG4gICAgPFNldHRpbmdzU2NyZWVuPlxyXG4gICAgICA8U2xvdCBrZXk9e3BhdGhuYW1lfSAvPlxyXG4gICAgPC9TZXR0aW5nc1NjcmVlbj5cclxuICApO1xyXG59XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFNQSxTQUFTQSxJQUFJLEVBQUVDLFdBQVcsUUFBUSxhQUFhO0FBQy9DLFNBQVNDLGNBQWM7QUFBNEIsU0FBQUMsR0FBQSxJQUFBQyxJQUFBO0FBRW5ELGVBQWUsU0FBU0MsbUJBQW1CQSxDQUFBLEVBQUc7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQzVDLElBQU1DLFFBQVEsSUFBQUYsY0FBQSxHQUFBRyxDQUFBLE9BQUdSLFdBQVcsQ0FBQyxDQUFDO0VBQUNLLGNBQUEsR0FBQUcsQ0FBQTtFQUMvQixPQUNFTCxJQUFBLENBQUNGLGNBQWM7SUFBQVEsUUFBQSxFQUNiTixJQUFBLENBQUNKLElBQUksTUFBTVEsUUFBVztFQUFDLENBQ1QsQ0FBQztBQUVyQiIsImlnbm9yZUxpc3QiOltdfQ==

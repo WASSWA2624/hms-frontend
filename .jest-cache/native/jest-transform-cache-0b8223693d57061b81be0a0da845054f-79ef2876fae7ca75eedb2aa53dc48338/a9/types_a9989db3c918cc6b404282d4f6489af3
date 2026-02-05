@@ -1,0 +1,45 @@
+f3c9b7e12c396946ea6fdbd698f71381
+function cov_1jmc97kag2() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\GeneralSettingsPanel\\types.js";
+  var hash = "e9719658002ae187c02767a0616896d3da9b638a";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\GeneralSettingsPanel\\types.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 4,
+          column: 37
+        },
+        end: {
+          line: 4,
+          column: 69
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "e9719658002ae187c02767a0616896d3da9b638a"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1jmc97kag2 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1jmc97kag2();
+export var SECTION_TITLE_TEST_ID = (cov_1jmc97kag2().s[0]++, 'general-settings-section-title');
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJTRUNUSU9OX1RJVExFX1RFU1RfSUQiLCJjb3ZfMWptYzk3a2FnMiIsInMiXSwic291cmNlcyI6WyJ0eXBlcy5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogR2VuZXJhbFNldHRpbmdzUGFuZWwgdHlwZXNcclxuICovXHJcbmV4cG9ydCBjb25zdCBTRUNUSU9OX1RJVExFX1RFU1RfSUQgPSAnZ2VuZXJhbC1zZXR0aW5ncy1zZWN0aW9uLXRpdGxlJztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFHQSxPQUFPLElBQU1BLHFCQUFxQixJQUFBQyxjQUFBLEdBQUFDLENBQUEsT0FBRyxnQ0FBZ0MiLCJpZ25vcmVMaXN0IjpbXX0=

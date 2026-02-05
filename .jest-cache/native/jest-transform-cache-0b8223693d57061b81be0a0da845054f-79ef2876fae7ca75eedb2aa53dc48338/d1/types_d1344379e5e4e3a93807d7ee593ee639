@@ -1,0 +1,49 @@
+a59f0bbf416a34f57448a5e54a619341
+function cov_28spp6njm9() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\UserSessionDetailScreen\\types.js";
+  var hash = "35e99b194a94ad906e78feeb34ee227bb005d526";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\screens\\settings\\UserSessionDetailScreen\\types.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 22
+        },
+        end: {
+          line: 9,
+          column: 1
+        }
+      }
+    },
+    fnMap: {},
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "35e99b194a94ad906e78feeb34ee227bb005d526"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_28spp6njm9 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_28spp6njm9();
+export var STATES = (cov_28spp6njm9().s[0]++, {
+  LOADING: 'loading',
+  ERROR: 'error',
+  READY: 'ready'
+});
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJTVEFURVMiLCJjb3ZfMjhzcHA2bmptOSIsInMiLCJMT0FESU5HIiwiRVJST1IiLCJSRUFEWSJdLCJzb3VyY2VzIjpbInR5cGVzLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBVc2VyU2Vzc2lvbkRldGFpbFNjcmVlbiBUeXBlc1xyXG4gKiBGaWxlOiB0eXBlcy5qc1xyXG4gKi9cclxuZXhwb3J0IGNvbnN0IFNUQVRFUyA9IHtcclxuICBMT0FESU5HOiAnbG9hZGluZycsXHJcbiAgRVJST1I6ICdlcnJvcicsXHJcbiAgUkVBRFk6ICdyZWFkeScsXHJcbn07XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBSUEsT0FBTyxJQUFNQSxNQUFNLElBQUFDLGNBQUEsR0FBQUMsQ0FBQSxPQUFHO0VBQ3BCQyxPQUFPLEVBQUUsU0FBUztFQUNsQkMsS0FBSyxFQUFFLE9BQU87RUFDZEMsS0FBSyxFQUFFO0FBQ1QsQ0FBQyIsImlnbm9yZUxpc3QiOltdfQ==

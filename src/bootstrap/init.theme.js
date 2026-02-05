@@ -14,7 +14,7 @@ export async function initTheme() {
     
     try {
       const persistedTheme = await async.getItem('theme_preference');
-      if (persistedTheme && ['light', 'dark', 'high-contrast'].includes(persistedTheme)) {
+      if (persistedTheme && ['light', 'dark', 'system'].includes(persistedTheme)) {
         savedTheme = persistedTheme;
       }
     } catch (error) {

@@ -3,6 +3,7 @@
  * File: hydration.test.js
  */
 import { handleError } from '@errors';
+import { logger } from '@logging';
 import { getQueue } from '@offline/queue';
 import { hydrate } from '@offline/hydration';
 
@@ -12,6 +13,10 @@ jest.mock('@offline/queue', () => ({
 
 jest.mock('@errors', () => ({
   handleError: jest.fn(),
+}));
+
+jest.mock('@logging', () => ({
+  logger: { info: jest.fn(), error: jest.fn(), debug: jest.fn(), warn: jest.fn() },
 }));
 
 describe('Hydration', () => {
@@ -31,12 +36,14 @@ describe('Hydration', () => {
 
       expect(result).toEqual({ queue });
       expect(getQueue).toHaveBeenCalled();
+      expect(logger.info).toHaveBeenCalledWith('Hydrated offline queue', { count: 2 });
       expect(handleError).not.toHaveBeenCalled();
     });
 
     it('returns empty queue when no items exist', async () => {
       getQueue.mockResolvedValue([]);
       await expect(hydrate()).resolves.toEqual({ queue: [] });
+      expect(logger.info).toHaveBeenCalledWith('Hydrated offline queue', { count: 0 });
     });
 
     it('handles errors gracefully (returns empty queue + reports)', async () => {

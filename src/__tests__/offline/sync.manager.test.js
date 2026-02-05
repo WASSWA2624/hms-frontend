@@ -131,7 +131,7 @@ describe('Sync Manager', () => {
 
       startSync();
 
-      onChange(true);
+      onChange({ isOnline: true });
       // startSync intentionally fire-and-forgets; wait a tick for async processing to complete
       await new Promise((r) => setTimeout(r, 0));
 

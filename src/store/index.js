@@ -16,7 +16,7 @@ const store = configureStore({
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
     }).concat(middleware),
-  devTools: process.env.NODE_ENV === 'development',
+  devTools: typeof __DEV__ !== 'undefined' ? __DEV__ : process.env.NODE_ENV === 'development',
 });
 
 const persistor = persistStore(store);

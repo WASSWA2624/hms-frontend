@@ -38,8 +38,8 @@ export const processQueue = async () => {
 export const startSync = () => {
   if (unsubscribeSync) return unsubscribeSync;
 
-  unsubscribeSync = subscribe((isOnline) => {
-    if (isOnline) {
+  unsubscribeSync = subscribe((snapshot) => {
+    if (snapshot?.isOnline) {
       // Fire-and-forget; offline sync must not block UI thread.
       processQueue();
     }

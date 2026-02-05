@@ -2,10 +2,16 @@
  * Analytics Service Tests
  * File: analytics.test.js
  */
-// Mock config
+// Mock config (featureFlags is namespace from @config)
 jest.mock('@config', () => ({
   featureFlags: {
     ANALYTICS_ENABLED: true,
+  },
+}));
+
+jest.mock('@logging', () => ({
+  logger: {
+    debug: jest.fn(),
   },
 }));
 

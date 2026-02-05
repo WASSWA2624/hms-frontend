@@ -1,0 +1,82 @@
+621b897bbb46046b60be783ed6d3bbea
+function cov_1jwlr3vygb() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\layouts\\RouteLayouts\\MainRouteLayout\\HamburgerIcon\\HamburgerIcon.web.jsx";
+  var hash = "a4ef5070345499693f608b78fb40061031be1097";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\platform\\layouts\\RouteLayouts\\MainRouteLayout\\HamburgerIcon\\HamburgerIcon.web.jsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 11,
+          column: 2
+        },
+        end: {
+          line: 17,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "HamburgerIcon",
+        decl: {
+          start: {
+            line: 10,
+            column: 24
+          },
+          end: {
+            line: 10,
+            column: 37
+          }
+        },
+        loc: {
+          start: {
+            line: 10,
+            column: 40
+          },
+          end: {
+            line: 18,
+            column: 1
+          }
+        },
+        line: 10
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "a4ef5070345499693f608b78fb40061031be1097"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1jwlr3vygb = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1jwlr3vygb();
+import React from 'react';
+import { StyledHamburgerIcon, StyledHamburgerLine } from "./HamburgerIcon.web.styles";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export default function HamburgerIcon() {
+  cov_1jwlr3vygb().f[0]++;
+  cov_1jwlr3vygb().s[0]++;
+  return _jsxs(StyledHamburgerIcon, {
+    "aria-hidden": "true",
+    children: [_jsx(StyledHamburgerLine, {}), _jsx(StyledHamburgerLine, {}), _jsx(StyledHamburgerLine, {})]
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIlN0eWxlZEhhbWJ1cmdlckljb24iLCJTdHlsZWRIYW1idXJnZXJMaW5lIiwianN4IiwiX2pzeCIsImpzeHMiLCJfanN4cyIsIkhhbWJ1cmdlckljb24iLCJjb3ZfMWp3bHIzdnlnYiIsImYiLCJzIiwiY2hpbGRyZW4iXSwic291cmNlcyI6WyJIYW1idXJnZXJJY29uLndlYi5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIEhhbWJ1cmdlckljb24gLSBXZWJcclxuICogSGFtYnVyZ2VyIGljb24gZm9yIHNpZGViYXIgdG9nZ2xlIGluIE1haW5Sb3V0ZUxheW91dCBoZWFkZXJcclxuICogRmlsZTogSGFtYnVyZ2VySWNvbi9IYW1idXJnZXJJY29uLndlYi5qc3hcclxuICovXHJcblxyXG5pbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnO1xyXG5pbXBvcnQgeyBTdHlsZWRIYW1idXJnZXJJY29uLCBTdHlsZWRIYW1idXJnZXJMaW5lIH0gZnJvbSAnLi9IYW1idXJnZXJJY29uLndlYi5zdHlsZXMnO1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gSGFtYnVyZ2VySWNvbigpIHtcclxuICByZXR1cm4gKFxyXG4gICAgPFN0eWxlZEhhbWJ1cmdlckljb24gYXJpYS1oaWRkZW49XCJ0cnVlXCI+XHJcbiAgICAgIDxTdHlsZWRIYW1idXJnZXJMaW5lIC8+XHJcbiAgICAgIDxTdHlsZWRIYW1idXJnZXJMaW5lIC8+XHJcbiAgICAgIDxTdHlsZWRIYW1idXJnZXJMaW5lIC8+XHJcbiAgICA8L1N0eWxlZEhhbWJ1cmdlckljb24+XHJcbiAgKTtcclxufVxyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQU1BLE9BQU9BLEtBQUssTUFBTSxPQUFPO0FBQ3pCLFNBQVNDLG1CQUFtQixFQUFFQyxtQkFBbUI7QUFBcUMsU0FBQUMsR0FBQSxJQUFBQyxJQUFBLEVBQUFDLElBQUEsSUFBQUMsS0FBQTtBQUV0RixlQUFlLFNBQVNDLGFBQWFBLENBQUEsRUFBRztFQUFBQyxjQUFBLEdBQUFDLENBQUE7RUFBQUQsY0FBQSxHQUFBRSxDQUFBO0VBQ3RDLE9BQ0VKLEtBQUEsQ0FBQ0wsbUJBQW1CO0lBQUMsZUFBWSxNQUFNO0lBQUFVLFFBQUEsR0FDckNQLElBQUEsQ0FBQ0YsbUJBQW1CLElBQUUsQ0FBQyxFQUN2QkUsSUFBQSxDQUFDRixtQkFBbUIsSUFBRSxDQUFDLEVBQ3ZCRSxJQUFBLENBQUNGLG1CQUFtQixJQUFFLENBQUM7RUFBQSxDQUNKLENBQUM7QUFFMUIiLCJpZ25vcmVMaXN0IjpbXX0=

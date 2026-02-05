@@ -1,0 +1,286 @@
+55311659016b1d7ea52dbf5e7814152e
+import _asyncToGenerator from "@babel/runtime/helpers/asyncToGenerator";
+function cov_vzfkqnty1() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\bootstrap\\init.theme.js";
+  var hash = "db0d2da5ef7aafdea04a0ec9bb226e8afaed570a";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\bootstrap\\init.theme.js",
+    statementMap: {
+      "0": {
+        start: {
+          line: 11,
+          column: 2
+        },
+        end: {
+          line: 32,
+          column: 3
+        }
+      },
+      "1": {
+        start: {
+          line: 13,
+          column: 21
+        },
+        end: {
+          line: 13,
+          column: 28
+        }
+      },
+      "2": {
+        start: {
+          line: 15,
+          column: 4
+        },
+        end: {
+          line: 23,
+          column: 5
+        }
+      },
+      "3": {
+        start: {
+          line: 16,
+          column: 29
+        },
+        end: {
+          line: 16,
+          column: 68
+        }
+      },
+      "4": {
+        start: {
+          line: 17,
+          column: 6
+        },
+        end: {
+          line: 19,
+          column: 7
+        }
+      },
+      "5": {
+        start: {
+          line: 18,
+          column: 8
+        },
+        end: {
+          line: 18,
+          column: 36
+        }
+      },
+      "6": {
+        start: {
+          line: 22,
+          column: 6
+        },
+        end: {
+          line: 22,
+          column: 94
+        }
+      },
+      "7": {
+        start: {
+          line: 26,
+          column: 4
+        },
+        end: {
+          line: 26,
+          column: 49
+        }
+      },
+      "8": {
+        start: {
+          line: 28,
+          column: 4
+        },
+        end: {
+          line: 28,
+          column: 73
+        }
+      },
+      "9": {
+        start: {
+          line: 30,
+          column: 4
+        },
+        end: {
+          line: 30,
+          column: 74
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "initTheme",
+        decl: {
+          start: {
+            line: 10,
+            column: 22
+          },
+          end: {
+            line: 10,
+            column: 31
+          }
+        },
+        loc: {
+          start: {
+            line: 10,
+            column: 34
+          },
+          end: {
+            line: 33,
+            column: 1
+          }
+        },
+        line: 10
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 17,
+            column: 6
+          },
+          end: {
+            line: 19,
+            column: 7
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 17,
+            column: 6
+          },
+          end: {
+            line: 19,
+            column: 7
+          }
+        }, {
+          start: {
+            line: undefined,
+            column: undefined
+          },
+          end: {
+            line: undefined,
+            column: undefined
+          }
+        }],
+        line: 17
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 17,
+            column: 10
+          },
+          end: {
+            line: 17,
+            column: 80
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 17,
+            column: 10
+          },
+          end: {
+            line: 17,
+            column: 24
+          }
+        }, {
+          start: {
+            line: 17,
+            column: 28
+          },
+          end: {
+            line: 17,
+            column: 80
+          }
+        }],
+        line: 17
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {
+      "0": [0, 0],
+      "1": [0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "db0d2da5ef7aafdea04a0ec9bb226e8afaed570a"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_vzfkqnty1 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_vzfkqnty1();
+import store from "../store";
+import { actions } from "../store/slices/ui.slice";
+import { async } from "../services/storage";
+import { logger } from "../logging";
+export function initTheme() {
+  return _initTheme.apply(this, arguments);
+}
+function _initTheme() {
+  _initTheme = _asyncToGenerator(function* () {
+    cov_vzfkqnty1().f[0]++;
+    cov_vzfkqnty1().s[0]++;
+    try {
+      var savedTheme = (cov_vzfkqnty1().s[1]++, 'light');
+      cov_vzfkqnty1().s[2]++;
+      try {
+        var persistedTheme = (cov_vzfkqnty1().s[3]++, yield async.getItem('theme_preference'));
+        cov_vzfkqnty1().s[4]++;
+        if ((cov_vzfkqnty1().b[1][0]++, persistedTheme) && (cov_vzfkqnty1().b[1][1]++, ['light', 'dark', 'system'].includes(persistedTheme))) {
+          cov_vzfkqnty1().b[0][0]++;
+          cov_vzfkqnty1().s[5]++;
+          savedTheme = persistedTheme;
+        } else {
+          cov_vzfkqnty1().b[0][1]++;
+        }
+      } catch (error) {
+        cov_vzfkqnty1().s[6]++;
+        logger.debug('Could not load persisted theme, using default', {
+          error: error.message
+        });
+      }
+      cov_vzfkqnty1().s[7]++;
+      store.dispatch(actions.setTheme(savedTheme));
+      cov_vzfkqnty1().s[8]++;
+      logger.info('Theme initialized successfully', {
+        theme: savedTheme
+      });
+    } catch (error) {
+      cov_vzfkqnty1().s[9]++;
+      logger.error('Theme initialization failed', {
+        error: error.message
+      });
+    }
+  });
+  return _initTheme.apply(this, arguments);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJzdG9yZSIsImFjdGlvbnMiLCJhc3luYyIsImxvZ2dlciIsImluaXRUaGVtZSIsIl9pbml0VGhlbWUiLCJhcHBseSIsImFyZ3VtZW50cyIsIl9hc3luY1RvR2VuZXJhdG9yIiwiY292X3Z6ZmtxbnR5MSIsImYiLCJzIiwic2F2ZWRUaGVtZSIsInBlcnNpc3RlZFRoZW1lIiwiZ2V0SXRlbSIsImIiLCJpbmNsdWRlcyIsImVycm9yIiwiZGVidWciLCJtZXNzYWdlIiwiZGlzcGF0Y2giLCJzZXRUaGVtZSIsImluZm8iLCJ0aGVtZSJdLCJzb3VyY2VzIjpbImluaXQudGhlbWUuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFRoZW1lIEluaXRpYWxpemF0aW9uXHJcbiAqIEZpbGU6IGluaXQudGhlbWUuanNcclxuICovXHJcbmltcG9ydCBzdG9yZSBmcm9tICdAc3RvcmUnO1xyXG5pbXBvcnQgeyBhY3Rpb25zIH0gZnJvbSAnQHN0b3JlL3NsaWNlcy91aS5zbGljZSc7XHJcbmltcG9ydCB7IGFzeW5jIH0gZnJvbSAnQHNlcnZpY2VzL3N0b3JhZ2UnO1xyXG5pbXBvcnQgeyBsb2dnZXIgfSBmcm9tICdAbG9nZ2luZyc7XHJcblxyXG5leHBvcnQgYXN5bmMgZnVuY3Rpb24gaW5pdFRoZW1lKCkge1xyXG4gIHRyeSB7XHJcbiAgICAvLyBUcnkgdG8gbG9hZCBwZXJzaXN0ZWQgdGhlbWUgcHJlZmVyZW5jZVxyXG4gICAgbGV0IHNhdmVkVGhlbWUgPSAnbGlnaHQnOyAvLyBkZWZhdWx0XHJcbiAgICBcclxuICAgIHRyeSB7XHJcbiAgICAgIGNvbnN0IHBlcnNpc3RlZFRoZW1lID0gYXdhaXQgYXN5bmMuZ2V0SXRlbSgndGhlbWVfcHJlZmVyZW5jZScpO1xyXG4gICAgICBpZiAocGVyc2lzdGVkVGhlbWUgJiYgWydsaWdodCcsICdkYXJrJywgJ3N5c3RlbSddLmluY2x1ZGVzKHBlcnNpc3RlZFRoZW1lKSkge1xyXG4gICAgICAgIHNhdmVkVGhlbWUgPSBwZXJzaXN0ZWRUaGVtZTtcclxuICAgICAgfVxyXG4gICAgfSBjYXRjaCAoZXJyb3IpIHtcclxuICAgICAgLy8gSWYgc3RvcmFnZSByZWFkIGZhaWxzLCB1c2UgZGVmYXVsdFxyXG4gICAgICBsb2dnZXIuZGVidWcoJ0NvdWxkIG5vdCBsb2FkIHBlcnNpc3RlZCB0aGVtZSwgdXNpbmcgZGVmYXVsdCcsIHsgZXJyb3I6IGVycm9yLm1lc3NhZ2UgfSk7XHJcbiAgICB9XHJcbiAgICBcclxuICAgIC8vIFNldCB0aGVtZSBpbiBzdG9yZVxyXG4gICAgc3RvcmUuZGlzcGF0Y2goYWN0aW9ucy5zZXRUaGVtZShzYXZlZFRoZW1lKSk7XHJcbiAgICBcclxuICAgIGxvZ2dlci5pbmZvKCdUaGVtZSBpbml0aWFsaXplZCBzdWNjZXNzZnVsbHknLCB7IHRoZW1lOiBzYXZlZFRoZW1lIH0pO1xyXG4gIH0gY2F0Y2ggKGVycm9yKSB7XHJcbiAgICBsb2dnZXIuZXJyb3IoJ1RoZW1lIGluaXRpYWxpemF0aW9uIGZhaWxlZCcsIHsgZXJyb3I6IGVycm9yLm1lc3NhZ2UgfSk7XHJcbiAgICAvLyBUaGVtZSBmYWlsdXJlIGlzIG5vdCBmYXRhbCAtIHVzZSBkZWZhdWx0XHJcbiAgfVxyXG59XHJcblxyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBSUEsT0FBT0EsS0FBSztBQUNaLFNBQVNDLE9BQU87QUFDaEIsU0FBU0MsS0FBSztBQUNkLFNBQVNDLE1BQU07QUFFZixnQkFBc0JDLFNBQVNBLENBQUE7RUFBQSxPQUFBQyxVQUFBLENBQUFDLEtBQUEsT0FBQUMsU0FBQTtBQUFBO0FBdUI5QixTQUFBRixXQUFBO0VBQUFBLFVBQUEsR0FBQUcsaUJBQUEsQ0F2Qk0sYUFBMkI7SUFBQUMsYUFBQSxHQUFBQyxDQUFBO0lBQUFELGFBQUEsR0FBQUUsQ0FBQTtJQUNoQyxJQUFJO01BRUYsSUFBSUMsVUFBVSxJQUFBSCxhQUFBLEdBQUFFLENBQUEsT0FBRyxPQUFPO01BQUNGLGFBQUEsR0FBQUUsQ0FBQTtNQUV6QixJQUFJO1FBQ0YsSUFBTUUsY0FBYyxJQUFBSixhQUFBLEdBQUFFLENBQUEsYUFBU1QsS0FBSyxDQUFDWSxPQUFPLENBQUMsa0JBQWtCLENBQUM7UUFBQ0wsYUFBQSxHQUFBRSxDQUFBO1FBQy9ELElBQUksQ0FBQUYsYUFBQSxHQUFBTSxDQUFBLFVBQUFGLGNBQWMsTUFBQUosYUFBQSxHQUFBTSxDQUFBLFVBQUksQ0FBQyxPQUFPLEVBQUUsTUFBTSxFQUFFLFFBQVEsQ0FBQyxDQUFDQyxRQUFRLENBQUNILGNBQWMsQ0FBQyxHQUFFO1VBQUFKLGFBQUEsR0FBQU0sQ0FBQTtVQUFBTixhQUFBLEdBQUFFLENBQUE7VUFDMUVDLFVBQVUsR0FBR0MsY0FBYztRQUM3QixDQUFDO1VBQUFKLGFBQUEsR0FBQU0sQ0FBQTtRQUFBO01BQ0gsQ0FBQyxDQUFDLE9BQU9FLEtBQUssRUFBRTtRQUFBUixhQUFBLEdBQUFFLENBQUE7UUFFZFIsTUFBTSxDQUFDZSxLQUFLLENBQUMsK0NBQStDLEVBQUU7VUFBRUQsS0FBSyxFQUFFQSxLQUFLLENBQUNFO1FBQVEsQ0FBQyxDQUFDO01BQ3pGO01BQUNWLGFBQUEsR0FBQUUsQ0FBQTtNQUdEWCxLQUFLLENBQUNvQixRQUFRLENBQUNuQixPQUFPLENBQUNvQixRQUFRLENBQUNULFVBQVUsQ0FBQyxDQUFDO01BQUNILGFBQUEsR0FBQUUsQ0FBQTtNQUU3Q1IsTUFBTSxDQUFDbUIsSUFBSSxDQUFDLGdDQUFnQyxFQUFFO1FBQUVDLEtBQUssRUFBRVg7TUFBVyxDQUFDLENBQUM7SUFDdEUsQ0FBQyxDQUFDLE9BQU9LLEtBQUssRUFBRTtNQUFBUixhQUFBLEdBQUFFLENBQUE7TUFDZFIsTUFBTSxDQUFDYyxLQUFLLENBQUMsNkJBQTZCLEVBQUU7UUFBRUEsS0FBSyxFQUFFQSxLQUFLLENBQUNFO01BQVEsQ0FBQyxDQUFDO0lBRXZFO0VBQ0YsQ0FBQztFQUFBLE9BQUFkLFVBQUEsQ0FBQUMsS0FBQSxPQUFBQyxTQUFBO0FBQUEiLCJpZ25vcmVMaXN0IjpbXX0=
