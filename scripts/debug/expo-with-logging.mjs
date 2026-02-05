@@ -24,7 +24,8 @@ function tee(data, isStderr) {
   if (!logStream.write(line)) logStream.once('drain', () => {});
 }
 
-const child = spawn('npx', ['expo', 'start', '--clear'], {
+// Use fixed port so Expo never prompts in non-interactive mode when 8081 is in use
+const child = spawn('npx', ['expo', 'start', '--clear', '--port', '8082'], {
   cwd: projectRoot,
   stdio: ['inherit', 'pipe', 'pipe'],
   shell: process.platform === 'win32',

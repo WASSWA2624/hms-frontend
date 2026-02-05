@@ -25,6 +25,22 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ## Steps (Atomic, Chronological)
 
+### Step 9.0: App Identity and Icons (All Platforms)
+**Goal**: Configure app name, logo, and all platform-specific icons (Android, iOS, Web favicon and web/tablet icon) so the app presents a consistent identity everywhere.
+
+**Actions**:
+1. **App name**: Set display name in `app.config.js` (Expo `name`) and, for web, in `web.name` and `web.shortName`; ensure one source of truth (e.g. env or constant) if names must stay in sync.
+2. **Logo**: Provide a canonical logo asset (e.g. under `assets/`); use it in shell/header and anywhere the app brand is shown; theme-aware variant if required (light/dark).
+3. **Android**: Configure `android.adaptiveIcon` in `app.config.js` (foreground image, background color); provide correctly sized assets per Expo/Android guidelines (e.g. 1024×1024 foreground).
+4. **iOS**: Configure app icon for iPhone and iPad (Expo uses top-level `icon` or `ios.icon` if set); provide required sizes (e.g. 1024×1024) and ensure `supportsTablet` icon is appropriate.
+5. **Web**: Set `web.favicon` in `app.config.js`; add PWA/manifest icons as needed (e.g. in `public/manifest.json` or via Expo web config). Ensure favicon and **web tablet icon** (e.g. Apple touch icon or large PWA icon for “add to home screen” / tablet) are set and correctly sized.
+
+**Verification**: Build or run on Android, iOS, and Web; confirm app name, logo in UI, and icon/favicon appear correctly in launcher, home screen, browser tab, and when installed as PWA or on tablet.
+
+**Rule Reference**: `tech-stack.mdc`, `theme-design.mdc` (logo variants if theme-dependent)
+
+---
+
 ### Step 9.1: Base Layout Primitives (All Platforms, All Sizes)
 **Goal**: Create layout frame components (e.g. AppFrame, AuthFrame, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
 
@@ -139,6 +155,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 ---
 
 ## Completion Criteria
+- **App identity and icons**: App name, logo, and all platform icons (Android, iOS, Web favicon, web/tablet icon) configured and verified per Step 9.0.
 - All layout and global UI components implemented for **all platforms** (Android, iOS, Web) and **all screen sizes** (mobile, tablet, desktop, large).
 - **Microsoft Fluent / Microsoft 365** look and feel applied (theme tokens, no hardcoded visuals).
 - Theme controls: **light and dark only**.

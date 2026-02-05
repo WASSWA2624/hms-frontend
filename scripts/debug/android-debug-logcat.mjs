@@ -36,33 +36,45 @@ if (!adbPath) {
 
 const logStream = fs.createWriteStream(logPath, { flags: 'w' });
 const timestamp = () => new Date().toISOString();
-logStream.write(`--- logcat started ${timestamp()} ---\n`);
+logStream.write(`--- logcat started ${timestamp()} (filter: React Native / Expo / AndroidRuntime) ---\n`);
 
-const child = spawn(adbPath, ['logcat', '-v', 'time'], {
-  stdio: ['ignore', 'pipe', 'pipe'],
-  shell: false,
+// Clear logcat so this run only contains fresh output; filter for RN/Expo/crashes
+const clear = spawn(adbPath, ['logcat', '-c'], { stdio: 'ignore', shell: false });
+clear.on('close', () => {
+  const child = spawn(adbPath, [
+    'logcat', '-v', 'time',
+    'ReactNativeJS:V', 'ReactNative:V', 'AndroidRuntime:E', 'Expo:V', 'ExpoModulesCore:V',
+  ], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    shell: false,
+  });
+
+  function tee(data, dest) {
+    logStream.write(data);
+    dest.write(data);
+  }
+
+  child.stdout.on('data', (data) => tee(data, process.stdout));
+  child.stderr.on('data', (data) => tee(data, process.stderr));
+
+  child.on('error', (err) => {
+    const msg = `[${timestamp()}] adb error: ${err.message}\n`;
+    logStream.write(msg);
+    process.stderr.write(msg);
+    process.exit(1);
+  });
+
+  child.on('exit', (code, signal) => {
+    logStream.write(`--- logcat ended ${timestamp()} code=${code} signal=${signal} ---\n`);
+    logStream.end();
+    process.exit(code ?? (signal ? 1 : 0));
+  });
+
+  process.on('SIGINT', () => child.kill('SIGINT'));
+  process.on('SIGTERM', () => child.kill('SIGTERM'));
 });
-
-function tee(data, dest) {
-  logStream.write(data);
-  dest.write(data);
-}
-
-child.stdout.on('data', (data) => tee(data, process.stdout));
-child.stderr.on('data', (data) => tee(data, process.stderr));
-
-child.on('error', (err) => {
-  const msg = `[${timestamp()}] adb error: ${err.message}\n`;
-  logStream.write(msg);
-  process.stderr.write(msg);
+clear.on('error', (err) => {
+  process.stderr.write(`adb logcat -c failed: ${err.message}\n`);
   process.exit(1);
 });
 
-child.on('exit', (code, signal) => {
-  logStream.write(`--- logcat ended ${timestamp()} code=${code} signal=${signal} ---\n`);
-  logStream.end();
-  process.exit(code ?? (signal ? 1 : 0));
-});
-
-process.on('SIGINT', () => child.kill('SIGINT'));
-process.on('SIGTERM', () => child.kill('SIGTERM'));
