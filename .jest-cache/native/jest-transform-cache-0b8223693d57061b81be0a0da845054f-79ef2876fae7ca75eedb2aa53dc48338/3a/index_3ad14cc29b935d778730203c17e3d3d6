@@ -1,0 +1,13 @@
+bf763c54d0ee0e7b0dde1cb615f6c15c
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _Brand.default;
+  }
+});
+var _Brand = _interopRequireDefault(require("./Brand"));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfQnJhbmQiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSJdLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBCcmFuZCBjb21wb25lbnQgYmFycmVsXHJcbiAqIEZpbGU6IEJyYW5kL2luZGV4LmpzXHJcbiAqL1xyXG5leHBvcnQgeyBkZWZhdWx0IH0gZnJvbSAnLi9CcmFuZCc7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7OztBQUlBLElBQUFBLE1BQUEsR0FBQUMsc0JBQUEsQ0FBQUMsT0FBQSIsImlnbm9yZUxpc3QiOltdfQ==

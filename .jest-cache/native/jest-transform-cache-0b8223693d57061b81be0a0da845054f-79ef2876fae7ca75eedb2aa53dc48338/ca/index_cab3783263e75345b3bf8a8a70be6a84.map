@@ -1,0 +1,1 @@
+{"version":3,"names":["_MobileSidebar","_interopRequireDefault","require"],"sources":["index.js"],"sourcesContent":["/**\r\n * MobileSidebar component barrel\r\n * File: MobileSidebar/index.js\r\n */\r\nexport { default } from './MobileSidebar.web';\r\n"],"mappings":";;;;;;;;;;AAIA,IAAAA,cAAA,GAAAC,sBAAA,CAAAC,OAAA","ignoreList":[]}

@@ -7,9 +7,13 @@ import { I18nProvider } from '@i18n';
 import { bootstrapApp } from '@bootstrap';
 import { logger } from '@logging';
 import store from '@store';
-import { StyledLoadingContainer, StyledActivityIndicator } from '@platform/layouts/common/RootLayoutStyles';
+import { ThemeProviderWrapper as BootstrapThemeWrapper } from '@theme';
+import {
+  StyledLoadingContainer,
+  StyledActivityIndicator,
+  StyledSlotContainer,
+} from '@platform/layouts/common/RootLayoutStyles';
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
-import { View } from 'react-native';
 
 /**
  * Root Layout Component
@@ -75,14 +79,15 @@ const RootLayout = () => {
   }, []);
 
   // Per bootstrap-config.mdc: Fatal errors must block rendering
+  // Per theme-design.mdc: Provide theme for loading/error UI (Fluent primary for indicator)
   if (bootstrapError) {
-    // ErrorBoundary will handle this, but we prevent rendering providers
-    // until bootstrap succeeds
     return (
       <ErrorBoundary>
-        <StyledLoadingContainer>
-          <StyledActivityIndicator size="large" />
-        </StyledLoadingContainer>
+        <BootstrapThemeWrapper theme="light">
+          <StyledLoadingContainer>
+            <StyledActivityIndicator size="large" />
+          </StyledLoadingContainer>
+        </BootstrapThemeWrapper>
       </ErrorBoundary>
     );
   }
@@ -91,9 +96,11 @@ const RootLayout = () => {
   if (!isBootstrapReady) {
     return (
       <ErrorBoundary>
-        <StyledLoadingContainer>
-          <StyledActivityIndicator size="large" />
-        </StyledLoadingContainer>
+        <BootstrapThemeWrapper theme="light">
+          <StyledLoadingContainer>
+            <StyledActivityIndicator size="large" />
+          </StyledLoadingContainer>
+        </BootstrapThemeWrapper>
       </ErrorBoundary>
     );
   }
@@ -112,9 +119,9 @@ const RootLayout = () => {
         >
           <ThemeProviderWrapper>
             <I18nProvider>
-              <View style={{ flex: 1, height: '100%' }}>
+              <StyledSlotContainer>
                 <Slot />
-              </View>
+              </StyledSlotContainer>
             </I18nProvider>
           </ThemeProviderWrapper>
         </PersistGate>

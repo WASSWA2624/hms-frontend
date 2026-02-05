@@ -121,6 +121,7 @@ jest.mock('@platform/layouts/common/RootLayoutStyles', () => {
     StyledLoadingContainer: ({ children, testID }) =>
       React.createElement(View, { testID }, children),
     StyledActivityIndicator: (props) => React.createElement(ActivityIndicator, props),
+    StyledSlotContainer: ({ children }) => React.createElement(View, null, children),
   };
 }, { virtual: true });
 
@@ -345,6 +346,18 @@ describe('app/_layout.jsx - ThemeProvider Integration', () => {
     await waitFor(() => {
       expect(mockBootstrapApp).toHaveBeenCalled();
     }, { timeout: 3000 });
+  });
+
+  test('should provide dark theme when theme mode is dark (theme switching)', async () => {
+    // Per Step 7.4: Test theme switching if applicable (per theme-design.mdc)
+    const { getTheme } = require('@theme');
+    const darkTheme = getTheme('dark');
+    expect(darkTheme).toBeDefined();
+    expect(darkTheme.colors).toBeDefined();
+    expect(darkTheme.colors.background?.primary).toBeDefined();
+    // Light theme for comparison
+    const lightTheme = getTheme('light');
+    expect(lightTheme.colors.background.primary).not.toBe(darkTheme.colors.background.primary);
   });
 
   test('should maintain provider order (ErrorBoundary > Redux Provider > PersistGate > ThemeProvider)', async () => {

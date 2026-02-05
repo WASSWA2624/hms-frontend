@@ -1,0 +1,33 @@
+c4f05d9d9887f7c733a13d4d13923d25
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "FRAME_SLOTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_SLOTS;
+  }
+});
+Object.defineProperty(exports, "FRAME_VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_VARIANTS;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _AppFrame.default;
+  }
+});
+Object.defineProperty(exports, "useAppFrame", {
+  enumerable: true,
+  get: function get() {
+    return _useAppFrame.default;
+  }
+});
+var _AppFrame = _interopRequireDefault(require("./AppFrame"));
+var _useAppFrame = _interopRequireDefault(require("./useAppFrame"));
+var _types = require("./types");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfQXBwRnJhbWUiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl91c2VBcHBGcmFtZSIsIl90eXBlcyJdLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBBcHBGcmFtZSBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlIHJlc29sdXRpb24pXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vQXBwRnJhbWUnO1xyXG5leHBvcnQgeyBkZWZhdWx0IGFzIHVzZUFwcEZyYW1lIH0gZnJvbSAnLi91c2VBcHBGcmFtZSc7XHJcbmV4cG9ydCB7IEZSQU1FX1NMT1RTLCBGUkFNRV9WQVJJQU5UUyB9IGZyb20gJy4vdHlwZXMnO1xyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFNQSxJQUFBQSxTQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxZQUFBLEdBQUFGLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBRSxNQUFBLEdBQUFGLE9BQUEiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -1,0 +1,13 @@
+59b14f382d3a89c54bb9989719ea6b3b
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _NotificationsMenu.default;
+  }
+});
+var _NotificationsMenu = _interopRequireDefault(require("./NotificationsMenu.web"));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfTm90aWZpY2F0aW9uc01lbnUiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSJdLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBOb3RpZmljYXRpb25zTWVudSBjb21wb25lbnQgYmFycmVsXHJcbiAqIEZpbGU6IE5vdGlmaWNhdGlvbnNNZW51L2luZGV4LmpzXHJcbiAqL1xyXG5leHBvcnQgeyBkZWZhdWx0IH0gZnJvbSAnLi9Ob3RpZmljYXRpb25zTWVudS53ZWInO1xyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7QUFJQSxJQUFBQSxrQkFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBIiwiaWdub3JlTGlzdCI6W119

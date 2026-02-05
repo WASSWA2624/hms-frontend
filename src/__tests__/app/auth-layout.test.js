@@ -24,7 +24,7 @@ import { Slot } from 'expo-router';
 import rootReducer from '@store/rootReducer';
 import AuthLayout from '@app/(auth)/_layout';
 
-// Mock expo-router
+// Mock expo-router (layout uses Slot, useRouter, usePathname)
 jest.mock('expo-router', () => ({
   Slot: ({ children }) => children || null,
   useRouter: jest.fn(() => ({
@@ -33,6 +33,10 @@ jest.mock('expo-router', () => ({
     back: jest.fn(),
     canGoBack: jest.fn(() => true),
   })),
+  usePathname: jest.fn(() => '/login'),
+  useSegments: jest.fn(() => []),
+  useLocalSearchParams: jest.fn(() => ({})),
+  useGlobalSearchParams: jest.fn(() => ({})),
 }));
 
 // Create a mock store for tests

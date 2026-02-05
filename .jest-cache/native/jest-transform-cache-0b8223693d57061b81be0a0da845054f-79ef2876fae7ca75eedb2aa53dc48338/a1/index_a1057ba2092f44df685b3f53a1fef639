@@ -1,0 +1,54 @@
+086d83c90ec201d1412073d2b365a08e
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "ROLE_GUARD_ERRORS", {
+  enumerable: true,
+  get: function get() {
+    return _role.ROLE_GUARD_ERRORS;
+  }
+});
+Object.defineProperty(exports, "useAuthGuard", {
+  enumerable: true,
+  get: function get() {
+    return _auth.useAuthGuard;
+  }
+});
+Object.defineProperty(exports, "useRoleGuard", {
+  enumerable: true,
+  get: function get() {
+    return _role.useRoleGuard;
+  }
+});
+var _auth = require("./auth.guard");
+var _role = require("./role.guard");
+function cov_o6o2zfruy() {
+  var path = "D:\\coding\\apps\\hms\\hms-frontend\\src\\navigation\\guards\\index.js";
+  var hash = "e033867f41f0f8b6afdb560d0002effc209ed8fb";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "D:\\coding\\apps\\hms\\hms-frontend\\src\\navigation\\guards\\index.js",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "e033867f41f0f8b6afdb560d0002effc209ed8fb"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_o6o2zfruy = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_o6o2zfruy();
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfYXV0aCIsInJlcXVpcmUiLCJfcm9sZSIsImNvdl9vNm8yemZydXkiLCJwYXRoIiwiaGFzaCIsImdsb2JhbCIsIkZ1bmN0aW9uIiwiZ2N2IiwiY292ZXJhZ2VEYXRhIiwic3RhdGVtZW50TWFwIiwiZm5NYXAiLCJicmFuY2hNYXAiLCJzIiwiZiIsImIiLCJfY292ZXJhZ2VTY2hlbWEiLCJjb3ZlcmFnZSIsImFjdHVhbENvdmVyYWdlIl0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gTmF2aWdhdGlvbiBndWFyZHMgYmFycmVsIGV4cG9ydFxyXG5leHBvcnQgeyB1c2VBdXRoR3VhcmQgfSBmcm9tICcuL2F1dGguZ3VhcmQnO1xyXG5leHBvcnQgeyB1c2VSb2xlR3VhcmQsIFJPTEVfR1VBUkRfRVJST1JTIH0gZnJvbSAnLi9yb2xlLmd1YXJkJztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFDQSxJQUFBQSxLQUFBLEdBQUFDLE9BQUE7QUFDQSxJQUFBQyxLQUFBLEdBQUFELE9BQUE7QUFBK0QsU0FBQUUsY0FBQTtFQUFBLElBQUFDLElBQUE7RUFBQSxJQUFBQyxJQUFBO0VBQUEsSUFBQUMsTUFBQSxPQUFBQyxRQUFBO0VBQUEsSUFBQUMsR0FBQTtFQUFBLElBQUFDLFlBQUE7SUFBQUwsSUFBQTtJQUFBTSxZQUFBO0lBQUFDLEtBQUE7SUFBQUMsU0FBQTtJQUFBQyxDQUFBO0lBQUFDLENBQUE7SUFBQUMsQ0FBQTtJQUFBQyxlQUFBO0lBQUFYLElBQUE7RUFBQTtFQUFBLElBQUFZLFFBQUEsR0FBQVgsTUFBQSxDQUFBRSxHQUFBLE1BQUFGLE1BQUEsQ0FBQUUsR0FBQTtFQUFBLEtBQUFTLFFBQUEsQ0FBQWIsSUFBQSxLQUFBYSxRQUFBLENBQUFiLElBQUEsRUFBQUMsSUFBQSxLQUFBQSxJQUFBO0lBQUFZLFFBQUEsQ0FBQWIsSUFBQSxJQUFBSyxZQUFBO0VBQUE7RUFBQSxJQUFBUyxjQUFBLEdBQUFELFFBQUEsQ0FBQWIsSUFBQTtFQUFBO0lBQUFELGFBQUEsWUFBQUEsQ0FBQTtNQUFBLE9BQUFlLGNBQUE7SUFBQTtFQUFBO0VBQUEsT0FBQUEsY0FBQTtBQUFBO0FBQUFmLGFBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

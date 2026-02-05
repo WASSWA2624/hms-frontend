@@ -1,0 +1,33 @@
+4806ddf4777f61a929b300536fae31df
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "FRAME_SLOTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_SLOTS;
+  }
+});
+Object.defineProperty(exports, "FRAME_VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_VARIANTS;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _PatientFrame.default;
+  }
+});
+Object.defineProperty(exports, "usePatientFrame", {
+  enumerable: true,
+  get: function get() {
+    return _usePatientFrame.default;
+  }
+});
+var _PatientFrame = _interopRequireDefault(require("./PatientFrame"));
+var _usePatientFrame = _interopRequireDefault(require("./usePatientFrame"));
+var _types = require("./types");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfUGF0aWVudEZyYW1lIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdXNlUGF0aWVudEZyYW1lIiwiX3R5cGVzIl0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFBhdGllbnRGcmFtZSBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlIHJlc29sdXRpb24pXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vUGF0aWVudEZyYW1lJztcclxuZXhwb3J0IHsgZGVmYXVsdCBhcyB1c2VQYXRpZW50RnJhbWUgfSBmcm9tICcuL3VzZVBhdGllbnRGcmFtZSc7XHJcbmV4cG9ydCB7IEZSQU1FX1NMT1RTLCBGUkFNRV9WQVJJQU5UUyB9IGZyb20gJy4vdHlwZXMnO1xyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFNQSxJQUFBQSxhQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxnQkFBQSxHQUFBRixzQkFBQSxDQUFBQyxPQUFBO0FBQ0EsSUFBQUUsTUFBQSxHQUFBRixPQUFBIiwiaWdub3JlTGlzdCI6W119

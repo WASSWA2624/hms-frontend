@@ -1,0 +1,26 @@
+5c1c05827e4e36ca3097995116a41a15
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "FRAME_SLOTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_SLOTS;
+  }
+});
+Object.defineProperty(exports, "FRAME_VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FRAME_VARIANTS;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _AuthFrame.default;
+  }
+});
+var _AuthFrame = _interopRequireDefault(require("./AuthFrame"));
+var _types = require("./types");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfQXV0aEZyYW1lIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdHlwZXMiXSwic291cmNlcyI6WyJpbmRleC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogQXV0aEZyYW1lIENvbXBvbmVudFxyXG4gKiBQbGF0Zm9ybSBzZWxlY3RvciBleHBvcnQgKHBsYXRmb3JtIGZpbGUgcmVzb2x1dGlvbilcclxuICogRmlsZTogaW5kZXguanNcclxuICovXHJcblxyXG5leHBvcnQgeyBkZWZhdWx0IH0gZnJvbSAnLi9BdXRoRnJhbWUnO1xyXG5leHBvcnQgeyBGUkFNRV9TTE9UUywgRlJBTUVfVkFSSUFOVFMgfSBmcm9tICcuL3R5cGVzJztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBTUEsSUFBQUEsVUFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQ0EsSUFBQUMsTUFBQSxHQUFBRCxPQUFBIiwiaWdub3JlTGlzdCI6W119

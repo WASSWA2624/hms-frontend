@@ -13,7 +13,6 @@
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
-import { act } from 'react-test-renderer';
 import { useAuthGuard } from '@navigation/guards/auth.guard';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';

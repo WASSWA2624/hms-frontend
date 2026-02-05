@@ -2,4 +2,4 @@
  * HeaderCustomizationMenu component barrel
  * File: HeaderCustomizationMenu/index.js
  */
-export { default } from './HeaderCustomizationMenu';
+export { default } from './HeaderCustomizationMenu.web';

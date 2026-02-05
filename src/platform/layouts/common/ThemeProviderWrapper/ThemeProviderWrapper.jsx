@@ -36,11 +36,6 @@ const GlobalStyle = createGlobalStyle`
 
 const ThemeProviderWrapper = ({ children }) => {
   const themeMode = useSelector(selectTheme);
-  
-  // #region agent log
-  globalThis.__themeProviderWrapperRenderCount = (globalThis.__themeProviderWrapperRenderCount || 0) + 1;
-  fetch('http://127.0.0.1:7249/ingest/0ca3e34c-db2d-4973-878f-b50eb78eba91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'B',location:'ThemeProviderWrapper.jsx:21',message:'ThemeProviderWrapper render',data:{renderCount:globalThis.__themeProviderWrapperRenderCount,themeMode},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   return (
     <BaseThemeProvider theme={themeMode}>

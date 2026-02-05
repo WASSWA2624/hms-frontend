@@ -1,0 +1,20 @@
+8ed42d4d45a51ebdd0cd12ddacfbc0ba
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _PatientRouteLayout.default;
+  }
+});
+Object.defineProperty(exports, "usePatientRouteLayout", {
+  enumerable: true,
+  get: function get() {
+    return _usePatientRouteLayout.default;
+  }
+});
+var _PatientRouteLayout = _interopRequireDefault(require("./PatientRouteLayout"));
+var _usePatientRouteLayout = _interopRequireDefault(require("./usePatientRouteLayout"));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfUGF0aWVudFJvdXRlTGF5b3V0IiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdXNlUGF0aWVudFJvdXRlTGF5b3V0Il0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFBhdGllbnRSb3V0ZUxheW91dCBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlIHJlc29sdXRpb24pXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vUGF0aWVudFJvdXRlTGF5b3V0JztcclxuZXhwb3J0IHsgZGVmYXVsdCBhcyB1c2VQYXRpZW50Um91dGVMYXlvdXQgfSBmcm9tICcuL3VzZVBhdGllbnRSb3V0ZUxheW91dCc7XHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztBQU1BLElBQUFBLG1CQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxzQkFBQSxHQUFBRixzQkFBQSxDQUFBQyxPQUFBIiwiaWdub3JlTGlzdCI6W119

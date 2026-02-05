@@ -1,26 +1,34 @@
 /**
  * Main Group Route Layout
- * 
+ *
  * Route layout for authenticated/main app routes (home, dashboard, etc.).
- * 
+ *
  * Per app-router.mdc:
  * - Route layouts MUST stay in app/ (part of Expo App Router routing system)
  * - Route layouts use `_layout.jsx`, default exports
- * - This file is required by Expo Router for route group layout
- * 
+ * - Guard logic applied via layouts (Step 7.15: useAuthGuard in this layout)
+ *
  * Per component-structure.mdc:
  * - Route layouts should be minimal wrappers that import platform layout components
  * - All layout logic belongs in platform/layouts/
- * 
- * Platform resolution: Metro bundler automatically resolves platform-specific files
+ *
+ * Platform resolution: Metro bundler resolves platform-specific files
  * (MainRouteLayout.web.jsx, MainRouteLayout.android.jsx, MainRouteLayout.ios.jsx)
  * when importing from the platform/layouts folder.
  */
 
+import React from 'react';
+import { useAuthGuard } from '@navigation/guards';
 import { MainRouteLayout } from '@platform/layouts';
 
-// Re-export platform route layout component
-// Metro bundler will automatically resolve to the correct platform file
-// Expo Router requires this file to exist in app/(main)/ for routing
-export default MainRouteLayout;
+/**
+ * Main group layout: applies auth guard then renders platform route layout.
+ * Unauthenticated users are redirected to /login (per auth.guard.js default).
+ */
+function MainGroupLayout() {
+  useAuthGuard();
+  return <MainRouteLayout />;
+}
+
+export default MainGroupLayout;
 

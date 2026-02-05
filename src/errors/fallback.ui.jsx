@@ -38,9 +38,9 @@ const Message = styled.Text`
 `;
 
 const RetryButton = styled.Pressable`
-  background-color: ${({ theme }) => theme?.colors?.primary ?? '#007AFF'};
+  background-color: ${({ theme }) => theme?.colors?.primary ?? '#0078D4'};
   padding: ${({ theme }) => theme?.spacing?.sm ?? 8}px ${({ theme }) => theme?.spacing?.lg ?? 24}px;
-  border-radius: ${({ theme }) => theme?.radius?.md ?? 8}px;
+  border-radius: ${({ theme }) => theme?.radius?.sm ?? 4}px;
 `;
 
 const RetryText = styled.Text`

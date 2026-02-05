@@ -102,6 +102,7 @@ jest.mock('@platform/layouts/common/RootLayoutStyles', () => {
     StyledLoadingContainer: ({ children, testID }) =>
       React.createElement(View, { testID }, children),
     StyledActivityIndicator: (props) => React.createElement(ActivityIndicator, props),
+    StyledSlotContainer: ({ children }) => React.createElement(View, null, children),
   };
 }, { virtual: true });
 

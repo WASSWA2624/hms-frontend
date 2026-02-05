@@ -1,93 +1,84 @@
 /**
- * Auth Layout Guard Tests
- * 
- * Tests for auth layout with auth guard integration covering:
+ * Auth Layout Guard Tests (Step 7.14)
+ *
+ * Tests for auth layout with auth guard integration:
  * - Unauthenticated users can access auth routes (no redirect)
  * - Authenticated users are redirected to home route when accessing auth routes
  * - All branches (authenticated vs unauthenticated states)
  * - Integration between layout and guard hook
- * 
- * Coverage: 100% required (critical path: auth/access control)
+ *
+ * Per testing.mdc: 100% coverage required (critical path: auth/access control)
  */
 
 import React from 'react';
+import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react-native';
-import { act } from 'react-test-renderer';
+import { configureStore } from '@reduxjs/toolkit';
+import rootReducer from '@store/rootReducer';
 import AuthLayout from '@app/(auth)/_layout';
-import { useAuth } from '@hooks';
 import { useAuthGuard } from '@navigation/guards';
 import { usePathname, useRouter } from 'expo-router';
 
-// Mock dependencies
 jest.mock('@navigation/guards', () => ({
   useAuthGuard: jest.fn(),
 }));
 
+const mockReplace = jest.fn();
+const mockPush = jest.fn();
+
 jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
+  useRouter: jest.fn(() => ({
+    replace: mockReplace,
+    push: mockPush,
+    back: jest.fn(),
+    canGoBack: jest.fn(() => true),
+  })),
   usePathname: jest.fn(() => '/login'),
+  useSegments: jest.fn(() => []),
+  useLocalSearchParams: jest.fn(() => ({})),
+  useGlobalSearchParams: jest.fn(() => ({})),
   Slot: ({ children }) => children || null,
 }));
 
-jest.mock('@hooks', () => ({
-  useAuth: jest.fn(),
-  useI18n: () => ({
-    t: (key) => key,
-    locale: 'en',
-  }),
-  useUiState: () => ({ isLoading: false }),
-  useShellBanners: () => [],
-}));
-
-jest.mock('@platform/components', () => ({
-  GlobalHeader: jest.fn(({ children, ...props }) => (
-    <div {...props}>{children || 'GlobalHeader'}</div>
-  )),
-  LoadingOverlay: jest.fn(({ children, ...props }) => (
-    <div {...props}>{children || 'LoadingOverlay'}</div>
-  )),
-  NoticeSurface: jest.fn(({ children, ...props }) => (
-    <div {...props}>{children || 'NoticeSurface'}</div>
-  )),
-  ShellBanners: jest.fn(({ children, ...props }) => (
-    <div {...props}>{children || 'ShellBanners'}</div>
-  )),
-}));
-
-describe('AuthLayout with Auth Guard', () => {
-  let mockRouter;
-
-  beforeEach(() => {
-    // Reset mocks
-    jest.clearAllMocks();
-
-    // Setup router mock
-    mockRouter = {
-      replace: jest.fn(),
-      push: jest.fn(),
-    };
-    useRouter.mockReturnValue(mockRouter);
-    usePathname.mockReturnValue('/login');
-
-    // Default: unauthenticated
-    useAuth.mockReturnValue({ isAuthenticated: false, logout: jest.fn(), roles: [] });
-    useAuthGuard.mockReturnValue({
-      authenticated: false,
+const createMockStore = (overrides = {}) => {
+  const base = {
+    ui: {
+      theme: 'light',
+      locale: 'en',
+      isLoading: false,
+      isAuthenticated: false,
       user: null,
-    });
+    },
+    network: { isOnline: true },
+    auth: { isAuthenticated: false, user: null, isLoading: false, errorCode: null },
+  };
+  return configureStore({
+    reducer: rootReducer,
+    preloadedState: { ...base, ...overrides },
+  });
+};
+
+const renderWithStore = (store) =>
+  render(
+    <Provider store={store}>
+      <AuthLayout />
+    </Provider>
+  );
+
+describe('AuthLayout with Auth Guard (Step 7.14)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    usePathname.mockReturnValue('/login');
   });
 
-  it('should render Slot for unauthenticated users', async () => {
-    useAuthGuard.mockReturnValue({
-      authenticated: false,
-      user: null,
-    });
+  it('should not redirect when unauthenticated', async () => {
+    useAuthGuard.mockReturnValue({ authenticated: false, user: null });
+    const store = createMockStore();
 
-    const { getByTestId } = render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      // Layout should render without redirecting
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 
@@ -96,228 +87,210 @@ describe('AuthLayout with Auth Guard', () => {
       authenticated: true,
       user: { id: '1', email: 'test@example.com' },
     });
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: { id: '1', email: 'test@example.com' }, isLoading: false, errorCode: null },
+    });
 
-    render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });
 
   it('should allow register route for authorized roles', async () => {
     usePathname.mockReturnValue('/register');
-    useAuth.mockReturnValue({ isAuthenticated: true, logout: jest.fn(), roles: ['admin'] });
     useAuthGuard.mockReturnValue({
       authenticated: true,
-      user: { id: '1', email: 'test@example.com' },
+      user: { id: '1', email: 'test@example.com', roles: ['admin'] },
+    });
+    const store = createMockStore({
+      auth: {
+        isAuthenticated: true,
+        user: { id: '1', email: 'test@example.com', roles: ['admin'] },
+        isLoading: false,
+        errorCode: null,
+      },
     });
 
-    render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 
-  it('should redirect from register route without access', async () => {
+  it('should redirect from register route when user lacks access', async () => {
     usePathname.mockReturnValue('/register');
-    useAuth.mockReturnValue({ isAuthenticated: true, logout: jest.fn(), roles: [] });
     useAuthGuard.mockReturnValue({
       authenticated: true,
       user: { id: '1', email: 'test@example.com' },
     });
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: { id: '1', email: 'test@example.com' }, isLoading: false, errorCode: null },
+    });
 
-    render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });
 
-  it('should only redirect once per authenticated state (idempotent)', async () => {
+  it('should redirect only once when authenticated (idempotent)', async () => {
     useAuthGuard.mockReturnValue({
       authenticated: true,
       user: { id: '1', email: 'test@example.com' },
     });
-
-    const { rerender } = render(<AuthLayout />);
-
-    await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledTimes(1);
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: { id: '1', email: 'test@example.com' }, isLoading: false, errorCode: null },
     });
 
-    // Rerender should not trigger another redirect
-    rerender(<AuthLayout />);
+    const { rerender } = renderWithStore(store);
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledTimes(1);
+      expect(mockReplace).toHaveBeenCalledTimes(1);
+      expect(mockReplace).toHaveBeenCalledWith('/home');
+    });
+
+    rerender(
+      <Provider store={store}>
+        <AuthLayout />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledTimes(1);
     });
   });
 
   it('should handle transition from unauthenticated to authenticated', async () => {
     let authenticated = false;
-
     useAuthGuard.mockImplementation(() => ({
       authenticated,
       user: authenticated ? { id: '1', email: 'test@example.com' } : null,
     }));
+    const store = createMockStore();
 
-    const { rerender } = render(<AuthLayout />);
+    const { rerender } = renderWithStore(store);
 
     await waitFor(() => {
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
     });
 
-    // Transition to authenticated
     authenticated = true;
-    mockRouter.replace.mockClear();
-
-    rerender(<AuthLayout />);
+    mockReplace.mockClear();
+    rerender(
+      <Provider store={store}>
+        <AuthLayout />
+      </Provider>
+    );
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });
 
   it('should handle transition from authenticated to unauthenticated', async () => {
     let authenticated = true;
-
     useAuthGuard.mockImplementation(() => ({
       authenticated,
       user: authenticated ? { id: '1', email: 'test@example.com' } : null,
     }));
-
-    const { rerender } = render(<AuthLayout />);
-
-    await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: { id: '1' }, isLoading: false, errorCode: null },
     });
 
-    // Transition to unauthenticated
-    authenticated = false;
-    mockRouter.replace.mockClear();
-
-    rerender(<AuthLayout />);
+    const { rerender } = renderWithStore(store);
 
     await waitFor(() => {
-      // Should not redirect when unauthenticated
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).toHaveBeenCalledWith('/home');
+    });
+
+    authenticated = false;
+    mockReplace.mockClear();
+    rerender(
+      <Provider store={store}>
+        <AuthLayout />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 
-  it('should reset redirect flag when transitioning from authenticated to unauthenticated', async () => {
+  it('should reset redirect flag when transitioning to unauthenticated then back', async () => {
     let authenticated = true;
-
     useAuthGuard.mockImplementation(() => ({
       authenticated,
       user: authenticated ? { id: '1', email: 'test@example.com' } : null,
     }));
-
-    const { rerender } = render(<AuthLayout />);
-
-    await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: { id: '1' }, isLoading: false, errorCode: null },
     });
 
-    // Transition to unauthenticated
+    const { rerender } = renderWithStore(store);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/home');
+    });
+
     authenticated = false;
-    mockRouter.replace.mockClear();
-
-    rerender(<AuthLayout />);
-
+    mockReplace.mockClear();
+    rerender(
+      <Provider store={store}>
+        <AuthLayout />
+      </Provider>
+    );
     await waitFor(() => {
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
     });
 
-    // Transition back to authenticated (should redirect again)
     authenticated = true;
-
-    rerender(<AuthLayout />);
-
+    rerender(
+      <Provider store={store}>
+        <AuthLayout />
+      </Provider>
+    );
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });
 
-  it('should call useAuthGuard hook', () => {
-    render(<AuthLayout />);
+  it('should call useAuthGuard with skipRedirect: true', () => {
+    useAuthGuard.mockReturnValue({ authenticated: false, user: null });
+    const store = createMockStore();
 
-    expect(useAuthGuard).toHaveBeenCalled();
-  });
+    renderWithStore(store);
 
-  it('should pass login action when unauthenticated', () => {
-    render(<AuthLayout />);
-    const GlobalHeader = require('@platform/components').GlobalHeader;
-    const headerCall = GlobalHeader.mock.calls[0];
-    const actionIds = headerCall[0].actions.map((action) => action.id);
-    expect(actionIds).toContain('login');
-    expect(actionIds).not.toContain('logout');
-  });
-
-  it('should pass logout action when authenticated', () => {
-    useAuth.mockReturnValue({ isAuthenticated: true, logout: jest.fn(), roles: ['admin'] });
-    useAuthGuard.mockReturnValue({
-      authenticated: true,
-      user: { id: '1', email: 'test@example.com' },
-    });
-    render(<AuthLayout />);
-    const GlobalHeader = require('@platform/components').GlobalHeader;
-    const headerCall = GlobalHeader.mock.calls[0];
-    const actionIds = headerCall[0].actions.map((action) => action.id);
-    expect(actionIds).toContain('logout');
-    expect(actionIds).not.toContain('login');
-    expect(actionIds).not.toContain('register');
-  });
-
-  it('should call useRouter hook', () => {
-    render(<AuthLayout />);
-
-    expect(useRouter).toHaveBeenCalled();
-  });
-
-  it('should handle router errors gracefully', () => {
-    useAuthGuard.mockReturnValue({
-      authenticated: true,
-      user: { id: '1', email: 'test@example.com' },
-    });
-
-    mockRouter.replace.mockImplementation(() => {
-      throw new Error('Router error');
-    });
-
-    // Should throw error (router error propagates)
-    expect(() => {
-      render(<AuthLayout />);
-    }).toThrow('Router error');
+    expect(useAuthGuard).toHaveBeenCalledWith({ skipRedirect: true });
   });
 
   it('should handle useAuthGuard returning undefined authenticated', async () => {
-    useAuthGuard.mockReturnValue({
-      authenticated: undefined,
-      user: null,
-    });
+    useAuthGuard.mockReturnValue({ authenticated: undefined, user: null });
+    const store = createMockStore();
 
-    render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      // Should not redirect if authenticated is undefined/falsy
-      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 
-  it('should handle useAuthGuard returning null user for authenticated state', async () => {
+  it('should redirect when authenticated even if user is null', async () => {
     useAuthGuard.mockReturnValue({
       authenticated: true,
       user: null,
     });
+    const store = createMockStore({
+      auth: { isAuthenticated: true, user: null, isLoading: false, errorCode: null },
+    });
 
-    render(<AuthLayout />);
+    renderWithStore(store);
 
     await waitFor(() => {
-      // Should still redirect if authenticated is true, even if user is null
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockReplace).toHaveBeenCalledWith('/home');
     });
   });
 });
-

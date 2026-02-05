@@ -1,0 +1,1 @@
+{"version":3,"names":["_Brand","_interopRequireDefault","require"],"sources":["index.js"],"sourcesContent":["/**\r\n * Brand component barrel\r\n * File: Brand/index.js\r\n */\r\nexport { default } from './Brand';\r\n"],"mappings":";;;;;;;;;;AAIA,IAAAA,MAAA,GAAAC,sBAAA,CAAAC,OAAA","ignoreList":[]}

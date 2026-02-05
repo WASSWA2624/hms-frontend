@@ -1,0 +1,39 @@
+3b5c9384bcc09e6124c85d854be376ff
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "ACTION_VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.ACTION_VARIANTS;
+  }
+});
+Object.defineProperty(exports, "FOOTER_VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.FOOTER_VARIANTS;
+  }
+});
+Object.defineProperty(exports, "STATUS_TONES", {
+  enumerable: true,
+  get: function get() {
+    return _types.STATUS_TONES;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _GlobalFooter.default;
+  }
+});
+Object.defineProperty(exports, "useGlobalFooter", {
+  enumerable: true,
+  get: function get() {
+    return _useGlobalFooter.default;
+  }
+});
+var _GlobalFooter = _interopRequireDefault(require("./GlobalFooter"));
+var _useGlobalFooter = _interopRequireDefault(require("./useGlobalFooter"));
+var _types = require("./types");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfR2xvYmFsRm9vdGVyIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdXNlR2xvYmFsRm9vdGVyIiwiX3R5cGVzIl0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIEdsb2JhbEZvb3RlciBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlIHJlc29sdXRpb24pXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vR2xvYmFsRm9vdGVyJztcclxuZXhwb3J0IHsgZGVmYXVsdCBhcyB1c2VHbG9iYWxGb290ZXIgfSBmcm9tICcuL3VzZUdsb2JhbEZvb3Rlcic7XHJcbmV4cG9ydCB7IEFDVElPTl9WQVJJQU5UUywgRk9PVEVSX1ZBUklBTlRTLCBTVEFUVVNfVE9ORVMgfSBmcm9tICcuL3R5cGVzJztcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBTUEsSUFBQUEsYUFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQ0EsSUFBQUMsZ0JBQUEsR0FBQUYsc0JBQUEsQ0FBQUMsT0FBQTtBQUNBLElBQUFFLE1BQUEsR0FBQUYsT0FBQSIsImlnbm9yZUxpc3QiOltdfQ==

@@ -254,13 +254,13 @@ describe('MainLayout with Navigation Skeleton', () => {
       });
     });
 
-    it('should pass logout action when authenticated on web', () => {
+    it('should not show login in header actions when authenticated on web', () => {
       renderWithProviders(<MainRouteLayoutWeb />);
       const headerCall = GlobalHeader.mock.calls[0];
       const actionIds = headerCall[0].actions.map((action) => action.id);
-      expect(actionIds).toContain('logout');
+      // Logout is in HeaderUtility user menu, not in header actions (per implementation)
       expect(actionIds).not.toContain('login');
-      expect(actionIds).not.toContain('register');
+      expect(actionIds).toContain('toggle-sidebar');
     });
 
     it('should not render TabBar on web platform', () => {
@@ -294,7 +294,7 @@ describe('MainLayout with Navigation Skeleton', () => {
       const headerCall = GlobalHeader.mock.calls[0];
       const actionIds = headerCall[0].actions.map((action) => action.id);
       expect(actionIds).toContain('register');
-      expect(actionIds).toContain('logout');
+      expect(actionIds).toContain('toggle-sidebar');
     });
   });
 

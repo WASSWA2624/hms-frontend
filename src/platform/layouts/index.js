@@ -21,5 +21,6 @@ export { default as ThemeProviderWrapper } from './common/ThemeProviderWrapper';
 export {
   StyledLoadingContainer,
   StyledActivityIndicator,
+  StyledSlotContainer,
 } from './common/RootLayoutStyles';
 

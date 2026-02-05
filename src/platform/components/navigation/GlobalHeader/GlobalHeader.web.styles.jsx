@@ -16,7 +16,11 @@ const StyledHeader = styled.header.withConfig({
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: ${({ theme }) => {
+    const s = theme.shadows?.sm;
+    if (!s) return '0 1px 2px rgba(0, 0, 0, 0.04)';
+    return `${s.shadowOffset?.width ?? 0}px ${s.shadowOffset?.height ?? 1}px ${s.shadowRadius ?? 2}px rgba(0, 0, 0, ${s.shadowOpacity ?? 0.1})`;
+  }};
   display: flex;
   flex-direction: column;
   justify-content: center;
