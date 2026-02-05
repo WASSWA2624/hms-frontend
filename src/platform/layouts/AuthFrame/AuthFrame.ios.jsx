@@ -40,7 +40,7 @@ const AuthFrameIOS = ({
   testID,
 }) => {
   return (
-    <StyledContainer accessibilityRole="main" accessibilityLabel={accessibilityLabel} testID={testID}>
+    <StyledContainer accessibilityRole="none" accessibilityLabel={accessibilityLabel} testID={testID}>
       <StyledScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <StyledCard>
           {header && <StyledHeader>{header}</StyledHeader>}

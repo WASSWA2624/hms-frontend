@@ -151,8 +151,9 @@ describe('AuthLayout Component', () => {
       // Container should have main accessibility role (React Native uses accessibilityRole, Web uses role)
       const container = getByTestId('auth-layout-main');
       expect(container).toBeTruthy();
-      // Check accessibilityRole prop (React Native) or role prop (Web)
-      expect(container.props.accessibilityRole || container.props.role).toBe('main');
+      // Web uses role="main"; native uses accessibilityRole="none" (RN doesn't support "main")
+      const role = container.props.accessibilityRole || container.props.role;
+      expect(['main', 'none']).toContain(role);
     });
 
     it('should have custom accessibility label', () => {
@@ -173,8 +174,9 @@ describe('AuthLayout Component', () => {
       expect(getByText('Content')).toBeTruthy();
       const container = getByTestId('auth-layout');
       expect(container).toBeTruthy();
-      // Check accessibilityRole prop (React Native) or role prop (Web)
-      expect(container.props.accessibilityRole || container.props.role).toBe('main');
+      // Web uses role="main"; native uses accessibilityRole="none" (RN doesn't support "main")
+      const role = container.props.accessibilityRole || container.props.role;
+      expect(['main', 'none']).toContain(role);
     });
   });
 
@@ -347,7 +349,8 @@ describe('AuthLayout Component', () => {
           </AuthLayoutAndroid>
         );
         const container = getByTestId('android-auth-layout');
-        expect(container.props.accessibilityRole).toBe('main');
+        // RN native doesn't support "main"; use "none" to avoid crash
+        expect(container.props.accessibilityRole).toBe('none');
       });
 
       it('should handle keyboard on Android', () => {
@@ -408,7 +411,8 @@ describe('AuthLayout Component', () => {
           </AuthLayoutIOS>
         );
         const container = getByTestId('ios-auth-layout');
-        expect(container.props.accessibilityRole).toBe('main');
+        // RN native doesn't support "main"; use "none" to avoid crash
+        expect(container.props.accessibilityRole).toBe('none');
       });
 
       it('should handle keyboard on iOS', () => {

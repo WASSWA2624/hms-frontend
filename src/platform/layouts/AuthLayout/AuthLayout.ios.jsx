@@ -35,7 +35,7 @@ const AuthLayoutIOS = ({
     <StyledContainer
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      accessibilityRole="main"
+      accessibilityRole="none"
     >
       <StyledKeyboardAvoidingView behavior="padding">
         <StyledScrollView

@@ -35,7 +35,7 @@ const AuthLayoutAndroid = ({
     <StyledContainer
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      accessibilityRole="main"
+      accessibilityRole="none"
     >
       <StyledKeyboardAvoidingView behavior="height">
         <StyledScrollView

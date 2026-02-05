@@ -118,14 +118,14 @@ describe('Card Component', () => {
       expect(getByText('Default Card')).toBeTruthy();
     });
 
-    it('should have article accessibility role on Android', () => {
+    it('should have none accessibility role on Android (article not supported)', () => {
       const { getByTestId } = renderWithTheme(
         <CardAndroid testID="card-android">
           <Text>Content</Text>
         </CardAndroid>
       );
       const card = getByTestId('card-android');
-      expect(card.props.accessibilityRole).toBe('article');
+      expect(card.props.accessibilityRole).toBe('none');
     });
 
     it('should have custom accessibility label on Android', () => {
@@ -240,14 +240,14 @@ describe('Card Component', () => {
       expect(getByText('Default Card')).toBeTruthy();
     });
 
-    it('should have article accessibility role on iOS', () => {
+    it('should have none accessibility role on iOS (article not supported)', () => {
       const { getByTestId } = renderWithTheme(
         <CardIOS testID="card-ios">
           <Text>Content</Text>
         </CardIOS>
       );
       const card = getByTestId('card-ios');
-      expect(card.props.accessibilityRole).toBe('article');
+      expect(card.props.accessibilityRole).toBe('none');
     });
 
     it('should have custom accessibility label on iOS', () => {

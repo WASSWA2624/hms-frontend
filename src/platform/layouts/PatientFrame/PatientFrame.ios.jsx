@@ -56,19 +56,19 @@ const PatientFrameIOS = ({
   });
 
   return (
-    <StyledContainer accessibilityRole="main" accessibilityLabel={accessibilityLabel} testID={testID}>
+    <StyledContainer accessibilityRole="none" accessibilityLabel={accessibilityLabel} testID={testID}>
       {hasHeader && (
-        <StyledHeader accessibilityRole="banner">
+        <StyledHeader accessibilityRole="header">
           {header}
         </StyledHeader>
       )}
       {hasBanner && (
-        <StyledBanner accessibilityRole="region">
+        <StyledBanner accessibilityRole="none">
           {banner}
         </StyledBanner>
       )}
       {hasBreadcrumbs && (
-        <StyledBreadcrumbs accessibilityRole="navigation" accessibilityLabel={t('navigation.breadcrumbs.label')}>
+        <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
           {breadcrumbs}
         </StyledBreadcrumbs>
       )}
@@ -77,7 +77,7 @@ const PatientFrameIOS = ({
         <StyledContent>{children}</StyledContent>
       </StyledScrollView>
       {hasFooter && (
-        <StyledFooter accessibilityRole="contentinfo">
+        <StyledFooter accessibilityRole="none">
           {footer}
         </StyledFooter>
       )}

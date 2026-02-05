@@ -186,8 +186,9 @@ describe('MainLayout Component', () => {
       // Container should have main accessibility role (React Native uses accessibilityRole)
       const container = getByTestId('main-layout-test');
       expect(container).toBeTruthy();
-      // Check accessibilityRole prop (React Native) or role prop (Web)
-      expect(container.props.accessibilityRole || container.props.role).toBe('main');
+      // Web uses role="main"; native uses accessibilityRole="none" (RN doesn't support "main")
+      const role = container.props.accessibilityRole || container.props.role;
+      expect(['main', 'none']).toContain(role);
     });
 
     it('should have custom accessibility label', () => {
@@ -380,7 +381,8 @@ describe('MainLayout Component', () => {
           </MainLayoutAndroid>
         );
         const container = getByTestId('android-layout');
-        expect(container.props.accessibilityRole).toBe('main');
+        // RN native doesn't support "main"; use "none" to avoid crash
+        expect(container.props.accessibilityRole).toBe('none');
       });
     });
 
@@ -442,7 +444,8 @@ describe('MainLayout Component', () => {
           </MainLayoutIOS>
         );
         const container = getByTestId('ios-layout');
-        expect(container.props.accessibilityRole).toBe('main');
+        // RN native doesn't support "main"; use "none" to avoid crash
+        expect(container.props.accessibilityRole).toBe('none');
       });
     });
 

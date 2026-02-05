@@ -33,6 +33,8 @@ const CardIOS = ({
   accessibilityHint,
   testID,
   style,
+  role: _role,
+  accessibilityRole: _accessibilityRole,
   ...rest
 }) => {
   const hasHeader = !!header;
@@ -42,7 +44,7 @@ const CardIOS = ({
   return (
     <StyledCard
       variant={variant}
-      accessibilityRole="article"
+      accessibilityRole="none"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       testID={testID}

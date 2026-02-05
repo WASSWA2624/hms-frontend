@@ -37,7 +37,7 @@ const FilterBarAndroid = ({
     <StyledContainer
       style={style}
       testID={testID}
-      accessibilityRole="group"
+      accessibilityRole="none"
       accessibilityLabel={accessibilityLabel || defaultAccessibilityLabel}
       {...rest}
     >

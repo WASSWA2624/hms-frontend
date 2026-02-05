@@ -1,6 +1,7 @@
 /**
  * useLoginScreen Hook
  * Shared behavior/logic for LoginScreen across all platforms.
+ * Uses @services/storage (AsyncStorage on native, localStorage on web).
  * File: useLoginScreen.js
  */
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
@@ -9,9 +10,13 @@ import { useSelector } from 'react-redux';
 import { useAuth, useBiometricAuth, useI18n, useNetwork } from '@hooks';
 import { AUTH } from '@config';
 import { normalizePhoneNumber } from '@utils';
-import { identifyUseCase, loginUseCase } from '@features/auth';
+import { loginUseCase } from '@features/auth';
 import { selectIsAuthenticated } from '@store/selectors';
 import store from '@store';
+import { async as asyncStorage } from '@services/storage';
+
+const REMEMBER_ME_KEY = 'login_rememberMe';
+const IDENTIFIER_KEY = 'login_identifier';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -45,28 +50,26 @@ const useLoginScreen = () => {
     errorMessage: biometricErrorMessage,
     authenticate: authenticateBiometric,
   } = useBiometricAuth();
-  const [identifier, setIdentifier] = useState(() => {
-    // Load saved identifier if rememberMe was true
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('login_rememberMe');
-      if (saved === 'true') {
-        const savedIdentifier = localStorage.getItem('login_identifier');
-        return savedIdentifier || '';
-      }
-    }
-    return '';
-  });
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(() => {
-    // Load rememberMe state
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('login_rememberMe') === 'true';
-    }
-    return false;
-  });
+  const [rememberMe, setRememberMe] = useState(false);
   
   // Track if we just completed a login to trigger redirect
   const loginCompletedRef = useRef(false);
+
+  // Load saved identifier/rememberMe from storage (async, cross-platform)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const savedRememberMe = await asyncStorage.getItem(REMEMBER_ME_KEY);
+      const savedIdentifier = await asyncStorage.getItem(IDENTIFIER_KEY);
+      if (!cancelled && savedRememberMe === true && typeof savedIdentifier === 'string') {
+        setIdentifier(savedIdentifier);
+        setRememberMe(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const errorMessage = useMemo(() => {
     const authMessage = resolveErrorMessage(t, errorCode);
@@ -237,23 +240,19 @@ const useLoginScreen = () => {
 
   const handleRememberMeChange = useCallback((checked) => {
     setRememberMe(checked);
-    if (typeof window !== 'undefined') {
-      if (checked) {
-        localStorage.setItem('login_rememberMe', 'true');
-        if (identifier) {
-          localStorage.setItem('login_identifier', identifier);
-        }
-      } else {
-        localStorage.removeItem('login_rememberMe');
-        localStorage.removeItem('login_identifier');
-      }
+    if (checked) {
+      asyncStorage.setItem(REMEMBER_ME_KEY, true);
+      if (identifier) asyncStorage.setItem(IDENTIFIER_KEY, identifier);
+    } else {
+      asyncStorage.removeItem(REMEMBER_ME_KEY);
+      asyncStorage.removeItem(IDENTIFIER_KEY);
     }
   }, [identifier]);
 
   // Save identifier when it changes and rememberMe is true
   useEffect(() => {
-    if (rememberMe && identifier && typeof window !== 'undefined') {
-      localStorage.setItem('login_identifier', identifier);
+    if (rememberMe && identifier) {
+      asyncStorage.setItem(IDENTIFIER_KEY, identifier);
     }
   }, [identifier, rememberMe]);
 

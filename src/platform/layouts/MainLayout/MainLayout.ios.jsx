@@ -39,15 +39,15 @@ const MainLayoutIOS = ({
     <StyledContainer
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      accessibilityRole="main"
+      accessibilityRole="none"
     >
       {header && (
-        <StyledHeader accessibilityRole="banner">
+        <StyledHeader accessibilityRole="header">
           {header}
         </StyledHeader>
       )}
       {breadcrumbs && (
-        <StyledBreadcrumbs accessibilityRole="navigation" accessibilityLabel={t('navigation.breadcrumbs.label')}>
+        <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
           {breadcrumbs}
         </StyledBreadcrumbs>
       )}
@@ -60,7 +60,7 @@ const MainLayoutIOS = ({
         </StyledContent>
       </StyledScrollView>
       {footer && (
-        <StyledFooter accessibilityRole="contentinfo">
+        <StyledFooter accessibilityRole="none">
           {footer}
         </StyledFooter>
       )}
