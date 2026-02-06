@@ -15,8 +15,10 @@ import { AppFrame } from '@platform/layouts';
 import {
   GlobalHeader,
   Icon,
+  LanguageControls,
   NoticeSurface,
   Sidebar,
+  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import { useHeaderActions } from './useMainLayoutMemo';
@@ -79,7 +81,13 @@ const MainRouteLayoutWeb = () => {
       accessibilityLabel={t('navigation.header.title')}
       testID="main-header"
       actions={headerActions}
-      utilitySlot={<HeaderUtility {...layout} />}
+      utilitySlot={(
+        <>
+          <LanguageControls testID="main-language-controls" />
+          <ThemeControls testID="main-theme-controls" />
+          <HeaderUtility {...layout} />
+        </>
+      )}
     />
   );
 
