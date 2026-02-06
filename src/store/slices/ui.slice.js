@@ -30,7 +30,7 @@ const uiSlice = createSlice({
   initialState,
   reducers: {
     setTheme: (state, action) => {
-      state.theme = action.payload;
+      state.theme = action.payload === 'dark' ? 'dark' : 'light';
     },
     setLocale: (state, action) => {
       state.locale = action.payload;

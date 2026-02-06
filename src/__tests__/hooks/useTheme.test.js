@@ -59,22 +59,6 @@ describe('useTheme', () => {
     await waitFor(() => expect(result).toBe(darkTheme));
   });
 
-  it('returns light or dark theme when theme mode is system (resolved at runtime)', async () => {
-    const store = createMockStore({
-      ui: { theme: 'system', locale: 'en', isLoading: false },
-    });
-
-    let result;
-    render(
-      <Provider store={store}>
-        <TestComponent onResult={(value) => (result = value)} />
-      </Provider>
-    );
-
-    await waitFor(() => expect(result).toBeDefined());
-    expect([lightTheme, darkTheme]).toContain(result);
-  });
-
   it('does not crash and falls back to light theme when theme mode is undefined', async () => {
     const store = createMockStore({
       ui: { theme: undefined, locale: 'en', isLoading: false },

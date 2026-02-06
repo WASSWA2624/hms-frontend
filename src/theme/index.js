@@ -3,7 +3,7 @@
  * File: index.js
  */
 import React from 'react';
-import { Appearance, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { ThemeProvider as WebThemeProvider } from 'styled-components';
 import { ThemeProvider as NativeThemeProvider } from 'styled-components/native';
 import lightTheme from './light.theme';
@@ -11,18 +11,9 @@ import darkTheme from './dark.theme';
 
 const ThemeProvider = Platform.OS === 'web' ? WebThemeProvider : NativeThemeProvider;
 
-const resolveSystemTheme = () => {
-  try {
-    const systemScheme = typeof Appearance?.getColorScheme === 'function' ? Appearance.getColorScheme() : null;
-    return systemScheme === 'dark' ? 'dark' : 'light';
-  } catch {
-    return 'light';
-  }
-};
-
+/** Light and dark only per theme-design.mdc. */
 export function getTheme(mode = 'light') {
-  const resolvedMode = mode === 'system' ? resolveSystemTheme() : (mode === 'dark' ? 'dark' : 'light');
-  return resolvedMode === 'dark' ? darkTheme : lightTheme;
+  return mode === 'dark' ? darkTheme : lightTheme;
 }
 
 export function ThemeProviderWrapper({ children, theme = 'light' }) {

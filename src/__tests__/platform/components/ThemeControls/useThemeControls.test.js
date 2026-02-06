@@ -71,7 +71,7 @@ describe('useThemeControls', () => {
     jest.clearAllMocks();
   });
 
-  it('returns theme options and resolved theme', () => {
+  it('returns theme options and resolved theme (light and dark only)', () => {
     const { result } = renderHook(useThemeControls, {
       initialState: {
         ui: { theme: THEME_MODES.DARK, locale: 'en', isLoading: false },
@@ -79,9 +79,9 @@ describe('useThemeControls', () => {
     });
 
     expect(result.current.theme).toBe(THEME_MODES.DARK);
-    expect(result.current.options).toHaveLength(4);
-    expect(result.current.options[0].value).toBe(THEME_MODES.SYSTEM);
-    expect(result.current.options[3].value).toBe(THEME_MODES.HIGH_CONTRAST);
+    expect(result.current.options).toHaveLength(2);
+    expect(result.current.options[0].value).toBe(THEME_MODES.LIGHT);
+    expect(result.current.options[1].value).toBe(THEME_MODES.DARK);
   });
 
   it('falls back to light theme when state is invalid', () => {

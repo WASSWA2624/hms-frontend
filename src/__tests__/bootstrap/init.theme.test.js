@@ -66,17 +66,6 @@ describe('Theme Initialization', () => {
     expect(logger.info).toHaveBeenCalledWith('Theme initialized successfully', { theme: 'dark' });
   });
 
-  it('loads persisted system theme', async () => {
-    asyncStorage.getItem.mockResolvedValue('system');
-
-    await initTheme();
-
-    expect(store.dispatch).toHaveBeenCalledWith(actions.setTheme('system'));
-    expect(logger.info).toHaveBeenCalledWith('Theme initialized successfully', {
-      theme: 'system',
-    });
-  });
-
   it('uses default theme when persisted theme is invalid', async () => {
     asyncStorage.getItem.mockResolvedValue('invalid-theme');
 

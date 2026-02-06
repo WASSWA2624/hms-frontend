@@ -45,11 +45,6 @@ describe('UI Slice', () => {
       expect(state.theme).toBe('dark');
     });
 
-    it('should update theme to system (preference)', () => {
-      const state = reducer(initialState, actions.setTheme('system'));
-      expect(state.theme).toBe('system');
-    });
-
     it('should update theme back to light', () => {
       const darkState = reducer(initialState, actions.setTheme('dark'));
       const lightState = reducer(darkState, actions.setTheme('light'));

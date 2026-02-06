@@ -32,7 +32,7 @@ describe('Theme Provider & Resolver (Step 3.11)', () => {
     expect(api.getTheme('light')).toEqual(lightTheme);
     expect(api.getTheme('dark')).toEqual(darkTheme);
     expect(api.getTheme()).toEqual(lightTheme); // default
-    expect(['light', 'dark']).toContain(api.getTheme('system').mode);
+    expect(api.getTheme('invalid')).toEqual(lightTheme); // unknown falls back to light
   });
 
   it('should export light and dark themes only', () => {

@@ -9,7 +9,8 @@ import { selectTheme } from '@store/selectors';
 
 const ThemeProviderWrapper = ({ children }) => {
   const themeMode = useSelector(selectTheme);
-  return <BaseThemeProvider theme={themeMode}>{children}</BaseThemeProvider>;
+  const mode = themeMode === 'dark' ? 'dark' : 'light';
+  return <BaseThemeProvider theme={mode}>{children}</BaseThemeProvider>;
 };
 
 export default ThemeProviderWrapper;
