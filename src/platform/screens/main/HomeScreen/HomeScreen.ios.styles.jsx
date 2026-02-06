@@ -12,7 +12,7 @@ const StyledHomeContainer = styled(View).withConfig({
   flex: 1;
   width: 100%;
   min-height: 100%;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors?.background?.primary ?? '#FFFFFF'};
   padding-top: ${({ theme }) => theme.spacing.xl}px;
   padding-bottom: ${({ theme }) => theme.spacing.xl}px;
   padding-left: ${({ theme }) => theme.spacing.lg}px;

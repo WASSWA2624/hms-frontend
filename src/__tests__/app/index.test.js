@@ -1,6 +1,6 @@
 /**
  * Root Index Route Tests
- * Tests redirect: authenticated -> /home, unauthenticated -> /home
+ * Index redirects to /home so the app opens on the home page.
  */
 const React = require('react');
 const { render } = require('@testing-library/react-native');
@@ -12,11 +12,6 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ replace: mockReplace, push: jest.fn(), back: jest.fn() }),
 }));
 
-jest.mock('@navigation/guards', () => ({
-  useAuthGuard: jest.fn(() => ({ authenticated: false })),
-}));
-
-const { useAuthGuard } = require('@navigation/guards');
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 const createMockStore = () => ({
   getState: () => ({}),
@@ -34,15 +29,7 @@ const renderWithTheme = (component, store = createMockStore()) =>
 describe('Index Route (index.jsx)', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('should redirect to /home when unauthenticated', () => {
-    useAuthGuard.mockReturnValue({ authenticated: false });
-    const IndexRoute = require('../../app/index').default;
-    renderWithTheme(<IndexRoute />);
-    expect(mockReplace).toHaveBeenCalledWith('/home');
-  });
-
-  it('should redirect to /home when authenticated', () => {
-    useAuthGuard.mockReturnValue({ authenticated: true });
+  it('should redirect to /home so app opens on home page', () => {
     const IndexRoute = require('../../app/index').default;
     renderWithTheme(<IndexRoute />);
     expect(mockReplace).toHaveBeenCalledWith('/home');
