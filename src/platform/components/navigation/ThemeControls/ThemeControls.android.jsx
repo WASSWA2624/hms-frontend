@@ -1,38 +1,43 @@
 /**
  * ThemeControls Component - Android
- * File: ThemeControls.android.jsx
+ * Elegant theme toggle (light/dark)
  */
 import React from 'react';
+import { Text } from 'react-native';
 import { useI18n } from '@hooks';
-import { Select } from '@platform/components';
 import useThemeControls from './useThemeControls';
-import { StyledThemeControls } from './ThemeControls.android.styles';
+import { THEME_MODES } from './types';
+import { StyledThemeControls, StyledThemeToggle, StyledThemeOption } from './ThemeControls.android.styles';
 
-/**
- * ThemeControls component for Android
- * @param {Object} props
- * @param {string} [props.testID]
- * @param {string} [props.accessibilityLabel]
- * @param {string} [props.accessibilityHint]
- */
 const ThemeControlsAndroid = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
-  const { theme, options, setTheme } = useThemeControls();
-  const label = t('settings.theme.label');
+  const { theme, setTheme } = useThemeControls();
   const resolvedLabel = accessibilityLabel || t('settings.theme.accessibilityLabel');
-  const resolvedHint = accessibilityHint || t('settings.theme.hint');
+  const lightLabel = t('settings.theme.options.light');
+  const darkLabel = t('settings.theme.options.dark');
 
   return (
-    <StyledThemeControls testID={testID}>
-      <Select
-        label={label}
-        value={theme}
-        options={options}
-        onValueChange={setTheme}
-        accessibilityLabel={resolvedLabel}
-        accessibilityHint={resolvedHint}
-        testID={testID ? `${testID}-select` : undefined}
-      />
+    <StyledThemeControls testID={testID} accessibilityLabel={resolvedLabel}>
+      <StyledThemeToggle>
+        <StyledThemeOption
+          active={theme === THEME_MODES.LIGHT}
+          onPress={() => setTheme(THEME_MODES.LIGHT)}
+          accessibilityRole="button"
+          accessibilityLabel={lightLabel}
+          accessibilityState={{ selected: theme === THEME_MODES.LIGHT }}
+        >
+          <Text style={{ fontSize: 16 }}>☀</Text>
+        </StyledThemeOption>
+        <StyledThemeOption
+          active={theme === THEME_MODES.DARK}
+          onPress={() => setTheme(THEME_MODES.DARK)}
+          accessibilityRole="button"
+          accessibilityLabel={darkLabel}
+          accessibilityState={{ selected: theme === THEME_MODES.DARK }}
+        >
+          <Text style={{ fontSize: 16 }}>🌙</Text>
+        </StyledThemeOption>
+      </StyledThemeToggle>
     </StyledThemeControls>
   );
 };

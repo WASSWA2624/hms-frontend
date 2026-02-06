@@ -1,38 +1,63 @@
 /**
  * LanguageControls Component - Android
- * File: LanguageControls.android.jsx
+ * Flag button that opens language list
  */
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { Modal, Text, View } from 'react-native';
 import { useI18n } from '@hooks';
-import { Select } from '@platform/components';
 import useLanguageControls from './useLanguageControls';
-import { StyledLanguageControls } from './LanguageControls.android.styles';
+import { LOCALE_FLAGS } from './types';
+import {
+  StyledLanguageControls,
+  StyledFlagTrigger,
+  StyledLanguageItem,
+  StyledLanguageItemFlag,
+  StyledModalOverlay,
+  StyledModalContent,
+} from './LanguageControls.android.styles';
 
-/**
- * LanguageControls component for Android
- * @param {Object} props
- * @param {string} [props.testID]
- * @param {string} [props.accessibilityLabel]
- * @param {string} [props.accessibilityHint]
- */
 const LanguageControlsAndroid = ({ testID, accessibilityLabel, accessibilityHint }) => {
   const { t } = useI18n();
   const { locale, options, setLocale } = useLanguageControls();
-  const label = t('settings.language.label');
+  const [visible, setVisible] = useState(false);
+
   const resolvedLabel = accessibilityLabel || t('settings.language.accessibilityLabel');
   const resolvedHint = accessibilityHint || t('settings.language.hint');
+  const currentFlag = LOCALE_FLAGS[locale] || '🌐';
+
+  const close = useCallback(() => setVisible(false), []);
 
   return (
     <StyledLanguageControls testID={testID}>
-      <Select
-        label={label}
-        value={locale}
-        options={options}
-        onValueChange={setLocale}
+      <StyledFlagTrigger
+        onPress={() => setVisible(true)}
+        accessibilityRole="button"
         accessibilityLabel={resolvedLabel}
         accessibilityHint={resolvedHint}
-        testID={testID ? `${testID}-select` : undefined}
-      />
+      >
+        <Text style={{ fontSize: 18 }}>{currentFlag}</Text>
+      </StyledFlagTrigger>
+      <Modal visible={visible} transparent animationType="fade">
+        <View style={{ flex: 1 }}>
+          <StyledModalOverlay onPress={close} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+          <View style={{ flex: 1, justifyContent: 'center', padding: 24, pointerEvents: 'box-none' }}>
+            <StyledModalContent>
+              {options.map((opt) => (
+                <StyledLanguageItem
+                  key={opt.value}
+                  onPress={() => {
+                    setLocale(opt.value);
+                    close();
+                  }}
+                >
+                  <StyledLanguageItemFlag>{LOCALE_FLAGS[opt.value] || '🌐'}</StyledLanguageItemFlag>
+                  <Text>{opt.label}</Text>
+                </StyledLanguageItem>
+              ))}
+            </StyledModalContent>
+          </View>
+        </View>
+      </Modal>
     </StyledLanguageControls>
   );
 };

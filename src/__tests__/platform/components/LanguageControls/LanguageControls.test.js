@@ -1,9 +1,9 @@
 /**
  * LanguageControls Component Tests
- * File: LanguageControls.test.js
+ * Flag button with language list
  */
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import { ThemeProvider as WebThemeProvider } from 'styled-components';
 import { ThemeProvider as NativeThemeProvider } from 'styled-components/native';
 import LanguageControlsWeb from '@platform/components/navigation/LanguageControls/LanguageControls.web';
@@ -11,6 +11,7 @@ import LanguageControlsAndroid from '@platform/components/navigation/LanguageCon
 import LanguageControlsIOS from '@platform/components/navigation/LanguageControls/LanguageControls.ios';
 import lightTheme from '@theme/light.theme';
 
+const mockSetLocale = jest.fn();
 jest.mock('@hooks', () => ({
   useI18n: () => ({
     t: (key) => key,
@@ -18,80 +19,64 @@ jest.mock('@hooks', () => ({
   }),
 }));
 
-jest.mock('@platform/components', () => ({
-  Select: jest.fn(() => null),
-}));
-
 jest.mock('@platform/components/navigation/LanguageControls/useLanguageControls', () => ({
   __esModule: true,
   default: () => ({
     locale: 'en',
     options: [{ label: 'English', value: 'en' }],
-    setLocale: jest.fn(),
+    setLocale: mockSetLocale,
   }),
 }));
-
-const getMockSelect = () => require('@platform/components').Select;
 
 describe('LanguageControls Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders Web variant and wires Select props', () => {
-    const Select = getMockSelect();
-    render(
+  it('renders Web variant with flag trigger', () => {
+    const { getByLabelText } = render(
       <WebThemeProvider theme={lightTheme}>
-        <LanguageControlsWeb testID="web-language-controls" className="language-control" />
+        <LanguageControlsWeb testID="web-language-controls" />
       </WebThemeProvider>
     );
-
-    expect(Select).toHaveBeenCalled();
-    const selectProps = Select.mock.calls[0][0];
-    expect(selectProps).toMatchObject({
-      label: 'settings.language.label',
-      value: 'en',
-      accessibilityLabel: 'settings.language.accessibilityLabel',
-      accessibilityHint: 'settings.language.hint',
-      testID: 'web-language-controls-select',
-    });
+    expect(getByLabelText('settings.language.accessibilityLabel')).toBeTruthy();
   });
 
-  it('renders Android variant and wires Select props', () => {
-    const Select = getMockSelect();
-    render(
+  it('renders Android variant with flag trigger', () => {
+    const { getByLabelText } = render(
       <NativeThemeProvider theme={lightTheme}>
         <LanguageControlsAndroid testID="android-language-controls" />
       </NativeThemeProvider>
     );
-
-    expect(Select).toHaveBeenCalled();
-    const selectProps = Select.mock.calls[0][0];
-    expect(selectProps).toMatchObject({
-      label: 'settings.language.label',
-      value: 'en',
-      accessibilityLabel: 'settings.language.accessibilityLabel',
-      accessibilityHint: 'settings.language.hint',
-      testID: 'android-language-controls-select',
-    });
+    expect(getByLabelText('settings.language.accessibilityLabel')).toBeTruthy();
   });
 
-  it('renders iOS variant and wires Select props', () => {
-    const Select = getMockSelect();
-    render(
+  it('shows modal when flag pressed on Android', () => {
+    const { getByLabelText, getByText } = render(
+      <NativeThemeProvider theme={lightTheme}>
+        <LanguageControlsAndroid testID="android-language-controls" />
+      </NativeThemeProvider>
+    );
+    fireEvent.press(getByLabelText('settings.language.accessibilityLabel'));
+    expect(getByText('English')).toBeTruthy();
+  });
+
+  it('renders iOS variant with flag trigger', () => {
+    const { getByLabelText } = render(
       <NativeThemeProvider theme={lightTheme}>
         <LanguageControlsIOS testID="ios-language-controls" />
       </NativeThemeProvider>
     );
+    expect(getByLabelText('settings.language.accessibilityLabel')).toBeTruthy();
+  });
 
-    expect(Select).toHaveBeenCalled();
-    const selectProps = Select.mock.calls[0][0];
-    expect(selectProps).toMatchObject({
-      label: 'settings.language.label',
-      value: 'en',
-      accessibilityLabel: 'settings.language.accessibilityLabel',
-      accessibilityHint: 'settings.language.hint',
-      testID: 'ios-language-controls-select',
-    });
+  it('shows modal when flag pressed on iOS', () => {
+    const { getByLabelText, getByText } = render(
+      <NativeThemeProvider theme={lightTheme}>
+        <LanguageControlsIOS testID="ios-language-controls" />
+      </NativeThemeProvider>
+    );
+    fireEvent.press(getByLabelText('settings.language.accessibilityLabel'));
+    expect(getByText('English')).toBeTruthy();
   });
 });
