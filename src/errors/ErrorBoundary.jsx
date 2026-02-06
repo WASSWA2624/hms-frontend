@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { logger } from '@logging';
-import { handleError } from './error.handler';
+import { handleError, normalizeError } from './error.handler';
 import FallbackUI from './fallback.ui';
 
 class ErrorBoundary extends React.Component {
@@ -15,7 +15,7 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { hasError: true, error: normalizeError(error) };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component {
       error: normalized,
       errorInfo,
     });
-    this.setState({ error: normalized });
+    this.setState((s) => (s.error?.code ? null : { error: normalized }));
   }
 
   render() {

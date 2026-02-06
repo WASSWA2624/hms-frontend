@@ -5,7 +5,8 @@
  */
 
 import React from 'react';
-import { Button, TextField } from '@platform/components';
+import Button from '@platform/components/forms/Button';
+import TextField from '@platform/components/forms/TextField';
 import { useI18n } from '@hooks';
 import useSearchBar from './useSearchBar';
 import { StyledContainer, StyledSearchIcon, StyledClearButtonWrapper, StyledTextFieldWrapper } from './SearchBar.ios.styles';

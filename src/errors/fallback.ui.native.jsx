@@ -1,21 +1,22 @@
 /**
- * Fallback UI Component
- * Generic error fallback (minimal, theme-driven)
- * File: fallback.ui.jsx
+ * Fallback UI Component - Native (iOS/Android)
+ * Generic error fallback (minimal, theme-driven). Uses styled-components/native.
+ * Per theme-design.mdc: *.ios/android → styled-components/native. Per component-structure.mdc: .withConfig.
  */
 import React from 'react';
 import styled from 'styled-components/native';
 import en from '@i18n/locales/en.json';
 
-const getNestedValue = (obj, path) => {
-  return String(path)
+const getNestedValue = (obj, path) =>
+  String(path)
     .split('.')
-    .reduce((current, key) => (current && current[key] !== undefined ? current[key] : undefined), obj);
-};
-
+    .reduce((cur, key) => (cur && cur[key] !== undefined ? cur[key] : undefined), obj);
 const getText = (key, fallback) => getNestedValue(en, key) || fallback;
 
-const Container = styled.View`
+const Container = styled.View.withConfig({
+  displayName: 'FallbackUI_Container',
+  componentId: 'FallbackUI_Container',
+})`
   flex: 1;
   align-items: center;
   justify-content: center;
@@ -23,27 +24,39 @@ const Container = styled.View`
   background-color: ${({ theme }) => theme?.colors?.background?.primary ?? '#FFFFFF'};
 `;
 
-const Title = styled.Text`
+const Title = styled.Text.withConfig({
+  displayName: 'FallbackUI_Title',
+  componentId: 'FallbackUI_Title',
+})`
   font-size: ${({ theme }) => theme?.typography?.fontSize?.lg ?? 20}px;
   color: ${({ theme }) => theme?.colors?.textPrimary ?? theme?.colors?.text?.primary ?? '#000000'};
   margin-bottom: ${({ theme }) => theme?.spacing?.sm ?? 8}px;
   text-align: center;
 `;
 
-const Message = styled.Text`
+const Message = styled.Text.withConfig({
+  displayName: 'FallbackUI_Message',
+  componentId: 'FallbackUI_Message',
+})`
   font-size: ${({ theme }) => theme?.typography?.fontSize?.sm ?? 14}px;
   color: ${({ theme }) => theme?.colors?.textSecondary ?? theme?.colors?.text?.secondary ?? '#3C3C43'};
   margin-bottom: ${({ theme }) => theme?.spacing?.md ?? 16}px;
   text-align: center;
 `;
 
-const RetryButton = styled.Pressable`
+const RetryButton = styled.Pressable.withConfig({
+  displayName: 'FallbackUI_RetryButton',
+  componentId: 'FallbackUI_RetryButton',
+})`
   background-color: ${({ theme }) => theme?.colors?.primary ?? '#0078D4'};
   padding: ${({ theme }) => theme?.spacing?.sm ?? 8}px ${({ theme }) => theme?.spacing?.lg ?? 24}px;
   border-radius: ${({ theme }) => theme?.radius?.sm ?? 4}px;
 `;
 
-const RetryText = styled.Text`
+const RetryText = styled.Text.withConfig({
+  displayName: 'FallbackUI_RetryText',
+  componentId: 'FallbackUI_RetryText',
+})`
   color: ${({ theme }) => theme?.colors?.onPrimary ?? '#FFFFFF'};
 `;
 
@@ -74,4 +87,3 @@ const FallbackUI = ({ error, onRetry }) => {
 };
 
 export default FallbackUI;
-
