@@ -382,6 +382,30 @@
       "message": "You're successfully logged in. This is your dashboard."
     },
     "lastUpdated": "Updated {{time}}",
+    "priority": {
+      "title": "Priority alerts",
+      "subtitle": "Immediate attention required",
+      "empty": "No critical alerts",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      },
+      "items": {
+        "edSurge": {
+          "title": "Emergency surge",
+          "meta": "ED · 14 patients waiting"
+        },
+        "icuOverflow": {
+          "title": "ICU nearing capacity",
+          "meta": "2 beds remaining"
+        },
+        "labDelays": {
+          "title": "Lab turnaround delays",
+          "meta": "Chemistry · 45 min delay"
+        }
+      }
+    },
     "summary": {
       "title": "Today at a glance",
       "subtitle": "Key activity across departments",
@@ -402,6 +426,82 @@
       "theatre": "Theatre usage",
       "ratio": "{{used}} of {{total}}",
       "progress": "{{label}} at {{value}}%"
+    },
+    "flow": {
+      "title": "Patient flow",
+      "subtitle": "Throughput and queue health",
+      "empty": "No flow updates",
+      "status": {
+        "attention": "Needs attention",
+        "stable": "Stable",
+        "monitor": "Monitor"
+      },
+      "items": {
+        "waitTime": {
+          "title": "ED wait time",
+          "meta": "Avg 38 min"
+        },
+        "admitTurnaround": {
+          "title": "Admission turnaround",
+          "meta": "Median 42 min"
+        },
+        "dischargeQueue": {
+          "title": "Discharge queue",
+          "meta": "6 pending"
+        }
+      }
+    },
+    "readiness": {
+      "title": "Operational readiness",
+      "subtitle": "Staffing and services"
+    },
+    "staffing": {
+      "title": "Staffing coverage",
+      "subtitle": "Next 12 hours",
+      "empty": "No staffing updates",
+      "status": {
+        "good": "On track",
+        "action": "Action needed",
+        "monitor": "Monitor"
+      },
+      "items": {
+        "coverage": {
+          "title": "Ward coverage",
+          "meta": "94% rostered"
+        },
+        "openShifts": {
+          "title": "Open shifts",
+          "meta": "3 unfilled"
+        },
+        "onCall": {
+          "title": "On-call availability",
+          "meta": "6 on call"
+        }
+      }
+    },
+    "services": {
+      "title": "Service status",
+      "subtitle": "Clinical support areas",
+      "empty": "No service updates",
+      "status": {
+        "good": "Operational",
+        "warning": "At risk",
+        "monitor": "Monitor"
+      },
+      "items": {
+        "pharmacy": {
+          "title": "Pharmacy stock",
+          "meta": "2 low items"
+        },
+        "imaging": {
+          "title": "Imaging",
+          "meta": "Normal throughput"
+        },
+        "labs": {
+          "title": "Laboratory",
+          "meta": "Backlog 12 samples"
+        }
+      }
     },
     "operations": {
       "title": "Operations center",

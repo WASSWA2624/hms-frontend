@@ -30,6 +30,8 @@ const StyledSidebarContent = styled.div.withConfig({
   flex: 1;
   min-height: 0;
   padding: ${({ theme, $collapsed }) => ($collapsed ? theme.spacing.xs : theme.spacing.sm)}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xl * 4}px;
+  scroll-padding-bottom: ${({ theme }) => theme.spacing.xl * 4}px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

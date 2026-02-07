@@ -14,26 +14,26 @@ import animations from './animations';
 const darkColors = {
   ...colors,
   background: {
-    primary: '#000000',
-    secondary: '#1C1C1E',
-    tertiary: '#2C2C2E',
+    primary: '#0F1115',
+    secondary: '#171A1F',
+    tertiary: '#20242B',
   },
   text: {
-    primary: '#FFFFFF',
-    secondary: '#EBEBF5',
-    tertiary: '#8E8E93',
-    inverse: '#000000',
+    primary: '#F3F3F3',
+    secondary: '#C8CBD1',
+    tertiary: '#8A9099',
+    inverse: '#0F1115',
   },
-  textPrimary: '#FFFFFF',
-  textSecondary: '#EBEBF5',
+  textPrimary: '#F3F3F3',
+  textSecondary: '#C8CBD1',
   onPrimary: '#FFFFFF',
   tooltip: {
-    background: 'rgba(255, 255, 255, 0.15)',
-    text: '#000000',
+    background: 'rgba(23, 26, 31, 0.95)',
+    text: '#F3F3F3',
   },
   overlay: {
     ...colors.overlay,
-    sheetBackdrop: 'rgba(0, 0, 0, 0.35)',
+    sheetBackdrop: 'rgba(0, 0, 0, 0.55)',
   },
 };
 

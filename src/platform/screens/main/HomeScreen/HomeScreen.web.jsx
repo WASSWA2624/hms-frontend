@@ -67,18 +67,39 @@ const getDeltaConfig = (delta) => {
  */
 const DashboardScreenWeb = () => {
   const { t, locale } = useI18n();
-  const { state, isOffline, summaryCards, capacityStats, appointments, alerts, onRetry } =
-    useDashboardScreen();
+  const {
+    state,
+    isOffline,
+    summaryCards,
+    capacityStats,
+    priorityAlerts,
+    appointments,
+    alerts,
+    flowUpdates,
+    staffingUpdates,
+    serviceStatus,
+    lastUpdated,
+    onRetry,
+  } = useDashboardScreen();
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const timeFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
+    [locale]
+  );
   const formatNumber = (value) => numberFormatter.format(value);
   const formatPercent = (used, total) => Math.round((used / total) * 100);
+  const formatTime = (value) => timeFormatter.format(value);
 
   const isEmpty =
     summaryCards.length === 0 &&
     capacityStats.length === 0 &&
+    priorityAlerts.length === 0 &&
     appointments.length === 0 &&
-    alerts.length === 0;
+    alerts.length === 0 &&
+    flowUpdates.length === 0 &&
+    staffingUpdates.length === 0 &&
+    serviceStatus.length === 0;
 
   const renderLoadingState = () => (
     <StyledStateWrapper>
@@ -172,6 +193,46 @@ const DashboardScreenWeb = () => {
           <StyledSectionHeader>
             <StyledSectionTitleGroup>
               <Text variant="h2" accessibilityRole="header">
+                {t('home.priority.title')}
+              </Text>
+              <Text variant="caption">{t('home.priority.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+            <StyledSectionMeta>
+              <Text variant="caption">{t('home.lastUpdated', { time: formatTime(lastUpdated) })}</Text>
+            </StyledSectionMeta>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card>
+              {priorityAlerts.length === 0 ? (
+                <Text variant="caption">{t('home.priority.empty')}</Text>
+              ) : (
+                <StyledList>
+                  {priorityAlerts.map((item) => (
+                    <StyledListItem key={item.id}>
+                      <StyledListItemContent>
+                        <Text variant="body">{t(item.titleKey)}</Text>
+                        <StyledListItemMeta>
+                          <Text variant="caption">{t(item.metaKey)}</Text>
+                        </StyledListItemMeta>
+                      </StyledListItemContent>
+                      <Badge
+                        variant={item.severityVariant}
+                        accessibilityLabel={t(item.severityKey)}
+                      >
+                        {t(item.severityKey)}
+                      </Badge>
+                    </StyledListItem>
+                  ))}
+                </StyledList>
+              )}
+            </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
                 {t('home.summary.title')}
               </Text>
               <Text variant="caption">{t('home.summary.subtitle')}</Text>
@@ -245,6 +306,112 @@ const DashboardScreenWeb = () => {
                 })}
               </StyledCapacityList>
             </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.flow.title')}
+              </Text>
+              <Text variant="caption">{t('home.flow.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card>
+              {flowUpdates.length === 0 ? (
+                <Text variant="caption">{t('home.flow.empty')}</Text>
+              ) : (
+                <StyledList>
+                  {flowUpdates.map((item) => (
+                    <StyledListItem key={item.id}>
+                      <StyledListItemContent>
+                        <Text variant="body">{t(item.titleKey)}</Text>
+                        <StyledListItemMeta>
+                          <Text variant="caption">{t(item.metaKey)}</Text>
+                        </StyledListItemMeta>
+                      </StyledListItemContent>
+                      <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
+                        {t(item.statusKey)}
+                      </Badge>
+                    </StyledListItem>
+                  ))}
+                </StyledList>
+              )}
+            </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.readiness.title')}
+              </Text>
+              <Text variant="caption">{t('home.readiness.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <StyledSectionGrid>
+              <Card
+                header={
+                  <StyledCardHeaderContent>
+                    <Text variant="h3">{t('home.staffing.title')}</Text>
+                    <Text variant="caption">{t('home.staffing.subtitle')}</Text>
+                  </StyledCardHeaderContent>
+                }
+              >
+                {staffingUpdates.length === 0 ? (
+                  <Text variant="caption">{t('home.staffing.empty')}</Text>
+                ) : (
+                  <StyledList>
+                    {staffingUpdates.map((item) => (
+                      <StyledListItem key={item.id}>
+                        <StyledListItemContent>
+                          <Text variant="body">{t(item.titleKey)}</Text>
+                          <StyledListItemMeta>
+                            <Text variant="caption">{t(item.metaKey)}</Text>
+                          </StyledListItemMeta>
+                        </StyledListItemContent>
+                        <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
+                          {t(item.statusKey)}
+                        </Badge>
+                      </StyledListItem>
+                    ))}
+                  </StyledList>
+                )}
+              </Card>
+
+              <Card
+                header={
+                  <StyledCardHeaderContent>
+                    <Text variant="h3">{t('home.services.title')}</Text>
+                    <Text variant="caption">{t('home.services.subtitle')}</Text>
+                  </StyledCardHeaderContent>
+                }
+              >
+                {serviceStatus.length === 0 ? (
+                  <Text variant="caption">{t('home.services.empty')}</Text>
+                ) : (
+                  <StyledList>
+                    {serviceStatus.map((item) => (
+                      <StyledListItem key={item.id}>
+                        <StyledListItemContent>
+                          <Text variant="body">{t(item.titleKey)}</Text>
+                          <StyledListItemMeta>
+                            <Text variant="caption">{t(item.metaKey)}</Text>
+                          </StyledListItemMeta>
+                        </StyledListItemContent>
+                        <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
+                          {t(item.statusKey)}
+                        </Badge>
+                      </StyledListItem>
+                    ))}
+                  </StyledList>
+                )}
+              </Card>
+            </StyledSectionGrid>
           </StyledSectionBody>
         </StyledSection>
 

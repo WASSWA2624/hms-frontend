@@ -111,6 +111,7 @@ const StyledContent = styled.main.withConfig({
   flex: 1;
   padding: 0;
   margin: 0;
+  min-height: 0;
   min-width: 0;
   overflow-y: auto;
   overflow-x: auto;
@@ -122,7 +123,8 @@ const StyledContent = styled.main.withConfig({
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 2}px` : '0')};
+  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 4}px` : '0')};
+  scroll-padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 4}px` : '0')};
 `;
 
 const StyledContentBody = styled.div.withConfig({

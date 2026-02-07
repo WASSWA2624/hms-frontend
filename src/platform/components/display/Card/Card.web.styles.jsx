@@ -10,7 +10,8 @@ const StyledCard = styled.article.withConfig({
   displayName: 'StyledCard',
   componentId: 'StyledCard',
 })`
-  background-color: ${({ theme }) => theme.colors.background.primary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   border-radius: ${({ theme }) => theme.radius.sm}px;
   overflow: hidden;
   ${({ variant, theme }) => {

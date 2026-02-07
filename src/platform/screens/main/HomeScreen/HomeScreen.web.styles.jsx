@@ -15,9 +15,9 @@ const StyledHomeContainer = styled.main.withConfig({
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.lg}px;
+  padding: ${({ theme }) => theme.spacing.md}px;
   box-sizing: border-box;
 `;
 
@@ -27,12 +27,12 @@ const StyledContent = styled.div.withConfig({
 })`
   flex: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1100px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xl}px;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledWelcomeSection = styled.section.withConfig({
@@ -67,7 +67,7 @@ const StyledSection = styled.section.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledSectionHeader = styled.div.withConfig({
@@ -110,7 +110,7 @@ const StyledSectionBody = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledStatGrid = styled.div.withConfig({
@@ -119,7 +119,7 @@ const StyledStatGrid = styled.div.withConfig({
 })`
   display: grid;
   grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -162,7 +162,7 @@ const StyledCapacityList = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledCapacityItem = styled.div.withConfig({
@@ -190,7 +190,7 @@ const StyledSectionGrid = styled.div.withConfig({
 })`
   display: grid;
   grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 
   @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -225,7 +225,7 @@ const StyledListItem = styled.li.withConfig({
   align-items: center;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  padding: ${({ theme }) => theme.spacing.sm}px 0;
+  padding: ${({ theme }) => theme.spacing.xs}px 0;
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
 
   &:last-child {
