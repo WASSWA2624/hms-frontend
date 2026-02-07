@@ -13,8 +13,8 @@ export const Row = styled(View).withConfig({
   flex-direction: row;
   align-items: center;
   min-height: 44px;
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  padding-left: ${({ theme, $level = 0 }) => theme.spacing.md + $level * theme.spacing.lg}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.sm}px;
+  padding-left: ${({ theme, $level = 0 }) => theme.spacing.sm + $level * theme.spacing.lg}px;
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   background-color: ${({ theme, $active }) => ($active ? theme.colors.background.secondary : 'transparent')};
 `;
@@ -33,8 +33,8 @@ export const IconBox = styled(View).withConfig({
   displayName: 'IconBox',
   componentId: 'SidebarItem_IconBox',
 })`
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   justify-content: center;
   align-items: center;
 `;
@@ -44,7 +44,7 @@ export const Label = styled(Text).withConfig({
   componentId: 'Label',
   shouldForwardProp: (prop) => prop !== '$active',
 })`
-  margin-left: ${({ theme }) => theme.spacing.sm}px;
+  margin-left: ${({ theme }) => theme.spacing.xs}px;
   flex: 1;
   font-size: ${({ theme }) => theme.typography?.fontSize?.sm ?? 14}px;
   font-weight: ${({ theme, $active }) => ($active ? theme.typography?.fontWeight?.semibold : theme.typography?.fontWeight?.normal)};

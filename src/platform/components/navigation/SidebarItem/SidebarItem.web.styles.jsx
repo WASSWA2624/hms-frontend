@@ -10,7 +10,7 @@ export const Row = styled.a.withConfig({
   justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'flex-start')};
   min-height: 44px;
   padding: ${({ theme, $collapsed, $level = 0 }) =>
-    $collapsed ? `${theme.spacing.xs}px` : `${theme.spacing.sm}px ${theme.spacing.md + $level * theme.spacing.lg}px`};
+    $collapsed ? `0 ${theme.spacing.xs}px` : `${theme.spacing.xs / 2}px ${theme.spacing.sm + $level * theme.spacing.lg}px`};
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   cursor: pointer;
   text-decoration: none;
@@ -40,8 +40,8 @@ export const IconWrapper = styled.span.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   color: inherit;
 `;
@@ -51,7 +51,7 @@ export const Label = styled.span.withConfig({
   componentId: 'Label',
   shouldForwardProp: (prop) => prop !== '$collapsed' && prop !== '$active',
 })`
-  margin-left: ${({ theme }) => theme.spacing.sm}px;
+  margin-left: ${({ theme }) => theme.spacing.xs}px;
   flex: 1;
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   font-weight: ${({ theme, $active }) => ($active ? theme.typography.fontWeight.medium : theme.typography.fontWeight.normal)};
@@ -69,8 +69,8 @@ export const ExpandButton = styled.button.withConfig({
 })`
   margin-left: auto;
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
