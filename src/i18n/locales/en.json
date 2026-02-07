@@ -290,6 +290,30 @@
       "user-mfa": "MFA Settings",
       "oauth-account": "OAuth Accounts"
     },
+    "general": {
+      "title": "General settings",
+      "description": "Personalize language, appearance, and layout preferences.",
+      "appearance": {
+        "title": "Appearance & language",
+        "description": "Choose how the app looks and which language it uses."
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select the language for menus, labels, and messages."
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Switch between system, light, and dark modes."
+      },
+      "layout": {
+        "title": "Layout",
+        "description": "Control layout preferences for this device."
+      },
+      "footer": {
+        "title": "Footer visibility",
+        "description": "Show or hide the footer in desktop layouts."
+      }
+    },
     "theme": {
       "label": "Theme",
       "accessibilityLabel": "Theme selector",

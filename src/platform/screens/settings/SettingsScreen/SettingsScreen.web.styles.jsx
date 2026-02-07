@@ -33,10 +33,6 @@ export const StyledContainer = styled.main.withConfig({
   min-width: 0;
   overflow-x: hidden;
   background-color: ${({ theme }) => cl(theme, 'background.primary')};
-
-  @media (min-width: ${({ theme }) => tablet(theme)}px) {
-    flex-direction: row;
-  }
 `;
 
 export const StyledMobileHeader = styled.header.withConfig({
@@ -367,19 +363,3 @@ export const StyledResizeHandle = styled.div.withConfig({
   }
 `;
 
-export const StyledContent = styled.div.withConfig({
-  displayName: 'StyledContent',
-  componentId: 'SettingsScreen_StyledContent',
-})`
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-
-  @media (min-width: ${({ theme }) => tablet(theme)}px) {
-    min-height: 0;
-  }
-`;

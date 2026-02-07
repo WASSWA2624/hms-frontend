@@ -12,7 +12,7 @@ export const StyledContainer = styled.View.withConfig({
   componentId: 'SettingsScreen_StyledContainer',
 })`
   flex: 1;
-  flex-direction: row;
+  flex-direction: column;
   background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
@@ -68,10 +68,3 @@ export const StyledNavLinkText = styled.Text.withConfig({
     $active ? (theme?.colors?.primary ?? '#2196F3') : theme?.colors?.text?.secondary};
 `;
 
-export const StyledContent = styled.View.withConfig({
-  displayName: 'StyledContent',
-  componentId: 'SettingsScreen_StyledContent',
-})`
-  flex: 1;
-  min-width: 0;
-`;

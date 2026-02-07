@@ -53,9 +53,6 @@ const StyledLanguageMenu = styled.div.withConfig({
   displayName: 'StyledLanguageMenu',
 })`
   position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 4px;
   min-width: 160px;
   padding: 4px;
   background-color: ${({ theme }) => theme.colors.background.primary};
@@ -63,12 +60,37 @@ const StyledLanguageMenu = styled.div.withConfig({
   border-radius: ${({ theme }) => theme.radius.md}px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
+  --lang-menu-offset: ${({ $vertical }) => ($vertical === 'top' ? '4px' : '-4px')};
   animation: langMenuSlide 0.2s ease-out;
+
+  ${({ $vertical }) =>
+    $vertical === 'top'
+      ? `
+    bottom: 100%;
+    margin-bottom: 4px;
+    top: auto;
+  `
+      : `
+    top: 100%;
+    margin-top: 4px;
+    bottom: auto;
+  `}
+
+  ${({ $horizontal }) =>
+    $horizontal === 'left'
+      ? `
+    left: 0;
+    right: auto;
+  `
+      : `
+    right: 0;
+    left: auto;
+  `}
 
   @keyframes langMenuSlide {
     from {
       opacity: 0;
-      transform: translateY(-4px);
+      transform: translateY(var(--lang-menu-offset));
     }
     to {
       opacity: 1;

@@ -27,21 +27,46 @@ const LanguageControlsWeb = ({ testID, className, accessibilityLabel, accessibil
   const { t } = useI18n();
   const { locale, options, setLocale } = useLanguageControls();
   const [open, setOpen] = useState(false);
+  const [menuPlacement, setMenuPlacement] = useState({ vertical: 'bottom', horizontal: 'right' });
   const wrapperRef = useRef(null);
+  const menuRef = useRef(null);
 
   const resolvedLabel = accessibilityLabel || t('settings.language.accessibilityLabel');
   const resolvedHint = accessibilityHint || t('settings.language.hint');
 
   const close = useCallback(() => setOpen(false), []);
 
+  const updateMenuPlacement = useCallback(() => {
+    if (!wrapperRef.current || !menuRef.current) return;
+    const triggerRect = wrapperRef.current.getBoundingClientRect();
+    const menuRect = menuRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || 0;
+    const viewportWidth = window.innerWidth || 0;
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    const spaceRight = viewportWidth - triggerRect.right;
+    const spaceLeft = triggerRect.left;
+    const vertical = spaceBelow >= menuRect.height || spaceBelow >= spaceAbove ? 'bottom' : 'top';
+    const horizontal = spaceRight >= menuRect.width || spaceRight >= spaceLeft ? 'right' : 'left';
+    setMenuPlacement({ vertical, horizontal });
+  }, []);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) close();
     };
+    const raf = requestAnimationFrame(updateMenuPlacement);
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [open, close]);
+    window.addEventListener('resize', updateMenuPlacement);
+    window.addEventListener('scroll', updateMenuPlacement, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', updateMenuPlacement);
+      window.removeEventListener('scroll', updateMenuPlacement, true);
+    };
+  }, [open, close, updateMenuPlacement]);
 
   return (
     <StyledLanguageControls ref={wrapperRef} data-testid={testID} className={className}>
@@ -57,7 +82,14 @@ const LanguageControlsWeb = ({ testID, className, accessibilityLabel, accessibil
         <img src={getFlagSrc(locale)} alt="" width={24} height={18} loading="lazy" />
       </StyledFlagTrigger>
       {open && (
-        <StyledLanguageMenu role="listbox" aria-label={resolvedLabel} data-testid={testID ? `${testID}-menu` : undefined}>
+        <StyledLanguageMenu
+          ref={menuRef}
+          $vertical={menuPlacement.vertical}
+          $horizontal={menuPlacement.horizontal}
+          role="listbox"
+          aria-label={resolvedLabel}
+          data-testid={testID ? `${testID}-menu` : undefined}
+        >
           {options.map((opt) => (
             <StyledLanguageItem
               key={opt.value}
