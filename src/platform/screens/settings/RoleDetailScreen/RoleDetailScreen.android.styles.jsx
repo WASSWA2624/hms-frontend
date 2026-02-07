@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 
 const StyledContainer = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.background.primary};
   padding-vertical: ${({ theme }) => theme.spacing.lg}px;
   padding-horizontal: ${({ theme }) => theme.spacing.lg}px;
 `;

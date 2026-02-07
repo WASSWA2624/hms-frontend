@@ -12,7 +12,7 @@ const StyledErrorContainer = styled(View).withConfig({
   flex: 1;
   width: 100%;
   min-height: 100%;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.background.primary};
   padding-top: ${({ theme }) => theme.spacing.xl * 2}px;
   padding-bottom: ${({ theme }) => theme.spacing.xl * 2}px;
   padding-left: ${({ theme }) => theme.spacing.lg}px;

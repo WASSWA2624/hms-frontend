@@ -5,10 +5,12 @@
  */
 import styled from 'styled-components';
 
+const shouldNotForward = (prop) =>
+  ['$collapsed', 'collapsed', 'accessibilityRole', 'accessibilityLabel', 'testID', 'footerSlot', 'items'].includes(prop);
 const StyledSidebar = styled.nav.withConfig({
   displayName: 'StyledSidebar',
   componentId: 'StyledSidebar',
-  shouldForwardProp: (prop) => prop !== '$collapsed' && prop !== 'collapsed',
+  shouldForwardProp: (prop) => !shouldNotForward(prop),
 })`
   width: 100%;
   height: 100%;

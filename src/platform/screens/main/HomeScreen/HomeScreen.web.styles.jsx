@@ -11,7 +11,7 @@ const StyledHomeContainer = styled.main.withConfig({
   flex: 1;
   width: 100%;
   min-height: 100vh;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.background.primary};
   padding-top: ${({ theme }) => theme.spacing.xl}px;
   padding-bottom: ${({ theme }) => theme.spacing.xl}px;
   padding-left: ${({ theme }) => theme.spacing.lg}px;

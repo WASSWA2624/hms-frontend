@@ -52,7 +52,7 @@ const ListScaffoldIOS = ({
       <StyledContainer
         style={style}
         testID={testID ? `${testID}-offline` : undefined}
-        accessibilityRole="status"
+        accessibilityRole="none"
         accessibilityLabel={accessibilityLabel || t('listScaffold.offline')}
         {...rest}
       >
@@ -107,7 +107,7 @@ const ListScaffoldIOS = ({
       <StyledContainer
         style={style}
         testID={testID ? `${testID}-empty` : undefined}
-        accessibilityRole="status"
+        accessibilityRole="none"
         accessibilityLabel={accessibilityLabel || t('listScaffold.empty')}
         {...rest}
       >

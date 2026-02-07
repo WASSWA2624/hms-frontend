@@ -92,9 +92,9 @@ const SidebarWeb = ({
   return (
     <StyledSidebar
       collapsed={collapsed}
-      accessibilityRole="navigation"
-      accessibilityLabel={accessibilityLabel || t('navigation.sidebar.title')}
-      testID={testID}
+      role="navigation"
+      aria-label={accessibilityLabel || t('navigation.sidebar.title')}
+      data-testid={testID}
       className={className}
       style={style}
       {...rest}
