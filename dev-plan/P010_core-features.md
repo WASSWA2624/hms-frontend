@@ -31,7 +31,7 @@ For each module step, implement the full feature template:
 - `src/features/<feature>/<feature>.events.js` (optional)
 - `src/features/<feature>/index.js`
 - `src/store/slices/<feature>.slice.js` (if global state is needed)
-- `src/hooks/use<Feature>.js`
+- `src/hooks/use<Feature>.js` (required when UI screens or components need to access the feature—see features-domain.mdc)
 
 ## Testing Requirements (applies to every step)
 - Rules/models: 100% coverage (all branches)

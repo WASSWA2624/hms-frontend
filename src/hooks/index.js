@@ -83,4 +83,8 @@ export { default as useSubscriptionInvoice } from './useSubscriptionInvoice';
 export { default as useModule } from './useModule';
 export { default as useModuleSubscription } from './useModuleSubscription';
 export { default as useLicense } from './useLicense';
+export { default as useNurseRoster } from './useNurseRoster';
+export { default as useShiftTemplate } from './useShiftTemplate';
+export { default as useRosterDayOff } from './useRosterDayOff';
+export { default as useStaffAvailability } from './useStaffAvailability';
 
