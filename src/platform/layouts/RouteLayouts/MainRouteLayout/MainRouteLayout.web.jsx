@@ -154,6 +154,8 @@ const MainRouteLayoutWeb = () => {
           size="small"
           onPress={handleShowHeader}
           accessibilityLabel={t('navigation.header.showHeader')}
+          accessibilityHint={t('navigation.header.showHeaderHint')}
+          title={t('navigation.header.showHeader')}
           testID="main-header-reveal"
         >
           <Icon glyph="˅" decorative accessibilityLabel={t('navigation.header.showHeader')} />

@@ -313,19 +313,45 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
   componentId: 'StyledHeaderToggleButton',
 })`
   && {
-    min-height: 28px;
-    min-width: 28px;
+    min-height: ${({ theme }) => theme.spacing.xxl}px;
+    min-width: ${({ theme }) => theme.spacing.xxl}px;
     padding: 0;
-    border-color: ${({ theme }) => theme.colors.background.tertiary};
+    border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
     border-radius: ${({ theme }) => theme.radius.sm}px;
     background-color: transparent;
+    color: ${({ theme }) => theme.colors.text.secondary};
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+
+  &&:hover {
+    color: ${({ theme }) => theme.colors.text.primary};
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+    border-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &&:active {
+    transform: scale(0.96);
+  }
+
+  &&:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    && {
+      transition: none;
+    }
+    &&:active {
+      transform: none;
+    }
   }
 
   /* Tablet */
   @media (min-width: 768px) and (max-width: 1023px) {
     && {
-      min-height: 28px;
-      min-width: 28px;
+      min-height: ${({ theme }) => theme.spacing.xxl}px;
+      min-width: ${({ theme }) => theme.spacing.xxl}px;
     }
   }
 

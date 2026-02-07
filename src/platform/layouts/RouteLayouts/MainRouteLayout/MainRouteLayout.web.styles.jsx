@@ -621,9 +621,40 @@ const StyledHeaderRevealButton = styled(Button).withConfig({
     min-height: ${({ theme }) => theme.spacing.xxl}px;
     min-width: ${({ theme }) => theme.spacing.xxl}px;
     padding: 0;
-    border-color: ${({ theme }) => theme.colors.background.tertiary};
-    background-color: transparent;
+    border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+    background-color: ${({ theme }) => theme.colors.background.primary};
     border-radius: ${({ theme }) => theme.radius.full}px;
+    color: ${({ theme }) => theme.colors.text.secondary};
+    box-shadow: ${({ theme }) => {
+      const s = theme.shadows?.sm;
+      if (!s) return '0 1px 4px rgba(0, 0, 0, 0.08)';
+      return `${s.shadowOffset?.width ?? 0}px ${s.shadowOffset?.height ?? 1}px ${s.shadowRadius ?? 4}px rgba(0, 0, 0, ${s.shadowOpacity ?? 0.08})`;
+    }};
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  }
+
+  &&:hover {
+    color: ${({ theme }) => theme.colors.text.primary};
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+    border-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &&:active {
+    transform: scale(0.96);
+  }
+
+  &&:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    && {
+      transition: none;
+    }
+    &&:active {
+      transform: none;
+    }
   }
 `;
 

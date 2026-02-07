@@ -2,15 +2,35 @@
 
 Single source of truth for app name and asset paths: `src/config/app-identity.js`.
 
-## Required assets
+## Asset layout
 
-- **favicon.png** – Used as app icon (Expo `icon`), Android adaptive foreground, iOS icon, web favicon, and canonical logo until dedicated files exist. For production, provide **1024×1024** for icon and a separate logo if needed.
-- **icon-192.png**, **icon-512.png** – PWA / “add to home screen” icons. Generate from a 1024×1024 source and place in `public/` so manifest.json (`/icon-192.png`, `/icon-512.png`) resolves. For favicon in PWA manifest, ensure `public/favicon.png` exists (copy from `assets/favicon.png` if needed). Optional: **apple-touch-icon** (e.g. 180×180) via custom web template for iOS home screen.
+| Asset | Location | Usage |
+|-------|----------|-------|
+| favicon.png | assets/ + public/ | App icon, splash, Android/iOS, web favicon (browser tab) |
+| logo-light.png | assets/ + public/ | In-app branding (light theme) |
+| logo-dark.png | assets/ + public/ | In-app branding (dark theme) |
+| icon-192.png | public/ | PWA add-to-home-screen (192×192) |
+| icon-512.png | public/ | PWA add-to-home-screen (512×512) |
 
-## Theme-aware logos
+## Configuration (app-identity.js)
 
-- **logo-light.png**, **logo-dark.png** – In-app branding (AppLogo, shell/header, AuthLayout). Keep in **assets/** (native bundle) and in **public/** (web; served as `/logo-light.png`, `/logo-dark.png`). Configured in `app-identity.js` as `ASSET_LOGO_LIGHT`, `ASSET_LOGO_DARK`, `PUBLIC_LOGO_LIGHT`, `PUBLIC_LOGO_DARK`.
+- **ASSET_ICON** – Expo icon, Android adaptive foreground, iOS icon
+- **ASSET_SPLASH** – Native splash screen image
+- **PUBLIC_FAVICON** – Web browser tab icon (`/favicon.png`)
+- **PUBLIC_ICON_192** – PWA icon (`/icon-192.png`)
+- **PUBLIC_ICON_512** – PWA icon (`/icon-512.png`)
+- **PUBLIC_APPLE_TOUCH_ICON** – iOS home screen (falls back to icon-192)
 
-## Verification (Step 9.0)
+## Sync assets to public
 
-Build or run on Android, iOS, and Web; confirm app name, logo in UI, and icon/favicon in launcher, home screen, browser tab, and PWA/tablet.
+Run `node scripts/sync-assets.cjs` to copy favicon and logos from `assets/` to `public/`.
+
+## Requirements
+
+- **favicon.png** – 1024×1024 recommended (used for native icon generation)
+- **icon-192.png**, **icon-512.png** – Generate from 1024×1024 source; place in `public/`
+- **logo-light.png**, **logo-dark.png** – Theme-aware in-app logos
+
+## Verification
+
+Build or run on Android, iOS, and Web; confirm app name, logo in UI, and icon/favicon in launcher, home screen, browser tab, and PWA.

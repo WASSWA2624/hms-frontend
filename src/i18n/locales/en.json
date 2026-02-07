@@ -102,6 +102,7 @@
       "logout": "Logout",
       "hideHeader": "Hide header",
       "showHeader": "Show header",
+      "showHeaderHint": "Double tap to show the header bar",
       "showMore": "Show more",
       "customize": "Customize",
       "overflowMenuLabel": "More header actions",

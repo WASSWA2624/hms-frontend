@@ -18,7 +18,8 @@
     "debug:android": "node scripts/debug/android-debug-logcat.mjs",
     "debug:ios": "node scripts/debug/ios-debug-logcat.mjs",
     "debug:web": "node scripts/debug/web-log-receiver.mjs",
-    "debug:all": "node scripts/debug/debug-all.mjs"
+    "debug:all": "node scripts/debug/debug-all.mjs",
+    "sync-assets": "node scripts/sync-assets.cjs"
   },
   "postinstall": "patch-package",
   "dependencies": {

@@ -3,6 +3,7 @@ const {
   APP_SHORT_NAME,
   FLUENT_PRIMARY,
   ASSET_ICON,
+  ASSET_SPLASH,
 } = require('./src/config/app-identity');
 
 export default {
@@ -14,7 +15,7 @@ export default {
     icon: ASSET_ICON,
     userInterfaceStyle: "light",
     splash: {
-      image: ASSET_ICON,
+      image: ASSET_SPLASH,
       resizeMode: "contain",
       backgroundColor: FLUENT_PRIMARY,
     },
