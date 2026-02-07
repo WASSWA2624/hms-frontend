@@ -1,0 +1,1 @@
+{"version":3,"names":["_OverflowMenu","_interopRequireDefault","require"],"sources":["index.js"],"sourcesContent":["/**\r\n * OverflowMenu component barrel\r\n * File: OverflowMenu/index.js\r\n */\r\nexport { default } from './OverflowMenu.web';\r\n"],"mappings":";;;;;;;;;;AAIA,IAAAA,aAAA,GAAAC,sBAAA,CAAAC,OAAA","ignoreList":[]}

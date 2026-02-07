@@ -15,10 +15,10 @@ const StyledSidebar = styled(View).withConfig({
   border-right-width: 1px;
   border-right-color: ${({ theme }) => theme.colors.background.tertiary};
   height: 100%;
-  shadow-color: #000;
+  shadow-color: ${({ theme }) => theme.shadows?.md?.shadowColor ?? theme.shadows?.sm?.shadowColor};
   shadow-offset: 2px 0px;
-  shadow-opacity: 0.1;
-  shadow-radius: 4px;
+  shadow-opacity: ${({ theme }) => theme.shadows?.md?.shadowOpacity ?? 0.15};
+  shadow-radius: ${({ theme }) => theme.shadows?.md?.shadowRadius ?? 4}px;
 `;
 
 const StyledSidebarContent = styled(View).withConfig({

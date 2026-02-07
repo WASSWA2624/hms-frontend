@@ -1,0 +1,1 @@
+{"version":3,"names":["_HeaderCustomizationMenu","_interopRequireDefault","require"],"sources":["index.js"],"sourcesContent":["/**\r\n * HeaderCustomizationMenu component barrel\r\n * File: HeaderCustomizationMenu/index.js\r\n */\r\nexport { default } from './HeaderCustomizationMenu.web';\r\n"],"mappings":";;;;;;;;;;AAIA,IAAAA,wBAAA,GAAAC,sBAAA,CAAAC,OAAA","ignoreList":[]}

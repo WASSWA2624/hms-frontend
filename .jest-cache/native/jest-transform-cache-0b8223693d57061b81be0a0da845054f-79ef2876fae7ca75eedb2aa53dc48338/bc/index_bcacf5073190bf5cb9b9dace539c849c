@@ -1,0 +1,56 @@
+c7c24426a3ed70b34acdd8ed1c3b013b
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  endpoints: true,
+  featureFlags: true
+};
+Object.defineProperty(exports, "endpoints", {
+  enumerable: true,
+  get: function get() {
+    return _endpoints.endpoints;
+  }
+});
+exports.featureFlags = void 0;
+var _appIdentity = require("./app-identity");
+Object.keys(_appIdentity).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _appIdentity[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _appIdentity[key];
+    }
+  });
+});
+var _env = require("./env");
+Object.keys(_env).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _env[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _env[key];
+    }
+  });
+});
+var _constants = require("./constants");
+Object.keys(_constants).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _constants[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _constants[key];
+    }
+  });
+});
+var _endpoints = require("./endpoints");
+var _featureFlags = _interopRequireWildcard(require("./feature.flags"));
+exports.featureFlags = _featureFlags;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfYXBwSWRlbnRpdHkiLCJyZXF1aXJlIiwiT2JqZWN0Iiwia2V5cyIsImZvckVhY2giLCJrZXkiLCJwcm90b3R5cGUiLCJoYXNPd25Qcm9wZXJ0eSIsImNhbGwiLCJfZXhwb3J0TmFtZXMiLCJleHBvcnRzIiwiZGVmaW5lUHJvcGVydHkiLCJlbnVtZXJhYmxlIiwiZ2V0IiwiX2VudiIsIl9jb25zdGFudHMiLCJfZW5kcG9pbnRzIiwiX2ZlYXR1cmVGbGFncyIsIl9pbnRlcm9wUmVxdWlyZVdpbGRjYXJkIiwiZmVhdHVyZUZsYWdzIl0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIENvbmZpZyBCYXJyZWwgRXhwb3J0XHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0ICogZnJvbSAnLi9hcHAtaWRlbnRpdHknO1xyXG5leHBvcnQgKiBmcm9tICcuL2Vudic7XHJcbmV4cG9ydCAqIGZyb20gJy4vY29uc3RhbnRzJztcclxuZXhwb3J0IHsgZW5kcG9pbnRzIH0gZnJvbSAnLi9lbmRwb2ludHMnO1xyXG5leHBvcnQgKiBhcyBmZWF0dXJlRmxhZ3MgZnJvbSAnLi9mZWF0dXJlLmZsYWdzJztcclxuXHJcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBS0EsSUFBQUEsWUFBQSxHQUFBQyxPQUFBO0FBQUFDLE1BQUEsQ0FBQUMsSUFBQSxDQUFBSCxZQUFBLEVBQUFJLE9BQUEsV0FBQUMsR0FBQTtFQUFBLElBQUFBLEdBQUEsa0JBQUFBLEdBQUE7RUFBQSxJQUFBSCxNQUFBLENBQUFJLFNBQUEsQ0FBQUMsY0FBQSxDQUFBQyxJQUFBLENBQUFDLFlBQUEsRUFBQUosR0FBQTtFQUFBLElBQUFBLEdBQUEsSUFBQUssT0FBQSxJQUFBQSxPQUFBLENBQUFMLEdBQUEsTUFBQUwsWUFBQSxDQUFBSyxHQUFBO0VBQUFILE1BQUEsQ0FBQVMsY0FBQSxDQUFBRCxPQUFBLEVBQUFMLEdBQUE7SUFBQU8sVUFBQTtJQUFBQyxHQUFBLFdBQUFBLElBQUE7TUFBQSxPQUFBYixZQUFBLENBQUFLLEdBQUE7SUFBQTtFQUFBO0FBQUE7QUFDQSxJQUFBUyxJQUFBLEdBQUFiLE9BQUE7QUFBQUMsTUFBQSxDQUFBQyxJQUFBLENBQUFXLElBQUEsRUFBQVYsT0FBQSxXQUFBQyxHQUFBO0VBQUEsSUFBQUEsR0FBQSxrQkFBQUEsR0FBQTtFQUFBLElBQUFILE1BQUEsQ0FBQUksU0FBQSxDQUFBQyxjQUFBLENBQUFDLElBQUEsQ0FBQUMsWUFBQSxFQUFBSixHQUFBO0VBQUEsSUFBQUEsR0FBQSxJQUFBSyxPQUFBLElBQUFBLE9BQUEsQ0FBQUwsR0FBQSxNQUFBUyxJQUFBLENBQUFULEdBQUE7RUFBQUgsTUFBQSxDQUFBUyxjQUFBLENBQUFELE9BQUEsRUFBQUwsR0FBQTtJQUFBTyxVQUFBO0lBQUFDLEdBQUEsV0FBQUEsSUFBQTtNQUFBLE9BQUFDLElBQUEsQ0FBQVQsR0FBQTtJQUFBO0VBQUE7QUFBQTtBQUNBLElBQUFVLFVBQUEsR0FBQWQsT0FBQTtBQUFBQyxNQUFBLENBQUFDLElBQUEsQ0FBQVksVUFBQSxFQUFBWCxPQUFBLFdBQUFDLEdBQUE7RUFBQSxJQUFBQSxHQUFBLGtCQUFBQSxHQUFBO0VBQUEsSUFBQUgsTUFBQSxDQUFBSSxTQUFBLENBQUFDLGNBQUEsQ0FBQUMsSUFBQSxDQUFBQyxZQUFBLEVBQUFKLEdBQUE7RUFBQSxJQUFBQSxHQUFBLElBQUFLLE9BQUEsSUFBQUEsT0FBQSxDQUFBTCxHQUFBLE1BQUFVLFVBQUEsQ0FBQVYsR0FBQTtFQUFBSCxNQUFBLENBQUFTLGNBQUEsQ0FBQUQsT0FBQSxFQUFBTCxHQUFBO0lBQUFPLFVBQUE7SUFBQUMsR0FBQSxXQUFBQSxJQUFBO01BQUEsT0FBQUUsVUFBQSxDQUFBVixHQUFBO0lBQUE7RUFBQTtBQUFBO0FBQ0EsSUFBQVcsVUFBQSxHQUFBZixPQUFBO0FBQ0EsSUFBQWdCLGFBQUEsR0FBQUMsdUJBQUEsQ0FBQWpCLE9BQUE7QUFBZ0RTLE9BQUEsQ0FBQVMsWUFBQSxHQUFBRixhQUFBIiwiaWdub3JlTGlzdCI6W119

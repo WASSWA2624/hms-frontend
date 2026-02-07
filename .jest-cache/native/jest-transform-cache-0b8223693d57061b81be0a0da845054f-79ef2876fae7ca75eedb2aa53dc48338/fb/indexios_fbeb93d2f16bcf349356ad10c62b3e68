@@ -1,0 +1,24 @@
+8d78f5ae4da6493e604b4f8f0af3bd9c
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "StyledActivityIndicator", {
+  enumerable: true,
+  get: function get() {
+    return _RootLayoutStylesIos.StyledActivityIndicator;
+  }
+});
+Object.defineProperty(exports, "StyledLoadingContainer", {
+  enumerable: true,
+  get: function get() {
+    return _RootLayoutStylesIos.StyledLoadingContainer;
+  }
+});
+Object.defineProperty(exports, "StyledSlotContainer", {
+  enumerable: true,
+  get: function get() {
+    return _RootLayoutStylesIos.StyledSlotContainer;
+  }
+});
+var _RootLayoutStylesIos = require("./RootLayoutStyles.ios.styles");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfUm9vdExheW91dFN0eWxlc0lvcyIsInJlcXVpcmUiXSwic291cmNlcyI6WyJpbmRleC5pb3MuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFJvb3RMYXlvdXRTdHlsZXMgaU9TIEJhcnJlbFxyXG4gKiBQbGF0Zm9ybS1zcGVjaWZpYyBleHBvcnQgZm9yIG5hdGl2ZSBpT1Mgc3R5bGVzLlxyXG4gKi9cclxuZXhwb3J0IHtcclxuICBTdHlsZWRMb2FkaW5nQ29udGFpbmVyLFxyXG4gIFN0eWxlZEFjdGl2aXR5SW5kaWNhdG9yLFxyXG4gIFN0eWxlZFNsb3RDb250YWluZXIsXHJcbn0gZnJvbSAnLi9Sb290TGF5b3V0U3R5bGVzLmlvcy5zdHlsZXMnO1xyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUlBLElBQUFBLG9CQUFBLEdBQUFDLE9BQUEiLCJpZ25vcmVMaXN0IjpbXX0=

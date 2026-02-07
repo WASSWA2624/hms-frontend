@@ -1,0 +1,20 @@
+fbd80e3ca642ce404dfd89312c5c407f
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _Switch.default;
+  }
+});
+Object.defineProperty(exports, "useSwitch", {
+  enumerable: true,
+  get: function get() {
+    return _useSwitch.useSwitch;
+  }
+});
+var _Switch = _interopRequireDefault(require("./Switch"));
+var _useSwitch = require("./useSwitch");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfU3dpdGNoIiwiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJfdXNlU3dpdGNoIl0sInNvdXJjZXMiOlsiaW5kZXguanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXHJcbiAqIFN3aXRjaCBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlIHJlc29sdXRpb24pXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vU3dpdGNoJztcclxuZXhwb3J0IHsgdXNlU3dpdGNoIH0gZnJvbSAnLi91c2VTd2l0Y2gnO1xyXG5cclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7O0FBTUEsSUFBQUEsT0FBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQ0EsSUFBQUMsVUFBQSxHQUFBRCxPQUFBIiwiaWdub3JlTGlzdCI6W119

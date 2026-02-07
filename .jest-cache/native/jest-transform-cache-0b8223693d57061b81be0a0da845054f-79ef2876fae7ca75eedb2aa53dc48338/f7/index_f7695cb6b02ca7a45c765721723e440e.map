@@ -1,0 +1,1 @@
+{"version":3,"names":["_NotificationsMenu","_interopRequireDefault","require"],"sources":["index.js"],"sourcesContent":["/**\r\n * NotificationsMenu component barrel\r\n * File: NotificationsMenu/index.js\r\n */\r\nexport { default } from './NotificationsMenu.web';\r\n"],"mappings":";;;;;;;;;;AAIA,IAAAA,kBAAA,GAAAC,sBAAA,CAAAC,OAAA","ignoreList":[]}

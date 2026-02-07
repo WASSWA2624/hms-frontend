@@ -1,0 +1,45 @@
+8540a75fb87d5466bb315b26ae9c460b
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "SIZES", {
+  enumerable: true,
+  get: function get() {
+    return _types.SIZES;
+  }
+});
+Object.defineProperty(exports, "SIZE_KEYS", {
+  enumerable: true,
+  get: function get() {
+    return _types.SIZE_KEYS;
+  }
+});
+Object.defineProperty(exports, "VARIANTS", {
+  enumerable: true,
+  get: function get() {
+    return _types.VARIANTS;
+  }
+});
+Object.defineProperty(exports, "VARIANT_KEYS", {
+  enumerable: true,
+  get: function get() {
+    return _types.VARIANT_KEYS;
+  }
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _Badge.default;
+  }
+});
+Object.defineProperty(exports, "useBadge", {
+  enumerable: true,
+  get: function get() {
+    return _useBadge.useBadge;
+  }
+});
+var _Badge = _interopRequireDefault(require("./Badge"));
+var _useBadge = require("./useBadge");
+var _types = require("./types");
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfQmFkZ2UiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl91c2VCYWRnZSIsIl90eXBlcyJdLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBCYWRnZSBDb21wb25lbnRcclxuICogUGxhdGZvcm0gc2VsZWN0b3IgZXhwb3J0IChwbGF0Zm9ybSBmaWxlLXJlc29sdXRpb24gYmFzZWQpXHJcbiAqIEZpbGU6IGluZGV4LmpzXHJcbiAqL1xyXG5cclxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vQmFkZ2UnO1xyXG5leHBvcnQgeyB1c2VCYWRnZSB9IGZyb20gJy4vdXNlQmFkZ2UnO1xyXG5leHBvcnQgeyBTSVpFUywgU0laRV9LRVlTLCBWQVJJQU5UUywgVkFSSUFOVF9LRVlTIH0gZnJvbSAnLi90eXBlcyc7XHJcblxyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFNQSxJQUFBQSxNQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFDQSxJQUFBQyxTQUFBLEdBQUFELE9BQUE7QUFDQSxJQUFBRSxNQUFBLEdBQUFGLE9BQUEiLCJpZ25vcmVMaXN0IjpbXX0=

@@ -1,0 +1,13 @@
+dcaa4c4640d4e2d8635f9785664edad1
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "default", {
+  enumerable: true,
+  get: function get() {
+    return _HeaderCustomizationMenu.default;
+  }
+});
+var _HeaderCustomizationMenu = _interopRequireDefault(require("./HeaderCustomizationMenu.web"));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfSGVhZGVyQ3VzdG9taXphdGlvbk1lbnUiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSJdLCJzb3VyY2VzIjpbImluZGV4LmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBIZWFkZXJDdXN0b21pemF0aW9uTWVudSBjb21wb25lbnQgYmFycmVsXHJcbiAqIEZpbGU6IEhlYWRlckN1c3RvbWl6YXRpb25NZW51L2luZGV4LmpzXHJcbiAqL1xyXG5leHBvcnQgeyBkZWZhdWx0IH0gZnJvbSAnLi9IZWFkZXJDdXN0b21pemF0aW9uTWVudS53ZWInO1xyXG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7QUFJQSxJQUFBQSx3QkFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBIiwiaWdub3JlTGlzdCI6W119
