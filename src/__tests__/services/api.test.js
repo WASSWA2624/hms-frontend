@@ -5,7 +5,7 @@
 // Mock fetch
 global.fetch = jest.fn();
 
-// Mock token manager
+// Mock token manager (used by interceptors)
 jest.mock('@security', () => ({
   tokenManager: {
     getAccessToken: jest.fn(),
@@ -18,6 +18,23 @@ jest.mock('@errors', () => ({
   handleError: jest.fn((error) => error),
 }));
 
+// Mock i18n + storage for locale header
+jest.mock('@i18n', () => ({
+  getDeviceLocale: jest.fn(() => 'en'),
+  LOCALE_STORAGE_KEY: 'locale',
+}));
+
+jest.mock('@services/storage', () => ({
+  async: {
+    getItem: jest.fn(),
+  },
+}));
+
+jest.mock('@services/csrf', () => ({
+  getCsrfHeaders: jest.fn(async () => ({})),
+  clearCsrfToken: jest.fn(),
+}));
+
 // Mock config
 jest.mock('@config', () => ({
   TIMEOUTS: {
@@ -28,12 +45,19 @@ jest.mock('@config', () => ({
 const { apiClient } = require('@services/api');
 const { tokenManager } = require('@security');
 const { handleError } = require('@errors');
+const { async: asyncStorage } = require('@services/storage');
+const { getCsrfHeaders } = require('@services/csrf');
 
 describe('API Client', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch.mockClear();
     jest.useFakeTimers();
+    asyncStorage.getItem.mockResolvedValue(null);
+
+    if (!global.AbortSignal || typeof global.AbortSignal.timeout !== 'function') {
+      global.AbortSignal = { timeout: () => undefined };
+    }
   });
 
   afterEach(() => {
@@ -53,16 +77,45 @@ describe('API Client', () => {
 
       const result = await apiClient({ url: 'https://api.example.com/test' });
 
-      expect(result).toEqual({ data: mockData, status: 200 });
+      expect(result).toEqual({ data: mockData, raw: mockData, status: 200 });
       expect(global.fetch).toHaveBeenCalledWith(
         'https://api.example.com/test',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
+            'Accept-Language': 'en',
           }),
+          credentials: 'include',
         })
       );
+    });
+
+    it('should unwrap backend envelope responses', async () => {
+      const envelope = {
+        status: 200,
+        message: 'ok',
+        data: { id: 1, name: 'Test' },
+        meta: { locale: 'en', direction: 'ltr' },
+      };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: async () => envelope,
+      });
+      tokenManager.getAccessToken.mockResolvedValue(null);
+
+      const result = await apiClient({ url: 'https://api.example.com/test' });
+
+      expect(result).toEqual({
+        data: envelope.data,
+        meta: envelope.meta,
+        message: envelope.message,
+        pagination: undefined,
+        raw: envelope,
+        status: 200,
+      });
     });
 
     it('should attach Authorization header when token exists', async () => {
@@ -98,6 +151,7 @@ describe('API Client', () => {
         json: async () => mockData,
       });
       tokenManager.getAccessToken.mockResolvedValue(null);
+      getCsrfHeaders.mockResolvedValue({ 'X-CSRF-Token': 'csrf' });
 
       const result = await apiClient({
         url: 'https://api.example.com/test',
@@ -105,11 +159,12 @@ describe('API Client', () => {
         body: requestBody,
       });
 
-      expect(result).toEqual({ data: mockData, status: 201 });
+      expect(result).toEqual({ data: mockData, raw: mockData, status: 201 });
       expect(global.fetch).toHaveBeenCalledWith(
         'https://api.example.com/test',
         expect.objectContaining({
           method: 'POST',
+          headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf' }),
           body: JSON.stringify(requestBody),
         })
       );
@@ -121,6 +176,7 @@ describe('API Client', () => {
         status: 401,
         statusText: 'Unauthorized',
         headers: { get: () => 'application/json' },
+        json: async () => ({ message: 'Unauthorized', errors: [] }),
       });
       tokenManager.getAccessToken.mockResolvedValue(null);
       tokenManager.clearTokens.mockResolvedValue();
@@ -202,6 +258,7 @@ describe('API Client', () => {
         status: 404,
         statusText: 'Not Found',
         headers: { get: () => 'application/json' },
+        json: async () => ({ message: 'Not Found', errors: [] }),
       });
       tokenManager.getAccessToken.mockResolvedValue(null);
 

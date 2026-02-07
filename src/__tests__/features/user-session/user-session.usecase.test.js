@@ -33,9 +33,11 @@ const pagination = {
 describe('user-session.usecase', () => {
   beforeEach(() => {
     listUserSessionsApi.mockResolvedValue({
-      data: { data: [{ id: '1' }], pagination },
+      data: [{ id: '1' }],
+      pagination,
+      raw: { data: [{ id: '1' }], pagination },
     });
-    getUserSessionApi.mockResolvedValue({ data: { data: { id: '1' } } });
+    getUserSessionApi.mockResolvedValue({ data: { id: '1' }, raw: { data: { id: '1' } } });
     deleteUserSessionApi.mockResolvedValue({ data: null, status: 204 });
   });
 

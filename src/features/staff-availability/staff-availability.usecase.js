@@ -1,3 +1,4 @@
+import { endpoints } from '@config/endpoints';
 import { handleError } from '@errors';
 import { queueRequestIfOffline } from '@offline/request';
 import { staffAvailabilityApi } from './staff-availability.api';

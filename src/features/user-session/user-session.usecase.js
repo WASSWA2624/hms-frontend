@@ -21,9 +21,8 @@ const listUserSessions = async (params = {}) =>
   execute(async () => {
     const parsed = parseUserSessionListParams(params);
     const response = await listUserSessionsApi(parsed);
-    const raw = response?.data ?? {};
-    const items = normalizeUserSessionList(Array.isArray(raw.data) ? raw.data : []);
-    const pagination = raw.pagination ?? {};
+    const items = normalizeUserSessionList(Array.isArray(response?.data) ? response.data : []);
+    const pagination = response?.pagination ?? response?.raw?.pagination ?? {};
     return { items, pagination };
   });
 
@@ -31,8 +30,7 @@ const getUserSession = async (id) =>
   execute(async () => {
     const parsedId = parseUserSessionId(id);
     const response = await getUserSessionApi(parsedId);
-    const raw = response?.data ?? {};
-    return normalizeUserSession(raw.data ?? raw);
+    return normalizeUserSession(response?.data ?? null);
   });
 
 const revokeUserSession = async (id) =>
