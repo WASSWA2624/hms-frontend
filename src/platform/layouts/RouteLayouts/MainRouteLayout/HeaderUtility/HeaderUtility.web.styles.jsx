@@ -313,8 +313,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
   componentId: 'StyledHeaderToggleButton',
 })`
   && {
-    min-height: ${({ theme }) => theme.spacing.xxl}px;
-    min-width: ${({ theme }) => theme.spacing.xxl}px;
+    min-height: 28px;
+    min-width: 28px;
     padding: 0;
     border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
     border-radius: ${({ theme }) => theme.radius.sm}px;
@@ -350,8 +350,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
   /* Tablet */
   @media (min-width: 768px) and (max-width: 1023px) {
     && {
-      min-height: ${({ theme }) => theme.spacing.xxl}px;
-      min-width: ${({ theme }) => theme.spacing.xxl}px;
+      min-height: 28px;
+      min-width: 28px;
     }
   }
 

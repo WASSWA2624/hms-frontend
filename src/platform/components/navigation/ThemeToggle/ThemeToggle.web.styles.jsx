@@ -1,20 +1,21 @@
 /**
- * ThemeControls Styles - Web
- * Elegant theme toggle (light/dark pill)
- * File: ThemeControls.web.styles.jsx
+ * ThemeToggle Styles - Web
+ * Single-position theme toggle (light/dark)
+ * File: ThemeToggle.web.styles.jsx
  */
 import styled from 'styled-components';
 
-const StyledThemeControls = styled.div.withConfig({
-  displayName: 'StyledThemeControls',
-  componentId: 'StyledThemeControls',
+const StyledThemeToggleWrapper = styled.div.withConfig({
+  displayName: 'StyledThemeToggleWrapper',
+  componentId: 'StyledThemeToggleWrapper',
 })`
   display: inline-flex;
   align-items: center;
 `;
 
-const StyledThemeToggle = styled.div.withConfig({
-  displayName: 'StyledThemeToggle',
+const StyledThemeToggleTrack = styled.div.withConfig({
+  displayName: 'StyledThemeToggleTrack',
+  componentId: 'StyledThemeToggleTrack',
 })`
   display: inline-flex;
   border-radius: ${({ theme }) => theme.radius.md}px;
@@ -23,8 +24,9 @@ const StyledThemeToggle = styled.div.withConfig({
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
 `;
 
-const StyledThemeOption = styled.button.withConfig({
-  displayName: 'StyledThemeOption',
+const StyledThemeToggleButton = styled.button.withConfig({
+  displayName: 'StyledThemeToggleButton',
+  componentId: 'StyledThemeToggleButton',
 })`
   display: inline-flex;
   align-items: center;
@@ -51,4 +53,4 @@ const StyledThemeOption = styled.button.withConfig({
   }
 `;
 
-export { StyledThemeControls, StyledThemeToggle, StyledThemeOption };
+export { StyledThemeToggleWrapper, StyledThemeToggleTrack, StyledThemeToggleButton };

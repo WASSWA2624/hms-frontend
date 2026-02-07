@@ -18,10 +18,10 @@ const StyledFooterContent = styled.View.withConfig({
   displayName: 'StyledFooterContent',
   componentId: 'StyledFooterContent',
 })`
-  padding: ${({ theme, minimal }) => (minimal ? theme.spacing.xs : theme.spacing.md)}px;
+  padding: ${({ theme, minimal }) => (minimal ? theme.spacing.xs : theme.spacing.sm)}px;
   padding-bottom: ${({ theme, bottomInset, minimal }) =>
-    (minimal ? theme.spacing.xs : theme.spacing.md) + bottomInset}px;
-  row-gap: ${({ theme, minimal }) => (minimal ? 0 : theme.spacing.md)}px;
+    (minimal ? theme.spacing.xs : theme.spacing.sm) + bottomInset}px;
+  row-gap: ${({ theme, minimal }) => (minimal ? 0 : theme.spacing.sm)}px;
 `;
 
 const StyledFooterRow = styled.View.withConfig({
@@ -86,7 +86,7 @@ const StyledLegalButton = styled.Pressable.withConfig({
   displayName: 'StyledLegalButton',
   componentId: 'StyledLegalButton',
 })`
-  min-height: 44px;
+  min-height: 36px;
   justify-content: center;
 `;
 
@@ -94,7 +94,7 @@ const StyledLegalText = styled.View.withConfig({
   displayName: 'StyledLegalText',
   componentId: 'StyledLegalText',
 })`
-  min-height: 44px;
+  min-height: 36px;
   justify-content: center;
 `;
 
@@ -117,7 +117,7 @@ const StyledQuickActionButton = styled.Pressable.withConfig({
   align-items: center;
   column-gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  min-height: 44px;
+  min-height: 36px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   border-width: 1px;
   border-color: ${({ theme, isPrimary }) =>

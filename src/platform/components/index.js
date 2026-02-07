@@ -35,6 +35,7 @@ export { default as Tabs } from './navigation/Tabs';
 export { default as Tab } from './navigation/Tab';
 export { default as Breadcrumbs } from './navigation/Breadcrumbs';
 export { default as ThemeControls } from './navigation/ThemeControls';
+export { default as ThemeToggle } from './navigation/ThemeToggle';
 export { default as LanguageControls } from './navigation/LanguageControls';
 
 // Feedback Components

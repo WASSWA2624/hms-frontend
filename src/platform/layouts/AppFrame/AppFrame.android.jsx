@@ -78,7 +78,7 @@ const AppFrameAndroid = ({
         contentContainerStyle={{
           flexGrow: 1,
           flexDirection: 'column',
-          paddingBottom: hasFooter ? 140 : 0,
+          paddingBottom: hasFooter ? 96 : 0,
         }}
       >
         {hasSidebar && <StyledSidebar>{sidebar}</StyledSidebar>}

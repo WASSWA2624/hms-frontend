@@ -33,53 +33,60 @@ describe('ThemeControls Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renders Web variant with theme toggle', () => {
+  it('renders Web variant with theme toggle (single icon at current mode)', () => {
     const { getByLabelText } = render(
       <WebThemeProvider theme={lightTheme}>
         <ThemeControlsWeb testID="web-theme-controls" />
       </WebThemeProvider>
     );
     expect(getByLabelText('settings.theme.options.light')).toBeTruthy();
-    expect(getByLabelText('settings.theme.options.dark')).toBeTruthy();
   });
 
-  it('renders Android variant with theme toggle', () => {
+  it('calls setTheme when Web toggle clicked (light -> dark)', () => {
     const { getByLabelText } = render(
-      <NativeThemeProvider theme={lightTheme}>
-        <ThemeControlsAndroid testID="android-theme-controls" />
-      </NativeThemeProvider>
+      <WebThemeProvider theme={lightTheme}>
+        <ThemeControlsWeb testID="web-theme-controls" />
+      </WebThemeProvider>
     );
-    expect(getByLabelText('settings.theme.options.light')).toBeTruthy();
-    expect(getByLabelText('settings.theme.options.dark')).toBeTruthy();
-  });
-
-  it('calls setTheme when dark button pressed on Android', () => {
-    const { getByLabelText } = render(
-      <NativeThemeProvider theme={lightTheme}>
-        <ThemeControlsAndroid testID="android-theme-controls" />
-      </NativeThemeProvider>
-    );
-    fireEvent.press(getByLabelText('settings.theme.options.dark'));
+    fireEvent.press(getByLabelText('settings.theme.options.light'));
     expect(mockSetTheme).toHaveBeenCalledWith(THEME_MODES.DARK);
   });
 
-  it('renders iOS variant with theme toggle', () => {
+  it('renders Android variant with theme toggle (single icon at current mode)', () => {
+    const { getByLabelText } = render(
+      <NativeThemeProvider theme={lightTheme}>
+        <ThemeControlsAndroid testID="android-theme-controls" />
+      </NativeThemeProvider>
+    );
+    expect(getByLabelText('settings.theme.options.light')).toBeTruthy();
+  });
+
+  it('calls setTheme when Android toggle pressed (light -> dark)', () => {
+    const { getByLabelText } = render(
+      <NativeThemeProvider theme={lightTheme}>
+        <ThemeControlsAndroid testID="android-theme-controls" />
+      </NativeThemeProvider>
+    );
+    fireEvent.press(getByLabelText('settings.theme.options.light'));
+    expect(mockSetTheme).toHaveBeenCalledWith(THEME_MODES.DARK);
+  });
+
+  it('renders iOS variant with theme toggle (single icon at current mode)', () => {
     const { getByLabelText } = render(
       <NativeThemeProvider theme={lightTheme}>
         <ThemeControlsIOS testID="ios-theme-controls" />
       </NativeThemeProvider>
     );
     expect(getByLabelText('settings.theme.options.light')).toBeTruthy();
-    expect(getByLabelText('settings.theme.options.dark')).toBeTruthy();
   });
 
-  it('calls setTheme when dark button pressed on iOS', () => {
+  it('calls setTheme when iOS toggle pressed (light -> dark)', () => {
     const { getByLabelText } = render(
       <NativeThemeProvider theme={lightTheme}>
         <ThemeControlsIOS testID="ios-theme-controls" />
       </NativeThemeProvider>
     );
-    fireEvent.press(getByLabelText('settings.theme.options.dark'));
+    fireEvent.press(getByLabelText('settings.theme.options.light'));
     expect(mockSetTheme).toHaveBeenCalledWith(THEME_MODES.DARK);
   });
 });

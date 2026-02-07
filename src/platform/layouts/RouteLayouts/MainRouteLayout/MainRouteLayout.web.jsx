@@ -8,7 +8,7 @@
  * Per project-structure.mdc: One file = one responsibility; composition over inheritance
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Slot } from 'expo-router';
 import { useAuthGuard } from '@navigation/guards';
 import { AppFrame } from '@platform/layouts';
@@ -63,6 +63,47 @@ const MainRouteLayoutWeb = () => {
     mobileSidebarRef,
     footerVisible,
   } = layout;
+
+  const [revealButtonPosition, setRevealButtonPosition] = useState(null);
+  const revealButtonRef = useRef(null);
+  const dragStartRef = useRef(null);
+  const didDragRef = useRef(false);
+  const justDraggedRef = useRef(false);
+
+  const handleRevealMouseMove = useCallback((e) => {
+    if (!dragStartRef.current) return;
+    didDragRef.current = true;
+    const { clientX, clientY, startLeft, startTop } = dragStartRef.current;
+    const w = typeof window !== 'undefined' ? window.innerWidth : 400;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 300;
+    const size = 28;
+    const x = Math.max(0, Math.min(w - size, startLeft + (e.clientX - clientX)));
+    const y = Math.max(0, Math.min(h - size, startTop + (e.clientY - clientY)));
+    setRevealButtonPosition({ x, y });
+  }, []);
+
+  const handleRevealMouseDown = useCallback((e) => {
+    if (e.button !== 0 || !revealButtonRef.current) return;
+    const rect = revealButtonRef.current.getBoundingClientRect();
+    dragStartRef.current = { clientX: e.clientX, clientY: e.clientY, startLeft: rect.left, startTop: rect.top };
+    didDragRef.current = false;
+    const onUp = () => {
+      if (dragStartRef.current && didDragRef.current) justDraggedRef.current = true;
+      dragStartRef.current = null;
+      document.removeEventListener('mousemove', handleRevealMouseMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', handleRevealMouseMove);
+    document.addEventListener('mouseup', onUp);
+  }, [handleRevealMouseMove]);
+
+  const handleRevealPress = useCallback(() => {
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false;
+      return;
+    }
+    handleShowHeader();
+  }, [handleShowHeader]);
 
   const hamburgerIcon = useMemo(() => <HamburgerIcon />, []);
   const headerActions = useHeaderActions(
@@ -150,9 +191,13 @@ const MainRouteLayoutWeb = () => {
       </AppFrame>
       {isHeaderHidden ? (
         <StyledHeaderRevealButton
+          ref={revealButtonRef}
           variant="outline"
           size="small"
-          onPress={handleShowHeader}
+          dragLeft={revealButtonPosition?.x}
+          dragTop={revealButtonPosition?.y}
+          onMouseDown={handleRevealMouseDown}
+          onPress={handleRevealPress}
           accessibilityLabel={t('navigation.header.showHeader')}
           accessibilityHint={t('navigation.header.showHeaderHint')}
           title={t('navigation.header.showHeader')}

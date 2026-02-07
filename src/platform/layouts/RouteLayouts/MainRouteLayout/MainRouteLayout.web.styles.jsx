@@ -591,7 +591,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
   componentId: 'StyledHeaderToggleButton',
 })`
   && {
-    min-height: ${({ theme }) => theme.spacing.xxl}px;
+    min-height: 28px;
+    min-width: 28px;
     padding: 0;
     border-color: ${({ theme }) => theme.colors.background.tertiary};
     border-radius: ${({ theme }) => theme.radius.sm}px;
@@ -600,7 +601,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     && {
-      min-height: ${({ theme }) => theme.spacing.xxl}px;
+      min-height: 28px;
+      min-width: 28px;
       padding: 0;
       border-color: ${({ theme }) => theme.colors.background.tertiary};
       border-radius: ${({ theme }) => theme.radius.full}px;
@@ -612,14 +614,16 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
 const StyledHeaderRevealButton = styled(Button).withConfig({
   displayName: 'StyledHeaderRevealButton',
   componentId: 'StyledHeaderRevealButton',
+  shouldForwardProp: (prop) => prop !== 'dragLeft' && prop !== 'dragTop',
 })`
   && {
     position: fixed;
-    top: ${({ theme }) => theme.spacing.sm}px;
-    right: ${({ theme }) => theme.spacing.sm}px;
+    top: ${({ dragTop, theme }) => (dragTop != null ? `${dragTop}px` : `${theme.spacing.sm}px`)};
+    left: ${({ dragLeft, theme }) => (dragLeft != null ? `${dragLeft}px` : 'auto')};
+    right: ${({ dragLeft, theme }) => (dragLeft != null ? 'auto' : `${theme.spacing.sm}px`)};
     z-index: 1400;
-    min-height: ${({ theme }) => theme.spacing.xxl}px;
-    min-width: ${({ theme }) => theme.spacing.xxl}px;
+    min-height: 28px;
+    min-width: 28px;
     padding: 0;
     border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
     background-color: ${({ theme }) => theme.colors.background.primary};
@@ -631,6 +635,7 @@ const StyledHeaderRevealButton = styled(Button).withConfig({
       return `${s.shadowOffset?.width ?? 0}px ${s.shadowOffset?.height ?? 1}px ${s.shadowRadius ?? 4}px rgba(0, 0, 0, ${s.shadowOpacity ?? 0.08})`;
     }};
     transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    cursor: grab;
   }
 
   &&:hover {
@@ -640,6 +645,7 @@ const StyledHeaderRevealButton = styled(Button).withConfig({
   }
 
   &&:active {
+    cursor: grabbing;
     transform: scale(0.96);
   }
 

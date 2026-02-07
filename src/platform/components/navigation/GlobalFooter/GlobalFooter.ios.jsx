@@ -38,6 +38,7 @@ const normalizeVariant = (variant) => {
   const normalized = variant.trim().toLowerCase();
   if (normalized === FOOTER_VARIANTS.AUTH) return FOOTER_VARIANTS.AUTH;
   if (normalized === FOOTER_VARIANTS.PATIENT) return FOOTER_VARIANTS.PATIENT;
+  if (normalized === FOOTER_VARIANTS.MINIMAL) return FOOTER_VARIANTS.MINIMAL;
   return FOOTER_VARIANTS.MAIN;
 };
 
