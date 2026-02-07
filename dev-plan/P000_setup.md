@@ -1,7 +1,7 @@
 # Phase 0: Project Setup & Initialization
 
 ## Purpose
-Initialize the Expo React Native project with correct structure, dependencies, and configuration. Follows rules defined in `.cursor/rules/`.
+Initialize the Expo React Native project with correct structure, dependencies, and configuration. Follows rules defined in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; all linked rules are authoritative. Do not duplicate rule content here.
 
 ## Prerequisites
 - Node.js >= 20.0.0

@@ -1,7 +1,7 @@
 # Phase 2: Infrastructure Layer
 
 ## Purpose
-Build the infrastructure layer: services (API, storage, analytics) and security. Follows rules in `.cursor/rules/`.
+Build the infrastructure layer: services (API, storage, analytics) and security. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 1 completed

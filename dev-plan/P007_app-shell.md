@@ -3,7 +3,7 @@
 ## Purpose
 Wire the **app shell** infrastructure: providers, app bootstrap, routing groups, guards, and navigation skeleton. This phase establishes the foundational infrastructure that will support app-specific routes and screens created in Phase 10 and Phase 11.
 
-**Note**: This phase does **not** create app-specific routes or screens (e.g., landing, login, home). Those are implemented in Phase 10 (Core Features) and Phase 11 (Screens & Routes). This phase focuses solely on reusable infrastructure.
+**Note**: This phase does **not** create app-specific routes or screens (e.g., landing, login, home). Those are implemented in Phase 10 (Core Features) and Phase 11 (Screens & Routes). This phase focuses solely on reusable infrastructure. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Rule References
 - `.cursor/rules/app-router.mdc`

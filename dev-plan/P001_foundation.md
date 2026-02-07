@@ -1,7 +1,7 @@
 # Phase 1: Foundation Layer
 
 ## Purpose
-Build the foundation layer: configuration, utilities, logging, and error handling. Follows rules in `.cursor/rules/`.
+Build the foundation layer: configuration, utilities, logging, and error handling. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 0 completed
@@ -412,8 +412,7 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 **Goal**: Internationalization and localization setup so `en.json` exists for error handler and fallback UI (Steps 1.14–1.16).
 
 **Actions**:
-1. Create `src/i18n/index.js` (see full code in original Step 1.17 below).
-2. Create `src/i18n/locales/en.json` with at least:
+1. Create `src/i18n/locales/en.json` with at least:
    ```json
    {
      "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit", "search": "Search", "loading": "Loading...", "error": "Error", "retry": "Retry" },
@@ -429,13 +428,17 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
      }
    }
    ```
-3. In `src/i18n/index.js`: implement `createI18n({ storage })` returning `getCurrentLocale`, `setLocale`, `t`, `tSync`, `supportedLocales`; implement synchronous `getDeviceLocale()` for store init; load `translations = { en }` from `./locales/en.json`; resolve locale via `resolveSupportedLocale` (and `Intl`/device when needed). Export `createI18n`, `getDeviceLocale`, and `LOCALE_STORAGE_KEY` if used by store/services.
+2. Create `src/i18n/index.js` that:
+   - Imports `en` from `./locales/en.json`; sets `translations = { en }`; defines `LOCALE_STORAGE_KEY` (e.g. `'user_locale'`) and `DEFAULT_LOCALE = 'en'`.
+   - Implements `getNestedValue(obj, path)` for key lookup; `interpolate(value, params)` for `{{param}}` replacement; `resolveSupportedLocale(candidate)` against `Object.keys(translations)`; synchronous `getDeviceLocale()` returning `resolveSupportedLocale(Intl?.DateTimeFormat?.().resolvedOptions?.().locale) || DEFAULT_LOCALE` (for store init).
+   - Implements `createI18n({ storage, initialLocale } = {})` returning: `getCurrentLocale`, `setLocale`, `t` (async), `tSync` (sync, optional overrideLocale), `supportedLocales`. Use `getCurrentLocale`/`setLocale` with optional storage; `t`/`tSync` resolve key via `getNestedValue` with fallback to key.
+   - Exports `createI18n`, `getDeviceLocale`, `LOCALE_STORAGE_KEY`. Exports a default `tSync` and an `I18nProvider` component that renders `children` (per `bootstrap-config.mdc`/`i18n.mdc`).
 
-**Tests**: Create `src/__tests__/i18n/index.test.js`.
+**Tests**: Create `src/__tests__/i18n/index.test.js` (createI18n, getDeviceLocale, tSync, key fallback, interpolation).
 
-**Rule Reference**: `.cursor/rules/i18n.mdc`
+**Rule Reference**: `.cursor/rules/i18n.mdc`, `.cursor/rules/index.mdc`
 
-**Note**: Full i18n hook is created in Phase 5. During development only `en.json` is maintained; other locales are added in Phase 14. From this point forward, all UI text must use i18n (no hardcoded strings); see `.cursor/rules/i18n.mdc`.
+**Note**: Full i18n hook (`useI18n`) is created in Phase 5. During development only `en.json` is maintained; other locales are added in Phase 14. From this point forward, all UI text must use i18n (no hardcoded strings); see `.cursor/rules/i18n.mdc`.
 
 ---
 

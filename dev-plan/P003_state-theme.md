@@ -1,7 +1,7 @@
 # Phase 3: State Management & Theme System
 
 ## Purpose
-Build Redux store and theme system. Follows rules in `.cursor/rules/`.
+Build Redux store and theme system. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 2 completed
@@ -231,7 +231,7 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`.
    import radius from './tokens/radius';
    import shadows from './tokens/shadows';
    
-   // Override colors for dark mode
+   // Override colors for dark mode (include semantic aliases used by FallbackUI and other components)
    const darkColors = {
      ...colors,
      background: {
@@ -244,6 +244,8 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`.
        secondary: '#EBEBF5',
        tertiary: '#8E8E93',
      },
+     textPrimary: '#FFFFFF',
+     textSecondary: '#EBEBF5',
    };
    
    export default {

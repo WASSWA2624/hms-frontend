@@ -1,7 +1,7 @@
 # Phase 5: Reusable Hooks (Cross‑cutting)
 
 ## Purpose
-Create **cross-cutting hooks** that are reusable across the entire app (and across apps) and keep UI modular. Hooks are the **only UI gateway** to Redux/services, and in this plan they come early so reusable UI patterns can build on them.
+Create **cross-cutting hooks** that are reusable across the entire app (and across apps) and keep UI modular. Hooks are the **only UI gateway** to Redux/services, and in this plan they come early so reusable UI patterns can build on them. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Rule References
 Follow the rule references below. This plan file does not redefine rules—only implementation steps and test requirements.

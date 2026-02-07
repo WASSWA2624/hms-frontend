@@ -1,14 +1,16 @@
 # Phase 9: App Layouts (All Platforms, All Screen Sizes, Microsoft Fluent)
 
 ## Purpose
-Implement **app layouts and global UI shell** for all route groups. Layouts and all UI in this phase must be implemented for **all platforms** (Android, iOS, Web), **all screen sizes** (mobile, tablet, desktop, large per `src/theme/breakpoints.js`), and must follow **Microsoft Fluent / Microsoft 365 look and feel** per `.cursor/rules/theme-design.mdc`. Every step is atomic, chronological, and follows `.cursor/rules/`.
+Implement **app layouts and global UI shell** for all route groups. Layouts and all UI in this phase must be implemented for **all platforms** (Android, iOS, Web), **all screen sizes** (mobile, tablet, desktop, large per `src/theme/breakpoints.js`), and must follow **Microsoft Fluent / Microsoft 365 look and feel** per `.cursor/rules/theme-design.mdc`. Every step is atomic, chronological, and follows `.cursor/rules/`. Compliance: `.cursor/rules/index.mdc` takes precedence; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 8 completed (debug resources)
 - Phase 7 completed (app shell, route groups)
+- Phase 6 completed (platform UI primitives, navigation components)
 - Theme: light/dark only (Phase 3)
 
 ## Rule References
+- `.cursor/rules/index.mdc` (entry point; linked rules authoritative)
 - `.cursor/rules/app-router.mdc` (route groups, layout placement)
 - `.cursor/rules/platform-ui.mdc` (platform separation, resilience)
 - `.cursor/rules/component-structure.mdc` (grouping, barrel, platform files)
@@ -37,7 +39,23 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Build or run on Android, iOS, and Web; confirm app name, logo in UI, and icon/favicon appear correctly in launcher, home screen, browser tab, and when installed as PWA or on tablet.
 
-**Rule Reference**: `tech-stack.mdc`, `theme-design.mdc` (logo variants if theme-dependent)
+**Rule Reference**: `.cursor/rules/tech-stack.mdc`, `.cursor/rules/theme-design.mdc` (logo variants if theme-dependent)
+
+---
+
+### Step 9.0.5: Common layout utilities (root layout)
+**Goal**: Provide platform-aware layout helpers used by the root layout (theme wrapper, favicon, root styles).
+
+**Actions**:
+1. Create `src/platform/layouts/common/` per `component-structure.mdc`.
+2. **ThemeProviderWrapper/**: platform files (e.g. `.native.jsx`, `.web.jsx`) that wrap theme provider for platform-specific behavior; barrel `index.js`. Used by root layout to supply theme to the app.
+3. **FaviconHead/**: web-only or native no-op for favicon/meta (e.g. `.native.jsx`, `.web.jsx`); used in root layout on web.
+4. **RootLayoutStyles/**: platform-specific root layout styles (e.g. `index.android.js`, `index.ios.js`, `index.js` plus `.styles.jsx` per platform); export so root `_layout.jsx` can apply consistent shell styling.
+5. Wire these into `src/app/_layout.jsx` where needed (per `bootstrap-config.mdc` and `app-router.mdc`).
+
+**Verification**: Root layout renders without errors; theme and favicon apply correctly on web and native.
+
+**Rule Reference**: `.cursor/rules/component-structure.mdc`, `.cursor/rules/bootstrap-config.mdc`
 
 ---
 
@@ -45,14 +63,14 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Create layout frame components (AppFrame, AuthFrame, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
 
 **Actions**:
-1. Under `src/platform/layouts/`: create `AppFrame/`, `AuthFrame/`, and `src/platform/layouts/frames/MainFrame/` (or equivalent). Per `component-structure.mdc`, each layout in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, optional hook (e.g. `useAppFrame.js`, `useMainFrame.js`), `types.js`, `index.js`.
+1. Under `src/platform/layouts/`: create `AppFrame/`, `AuthFrame/`, and `src/platform/layouts/frames/MainFrame/`. Per `component-structure.mdc`, each in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, optional hook (e.g. `useAppFrame.js`, `useMainFrame.js`), `types.js`, `index.js`. Use barrel export so Metro resolves platform files.
 2. Implement frames to be responsive: use theme breakpoints and spacing tokens; test at mobile, tablet, desktop, large.
 3. Use only theme tokens; Microsoft Fluent styling (subtle radius, light shadows/borders).
 4. Export from `src/platform/layouts/index.js`; wire into route group `_layout.jsx` files (import from `@platform/layouts`).
 
 **Verification**: Frames render on Android, iOS, Web; responsive at all breakpoints; pass a11y and theme checks. Tests per `testing.mdc`.
 
-**Rule Reference**: `component-structure.mdc`, `theme-design.mdc`, `platform-ui.mdc`
+**Rule Reference**: `.cursor/rules/component-structure.mdc`, `.cursor/rules/theme-design.mdc`, `.cursor/rules/platform-ui.mdc`
 
 ---
 
@@ -66,7 +84,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Header renders on all platforms and sizes; theme and i18n applied; tests per `testing.mdc`.
 
-**Rule Reference**: `component-structure.mdc`, `theme-design.mdc`, `accessibility.mdc`
+**Rule Reference**: `.cursor/rules/component-structure.mdc`, `.cursor/rules/theme-design.mdc`, `.cursor/rules/accessibility.mdc`
 
 ---
 
@@ -79,7 +97,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Footer renders on all platforms and sizes; tests per `testing.mdc`.
 
-**Rule Reference**: `component-structure.mdc`, `theme-design.mdc`
+**Rule Reference**: `.cursor/rules/component-structure.mdc`, `.cursor/rules/theme-design.mdc`
 
 ---
 
@@ -87,13 +105,15 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Navigation (drawer/tab/rail as appropriate) for main (and patient) route groups. Platform-appropriate patterns; Fluent look and feel; wired to real layouts.
 
 **Actions**:
-1. Implement route layouts under `src/platform/layouts/RouteLayouts/`: e.g. `MainRouteLayout/` (main app shell with header, sidebar/tabs, content) and `PatientRouteLayout/` if needed. Use `src/platform/components/navigation/` (TabBar, Sidebar, Breadcrumbs, HamburgerIcon, etc.) per `component-structure.mdc`.
-2. Responsive behavior: bottom tabs or drawer on mobile, rail/sidebar on desktop; use theme breakpoints.
+1. Implement route layouts under `src/platform/layouts/RouteLayouts/`:
+   - **MainRouteLayout/** (main app shell): platform files `.android.jsx`, `.ios.jsx`, `.web.jsx` and matching `.styles.jsx`; `index.js`, `types.js`. Compose: header slot, content slot, and platform-appropriate nav (bottom tabs or drawer on mobile; sidebar/rail on desktop per breakpoints). Subcomponents per `component-structure.mdc`: e.g. **MobileSidebar/** (drawer/sheet for mobile), **HamburgerIcon/**, **Brand/** (logo/app name), **HeaderUtility/** (web: theme/language controls), **Breadcrumbs** (web), optional **OverflowMenu**, **NotificationsMenu**, **HeaderCustomizationList/Menu**. Use hooks (e.g. `useMainRouteLayoutWeb.js`, `useMainRouteLayoutNative.js`, `useBreadcrumbs.js`, `useKeyboardShortcuts.js`) for logic; styles only in `.styles.jsx`.
+   - **PatientRouteLayout/** (if needed): same platform pattern; wire for patient route group.
+2. Responsive behavior: bottom tabs or drawer on mobile, rail/sidebar on desktop; use theme breakpoints (mobile, tablet, desktop, large).
 3. Wire MainRouteLayout (and PatientRouteLayout) into `(main)/_layout.jsx` (and patient group if any); guards/roles from app state; all routes reachable, no runtime errors.
 
 **Verification**: Navigation works on all platforms and sizes; tests per `testing.mdc`.
 
-**Rule Reference**: `app-router.mdc`, `platform-ui.mdc`, `theme-design.mdc`
+**Rule Reference**: `.cursor/rules/app-router.mdc`, `.cursor/rules/platform-ui.mdc`, `.cursor/rules/theme-design.mdc`, `.cursor/rules/component-structure.mdc`
 
 ---
 
@@ -107,7 +127,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Theme switch works; preference persists; no hydration/render errors.
 
-**Rule Reference**: `theme-design.mdc`, `bootstrap-config.mdc`
+**Rule Reference**: `.cursor/rules/theme-design.mdc`, `.cursor/rules/bootstrap-config.mdc`
 
 ---
 
@@ -121,7 +141,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Language switch works; persistence works; tests per `i18n.mdc` and `testing.mdc`.
 
-**Rule Reference**: `i18n.mdc`, `accessibility.mdc`
+**Rule Reference**: `.cursor/rules/i18n.mdc`, `.cursor/rules/accessibility.mdc`
 
 ---
 
@@ -135,7 +155,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Banners and utilities work on all platforms and sizes; no unhandled errors.
 
-**Rule Reference**: `platform-ui.mdc`, `theme-design.mdc`, `errors-logging.mdc`
+**Rule Reference**: `.cursor/rules/platform-ui.mdc`, `.cursor/rules/theme-design.mdc`, `.cursor/rules/errors-logging.mdc`
 
 ---
 
@@ -150,15 +170,17 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 **Verification**: Checklist passed for platforms and breakpoints; tests green; Fluent compliance confirmed.
 
-**Rule Reference**: `theme-design.mdc`, `performance.mdc`, `testing.mdc`
+**Rule Reference**: `.cursor/rules/theme-design.mdc`, `.cursor/rules/performance.mdc`, `.cursor/rules/testing.mdc`
 
 ---
 
 ## Completion Criteria
 - **App identity and icons**: App name, logo, and all platform icons (Android, iOS, Web favicon, web/tablet icon) configured and verified per Step 9.0.
+- **Common layout utilities**: ThemeProviderWrapper, FaviconHead, RootLayoutStyles created and wired in root layout per Step 9.0.5.
 - All layout and global UI components implemented for **all platforms** (Android, iOS, Web) and **all screen sizes** (mobile, tablet, desktop, large).
+- **MainRouteLayout** (and PatientRouteLayout if needed) with subcomponents (MobileSidebar, HamburgerIcon, Brand, HeaderUtility, etc.) implemented and wired per Step 9.4.
 - **Microsoft Fluent / Microsoft 365** look and feel applied (theme tokens, no hardcoded visuals).
 - Theme controls: **light and dark only**.
-- All steps executed in order; tests passing; rule compliance verified.
+- All steps executed in order; tests passing; rule compliance verified per `.cursor/rules/`.
 
 **Next Phase**: `P010_core-features.md`

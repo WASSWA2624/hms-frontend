@@ -3,6 +3,9 @@
 ## Purpose
 Build **reusable, app-agnostic UI building blocks** (primitives, patterns, and layouts) for Android/iOS/Web using **styled-components + theme tokens** and strict platform separation. All components must follow **Microsoft Fluent / Microsoft 365 look and feel** per `.cursor/rules/theme-design.mdc` (Fluent blue primary, neutrals, Segoe UI–style typography, 2–4px radius, light elevation). This phase intentionally avoids app-specific feature logic so it can be reused across many apps.
 
+## Compliance
+`.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
+
 ## Rule References
 Follow the rule references below. This plan file does not redefine rules—only implementation steps and test requirements.
 

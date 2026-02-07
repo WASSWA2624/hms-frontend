@@ -1,7 +1,7 @@
 # Phase 8: Debug Resources
 
 ## Purpose
-Implement the debug system per `.cursor/rules/debug.mdc`: log capture to disk, debug scripts (ESM), and in-app web console logger. Dev-only; no production impact. Do not redefine rules; follow `debug.mdc`.
+Implement the debug system per `.cursor/rules/debug.mdc`: log capture to disk, debug scripts (ESM), and in-app web console logger. Dev-only; no production impact. Do not redefine rules; follow `debug.mdc`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 7 completed (app shell; `_layout.jsx` exists)

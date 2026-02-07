@@ -1,7 +1,7 @@
 # Phase 4: Offline-First Architecture
 
 ## Purpose
-Implement offline-first architecture with request queuing, network detection, and sync management. Follows rules in `.cursor/rules/`.
+Implement offline-first architecture with request queuing, network detection, and sync management. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
 ## Prerequisites
 - Phase 3 completed
@@ -346,9 +346,10 @@ Implement offline-first architecture with request queuing, network detection, an
    - Must run after theme (per `bootstrap-config.mdc`)
 
 6. Create `src/bootstrap/index.js`:
-   - Export `bootstrapApp()` function
-   - Call init modules in correct order: security → store → theme → offline
-   - Handle fatal/non-fatal errors per `bootstrap-config.mdc`
+   - Export async `bootstrapApp()` function (single entry per `bootstrap-config.mdc`).
+   - Call init modules in this exact order: `await initSecurity()` → `await initStore()` → `await initTheme()` → `await initOffline()`. No other order is allowed.
+   - Handle errors: log and rethrow so fatal failures block rendering; per `bootstrap-config.mdc`.
+   - Do not contain UI, business rules, or navigation logic.
 
 **Tests (mandatory - per `testing.mdc`)**: Create `src/__tests__/bootstrap/*.test.js`
 - Test bootstrap order (security → store → theme → offline)

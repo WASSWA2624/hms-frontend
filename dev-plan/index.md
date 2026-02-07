@@ -3,9 +3,14 @@
 ## Purpose
 Chronological guide for building the React Native (Expo + App Router) HMS application. Each step is atomic, follows `.cursor/rules/` strictly, and aligns with `hms-backend/write-up.md` and `hms-backend/dev-plan/`. Rules are not redefined here; only implementation order and verification are specified.
 
+## Rule compliance
+- **Entry point**: `.cursor/rules/index.mdc` is the single entry point and **takes precedence**; all linked rule documents are authoritative.
+- **No duplication**: Do not duplicate rule content in the dev-plan; reference rules only.
+- **100% compliance**: Every phase and step must comply with the referenced `.cursor/rules/`; verify after each step.
+
 ## Principles
 - **Atomic**: One step, one deliverable; complete before the next.
-- **Chronological**: Execute phases and steps in order; no skipping.
+- **Chronological**: Execute phases and steps in strict order; do not skip steps or phases.
 - **Rule compliance**: Every step references `.cursor/rules/`; do not duplicate rule content.
 - **Clear**: Each step has goal, actions, verification, and rule references.
 
@@ -50,7 +55,7 @@ P000 Setup
 ```
 
 ## Reproducibility
-Following **P000_setup.md** through **P009_app-layouts.md** in strict chronological order (all steps in each phase, then the next phase) reproduces the current implementation up to and including app layouts: project setup, foundation, infrastructure, state/theme, offline/bootstrap, hooks, platform UI foundation, app shell, debug resources, and app layouts (all platforms, all sizes, Microsoft Fluent). Do not skip steps or phases; prerequisites and rule references are mandatory.
+Following **P000_setup.md** through **P009_app-layouts.md** in **strict chronological order** reproduces the current implementation up to and including app layouts. Complete **every step** in each phase before starting the next phase. No steps or phases may be skipped. Prerequisites and rule references are mandatory. Result: project setup, foundation, infrastructure, state/theme, offline/bootstrap, hooks, platform UI foundation, app shell, debug resources, and app layouts (all platforms, all sizes, Microsoft Fluent). Anyone following this plan in order can reproduce the same codebase.
 
 ## How to Use
 1. Follow phases and steps in order; complete all steps in a phase before the next.
@@ -61,6 +66,6 @@ Following **P000_setup.md** through **P009_app-layouts.md** in strict chronologi
 6. Route groups and component grouping: see `.cursor/rules/app-router.mdc` and `.cursor/rules/component-structure.mdc`.
 
 ## Rule References
-All steps follow `.cursor/rules/` (e.g. `index.mdc`, `core-principles.mdc`, `project-structure.mdc`, `tech-stack.mdc`, `theme-design.mdc`, `bootstrap-config.mdc`, `debug.mdc`). Rules are authoritative.
+All steps follow `.cursor/rules/`. **Start with** `.cursor/rules/index.mdc` (takes precedence); then use the linked rule documents (e.g. `core-principles.mdc`, `project-structure.mdc`, `tech-stack.mdc`, `theme-design.mdc`, `bootstrap-config.mdc`, `debug.mdc`, `component-structure.mdc`, `app-router.mdc`). Rules are authoritative; do not contradict them in the dev-plan.
 
 **Start with**: `P000_setup.md`
