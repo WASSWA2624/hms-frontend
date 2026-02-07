@@ -143,7 +143,6 @@ const MainRouteLayoutWeb = () => {
       <Sidebar
         accessibilityLabel={t('navigation.sidebar.title')}
         items={mainItems}
-        isItemVisible={isItemVisible}
         collapsed={isSidebarCollapsed}
         footerSlot={null}
         testID="main-sidebar"
