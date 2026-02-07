@@ -316,10 +316,9 @@ Build the infrastructure layer: services (API, storage, analytics) and security.
    ```
 
 **Tests**: Create `src/__tests__/services/api.test.js`
-- Mock fetch
+- Mock fetch, `@security`, `@errors`
 - Test auth header attachment
-- Test error handling
-- Test timeout
+- Test error handling and timeout
 
 **Rule Reference**: `.cursor/rules/services-integration.mdc`
 

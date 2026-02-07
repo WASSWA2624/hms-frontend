@@ -15,7 +15,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 **Goal**: Create Expo project with App Router support
 
 **Actions**:
-1. Run `npx create-expo-app@latest . --template blank` (in frontend directory)
+1. From the **frontend app root** (e.g. `hms-frontend/`), run: `npx create-expo-app@latest . --template blank`
 2. Ensure Expo SDK ~54.0.0 (per `.cursor/rules/tech-stack.mdc`)
 3. Verify `app.config.js` exists
 

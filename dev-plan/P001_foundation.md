@@ -408,8 +408,39 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 
 ---
 
-### Step 1.13: Create Error Handler
-**Goal**: Create error normalization and handling logic
+### Step 1.13: Create i18n System (do before Error Handler)
+**Goal**: Internationalization and localization setup so `en.json` exists for error handler and fallback UI (Steps 1.14–1.16).
+
+**Actions**:
+1. Create `src/i18n/index.js` (see full code in original Step 1.17 below).
+2. Create `src/i18n/locales/en.json` with at least:
+   ```json
+   {
+     "common": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit", "search": "Search", "loading": "Loading...", "error": "Error", "retry": "Retry" },
+     "errors": {
+       "fallback": { "title": "Something went wrong", "message": "An unexpected error occurred", "retry": "Retry", "retryHint": "Try again" },
+       "codes": {
+         "UNKNOWN_ERROR": "An unexpected error occurred",
+         "NETWORK_ERROR": "Network connection error",
+         "UNAUTHORIZED": "Unauthorized",
+         "FORBIDDEN": "Access denied",
+         "SERVER_ERROR": "Server error"
+       }
+     }
+   }
+   ```
+3. In `src/i18n/index.js`: implement `createI18n({ storage })` returning `getCurrentLocale`, `setLocale`, `t`, `tSync`, `supportedLocales`; implement synchronous `getDeviceLocale()` for store init; load `translations = { en }` from `./locales/en.json`; resolve locale via `resolveSupportedLocale` (and `Intl`/device when needed). Export `createI18n`, `getDeviceLocale`, and `LOCALE_STORAGE_KEY` if used by store/services.
+
+**Tests**: Create `src/__tests__/i18n/index.test.js`.
+
+**Rule Reference**: `.cursor/rules/i18n.mdc`
+
+**Note**: Full i18n hook is created in Phase 5. During development only `en.json` is maintained; other locales are added in Phase 14. From this point forward, all UI text must use i18n (no hardcoded strings); see `.cursor/rules/i18n.mdc`.
+
+---
+
+### Step 1.14: Create Error Handler
+**Goal**: Create error normalization and handling logic (depends on `src/i18n/locales/en.json` from Step 1.13).
 
 **Actions**:
 1. Create `src/errors/error.handler.js`:
@@ -526,7 +557,7 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 
 ---
 
-### Step 1.14: Create Fallback UI Component
+### Step 1.15: Create Fallback UI Component
 **Goal**: Create generic error fallback UI component
 
 **Actions**:
@@ -617,7 +648,7 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 
 ---
 
-### Step 1.15: Create Error Boundary Component
+### Step 1.16: Create Error Boundary Component
 **Goal**: Create React ErrorBoundary component
 
 **Actions**:
@@ -678,7 +709,7 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 
 ---
 
-### Step 1.16: Create Errors Barrel Export
+### Step 1.17: Create Errors Barrel Export
 **Goal**: Create barrel export for errors module
 
 **Actions**:
@@ -700,142 +731,12 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 
 ---
 
-### Step 1.17: Create i18n System
-**Goal**: Internationalization and localization setup with **100% coverage enforcement**
-
-**Actions**:
-1. Create `src/i18n/index.js`:
-   ```javascript
-   /**
-    * i18n Provider
-    * Manages translations and locale
-    * Note: Storage dependency is optional (loaded lazily).
-    * Note: Avoids native-module locale dependencies so Jest runs reliably.
-    */
-   import en from './locales/en.json';
-   
-   // NOTE: During development, only 'en' locale is created.
-   // All other locales (zh, hi, es, fr, ar, bn, pt, ru, ur, id, de, ja, pcm, mr, te, tr, ta, yue, vi, sw, lg)
-  // will be created in Phase 14 (Locales) after the English locale is complete.
-   // This ensures 'en' is the first and complete locale that all other locales build upon.
-   
-   const LOCALE_KEY = 'user_locale';
-   const DEFAULT_LOCALE = 'en';
-   
-  const translations = { en };
-  const supportedLocales = Object.keys(translations);
-  
-  const getIntlLocale = () => {
-    try {
-      return Intl?.DateTimeFormat?.().resolvedOptions?.().locale || null;
-    } catch {
-      return null;
-    }
-  };
-  
-  const resolveSupportedLocale = (candidate) => {
-    if (!candidate || typeof candidate !== 'string') return null;
-    const value = candidate.trim();
-    if (!value) return null;
-    if (supportedLocales.includes(value)) return value;
-    const base = value.split('-')[0];
-    if (supportedLocales.includes(base)) return base;
-    return null;
-  };
-  
-  // Export standalone getDeviceLocale for synchronous use (e.g., store initialization)
-  const getDeviceLocale = () =>
-    resolveSupportedLocale(getIntlLocale()) || DEFAULT_LOCALE;
-  
-  const createI18n = ({ storage = null } = {}) => {
-    let localeCache = null;
-   
-     const getCurrentLocale = async () => {
-       if (localeCache) return localeCache;
-       const saved = storage ? await storage.getItem(LOCALE_KEY) : null;
-       localeCache = resolveSupportedLocale(saved) || getDeviceLocale();
-       return localeCache;
-     };
-   
-     const setLocale = async (locale) => {
-       const resolved = resolveSupportedLocale(locale);
-       if (!resolved) throw new Error(`Unsupported locale: ${locale}`);
-       localeCache = resolved;
-       if (storage) await storage.setItem(LOCALE_KEY, resolved);
-     };
-   
-     const t = async (key, params = {}) => {
-       const locale = await getCurrentLocale();
-       // ... lookup nested keys and interpolate params ...
-       return key;
-     };
-   
-     return { getDeviceLocale, getCurrentLocale, setLocale, t, supportedLocales };
-   };
-   
-  // Default exports use a lazily loaded storage adapter in the real implementation.
-  export { createI18n, getDeviceLocale };
-   ```
-
-2. Create `src/i18n/locales/en.json`:
-   ```json
-   {
-     "common": {
-       "save": "Save",
-       "cancel": "Cancel",
-       "delete": "Delete",
-       "edit": "Edit",
-       "search": "Search",
-       "loading": "Loading...",
-       "error": "Error",
-       "retry": "Retry"
-     },
-     "errors": {
-       "fallback": {
-         "title": "Something went wrong",
-         "message": "An unexpected error occurred",
-         "retry": "Retry",
-         "retryHint": "Try again"
-       },
-       "codes": {
-         "UNKNOWN_ERROR": "An unexpected error occurred",
-         "NETWORK_ERROR": "Network connection error",
-         "UNAUTHORIZED": "Unauthorized",
-         "FORBIDDEN": "Access denied",
-         "SERVER_ERROR": "Server error"
-       }
-     }
-   }
-   ```
-   **CRITICAL**: During development, **only the English (`en.json`) locale file is created**. This ensures that:
-   - The English locale is the first and complete locale
-   - All translation keys are established in English first
-  - All other locales will be created in Phase 14 (Locales) and will build upon the complete English locale
-   
-  **Note**: The app will eventually support 22 languages per `.cursor/rules/i18n.mdc`, but during development phases (1-12), only `en.json` is maintained. All other locale files will be created in Phase 14.
-
-**Tests**: Create `src/__tests__/i18n/index.test.js`
-
-**Rule Reference**: `.cursor/rules/i18n.mdc`
-
-**Note**: Full i18n hook will be created in Phase 5 (Reusable Hooks layer)
-
-**100% Internationalization Enforcement**:
-- From this point forward, ALL UI components MUST use i18n for all user-facing text
-- NO hardcoded strings are allowed in UI code
-- All new features must include translations in the `en.json` locale file
-- Code reviews must verify i18n compliance (all strings use i18n, no hardcoded text)
-- **During development (Phases 1-12)**: Only `en.json` is maintained. All other locales will be created in Phase 14.
-- See `.cursor/rules/i18n.mdc` for complete requirements
-
----
-
 ## Completion Criteria
 - ✅ Config layer complete with env, constants, endpoints, feature flags
 - ✅ Utils layer complete with formatter, validator, helpers
 - ✅ Logging layer complete with levels and logger
 - ✅ Error handling layer complete with handler, boundary, fallback UI
-- ✅ i18n system complete with locale detection and translation support
+- ✅ i18n system complete (Step 1.13 before error handler); locale detection and translation support; en.json used by errors layer
 - ✅ All tests written and passing
 - ✅ All barrel exports created
 - ✅ No dependencies on other layers (foundation is independent)

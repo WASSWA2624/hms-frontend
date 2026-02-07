@@ -5,6 +5,7 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`.
 
 ## Prerequisites
 - Phase 2 completed
+- Phase 1 completed (i18n and `getDeviceLocale` from `@i18n` are used by the UI slice)
 - Services available
 - Security layer available
 

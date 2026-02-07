@@ -42,13 +42,13 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 ---
 
 ### Step 9.1: Base Layout Primitives (All Platforms, All Sizes)
-**Goal**: Create layout frame components (e.g. AppFrame, AuthFrame, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
+**Goal**: Create layout frame components (AppFrame, AuthFrame, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
 
 **Actions**:
-1. Create layout category folder under `src/platform/layouts/` (e.g. `frames/`). Per `component-structure.mdc`, each layout component in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, hook, `types.js`, `index.js`.
+1. Under `src/platform/layouts/`: create `AppFrame/`, `AuthFrame/`, and `src/platform/layouts/frames/MainFrame/` (or equivalent). Per `component-structure.mdc`, each layout in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, optional hook (e.g. `useAppFrame.js`, `useMainFrame.js`), `types.js`, `index.js`.
 2. Implement frames to be responsive: use theme breakpoints and spacing tokens; test at mobile, tablet, desktop, large.
 3. Use only theme tokens; Microsoft Fluent styling (subtle radius, light shadows/borders).
-4. Export from platform layouts barrel; wire into route group `_layout.jsx` files (import from `@platform/layouts`).
+4. Export from `src/platform/layouts/index.js`; wire into route group `_layout.jsx` files (import from `@platform/layouts`).
 
 **Verification**: Frames render on Android, iOS, Web; responsive at all breakpoints; pass a11y and theme checks. Tests per `testing.mdc`.
 
@@ -60,9 +60,9 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Header component(s) with title, actions, optional breadcrumbs. Platform-separated; responsive; Fluent styling; safe area and a11y.
 
 **Actions**:
-1. Create header in `src/platform/components/` under a category folder (e.g. `navigation/`). Full platform file set and barrel.
-2. Implement for all screen sizes (e.g. compact on mobile, full on desktop); use breakpoints and tokens.
-3. Integrate into layout slots in all relevant route group layouts; ensure no runtime errors.
+1. Create `src/platform/components/navigation/GlobalHeader/` with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, `types.js`, `index.js`, and optional `useGlobalHeader.js`. Reuse or align with generic `Header/` under same category if present.
+2. Implement for all screen sizes (compact on mobile, full on desktop); use breakpoints and tokens.
+3. Integrate into layout slots (e.g. `src/platform/layouts/RouteLayouts/MainRouteLayout/`) and route group layouts; ensure no runtime errors.
 
 **Verification**: Header renders on all platforms and sizes; theme and i18n applied; tests per `testing.mdc`.
 
@@ -74,8 +74,8 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Footer component(s) for status, legal, quick actions. Platform-separated; responsive; Fluent styling.
 
 **Actions**:
-1. Create footer in `src/platform/components/` (category folder). Full platform set and barrel.
-2. Integrate into layout slots for auth, main, and any other route groups. Verify no mounting errors.
+1. Create `src/platform/components/navigation/GlobalFooter/` with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, `types.js`, `index.js`, and optional `useGlobalFooter.js`.
+2. Integrate into layout slots for auth, main (e.g. MainRouteLayout), and any other route groups. Verify no mounting errors.
 
 **Verification**: Footer renders on all platforms and sizes; tests per `testing.mdc`.
 
@@ -87,9 +87,9 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Navigation (drawer/tab/rail as appropriate) for main (and patient) route groups. Platform-appropriate patterns; Fluent look and feel; wired to real layouts.
 
 **Actions**:
-1. Implement navigation components per `component-structure.mdc` (platform separation, category folder).
-2. Responsive behavior: e.g. bottom tabs on mobile, rail or top nav on desktop; use breakpoints.
-3. Wire into route group layouts; guards/roles from app state; all routes reachable, no runtime errors.
+1. Implement route layouts under `src/platform/layouts/RouteLayouts/`: e.g. `MainRouteLayout/` (main app shell with header, sidebar/tabs, content) and `PatientRouteLayout/` if needed. Use `src/platform/components/navigation/` (TabBar, Sidebar, Breadcrumbs, HamburgerIcon, etc.) per `component-structure.mdc`.
+2. Responsive behavior: bottom tabs or drawer on mobile, rail/sidebar on desktop; use theme breakpoints.
+3. Wire MainRouteLayout (and PatientRouteLayout) into `(main)/_layout.jsx` (and patient group if any); guards/roles from app state; all routes reachable, no runtime errors.
 
 **Verification**: Navigation works on all platforms and sizes; tests per `testing.mdc`.
 
@@ -101,8 +101,8 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: UI controls to switch between light and dark theme; wired to theme state; persist preference. No high-contrast or other theme variants.
 
 **Actions**:
-1. Add theme toggle/selector to shell (e.g. header or settings). Only two options: light, dark.
-2. Wire to Redux (or theme provider) and persistence; changing theme updates UI without errors.
+1. Create `src/platform/components/navigation/ThemeToggle/` (and optionally `ThemeControls/`) with full platform set; add to shell (e.g. header in MainRouteLayout/HeaderUtility).
+2. Wire to Redux (`ui.theme`) and persistence; changing theme updates UI without errors.
 3. Per `theme-design.mdc`: only light and dark themes exist.
 
 **Verification**: Theme switch works; preference persists; no hydration/render errors.
@@ -115,7 +115,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 **Goal**: Language selector in shell; wired to i18n; persist selection; all UI text via i18n.
 
 **Actions**:
-1. Add language selector to shell; wire to i18n context and persistence.
+1. Create `src/platform/components/navigation/LanguageControls/` with full platform set; add to shell (e.g. header or settings). Wire to `@i18n` (createI18n, setLocale) and persistence (e.g. AsyncStorage key from i18n).
 2. Ensure all layout/shell text uses i18n keys (no hardcoded strings).
 3. Switching language updates UI without runtime errors.
 

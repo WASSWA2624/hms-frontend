@@ -49,6 +49,9 @@ P000 Setup
   → P014 Locales (last phase)
 ```
 
+## Reproducibility
+Following **P000_setup.md** through **P009_app-layouts.md** in strict chronological order (all steps in each phase, then the next phase) reproduces the current implementation up to and including app layouts: project setup, foundation, infrastructure, state/theme, offline/bootstrap, hooks, platform UI foundation, app shell, debug resources, and app layouts (all platforms, all sizes, Microsoft Fluent). Do not skip steps or phases; prerequisites and rule references are mandatory.
+
 ## How to Use
 1. Follow phases and steps in order; complete all steps in a phase before the next.
 2. After each implementation step, run tests per `.cursor/rules/testing.mdc`.

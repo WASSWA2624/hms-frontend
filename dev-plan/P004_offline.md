@@ -259,12 +259,12 @@ Implement offline-first architecture with request queuing, network detection, an
     * Tracks network connectivity state
     */
    import { createSlice } from '@reduxjs/toolkit';
-   
+
    const initialState = {
      isOnline: true,
      isSyncing: false,
    };
-   
+
    const networkSlice = createSlice({
      name: 'network',
      initialState,
@@ -277,14 +277,13 @@ Implement offline-first architecture with request queuing, network detection, an
        },
      },
    });
-   
-   export {
-     actions: networkSlice.actions,
-     reducer: networkSlice.reducer,
-   };
+
+   const { actions, reducer } = networkSlice;
+   export { actions, reducer };
+   export default { actions, reducer };
    ```
 
-2. Update `src/store/rootReducer.js` to include network slice
+2. Update `src/store/rootReducer.js`: add `import { reducer as networkReducer } from './slices/network.slice';` and include `network: networkReducer` in `combineReducers({ ... })`.
 
 **Tests**: Create `src/__tests__/store/network.slice.test.js`
 
