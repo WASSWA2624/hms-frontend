@@ -18,6 +18,7 @@ const StyledHomeContainer = styled.main.withConfig({
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.background.primary};
   padding: ${({ theme }) => theme.spacing.lg}px;
+  box-sizing: border-box;
 `;
 
 const StyledContent = styled.div.withConfig({

@@ -45,6 +45,9 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.md}px;
   background-color: ${({ theme }) => theme.colors.background.secondary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  position: sticky;
+  top: 0;
+  z-index: 1;
 `;
 
 const StyledBody = styled.div.withConfig({
