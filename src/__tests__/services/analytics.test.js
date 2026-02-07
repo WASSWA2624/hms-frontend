@@ -59,7 +59,7 @@ describe('Analytics Service', () => {
 
   describe('trackScreen', () => {
     it('should track screen view event', async () => {
-      expect(() => trackScreen('HomeScreen', { userId: '123' })).not.toThrow();
+      expect(() => trackScreen('DashboardScreen', { userId: '123' })).not.toThrow();
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 

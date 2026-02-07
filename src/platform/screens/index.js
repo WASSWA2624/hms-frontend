@@ -12,7 +12,7 @@ export { default as NotFoundScreen } from './common/NotFoundScreen';
 export { default as ErrorScreen } from './common/ErrorScreen';
 
 // Main screens (authenticated/main screens)
-export { default as HomeScreen } from './main/HomeScreen';
+export { default as DashboardScreen } from './main/HomeScreen';
 
 // Settings screens (direct platform path so Metro resolves .android/.web, not barrel)
 export { default as SettingsScreen } from './settings/SettingsScreen/SettingsScreen';

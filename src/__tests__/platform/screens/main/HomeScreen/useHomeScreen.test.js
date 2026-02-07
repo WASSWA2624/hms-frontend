@@ -1,11 +1,11 @@
 /**
- * useHomeScreen Hook Tests
+ * useDashboardScreen Hook Tests
  * File: useHomeScreen.test.js
  */
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 
-const useHomeScreen = require('@platform/screens/main/HomeScreen/useHomeScreen').default;
+const useDashboardScreen = require('@platform/screens/main/HomeScreen/useDashboardScreen').default;
 
 // Custom renderHook implementation to avoid @testing-library/react-hooks dependency
 const act = TestRenderer.act;
@@ -38,28 +38,26 @@ const renderHook = (hook, { initialProps } = {}) => {
   };
 };
 
-describe('useHomeScreen Hook', () => {
+describe('useDashboardScreen Hook', () => {
   it('should return an object', () => {
-    const { result } = renderHook(() => useHomeScreen());
+    const { result } = renderHook(() => useDashboardScreen());
     expect(result.current).toBeDefined();
     expect(typeof result.current).toBe('object');
   });
 
   it('should not throw when called', () => {
     expect(() => {
-      renderHook(() => useHomeScreen());
+      renderHook(() => useDashboardScreen());
     }).not.toThrow();
   });
 
-  // Minimal hook for now - will be expanded in Phase 10
-  // This test ensures the hook structure is correct
   it('should return consistent structure', () => {
-    const { result, rerender } = renderHook(() => useHomeScreen());
+    const { result, rerender } = renderHook(() => useDashboardScreen());
     const firstResult = result.current;
-    
+
     rerender();
     const secondResult = result.current;
-    
+
     expect(Object.keys(firstResult)).toEqual(Object.keys(secondResult));
   });
 });

@@ -68,9 +68,11 @@ const StyledContent = styled.main.withConfig({
 })`
   flex: 1;
   padding: ${({ theme }) => theme.spacing.md}px;
-  max-width: ${({ theme, hasSidebar }) => (hasSidebar ? 'calc(100% - 200px)' : `${theme.spacing.md * 75}px`)};
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 `;
 
 const StyledFooter = styled.footer.withConfig({

@@ -110,14 +110,16 @@ const StyledContent = styled.main.withConfig({
   margin: 0;
   min-width: 0;
   overflow-y: auto;
-  scrollbar-gutter: stable;
+  overflow-x: auto;
+  scrollbar-gutter: stable both-edges;
   background-color: ${({ theme }) => theme.colors.background.primary};
   display: flex;
   flex-direction: column;
   gap: 0;
   max-width: 100%;
   width: 100%;
-  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl}px` : '0')};
+  box-sizing: border-box;
+  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 2}px` : '0')};
 `;
 
 const StyledContentBody = styled.div.withConfig({

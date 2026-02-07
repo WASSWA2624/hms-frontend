@@ -6,16 +6,16 @@
  * 
  * Per Step 8.4 requirements:
  * - Test route renders without errors
- * - Test HomeScreen is rendered
+ * - Test DashboardScreen is rendered
  * - Test auth guard protection (mock guard behavior)
- * - Mock expo-router and HomeScreen component
+ * - Mock expo-router and DashboardScreen component
  * - Test route is accessible when authenticated (mock navigation)
  * - Coverage: 100% coverage required per testing.mdc
  */
 const React = require('react');
 const { render } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
-const { HomeScreen } = require('@platform/screens');
+const { DashboardScreen } = require('@platform/screens');
 const { useAuthGuard } = require('@navigation/guards');
 
 // Mock expo-router (per Step 8.4 requirements)
@@ -37,7 +37,7 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('@platform/screens', () => ({
-  HomeScreen: jest.fn(() => null),
+  DashboardScreen: jest.fn(() => null),
 }));
 
 // Mock auth guard (per Step 8.4 requirements: test auth guard protection)
@@ -66,13 +66,13 @@ describe('Home Route (home.jsx)', () => {
   it('should render without errors', () => {
     const HomeRoute = require('../../../app/(main)/home').default;
     renderWithTheme(<HomeRoute />);
-    expect(HomeScreen).toHaveBeenCalled();
+    expect(DashboardScreen).toHaveBeenCalled();
   });
 
-  it('should render HomeScreen component', () => {
+  it('should render DashboardScreen component', () => {
     const HomeRoute = require('../../../app/(main)/home').default;
     renderWithTheme(<HomeRoute />);
-    expect(HomeScreen).toHaveBeenCalledTimes(1);
+    expect(DashboardScreen).toHaveBeenCalledTimes(1);
   });
 
   it('should use default export', () => {
@@ -93,7 +93,7 @@ describe('Home Route (home.jsx)', () => {
     
     // Verify route renders successfully when authenticated (accessible)
     expect(result).toBeTruthy();
-    expect(HomeScreen).toHaveBeenCalled();
+    expect(DashboardScreen).toHaveBeenCalled();
     
     // Verify route is at /home path (group segment omitted per app-router.mdc)
     // The route is accessible when it renders without errors
@@ -116,7 +116,7 @@ describe('Home Route (home.jsx)', () => {
     
     // Route should render when authenticated (guard allows access)
     expect(result).toBeTruthy();
-    expect(HomeScreen).toHaveBeenCalled();
+    expect(DashboardScreen).toHaveBeenCalled();
     
     // Note: The actual redirect behavior is tested in main-layout-guard.test.js
     // This test verifies the route component itself works when guard allows access
@@ -132,8 +132,8 @@ describe('Home Route (home.jsx)', () => {
     const HomeRoute = require('../../../app/(main)/home').default;
     renderWithTheme(<HomeRoute />);
     
-    // Verify HomeScreen is rendered (route is accessible)
-    expect(HomeScreen).toHaveBeenCalledTimes(1);
+    // Verify DashboardScreen is rendered (route is accessible)
+    expect(DashboardScreen).toHaveBeenCalledTimes(1);
   });
 });
 

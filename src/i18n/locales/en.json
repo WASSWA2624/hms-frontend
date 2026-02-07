@@ -376,10 +376,94 @@
     }
   },
   "home": {
-    "title": "Home",
+    "title": "Dashboard",
     "welcome": {
-      "title": "Welcome Home",
-      "message": "You're successfully logged in. This is your home dashboard."
+      "title": "Welcome to your dashboard",
+      "message": "You're successfully logged in. This is your dashboard."
+    },
+    "lastUpdated": "Updated {{time}}",
+    "summary": {
+      "title": "Today at a glance",
+      "subtitle": "Key activity across departments",
+      "meta": "Summary overview",
+      "patientsToday": "Patients today",
+      "appointments": "Appointments",
+      "admissions": "Admissions",
+      "discharges": "Discharges",
+      "deltaUp": "+{{value}} vs yesterday",
+      "deltaDown": "-{{value}} vs yesterday",
+      "deltaNeutral": "{{value}} vs yesterday"
+    },
+    "capacity": {
+      "title": "Capacity & utilization",
+      "subtitle": "Live operational status",
+      "beds": "Beds occupied",
+      "icu": "ICU utilization",
+      "theatre": "Theatre usage",
+      "ratio": "{{used}} of {{total}}",
+      "progress": "{{label}} at {{value}}%"
+    },
+    "operations": {
+      "title": "Operations center",
+      "subtitle": "Scheduling and clinical alerts"
+    },
+    "appointments": {
+      "title": "Upcoming appointments",
+      "subtitle": "Next 2 hours",
+      "empty": "No upcoming appointments",
+      "status": {
+        "confirmed": "Confirmed",
+        "waiting": "Waiting",
+        "walkIn": "Walk-in"
+      },
+      "items": {
+        "rounds": {
+          "title": "Ward rounds",
+          "meta": "Dr. Okello · 09:30"
+        },
+        "followup": {
+          "title": "Post-op follow-up",
+          "meta": "Theatre 2 · 10:15"
+        },
+        "walkin": {
+          "title": "Walk-in triage",
+          "meta": "Emergency · 10:45"
+        }
+      }
+    },
+    "alerts": {
+      "title": "Clinical alerts",
+      "subtitle": "Requires attention",
+      "empty": "No active alerts",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      },
+      "items": {
+        "lab": {
+          "title": "Lab results pending",
+          "meta": "3 critical values"
+        },
+        "pharmacy": {
+          "title": "Medication stock low",
+          "meta": "Pharmacy · 2 items"
+        },
+        "admission": {
+          "title": "Admissions backlog",
+          "meta": "ER · 5 waiting"
+        }
+      }
+    },
+    "states": {
+      "errorTitle": "Unable to load dashboard",
+      "errorMessage": "We could not refresh the dashboard summary.",
+      "emptyTitle": "No dashboard data yet",
+      "emptyMessage": "Summary data will appear once activity starts.",
+      "offlineTitle": "You're offline",
+      "offlineMessage": "Showing cached dashboard information.",
+      "retryLabel": "Retry loading dashboard",
+      "retryHint": "Attempts to refresh the dashboard data"
     }
   },
   "auth": {

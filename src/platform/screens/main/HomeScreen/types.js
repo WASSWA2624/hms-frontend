@@ -1,6 +1,6 @@
 /**
- * HomeScreen Types and Constants
- * Shared constants, types, and variants for HomeScreen
+ * DashboardScreen Types and Constants
+ * Shared constants, types, and variants for DashboardScreen
  * File: types.js
  */
 
@@ -11,5 +11,6 @@ export const STATES = {
   IDLE: 'idle',
   LOADING: 'loading',
   ERROR: 'error',
+  EMPTY: 'empty',
 };
 
