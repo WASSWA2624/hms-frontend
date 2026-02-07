@@ -5,11 +5,11 @@
  */
 import React from 'react';
 import { useI18n } from '@hooks';
+import { AppLogo, AppLogoSizes } from '@platform/components';
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@config/env';
 import {
   StyledFooter,
   StyledFooterRow,
-  StyledFooterLogo,
   StyledFooterBrand,
   StyledFooterCopyright,
   StyledFooterLink,
@@ -24,7 +24,6 @@ const GlobalFooterWeb = ({
 }) => {
   const { t } = useI18n();
   const appName = t('app.name');
-  const appShortName = t('app.shortName');
   const year = new Date().getFullYear();
   const copyright = t('navigation.footer.copyright', { year, appName });
   const showEmail = Boolean(SUPPORT_EMAIL);
@@ -41,7 +40,7 @@ const GlobalFooterWeb = ({
     >
       <StyledFooterRow>
         <StyledFooterBrand>
-          <StyledFooterLogo aria-hidden="true">{appShortName}</StyledFooterLogo>
+          <AppLogo size={AppLogoSizes.SM} accessibilityLabel={appName} />
           <span>{appName}</span>
         </StyledFooterBrand>
         <StyledFooterCopyright>{copyright}</StyledFooterCopyright>

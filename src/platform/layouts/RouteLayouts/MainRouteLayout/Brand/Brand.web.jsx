@@ -5,9 +5,9 @@
  */
 
 import React from 'react';
+import { AppLogo, AppLogoSizes } from '@platform/components';
 import {
   StyledBrand,
-  StyledBrandLogo,
   StyledBrandName,
   StyledBrandShortName,
 } from './Brand.web.styles';
@@ -15,7 +15,7 @@ import {
 export default function Brand({ appName, appShortName }) {
   return (
     <StyledBrand>
-      <StyledBrandLogo aria-hidden="true">{appShortName}</StyledBrandLogo>
+      <AppLogo size={AppLogoSizes.SM} accessibilityLabel={appName} />
       <StyledBrandName>{appName}</StyledBrandName>
       <StyledBrandShortName>{appShortName}</StyledBrandShortName>
     </StyledBrand>

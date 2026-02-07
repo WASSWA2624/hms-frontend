@@ -11,6 +11,7 @@ import {
   StyledSlotContainer,
 } from '@platform/layouts/common/RootLayoutStyles';
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
+import FaviconHead from '@platform/layouts/common/FaviconHead';
 
 /**
  * Root Layout Component
@@ -28,6 +29,7 @@ const RootLayout = () => {
 
   return (
     <ErrorBoundary>
+      <FaviconHead />
       <Provider store={store}>
         <ThemeProviderWrapper>
           <I18nProvider>

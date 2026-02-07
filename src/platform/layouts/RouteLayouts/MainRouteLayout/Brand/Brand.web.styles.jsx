@@ -63,19 +63,14 @@ const StyledBrandName = styled.span.withConfig({
   displayName: 'StyledBrandName',
   componentId: 'StyledBrandName',
 })`
-  /* Desktop: Full name visible */
+  /* Desktop only: Full name visible */
   font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   white-space: nowrap;
 
-  /* Tablet: slightly smaller */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  }
-
-  /* Mobile: Hide full name */
-  @media (max-width: 767px) {
+  /* Tablet and mobile: Hide full name */
+  @media (max-width: 1023px) {
     display: none;
   }
 `;
@@ -84,15 +79,15 @@ const StyledBrandShortName = styled.span.withConfig({
   displayName: 'StyledBrandShortName',
   componentId: 'StyledBrandShortName',
 })`
-  /* Desktop/Tablet: Hidden */
+  /* Desktop: Hidden */
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   display: none;
   white-space: nowrap;
 
-  /* Mobile: Show short name */
-  @media (max-width: 767px) {
+  /* Tablet and mobile: Show short name */
+  @media (max-width: 1023px) {
     display: inline;
     font-size: 13px;
   }
