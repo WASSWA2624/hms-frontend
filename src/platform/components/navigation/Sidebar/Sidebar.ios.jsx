@@ -33,7 +33,7 @@ const SidebarIOS = ({ items: itemsProp, isItemVisible, accessibilityLabel, testI
   }, [itemsProp, isItemVisible, t]);
   return (
     <StyledSidebar
-      accessibilityRole="navigation"
+      accessibilityRole="menu"
       accessibilityLabel={accessibilityLabel || t('navigation.sidebar.title')}
       testID={testID}
       style={style}

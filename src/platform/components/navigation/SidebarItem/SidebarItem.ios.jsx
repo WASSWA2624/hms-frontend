@@ -37,11 +37,11 @@ const SidebarItemIOS = (props) => {
   const testID = props.testID ?? (props.item?.id ? `sidebar-item-${props.item.id}` : undefined);
   return (
     <TouchableOpacity testID={testID} onPress={handlePress} accessibilityLabel={label} accessibilityState={{ selected: !!active }}>
-      <Row active={active}>
+      <Row $active={active}>
         <IconBox>
           <Icon glyph={getMenuIconGlyph(icon)} size="sm" decorative />
         </IconBox>
-        <Label collapsed={collapsed}>{label}</Label>
+        <Label $active={active}>{label}</Label>
       </Row>
     </TouchableOpacity>
   );

@@ -78,6 +78,8 @@ const StyledUtilityGroup = styled(View).withConfig({
 const StyledActionButton = styled(Pressable).withConfig({
   displayName: 'StyledActionButton',
   componentId: 'StyledActionButton',
+  shouldForwardProp: (prop) =>
+    !['isIconOnly', 'isPrimary', 'isDisabled', 'isCircular'].includes(prop),
 })`
   flex-direction: row;
   align-items: center;
