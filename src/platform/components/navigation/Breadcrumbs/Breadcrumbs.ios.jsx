@@ -5,13 +5,15 @@
  */
 import React from 'react';
 import { useRouter } from 'expo-router';
-import Text from '@platform/components/display/Text';
+import Icon from '@platform/components/display/Icon';
 import { useI18n } from '@hooks';
 import {
   StyledBreadcrumbs,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledLink,
+  StyledBreadcrumbText,
+  StyledBreadcrumbIcon,
 } from './Breadcrumbs.ios.styles';
 
 /**
@@ -70,15 +72,24 @@ const BreadcrumbsIOS = ({
                 accessibilityLabel={item.label}
                 testID={testID ? `${testID}-item-${index}` : undefined}
               >
-                <Text>{item.label}</Text>
+                {item.icon && (
+                  <StyledBreadcrumbIcon>
+                    <Icon glyph={item.icon} size="xs" decorative />
+                  </StyledBreadcrumbIcon>
+                )}
+                <StyledBreadcrumbText isLink>{item.label}</StyledBreadcrumbText>
               </StyledLink>
             ) : (
               <StyledBreadcrumbItem
-                isLast={isLast}
                 accessibilityRole="text"
                 accessibilityLabel={item.label}
               >
-                {item.label}
+                {item.icon && (
+                  <StyledBreadcrumbIcon>
+                    <Icon glyph={item.icon} size="xs" decorative />
+                  </StyledBreadcrumbIcon>
+                )}
+                <StyledBreadcrumbText isLast={isLast}>{item.label}</StyledBreadcrumbText>
               </StyledBreadcrumbItem>
             )}
           </React.Fragment>

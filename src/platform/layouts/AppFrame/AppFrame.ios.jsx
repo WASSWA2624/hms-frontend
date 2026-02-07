@@ -67,11 +67,6 @@ const AppFrameIOS = ({
           {banner}
         </StyledBanner>
       )}
-      {hasBreadcrumbs && (
-        <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
-          {breadcrumbs}
-        </StyledBreadcrumbs>
-      )}
       <StyledScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -82,7 +77,14 @@ const AppFrameIOS = ({
         }}
       >
         {hasSidebar && <StyledSidebar>{sidebar}</StyledSidebar>}
-        <StyledContent>{children}</StyledContent>
+        <StyledContent>
+          {hasBreadcrumbs && (
+            <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
+              {breadcrumbs}
+            </StyledBreadcrumbs>
+          )}
+          {children}
+        </StyledContent>
       </StyledScrollView>
       {hasFooter && (
         <StyledFooter accessibilityRole="none">

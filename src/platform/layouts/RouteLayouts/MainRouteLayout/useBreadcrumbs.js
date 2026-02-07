@@ -10,19 +10,28 @@ import { useI18n } from '@hooks';
 import { getMenuIconGlyph, getNavItemLabel } from '@config/sideMenu';
 
 /**
- * Finds a navigation item matching path (items from config/sideMenu: id, path, icon).
- * @param {Array} items - Navigation items (flat list with path or href)
+ * Find main nav item by exact path.
+ * @param {Array} items - Main navigation items (may include children)
  * @param {string} path - Path to match
- * @returns {Object|null} Matching item or null
+ * @returns {Object|null} Matching main item or null
  */
-const findNavigationItem = (items, path) => {
+const findMainItemByPath = (items, path) => {
   if (!items || !Array.isArray(items)) return null;
-  const routePath = (item) => item.href ?? item.path;
+  return items.find((item) => (item?.path ?? item?.href) === path) ?? null;
+};
+
+/**
+ * Find child nav item by exact path.
+ * @param {Array} items - Main navigation items with children
+ * @param {string} path - Path to match
+ * @returns {Object|null} Matching child item or null
+ */
+const findChildItemByPath = (items, path) => {
+  if (!items || !Array.isArray(items)) return null;
   for (const item of items) {
-    const r = routePath(item);
-    if (!r) continue;
-    if (r === path) return item;
-    if (path.startsWith(r + '/')) return item;
+    if (!item?.children?.length) continue;
+    const child = item.children.find((childItem) => (childItem?.path ?? childItem?.href) === path);
+    if (child) return child;
   }
   return null;
 };
@@ -76,15 +85,19 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
     }
 
     const items = [];
-    items.push({ label: t('app.name'), href: '/', icon: '🏠' });
+    const deepestChild = findChildItemByPath(navigationItems, pathname);
 
     let currentPath = '';
     segments.forEach((segment, index) => {
       currentPath += `/${segment}`;
       const isLast = index === segments.length - 1;
-      const navItem = findNavigationItem(navigationItems, currentPath);
-      const label = (navItem ? (navItem.label ?? getNavItemLabel(t, navItem, itemsI18nPrefix)) : '') || formatSegmentLabel(segment, t);
-      const icon = navItem?.icon ? getMenuIconGlyph(navItem.icon) : null;
+      const mainItem = index === 0 ? findMainItemByPath(navigationItems, currentPath) : null;
+      const childItem = index > 0 ? findChildItemByPath(navigationItems, currentPath) : null;
+      const navItem = mainItem ?? childItem;
+      const label = (navItem ? (navItem.label ?? getNavItemLabel(t, navItem, itemsI18nPrefix)) : '')
+        || formatSegmentLabel(segment, t);
+      const iconSource = (index === 0 ? (deepestChild?.icon ?? mainItem?.icon) : childItem?.icon) ?? null;
+      const icon = index === 0 && iconSource ? getMenuIconGlyph(iconSource) : null;
 
       items.push({
         label,

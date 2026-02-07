@@ -59,11 +59,6 @@ const MainLayoutWeb = ({
           {header}
         </StyledHeader>
       )}
-      {breadcrumbs && (
-        <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
-          {breadcrumbs}
-        </StyledBreadcrumbs>
-      )}
       <StyledBody>
         {hasSidebar && (
           <StyledSidebar role="complementary" aria-label={t('navigation.sidebar.label')}>
@@ -71,6 +66,11 @@ const MainLayoutWeb = ({
           </StyledSidebar>
         )}
         <StyledContent id="main-content" hasSidebar={hasSidebar}>
+          {breadcrumbs && (
+            <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
+              {breadcrumbs}
+            </StyledBreadcrumbs>
+          )}
           {children}
         </StyledContent>
       </StyledBody>

@@ -9,6 +9,7 @@
  * @typedef {Object} BreadcrumbItem
  * @property {string} label - Breadcrumb label (user-facing text)
  * @property {string} [href] - Link URL (optional for current item)
+ * @property {string|React.ReactNode} [icon] - Icon for breadcrumb item
  * @property {Function} [onPress] - Press handler (alternative to href)
  */
 

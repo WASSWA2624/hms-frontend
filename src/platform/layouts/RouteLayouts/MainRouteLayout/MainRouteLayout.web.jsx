@@ -13,6 +13,7 @@ import { Slot } from 'expo-router';
 import { useAuthGuard } from '@navigation/guards';
 import { AppFrame } from '@platform/layouts';
 import {
+  Breadcrumbs,
   GlobalHeader,
   Icon,
   LanguageControls,
@@ -29,6 +30,7 @@ import Brand from './Brand';
 import HamburgerIcon from './HamburgerIcon';
 import HeaderUtility from './HeaderUtility';
 import MobileSidebar from './MobileSidebar';
+import useBreadcrumbs from './useBreadcrumbs';
 import {
   StyledHeaderRevealButton,
   StyledSidebarResizeHandle,
@@ -63,6 +65,7 @@ const MainRouteLayoutWeb = () => {
     mobileSidebarRef,
     footerVisible,
   } = layout;
+  const breadcrumbItems = useBreadcrumbs(mainItems);
 
   const [revealButtonPosition, setRevealButtonPosition] = useState(null);
   const revealButtonRef = useRef(null);
@@ -162,6 +165,13 @@ const MainRouteLayoutWeb = () => {
       ) : null}
     </StyledSidebarWrapper>
   );
+  const breadcrumbsSlot = breadcrumbItems.length ? (
+    <Breadcrumbs
+      items={breadcrumbItems}
+      testID="main-breadcrumbs"
+      accessibilityLabel={t('navigation.breadcrumbs.title')}
+    />
+  ) : null;
 
   return (
     <>
@@ -178,6 +188,7 @@ const MainRouteLayoutWeb = () => {
           ) : null
         }
         banner={bannerSlot}
+        breadcrumbs={breadcrumbsSlot}
         overlay={overlaySlot}
         notices={<NoticeSurface testID="main-notice-surface" />}
         sidebarCollapsed={isSidebarCollapsed}

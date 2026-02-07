@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Breadcrumbs Android Styles
  * Styled-components for Android platform
  * File: Breadcrumbs.android.styles.jsx
@@ -15,15 +15,12 @@ const StyledBreadcrumbs = styled(View).withConfig({
   flex-wrap: wrap;
 `;
 
-const StyledBreadcrumbItem = styled(Text).withConfig({
+const StyledBreadcrumbItem = styled(View).withConfig({
   displayName: 'StyledBreadcrumbItem',
   componentId: 'StyledBreadcrumbItem',
 })`
-  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  font-weight: ${({ isLast }) => (isLast ? 600 : 400)};
-  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
-  color: ${({ isLast, theme }) => (isLast ? theme.colors.text.primary : theme.colors.text.secondary)};
+  flex-direction: row;
+  align-items: center;
 `;
 
 const StyledSeparator = styled(Text).withConfig({
@@ -31,20 +28,38 @@ const StyledSeparator = styled(Text).withConfig({
   componentId: 'StyledSeparator',
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.tertiary};
-  margin-horizontal: ${({ theme }) => theme.spacing.xs}px;
+  margin-horizontal: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
 const StyledLink = styled(Pressable).withConfig({
   displayName: 'StyledLink',
   componentId: 'StyledLink',
 })`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const StyledBreadcrumbText = styled(Text).withConfig({
+  displayName: 'StyledBreadcrumbText',
+  componentId: 'StyledBreadcrumbText',
+})`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  font-weight: 400;
-  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
-  color: ${({ theme }) => theme.colors.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ isLast }) => (isLast ? 600 : 400)};
+  line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
+  color: ${({ isLast, isLink, theme }) => (
+    isLink ? theme.colors.primary : (isLast ? theme.colors.text.primary : theme.colors.text.secondary)
+  )};
+`;
+
+const StyledBreadcrumbIcon = styled(View).withConfig({
+  displayName: 'StyledBreadcrumbIcon',
+  componentId: 'StyledBreadcrumbIcon',
+})`
+  margin-right: ${({ theme }) => theme.spacing.xs / 2}px;
+  opacity: 0.7;
 `;
 
 export {
@@ -52,4 +67,6 @@ export {
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledLink,
+  StyledBreadcrumbText,
+  StyledBreadcrumbIcon,
 };

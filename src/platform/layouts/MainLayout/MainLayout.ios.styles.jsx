@@ -62,11 +62,8 @@ const StyledBreadcrumbs = styled.View.withConfig({
   displayName: 'StyledBreadcrumbs',
   componentId: 'StyledBreadcrumbs',
 })`
-  padding-horizontal: ${({ theme }) => theme.spacing.md}px;
-  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border-bottom-width: 1px;
-  border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
+  align-self: flex-start;
+  margin-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
 export {

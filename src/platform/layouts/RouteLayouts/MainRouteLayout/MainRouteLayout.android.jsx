@@ -9,6 +9,7 @@ import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
 import { AppFrame } from '@platform/layouts';
 import {
+  Breadcrumbs,
   GlobalHeader,
   LanguageControls,
   NoticeSurface,
@@ -21,6 +22,7 @@ import { useHeaderActions } from './useMainLayoutMemo';
 import Brand from './Brand';
 import HamburgerIcon from './HamburgerIcon';
 import MobileSidebar from './MobileSidebar';
+import useBreadcrumbs from './useBreadcrumbs';
 
 /**
  * MainRouteLayout component for Android
@@ -36,6 +38,7 @@ const MainRouteLayoutAndroid = () => {
     handleCloseMobileSidebar,
     handleToggleSidebar,
   } = useMainRouteLayoutNative();
+  const breadcrumbItems = useBreadcrumbs(mainItems);
   const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
@@ -57,6 +60,13 @@ const MainRouteLayoutAndroid = () => {
     ),
     [t]
   );
+  const breadcrumbsSlot = breadcrumbItems.length ? (
+    <Breadcrumbs
+      items={breadcrumbItems}
+      testID="main-breadcrumbs"
+      accessibilityLabel={t('navigation.breadcrumbs.title')}
+    />
+  ) : null;
 
   return (
     <>
@@ -83,6 +93,7 @@ const MainRouteLayoutAndroid = () => {
           />
         }
         banner={bannerSlot}
+        breadcrumbs={breadcrumbsSlot}
         overlay={overlaySlot}
         notices={<NoticeSurface testID="main-notice-surface" />}
         accessibilityLabel={t('navigation.mainNavigation')}

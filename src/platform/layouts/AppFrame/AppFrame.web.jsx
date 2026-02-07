@@ -83,11 +83,6 @@ const AppFrameWeb = ({
           {banner}
         </StyledBanner>
       )}
-      {hasBreadcrumbs && (
-        <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
-          {breadcrumbs}
-        </StyledBreadcrumbs>
-      )}
       <StyledBody>
         {hasSidebar && (
           <StyledSidebar
@@ -101,7 +96,14 @@ const AppFrameWeb = ({
           </StyledSidebar>
         )}
         <StyledContent id="main-content" hasSidebar={hasSidebar} hasFooter={hasFooter}>
-          <StyledContentBody>{children}</StyledContentBody>
+          <StyledContentBody>
+            {hasBreadcrumbs && (
+              <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
+                {breadcrumbs}
+              </StyledBreadcrumbs>
+            )}
+            {children}
+          </StyledContentBody>
         </StyledContent>
       </StyledBody>
       {hasFooter && (

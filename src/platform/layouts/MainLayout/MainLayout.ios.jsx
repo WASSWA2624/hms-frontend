@@ -46,16 +46,16 @@ const MainLayoutIOS = ({
           {header}
         </StyledHeader>
       )}
-      {breadcrumbs && (
-        <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
-          {breadcrumbs}
-        </StyledBreadcrumbs>
-      )}
       <StyledScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <StyledContent>
+          {breadcrumbs && (
+            <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
+              {breadcrumbs}
+            </StyledBreadcrumbs>
+          )}
           {children}
         </StyledContent>
       </StyledScrollView>

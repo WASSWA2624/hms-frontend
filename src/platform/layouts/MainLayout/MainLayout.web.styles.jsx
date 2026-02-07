@@ -87,9 +87,12 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   displayName: 'StyledBreadcrumbs',
   componentId: 'StyledBreadcrumbs',
 })`
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.md}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  align-self: flex-start;
+  margin-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding: 0;
 `;
 
 const StyledSkipLink = styled.a.withConfig({

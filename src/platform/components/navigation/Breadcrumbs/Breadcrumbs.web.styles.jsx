@@ -13,13 +13,12 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  min-height: ${({ theme }) => theme.spacing.xxl}px;
+  flex-wrap: nowrap;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
-    padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+    padding: 0;
     gap: ${({ theme }) => theme.spacing.xs / 2}px;
   }
 `;
@@ -37,9 +36,9 @@ const StyledBreadcrumbItem = styled.span.withConfig({
 
   & > *:last-child {
     font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+    font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
     font-weight: ${({ $isLast }) => ($isLast ? 600 : 400)};
-    line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+    line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
     color: ${({ $isLast, theme }) => ($isLast ? theme.colors.text.primary : theme.colors.text.secondary)};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -61,9 +60,9 @@ const StyledSeparator = styled.span.withConfig({
   componentId: 'StyledSeparator',
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.tertiary};
-  margin: 0 ${({ theme }) => theme.spacing.xs}px;
+  margin: 0 ${({ theme }) => theme.spacing.xs / 2}px;
   user-select: none;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
@@ -75,9 +74,9 @@ const StyledSeparator = styled.span.withConfig({
 const linkButtonStyles = css`
   display: inline-flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
   cursor: pointer;
-  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
+  padding: 0;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   transition: background-color 0.15s ease, color 0.15s ease;
   white-space: nowrap;
@@ -90,9 +89,9 @@ const linkButtonStyles = css`
 
   & > *:last-child {
     font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-    font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+    font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
     font-weight: 400;
-    line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+    line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
     color: ${({ theme }) => theme.colors.primary};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -116,7 +115,7 @@ const linkButtonStyles = css`
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     max-width: 120px;
-    padding: ${({ theme }) => theme.spacing.xs / 2}px;
+    padding: 0;
 
     & > *:last-child {
       font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
@@ -160,14 +159,14 @@ const StyledBreadcrumbEllipsis = styled.span.withConfig({
   componentId: 'StyledBreadcrumbEllipsis',
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.tertiary};
   user-select: none;
-  padding: 0 ${({ theme }) => theme.spacing.xs}px;
+  padding: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-    padding: 0 ${({ theme }) => theme.spacing.xs / 2}px;
+    padding: 0;
   }
 `;
 
