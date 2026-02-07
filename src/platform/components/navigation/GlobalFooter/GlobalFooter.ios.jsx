@@ -200,45 +200,22 @@ const GlobalFooterIOS = ({
 
   if (resolvedVariant === FOOTER_VARIANTS.MINIMAL) {
     const appName = t('app.name');
+    const shortName = t('app.shortName');
     const year = new Date().getFullYear();
-    const copyright = t('navigation.footer.copyright', { year, appName });
-    const showEmail = Boolean(SUPPORT_EMAIL);
-    const showPhone = Boolean(SUPPORT_PHONE);
+    const copyrightYear = t('navigation.footer.copyrightShort', { year });
     return (
       <StyledFooter
         accessibilityLabel={accessibilityLabel || t('navigation.footer.title')}
         testID={testID}
         {...rest}
       >
-        <StyledFooterContent bottomInset={bottomInset}>
+        <StyledFooterContent bottomInset={bottomInset} minimal>
           <StyledMinimalRow>
             <StyledFooterBrand>
               <AppLogo size={AppLogoSizes.SM} accessibilityLabel={appName} />
-              <Text variant="caption" color="text.secondary">{appName}</Text>
+              <Text variant="caption" color="text.secondary">{shortName}</Text>
             </StyledFooterBrand>
-            <StyledFooterCopyright>{copyright}</StyledFooterCopyright>
-            {showEmail && (
-              <>
-                <StyledFooterSeparator>·</StyledFooterSeparator>
-                <Pressable
-                  onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}`)}
-                  accessibilityLabel={t('navigation.footer.supportEmail')}
-                >
-                  <StyledFooterLink>{SUPPORT_EMAIL}</StyledFooterLink>
-                </Pressable>
-              </>
-            )}
-            {showPhone && (
-              <>
-                <StyledFooterSeparator>·</StyledFooterSeparator>
-                <Pressable
-                  onPress={() => Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s/g, '')}`)}
-                  accessibilityLabel={t('navigation.footer.supportPhone')}
-                >
-                  <StyledFooterLink>{SUPPORT_PHONE}</StyledFooterLink>
-                </Pressable>
-              </>
-            )}
+            <StyledFooterCopyright>{copyrightYear}</StyledFooterCopyright>
           </StyledMinimalRow>
         </StyledFooterContent>
       </StyledFooter>

@@ -12,7 +12,7 @@ const StyledHeader = styled.header.withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  min-height: ${({ theme }) => theme.spacing.xl + theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.lg}px;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -26,12 +26,12 @@ const StyledHeader = styled.header.withConfig({
   justify-content: center;
 
   @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) and (max-width: ${({ theme }) => (theme.breakpoints?.desktop ?? 1024) - 1}px) {
-    min-height: ${({ theme }) => theme.spacing.xl + theme.spacing.xs}px;
+    min-height: ${({ theme }) => theme.spacing.lg}px;
     padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   }
 
   @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    min-height: ${({ theme }) => theme.spacing.xl + theme.spacing.xs}px;
+    min-height: ${({ theme }) => theme.spacing.lg}px;
     padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   }
 `;

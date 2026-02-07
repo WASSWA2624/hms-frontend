@@ -47,7 +47,7 @@
     "hello": "Hello, {{name}}"
   },
   "app": {
-    "name": "HMS Portal",
+    "name": "Hospital Management System",
     "shortName": "HMS"
   },
   "errors": {
@@ -129,6 +129,7 @@
     "footer": {
       "title": "Global footer",
       "copyright": "© {{year}} {{appName}}. All rights reserved.",
+      "copyrightShort": "© {{year}}",
       "supportEmail": "Support (email)",
       "supportPhone": "Support (phone)",
       "status": {

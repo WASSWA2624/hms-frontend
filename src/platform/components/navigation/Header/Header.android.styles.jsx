@@ -13,9 +13,9 @@ const StyledHeader = styled(View).withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom-width: 1px;
   border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  padding-top: ${({ theme, topInset }) => theme.spacing.sm + (topInset || 0)}px;
-  min-height: ${({ theme }) => theme.spacing.xxl}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding-top: ${({ theme, topInset }) => theme.spacing.xs + (topInset || 0)}px;
+  min-height: ${({ theme }) => theme.spacing.xl}px;
   elevation: 2;
 `;
 

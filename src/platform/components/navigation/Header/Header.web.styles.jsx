@@ -11,8 +11,8 @@ const StyledHeader = styled.header.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  min-height: ${({ theme }) => theme.spacing.xxl}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: ${({ theme }) => theme.spacing.xl}px;
   position: sticky;
   top: 0;
   z-index: 1000;

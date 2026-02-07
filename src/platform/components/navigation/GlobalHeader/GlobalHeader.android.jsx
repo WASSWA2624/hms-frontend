@@ -33,6 +33,7 @@ const buildActionItems = ({ actions, testID }) => {
     const isDisabled = action.disabled || !action.onPress;
     const isCircular = action.isCircular !== false;
     const label = action.label;
+    const isIconOnly = Boolean(action.icon) && !label;
     const labelColor = isPrimary ? 'onPrimary' : 'text.primary';
 
     return (
@@ -43,6 +44,7 @@ const buildActionItems = ({ actions, testID }) => {
         isPrimary={isPrimary}
         isDisabled={isDisabled}
         isCircular={isCircular}
+        isIconOnly={isIconOnly}
         accessibilityRole="button"
         accessibilityLabel={action.accessibilityLabel || label}
         testID={actionTestID}

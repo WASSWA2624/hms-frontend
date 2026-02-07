@@ -9,17 +9,20 @@ const StyledHamburgerIcon = styled(View).withConfig({
   displayName: 'StyledHamburgerIcon',
   componentId: 'StyledHamburgerIcon',
 })`
-  width: 16px;
-  height: 14px;
-  justify-content: space-between;
+  width: 18px;
+  height: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
 `;
 
 const StyledHamburgerLine = styled(View).withConfig({
   displayName: 'StyledHamburgerLine',
   componentId: 'StyledHamburgerLine',
 })`
-  height: 2px;
-  width: 100%;
+  height: 1.5px;
+  width: 14px;
   background-color: ${({ theme }) => theme.colors.text.primary};
   border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
 `;

@@ -18,9 +18,10 @@ const StyledFooterContent = styled.View.withConfig({
   displayName: 'StyledFooterContent',
   componentId: 'StyledFooterContent',
 })`
-  padding: ${({ theme }) => theme.spacing.md}px;
-  padding-bottom: ${({ theme, bottomInset }) => theme.spacing.md + bottomInset}px;
-  row-gap: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme, minimal }) => (minimal ? theme.spacing.xs : theme.spacing.md)}px;
+  padding-bottom: ${({ theme, bottomInset, minimal }) =>
+    (minimal ? theme.spacing.xs : theme.spacing.md) + bottomInset}px;
+  row-gap: ${({ theme, minimal }) => (minimal ? 0 : theme.spacing.md)}px;
 `;
 
 const StyledFooterRow = styled.View.withConfig({
@@ -148,7 +149,7 @@ const StyledMinimalRow = styled.View.withConfig({
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 

@@ -13,8 +13,8 @@ const StyledHeader = styled(View).withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom-width: 1px;
   border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.md}px;
-  padding-top: ${({ theme, topInset }) => theme.spacing.md + (topInset || 0)}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  padding-top: ${({ theme, topInset }) => theme.spacing.sm + (topInset || 0)}px;
   elevation: 3;
 `;
 
@@ -81,10 +81,11 @@ const StyledActionButton = styled(Pressable).withConfig({
 })`
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: 0;
-  min-height: 44px;
-  min-width: 44px;
+  padding: ${({ theme, isIconOnly }) => (isIconOnly ? theme.spacing.xs : 0)}px;
+  min-height: ${({ isIconOnly }) => (isIconOnly ? 36 : 44)}px;
+  min-width: ${({ isIconOnly }) => (isIconOnly ? 36 : 44)}px;
   border-radius: ${({ theme, isCircular }) =>
     isCircular ? theme.radius.full : theme.radius.sm}px;
   border-width: 1px;
@@ -107,7 +108,7 @@ const StyledBreadcrumbsRow = styled(View).withConfig({
   displayName: 'StyledBreadcrumbsRow',
   componentId: 'StyledBreadcrumbsRow',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 export {
