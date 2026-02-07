@@ -186,6 +186,9 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.14.7: `payroll-run`
 - Step 10.14.8: `payroll-item`
 - Step 10.14.9: `nurse-roster` (Nurses Time-table Generator: roster config, constraints, generated schedules — write-up §5.17, §12.2.2, §20.3)
+- Step 10.14.10: `shift-template`
+- Step 10.14.11: `roster-day-off`
+- Step 10.14.12: `staff-availability`
 
 ### Module Group 15: Housekeeping & Facilities
 - Step 10.15.1: `housekeeping-task`
