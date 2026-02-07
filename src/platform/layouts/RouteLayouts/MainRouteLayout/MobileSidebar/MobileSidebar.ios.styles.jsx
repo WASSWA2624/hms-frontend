@@ -46,10 +46,19 @@ const StyledMobileSidebarHeader = styled(View).withConfig({
 })`
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: ${({ theme }) => theme.spacing.md}px;
   border-bottom-width: 1px;
   border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+const StyledMobileSidebarHeaderBrand = styled(View).withConfig({
+  displayName: 'StyledMobileSidebarHeaderBrand',
+  componentId: 'StyledMobileSidebarHeaderBrand',
+})`
+  flex: 1;
+  min-width: 0;
+  margin-right: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledMobileSidebarContent = styled(View).withConfig({
@@ -88,6 +97,7 @@ export {
   StyledMobileSidebarPanel,
   StyledMobileSidebarBackdrop,
   StyledMobileSidebarHeader,
+  StyledMobileSidebarHeaderBrand,
   StyledMobileSidebarContent,
   StyledMobileCloseButton,
   StyledMobileCloseButtonText,

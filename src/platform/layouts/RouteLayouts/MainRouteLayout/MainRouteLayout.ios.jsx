@@ -97,6 +97,8 @@ const MainRouteLayoutIOS = () => {
         closeLabel={t('common.close')}
         mainItems={mainItems}
         isItemVisible={isItemVisible}
+        appName={t('app.name')}
+        appShortName={t('app.shortName')}
       />
     </>
   );

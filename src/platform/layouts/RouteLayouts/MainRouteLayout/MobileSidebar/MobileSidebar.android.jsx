@@ -6,10 +6,12 @@
 import React from 'react';
 import { Modal } from 'react-native';
 import { Sidebar } from '@platform/components';
+import Brand from '../Brand';
 import {
   StyledMobileSidebarBackdrop,
   StyledMobileSidebarContent,
   StyledMobileSidebarHeader,
+  StyledMobileSidebarHeaderBrand,
   StyledMobileSidebarPanel,
   StyledMobileCloseButton,
   StyledMobileCloseButtonText,
@@ -23,6 +25,8 @@ export default function MobileSidebar({
   closeLabel,
   mainItems,
   isItemVisible,
+  appName,
+  appShortName,
   closeButtonRef,
   panelRef,
 }) {
@@ -39,6 +43,14 @@ export default function MobileSidebar({
       <StyledMobileSidebarWrap>
         <StyledMobileSidebarPanel ref={panelRef}>
           <StyledMobileSidebarHeader>
+            <StyledMobileSidebarHeaderBrand>
+              {appName != null && (
+                <Brand
+                  appName={appName}
+                  appShortName={appShortName ?? appName}
+                />
+              )}
+            </StyledMobileSidebarHeaderBrand>
             <StyledMobileCloseButton
               onPress={onClose}
               accessibilityLabel={closeLabel}
