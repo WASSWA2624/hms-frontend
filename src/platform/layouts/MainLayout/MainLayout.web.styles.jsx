@@ -68,7 +68,7 @@ const StyledContent = styled.main.withConfig({
   componentId: 'StyledContent',
 })`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme }) => theme.spacing.xs}px;
   max-width: 100%;
   margin: 0;
   width: 100%;
@@ -94,8 +94,8 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
-  align-self: flex-start;
-  margin-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
+  width: 100%;
+  margin: 0;
   padding: 0;
 `;
 
