@@ -17,7 +17,7 @@ const StyledContainer = styled.div.withConfig({
   flex-direction: column;
   height: 100vh;
   position: relative;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
   overflow: hidden;
 `;
 
@@ -110,7 +110,7 @@ const StyledContent = styled.main.withConfig({
 })`
   flex: 1;
   padding: 0;
-  margin: 0;
+  margin: ${({ theme }) => theme.spacing.sm}px;
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
@@ -123,8 +123,7 @@ const StyledContent = styled.main.withConfig({
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 4}px` : '0')};
-  scroll-padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl * 4}px` : '0')};
+  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledContentBody = styled.div.withConfig({
@@ -141,13 +140,8 @@ const StyledFooter = styled.footer.withConfig({
   displayName: 'StyledFooter',
   componentId: 'StyledFooter',
 })`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   width: 100%;
   flex-shrink: 0;
-  z-index: 2;
   /* Footer surface is owned by the footer component (e.g. GlobalFooter). */
   background-color: transparent;
   border-top: none;
