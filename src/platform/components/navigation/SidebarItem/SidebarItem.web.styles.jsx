@@ -8,9 +8,13 @@ export const Row = styled.a.withConfig({
   display: flex;
   align-items: center;
   justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'flex-start')};
-  min-height: 44px;
+  min-height: ${({ $collapsed }) => ($collapsed ? '28px' : '44px')};
+  height: ${({ $collapsed }) => ($collapsed ? '28px' : 'auto')};
+  min-width: ${({ $collapsed }) => ($collapsed ? '28px' : '0')};
+  width: ${({ $collapsed }) => ($collapsed ? '28px' : '100%')};
   padding: ${({ theme, $collapsed, $level = 0 }) =>
     $collapsed ? `0 ${theme.spacing.xs}px` : `${theme.spacing.xs / 2}px ${theme.spacing.sm + $level * theme.spacing.lg}px`};
+  margin: ${({ $collapsed }) => ($collapsed ? '0 auto' : '0')};
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   cursor: pointer;
   text-decoration: none;

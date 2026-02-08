@@ -40,6 +40,7 @@ const StyledBody = styled.div.withConfig({
   display: flex;
   flex-direction: row;
   flex: 1;
+  min-height: 0;
 `;
 
 const StyledSidebar = styled.aside.withConfig({
@@ -83,6 +84,7 @@ const StyledFooter = styled.footer.withConfig({
   border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   padding: ${({ theme }) => theme.spacing.md}px;
   margin-top: auto;
+  flex-shrink: 0;
 `;
 
 const StyledBreadcrumbs = styled.nav.withConfig({
