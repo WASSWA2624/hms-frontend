@@ -68,7 +68,7 @@ const StyledContent = styled.main.withConfig({
   componentId: 'StyledContent',
 })`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding: 0;
   max-width: 100%;
   margin: 0;
   width: 100%;

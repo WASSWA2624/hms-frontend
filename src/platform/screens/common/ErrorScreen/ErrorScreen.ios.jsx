@@ -27,7 +27,6 @@ import {
 import useErrorScreen from './useErrorScreen';
 
 // 6. Types and constants (relative import)
-import { STATES } from './types';
 
 /**
  * ErrorScreen component for iOS

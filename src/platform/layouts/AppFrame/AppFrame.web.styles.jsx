@@ -78,6 +78,10 @@ const StyledSidebar = styled.aside.withConfig({
   border-right: none;
   transition: width 0.2s ease;
   position: relative;
+  margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-left: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-top: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-right: ${({ theme }) => theme.spacing.xs/2}px;
 
   @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? TABLET}px) {
     display: block;
@@ -110,11 +114,13 @@ const StyledContent = styled.main.withConfig({
 })`
   flex: 1;
   padding: 0;
-  margin: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-left: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-right: ${({ theme }) => theme.spacing.xs/2}px;
   min-height: 0;
   min-width: 0;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: hidden;
   scrollbar-gutter: stable both-edges;
   background-color: ${({ theme }) => theme.colors.background.primary};
   display: flex;
@@ -134,6 +140,16 @@ const StyledContentBody = styled.div.withConfig({
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  align-items: stretch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable both-edges;
+  margin-bottom: 0;
+  & > * {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 `;
 
 const StyledFooter = styled.footer.withConfig({

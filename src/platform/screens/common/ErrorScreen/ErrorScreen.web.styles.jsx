@@ -17,6 +17,8 @@ const StyledErrorContainer = styled(View).withConfig({
   padding-bottom: ${({ theme }) => theme.spacing.xl * 2}px;
   padding-left: ${({ theme }) => theme.spacing.lg}px;
   padding-right: ${({ theme }) => theme.spacing.lg}px;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledContent = styled(View).withConfig({
@@ -24,11 +26,15 @@ const StyledContent = styled(View).withConfig({
 })`
   flex: 1;
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
   align-items: center;
   justify-content: center;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledMessageSection = styled(View).withConfig({
@@ -36,7 +42,7 @@ const StyledMessageSection = styled(View).withConfig({
 })`
   width: 100%;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.xl}px;
+  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledButtonGroup = styled(View).withConfig({
@@ -60,12 +66,15 @@ const StyledScrollViewContent = styled(View).withConfig({
   displayName: 'StyledScrollViewContent',
 })`
   flex-grow: 1;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledMessageWrapper = styled(View).withConfig({
   displayName: 'StyledMessageWrapper',
 })`
   margin-top: ${({ theme }) => theme.spacing.md}px;
+  max-width: 520px;
 `;
 
 export {
