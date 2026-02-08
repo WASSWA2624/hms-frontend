@@ -146,7 +146,8 @@ const StyledContentBody = styled.div.withConfig({
   overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
   padding-right: ${({ theme }) => theme.spacing.md}px;
-  margin-bottom: 0;
+  padding-left: ${({ theme }) => theme.spacing.md}px;
+  margin: 0;
   & > * {
     flex: 1 1 auto;
     min-width: 0;
