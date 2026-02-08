@@ -81,7 +81,7 @@ const StyledSidebar = styled.aside.withConfig({
   margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
   margin-left: ${({ theme }) => theme.spacing.xs/2}px;
   margin-top: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-right: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-right: 0;
 
   @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? TABLET}px) {
     display: block;
@@ -116,8 +116,8 @@ const StyledContent = styled.main.withConfig({
   padding: 0;
   margin-top: ${({ theme }) => theme.spacing.xs/2}px;
   margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-left: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-right: ${({ theme }) => theme.spacing.xs/2}px;
+  margin-left: 0;
+  margin-right: 0;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -145,6 +145,7 @@ const StyledContentBody = styled.div.withConfig({
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
+  padding-right: ${({ theme }) => theme.spacing.md}px;
   margin-bottom: 0;
   & > * {
     flex: 1 1 auto;

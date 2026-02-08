@@ -17,7 +17,7 @@ const StyledHomeContainer = styled.main.withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.md}px;
+  padding-right: 0;
   box-sizing: border-box;
 `;
 
@@ -27,7 +27,7 @@ const StyledContent = styled.div.withConfig({
 })`
   flex: 1;
   width: 100%;
-  max-width: 1100px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   display: flex;
