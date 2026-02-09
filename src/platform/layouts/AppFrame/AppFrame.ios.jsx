@@ -15,6 +15,7 @@ import {
   StyledHeader,
   StyledOverlay,
   StyledScrollView,
+  StyledScreenSlot,
   StyledSidebar,
 } from './AppFrame.ios.styles';
 import useAppFrame from './useAppFrame';
@@ -70,11 +71,7 @@ const AppFrameIOS = ({
       <StyledScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          flexGrow: 1,
-          flexDirection: 'column',
-          paddingBottom: hasFooter ? 96 : 0,
-        }}
+        $footerInset={hasFooter}
       >
         {hasSidebar && <StyledSidebar>{sidebar}</StyledSidebar>}
         <StyledContent>
@@ -83,7 +80,9 @@ const AppFrameIOS = ({
               {breadcrumbs}
             </StyledBreadcrumbs>
           )}
-          {children}
+          <StyledScreenSlot>
+            {children}
+          </StyledScreenSlot>
         </StyledContent>
       </StyledScrollView>
       {hasFooter && (

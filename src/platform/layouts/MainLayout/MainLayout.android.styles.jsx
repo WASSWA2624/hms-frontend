@@ -45,6 +45,15 @@ const StyledContent = styled.View.withConfig({
   componentId: 'StyledContent',
 })`
   flex: 1;
+  padding: 0;
+`;
+
+const StyledScreenSlot = styled.View.withConfig({
+  displayName: 'StyledScreenSlot',
+  componentId: 'StyledScreenSlot',
+})`
+  flex: 1;
+  width: 100%;
   padding: ${({ theme }) => theme.spacing.md}px;
 `;
 
@@ -63,7 +72,8 @@ const StyledBreadcrumbs = styled.View.withConfig({
   displayName: 'StyledBreadcrumbs',
   componentId: 'StyledBreadcrumbs',
 })`
-  align-self: flex-start;
+  align-self: stretch;
+  width: 100%;
   margin-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
@@ -72,6 +82,7 @@ export {
   StyledHeader,
   StyledScrollView,
   StyledContent,
+  StyledScreenSlot,
   StyledFooter,
   StyledBreadcrumbs,
 };

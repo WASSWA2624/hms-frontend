@@ -13,6 +13,7 @@ import {
   StyledContent,
   StyledFooter,
   StyledBreadcrumbs,
+  StyledScreenSlot,
 } from './MainLayout.android.styles';
 
 /**
@@ -56,7 +57,9 @@ const MainLayoutAndroid = ({
               {breadcrumbs}
             </StyledBreadcrumbs>
           )}
-          {children}
+          <StyledScreenSlot>
+            {children}
+          </StyledScreenSlot>
         </StyledContent>
       </StyledScrollView>
       {footer && (

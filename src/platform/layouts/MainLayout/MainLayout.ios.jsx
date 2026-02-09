@@ -13,6 +13,7 @@ import {
   StyledContent,
   StyledFooter,
   StyledBreadcrumbs,
+  StyledScreenSlot,
 } from './MainLayout.ios.styles';
 
 /**
@@ -56,7 +57,9 @@ const MainLayoutIOS = ({
               {breadcrumbs}
             </StyledBreadcrumbs>
           )}
-          {children}
+          <StyledScreenSlot>
+            {children}
+          </StyledScreenSlot>
         </StyledContent>
       </StyledScrollView>
       {footer && (

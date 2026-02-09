@@ -38,6 +38,8 @@ const StyledBreadcrumbs = styled.View.withConfig({
   displayName: 'StyledBreadcrumbs',
   componentId: 'StyledBreadcrumbs',
 })`
+  align-self: stretch;
+  width: 100%;
   padding-horizontal: ${({ theme }) => theme.spacing.md}px;
   padding-vertical: ${({ theme }) => theme.spacing.xs}px;
   background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -48,12 +50,14 @@ const StyledBreadcrumbs = styled.View.withConfig({
 const StyledScrollView = styled(ScrollView).withConfig({
   displayName: 'StyledScrollView',
   componentId: 'StyledScrollView',
-}).attrs({
+  shouldForwardProp: (prop) => prop !== '$footerInset',
+}).attrs(({ theme, $footerInset }) => ({
   contentContainerStyle: {
     flexGrow: 1,
     flexDirection: 'column',
+    paddingBottom: $footerInset ? theme.spacing.xxl * 2 : 0,
   },
-})`
+}))`
   flex: 1;
 `;
 
@@ -68,6 +72,16 @@ const StyledSidebar = styled.View.withConfig({
 const StyledContent = styled.View.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
+})`
+  flex: 1;
+  align-self: stretch;
+  width: 100%;
+  padding: 0;
+`;
+
+const StyledScreenSlot = styled.View.withConfig({
+  displayName: 'StyledScreenSlot',
+  componentId: 'StyledScreenSlot',
 })`
   flex: 1;
   align-self: stretch;
@@ -106,6 +120,7 @@ export {
   StyledBreadcrumbs,
   StyledContainer,
   StyledContent,
+  StyledScreenSlot,
   StyledFooter,
   StyledHeader,
   StyledOverlay,

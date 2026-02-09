@@ -13,8 +13,10 @@ import {
   StyledBody,
   StyledSidebar,
   StyledContent,
+  StyledContentBody,
   StyledFooter,
   StyledBreadcrumbs,
+  StyledScreenSlot,
   StyledSkipLink,
 } from './MainLayout.web.styles';
 
@@ -66,12 +68,16 @@ const MainLayoutWeb = ({
           </StyledSidebar>
         )}
         <StyledContent id="main-content" hasSidebar={hasSidebar}>
-          {breadcrumbs && (
-            <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
-              {breadcrumbs}
-            </StyledBreadcrumbs>
-          )}
-          {children}
+          <StyledContentBody>
+            {breadcrumbs && (
+              <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
+                {breadcrumbs}
+              </StyledBreadcrumbs>
+            )}
+            <StyledScreenSlot>
+              {children}
+            </StyledScreenSlot>
+          </StyledContentBody>
         </StyledContent>
       </StyledBody>
       {footer && (

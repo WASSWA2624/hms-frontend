@@ -68,12 +68,42 @@ const StyledContent = styled.main.withConfig({
   componentId: 'StyledContent',
 })`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: 0;
   max-width: 100%;
   margin: 0;
   width: 100%;
   min-width: 0;
   overflow-x: hidden;
+`;
+
+const StyledContentBody = styled.div.withConfig({
+  displayName: 'StyledContentBody',
+  componentId: 'StyledContentBody',
+})`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  align-items: stretch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable both-edges;
+`;
+
+const StyledScreenSlot = styled.div.withConfig({
+  displayName: 'StyledScreenSlot',
+  componentId: 'StyledScreenSlot',
+})`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
 `;
 
 const StyledFooter = styled.footer.withConfig({
@@ -95,6 +125,8 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
   width: 100%;
+  flex: 0 0 auto;
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 `;
@@ -136,6 +168,8 @@ export {
   StyledBody,
   StyledSidebar,
   StyledContent,
+  StyledContentBody,
+  StyledScreenSlot,
   StyledFooter,
   StyledBreadcrumbs,
   StyledSkipLink,

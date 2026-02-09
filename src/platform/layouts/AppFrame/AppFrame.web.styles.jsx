@@ -48,6 +48,9 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   position: sticky;
   top: 0;
   z-index: 1;
+  width: 100%;
+  flex: 0 0 auto;
+  box-sizing: border-box;
 `;
 
 const StyledBody = styled.div.withConfig({
@@ -144,13 +147,22 @@ const StyledContentBody = styled.div.withConfig({
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
-  padding-right: ${({ theme }) => theme.spacing.md}px;
-  padding-left: 0;
+  padding: 0;
   margin: 0;
-  & > * {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
+`;
+
+const StyledScreenSlot = styled.div.withConfig({
+  displayName: 'StyledScreenSlot',
+  componentId: 'StyledScreenSlot',
+})`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  padding-right: ${({ theme }) => theme.spacing.md}px;
+  box-sizing: border-box;
 `;
 
 const StyledFooter = styled.footer.withConfig({
@@ -206,6 +218,7 @@ export {
   StyledContainer,
   StyledContent,
   StyledContentBody,
+  StyledScreenSlot,
   StyledFooter,
   StyledHeader,
   StyledOverlay,

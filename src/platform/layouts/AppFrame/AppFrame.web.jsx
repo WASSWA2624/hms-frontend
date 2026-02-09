@@ -13,6 +13,7 @@ import {
   StyledContainer,
   StyledContent,
   StyledContentBody,
+  StyledScreenSlot,
   StyledFooter,
   StyledHeader,
   StyledOverlay,
@@ -102,7 +103,9 @@ const AppFrameWeb = ({
                 {breadcrumbs}
               </StyledBreadcrumbs>
             )}
-            {children}
+            <StyledScreenSlot>
+              {children}
+            </StyledScreenSlot>
           </StyledContentBody>
         </StyledContent>
       </StyledBody>
