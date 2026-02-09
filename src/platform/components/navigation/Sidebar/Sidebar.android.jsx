@@ -4,12 +4,11 @@
  * Theme tokens; 44px targets (accessibility.mdc).
  */
 import React, { useMemo, useCallback, useState } from 'react';
-import { SectionList } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useI18n } from '@hooks';
 import { MAIN_NAV_ITEMS, getNavItemLabel } from '@config/sideMenu';
 import SidebarItem from '@platform/components/navigation/SidebarItem';
-import { StyledSidebar, StyledSectionHeaderWrap } from './Sidebar.android.styles';
+import { StyledSectionList, StyledSidebar, StyledSectionHeaderWrap } from './Sidebar.android.styles';
 
 const isItemActive = (pathname, href) =>
   href && (pathname === href || (href !== '/' && pathname.startsWith(href + '/')));
@@ -138,7 +137,7 @@ const SidebarAndroid = ({
       style={style}
       {...rest}
     >
-      <SectionList
+      <StyledSectionList
         sections={sections}
         keyExtractor={keyExtractor}
         renderSectionHeader={renderSectionHeader}
@@ -147,8 +146,6 @@ const SidebarAndroid = ({
         scrollEnabled
         showsVerticalScrollIndicator
         keyboardShouldPersistTaps="handled"
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
       />
     </StyledSidebar>
   );

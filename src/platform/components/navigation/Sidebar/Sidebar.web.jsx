@@ -5,16 +5,27 @@
  */
 import React, { useMemo, useCallback, useState } from 'react';
 import { usePathname, useRouter } from 'expo-router';
+import { Icon, SearchBar } from '@platform/components';
+import SidebarItem from '@platform/components/navigation/SidebarItem';
 import { useI18n } from '@hooks';
 import {
   StyledSidebar,
+  StyledSidebarSearch,
+  StyledSidebarSearchResults,
+  StyledSidebarSearchList,
+  StyledSidebarSearchItem,
+  StyledSidebarSearchIcon,
+  StyledSidebarSearchText,
+  StyledSidebarSearchLabel,
+  StyledSidebarSearchMeta,
+  StyledSidebarSearchEmpty,
   StyledSidebarContent,
   StyledSidebarSection,
   StyledSidebarSectionHeader,
   StyledNavItemChildren,
 } from './Sidebar.web.styles';
-import SidebarItem from '@platform/components/navigation/SidebarItem';
-import { MAIN_NAV_ITEMS, getNavItemLabel } from '@config/sideMenu';
+import useSidebarSearch from './useSidebarSearch';
+import { MAIN_NAV_ITEMS, getMenuIconGlyph, getNavItemLabel } from '@config/sideMenu';
 
 const isItemActive = (pathname, href) => {
   if (!href) return false;
@@ -44,11 +55,19 @@ const SidebarWeb = ({
   const pathname = usePathname();
   const router = useRouter();
   const [expandedId, setExpandedId] = useState(() => null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const tree = useMemo(() => {
     const list = Array.isArray(items) ? items : [];
     return list.filter((item) => (isItemVisible ? isItemVisible(item) : true));
   }, [items, isItemVisible]);
+
+  const { results: searchResults, hasQuery } = useSidebarSearch({
+    items: tree,
+    query: searchQuery,
+    t,
+    itemsI18nPrefix,
+  });
 
   const expandedIdResolved = useMemo(() => {
     if (expandedId !== null && expandedId !== undefined) return expandedId;
@@ -66,6 +85,19 @@ const SidebarWeb = ({
       else if (href) router.push(href);
     },
     [onItemPress, router]
+  );
+
+  const handleSearchChange = useCallback((eventOrValue) => {
+    const nextValue = eventOrValue?.target?.value ?? eventOrValue ?? '';
+    setSearchQuery(nextValue);
+  }, []);
+
+  const handleSearchItemClick = useCallback(
+    (entry) => {
+      handleItemClick(entry.item ?? entry, entry.href);
+      setSearchQuery('');
+    },
+    [handleItemClick]
   );
 
   const renderChildItem = useCallback(
@@ -99,6 +131,48 @@ const SidebarWeb = ({
       style={style}
       {...rest}
     >
+      {!collapsed && (
+        <StyledSidebarSearch>
+          <SearchBar
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder={t('navigation.sidebar.searchPlaceholder')}
+            accessibilityLabel={t('navigation.sidebar.searchLabel')}
+            testID={testID ? `${testID}-search` : undefined}
+          />
+          {hasQuery && (
+            <StyledSidebarSearchResults
+              aria-label={t('navigation.sidebar.searchResultsLabel')}
+              aria-live="polite"
+              data-testid={testID ? `${testID}-search-results` : undefined}
+            >
+              {searchResults.length > 0 ? (
+                <StyledSidebarSearchList>
+                  {searchResults.map((entry) => {
+                    const label = entry.label;
+                    const meta = entry.parentLabel;
+                    return (
+                      <li key={entry.id}>
+                        <StyledSidebarSearchItem type="button" onClick={() => handleSearchItemClick(entry)}>
+                          <StyledSidebarSearchIcon aria-hidden="true">
+                            <Icon glyph={getMenuIconGlyph(entry.icon)} size="sm" decorative />
+                          </StyledSidebarSearchIcon>
+                          <StyledSidebarSearchText>
+                            <StyledSidebarSearchLabel>{label}</StyledSidebarSearchLabel>
+                            {meta && <StyledSidebarSearchMeta>{meta}</StyledSidebarSearchMeta>}
+                          </StyledSidebarSearchText>
+                        </StyledSidebarSearchItem>
+                      </li>
+                    );
+                  })}
+                </StyledSidebarSearchList>
+              ) : (
+                <StyledSidebarSearchEmpty>{t('navigation.sidebar.searchEmpty')}</StyledSidebarSearchEmpty>
+              )}
+            </StyledSidebarSearchResults>
+          )}
+        </StyledSidebarSearch>
+      )}
       <StyledSidebarContent $collapsed={collapsed}>
         {tree.map((item) => {
           const href = item.href ?? item.path;

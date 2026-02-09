@@ -84,10 +84,7 @@ const StyledSidebar = styled.aside.withConfig({
   border-right: none;
   transition: width 0.2s ease;
   position: relative;
-  margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-left: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-top: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-right: 0;
+  margin: 0;
 
   @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? TABLET}px) {
     display: block;
@@ -120,7 +117,7 @@ const StyledContent = styled.main.withConfig({
 })`
   flex: 1;
   padding: 0;
-  margin: ${({ theme }) => `${theme.spacing.xs/2}px 0`};
+  margin: 0;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -131,7 +128,7 @@ const StyledContent = styled.main.withConfig({
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding-bottom: 0;
 `;
 
 const StyledContentBody = styled.div.withConfig({
@@ -150,6 +147,7 @@ const StyledContentBody = styled.div.withConfig({
   width: 100%;
   box-sizing: border-box;
   padding: 0;
+  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
   margin: 0;
 `;
 

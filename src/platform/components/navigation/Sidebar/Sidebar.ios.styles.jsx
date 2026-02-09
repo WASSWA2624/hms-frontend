@@ -4,7 +4,19 @@
  * File: Sidebar.ios.styles.jsx
  */
 import styled from 'styled-components/native';
-import { View, Pressable, Text } from 'react-native';
+import { View, Pressable, Text, SectionList } from 'react-native';
+
+const StyledSectionList = styled(SectionList).withConfig({
+  displayName: 'StyledSectionList',
+  componentId: 'StyledSectionList',
+}).attrs(({ theme }) => ({
+  contentContainerStyle: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingBottom: theme.spacing.xs,
+  },
+}))`
+  flex: 1;
+`;
 
 const StyledSidebar = styled(View).withConfig({
   displayName: 'StyledSidebar',
@@ -26,7 +38,7 @@ const StyledSectionHeaderWrap = styled(View).withConfig({
   componentId: 'StyledSectionHeaderWrap',
 })`
   padding-horizontal: ${({ theme }) => theme.spacing.md}px;
-  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
@@ -126,6 +138,7 @@ const StyledExpandIcon = styled(Text).withConfig({
 
 export {
   StyledSidebar,
+  StyledSectionList,
   StyledSectionHeaderWrap,
   StyledSidebarContent,
   StyledNavSection,

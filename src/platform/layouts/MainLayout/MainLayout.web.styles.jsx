@@ -94,6 +94,7 @@ const StyledContentBody = styled.div.withConfig({
   scrollbar-gutter: stable;
   width: 100%;
   box-sizing: border-box;
+  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledScreenSlot = styled.div.withConfig({

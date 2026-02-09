@@ -117,7 +117,11 @@
     "sidebar": {
       "title": "Main navigation",
       "label": "Navigation",
-      "resize": "Resize navigation"
+      "resize": "Resize navigation",
+      "searchLabel": "Search navigation",
+      "searchPlaceholder": "Search menu",
+      "searchResultsLabel": "Navigation search results",
+      "searchEmpty": "No matches found"
     },
     "fullscreen": {
       "enter": "Full screen",
@@ -387,16 +391,31 @@
     }
   },
   "landing": {
-    "title": "Welcome",
-    "hero": {
-      "title": "Landing page",
-      "description": "This is a basic templete for the landing page. Customize it to suite your desired needs."
+    "title": "Start your HMS workspace",
+    "description": "Choose your facility type to personalize onboarding.",
+    "facility": {
+      "title": "Select your facility type",
+      "hint": "Pick one option to seed your setup. You can change this later.",
+      "options": {
+        "clinic": "Clinic / Medical Centre",
+        "hospital": "Hospital",
+        "lab": "Diagnostic Centre / Lab",
+        "pharmacy": "Pharmacy",
+        "emergency": "Emergency / Ambulance Service"
+      }
     },
+    "selectionHelper": "You can update this during onboarding.",
     "cta": {
-      "getStarted": "Get Started",
-      "getStartedHint": "Navigate to the home page to get started",
-      "learnMore": "Learn More",
-      "learnMoreHint": "Learn more about our features"
+      "primary": "Start Free - No Sales Call",
+      "primaryHint": "Begin onboarding with your selected facility type"
+    },
+    "next": {
+      "title": "What happens next",
+      "items": {
+        "provision": "We create your workspace with starter modules",
+        "samples": "Sample data is added so you can explore immediately",
+        "checklist": "You get a facility-specific checklist to activate your workflow"
+      }
     }
   },
   "home": {

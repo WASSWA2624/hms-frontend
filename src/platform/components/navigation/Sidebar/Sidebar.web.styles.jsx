@@ -5,6 +5,21 @@
  */
 import styled from 'styled-components';
 
+const shadowToBoxShadow = (shadow) => {
+  if (!shadow) return 'none';
+  const x = shadow.shadowOffset && typeof shadow.shadowOffset.width === 'number' ? shadow.shadowOffset.width : 0;
+  const y = shadow.shadowOffset && typeof shadow.shadowOffset.height === 'number' ? shadow.shadowOffset.height : 0;
+  const blur = typeof shadow.shadowRadius === 'number' ? shadow.shadowRadius : 0;
+  const alpha = typeof shadow.shadowOpacity === 'number' ? shadow.shadowOpacity : 0;
+  const shadowColor = shadow.shadowColor || '#000000';
+
+  if (shadowColor === '#000' || shadowColor === '#000000' || shadowColor.toLowerCase() === 'black') {
+    return `${x}px ${y}px ${blur}px rgba(0, 0, 0, ${alpha})`;
+  }
+
+  return `${x}px ${y}px ${blur}px ${shadowColor}`;
+};
+
 const shouldNotForward = (prop) =>
   ['$collapsed', 'collapsed', 'accessibilityRole', 'accessibilityLabel', 'testID', 'footerSlot', 'items'].includes(prop);
 const StyledSidebar = styled.nav.withConfig({
@@ -22,6 +37,137 @@ const StyledSidebar = styled.nav.withConfig({
   border-radius: 0 ${({ theme }) => theme.radius?.sm ?? 4}px ${({ theme }) => theme.radius?.sm ?? 4}px 0;
 `;
 
+const StyledSidebarSearch = styled.div.withConfig({
+  displayName: 'StyledSidebarSearch',
+  componentId: 'StyledSidebarSearch',
+})`
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+
+  @media (max-width: ${({ theme }) => (theme.breakpoints?.desktop ?? 1024) - 1}px) {
+    display: none;
+  }
+`;
+
+const StyledSidebarSearchResults = styled.div.withConfig({
+  displayName: 'StyledSidebarSearchResults',
+  componentId: 'StyledSidebarSearchResults',
+})`
+  border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  box-shadow: ${({ theme }) => shadowToBoxShadow(theme.shadows?.sm)};
+  max-height: ${({ theme }) => theme.spacing.xxl * 4}px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSidebarSearchList = styled.ul.withConfig({
+  displayName: 'StyledSidebarSearchList',
+  componentId: 'StyledSidebarSearchList',
+})`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSidebarSearchItem = styled.button.withConfig({
+  displayName: 'StyledSidebarSearchItem',
+  componentId: 'StyledSidebarSearchItem',
+})`
+  width: 100%;
+  min-height: 44px;
+  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
+  border: none;
+  border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  cursor: pointer;
+  text-align: left;
+  color: ${({ theme }) => theme.colors.text.primary};
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledSidebarSearchIcon = styled.span.withConfig({
+  displayName: 'StyledSidebarSearchIcon',
+  componentId: 'StyledSidebarSearchIcon',
+})`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledSidebarSearchText = styled.div.withConfig({
+  displayName: 'StyledSidebarSearchText',
+  componentId: 'StyledSidebarSearchText',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  min-width: 0;
+  flex: 1;
+`;
+
+const StyledSidebarSearchLabel = styled.span.withConfig({
+  displayName: 'StyledSidebarSearchLabel',
+  componentId: 'StyledSidebarSearchLabel',
+})`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  color: ${({ theme }) => theme.colors.text.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledSidebarSearchMeta = styled.span.withConfig({
+  displayName: 'StyledSidebarSearchMeta',
+  componentId: 'StyledSidebarSearchMeta',
+})`
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledSidebarSearchEmpty = styled.div.withConfig({
+  displayName: 'StyledSidebarSearchEmpty',
+  componentId: 'StyledSidebarSearchEmpty',
+})`
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  color: ${({ theme }) => theme.colors.text.tertiary};
+`;
+
 const StyledSidebarContent = styled.div.withConfig({
   displayName: 'StyledSidebarContent',
   componentId: 'StyledSidebarContent',
@@ -29,14 +175,16 @@ const StyledSidebarContent = styled.div.withConfig({
 })`
   flex: 1;
   min-height: 0;
-  padding: ${({ theme, $collapsed }) => ($collapsed ? theme.spacing.xs : theme.spacing.sm)}px;
-  padding-bottom: ${({ theme }) => theme.spacing.xl * 4}px;
-  scroll-padding-bottom: ${({ theme }) => theme.spacing.xl * 4}px;
+  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding-right: ${({ theme }) => theme.spacing.sm}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
+  scroll-padding-bottom: ${({ theme }) => theme.spacing.xs}px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  scrollbar-gutter: stable;
 `;
 
 const StyledSidebarSection = styled.div.withConfig({
@@ -45,7 +193,7 @@ const StyledSidebarSection = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
 const StyledSidebarSectionHeader = styled.div.withConfig({
@@ -67,7 +215,7 @@ const StyledNavItemChildren = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
   padding-left: ${({ theme }) => theme.spacing.sm}px;
   border-left: 2px solid ${({ theme }) => theme.colors.background.tertiary};
   margin-left: ${({ theme }) => theme.spacing.sm}px;
@@ -190,6 +338,15 @@ const StyledExpandIcon = styled.span.withConfig({
 
 export {
   StyledSidebar,
+  StyledSidebarSearch,
+  StyledSidebarSearchResults,
+  StyledSidebarSearchList,
+  StyledSidebarSearchItem,
+  StyledSidebarSearchIcon,
+  StyledSidebarSearchText,
+  StyledSidebarSearchLabel,
+  StyledSidebarSearchMeta,
+  StyledSidebarSearchEmpty,
   StyledSidebarContent,
   StyledSidebarSection,
   StyledSidebarSectionHeader,
