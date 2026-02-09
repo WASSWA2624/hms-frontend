@@ -59,6 +59,8 @@ const StyledBody = styled.div.withConfig({
   flex-direction: row;
   min-height: 0;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
 `;
 
 const TABLET = 768;
@@ -114,10 +116,7 @@ const StyledContent = styled.main.withConfig({
 })`
   flex: 1;
   padding: 0;
-  margin-top: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-bottom: ${({ theme }) => theme.spacing.xs/2}px;
-  margin-left: 0;
-  margin-right: 0;
+  margin: ${({ theme }) => `${theme.spacing.xs/2}px 0`};
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -146,7 +145,7 @@ const StyledContentBody = styled.div.withConfig({
   overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
   padding-right: ${({ theme }) => theme.spacing.md}px;
-  padding-left: ${({ theme }) => theme.spacing.md}px;
+  padding-left: 0;
   margin: 0;
   & > * {
     flex: 1 1 auto;
