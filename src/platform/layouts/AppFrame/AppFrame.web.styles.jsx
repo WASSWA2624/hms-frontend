@@ -49,6 +49,7 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   top: 0;
   z-index: 1;
   width: 100%;
+  align-self: stretch;
   flex: 0 0 auto;
   box-sizing: border-box;
 `;
@@ -123,7 +124,6 @@ const StyledContent = styled.main.withConfig({
   min-height: 0;
   min-width: 0;
   overflow: hidden;
-  scrollbar-gutter: stable both-edges;
   background-color: ${({ theme }) => theme.colors.background.primary};
   display: flex;
   flex-direction: column;
@@ -146,7 +146,9 @@ const StyledContentBody = styled.div.withConfig({
   align-items: stretch;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: stable;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
 `;
@@ -161,7 +163,6 @@ const StyledScreenSlot = styled.div.withConfig({
   min-height: 0;
   min-width: 0;
   width: 100%;
-  padding-right: ${({ theme }) => theme.spacing.md}px;
   box-sizing: border-box;
 `;
 

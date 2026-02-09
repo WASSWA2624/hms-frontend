@@ -91,7 +91,9 @@ const StyledContentBody = styled.div.withConfig({
   align-items: stretch;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: stable;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const StyledScreenSlot = styled.div.withConfig({
@@ -125,6 +127,7 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
   width: 100%;
+  align-self: stretch;
   flex: 0 0 auto;
   box-sizing: border-box;
   margin: 0;
