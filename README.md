@@ -29,15 +29,16 @@ React Native (Expo + App Router) frontend for the HMS platform. This app targets
    - `npm run start`
 
 ## Common Scripts
-- `npm run start` – start Expo dev server (clears cache)
-- `npm run android` – run on Android
-- `npm run ios` – run on iOS
-- `npm run web` – run on web
-- `npm run test` – run tests
-- `npm run test:watch` – run tests in watch mode
-- `npm run test:coverage` – run tests with coverage
+- `npm run start` - start Expo dev server (clears cache)
+- `npm run android` - run on Android
+- `npm run ios` - run on iOS
+- `npm run web` - run on web
+- `npm run test` - run tests
+- `npm run test:watch` - run tests in watch mode
+- `npm run test:coverage` - run tests with coverage
 
 ## Project Docs
-- `dev-plan/` – step-by-step implementation plan
-- `.cursor/rules/` – project rules and standards
+- `dev-plan/` - step-by-step implementation plan
+- `.cursor/rules/` - project rules and standards
+
 
