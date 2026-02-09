@@ -117,10 +117,10 @@ const GlobalHeaderWeb = ({
     >
       <StyledHeaderRow>
         {leadingSlot ? <StyledLeadingSlot>{leadingSlot}</StyledLeadingSlot> : null}
+        {secondaryActionItems.length > 0 ? (
+          <StyledActionsGroup>{secondaryActionItems}</StyledActionsGroup>
+        ) : null}
         <StyledTitleGroup>
-          {secondaryActionItems.length > 0 ? (
-            <StyledActionsGroup>{secondaryActionItems}</StyledActionsGroup>
-          ) : null}
           <StyledTitleBlock>
             {typeof resolvedTitle === 'string' ? (
               <Text variant="h2">{resolvedTitle}</Text>

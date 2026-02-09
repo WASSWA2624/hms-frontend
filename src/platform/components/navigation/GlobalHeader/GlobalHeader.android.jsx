@@ -116,10 +116,10 @@ const GlobalHeaderAndroid = ({
     >
       <StyledHeaderRow>
         {leadingSlot ? <StyledLeadingSlot>{leadingSlot}</StyledLeadingSlot> : null}
+        {secondaryActionItems.length > 0 ? (
+          <StyledActionsGroup>{secondaryActionItems}</StyledActionsGroup>
+        ) : null}
         <StyledTitleGroup>
-          {secondaryActionItems.length > 0 ? (
-            <StyledActionsGroup>{secondaryActionItems}</StyledActionsGroup>
-          ) : null}
           <StyledTitleBlock>
             {typeof resolvedTitle === 'string' ? (
               <Text variant="h3">{resolvedTitle}</Text>
