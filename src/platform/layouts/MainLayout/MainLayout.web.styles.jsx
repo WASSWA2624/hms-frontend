@@ -106,6 +106,7 @@ const StyledScreenSlot = styled.div.withConfig({
   min-height: 0;
   min-width: 0;
   width: 100%;
+  padding: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledFooter = styled.footer.withConfig({

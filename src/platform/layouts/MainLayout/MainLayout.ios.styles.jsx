@@ -53,7 +53,7 @@ const StyledScreenSlot = styled.View.withConfig({
 })`
   flex: 1;
   width: 100%;
-  padding: 0;
+  padding: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledFooter = styled.View.withConfig({
