@@ -97,124 +97,124 @@ src/app/
 **One step = one screen.** Complete each step before the next. Where multiple tabs are listed, implement one screen per tab in that order.
 
 ### Tier 0: Public Entry + Onboarding (Self-Serve)
-- **11.S.1** Landing + facility type selection -- `(public)/landing`
-- **11.S.2** Register (minimal signup) -- `(auth)/register`
-- **11.S.3** Resume link sent (check email) -- `(auth)/resume-link-sent`
-- **11.S.4** Resume onboarding (token handler) -- `(onboarding)/resume`
-- **11.S.5** Provisioning (tenant + modules + sample data) -- `(onboarding)/provisioning`
-- **11.S.6** Welcome / activation summary -- `(onboarding)/welcome`
-- **11.S.7** First-run checklist (facility-specific) -- `(onboarding)/checklist`
-- **11.S.8** Module recommendations + progressive unlocks -- `(onboarding)/modules`
-- **11.S.9** Trial status + limits -- `(onboarding)/trial`
-- **11.S.10** Upgrade value (paywall messaging) -- `(onboarding)/upgrade`
-- **11.S.11** Plan/modules selection -- `(onboarding)/plan`
-- **11.S.12** Billing cycle selection -- `(onboarding)/billing-cycle`
-- **11.S.13** Payment checkout -- `(onboarding)/payment`
-- **11.S.14** Payment success + activation -- `(onboarding)/payment-success`
+- **11.1.1** Landing + facility type selection -- `(public)/landing`
+- **11.1.2** Register (minimal signup) -- `(auth)/register`
+- **11.1.3** Resume link sent (check email) -- `(auth)/resume-link-sent`
+- **11.1.4** Resume onboarding (token handler) -- `(onboarding)/resume`
+- **11.1.5** Provisioning (tenant + modules + sample data) -- `(onboarding)/provisioning`
+- **11.1.6** Welcome / activation summary -- `(onboarding)/welcome`
+- **11.1.7** First-run checklist (facility-specific) -- `(onboarding)/checklist`
+- **11.1.8** Module recommendations + progressive unlocks -- `(onboarding)/modules`
+- **11.1.9** Trial status + limits -- `(onboarding)/trial`
+- **11.1.10** Upgrade value (paywall messaging) -- `(onboarding)/upgrade`
+- **11.1.11** Plan/modules selection -- `(onboarding)/plan`
+- **11.1.12** Billing cycle selection -- `(onboarding)/billing-cycle`
+- **11.1.13** Payment checkout -- `(onboarding)/payment`
+- **11.1.14** Payment success + activation -- `(onboarding)/payment-success`
 
 ### Tier 1: Auth & Shell
-- **11.S.15** Login -- `(auth)/login`
-- **11.S.16** Forgot password -- `(auth)/forgot-password`
-- **11.S.17** Reset password -- `(auth)/reset-password`
-- **11.S.18** Verify email -- `(auth)/verify-email`
-- **11.S.19** Verify phone -- `(auth)/verify-phone`
-- **11.S.20** Tenant selection -- `(auth)/tenant-selection`
-- **11.S.21** Facility selection -- `(auth)/facility-selection`
-- **11.S.22** Home -- `(main)/home`
+- **11.2.1** Login -- `(auth)/login`
+- **11.2.2** Forgot password -- `(auth)/forgot-password`
+- **11.2.3** Reset password -- `(auth)/reset-password`
+- **11.2.4** Verify email -- `(auth)/verify-email`
+- **11.2.5** Verify phone -- `(auth)/verify-phone`
+- **11.2.6** Tenant selection -- `(auth)/tenant-selection`
+- **11.2.7** Facility selection -- `(auth)/facility-selection`
+- **11.2.8** Home -- `(main)/home`
 
 ### Tier 2: Settings (main + tabs)
-- **11.S.23** Settings (main) -- `(main)/settings`
-- **11.S.24** Tenant -- `(main)/settings/tenants`
-- **11.S.25** Facility -- `(main)/settings/facilities`
-- **11.S.26** Branch -- `(main)/settings/branches`
-- **11.S.27** Department -- `(main)/settings/departments`
-- **11.S.28** Unit -- `(main)/settings/units`
-- **11.S.29** Room -- `(main)/settings/rooms`
-- **11.S.30** Ward -- `(main)/settings/wards`
-- **11.S.31** Bed -- `(main)/settings/beds`
-- **11.S.32** Address -- `(main)/settings/addresses`
-- **11.S.33** Contact -- `(main)/settings/contacts`
-- **11.S.34** User -- `(main)/settings/users`
-- **11.S.35** User profile -- `(main)/settings/user-profiles`
-- **11.S.36** Role -- `(main)/settings/roles`
-- **11.S.37** Permission -- `(main)/settings/permissions`
-- **11.S.38** Role-permission -- `(main)/settings/role-permissions`
-- **11.S.39** User-role -- `(main)/settings/user-roles`
-- **11.S.40** API key -- `(main)/settings/api-keys`
-- **11.S.41** API key permission -- `(main)/settings/api-key-permissions`
-- **11.S.42** User MFA -- `(main)/settings/user-mfas`
-- **11.S.43** User session -- `(main)/settings/user-sessions`
-- **11.S.44** OAuth account -- `(main)/settings/oauth-accounts`
+- **11.3.1** Settings (main) -- `(main)/settings`
+- **11.3.2** Tenant -- `(main)/settings/tenants`
+- **11.3.3** Facility -- `(main)/settings/facilities`
+- **11.3.4** Branch -- `(main)/settings/branches`
+- **11.3.5** Department -- `(main)/settings/departments`
+- **11.3.6** Unit -- `(main)/settings/units`
+- **11.3.7** Room -- `(main)/settings/rooms`
+- **11.3.8** Ward -- `(main)/settings/wards`
+- **11.3.9** Bed -- `(main)/settings/beds`
+- **11.3.10** Address -- `(main)/settings/addresses`
+- **11.3.11** Contact -- `(main)/settings/contacts`
+- **11.3.12** User -- `(main)/settings/users`
+- **11.3.13** User profile -- `(main)/settings/user-profiles`
+- **11.3.14** Role -- `(main)/settings/roles`
+- **11.3.15** Permission -- `(main)/settings/permissions`
+- **11.3.16** Role-permission -- `(main)/settings/role-permissions`
+- **11.3.17** User-role -- `(main)/settings/user-roles`
+- **11.3.18** API key -- `(main)/settings/api-keys`
+- **11.3.19** API key permission -- `(main)/settings/api-key-permissions`
+- **11.3.20** User MFA -- `(main)/settings/user-mfas`
+- **11.3.21** User session -- `(main)/settings/user-sessions`
+- **11.3.22** OAuth account -- `(main)/settings/oauth-accounts`
 
 ### Tier 3: Patients (main + tabs)
-- **11.S.45** Patients (main) -- `(main)/patients`
-- **11.S.46** Patient -- `(main)/patients/patients`
-- **11.S.47** Patient identifier -- `(main)/patients/patient-identifiers`
-- **11.S.48** Patient contact -- `(main)/patients/patient-contacts`
-- **11.S.49** Patient guardian -- `(main)/patients/patient-guardians`
-- **11.S.50** Patient allergy -- `(main)/patients/patient-allergies`
-- **11.S.51** Patient medical history -- `(main)/patients/patient-medical-histories`
-- **11.S.52** Patient document -- `(main)/patients/patient-documents`
+- **11.4.1** Patients (main) -- `(main)/patients`
+- **11.4.2** Patient -- `(main)/patients/patients`
+- **11.4.3** Patient identifier -- `(main)/patients/patient-identifiers`
+- **11.4.4** Patient contact -- `(main)/patients/patient-contacts`
+- **11.4.5** Patient guardian -- `(main)/patients/patient-guardians`
+- **11.4.6** Patient allergy -- `(main)/patients/patient-allergies`
+- **11.4.7** Patient medical history -- `(main)/patients/patient-medical-histories`
+- **11.4.8** Patient document -- `(main)/patients/patient-documents`
 
 ### Tier 4: Scheduling (main + tabs)
-- **11.S.53** Scheduling (main) -- `(main)/scheduling`
-- **11.S.54** Appointment -- `(main)/scheduling/appointments`
-- **11.S.55** Provider schedule -- `(main)/scheduling/provider-schedules`
-- **11.S.56** Availability slot -- `(main)/scheduling/availability-slots`
-- **11.S.57** Visit queue -- `(main)/scheduling/visit-queues`
+- **11.5.1** Scheduling (main) -- `(main)/scheduling`
+- **11.5.2** Appointment -- `(main)/scheduling/appointments`
+- **11.5.3** Provider schedule -- `(main)/scheduling/provider-schedules`
+- **11.5.4** Availability slot -- `(main)/scheduling/availability-slots`
+- **11.5.5** Visit queue -- `(main)/scheduling/visit-queues`
 
 ### Tier 5: Clinical (main + tabs)
-- **11.S.58** Clinical (main) -- `(main)/clinical`
-- **11.S.59** Encounter -- `(main)/clinical/encounters`
-- **11.S.60** Clinical note -- `(main)/clinical/clinical-notes`
-- **11.S.61** Diagnosis -- `(main)/clinical/diagnoses`
-- **11.S.62** Procedure -- `(main)/clinical/procedures`
-- **11.S.63** Vital sign -- `(main)/clinical/vital-signs`
-- **11.S.64** Care plan -- `(main)/clinical/care-plans`
-- **11.S.65** Referral -- `(main)/clinical/referrals`
-- **11.S.66** Follow-up -- `(main)/clinical/follow-ups`
+- **11.6.1** Clinical (main) -- `(main)/clinical`
+- **11.6.2** Encounter -- `(main)/clinical/encounters`
+- **11.6.3** Clinical note -- `(main)/clinical/clinical-notes`
+- **11.6.4** Diagnosis -- `(main)/clinical/diagnoses`
+- **11.6.5** Procedure -- `(main)/clinical/procedures`
+- **11.6.6** Vital sign -- `(main)/clinical/vital-signs`
+- **11.6.7** Care plan -- `(main)/clinical/care-plans`
+- **11.6.8** Referral -- `(main)/clinical/referrals`
+- **11.6.9** Follow-up -- `(main)/clinical/follow-ups`
 
 ### Tier 6: IPD, ICU, Theatre, Emergency
-- **11.S.67** IPD (main) -- `(main)/ipd`
-- **11.S.68** IPD tabs: admission, bed-assignment, ward-round, nursing-note, medication-admin, discharge, transfer -- `(main)/ipd/*` (one step per tab)
-- **11.S.69** ICU (main) -- `(main)/icu`
-- **11.S.70** ICU tabs: stay, observation, critical-alert -- `(main)/icu/*` (one step per tab)
-- **11.S.71** Theatre (main) -- `(main)/theatre`
-- **11.S.72** Theatre tabs: case, anesthesia-record, post-op-note -- `(main)/theatre/*` (one step per tab)
-- **11.S.73** Emergency (main) -- `(main)/emergency`
-- **11.S.74** Emergency tabs: case, triage, response, ambulance, dispatch, trip -- `(main)/emergency/*` (one step per tab)
+- **11.7.1** IPD (main) -- `(main)/ipd`
+- **11.7.2** IPD tabs: admission, bed-assignment, ward-round, nursing-note, medication-admin, discharge, transfer -- `(main)/ipd/*` (one step per tab)
+- **11.7.3** ICU (main) -- `(main)/icu`
+- **11.7.4** ICU tabs: stay, observation, critical-alert -- `(main)/icu/*` (one step per tab)
+- **11.7.5** Theatre (main) -- `(main)/theatre`
+- **11.7.6** Theatre tabs: case, anesthesia-record, post-op-note -- `(main)/theatre/*` (one step per tab)
+- **11.7.7** Emergency (main) -- `(main)/emergency`
+- **11.7.8** Emergency tabs: case, triage, response, ambulance, dispatch, trip -- `(main)/emergency/*` (one step per tab)
 
 ### Tier 7: Diagnostics (Lab + Radiology)
-- **11.S.75** Lab (main) -- `(main)/diagnostics/lab`
-- **11.S.76** Lab tabs: test, panel, order, sample, result, QC -- `(main)/diagnostics/lab/*` (one step per tab)
-- **11.S.77** Radiology (main) -- `(main)/diagnostics/radiology`
-- **11.S.78** Radiology tabs: test, order, result, imaging, PACS -- `(main)/diagnostics/radiology/*` (one step per tab)
+- **11.8.1** Lab (main) -- `(main)/diagnostics/lab`
+- **11.8.2** Lab tabs: test, panel, order, sample, result, QC -- `(main)/diagnostics/lab/*` (one step per tab)
+- **11.8.3** Radiology (main) -- `(main)/diagnostics/radiology`
+- **11.8.4** Radiology tabs: test, order, result, imaging, PACS -- `(main)/diagnostics/radiology/*` (one step per tab)
 
 ### Tier 8: Pharmacy, Inventory
-- **11.S.79** Pharmacy (main) -- `(main)/pharmacy`
-- **11.S.80** Pharmacy tabs: drug, batch, formulary, order, dispense, adverse-event -- `(main)/pharmacy/*` (one step per tab)
-- **11.S.81** Inventory (main) -- `(main)/inventory`
-- **11.S.82** Inventory tabs: item, stock, movement, supplier, purchase, receipt, adjustment -- `(main)/inventory/*` (one step per tab)
+- **11.9.1** Pharmacy (main) -- `(main)/pharmacy`
+- **11.9.2** Pharmacy tabs: drug, batch, formulary, order, dispense, adverse-event -- `(main)/pharmacy/*` (one step per tab)
+- **11.9.3** Inventory (main) -- `(main)/inventory`
+- **11.9.4** Inventory tabs: item, stock, movement, supplier, purchase, receipt, adjustment -- `(main)/inventory/*` (one step per tab)
 
 ### Tier 9: Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance
-- **11.S.83** Billing (main) -- `(main)/billing`
-- **11.S.84** Billing tabs: invoice, payment, refund, pricing, coverage, claim, pre-auth, adjustment -- `(main)/billing/*` (one step per tab)
-- **11.S.85** HR (main) -- `(main)/hr`
-- **11.S.86** HR tabs: staff, assignment, leave, shift, nurse-timetable, payroll -- `(main)/hr/*` (one step per tab; nurse-timetable = Nurses Time-table Generator per write-up Sec 5.17)
-- **11.S.87** Housekeeping (main) -- `(main)/housekeeping`
-- **11.S.88** Housekeeping tabs: task, schedule, maintenance, asset, service-log -- `(main)/housekeeping/*` (one step per tab)
-- **11.S.89** Reports (main) -- `(main)/reports`
-- **11.S.90** Communications (main) -- `(main)/communications`
-- **11.S.91** Subscriptions (main) -- `(main)/subscriptions`
-- **11.S.92** Integrations (main) -- `(main)/integrations`
-- **11.S.93** Compliance (main) -- `(main)/compliance`
+- **11.10.1** Billing (main) -- `(main)/billing`
+- **11.10.2** Billing tabs: invoice, payment, refund, pricing, coverage, claim, pre-auth, adjustment -- `(main)/billing/*` (one step per tab)
+- **11.10.3** HR (main) -- `(main)/hr`
+- **11.10.4** HR tabs: staff, assignment, leave, shift, nurse-timetable, payroll -- `(main)/hr/*` (one step per tab; nurse-timetable = Nurses Time-table Generator per write-up Sec 5.17)
+- **11.10.5** Housekeeping (main) -- `(main)/housekeeping`
+- **11.10.6** Housekeeping tabs: task, schedule, maintenance, asset, service-log -- `(main)/housekeeping/*` (one step per tab)
+- **11.10.7** Reports (main) -- `(main)/reports`
+- **11.10.8** Communications (main) -- `(main)/communications`
+- **11.10.9** Subscriptions (main) -- `(main)/subscriptions`
+- **11.10.10** Integrations (main) -- `(main)/integrations`
+- **11.10.11** Compliance (main) -- `(main)/compliance`
 
 ### Tier 10: Patient portal
-- **11.S.94** Patient portal (main) -- `(patient)/portal`
-- **11.S.95** Patient appointments -- `(patient)/appointments`
-- **11.S.96** Patient results -- `(patient)/results`
-- **11.S.97** Patient prescriptions -- `(patient)/prescriptions`
-- **11.S.98** Patient billing -- `(patient)/billing`
+- **11.11.1** Patient portal (main) -- `(patient)/portal`
+- **11.11.2** Patient appointments -- `(patient)/appointments`
+- **11.11.3** Patient results -- `(patient)/results`
+- **11.11.4** Patient prescriptions -- `(patient)/prescriptions`
+- **11.11.5** Patient billing -- `(patient)/billing`
 
 ---
 
@@ -222,18 +222,18 @@ src/app/
 Per screen: routes per `app-router.mdc`; screen per `platform-ui.mdc` + `component-structure.mdc`; wire to hooks; i18n; loading/error/empty/guarded states; nav entry for main screens. Tests per `testing.mdc`; a11y per `accessibility.mdc`.
 
 ## Completeness
-- [ ] 11.S.1-14 (public entry + onboarding)
-- [ ] 11.S.15-22 (auth, home)
-- [ ] 11.S.23-44 (Settings main + tabs)
-- [ ] 11.S.45-66 (Patients, Scheduling, Clinical)
-- [ ] 11.S.67-82 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
-- [ ] 11.S.83-98 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
+- [ ] 11.1.1-11.1.14 (public entry + onboarding)
+- [ ] 11.2.1-11.2.8 (auth, home)
+- [ ] 11.3.1-11.3.22 (Settings main + tabs)
+- [ ] 11.4.1-11.6.9 (Patients, Scheduling, Clinical)
+- [ ] 11.7.1-11.9.4 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
+- [ ] 11.10.1-11.11.5 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
 - [ ] Nav + deep links for all main screens
 
-## Settings status (11.S.23-44)
-- **23-25** tenant, facility -- List OK, Detail OK, Create/Edit OK
-- **26-31** branch, department, unit, room, ward, bed -- List OK, Detail OK, Create/Edit OK
-- **32-33** address, contact -- List OK, Detail OK, Create/Edit OK
-- **34-44** user ... oauth-account -- List OK, Detail OK, Create/Edit TBD
+## Settings status (11.3.1-11.3.22)
+- **11.3.1-11.3.3** settings, tenant, facility -- List OK, Detail OK, Create/Edit OK
+- **11.3.4-11.3.9** branch, department, unit, room, ward, bed -- List OK, Detail OK, Create/Edit OK
+- **11.3.10-11.3.11** address, contact -- List OK, Detail OK, Create/Edit OK
+- **11.3.12-11.3.22** user ... oauth-account -- List OK, Detail OK, Create/Edit TBD
 
 Backend: facility/tenant usecases unwrap `response.data.data`; other CRUD same pattern when backend returns `{ data }`.
