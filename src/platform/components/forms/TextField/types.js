@@ -31,3 +31,12 @@ export const VALIDATION_STATES = {
   SUCCESS: 'success',
   DISABLED: 'disabled',
 };
+
+/**
+ * Density options
+ * @type {Object}
+ */
+export const INPUT_DENSITIES = {
+  REGULAR: 'regular',
+  COMPACT: 'compact',
+};

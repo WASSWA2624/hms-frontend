@@ -28,7 +28,7 @@ import {
 import useTextField from './useTextField';
 
 // 6. Types and constants (relative import)
-import { INPUT_TYPES, VALIDATION_STATES } from './types';
+import { INPUT_DENSITIES, INPUT_TYPES, VALIDATION_STATES } from './types';
 
 /**
  * TextField component for Android
@@ -54,6 +54,7 @@ import { INPUT_TYPES, VALIDATION_STATES } from './types';
  * @param {string} props.accessibilityHint - Accessibility hint
  * @param {string} props.testID - Test identifier
  * @param {Object} props.style - Additional styles
+ * @param {string} props.density - Visual density (regular, compact)
  */
 const TextFieldAndroid = ({
   label,
@@ -78,6 +79,7 @@ const TextFieldAndroid = ({
   testID,
   style,
   secureTextEntry,
+  density = INPUT_DENSITIES.REGULAR,
   ...rest
 }) => {
   const theme = useTheme();
@@ -106,7 +108,7 @@ const TextFieldAndroid = ({
   const displayHelperText = finalErrorMessage || helperText;
 
   return (
-    <StyledContainer style={style}>
+    <StyledContainer style={style} $density={density}>
       {label && (
         <StyledLabel>
           {label}

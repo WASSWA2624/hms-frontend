@@ -5,7 +5,7 @@
  */
 import React, { useMemo, useCallback, useState } from 'react';
 import { usePathname, useRouter } from 'expo-router';
-import { Icon, SearchBar } from '@platform/components';
+import { Icon, TextField } from '@platform/components';
 import SidebarItem from '@platform/components/navigation/SidebarItem';
 import { useI18n } from '@hooks';
 import {
@@ -132,13 +132,15 @@ const SidebarWeb = ({
       {...rest}
     >
       {!collapsed && (
-        <StyledSidebarSearch>
-          <SearchBar
+        <StyledSidebarSearch data-testid={testID ? `${testID}-search` : undefined}>
+          <TextField
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder={t('navigation.sidebar.searchPlaceholder')}
             accessibilityLabel={t('navigation.sidebar.searchLabel')}
-            testID={testID ? `${testID}-search` : undefined}
+            density="compact"
+            type="search"
+            testID={testID ? `${testID}-search-input` : undefined}
           />
           {hasQuery && (
             <StyledSidebarSearchResults

@@ -46,6 +46,7 @@ const StyledSidebarSearch = styled.div.withConfig({
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.sm}px;
+  padding-right: ${({ theme }) => theme.spacing.md}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
 
@@ -176,7 +177,7 @@ const StyledSidebarContent = styled.div.withConfig({
   flex: 1;
   min-height: 0;
   padding: ${({ theme }) => theme.spacing.xs}px;
-  padding-right: ${({ theme }) => theme.spacing.sm}px;
+  padding-right: ${({ theme }) => theme.spacing.md}px;
   padding-bottom: ${({ theme }) => theme.spacing.xs}px;
   scroll-padding-bottom: ${({ theme }) => theme.spacing.xs}px;
   overflow-y: auto;
@@ -205,8 +206,8 @@ const StyledSidebarSectionHeader = styled.div.withConfig({
   z-index: 1;
   background-color: ${({ theme }) => theme.colors.background.primary};
   flex-shrink: 0;
-  margin: 0 -${({ theme }) => theme.spacing.xs}px;
-  padding: 0 ${({ theme }) => theme.spacing.xs}px;
+  margin: 0;
+  padding: 0;
 `;
 
 const StyledNavItemChildren = styled.div.withConfig({

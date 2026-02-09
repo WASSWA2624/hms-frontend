@@ -8,9 +8,11 @@ import styled from 'styled-components/native';
 const StyledContainer = styled.View.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
+  shouldForwardProp: (prop) => prop !== '$density',
 })`
   width: 100%;
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme, $density }) =>
+    $density === 'compact' ? theme.spacing.xs : theme.spacing.md}px;
 `;
 
 const StyledLabel = styled.Text.withConfig({

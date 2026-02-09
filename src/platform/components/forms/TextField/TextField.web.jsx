@@ -27,7 +27,7 @@ import {
 import useTextField from './useTextField';
 
 // 6. Types and constants (relative import)
-import { INPUT_TYPES, VALIDATION_STATES } from './types';
+import { INPUT_DENSITIES, INPUT_TYPES, VALIDATION_STATES } from './types';
 
 /**
  * TextField component for Web
@@ -55,6 +55,7 @@ import { INPUT_TYPES, VALIDATION_STATES } from './types';
  * @param {string} props.testID - Test identifier
  * @param {string} props.className - Additional CSS class
  * @param {Object} props.style - Additional styles
+ * @param {string} props.density - Visual density (regular, compact)
  */
 const TextFieldWeb = ({
   label,
@@ -81,6 +82,7 @@ const TextFieldWeb = ({
   className,
   style,
   id,
+  density = INPUT_DENSITIES.REGULAR,
   ...rest
 }) => {
   const reactId = typeof React.useId === 'function' ? React.useId() : undefined;
@@ -121,7 +123,7 @@ const TextFieldWeb = ({
     (typeof testID === 'string' ? testID : undefined);
 
   return (
-    <StyledContainer style={style} className={className}>
+    <StyledContainer style={style} className={className} $density={density}>
       {label && (
         <StyledLabel htmlFor={inputId}>
           {label}
