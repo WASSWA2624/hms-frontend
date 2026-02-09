@@ -3,9 +3,10 @@
  * Shared logic for UserProfileDetailScreen across platforms.
  * File: useUserProfileDetailScreen.js
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, useUserProfile } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -19,66 +20,58 @@ const useUserProfileDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
-  const [isEditing, setIsEditing] = useState(false);
-  const {
-    get,
-    update,
-    data,
-    isLoading,
-    errorCode,
-    reset,
-  } = useUserProfile();
+  const { get, remove, data, isLoading, errorCode, reset } = useUserProfile();
 
-  const item = useMemo(() => data?.item, [data?.item]);
+  const profile = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
   );
 
-  const fetchItem = useCallback(() => {
-    if (id) {
-      reset();
-      get(id);
-    }
+  const fetchDetail = useCallback(() => {
+    if (!id) return;
+    reset();
+    get(id);
   }, [id, get, reset]);
 
   useEffect(() => {
-    fetchItem();
-  }, [fetchItem]);
+    fetchDetail();
+  }, [fetchDetail]);
 
   const handleRetry = useCallback(() => {
-    fetchItem();
-  }, [fetchItem]);
+    fetchDetail();
+  }, [fetchDetail]);
 
-  const handleSave = useCallback(
-    async (formData) => {
-      if (id) {
-        await update(id, formData);
-        setIsEditing(false);
-      }
-    },
-    [id, update]
-  );
-
-  const handleCancel = useCallback(() => {
-    setIsEditing(false);
-  }, []);
+  const handleBack = useCallback(() => {
+    router.push('/settings/user-profiles');
+  }, [router]);
 
   const handleEdit = useCallback(() => {
-    setIsEditing(true);
-  }, []);
+    if (id) router.push(`/settings/user-profiles/${id}/edit`);
+  }, [id, router]);
+
+  const handleDelete = useCallback(async () => {
+    if (!id) return;
+    if (!confirmAction(t('common.confirmDelete'))) return;
+    try {
+      await remove(id);
+      handleBack();
+    } catch {
+      /* error handled by hook */
+    }
+  }, [id, remove, handleBack, t]);
 
   return {
-    item,
+    id,
+    profile,
     isLoading,
-    hasError: !!errorCode,
+    hasError: Boolean(errorCode),
     errorMessage,
     isOffline,
-    isEditing,
     onRetry: handleRetry,
-    onSave: handleSave,
-    onCancel: handleCancel,
+    onBack: handleBack,
     onEdit: handleEdit,
+    onDelete: handleDelete,
   };
 };
 

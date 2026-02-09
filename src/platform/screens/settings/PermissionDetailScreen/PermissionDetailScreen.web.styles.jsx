@@ -1,6 +1,6 @@
 /**
- * PermissionListScreen Web Styles
- * File: PermissionListScreen.web.styles.jsx
+ * PermissionDetailScreen Web Styles
+ * File: PermissionDetailScreen.web.styles.jsx
  */
 import styled from 'styled-components';
 
@@ -20,23 +20,25 @@ const StyledContent = styled.div.withConfig({
   componentId: 'StyledContent',
 })`
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 `;
 
-const StyledList = styled.ul.withConfig({
-  displayName: 'StyledList',
-  componentId: 'StyledList',
+const StyledSection = styled.section.withConfig({
+  displayName: 'StyledSection',
+  componentId: 'StyledSection',
 })`
-  list-style: none;
-  padding: 0;
-  margin: 0;
   margin-top: ${({ theme }) => theme.spacing.lg}px;
-
-  & > li {
-    margin-bottom: ${({ theme }) => theme.spacing.md}px;
-  }
 `;
 
-export { StyledContainer, StyledContent, StyledList };
+const StyledActions = styled.div.withConfig({
+  displayName: 'StyledActions',
+  componentId: 'StyledActions',
+})`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xl}px;
+`;
+
+export { StyledContainer, StyledContent, StyledSection, StyledActions };

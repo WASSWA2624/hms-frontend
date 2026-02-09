@@ -1,28 +1,43 @@
 /**
- * ApiKeyPermissionListScreen iOS Styles
- * File: ApiKeyPermissionListScreen.ios.styles.jsx
+ * ApiKeyPermissionDetailScreen iOS Styles
+ * File: ApiKeyPermissionDetailScreen.ios.styles.jsx
  */
-import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-});
-
-const StyledContainer = styled.View`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.background.primary};
-  padding-vertical: ${({ theme }) => theme.spacing.lg}px;
-  padding-horizontal: ${({ theme }) => theme.spacing.lg}px;
-`;
-
-const StyledContent = styled.View`
+const StyledContainer = styled.View.withConfig({
+  displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
+})`
   flex: 1;
   width: 100%;
+  min-height: 100%;
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
-export { StyledContainer, StyledContent, styles };
+const StyledContent = styled.View.withConfig({
+  displayName: 'StyledContent',
+  componentId: 'StyledContent',
+})`
+  width: 100%;
+  max-width: 600px;
+  align-self: center;
+`;
+
+const StyledSection = styled.View.withConfig({
+  displayName: 'StyledSection',
+  componentId: 'StyledSection',
+})`
+  margin-top: ${({ theme }) => theme.spacing.lg}px;
+`;
+
+const StyledActions = styled.View.withConfig({
+  displayName: 'StyledActions',
+  componentId: 'StyledActions',
+})`
+  flex-direction: row;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xl}px;
+`;
+
+export { StyledContainer, StyledContent, StyledSection, StyledActions };

@@ -3,9 +3,10 @@
  * Shared logic for PermissionDetailScreen across platforms.
  * File: usePermissionDetailScreen.js
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, usePermission } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -19,66 +20,58 @@ const usePermissionDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
-  const [isEditing, setIsEditing] = useState(false);
-  const {
-    get,
-    update,
-    data,
-    isLoading,
-    errorCode,
-    reset,
-  } = usePermission();
+  const { get, remove, data, isLoading, errorCode, reset } = usePermission();
 
-  const item = useMemo(() => data?.item, [data?.item]);
+  const permission = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
   );
 
-  const fetchItem = useCallback(() => {
-    if (id) {
-      reset();
-      get(id);
-    }
+  const fetchDetail = useCallback(() => {
+    if (!id) return;
+    reset();
+    get(id);
   }, [id, get, reset]);
 
   useEffect(() => {
-    fetchItem();
-  }, [fetchItem]);
+    fetchDetail();
+  }, [fetchDetail]);
 
   const handleRetry = useCallback(() => {
-    fetchItem();
-  }, [fetchItem]);
+    fetchDetail();
+  }, [fetchDetail]);
 
-  const handleSave = useCallback(
-    async (formData) => {
-      if (id) {
-        await update(id, formData);
-        setIsEditing(false);
-      }
-    },
-    [id, update]
-  );
-
-  const handleCancel = useCallback(() => {
-    setIsEditing(false);
-  }, []);
+  const handleBack = useCallback(() => {
+    router.push('/settings/permissions');
+  }, [router]);
 
   const handleEdit = useCallback(() => {
-    setIsEditing(true);
-  }, []);
+    if (id) router.push(`/settings/permissions/${id}/edit`);
+  }, [id, router]);
+
+  const handleDelete = useCallback(async () => {
+    if (!id) return;
+    if (!confirmAction(t('common.confirmDelete'))) return;
+    try {
+      await remove(id);
+      handleBack();
+    } catch {
+      /* error handled by hook */
+    }
+  }, [id, remove, handleBack, t]);
 
   return {
-    item,
+    id,
+    permission,
     isLoading,
-    hasError: !!errorCode,
+    hasError: Boolean(errorCode),
     errorMessage,
     isOffline,
-    isEditing,
     onRetry: handleRetry,
-    onSave: handleSave,
-    onCancel: handleCancel,
+    onBack: handleBack,
     onEdit: handleEdit,
+    onDelete: handleDelete,
   };
 };
 
