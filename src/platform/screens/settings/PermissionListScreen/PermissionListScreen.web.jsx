@@ -27,6 +27,7 @@ const PermissionListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = usePermissionListScreen();
 
   const emptyComponent = (
@@ -40,9 +41,22 @@ const PermissionListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="permission-list-title">
-          {t('permission.list.title')}
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text variant="h1" accessibilityRole="header" testID="permission-list-title">
+            {t('permission.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('permission.list.addLabel')}
+              accessibilityHint={t('permission.list.addHint')}
+              testID="permission-list-add"
+            >
+              {t('permission.list.addLabel')}
+            </Button>
+          )}
+        </div>
         <StyledListBody role="region" aria-label={t('permission.list.accessibilityLabel')} data-testid="permission-list">
           {isLoading && <LoadingSpinner testID="permission-list-spinner" />}
           {!isLoading && hasError && (
@@ -70,10 +84,12 @@ const PermissionListScreenWeb = () => {
             <StyledList role="list">
               {items.map((item) => {
                 const title = item?.name ?? item?.id ?? '';
+                const subtitle = item?.description ?? '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +98,13 @@ const PermissionListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('permission.list.delete')}
                           accessibilityHint={t('permission.list.deleteHint')}
-                          testID={`ermission-delete-${item.id}`}
+                          testID={`permission-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('permission.list.itemLabel', { name: title })}
-                      testID={`ermission-item-${item.id}`}
+                      testID={`permission-item-${item.id}`}
                     />
                   </li>
                 );

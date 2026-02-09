@@ -3,7 +3,7 @@
  * File: RoleListScreen.ios.jsx
  */
 import React from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
   EmptyState,
@@ -26,21 +26,24 @@ const RoleListScreenIos = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useRoleListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('role.list.emptyTitle')}
       description={t('role.list.emptyMessage')}
-      testID="ole-list-empty-state"
+      testID="role-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
     const title = item?.name ?? item?.id ?? '';
+    const subtitle = item?.description ?? '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +52,7 @@ const RoleListScreenIos = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('role.list.delete')}
             accessibilityHint={t('role.list.deleteHint')}
-            testID={`ole-delete-${item.id}`}
+            testID={`role-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +60,7 @@ const RoleListScreenIos = () => {
         accessibilityLabel={t('role.list.itemLabel', {
           name: title,
         })}
-        testID={`ole-item-${item.id}`}
+        testID={`role-item-${item.id}`}
       />
     );
   };
@@ -65,13 +68,26 @@ const RoleListScreenIos = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="ole-list-title"
-        >
-          {t('role.list.title')}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="role-list-title"
+          >
+            {t('role.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('role.list.addLabel')}
+              accessibilityHint={t('role.list.addHint')}
+              testID="role-list-add"
+            >
+              {t('role.list.addLabel')}
+            </Button>
+          )}
+        </View>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +96,7 @@ const RoleListScreenIos = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('role.list.accessibilityLabel')}
-          testID="ole-list"
+          testID="role-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

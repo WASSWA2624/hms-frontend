@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, useApiKeyPermission } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   if (!errorCode) return null;
@@ -54,20 +55,28 @@ const useApiKeyPermissionListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
-      router.push(`/settings/pi-key-permissions/${id}`);
+      router.push(`/settings/api-key-permissions/${id}`);
     },
     [router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
-      if (e) e.stopPropagation();
-      if (confirm(t('common.confirmDelete'))) {
+      if (e?.stopPropagation) e.stopPropagation();
+      if (!confirmAction(t('common.confirmDelete'))) return;
+      try {
         await remove(id);
+        fetchList();
+      } catch {
+        /* error handled by hook */
       }
     },
-    [remove, t]
+    [remove, fetchList, t]
   );
+
+  const handleAdd = useCallback(() => {
+    router.push('/settings/api-key-permissions/create');
+  }, [router]);
 
   return {
     items,
@@ -78,6 +87,7 @@ const useApiKeyPermissionListScreen = () => {
     onRetry: handleRetry,
     onItemPress: handleItemPress,
     onDelete: handleDelete,
+    onAdd: handleAdd,
   };
 };
 

@@ -27,6 +27,7 @@ const RolePermissionListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useRolePermissionListScreen();
 
   const emptyComponent = (
@@ -40,9 +41,22 @@ const RolePermissionListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="role-permission-list-title">
-          {t('rolePermission.list.title')}
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text variant="h1" accessibilityRole="header" testID="role-permission-list-title">
+            {t('rolePermission.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('rolePermission.list.addLabel')}
+              accessibilityHint={t('rolePermission.list.addHint')}
+              testID="role-permission-list-add"
+            >
+              {t('rolePermission.list.addLabel')}
+            </Button>
+          )}
+        </div>
         <StyledListBody role="region" aria-label={t('rolePermission.list.accessibilityLabel')} data-testid="role-permission-list">
           {isLoading && <LoadingSpinner testID="role-permission-list-spinner" />}
           {!isLoading && hasError && (
@@ -69,11 +83,15 @@ const RolePermissionListScreenWeb = () => {
           {!isLoading && !hasError && !isOffline && items.length > 0 && (
             <StyledList role="list">
               {items.map((item) => {
-                const title = item?.name ?? item?.id ?? '';
+                const roleId = item?.role_id ?? '';
+                const permissionId = item?.permission_id ?? '';
+                const title = roleId ? `${t('rolePermission.list.roleLabel')}: ${roleId}` : (item?.id ?? '');
+                const subtitle = permissionId ? `${t('rolePermission.list.permissionLabel')}: ${permissionId}` : '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +100,13 @@ const RolePermissionListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('rolePermission.list.delete')}
                           accessibilityHint={t('rolePermission.list.deleteHint')}
-                          testID={`ole-permission-delete-${item.id}`}
+                          testID={`role-permission-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('rolePermission.list.itemLabel', { name: title })}
-                      testID={`ole-permission-item-${item.id}`}
+                      testID={`role-permission-item-${item.id}`}
                     />
                   </li>
                 );

@@ -27,6 +27,7 @@ const UserListScreenWeb = () => {
     onRetry,
     onUserPress,
     onDelete,
+    onAdd,
   } = useUserListScreen();
 
   const emptyComponent = (
@@ -40,9 +41,22 @@ const UserListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="user-list-title">
-          {t('user.list.title')}
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text variant="h1" accessibilityRole="header" testID="user-list-title">
+            {t('user.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('user.list.addLabel')}
+              accessibilityHint={t('user.list.addHint')}
+              testID="user-list-add"
+            >
+              {t('user.list.addLabel')}
+            </Button>
+          )}
+        </div>
         <StyledListBody role="region" aria-label={t('user.list.accessibilityLabel')} data-testid="user-list">
           {isLoading && <LoadingSpinner testID="user-list-spinner" />}
           {!isLoading && hasError && (
@@ -70,7 +84,7 @@ const UserListScreenWeb = () => {
             <StyledList role="list">
               {items.map((user) => {
                 const title = user?.email ?? user?.phone ?? user?.id ?? '';
-                const subtitle = user?.role ? `Role: ${user.role}` : '';
+                const subtitle = user?.status ? `${t('user.detail.statusLabel')}: ${user.status}` : '';
                 return (
                   <li key={user.id} role="listitem">
                     <ListItem

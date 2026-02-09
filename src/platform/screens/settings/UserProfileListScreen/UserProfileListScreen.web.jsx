@@ -27,6 +27,7 @@ const UserProfileListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useUserProfileListScreen();
 
   const emptyComponent = (
@@ -40,9 +41,22 @@ const UserProfileListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="user-profile-list-title">
-          {t('userProfile.list.title')}
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text variant="h1" accessibilityRole="header" testID="user-profile-list-title">
+            {t('userProfile.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('userProfile.list.addLabel')}
+              accessibilityHint={t('userProfile.list.addHint')}
+              testID="user-profile-list-add"
+            >
+              {t('userProfile.list.addLabel')}
+            </Button>
+          )}
+        </div>
         <StyledListBody role="region" aria-label={t('userProfile.list.accessibilityLabel')} data-testid="user-profile-list">
           {isLoading && <LoadingSpinner testID="user-profile-list-spinner" />}
           {!isLoading && hasError && (
@@ -69,11 +83,14 @@ const UserProfileListScreenWeb = () => {
           {!isLoading && !hasError && !isOffline && items.length > 0 && (
             <StyledList role="list">
               {items.map((item) => {
-                const title = item?.name ?? item?.id ?? '';
+                const fullName = [item?.first_name, item?.middle_name, item?.last_name].filter(Boolean).join(' ');
+                const title = fullName || item?.user_id || item?.id || '';
+                const subtitle = item?.user_id ? `${t('userProfile.list.userLabel')}: ${item.user_id}` : '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +99,13 @@ const UserProfileListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('userProfile.list.delete')}
                           accessibilityHint={t('userProfile.list.deleteHint')}
-                          testID={`ser-profile-delete-${item.id}`}
+                          testID={`user-profile-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('userProfile.list.itemLabel', { name: title })}
-                      testID={`ser-profile-item-${item.id}`}
+                      testID={`user-profile-item-${item.id}`}
                     />
                   </li>
                 );

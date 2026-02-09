@@ -26,6 +26,7 @@ const UserListScreenAndroid = () => {
     onRetry,
     onUserPress,
     onDelete,
+    onAdd,
   } = useUserListScreen();
 
   const emptyComponent = (
@@ -38,7 +39,7 @@ const UserListScreenAndroid = () => {
 
   const renderItem = ({ item: user }) => {
     const title = user?.email ?? user?.phone ?? user?.id ?? '';
-    const subtitle = user?.role ? `Role: ${user.role}` : '';
+    const subtitle = user?.status ? `${t('user.detail.statusLabel')}: ${user.status}` : '';
     return (
       <ListItem
         title={title}
@@ -67,13 +68,26 @@ const UserListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="user-list-title"
-        >
-          {t('user.list.title')}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="user-list-title"
+          >
+            {t('user.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('user.list.addLabel')}
+              accessibilityHint={t('user.list.addHint')}
+              testID="user-list-add"
+            >
+              {t('user.list.addLabel')}
+            </Button>
+          )}
+        </View>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}

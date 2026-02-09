@@ -27,6 +27,7 @@ const RoleListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useRoleListScreen();
 
   const emptyComponent = (
@@ -40,9 +41,22 @@ const RoleListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="role-list-title">
-          {t('role.list.title')}
-        </Text>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text variant="h1" accessibilityRole="header" testID="role-list-title">
+            {t('role.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('role.list.addLabel')}
+              accessibilityHint={t('role.list.addHint')}
+              testID="role-list-add"
+            >
+              {t('role.list.addLabel')}
+            </Button>
+          )}
+        </div>
         <StyledListBody role="region" aria-label={t('role.list.accessibilityLabel')} data-testid="role-list">
           {isLoading && <LoadingSpinner testID="role-list-spinner" />}
           {!isLoading && hasError && (
@@ -70,10 +84,12 @@ const RoleListScreenWeb = () => {
             <StyledList role="list">
               {items.map((item) => {
                 const title = item?.name ?? item?.id ?? '';
+                const subtitle = item?.description ?? '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +98,13 @@ const RoleListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('role.list.delete')}
                           accessibilityHint={t('role.list.deleteHint')}
-                          testID={`ole-delete-${item.id}`}
+                          testID={`role-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('role.list.itemLabel', { name: title })}
-                      testID={`ole-item-${item.id}`}
+                      testID={`role-item-${item.id}`}
                     />
                   </li>
                 );

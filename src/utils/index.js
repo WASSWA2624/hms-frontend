@@ -11,4 +11,5 @@ export * from './networkQuality';
 export * from './crudRules';
 export * from './crudModel';
 export * from './phone';
+export * from './confirmAction';
 

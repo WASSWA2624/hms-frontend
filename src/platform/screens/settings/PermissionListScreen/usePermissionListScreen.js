@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePermission } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   if (!errorCode) return null;
@@ -54,20 +55,28 @@ const usePermissionListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
-      router.push(`/settings/ermissions/${id}`);
+      router.push(`/settings/permissions/${id}`);
     },
     [router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
-      if (e) e.stopPropagation();
-      if (confirm(t('common.confirmDelete'))) {
+      if (e?.stopPropagation) e.stopPropagation();
+      if (!confirmAction(t('common.confirmDelete'))) return;
+      try {
         await remove(id);
+        fetchList();
+      } catch {
+        /* error handled by hook */
       }
     },
-    [remove, t]
+    [remove, fetchList, t]
   );
+
+  const handleAdd = useCallback(() => {
+    router.push('/settings/permissions/create');
+  }, [router]);
 
   return {
     items,
@@ -78,6 +87,7 @@ const usePermissionListScreen = () => {
     onRetry: handleRetry,
     onItemPress: handleItemPress,
     onDelete: handleDelete,
+    onAdd: handleAdd,
   };
 };
 

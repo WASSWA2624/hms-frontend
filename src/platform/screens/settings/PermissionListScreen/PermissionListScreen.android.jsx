@@ -3,7 +3,7 @@
  * File: PermissionListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
   EmptyState,
@@ -26,21 +26,24 @@ const PermissionListScreenAndroid = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = usePermissionListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('permission.list.emptyTitle')}
       description={t('permission.list.emptyMessage')}
-      testID="ermission-list-empty-state"
+      testID="permission-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
     const title = item?.name ?? item?.id ?? '';
+    const subtitle = item?.description ?? '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +52,7 @@ const PermissionListScreenAndroid = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('permission.list.delete')}
             accessibilityHint={t('permission.list.deleteHint')}
-            testID={`ermission-delete-${item.id}`}
+            testID={`permission-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +60,7 @@ const PermissionListScreenAndroid = () => {
         accessibilityLabel={t('permission.list.itemLabel', {
           name: title,
         })}
-        testID={`ermission-item-${item.id}`}
+        testID={`permission-item-${item.id}`}
       />
     );
   };
@@ -65,13 +68,26 @@ const PermissionListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="ermission-list-title"
-        >
-          {t('permission.list.title')}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="permission-list-title"
+          >
+            {t('permission.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('permission.list.addLabel')}
+              accessibilityHint={t('permission.list.addHint')}
+              testID="permission-list-add"
+            >
+              {t('permission.list.addLabel')}
+            </Button>
+          )}
+        </View>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +96,7 @@ const PermissionListScreenAndroid = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('permission.list.accessibilityLabel')}
-          testID="ermission-list"
+          testID="permission-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

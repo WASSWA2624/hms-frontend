@@ -3,7 +3,7 @@
  * File: RolePermissionListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
   EmptyState,
@@ -26,21 +26,26 @@ const RolePermissionListScreenAndroid = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useRolePermissionListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('rolePermission.list.emptyTitle')}
       description={t('rolePermission.list.emptyMessage')}
-      testID="ole-permission-list-empty-state"
+      testID="role-permission-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
+    const roleId = item?.role_id ?? '';
+    const permissionId = item?.permission_id ?? '';
+    const title = roleId ? `${t('rolePermission.list.roleLabel')}: ${roleId}` : (item?.id ?? '');
+    const subtitle = permissionId ? `${t('rolePermission.list.permissionLabel')}: ${permissionId}` : '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +54,7 @@ const RolePermissionListScreenAndroid = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('rolePermission.list.delete')}
             accessibilityHint={t('rolePermission.list.deleteHint')}
-            testID={`ole-permission-delete-${item.id}`}
+            testID={`role-permission-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +62,7 @@ const RolePermissionListScreenAndroid = () => {
         accessibilityLabel={t('rolePermission.list.itemLabel', {
           name: title,
         })}
-        testID={`ole-permission-item-${item.id}`}
+        testID={`role-permission-item-${item.id}`}
       />
     );
   };
@@ -65,13 +70,26 @@ const RolePermissionListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="ole-permission-list-title"
-        >
-          {t('rolePermission.list.title')}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="role-permission-list-title"
+          >
+            {t('rolePermission.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('rolePermission.list.addLabel')}
+              accessibilityHint={t('rolePermission.list.addHint')}
+              testID="role-permission-list-add"
+            >
+              {t('rolePermission.list.addLabel')}
+            </Button>
+          )}
+        </View>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +98,7 @@ const RolePermissionListScreenAndroid = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('rolePermission.list.accessibilityLabel')}
-          testID="ole-permission-list"
+          testID="role-permission-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (
