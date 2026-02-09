@@ -10,6 +10,7 @@ import {
   ListItem,
   LoadingSpinner,
   OfflineState,
+  Stack,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -27,6 +28,7 @@ const ApiKeyListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useApiKeyListScreen();
 
   const emptyComponent = (
@@ -40,9 +42,22 @@ const ApiKeyListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="api-key-list-title">
-          {t('apiKey.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text variant="h1" accessibilityRole="header" testID="api-key-list-title">
+            {t('apiKey.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('apiKey.list.addLabel')}
+              accessibilityHint={t('apiKey.list.addHint')}
+              testID="api-key-list-add"
+            >
+              {t('apiKey.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <StyledListBody role="region" aria-label={t('apiKey.list.accessibilityLabel')} data-testid="api-key-list">
           {isLoading && <LoadingSpinner testID="api-key-list-spinner" />}
           {!isLoading && hasError && (
@@ -70,10 +85,13 @@ const ApiKeyListScreenWeb = () => {
             <StyledList role="list">
               {items.map((item) => {
                 const title = item?.name ?? item?.id ?? '';
+                const userId = item?.user_id ?? '';
+                const subtitle = userId ? `${t('apiKey.list.userLabel')}: ${userId}` : '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +100,13 @@ const ApiKeyListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('apiKey.list.delete')}
                           accessibilityHint={t('apiKey.list.deleteHint')}
-                          testID={`pi-key-delete-${item.id}`}
+                          testID={`api-key-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('apiKey.list.itemLabel', { name: title })}
-                      testID={`pi-key-item-${item.id}`}
+                      testID={`api-key-item-${item.id}`}
                     />
                   </li>
                 );

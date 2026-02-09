@@ -3,11 +3,12 @@
  * File: UserProfileListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -69,7 +70,7 @@ const UserProfileListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
           <Text
             variant="h1"
             accessibilityRole="header"
@@ -88,7 +89,7 @@ const UserProfileListScreenAndroid = () => {
               {t('userProfile.list.addLabel')}
             </Button>
           )}
-        </View>
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}

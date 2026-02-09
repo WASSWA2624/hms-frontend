@@ -36,7 +36,7 @@ const useOauthAccountListScreen = () => {
     [data]
   );
   const errorMessage = useMemo(
-    () => resolveErrorMessage(t, errorCode, 'auth-account.list.loadError'),
+    () => resolveErrorMessage(t, errorCode, 'oauthAccount.list.loadError'),
     [t, errorCode]
   );
 

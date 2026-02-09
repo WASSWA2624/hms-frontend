@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -26,21 +27,30 @@ const UserRoleListScreenIos = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useUserRoleListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('userRole.list.emptyTitle')}
       description={t('userRole.list.emptyMessage')}
-      testID="ser-role-list-empty-state"
+      testID="user-role-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
+    const userId = item?.user_id ?? '';
+    const roleId = item?.role_id ?? '';
+    const tenantId = item?.tenant_id ?? '';
+    const title = userId ? `${t('userRole.list.userLabel')}: ${userId}` : (item?.id ?? '');
+    const subtitle = [
+      roleId ? `${t('userRole.list.roleLabel')}: ${roleId}` : '',
+      tenantId ? `${t('userRole.list.tenantLabel')}: ${tenantId}` : '',
+    ].filter(Boolean).join(' • ');
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +59,7 @@ const UserRoleListScreenIos = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('userRole.list.delete')}
             accessibilityHint={t('userRole.list.deleteHint')}
-            testID={`ser-role-delete-${item.id}`}
+            testID={`user-role-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +67,7 @@ const UserRoleListScreenIos = () => {
         accessibilityLabel={t('userRole.list.itemLabel', {
           name: title,
         })}
-        testID={`ser-role-item-${item.id}`}
+        testID={`user-role-item-${item.id}`}
       />
     );
   };
@@ -65,13 +75,26 @@ const UserRoleListScreenIos = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="ser-role-list-title"
-        >
-          {t('userRole.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="user-role-list-title"
+          >
+            {t('userRole.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('userRole.list.addLabel')}
+              accessibilityHint={t('userRole.list.addHint')}
+              testID="user-role-list-add"
+            >
+              {t('userRole.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +103,7 @@ const UserRoleListScreenIos = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('userRole.list.accessibilityLabel')}
-          testID="ser-role-list"
+          testID="user-role-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

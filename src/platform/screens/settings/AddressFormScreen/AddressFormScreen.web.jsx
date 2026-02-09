@@ -6,6 +6,7 @@ import {
   Button,
   ErrorState,
   LoadingSpinner,
+  Select,
   Text,
   TextField,
 } from '@platform/components';
@@ -17,10 +18,19 @@ const AddressFormScreenWeb = () => {
   const { t } = useI18n();
   const {
     isEdit,
+    addressType,
+    setAddressType,
+    addressTypeOptions,
     line1,
     setLine1,
+    line2,
+    setLine2,
     city,
     setCity,
+    stateValue,
+    setStateValue,
+    postalCode,
+    setPostalCode,
     country,
     setCountry,
     tenantId,
@@ -82,6 +92,19 @@ const AddressFormScreenWeb = () => {
         )}
 
         <StyledSection>
+          <Select
+            label={t('address.form.typeLabel')}
+            options={addressTypeOptions}
+            value={addressType}
+            onValueChange={setAddressType}
+            placeholder={t('address.form.typePlaceholder')}
+            accessibilityLabel={t('address.form.typeLabel')}
+            accessibilityHint={t('address.form.typeHint')}
+            testID="address-form-type"
+          />
+        </StyledSection>
+
+        <StyledSection>
           <TextField
             label={t('address.form.line1Label')}
             placeholder={t('address.form.line1Placeholder')}
@@ -95,6 +118,18 @@ const AddressFormScreenWeb = () => {
 
         <StyledSection>
           <TextField
+            label={t('address.form.line2Label')}
+            placeholder={t('address.form.line2Placeholder')}
+            value={line2}
+            onChange={(e) => setLine2(e.target.value)}
+            accessibilityLabel={t('address.form.line2Label')}
+            accessibilityHint={t('address.form.line2Hint')}
+            testID="address-form-line2"
+          />
+        </StyledSection>
+
+        <StyledSection>
+          <TextField
             label={t('address.form.cityLabel')}
             placeholder={t('address.form.cityPlaceholder')}
             value={city}
@@ -102,6 +137,30 @@ const AddressFormScreenWeb = () => {
             accessibilityLabel={t('address.form.cityLabel')}
             accessibilityHint={t('address.form.cityHint')}
             testID="address-form-city"
+          />
+        </StyledSection>
+
+        <StyledSection>
+          <TextField
+            label={t('address.form.stateLabel')}
+            placeholder={t('address.form.statePlaceholder')}
+            value={stateValue}
+            onChange={(e) => setStateValue(e.target.value)}
+            accessibilityLabel={t('address.form.stateLabel')}
+            accessibilityHint={t('address.form.stateHint')}
+            testID="address-form-state"
+          />
+        </StyledSection>
+
+        <StyledSection>
+          <TextField
+            label={t('address.form.postalCodeLabel')}
+            placeholder={t('address.form.postalCodePlaceholder')}
+            value={postalCode}
+            onChange={(e) => setPostalCode(e.target.value)}
+            accessibilityLabel={t('address.form.postalCodeLabel')}
+            accessibilityHint={t('address.form.postalCodeHint')}
+            testID="address-form-postal-code"
           />
         </StyledSection>
 

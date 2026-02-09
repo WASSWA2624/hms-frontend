@@ -10,6 +10,7 @@ import {
   ListItem,
   LoadingSpinner,
   OfflineState,
+  Stack,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -27,29 +28,43 @@ const OauthAccountListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useOauthAccountListScreen();
 
   const emptyComponent = (
     <EmptyState
-      title={t('auth-account.list.emptyTitle')}
-      description={t('auth-account.list.emptyMessage')}
-      testID="auth-account-list-empty-state"
+      title={t('oauthAccount.list.emptyTitle')}
+      description={t('oauthAccount.list.emptyMessage')}
+      testID="oauth-account-list-empty-state"
     />
   );
 
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="auth-account-list-title"
-        >
-          {t('auth-account.list.title')}
-        </Text>
-        <StyledListBody role="region" aria-label={t('auth-account.list.accessibilityLabel')} data-testid="auth-account-list">
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="oauth-account-list-title"
+          >
+            {t('oauthAccount.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('oauthAccount.list.addLabel')}
+              accessibilityHint={t('oauthAccount.list.addHint')}
+              testID="oauth-account-list-add"
+            >
+              {t('oauthAccount.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
+        <StyledListBody role="region" aria-label={t('oauthAccount.list.accessibilityLabel')} data-testid="oauth-account-list">
           {isLoading && (
-            <LoadingSpinner testID="auth-account-list-spinner" />
+            <LoadingSpinner testID="oauth-account-list-spinner" />
           )}
           {!isLoading && hasError && (
             <>
@@ -63,7 +78,7 @@ const OauthAccountListScreenWeb = () => {
                     </button>
                   ) : undefined
                 }
-                testID="auth-account-list-error-state"
+                testID="oauth-account-list-error-state"
               />
               {emptyComponent}
             </>
@@ -78,7 +93,7 @@ const OauthAccountListScreenWeb = () => {
                     </button>
                   ) : undefined
                 }
-                testID="auth-account-list-offline-state"
+                testID="oauth-account-list-offline-state"
               />
               {emptyComponent}
             </>
@@ -87,26 +102,30 @@ const OauthAccountListScreenWeb = () => {
           {!isLoading && !hasError && !isOffline && items.length > 0 && (
             <StyledList role="list">
               {items.map((item) => {
-                const title = item?.name ?? item?.id ?? '';
+                const provider = item?.provider ?? '';
+                const userId = item?.user_id ?? '';
+                const title = provider ? `${t('oauthAccount.list.providerLabel')}: ${provider}` : (item?.id ?? '');
+                const subtitle = userId ? `${t('oauthAccount.list.userLabel')}: ${userId}` : '';
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
                           variant="ghost"
                           size="small"
                           onPress={(e) => onDelete(item.id, e)}
-                          accessibilityLabel={t('auth-account.list.delete')}
-                          accessibilityHint={t('auth-account.list.deleteHint')}
-                          testID={`auth-account-delete-${item.id}`}
+                          accessibilityLabel={t('oauthAccount.list.delete')}
+                          accessibilityHint={t('oauthAccount.list.deleteHint')}
+                          testID={`oauth-account-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
-                      accessibilityLabel={t('auth-account.list.itemLabel', { name: title })}
-                      testID={`auth-account-item-${item.id}`}
+                      accessibilityLabel={t('oauthAccount.list.itemLabel', { name: title })}
+                      testID={`oauth-account-item-${item.id}`}
                     />
                   </li>
                 );

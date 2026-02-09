@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -26,21 +27,26 @@ const ApiKeyPermissionListScreenAndroid = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useApiKeyPermissionListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('apiKeyPermission.list.emptyTitle')}
       description={t('apiKeyPermission.list.emptyMessage')}
-      testID="pi-key-permission-list-empty-state"
+      testID="api-key-permission-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
+    const apiKeyId = item?.api_key_id ?? '';
+    const permissionId = item?.permission_id ?? '';
+    const title = apiKeyId ? `${t('apiKeyPermission.list.apiKeyLabel')}: ${apiKeyId}` : (item?.id ?? '');
+    const subtitle = permissionId ? `${t('apiKeyPermission.list.permissionLabel')}: ${permissionId}` : '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +55,7 @@ const ApiKeyPermissionListScreenAndroid = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('apiKeyPermission.list.delete')}
             accessibilityHint={t('apiKeyPermission.list.deleteHint')}
-            testID={`pi-key-permission-delete-${item.id}`}
+            testID={`api-key-permission-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +63,7 @@ const ApiKeyPermissionListScreenAndroid = () => {
         accessibilityLabel={t('apiKeyPermission.list.itemLabel', {
           name: title,
         })}
-        testID={`pi-key-permission-item-${item.id}`}
+        testID={`api-key-permission-item-${item.id}`}
       />
     );
   };
@@ -65,13 +71,26 @@ const ApiKeyPermissionListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="pi-key-permission-list-title"
-        >
-          {t('apiKeyPermission.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="api-key-permission-list-title"
+          >
+            {t('apiKeyPermission.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('apiKeyPermission.list.addLabel')}
+              accessibilityHint={t('apiKeyPermission.list.addHint')}
+              testID="api-key-permission-list-add"
+            >
+              {t('apiKeyPermission.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +99,7 @@ const ApiKeyPermissionListScreenAndroid = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('apiKeyPermission.list.accessibilityLabel')}
-          testID="pi-key-permission-list"
+          testID="api-key-permission-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

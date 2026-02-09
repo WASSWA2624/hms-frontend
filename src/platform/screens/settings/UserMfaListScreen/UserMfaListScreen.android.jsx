@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -26,21 +27,26 @@ const UserMfaListScreenAndroid = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useUserMfaListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('userMfa.list.emptyTitle')}
       description={t('userMfa.list.emptyMessage')}
-      testID="ser-mfa-list-empty-state"
+      testID="user-mfa-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
+    const channel = item?.channel ?? '';
+    const userId = item?.user_id ?? '';
+    const title = channel ? `${t('userMfa.list.channelLabel')}: ${channel}` : (item?.id ?? '');
+    const subtitle = userId ? `${t('userMfa.list.userLabel')}: ${userId}` : '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +55,7 @@ const UserMfaListScreenAndroid = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('userMfa.list.delete')}
             accessibilityHint={t('userMfa.list.deleteHint')}
-            testID={`ser-mfa-delete-${item.id}`}
+            testID={`user-mfa-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +63,7 @@ const UserMfaListScreenAndroid = () => {
         accessibilityLabel={t('userMfa.list.itemLabel', {
           name: title,
         })}
-        testID={`ser-mfa-item-${item.id}`}
+        testID={`user-mfa-item-${item.id}`}
       />
     );
   };
@@ -65,13 +71,26 @@ const UserMfaListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="ser-mfa-list-title"
-        >
-          {t('userMfa.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="user-mfa-list-title"
+          >
+            {t('userMfa.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('userMfa.list.addLabel')}
+              accessibilityHint={t('userMfa.list.addHint')}
+              testID="user-mfa-list-add"
+            >
+              {t('userMfa.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +99,7 @@ const UserMfaListScreenAndroid = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('userMfa.list.accessibilityLabel')}
-          testID="ser-mfa-list"
+          testID="user-mfa-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

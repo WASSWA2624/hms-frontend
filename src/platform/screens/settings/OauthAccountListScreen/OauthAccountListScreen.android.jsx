@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -26,38 +27,43 @@ const OauthAccountListScreenAndroid = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useOauthAccountListScreen();
 
   const emptyComponent = (
     <EmptyState
-      title={t('auth-account.list.emptyTitle')}
-      description={t('auth-account.list.emptyMessage')}
-      testID="auth-account-list-empty-state"
+      title={t('oauthAccount.list.emptyTitle')}
+      description={t('oauthAccount.list.emptyMessage')}
+      testID="oauth-account-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
+    const provider = item?.provider ?? '';
+    const userId = item?.user_id ?? '';
+    const title = provider ? `${t('oauthAccount.list.providerLabel')}: ${provider}` : (item?.id ?? '');
+    const subtitle = userId ? `${t('oauthAccount.list.userLabel')}: ${userId}` : '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
             variant="ghost"
             size="small"
             onPress={(e) => onDelete(item.id, e)}
-            accessibilityLabel={t('auth-account.list.delete')}
-            accessibilityHint={t('auth-account.list.deleteHint')}
-            testID={`auth-account-delete-${item.id}`}
+            accessibilityLabel={t('oauthAccount.list.delete')}
+            accessibilityHint={t('oauthAccount.list.deleteHint')}
+            testID={`oauth-account-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
         }
-        accessibilityLabel={t('auth-account.list.itemLabel', {
+        accessibilityLabel={t('oauthAccount.list.itemLabel', {
           name: title,
         })}
-        testID={`auth-account-item-${item.id}`}
+        testID={`oauth-account-item-${item.id}`}
       />
     );
   };
@@ -65,13 +71,26 @@ const OauthAccountListScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="auth-account-list-title"
-        >
-          {t('auth-account.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="oauth-account-list-title"
+          >
+            {t('oauthAccount.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('oauthAccount.list.addLabel')}
+              accessibilityHint={t('oauthAccount.list.addHint')}
+              testID="oauth-account-list-add"
+            >
+              {t('oauthAccount.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -79,8 +98,8 @@ const OauthAccountListScreenAndroid = () => {
           error={errorMessage}
           isOffline={isOffline}
           onRetry={onRetry}
-          accessibilityLabel={t('auth-account.list.accessibilityLabel')}
-          testID="auth-account-list"
+          accessibilityLabel={t('oauthAccount.list.accessibilityLabel')}
+          testID="oauth-account-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (

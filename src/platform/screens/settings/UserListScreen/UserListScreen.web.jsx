@@ -10,6 +10,7 @@ import {
   ListItem,
   LoadingSpinner,
   OfflineState,
+  Stack,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -41,7 +42,7 @@ const UserListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
           <Text variant="h1" accessibilityRole="header" testID="user-list-title">
             {t('user.list.title')}
           </Text>
@@ -56,7 +57,7 @@ const UserListScreenWeb = () => {
               {t('user.list.addLabel')}
             </Button>
           )}
-        </div>
+        </Stack>
         <StyledListBody role="region" aria-label={t('user.list.accessibilityLabel')} data-testid="user-list">
           {isLoading && <LoadingSpinner testID="user-list-spinner" />}
           {!isLoading && hasError && (

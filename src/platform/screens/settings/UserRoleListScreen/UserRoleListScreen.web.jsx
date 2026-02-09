@@ -10,6 +10,7 @@ import {
   ListItem,
   LoadingSpinner,
   OfflineState,
+  Stack,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -27,6 +28,7 @@ const UserRoleListScreenWeb = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useUserRoleListScreen();
 
   const emptyComponent = (
@@ -40,9 +42,22 @@ const UserRoleListScreenWeb = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="user-role-list-title">
-          {t('userRole.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text variant="h1" accessibilityRole="header" testID="user-role-list-title">
+            {t('userRole.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('userRole.list.addLabel')}
+              accessibilityHint={t('userRole.list.addHint')}
+              testID="user-role-list-add"
+            >
+              {t('userRole.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <StyledListBody role="region" aria-label={t('userRole.list.accessibilityLabel')} data-testid="user-role-list">
           {isLoading && <LoadingSpinner testID="user-role-list-spinner" />}
           {!isLoading && hasError && (
@@ -69,11 +84,19 @@ const UserRoleListScreenWeb = () => {
           {!isLoading && !hasError && !isOffline && items.length > 0 && (
             <StyledList role="list">
               {items.map((item) => {
-                const title = item?.name ?? item?.id ?? '';
+                const userId = item?.user_id ?? '';
+                const roleId = item?.role_id ?? '';
+                const tenantId = item?.tenant_id ?? '';
+                const title = userId ? `${t('userRole.list.userLabel')}: ${userId}` : (item?.id ?? '');
+                const subtitle = [
+                  roleId ? `${t('userRole.list.roleLabel')}: ${roleId}` : '',
+                  tenantId ? `${t('userRole.list.tenantLabel')}: ${tenantId}` : '',
+                ].filter(Boolean).join(' • ');
                 return (
                   <li key={item.id} role="listitem">
                     <ListItem
                       title={title}
+                      subtitle={subtitle}
                       onPress={() => onItemPress(item.id)}
                       actions={
                         <Button
@@ -82,13 +105,13 @@ const UserRoleListScreenWeb = () => {
                           onPress={(e) => onDelete(item.id, e)}
                           accessibilityLabel={t('userRole.list.delete')}
                           accessibilityHint={t('userRole.list.deleteHint')}
-                          testID={`ser-role-delete-${item.id}`}
+                          testID={`user-role-delete-${item.id}`}
                         >
                           {t('common.remove')}
                         </Button>
                       }
                       accessibilityLabel={t('userRole.list.itemLabel', { name: title })}
-                      testID={`ser-role-item-${item.id}`}
+                      testID={`user-role-item-${item.id}`}
                     />
                   </li>
                 );

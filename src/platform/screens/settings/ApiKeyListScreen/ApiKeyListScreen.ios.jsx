@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   ListItem,
+  Stack,
   Text,
 } from '@platform/components';
 import { ListScaffold } from '@platform/patterns';
@@ -26,21 +27,25 @@ const ApiKeyListScreenIos = () => {
     onRetry,
     onItemPress,
     onDelete,
+    onAdd,
   } = useApiKeyListScreen();
 
   const emptyComponent = (
     <EmptyState
       title={t('apiKey.list.emptyTitle')}
       description={t('apiKey.list.emptyMessage')}
-      testID="pi-key-list-empty-state"
+      testID="api-key-list-empty-state"
     />
   );
 
   const renderItem = ({ item }) => {
     const title = item?.name ?? item?.id ?? '';
+    const userId = item?.user_id ?? '';
+    const subtitle = userId ? `${t('apiKey.list.userLabel')}: ${userId}` : '';
     return (
       <ListItem
         title={title}
+        subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
@@ -49,7 +54,7 @@ const ApiKeyListScreenIos = () => {
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('apiKey.list.delete')}
             accessibilityHint={t('apiKey.list.deleteHint')}
-            testID={`pi-key-delete-${item.id}`}
+            testID={`api-key-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
@@ -57,7 +62,7 @@ const ApiKeyListScreenIos = () => {
         accessibilityLabel={t('apiKey.list.itemLabel', {
           name: title,
         })}
-        testID={`pi-key-item-${item.id}`}
+        testID={`api-key-item-${item.id}`}
       />
     );
   };
@@ -65,13 +70,26 @@ const ApiKeyListScreenIos = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="pi-key-list-title"
-        >
-          {t('apiKey.list.title')}
-        </Text>
+        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
+          <Text
+            variant="h1"
+            accessibilityRole="header"
+            testID="api-key-list-title"
+          >
+            {t('apiKey.list.title')}
+          </Text>
+          {onAdd && (
+            <Button
+              variant="primary"
+              onPress={onAdd}
+              accessibilityLabel={t('apiKey.list.addLabel')}
+              accessibilityHint={t('apiKey.list.addHint')}
+              testID="api-key-list-add"
+            >
+              {t('apiKey.list.addLabel')}
+            </Button>
+          )}
+        </Stack>
         <ListScaffold
           isLoading={isLoading}
           isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -80,7 +98,7 @@ const ApiKeyListScreenIos = () => {
           isOffline={isOffline}
           onRetry={onRetry}
           accessibilityLabel={t('apiKey.list.accessibilityLabel')}
-          testID="pi-key-list"
+          testID="api-key-list"
           emptyComponent={emptyComponent}
         >
           {items.length > 0 ? (
