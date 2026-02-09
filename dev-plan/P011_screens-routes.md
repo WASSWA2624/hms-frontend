@@ -96,7 +96,7 @@ src/app/
 
 **One step = one screen.** Complete each step before the next. Where multiple tabs are listed, implement one screen per tab in that order.
 
-### Tier 0: Public Entry + Onboarding (Self-Serve)
+### Tier 1: Public Entry + Onboarding (Self-Serve)
 - **11.1.1** Landing + facility type selection -- `(public)/landing`
 - **11.1.2** Register (minimal signup) -- `(auth)/register`
 - **11.1.3** Resume link sent (check email) -- `(auth)/resume-link-sent`
@@ -112,7 +112,7 @@ src/app/
 - **11.1.13** Payment checkout -- `(onboarding)/payment`
 - **11.1.14** Payment success + activation -- `(onboarding)/payment-success`
 
-### Tier 1: Auth & Shell
+### Tier 2: Auth & Shell
 - **11.2.1** Login -- `(auth)/login`
 - **11.2.2** Forgot password -- `(auth)/forgot-password`
 - **11.2.3** Reset password -- `(auth)/reset-password`
@@ -122,7 +122,7 @@ src/app/
 - **11.2.7** Facility selection -- `(auth)/facility-selection`
 - **11.2.8** Home -- `(main)/home`
 
-### Tier 2: Settings (main + tabs)
+### Tier 3: Settings (main + tabs)
 - **11.3.1** Settings (main) -- `(main)/settings`
 - **11.3.2** Tenant -- `(main)/settings/tenants`
 - **11.3.3** Facility -- `(main)/settings/facilities`
@@ -146,7 +146,7 @@ src/app/
 - **11.3.21** User session -- `(main)/settings/user-sessions`
 - **11.3.22** OAuth account -- `(main)/settings/oauth-accounts`
 
-### Tier 3: Patients (main + tabs)
+### Tier 4: Patients (main + tabs)
 - **11.4.1** Patients (main) -- `(main)/patients`
 - **11.4.2** Patient -- `(main)/patients/patients`
 - **11.4.3** Patient identifier -- `(main)/patients/patient-identifiers`
@@ -156,14 +156,14 @@ src/app/
 - **11.4.7** Patient medical history -- `(main)/patients/patient-medical-histories`
 - **11.4.8** Patient document -- `(main)/patients/patient-documents`
 
-### Tier 4: Scheduling (main + tabs)
+### Tier 5: Scheduling (main + tabs)
 - **11.5.1** Scheduling (main) -- `(main)/scheduling`
 - **11.5.2** Appointment -- `(main)/scheduling/appointments`
 - **11.5.3** Provider schedule -- `(main)/scheduling/provider-schedules`
 - **11.5.4** Availability slot -- `(main)/scheduling/availability-slots`
 - **11.5.5** Visit queue -- `(main)/scheduling/visit-queues`
 
-### Tier 5: Clinical (main + tabs)
+### Tier 6: Clinical (main + tabs)
 - **11.6.1** Clinical (main) -- `(main)/clinical`
 - **11.6.2** Encounter -- `(main)/clinical/encounters`
 - **11.6.3** Clinical note -- `(main)/clinical/clinical-notes`
@@ -174,7 +174,7 @@ src/app/
 - **11.6.8** Referral -- `(main)/clinical/referrals`
 - **11.6.9** Follow-up -- `(main)/clinical/follow-ups`
 
-### Tier 6: IPD, ICU, Theatre, Emergency
+### Tier 7: IPD, ICU, Theatre, Emergency
 - **11.7.1** IPD (main) -- `(main)/ipd`
 - **11.7.2** IPD tabs: admission, bed-assignment, ward-round, nursing-note, medication-admin, discharge, transfer -- `(main)/ipd/*` (one step per tab)
 - **11.7.3** ICU (main) -- `(main)/icu`
@@ -184,19 +184,19 @@ src/app/
 - **11.7.7** Emergency (main) -- `(main)/emergency`
 - **11.7.8** Emergency tabs: case, triage, response, ambulance, dispatch, trip -- `(main)/emergency/*` (one step per tab)
 
-### Tier 7: Diagnostics (Lab + Radiology)
+### Tier 8: Diagnostics (Lab + Radiology)
 - **11.8.1** Lab (main) -- `(main)/diagnostics/lab`
 - **11.8.2** Lab tabs: test, panel, order, sample, result, QC -- `(main)/diagnostics/lab/*` (one step per tab)
 - **11.8.3** Radiology (main) -- `(main)/diagnostics/radiology`
 - **11.8.4** Radiology tabs: test, order, result, imaging, PACS -- `(main)/diagnostics/radiology/*` (one step per tab)
 
-### Tier 8: Pharmacy, Inventory
+### Tier 9: Pharmacy, Inventory
 - **11.9.1** Pharmacy (main) -- `(main)/pharmacy`
 - **11.9.2** Pharmacy tabs: drug, batch, formulary, order, dispense, adverse-event -- `(main)/pharmacy/*` (one step per tab)
 - **11.9.3** Inventory (main) -- `(main)/inventory`
 - **11.9.4** Inventory tabs: item, stock, movement, supplier, purchase, receipt, adjustment -- `(main)/inventory/*` (one step per tab)
 
-### Tier 9: Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance
+### Tier 10: Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance
 - **11.10.1** Billing (main) -- `(main)/billing`
 - **11.10.2** Billing tabs: invoice, payment, refund, pricing, coverage, claim, pre-auth, adjustment -- `(main)/billing/*` (one step per tab)
 - **11.10.3** HR (main) -- `(main)/hr`
@@ -209,7 +209,7 @@ src/app/
 - **11.10.10** Integrations (main) -- `(main)/integrations`
 - **11.10.11** Compliance (main) -- `(main)/compliance`
 
-### Tier 10: Patient portal
+### Tier 11: Patient portal
 - **11.11.1** Patient portal (main) -- `(patient)/portal`
 - **11.11.2** Patient appointments -- `(patient)/appointments`
 - **11.11.3** Patient results -- `(patient)/results`
