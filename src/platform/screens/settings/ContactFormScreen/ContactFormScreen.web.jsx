@@ -6,6 +6,7 @@ import {
   Button,
   ErrorState,
   LoadingSpinner,
+  Select,
   Switch,
   Text,
   TextField,
@@ -22,6 +23,7 @@ const ContactFormScreenWeb = () => {
     setValue,
     contactType,
     setContactType,
+    contactTypeOptions,
     isPrimary,
     setIsPrimary,
     tenantId,
@@ -74,7 +76,7 @@ const ContactFormScreenWeb = () => {
               label={t('contact.form.tenantIdLabel')}
               placeholder={t('contact.form.tenantIdPlaceholder')}
               value={tenantId}
-              onChange={(e) => setTenantId(e.target.value)}
+              onChangeText={setTenantId}
               accessibilityLabel={t('contact.form.tenantIdLabel')}
               accessibilityHint={t('contact.form.tenantIdHint')}
               testID="contact-form-tenant-id"
@@ -87,7 +89,7 @@ const ContactFormScreenWeb = () => {
             label={t('contact.form.valueLabel')}
             placeholder={t('contact.form.valuePlaceholder')}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChangeText={setValue}
             accessibilityLabel={t('contact.form.valueLabel')}
             accessibilityHint={t('contact.form.valueHint')}
             testID="contact-form-value"
@@ -95,11 +97,12 @@ const ContactFormScreenWeb = () => {
         </StyledSection>
 
         <StyledSection>
-          <TextField
+          <Select
             label={t('contact.form.typeLabel')}
             placeholder={t('contact.form.typePlaceholder')}
+            options={contactTypeOptions}
             value={contactType}
-            onChange={(e) => setContactType(e.target.value)}
+            onValueChange={setContactType}
             accessibilityLabel={t('contact.form.typeLabel')}
             accessibilityHint={t('contact.form.typeHint')}
             testID="contact-form-type"

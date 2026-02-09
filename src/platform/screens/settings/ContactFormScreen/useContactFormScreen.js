@@ -2,7 +2,7 @@
  * useContactFormScreen Hook
  * Shared logic for ContactFormScreen (create/edit).
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useContact } from '@hooks';
 
@@ -19,6 +19,15 @@ const useContactFormScreen = () => {
   const [tenantId, setTenantId] = useState('');
 
   const contact = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const contactTypeOptions = useMemo(
+    () => ([
+      { label: t('contact.types.PHONE'), value: 'PHONE' },
+      { label: t('contact.types.EMAIL'), value: 'EMAIL' },
+      { label: t('contact.types.FAX'), value: 'FAX' },
+      { label: t('contact.types.OTHER'), value: 'OTHER' },
+    ]),
+    [t]
+  );
 
   useEffect(() => {
     if (isEdit && id) {
@@ -67,6 +76,7 @@ const useContactFormScreen = () => {
     setValue,
     contactType,
     setContactType,
+    contactTypeOptions,
     isPrimary,
     setIsPrimary,
     tenantId,

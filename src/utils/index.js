@@ -12,4 +12,5 @@ export * from './crudRules';
 export * from './crudModel';
 export * from './phone';
 export * from './confirmAction';
+export * from './date';
 

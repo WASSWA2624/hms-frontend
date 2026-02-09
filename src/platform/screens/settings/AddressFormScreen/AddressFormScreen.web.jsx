@@ -83,7 +83,7 @@ const AddressFormScreenWeb = () => {
               label={t('address.form.tenantIdLabel')}
               placeholder={t('address.form.tenantIdPlaceholder')}
               value={tenantId}
-              onChange={(e) => setTenantId(e.target.value)}
+              onChangeText={setTenantId}
               accessibilityLabel={t('address.form.tenantIdLabel')}
               accessibilityHint={t('address.form.tenantIdHint')}
               testID="address-form-tenant-id"
@@ -109,7 +109,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.line1Label')}
             placeholder={t('address.form.line1Placeholder')}
             value={line1}
-            onChange={(e) => setLine1(e.target.value)}
+            onChangeText={setLine1}
             accessibilityLabel={t('address.form.line1Label')}
             accessibilityHint={t('address.form.line1Hint')}
             testID="address-form-line1"
@@ -121,7 +121,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.line2Label')}
             placeholder={t('address.form.line2Placeholder')}
             value={line2}
-            onChange={(e) => setLine2(e.target.value)}
+            onChangeText={setLine2}
             accessibilityLabel={t('address.form.line2Label')}
             accessibilityHint={t('address.form.line2Hint')}
             testID="address-form-line2"
@@ -133,7 +133,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.cityLabel')}
             placeholder={t('address.form.cityPlaceholder')}
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChangeText={setCity}
             accessibilityLabel={t('address.form.cityLabel')}
             accessibilityHint={t('address.form.cityHint')}
             testID="address-form-city"
@@ -145,7 +145,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.stateLabel')}
             placeholder={t('address.form.statePlaceholder')}
             value={stateValue}
-            onChange={(e) => setStateValue(e.target.value)}
+            onChangeText={setStateValue}
             accessibilityLabel={t('address.form.stateLabel')}
             accessibilityHint={t('address.form.stateHint')}
             testID="address-form-state"
@@ -157,7 +157,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.postalCodeLabel')}
             placeholder={t('address.form.postalCodePlaceholder')}
             value={postalCode}
-            onChange={(e) => setPostalCode(e.target.value)}
+            onChangeText={setPostalCode}
             accessibilityLabel={t('address.form.postalCodeLabel')}
             accessibilityHint={t('address.form.postalCodeHint')}
             testID="address-form-postal-code"
@@ -169,7 +169,7 @@ const AddressFormScreenWeb = () => {
             label={t('address.form.countryLabel')}
             placeholder={t('address.form.countryPlaceholder')}
             value={country}
-            onChange={(e) => setCountry(e.target.value)}
+            onChangeText={setCountry}
             accessibilityLabel={t('address.form.countryLabel')}
             accessibilityHint={t('address.form.countryHint')}
             testID="address-form-country"
