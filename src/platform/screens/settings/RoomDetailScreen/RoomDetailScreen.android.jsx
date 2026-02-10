@@ -3,26 +3,32 @@
  * File: RoomDetailScreen.android.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './RoomDetailScreen.android.styles';
 import useRoomDetailScreen from './useRoomDetailScreen';
 
 const RoomDetailScreenAndroid = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     room,
     isLoading,
@@ -35,174 +41,244 @@ const RoomDetailScreenAndroid = () => {
     onDelete,
   } = useRoomDetailScreen();
 
-  if (isLoading) {
+  const hasRoom = Boolean(room);
+
+  if (isLoading && !hasRoom) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="room-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="room-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasRoom) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="room-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <OfflineState
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="room-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasRoom) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('room.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="room-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <ErrorState
+            title={t('room.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="room-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!room) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('room.detail.notFoundTitle')}
-              description={t('room.detail.notFoundMessage')}
-              testID="room-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="room-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = room.created_at
-    ? new Date(room.created_at).toLocaleString()
-    : '';
-  const updatedAt = room.updated_at
-    ? new Date(room.updated_at).toLocaleString()
-    : '';
-  const name = room?.name ?? '';
-  const floor = room?.floor ?? '';
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <StyledContainer>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="room-detail-title"
-          >
-            {t('room.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="room-detail-id">
-              {t('room.detail.idLabel')}: {room.id}
-            </Text>
-          </StyledSection>
-          {name ? (
-            <StyledSection>
-              <Text variant="body" testID="room-detail-name">
-                {t('room.detail.nameLabel')}: {name}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {floor ? (
-            <StyledSection>
-              <Text variant="body" testID="room-detail-floor">
-                {t('room.detail.floorLabel')}: {floor}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="room-detail-created">
-                {t('room.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="room-detail-updated">
-                {t('room.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('room.detail.notFoundTitle')}
+            description={t('room.detail.notFoundMessage')}
+            testID="room-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('room.detail.backHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
               testID="room-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('room.detail.edit')}
-                accessibilityHint={t('room.detail.editHint')}
-                testID="room-detail-edit"
-              >
-                {t('common.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('room.detail.delete')}
-              accessibilityHint={t('room.detail.deleteHint')}
-              testID="room-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(room.created_at, locale);
+  const updatedAt = formatDateTime(room.updated_at, locale);
+  const name = room?.name ?? '';
+  const floor = room?.floor ?? '';
+  const tenantId = room?.tenant_id ?? '';
+  const facilityId = room?.facility_id ?? '';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasRoom && hasError;
+  const showInlineOffline = hasRoom && isOffline;
+
+  return (
+    <StyledContainer>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('room.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="room-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="room-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('room.detail.title')} testID="room-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('room.detail.idLabel')}</Text>
+              <Text variant="body" testID="room-detail-id">
+                {room.id}
+              </Text>
+            </StyledDetailItem>
+            {tenantId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="room-detail-tenant">
+                  {tenantId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.facilityLabel')}</Text>
+                <Text variant="body" testID="room-detail-facility">
+                  {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {name ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.nameLabel')}</Text>
+                <Text variant="body" testID="room-detail-name">
+                  {name}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {floor ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.floorLabel')}</Text>
+                <Text variant="body" testID="room-detail-floor">
+                  {floor}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.createdLabel')}</Text>
+                <Text variant="body" testID="room-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="room-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('room.detail.backHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="room-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('room.detail.edit')}
+              accessibilityHint={t('room.detail.editHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="room-detail-edit"
+              disabled={isLoading}
+            >
+              {t('room.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('room.detail.delete')}
+            accessibilityHint={t('room.detail.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="room-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 
