@@ -4,8 +4,8 @@
  * File: Select.ios.jsx
  */
 
-import React from 'react';
-import { Modal } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, Modal } from 'react-native';
 import useSelect from './useSelect';
 import { useI18n } from '@hooks';
 import { VALIDATION_STATES } from './types';
@@ -87,6 +87,63 @@ const SelectIOS = ({
   const finalErrorMessage = errorMessage || internalErrorMessage;
   const displayHelperText = finalErrorMessage || helperText;
 
+  const triggerRef = useRef(null);
+  const [menuPosition, setMenuPosition] = useState({
+    top: 0,
+    left: 0,
+    right: undefined,
+    width: 0,
+    maxHeight: 240,
+    placement: 'bottom',
+    align: 'left',
+  });
+
+  const computeMenuPosition = useCallback(() => {
+    if (!triggerRef.current?.measureInWindow) return;
+    const window = Dimensions.get('window');
+    triggerRef.current.measureInWindow((x, y, width, height) => {
+      const gap = 8;
+      const spaceBelow = window.height - (y + height);
+      const spaceAbove = y;
+      const spaceRight = window.width - x;
+      const spaceLeft = x + width;
+      const placement = spaceBelow >= spaceAbove ? 'bottom' : 'top';
+      const availableHeight = placement === 'bottom' ? spaceBelow : spaceAbove;
+      const maxHeight = Math.min(240, Math.max(availableHeight - gap, 120));
+      const resolvedWidth = Math.min(width, window.width - gap * 2);
+      const align = spaceRight >= spaceLeft ? 'left' : 'right';
+      let left;
+      let right;
+      if (align === 'left') {
+        left = Math.min(Math.max(x, gap), window.width - resolvedWidth - gap);
+      } else {
+        right = Math.min(Math.max(window.width - (x + width), gap), window.width - resolvedWidth - gap);
+      }
+      let top = placement === 'bottom' ? y + height + gap : y - maxHeight - gap;
+      if (top < gap) top = gap;
+      if (top + maxHeight > window.height - gap) {
+        top = Math.max(gap, window.height - maxHeight - gap);
+      }
+
+      setMenuPosition({
+        top,
+        left,
+        right,
+        width: resolvedWidth,
+        maxHeight,
+        placement,
+        align,
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    computeMenuPosition();
+    const subscription = Dimensions.addEventListener('change', computeMenuPosition);
+    return () => subscription?.remove?.();
+  }, [open, computeMenuPosition]);
+
   return (
     <StyledContainer style={style}>
       {label ? (
@@ -97,6 +154,7 @@ const SelectIOS = ({
       ) : null}
 
       <StyledTrigger
+        ref={triggerRef}
         onPress={disabled ? undefined : openSelect}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -121,7 +179,13 @@ const SelectIOS = ({
 
       <Modal transparent visible={open} animationType="fade" onRequestClose={closeSelect}>
         <StyledOverlay onPress={closeSelect} accessibilityRole="button" accessibilityLabel={t('common.closeSelect')}>
-          <StyledSheet>
+          <StyledSheet
+            $top={menuPosition.top}
+            $left={menuPosition.left}
+            $right={menuPosition.right}
+            $width={menuPosition.width}
+            $maxHeight={menuPosition.maxHeight}
+          >
             <StyledOptionList>
               {options.map((opt, index) => (
                 <StyledOption

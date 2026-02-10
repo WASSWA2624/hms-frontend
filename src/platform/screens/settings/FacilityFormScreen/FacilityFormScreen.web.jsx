@@ -109,6 +109,13 @@ const FacilityFormScreenWeb = () => {
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('facility.form.editTitle') : t('facility.form.createTitle')}>
       <StyledContent>
+        <Text
+          variant="h2"
+          accessibilityRole="header"
+          testID="facility-form-title"
+        >
+          {isEdit ? t('facility.form.editTitle') : t('facility.form.createTitle')}
+        </Text>
         <StyledInlineStates>
           {isOffline && (
             <OfflineState

@@ -111,20 +111,21 @@ const StyledChevron = styled.span.withConfig({
 const StyledMenu = styled.div.withConfig({
   displayName: 'StyledMenu',
   componentId: 'StyledMenu',
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: ${({ theme }) => theme.spacing.xs}px;
+  position: fixed;
+  top: ${({ $top }) => ($top != null ? `${$top}px` : 'auto')};
+  left: ${({ $left }) => ($left != null ? `${$left}px` : 'auto')};
+  right: ${({ $right }) => ($right != null ? `${$right}px` : 'auto')};
+  width: ${({ $width }) => ($width ? `${$width}px` : 'auto')};
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme }) => theme.colors.background.tertiary};
   border-radius: ${({ theme }) => theme.radius.md}px;
-  z-index: 1000;
+  z-index: 2000;
   overflow: hidden;
-  max-height: min(50vh, 240px);
+  max-height: ${({ $maxHeight }) => ($maxHeight ? `${$maxHeight}px` : '240px')};
   overflow-y: auto;
   overscroll-behavior: contain;
 `;

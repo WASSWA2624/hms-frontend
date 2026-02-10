@@ -20,7 +20,7 @@ const StyledContent = styled.View.withConfig({
 })`
   flex: 1;
   width: 100%;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledInlineStates = styled.View.withConfig({

@@ -4,7 +4,8 @@
  * File: Select.web.jsx
  */
 // 1. External dependencies
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // 2. Platform components (from barrel file) - N/A for Select
 
@@ -100,17 +101,72 @@ const SelectWeb = ({
   const displayHelperText = finalErrorMessage || helperText;
 
   const rootRef = useRef(null);
+  const triggerRef = useRef(null);
   const menuRef = useRef(null);
-  const [focusedIndex, setFocusedIndex] = React.useState(-1);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const helperId = useId();
   const resolvedHelperId = testID ? `${testID}-helper` : helperId;
+  const [menuPosition, setMenuPosition] = useState({
+    placement: 'bottom',
+    align: 'left',
+    top: 0,
+    left: 0,
+    right: undefined,
+    width: 0,
+    maxHeight: 240,
+  });
+
+  const computeMenuPosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const gap = 8;
+    const viewportWidth = window.innerWidth || 0;
+    const viewportHeight = window.innerHeight || 0;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const spaceRight = viewportWidth - rect.left;
+    const spaceLeft = rect.right;
+    const placement = spaceBelow >= spaceAbove ? 'bottom' : 'top';
+    const availableHeight = placement === 'bottom' ? spaceBelow : spaceAbove;
+    const maxHeight = Math.min(240, Math.max(availableHeight - gap, 120));
+    const width = Math.min(rect.width, viewportWidth - gap * 2);
+    const align = spaceRight >= spaceLeft ? 'left' : 'right';
+    let left;
+    let right;
+    if (align === 'left') {
+      left = Math.min(Math.max(rect.left, gap), viewportWidth - width - gap);
+    } else {
+      right = Math.min(Math.max(viewportWidth - rect.right, gap), viewportWidth - width - gap);
+    }
+    let top = placement === 'bottom' ? rect.bottom + gap : rect.top - maxHeight - gap;
+    if (top < gap) {
+      top = gap;
+    }
+    if (top + maxHeight > viewportHeight - gap) {
+      top = Math.max(gap, viewportHeight - maxHeight - gap);
+    }
+
+    setMenuPosition({
+      placement,
+      align,
+      top,
+      left,
+      right,
+      width,
+      maxHeight,
+    });
+  }, []);
 
   // Close on outside click
   useEffect(() => {
     if (!open) return;
 
     const handleClickOutside = (event) => {
-      if (rootRef.current && !rootRef.current.contains(event.target)) {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target) &&
+        (!menuRef.current || !menuRef.current.contains(event.target))
+      ) {
         closeSelect();
       }
     };
@@ -135,6 +191,18 @@ const SelectWeb = ({
       }
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    computeMenuPosition();
+    const handleResize = () => computeMenuPosition();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
+    };
+  }, [open, computeMenuPosition]);
 
   const handleTriggerKeyDown = (e) => {
     if (disabled) return;
@@ -216,6 +284,7 @@ const SelectWeb = ({
       ) : null}
 
       <StyledTrigger
+        ref={triggerRef}
         onClick={disabled ? undefined : toggleSelect}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -239,34 +308,44 @@ const SelectWeb = ({
         <StyledChevron aria-hidden="true">▾</StyledChevron>
       </StyledTrigger>
 
-      {open ? (
-        <StyledMenu
-          ref={menuRef}
-          role="listbox"
-          onKeyDown={handleMenuKeyDown}
-          data-testid={testID ? `${testID}-menu` : undefined}
-        >
-          {options.map((opt, index) => (
-            <StyledOption
-              key={`${String(opt.value)}-${index}`}
-              disabled={!!opt.disabled}
-              onClick={() => {
-                if (opt.disabled) return;
-                handleSelect(opt.value);
-              }}
-              onFocus={() => setFocusedIndex(index)}
-              role="option"
-              aria-selected={value === opt.value}
-              aria-disabled={opt.disabled}
-              aria-label={opt.label}
-              tabIndex={opt.disabled ? -1 : index === 0 ? 0 : -1}
-              data-testid={testID ? `${testID}-option-${index}` : undefined}
-            >
-              <StyledOptionText>{opt.label}</StyledOptionText>
-            </StyledOption>
-          ))}
-        </StyledMenu>
-      ) : null}
+      {open
+        ? createPortal(
+          <StyledMenu
+            ref={menuRef}
+            role="listbox"
+            onKeyDown={handleMenuKeyDown}
+            data-testid={testID ? `${testID}-menu` : undefined}
+            $placement={menuPosition.placement}
+            $align={menuPosition.align}
+            $top={menuPosition.top}
+            $left={menuPosition.left}
+            $right={menuPosition.right}
+            $width={menuPosition.width}
+            $maxHeight={menuPosition.maxHeight}
+          >
+            {options.map((opt, index) => (
+              <StyledOption
+                key={`${String(opt.value)}-${index}`}
+                disabled={!!opt.disabled}
+                onClick={() => {
+                  if (opt.disabled) return;
+                  handleSelect(opt.value);
+                }}
+                onFocus={() => setFocusedIndex(index)}
+                role="option"
+                aria-selected={value === opt.value}
+                aria-disabled={opt.disabled}
+                aria-label={opt.label}
+                tabIndex={opt.disabled ? -1 : index === 0 ? 0 : -1}
+                data-testid={testID ? `${testID}-option-${index}` : undefined}
+              >
+                <StyledOptionText>{opt.label}</StyledOptionText>
+              </StyledOption>
+            ))}
+          </StyledMenu>,
+          document.body
+        )
+        : null}
 
       {displayHelperText ? (
         <StyledHelperText

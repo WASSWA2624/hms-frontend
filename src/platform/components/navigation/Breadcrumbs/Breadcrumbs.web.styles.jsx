@@ -13,14 +13,75 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md}px;
+  width: 100%;
+  min-width: 0;
+`;
+
+const StyledBreadcrumbsList = styled.div.withConfig({
+  displayName: 'StyledBreadcrumbsList',
+  componentId: 'StyledBreadcrumbsList',
+})`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   flex-wrap: nowrap;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
   padding: 0;
+  min-width: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     padding: 0;
     gap: ${({ theme }) => theme.spacing.xs / 2}px;
   }
+`;
+
+const StyledBreadcrumbsActions = styled.div.withConfig({
+  displayName: 'StyledBreadcrumbsActions',
+  componentId: 'StyledBreadcrumbsActions',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+`;
+
+const StyledBackButton = styled.button.withConfig({
+  displayName: 'StyledBackButton',
+  componentId: 'StyledBackButton',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: 32px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+
+  &:hover {
+    ${({ disabled, theme }) => (disabled ? '' : `background-color: ${theme.colors.background.tertiary};`)}
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledBackLabel = styled.span.withConfig({
+  displayName: 'StyledBackLabel',
+  componentId: 'StyledBackLabel',
+})`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
+  color: ${({ theme }) => theme.colors.text.primary};
 `;
 
 const StyledBreadcrumbItem = styled.span.withConfig({
@@ -172,6 +233,10 @@ const StyledBreadcrumbEllipsis = styled.span.withConfig({
 
 export {
   StyledBreadcrumbs,
+  StyledBreadcrumbsList,
+  StyledBreadcrumbsActions,
+  StyledBackButton,
+  StyledBackLabel,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledBreadcrumbLink,

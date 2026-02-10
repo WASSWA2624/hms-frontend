@@ -3,7 +3,7 @@
  * Navigation path indicator with responsive truncation
  * File: Breadcrumbs.web.jsx
  */
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useWindowDimensions } from 'react-native';
 import Text from '@platform/components/display/Text';
@@ -12,6 +12,10 @@ import { useI18n } from '@hooks';
 import breakpoints from '@theme/breakpoints';
 import {
   StyledBreadcrumbs,
+  StyledBreadcrumbsList,
+  StyledBreadcrumbsActions,
+  StyledBackButton,
+  StyledBackLabel,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledBreadcrumbLink,
@@ -39,6 +43,8 @@ import {
  * @param {string} props.testID - Test identifier
  * @param {string} props.className - Additional CSS class
  * @param {Object} props.style - Additional styles
+ * @param {boolean} props.showBackButton - Whether to show back button
+ * @param {Function} props.onBack - Optional back handler
  */
 const BreadcrumbsWeb = ({
   items = [],
@@ -49,6 +55,8 @@ const BreadcrumbsWeb = ({
   className,
   style,
   maxItems = 5, // Maximum items to show before truncation
+  showBackButton = true,
+  onBack,
   ...rest
 }) => {
   const { t } = useI18n();
@@ -100,6 +108,32 @@ const BreadcrumbsWeb = ({
     }
   };
 
+  const canGoBack = useMemo(() => {
+    if (onBack) return true;
+    if (typeof router?.canGoBack === 'function') {
+      return router.canGoBack();
+    }
+    if (typeof window !== 'undefined' && window.history) {
+      return window.history.length > 1;
+    }
+    return true;
+  }, [onBack, router]);
+
+  const handleBack = useCallback(() => {
+    if (!canGoBack) return;
+    if (onBack) {
+      onBack();
+      return;
+    }
+    if (router?.back) {
+      router.back();
+      return;
+    }
+    if (router?.push) {
+      router.push('/');
+    }
+  }, [canGoBack, onBack, router]);
+
   return (
     <StyledBreadcrumbs
       role="navigation"
@@ -110,79 +144,96 @@ const BreadcrumbsWeb = ({
       style={style}
       {...rest}
     >
-      {displayItems.map((item, index) => {
-        const isLast = index === displayItems.length - 1;
-        const isEllipsis = item.isEllipsis;
-        const hasLink = !isLast && !isEllipsis && (item.href || item.onPress || onItemPress);
-        const isAnchor = hasLink && item.href;
+      <StyledBreadcrumbsList>
+        {displayItems.map((item, index) => {
+          const isLast = index === displayItems.length - 1;
+          const isEllipsis = item.isEllipsis;
+          const hasLink = !isLast && !isEllipsis && (item.href || item.onPress || onItemPress);
+          const isAnchor = hasLink && item.href;
 
-        const handleClick = (e) => {
-          e.preventDefault();
-          handleItemPress(item, index);
-        };
+          const handleClick = (e) => {
+            e.preventDefault();
+            handleItemPress(item, index);
+          };
 
-        return (
-          <React.Fragment key={index}>
-            {index > 0 && <StyledSeparator>{separator}</StyledSeparator>}
-            {isEllipsis ? (
-              <StyledBreadcrumbEllipsis aria-hidden="true">
-                {item.label}
-              </StyledBreadcrumbEllipsis>
-            ) : hasLink ? isAnchor ? (
-              <StyledBreadcrumbLink
-                href={item.href}
-                onClick={handleClick}
-                onKeyDown={(event) => handleItemKeyDown(event, item, index)}
-                aria-label={item.label}
-                testID={testID ? `${testID}-item-${index}` : undefined}
-                data-testid={testID ? `${testID}-item-${index}` : undefined}
-              >
-                {item.icon && (
-                  <StyledBreadcrumbIcon>
-                    <Icon glyph={item.icon} size="xs" decorative />
-                  </StyledBreadcrumbIcon>
-                )}
-                <Text numberOfLines={1} ellipsizeMode="tail">
+          return (
+            <React.Fragment key={index}>
+              {index > 0 && <StyledSeparator>{separator}</StyledSeparator>}
+              {isEllipsis ? (
+                <StyledBreadcrumbEllipsis aria-hidden="true">
                   {item.label}
-                </Text>
-              </StyledBreadcrumbLink>
-            ) : (
-              <StyledBreadcrumbButton
-                type="button"
-                onClick={handleClick}
-                onKeyDown={(event) => handleItemKeyDown(event, item, index)}
-                aria-label={item.label}
-                testID={testID ? `${testID}-item-${index}` : undefined}
-                data-testid={testID ? `${testID}-item-${index}` : undefined}
-              >
-                {item.icon && (
-                  <StyledBreadcrumbIcon>
-                    <Icon glyph={item.icon} size="xs" decorative />
-                  </StyledBreadcrumbIcon>
-                )}
-                <Text numberOfLines={1} ellipsizeMode="tail">
-                  {item.label}
-                </Text>
-              </StyledBreadcrumbButton>
-            ) : (
-              <StyledBreadcrumbItem
-                $isLast={isLast}
-                role="text"
-                aria-label={item.label}
-              >
-                {item.icon && (
-                  <StyledBreadcrumbIcon>
-                    <Icon glyph={item.icon} size="xs" decorative />
-                  </StyledBreadcrumbIcon>
-                )}
-                <Text numberOfLines={1} ellipsizeMode="tail">
-                  {item.label}
-                </Text>
-              </StyledBreadcrumbItem>
-            )}
-          </React.Fragment>
-        );
-      })}
+                </StyledBreadcrumbEllipsis>
+              ) : hasLink ? isAnchor ? (
+                <StyledBreadcrumbLink
+                  href={item.href}
+                  onClick={handleClick}
+                  onKeyDown={(event) => handleItemKeyDown(event, item, index)}
+                  aria-label={item.label}
+                  testID={testID ? `${testID}-item-${index}` : undefined}
+                  data-testid={testID ? `${testID}-item-${index}` : undefined}
+                >
+                  {item.icon && (
+                    <StyledBreadcrumbIcon>
+                      <Icon glyph={item.icon} size="xs" decorative />
+                    </StyledBreadcrumbIcon>
+                  )}
+                  <Text numberOfLines={1} ellipsizeMode="tail">
+                    {item.label}
+                  </Text>
+                </StyledBreadcrumbLink>
+              ) : (
+                <StyledBreadcrumbButton
+                  type="button"
+                  onClick={handleClick}
+                  onKeyDown={(event) => handleItemKeyDown(event, item, index)}
+                  aria-label={item.label}
+                  testID={testID ? `${testID}-item-${index}` : undefined}
+                  data-testid={testID ? `${testID}-item-${index}` : undefined}
+                >
+                  {item.icon && (
+                    <StyledBreadcrumbIcon>
+                      <Icon glyph={item.icon} size="xs" decorative />
+                    </StyledBreadcrumbIcon>
+                  )}
+                  <Text numberOfLines={1} ellipsizeMode="tail">
+                    {item.label}
+                  </Text>
+                </StyledBreadcrumbButton>
+              ) : (
+                <StyledBreadcrumbItem
+                  $isLast={isLast}
+                  role="text"
+                  aria-label={item.label}
+                >
+                  {item.icon && (
+                    <StyledBreadcrumbIcon>
+                      <Icon glyph={item.icon} size="xs" decorative />
+                    </StyledBreadcrumbIcon>
+                  )}
+                  <Text numberOfLines={1} ellipsizeMode="tail">
+                    {item.label}
+                  </Text>
+                </StyledBreadcrumbItem>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </StyledBreadcrumbsList>
+      {showBackButton ? (
+        <StyledBreadcrumbsActions>
+          <StyledBackButton
+            type="button"
+            onClick={canGoBack ? handleBack : undefined}
+            disabled={!canGoBack}
+            aria-label={t('common.back')}
+            data-testid={testID ? `${testID}-back` : undefined}
+            testID={testID ? `${testID}-back` : undefined}
+          >
+            <Icon glyph="←" size="xs" decorative />
+            <StyledBackLabel>{t('common.back')}</StyledBackLabel>
+          </StyledBackButton>
+        </StyledBreadcrumbsActions>
+      ) : null}
     </StyledBreadcrumbs>
   );
 };

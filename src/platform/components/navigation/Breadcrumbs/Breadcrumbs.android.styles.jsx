@@ -12,7 +12,53 @@ const StyledBreadcrumbs = styled(View).withConfig({
 })`
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const StyledBreadcrumbsList = styled(View).withConfig({
+  displayName: 'StyledBreadcrumbsList',
+  componentId: 'StyledBreadcrumbsList',
+})`
+  flex-direction: row;
+  align-items: center;
   flex-wrap: wrap;
+  flex: 1;
+`;
+
+const StyledBreadcrumbsActions = styled(View).withConfig({
+  displayName: 'StyledBreadcrumbsActions',
+  componentId: 'StyledBreadcrumbsActions',
+})`
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const StyledBackButton = styled(Pressable).withConfig({
+  displayName: 'StyledBackButton',
+  componentId: 'StyledBackButton',
+})`
+  flex-direction: row;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+`;
+
+const StyledBackLabel = styled(Text).withConfig({
+  displayName: 'StyledBackLabel',
+  componentId: 'StyledBackLabel',
+})`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text.primary};
 `;
 
 const StyledBreadcrumbItem = styled(View).withConfig({
@@ -64,6 +110,10 @@ const StyledBreadcrumbIcon = styled(View).withConfig({
 
 export {
   StyledBreadcrumbs,
+  StyledBreadcrumbsList,
+  StyledBreadcrumbsActions,
+  StyledBackButton,
+  StyledBackLabel,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledLink,

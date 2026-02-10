@@ -30,7 +30,7 @@ const StyledContent = styled.div.withConfig({
   margin-right: auto;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledInlineStates = styled.div.withConfig({

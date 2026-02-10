@@ -109,6 +109,13 @@ const FacilityFormScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
+        <Text
+          variant="h2"
+          accessibilityRole="header"
+          testID="facility-form-title"
+        >
+          {isEdit ? t('facility.form.editTitle') : t('facility.form.createTitle')}
+        </Text>
         <StyledInlineStates>
           {isOffline && (
             <OfflineState

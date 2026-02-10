@@ -57,6 +57,7 @@ describe('Breadcrumbs Component', () => {
         <Breadcrumbs items={mockItems} testID="breadcrumbs" />
       );
       expect(getByTestId('breadcrumbs')).toBeTruthy();
+      expect(getByTestId('breadcrumbs-back')).toBeTruthy();
     });
 
     it('should accept className prop (web)', () => {

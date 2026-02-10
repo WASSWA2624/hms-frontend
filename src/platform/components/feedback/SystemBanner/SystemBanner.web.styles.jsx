@@ -8,35 +8,46 @@ import { BANNER_VARIANTS } from '@utils/shellBanners';
 
 const getVariantColors = (variant, theme) => {
   const surface = theme.colors.background?.secondary || '#F5F5F7';
+  const textPrimary = theme.colors.text?.primary || theme.colors.textPrimary;
+  const inverse = theme.colors.onPrimary || theme.colors.text.inverse;
+
   if (variant === BANNER_VARIANTS.MAINTENANCE) {
     return {
       background: theme.colors.status.error.background,
       text: theme.colors.status.error.text,
-      border: theme.colors.error,
+      border: 'rgba(198, 40, 40, 0.28)',
       accent: null,
+      sheen: 'rgba(255, 255, 255, 0.35)',
+      glow: 'rgba(198, 40, 40, 0.18)',
     };
   }
   if (variant === BANNER_VARIANTS.LOW_QUALITY || variant === BANNER_VARIANTS.OFFLINE) {
     return {
       background: surface,
-      text: theme.colors.text?.primary || theme.colors.textPrimary,
-      border: 'transparent',
+      text: textPrimary,
+      border: 'rgba(255, 149, 0, 0.25)',
       accent: theme.colors.warning,
+      sheen: 'rgba(255, 255, 255, 0.75)',
+      glow: 'rgba(255, 149, 0, 0.12)',
     };
   }
   if (variant === BANNER_VARIANTS.ONLINE) {
     return {
       background: theme.colors.success,
-      text: theme.colors.onPrimary || theme.colors.text.inverse,
-      border: theme.colors.success,
+      text: inverse,
+      border: 'rgba(255, 255, 255, 0.25)',
       accent: null,
+      sheen: 'rgba(255, 255, 255, 0.3)',
+      glow: 'rgba(52, 199, 89, 0.22)',
     };
   }
   return {
     background: theme.colors.primary,
-    text: theme.colors.onPrimary || theme.colors.text.inverse,
-    border: theme.colors.primary,
+    text: inverse,
+    border: 'rgba(255, 255, 255, 0.22)',
     accent: null,
+    sheen: 'rgba(255, 255, 255, 0.28)',
+    glow: 'rgba(0, 120, 212, 0.22)',
   };
 };
 
@@ -45,21 +56,64 @@ const StyledBanner = styled.div.withConfig({
   componentId: 'StyledBanner',
 })`
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
   border: 1px solid ${({ variant, theme }) => getVariantColors(variant, theme).border};
   ${({ variant, theme }) => {
     const { accent } = getVariantColors(variant, theme);
-    return accent ? `border-left: 4px solid ${accent};` : '';
+    return accent ? `border-left: 6px solid ${accent};` : '';
   }}
-  border-radius: ${({ theme }) => theme.radius.lg ?? theme.radius.md}px;
+  border-radius: ${({ theme }) => theme.radius.xl ?? theme.radius.lg}px;
   background-color: ${({ variant, theme }) => getVariantColors(variant, theme).background};
+  background-image:
+    linear-gradient(
+      135deg,
+      ${({ variant, theme }) => getVariantColors(variant, theme).sheen} 0%,
+      rgba(255, 255, 255, 0.08) 45%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    radial-gradient(
+      140% 180% at 100% 0%,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(255, 255, 255, 0) 60%
+    );
   color: ${({ variant, theme }) => getVariantColors(variant, theme).text};
   padding: ${({ theme }) => theme.spacing.md}px ${({ theme }) => theme.spacing.lg}px;
   min-height: ${({ theme }) => theme.spacing.xl + theme.spacing.sm}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing.md}px;
-  box-shadow: ${({ theme }) => theme.shadows?.sm || '0 1px 3px rgba(0, 0, 0, 0.06)'};
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.12),
+    0 6px 12px ${({ variant, theme }) => getVariantColors(variant, theme).glow},
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.08);
+  transform: translateZ(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 18px 34px rgba(0, 0, 0, 0.16),
+        0 8px 16px ${({ variant, theme }) => getVariantColors(variant, theme).glow},
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
 `;
 
 const StyledContent = styled.div.withConfig({
@@ -100,21 +154,46 @@ const StyledActions = styled.div.withConfig({
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-left: auto;
 `;
 
 const StyledActionButton = styled.button.withConfig({
   displayName: 'StyledActionButton',
   componentId: 'StyledActionButton',
 })`
-  background: transparent;
-  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   color: inherit;
-  border-radius: ${({ theme }) => theme.radius.sm}px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.md}px;
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   cursor: pointer;
   min-height: ${({ theme }) => theme.spacing.xl}px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      0 4px 10px rgba(0, 0, 0, 0.18);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 2px 6px rgba(0, 0, 0, 0.14);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
 `;
 
 const StyledDismissButton = styled.button.withConfig({
@@ -128,6 +207,16 @@ const StyledDismissButton = styled.button.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   cursor: pointer;
   min-height: ${({ theme }) => theme.spacing.xl}px;
+  opacity: 0.85;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
 `;
 
 export {

@@ -93,18 +93,22 @@ const StyledOverlay = styled.Pressable.withConfig({
 })`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.overlay?.backdrop || 'rgba(0, 0, 0, 0.45)'};
-  justify-content: center;
-  align-items: center;
-  padding: ${({ theme }) => theme.spacing.lg}px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: relative;
 `;
 
 const StyledSheet = styled.View.withConfig({
   displayName: 'StyledSheet',
   componentId: 'StyledSheet',
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
-  width: 100%;
-  max-width: 520px;
-  max-height: 80%;
+  position: absolute;
+  top: ${({ $top }) => ($top != null ? `${$top}px` : 'auto')};
+  left: ${({ $left }) => ($left != null ? `${$left}px` : 'auto')};
+  right: ${({ $right }) => ($right != null ? `${$right}px` : 'auto')};
+  width: ${({ $width }) => ($width ? `${$width}px` : 'auto')};
+  max-height: ${({ $maxHeight }) => ($maxHeight ? `${$maxHeight}px` : '240px')};
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-radius: ${({ theme }) => theme.radius.lg}px;
   overflow: hidden;
