@@ -3,7 +3,7 @@
  * Reusable route layout for patient-facing routes on Web
  * File: PatientRouteLayout.web.jsx
  */
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
 import PatientFrame from '../../PatientFrame';
@@ -17,6 +17,7 @@ import {
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import usePatientRouteLayout from './usePatientRouteLayout';
+import useBreadcrumbs from '@platform/layouts/common/useBreadcrumbs';
 
 /**
  * PatientRouteLayout component for Web
@@ -24,6 +25,18 @@ import usePatientRouteLayout from './usePatientRouteLayout';
 const PatientRouteLayoutWeb = () => {
   const { t } = useI18n();
   const { headerActions, overlaySlot, patientItems, isItemVisible } = usePatientRouteLayout();
+  const breadcrumbItems = useBreadcrumbs(patientItems, 'navigation.items.patient');
+  const pageTitle = useMemo(() => {
+    const current = breadcrumbItems[breadcrumbItems.length - 1]?.label;
+    const appName = t('app.name');
+    if (!current) return appName;
+    return `${current} | ${appName}`;
+  }, [breadcrumbItems, t]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.title = pageTitle;
+  }, [pageTitle]);
   const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="patient-shell-banners" />

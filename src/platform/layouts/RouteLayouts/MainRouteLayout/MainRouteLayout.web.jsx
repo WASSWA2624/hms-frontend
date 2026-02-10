@@ -8,7 +8,7 @@
  * Per project-structure.mdc: One file = one responsibility; composition over inheritance
  */
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slot } from 'expo-router';
 import { useAuthGuard } from '@navigation/guards';
 import { AppFrame } from '@platform/layouts';
@@ -30,7 +30,7 @@ import Brand from './Brand';
 import HamburgerIcon from './HamburgerIcon';
 import HeaderUtility from './HeaderUtility';
 import MobileSidebar from './MobileSidebar';
-import useBreadcrumbs from './useBreadcrumbs';
+import useBreadcrumbs from '@platform/layouts/common/useBreadcrumbs';
 import {
   StyledHeaderRevealButton,
   StyledSidebarResizeHandle,
@@ -66,6 +66,17 @@ const MainRouteLayoutWeb = () => {
     footerVisible,
   } = layout;
   const breadcrumbItems = useBreadcrumbs(mainItems);
+  const pageTitle = useMemo(() => {
+    const current = breadcrumbItems[breadcrumbItems.length - 1]?.label;
+    const appName = t('app.name');
+    if (!current) return appName;
+    return `${current} | ${appName}`;
+  }, [breadcrumbItems, t]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   const [revealButtonPosition, setRevealButtonPosition] = useState(null);
   const revealButtonRef = useRef(null);
