@@ -1,0 +1,54 @@
+# Step 11.3.5 — Departments Screen Implementation Prompt
+
+Review and implement **11.3.5** Department -- `(main)/settings/departments` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
+Must be **100% compliant** with:
+- `hms-frontend/.cursor/rules`
+- HMS backend contracts
+- Onboarding journey and app write-up
+Do not implement anything outside this step unless strictly required for CRUD to function.
+## Scope
+Implement full CRUD for this step: List, Create, Edit, Delete(with confirmation), View details (if defined by backend/spec), Loading, empty, and error states, Success/failure feedback for every action.
+All operations must match backend schema and endpoints exactly.
+## Layout Rules (Strict)
+- Designed like the existing **Dashboard main layout**
+- Use **only main layout scroll** — no nested scroll containers
+- No nested sidebar
+- Use standard breadcrumb + back navigation
+- Match other dashboard screens visually and structurally
+## UI / UX Rules
+- Lightweight, clean, modern, dashboard-consistent
+- Compact spacing and components
+- No oversized elements
+- No duplicate or unnecessary UI
+### Buttons
+- Same style as breadcrumb back button
+- Theme background + icon
+- Compact and consistent
+### Forms
+- Clear labels
+- Helpful placeholders/descriptions
+- Inline validation
+- Required fields obvious
+- Logical field order
+- Next actions clear
+### Navigation
+- Back and Cancel actions present
+- No dead ends
+- Contextual navigation where useful
+## Reliability
+- Graceful API and network error handling
+- Human-readable, actionable error messages
+- Clear success and failure feedback for every CRUD action
+- User flow must feel guided and safe
+## Constraints
+Do NOT:
+- Change layout or routing architecture
+- Add global components or patterns
+- Invent backend fields or behaviors
+- Introduce nested scrolling
+## Acceptance Criteria
+- 100% compliance to rules
+- Backend-aligned CRUD working
+- No nested scroll
+- Clear feedback on all actions
+- First-time users can complete tasks without external help

@@ -45,6 +45,8 @@ const FacilityFormScreenWeb = () => {
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    hasTenants,
+    isCreateBlocked,
     isLoading,
     hasError,
     errorMessage,
@@ -92,6 +94,7 @@ const FacilityFormScreenWeb = () => {
     );
   }
 
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
   const retryTenantsAction = onRetryTenants ? (
     <Button
       variant="surface"
@@ -105,6 +108,7 @@ const FacilityFormScreenWeb = () => {
     </Button>
   ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(facility));
+  const showCreateBlocked = !isEdit && isCreateBlocked;
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('facility.form.editTitle') : t('facility.form.createTitle')}>
@@ -153,7 +157,7 @@ const FacilityFormScreenWeb = () => {
                       action={retryTenantsAction}
                       testID="facility-form-tenant-error"
                     />
-                  ) : tenantOptions.length === 0 ? (
+                  ) : !hasTenants ? (
                     <StyledHelperStack
                       role="region"
                       aria-label={t('facility.form.tenantLabel')}
@@ -184,7 +188,7 @@ const FacilityFormScreenWeb = () => {
                       helperText={t('facility.form.tenantHint')}
                       required
                       compact
-                      disabled={isLoading}
+                      disabled={isFormDisabled}
                       testID="facility-form-tenant"
                     />
                   )}
@@ -200,10 +204,10 @@ const FacilityFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('facility.form.nameLabel')}
                 accessibilityHint={t('facility.form.nameHint')}
-                helperText={t('facility.form.nameHint')}
+                helperText={showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.nameHint')}
                 required
                 density="compact"
-                disabled={isLoading}
+                disabled={isFormDisabled}
                 testID="facility-form-name"
               />
             </StyledFieldGroup>
@@ -220,7 +224,7 @@ const FacilityFormScreenWeb = () => {
                 helperText={t('facility.form.typeHint')}
                 required
                 compact
-                disabled={isLoading}
+                disabled={isFormDisabled}
                 testID="facility-form-type"
               />
             </StyledFieldGroup>
@@ -233,10 +237,12 @@ const FacilityFormScreenWeb = () => {
                   label={t('facility.form.activeLabel')}
                   accessibilityLabel={t('facility.form.activeLabel')}
                   accessibilityHint={t('facility.form.activeHint')}
-                  disabled={isLoading}
+                  disabled={isFormDisabled}
                   testID="facility-form-active"
                 />
-                <Text variant="caption">{t('facility.form.activeHint')}</Text>
+                <Text variant="caption">
+                  {showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.activeHint')}
+                </Text>
               </StyledFieldGroup>
             </StyledFullRow>
           </StyledFormGrid>

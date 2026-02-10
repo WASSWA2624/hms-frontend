@@ -45,6 +45,8 @@ const FacilityFormScreenAndroid = () => {
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    hasTenants,
+    isCreateBlocked,
     isLoading,
     hasError,
     errorMessage,
@@ -92,6 +94,7 @@ const FacilityFormScreenAndroid = () => {
     );
   }
 
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
   const retryTenantsAction = onRetryTenants ? (
     <Button
       variant="primary"
@@ -105,6 +108,7 @@ const FacilityFormScreenAndroid = () => {
     </Button>
   ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(facility));
+  const showCreateBlocked = !isEdit && isCreateBlocked;
 
   return (
     <StyledContainer>
@@ -153,7 +157,7 @@ const FacilityFormScreenAndroid = () => {
                       action={retryTenantsAction}
                       testID="facility-form-tenant-error"
                     />
-                  ) : tenantOptions.length === 0 ? (
+                  ) : !hasTenants ? (
                     <StyledHelperStack
                       accessibilityLabel={t('facility.form.tenantLabel')}
                       accessibilityRole="summary"
@@ -183,7 +187,7 @@ const FacilityFormScreenAndroid = () => {
                       accessibilityHint={t('facility.form.tenantHint')}
                       helperText={t('facility.form.tenantHint')}
                       required
-                      disabled={isLoading}
+                      disabled={isFormDisabled}
                       testID="facility-form-tenant"
                     />
                   )}
@@ -199,10 +203,10 @@ const FacilityFormScreenAndroid = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('facility.form.nameLabel')}
                 accessibilityHint={t('facility.form.nameHint')}
-                helperText={t('facility.form.nameHint')}
+                helperText={showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.nameHint')}
                 required
                 density="compact"
-                disabled={isLoading}
+                disabled={isFormDisabled}
                 testID="facility-form-name"
               />
             </StyledFieldGroup>
@@ -218,7 +222,7 @@ const FacilityFormScreenAndroid = () => {
                 accessibilityHint={t('facility.form.typeHint')}
                 helperText={t('facility.form.typeHint')}
                 required
-                disabled={isLoading}
+                disabled={isFormDisabled}
                 testID="facility-form-type"
               />
             </StyledFieldGroup>
@@ -231,10 +235,12 @@ const FacilityFormScreenAndroid = () => {
                   label={t('facility.form.activeLabel')}
                   accessibilityLabel={t('facility.form.activeLabel')}
                   accessibilityHint={t('facility.form.activeHint')}
-                  disabled={isLoading}
+                  disabled={isFormDisabled}
                   testID="facility-form-active"
                 />
-                <Text variant="caption">{t('facility.form.activeHint')}</Text>
+                <Text variant="caption">
+                  {showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.activeHint')}
+                </Text>
               </StyledFieldGroup>
             </StyledFullRow>
           </StyledFormGrid>

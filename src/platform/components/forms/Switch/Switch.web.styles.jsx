@@ -6,23 +6,6 @@
 
 import styled from 'styled-components';
 
-const shadowToBoxShadow = (shadow) => {
-  if (!shadow) return 'none';
-  const x = shadow.shadowOffset && typeof shadow.shadowOffset.width === 'number' ? shadow.shadowOffset.width : 0;
-  const y =
-    shadow.shadowOffset && typeof shadow.shadowOffset.height === 'number' ? shadow.shadowOffset.height : 0;
-  const blur = typeof shadow.shadowRadius === 'number' ? shadow.shadowRadius : 0;
-  const alpha = typeof shadow.shadowOpacity === 'number' ? shadow.shadowOpacity : 0;
-
-  // Convert shadow color to rgba format
-  const shadowColor = shadow.shadowColor || '#000000';
-  if (shadowColor === '#000' || shadowColor === '#000000' || shadowColor.toLowerCase() === 'black') {
-    return `${x}px ${y}px ${blur}px rgba(0, 0, 0, ${alpha})`;
-  }
-
-  return `${x}px ${y}px ${blur}px ${shadow.shadowColor || 'rgba(0, 0, 0, 0)'}`;
-};
-
 const StyledSwitch = styled.label.withConfig({
   displayName: 'StyledSwitch',
   componentId: 'StyledSwitch',
@@ -85,7 +68,6 @@ const StyledSwitchThumb = styled.span.withConfig({
     ${({ value, theme }) => (value ? theme.spacing.xxl - theme.spacing.xs - theme.spacing.lg : 0)}px
   );
   transition: transform 0.2s ease;
-  box-shadow: ${({ theme }) => shadowToBoxShadow(theme.shadows && theme.shadows.sm)};
 `;
 
 const StyledSwitchLabel = styled.span.withConfig({

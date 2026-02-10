@@ -86,9 +86,11 @@ const useFacilityFormScreen = () => {
 
   const trimmedName = name.trim();
   const trimmedTenantId = String(tenantId ?? '').trim();
+  const hasTenants = tenantOptions.length > 0;
   const requiresTenant = !isEdit;
+  const isCreateBlocked = requiresTenant && !hasTenants;
   const isSubmitDisabled =
-    isLoading || !trimmedName || !facilityType || (requiresTenant && !trimmedTenantId);
+    isLoading || isCreateBlocked || !trimmedName || !facilityType || (requiresTenant && !trimmedTenantId);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -160,6 +162,8 @@ const useFacilityFormScreen = () => {
     tenantListLoading,
     tenantListError: Boolean(tenantErrorCode),
     tenantErrorMessage,
+    hasTenants,
+    isCreateBlocked,
     isLoading,
     hasError: Boolean(errorCode),
     errorMessage,

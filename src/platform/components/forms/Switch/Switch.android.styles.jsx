@@ -42,18 +42,6 @@ const StyledSwitchThumb = styled.View.withConfig({
   transform: translateX(
     ${({ value, theme }) => (value ? theme.spacing.xxl - theme.spacing.xs - theme.spacing.lg : 0)}px
   );
-  ${({ theme }) => {
-    if (theme.shadows?.sm) {
-      return `
-        shadow-color: ${theme.shadows.sm.shadowColor};
-        shadow-offset: ${theme.shadows.sm.shadowOffset.width}px ${theme.shadows.sm.shadowOffset.height}px;
-        shadow-opacity: ${theme.shadows.sm.shadowOpacity};
-        shadow-radius: ${theme.shadows.sm.shadowRadius}px;
-        elevation: ${theme.shadows.sm.elevation || 2};
-      `;
-    }
-    return '';
-  }}
 `;
 
 export { StyledSwitch, StyledSwitchTrack, StyledSwitchThumb };
