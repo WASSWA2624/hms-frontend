@@ -46,6 +46,7 @@ export { default as BedDetailScreen } from './settings/BedDetailScreen';
 export { default as BedFormScreen } from './settings/BedFormScreen';
 export { default as AddressListScreen } from './settings/AddressListScreen';
 export { default as AddressDetailScreen } from './settings/AddressDetailScreen';
+export { default as AddressFormScreen } from './settings/AddressFormScreen';
 export { default as ContactListScreen } from './settings/ContactListScreen';
 export { default as ContactDetailScreen } from './settings/ContactDetailScreen';
 export { default as UserListScreen } from './settings/UserListScreen';

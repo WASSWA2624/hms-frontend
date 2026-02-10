@@ -46,6 +46,7 @@ export { default as BedDetailScreen } from './BedDetailScreen';
 export { default as BedFormScreen } from './BedFormScreen';
 export { default as AddressListScreen } from './AddressListScreen';
 export { default as AddressDetailScreen } from './AddressDetailScreen';
+export { default as AddressFormScreen } from './AddressFormScreen';
 export { default as ContactListScreen } from './ContactListScreen';
 export { default as ContactDetailScreen } from './ContactDetailScreen';
 export { default as UserSessionListScreen } from './UserSessionListScreen';

@@ -3,26 +3,32 @@
  * File: AddressDetailScreen.web.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './AddressDetailScreen.web.styles';
 import useAddressDetailScreen from './useAddressDetailScreen';
 
 const AddressDetailScreenWeb = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     address,
     isLoading,
@@ -35,93 +41,103 @@ const AddressDetailScreenWeb = () => {
     onDelete,
   } = useAddressDetailScreen();
 
-  if (isLoading) {
+  const hasAddress = Boolean(address);
+
+  if (isLoading && !hasAddress) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="address-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('address.detail.title')}>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="address-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasAddress) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="address-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('address.detail.title')}>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="address-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasAddress) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('address.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="address-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('address.detail.title')}>
+        <StyledContent>
+          <ErrorState
+            title={t('address.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="address-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!address) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('address.detail.notFoundTitle')}
-              description={t('address.detail.notFoundMessage')}
-              testID="address-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="address-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('address.detail.title')}>
+        <StyledContent>
+          <EmptyState
+            title={t('address.detail.notFoundTitle')}
+            description={t('address.detail.notFoundMessage')}
+            testID="address-detail-not-found"
+          />
+          <StyledActions>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onBack}
+              accessibilityLabel={t('common.back')}
+              accessibilityHint={t('address.detail.backHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="address-detail-back"
+            >
+              {t('common.back')}
+            </Button>
+          </StyledActions>
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  const createdAt = address.created_at
-    ? new Date(address.created_at).toLocaleString()
-    : '';
-  const updatedAt = address.updated_at
-    ? new Date(address.updated_at).toLocaleString()
-    : '';
+  const createdAt = formatDateTime(address.created_at, locale);
+  const updatedAt = formatDateTime(address.updated_at, locale);
   const line1 = address?.line1 ?? '';
   const line2 = address?.line2 ?? '';
   const city = address?.city ?? '';
@@ -129,120 +145,197 @@ const AddressDetailScreenWeb = () => {
   const postalCode = address?.postal_code ?? '';
   const country = address?.country ?? '';
   const addressType = address?.address_type ?? '';
+  const typeLabel = addressType ? t(`address.types.${addressType}`) : '';
+  const displayType = typeLabel && typeLabel !== `address.types.${addressType}` ? typeLabel : addressType;
+  const tenantId = address?.tenant_id ?? '';
+  const facilityId = address?.facility_id ?? '';
+  const branchId = address?.branch_id ?? '';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasAddress && hasError;
+  const showInlineOffline = hasAddress && isOffline;
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="address-detail-title"
+    <StyledContainer role="main" aria-label={t('address.detail.title')}>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('address.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="address-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="address-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('address.detail.title')} testID="address-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('address.detail.idLabel')}</Text>
+              <Text variant="body" testID="address-detail-id">
+                {address.id}
+              </Text>
+            </StyledDetailItem>
+            {tenantId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="address-detail-tenant">
+                  {tenantId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.facilityLabel')}</Text>
+                <Text variant="body" testID="address-detail-facility">
+                  {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {branchId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.branchLabel')}</Text>
+                <Text variant="body" testID="address-detail-branch">
+                  {branchId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {addressType ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.typeLabel')}</Text>
+                <Text variant="body" testID="address-detail-type">
+                  {displayType}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {line1 ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.line1Label')}</Text>
+                <Text variant="body" testID="address-detail-line1">
+                  {line1}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {line2 ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.line2Label')}</Text>
+                <Text variant="body" testID="address-detail-line2">
+                  {line2}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {city ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.cityLabel')}</Text>
+                <Text variant="body" testID="address-detail-city">
+                  {city}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {state ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.stateLabel')}</Text>
+                <Text variant="body" testID="address-detail-state">
+                  {state}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {postalCode ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.postalCodeLabel')}</Text>
+                <Text variant="body" testID="address-detail-postalCode">
+                  {postalCode}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {country ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.countryLabel')}</Text>
+                <Text variant="body" testID="address-detail-country">
+                  {country}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.createdLabel')}</Text>
+                <Text variant="body" testID="address-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('address.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="address-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('address.detail.backHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="address-detail-back"
+            disabled={isLoading}
           >
-            {t('address.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="address-detail-id">
-              {t('address.detail.idLabel')}: {address.id}
-            </Text>
-          </StyledSection>
-          {addressType ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-type">
-                {t('address.detail.typeLabel')}: {addressType}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {line1 ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-line1">
-                {t('address.detail.line1Label')}: {line1}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {line2 ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-line2">
-                {t('address.detail.line2Label')}: {line2}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {city ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-city">
-                {t('address.detail.cityLabel')}: {city}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {state ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-state">
-                {t('address.detail.stateLabel')}: {state}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {postalCode ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-postalCode">
-                {t('address.detail.postalCodeLabel')}: {postalCode}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {country ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-country">
-                {t('address.detail.countryLabel')}: {country}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-created">
-                {t('address.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="address-detail-updated">
-                {t('address.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          <StyledActions>
+            {t('common.back')}
+          </Button>
+          {onEdit && (
             <Button
-              variant="ghost"
-              onPress={onBack}
-              accessibilityLabel={t('common.back')}
-              accessibilityHint={t('address.detail.backHint')}
-              testID="address-detail-back"
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('address.detail.edit')}
+              accessibilityHint={t('address.detail.editHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="address-detail-edit"
+              disabled={isLoading}
             >
-              {t('common.back')}
+              {t('address.detail.edit')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('address.detail.edit')}
-                accessibilityHint={t('address.detail.editHint')}
-                testID="address-detail-edit"
-              >
-                {t('common.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('address.detail.delete')}
-              accessibilityHint={t('address.detail.deleteHint')}
-              testID="address-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
-          </StyledActions>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('address.detail.delete')}
+            accessibilityHint={t('address.detail.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="address-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

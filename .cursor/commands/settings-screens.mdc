@@ -15,7 +15,8 @@ All operations must match backend schema and endpoints exactly.
 - Use standard breadcrumb + back navigation
 - Match other screens visually and structurally
 ## UI / UX Rules
-- Lightweight, clean, modern, fullr responsive for allscreen sizes
+- Lightweight, clean, modern, fullr responsive for allscreen sizes.
+- The UI should look seamless on all devices (android, iOS and web) and on all screen sizes (mobile, tablets and desktops).
 - Compact spacing and components
 - No oversized elements
 - No duplicate or unnecessary UI

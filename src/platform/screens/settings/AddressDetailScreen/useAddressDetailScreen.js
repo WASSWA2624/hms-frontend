@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useAddress } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -51,13 +52,16 @@ const useAddressDetailScreen = () => {
 
   const handleDelete = useCallback(async () => {
     if (!id) return;
+    if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      await remove(id);
-      handleBack();
+      const result = await remove(id);
+      if (!result) return;
+      const noticeKey = isOffline ? 'queued' : 'deleted';
+      router.push(`/settings/addresses?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, handleBack]);
+  }, [id, remove, isOffline, router, t]);
 
   return {
     id,
