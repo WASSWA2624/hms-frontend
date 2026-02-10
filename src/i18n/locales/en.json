@@ -1426,21 +1426,69 @@
       "loadError": "Failed to load role for editing"
     }
   },
-  "permission": {
-    "list": {
-      "title": "Permissions",
-      "accessibilityLabel": "Permissions list",
-      "emptyTitle": "No permissions",
-      "emptyMessage": "You have no permissions.",
-      "loadError": "Unable to load permissions. Check your connection and try again.",
-      "delete": "Delete permission",
-      "deleteHint": "Delete this permission",
-      "itemLabel": "Permission {{name}}"
+    "permission": {
+      "list": {
+        "title": "Permissions",
+        "accessibilityLabel": "Permissions list",
+        "emptyTitle": "No permissions",
+        "emptyMessage": "You have no permissions.",
+        "loadError": "Unable to load permissions. Check your connection and try again.",
+        "delete": "Delete permission",
+        "deleteHint": "Delete this permission",
+        "itemLabel": "Permission {{name}}",
+        "addLabel": "Add permission",
+        "addHint": "Create a new permission",
+        "noticeCreated": "Permission created.",
+        "noticeUpdated": "Permission updated.",
+        "noticeDeleted": "Permission removed.",
+        "noticeQueued": "Changes queued. We'll sync when you're back online."
+      },
+      "detail": {
+        "title": "Permission Details",
+        "idLabel": "Permission ID",
+        "tenantLabel": "Tenant",
+        "nameLabel": "Name",
+        "descriptionLabel": "Description",
+        "createdLabel": "Created",
+        "updatedLabel": "Updated",
+        "errorTitle": "Failed to load permission",
+        "notFoundTitle": "Permission not found",
+        "notFoundMessage": "This permission may have been removed.",
+        "backHint": "Return to permissions list",
+        "delete": "Delete permission",
+        "deleteHint": "Delete this permission",
+        "edit": "Edit permission",
+        "editHint": "Edit this permission"
+      },
+      "form": {
+        "createTitle": "Add Permission",
+        "editTitle": "Edit Permission",
+        "loadError": "Failed to load permission for editing",
+        "tenantLabel": "Tenant",
+        "tenantPlaceholder": "Select tenant",
+        "tenantHint": "Required for new permissions",
+        "tenantLockedHint": "Tenant is fixed after creation",
+        "tenantLoadErrorTitle": "Unable to load tenants",
+        "tenantLoadErrorMessage": "We couldn't load tenants. Try again.",
+        "noTenantsMessage": "No tenants available yet.",
+        "createTenantFirst": "Create a tenant before adding permissions.",
+        "goToTenants": "Go to Tenants",
+        "goToTenantsHint": "Open tenant settings",
+        "nameLabel": "Permission name",
+        "namePlaceholder": "e.g. roles.read",
+        "nameHint": "Required",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Optional notes about the permission",
+        "descriptionHint": "Optional",
+        "submitCreate": "Create Permission",
+        "submitEdit": "Save Changes",
+        "submitErrorTitle": "Unable to save permission",
+        "submitErrorMessage": "We couldn't save the permission. Try again.",
+        "cancel": "Cancel",
+        "cancelHint": "Return without saving",
+        "blockedMessage": "Create a tenant before adding permissions."
+      }
     },
-    "detail": {
-      "title": "Permission Details"
-    }
-  },
   "apiKey": {
     "list": {
       "title": "API Keys",

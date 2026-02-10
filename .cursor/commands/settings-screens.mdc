@@ -1,5 +1,5 @@
 
-Review and implement **11.3.14** Role -- `(main)/settings/roles` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
+Review and implement **11.3.15** Permission -- `(main)/settings/permissions` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
 Must be **100% compliant** with:
 - `hms-frontend/.cursor/rules`
 - HMS backend contracts

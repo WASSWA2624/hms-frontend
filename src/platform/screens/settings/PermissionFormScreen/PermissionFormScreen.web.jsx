@@ -4,14 +4,29 @@
 import React from 'react';
 import {
   Button,
+  Card,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Select,
   Text,
   TextArea,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledSection, StyledActions } from './PermissionFormScreen.web.styles';
+import {
+  StyledActions,
+  StyledContainer,
+  StyledContent,
+  StyledFieldGroup,
+  StyledFormGrid,
+  StyledFullRow,
+  StyledHelperStack,
+  StyledInlineStates,
+} from './PermissionFormScreen.web.styles';
 import usePermissionFormScreen from './usePermissionFormScreen';
 
 const PermissionFormScreenWeb = () => {
@@ -24,11 +39,22 @@ const PermissionFormScreenWeb = () => {
     setName,
     description,
     setDescription,
+    tenantOptions,
+    tenantListLoading,
+    tenantListError,
+    tenantErrorMessage,
+    hasTenants,
+    isCreateBlocked,
     isLoading,
     hasError,
+    errorMessage,
+    isOffline,
     permission,
     onSubmit,
     onCancel,
+    onGoToTenants,
+    onRetryTenants,
+    isSubmitDisabled,
   } = usePermissionFormScreen();
 
   if (isEdit && !permission && isLoading) {
@@ -59,65 +85,180 @@ const PermissionFormScreenWeb = () => {
     );
   }
 
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
+  const retryTenantsAction = onRetryTenants ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryTenants}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="permission-form-tenant-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasError && (!isEdit || Boolean(permission));
+  const showTenantBlocked = !isEdit && isCreateBlocked;
+  const blockedMessage = showTenantBlocked
+    ? t('permission.form.blockedMessage')
+    : t('permission.form.nameHint');
+
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={isEdit ? t('permission.form.editTitle') : t('permission.form.createTitle')}>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="permission-form-title">
+        <Text variant="h2" accessibilityRole="header" testID="permission-form-title">
           {isEdit ? t('permission.form.editTitle') : t('permission.form.createTitle')}
         </Text>
 
-        {!isEdit && (
-          <StyledSection>
-            <TextField
-              label={t('permission.form.tenantIdLabel')}
-              placeholder={t('permission.form.tenantIdPlaceholder')}
-              value={tenantId}
-              onChangeText={setTenantId}
-              accessibilityLabel={t('permission.form.tenantIdLabel')}
-              accessibilityHint={t('permission.form.tenantIdHint')}
-              testID="permission-form-tenant-id"
+        <StyledInlineStates>
+          {isOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              testID="permission-form-offline"
             />
-          </StyledSection>
-        )}
+          )}
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('permission.form.submitErrorTitle')}
+              description={errorMessage}
+              testID="permission-form-submit-error"
+            />
+          )}
+        </StyledInlineStates>
 
-        <StyledSection>
-          <TextField
-            label={t('permission.form.nameLabel')}
-            placeholder={t('permission.form.namePlaceholder')}
-            value={name}
-            onChangeText={setName}
-            accessibilityLabel={t('permission.form.nameLabel')}
-            accessibilityHint={t('permission.form.nameHint')}
-            testID="permission-form-name"
-          />
-        </StyledSection>
+        <Card variant="outlined" accessibilityLabel={t('permission.form.nameLabel')} testID="permission-form-card">
+          <StyledFormGrid>
+            {!isEdit ? (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  {tenantListLoading ? (
+                    <LoadingSpinner
+                      accessibilityLabel={t('common.loading')}
+                      testID="permission-form-tenant-loading"
+                    />
+                  ) : tenantListError ? (
+                    <ErrorState
+                      size={ErrorStateSizes.SMALL}
+                      title={t('permission.form.tenantLoadErrorTitle')}
+                      description={tenantErrorMessage}
+                      action={retryTenantsAction}
+                      testID="permission-form-tenant-error"
+                    />
+                  ) : !hasTenants ? (
+                    <StyledHelperStack
+                      role="region"
+                      aria-label={t('permission.form.tenantLabel')}
+                      data-testid="permission-form-no-tenants"
+                    >
+                      <Text variant="body">{t('permission.form.noTenantsMessage')}</Text>
+                      <Text variant="body">{t('permission.form.createTenantFirst')}</Text>
+                      <Button
+                        variant="surface"
+                        size="small"
+                        onPress={onGoToTenants}
+                        accessibilityLabel={t('permission.form.goToTenants')}
+                        accessibilityHint={t('permission.form.goToTenantsHint')}
+                        icon={<Icon glyph="→" size="xs" decorative />}
+                        testID="permission-form-go-to-tenants"
+                      >
+                        {t('permission.form.goToTenants')}
+                      </Button>
+                    </StyledHelperStack>
+                  ) : (
+                    <Select
+                      label={t('permission.form.tenantLabel')}
+                      placeholder={t('permission.form.tenantPlaceholder')}
+                      options={tenantOptions}
+                      value={tenantId}
+                      onValueChange={setTenantId}
+                      accessibilityLabel={t('permission.form.tenantLabel')}
+                      accessibilityHint={t('permission.form.tenantHint')}
+                      helperText={t('permission.form.tenantHint')}
+                      required
+                      compact
+                      disabled={isFormDisabled}
+                      testID="permission-form-tenant"
+                    />
+                  )}
+                </StyledFieldGroup>
+              </StyledFullRow>
+            ) : (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  <TextField
+                    label={t('permission.form.tenantLabel')}
+                    value={tenantId}
+                    accessibilityLabel={t('permission.form.tenantLabel')}
+                    accessibilityHint={t('permission.form.tenantLockedHint')}
+                    helperText={t('permission.form.tenantLockedHint')}
+                    disabled
+                    testID="permission-form-tenant-readonly"
+                  />
+                </StyledFieldGroup>
+              </StyledFullRow>
+            )}
 
-        <StyledSection>
-          <TextArea
-            label={t('permission.form.descriptionLabel')}
-            placeholder={t('permission.form.descriptionPlaceholder')}
-            value={description}
-            onChangeText={setDescription}
-            accessibilityLabel={t('permission.form.descriptionLabel')}
-            accessibilityHint={t('permission.form.descriptionHint')}
-            testID="permission-form-description"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('permission.form.nameLabel')}
+                placeholder={t('permission.form.namePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                accessibilityLabel={t('permission.form.nameLabel')}
+                accessibilityHint={t('permission.form.nameHint')}
+                helperText={blockedMessage}
+                required
+                density="compact"
+                disabled={isFormDisabled}
+                testID="permission-form-name"
+              />
+            </StyledFieldGroup>
+
+            <StyledFullRow>
+              <StyledFieldGroup>
+                <TextArea
+                  label={t('permission.form.descriptionLabel')}
+                  placeholder={t('permission.form.descriptionPlaceholder')}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  accessibilityLabel={t('permission.form.descriptionLabel')}
+                  accessibilityHint={t('permission.form.descriptionHint')}
+                  helperText={showTenantBlocked ? t('permission.form.blockedMessage') : t('permission.form.descriptionHint')}
+                  disabled={isFormDisabled}
+                  testID="permission-form-description"
+                />
+              </StyledFieldGroup>
+            </StyledFullRow>
+          </StyledFormGrid>
+        </Card>
 
         <StyledActions>
           <Button
-            variant="ghost"
+            variant="surface"
+            size="small"
             onPress={onCancel}
             accessibilityLabel={t('permission.form.cancel')}
             accessibilityHint={t('permission.form.cancelHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
             testID="permission-form-cancel"
+            disabled={isLoading}
           >
             {t('permission.form.cancel')}
           </Button>
           <Button
-            variant="primary"
+            variant="surface"
+            size="small"
             onPress={onSubmit}
+            loading={isLoading}
+            disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
+            accessibilityHint={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
+            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="permission-form-submit"
           >
             {isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}

@@ -60,6 +60,7 @@ export { default as RoleListScreen } from './settings/RoleListScreen';
 export { default as RoleDetailScreen } from './settings/RoleDetailScreen';
 export { default as PermissionListScreen } from './settings/PermissionListScreen';
 export { default as PermissionDetailScreen } from './settings/PermissionDetailScreen';
+export { default as PermissionFormScreen } from './settings/PermissionFormScreen';
 export { default as RolePermissionListScreen } from './settings/RolePermissionListScreen';
 export { default as RolePermissionDetailScreen } from './settings/RolePermissionDetailScreen';
 export { default as UserRoleListScreen } from './settings/UserRoleListScreen';
