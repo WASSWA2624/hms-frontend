@@ -11,12 +11,21 @@ jest.mock('@hooks', () => ({
   useTenant: jest.fn(),
 }));
 
+jest.mock('@utils', () => {
+  const actual = jest.requireActual('@utils');
+  return {
+    ...actual,
+    confirmAction: jest.fn(() => true),
+  };
+});
+
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
   useLocalSearchParams: () => ({ id: 'tid-1' }),
 }));
 
 const useTenant = require('@hooks').useTenant;
+const { confirmAction } = require('@utils');
 
 describe('useTenantDetailScreen', () => {
   const mockGet = jest.fn();
@@ -97,6 +106,15 @@ describe('useTenantDetailScreen', () => {
       await result.current.onDelete();
     });
     expect(mockRemove).toHaveBeenCalledWith('tid-1');
+  });
+
+  it('onDelete does not call remove when confirmation is cancelled', async () => {
+    confirmAction.mockReturnValueOnce(false);
+    const { result } = renderHook(() => useTenantDetailScreen());
+    await act(async () => {
+      await result.current.onDelete();
+    });
+    expect(mockRemove).not.toHaveBeenCalled();
   });
 
   it('handles null tenant when data is null', () => {

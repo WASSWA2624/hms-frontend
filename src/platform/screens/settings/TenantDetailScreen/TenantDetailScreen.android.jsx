@@ -3,7 +3,6 @@
  * File: TenantDetailScreen.android.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
   EmptyState,
@@ -13,16 +12,18 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
   StyledSection,
   StyledActions,
+  StyledScrollView,
 } from './TenantDetailScreen.android.styles';
 import useTenantDetailScreen from './useTenantDetailScreen';
 
 const TenantDetailScreenAndroid = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     tenant,
     isLoading,
@@ -37,7 +38,7 @@ const TenantDetailScreenAndroid = () => {
 
   if (isLoading) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <LoadingSpinner
@@ -46,18 +47,22 @@ const TenantDetailScreenAndroid = () => {
             />
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
   if (isOffline) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <OfflineState
               action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
+                <Button
+                  onPress={onRetry}
+                  accessibilityLabel={t('common.retry')}
+                  accessibilityHint={t('common.retryHint')}
+                >
                   {t('common.retry')}
                 </Button>
               }
@@ -65,20 +70,24 @@ const TenantDetailScreenAndroid = () => {
             />
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
   if (hasError) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <ErrorState
               title={t('tenant.detail.errorTitle')}
               description={errorMessage}
               action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
+                <Button
+                  onPress={onRetry}
+                  accessibilityLabel={t('common.retry')}
+                  accessibilityHint={t('common.retryHint')}
+                >
                   {t('common.retry')}
                 </Button>
               }
@@ -86,13 +95,13 @@ const TenantDetailScreenAndroid = () => {
             />
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
   if (!tenant) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <EmptyState
@@ -105,6 +114,7 @@ const TenantDetailScreenAndroid = () => {
                 variant="primary"
                 onPress={onBack}
                 accessibilityLabel={t('common.back')}
+                accessibilityHint={t('tenant.detail.backHint')}
                 testID="tenant-detail-back"
               >
                 {t('common.back')}
@@ -112,22 +122,18 @@ const TenantDetailScreenAndroid = () => {
             </StyledActions>
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
-  const createdAt = tenant.created_at
-    ? new Date(tenant.created_at).toLocaleString()
-    : '';
-  const updatedAt = tenant.updated_at
-    ? new Date(tenant.updated_at).toLocaleString()
-    : '';
+  const createdAt = formatDateTime(tenant.created_at, locale);
+  const updatedAt = formatDateTime(tenant.updated_at, locale);
   const name = tenant?.name ?? '';
   const slug = tenant?.slug ?? '';
   const isActive = tenant?.is_active ?? false;
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <StyledScrollView>
       <StyledContainer>
         <StyledContent>
           <Text
@@ -208,7 +214,7 @@ const TenantDetailScreenAndroid = () => {
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    </StyledScrollView>
   );
 };
 

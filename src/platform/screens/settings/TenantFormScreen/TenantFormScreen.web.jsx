@@ -33,7 +33,7 @@ const TenantFormScreenWeb = () => {
 
   if (isEdit && !tenant && isLoading) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('tenant.form.editTitle')}>
         <StyledContent>
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-form-loading" />
         </StyledContent>
@@ -43,24 +43,29 @@ const TenantFormScreenWeb = () => {
 
   if (isEdit && hasError && !tenant) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('tenant.form.editTitle')}>
         <StyledContent>
-          <ErrorState
-            title={t('tenant.form.loadError')}
-            action={
-              <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
-                {t('common.back')}
-              </Button>
-            }
-            testID="tenant-form-load-error"
-          />
+            <ErrorState
+              title={t('tenant.form.loadError')}
+              action={
+                <Button
+                  variant="primary"
+                  onPress={onCancel}
+                  accessibilityLabel={t('common.back')}
+                  accessibilityHint={t('tenant.form.cancelHint')}
+                >
+                  {t('common.back')}
+                </Button>
+              }
+              testID="tenant-form-load-error"
+            />
         </StyledContent>
       </StyledContainer>
     );
   }
 
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={isEdit ? t('tenant.form.editTitle') : t('tenant.form.createTitle')}>
       <StyledContent>
         <Text variant="h1" accessibilityRole="header" testID="tenant-form-title">
           {isEdit ? t('tenant.form.editTitle') : t('tenant.form.createTitle')}
@@ -115,6 +120,7 @@ const TenantFormScreenWeb = () => {
             variant="primary"
             onPress={onSubmit}
             accessibilityLabel={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
+            accessibilityHint={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
             testID="tenant-form-submit"
           >
             {isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}

@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useTenant } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -51,13 +52,14 @@ const useTenantDetailScreen = () => {
 
   const handleDelete = useCallback(async () => {
     if (!id) return;
+    if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       await remove(id);
       handleBack();
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, handleBack]);
+  }, [id, remove, handleBack, t]);
 
   return {
     id,

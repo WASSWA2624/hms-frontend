@@ -1496,6 +1496,8 @@
       "delete": "Delete tenant",
       "deleteHint": "Delete this tenant",
       "itemLabel": "Tenant {{name}}",
+      "itemHint": "View details for {{name}}",
+      "slugValue": "Slug: {{slug}}",
       "addLabel": "Add tenant",
       "addHint": "Create a new tenant"
     },

@@ -39,7 +39,7 @@ const useTenantFormScreen = () => {
       if (isEdit && id) {
         await update(id, {
           name: name.trim(),
-          slug: slug.trim() || undefined,
+          slug: slug.trim() ? slug.trim() : null,
           is_active: isActive,
         });
       } else {

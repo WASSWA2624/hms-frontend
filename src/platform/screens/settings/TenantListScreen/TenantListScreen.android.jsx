@@ -3,16 +3,25 @@
  * File: TenantListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Button,
   EmptyState,
+  ErrorState,
   ListItem,
+  OfflineState,
   Text,
 } from '@platform/components';
 import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.android';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList } from './TenantListScreen.android.styles';
+import {
+  StyledContainer,
+  StyledContent,
+  StyledHeaderRow,
+  StyledList,
+  StyledScrollView,
+  StyledSeparator,
+} from './TenantListScreen.android.styles';
 import useTenantListScreen from './useTenantListScreen';
 
 const TenantListScreenAndroid = () => {
@@ -33,15 +42,51 @@ const TenantListScreenAndroid = () => {
     <EmptyState
       title={t('tenant.list.emptyTitle')}
       description={t('tenant.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <Button
+            variant="primary"
+            onPress={onAdd}
+            accessibilityLabel={t('tenant.list.addLabel')}
+            accessibilityHint={t('tenant.list.addHint')}
+            testID="tenant-list-empty-add"
+          >
+            {t('tenant.list.addLabel')}
+          </Button>
+        ) : undefined
+      }
       testID="tenant-list-empty-state"
     />
   );
 
-  const ItemSeparator = () => <View style={{ height: 8 }} />;
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="primary"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      testID="tenant-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const errorComponent = (
+    <ErrorState
+      title={t('listScaffold.errorState.title')}
+      description={errorMessage}
+      action={retryAction}
+    />
+  );
+  const offlineComponent = (
+    <OfflineState
+      action={retryAction}
+    />
+  );
 
   const renderItem = ({ item: tenant }) => {
     const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-    const subtitle = tenant?.slug ? `Slug: ${tenant.slug}` : '';
+    const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
     return (
       <ListItem
         title={title}
@@ -60,16 +105,17 @@ const TenantListScreenAndroid = () => {
           </Button>
         }
         accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
+        accessibilityHint={t('tenant.list.itemHint', { name: title })}
         testID={`tenant-item-${tenant.id}`}
       />
     );
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <StyledScrollView>
       <StyledContainer>
         <StyledContent>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <StyledHeaderRow>
             <Text
               variant="h1"
               accessibilityRole="header"
@@ -88,7 +134,7 @@ const TenantListScreenAndroid = () => {
                 {t('tenant.list.addLabel')}
               </Button>
             )}
-          </View>
+          </StyledHeaderRow>
           <ListScaffold
             isLoading={isLoading}
             isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
@@ -99,6 +145,8 @@ const TenantListScreenAndroid = () => {
             accessibilityLabel={t('tenant.list.accessibilityLabel')}
             testID="tenant-list"
             emptyComponent={emptyComponent}
+            errorComponent={errorComponent}
+            offlineComponent={offlineComponent}
           >
             {items.length > 0 ? (
               <StyledList>
@@ -116,7 +164,7 @@ const TenantListScreenAndroid = () => {
           </ListScaffold>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    </StyledScrollView>
   );
 };
 

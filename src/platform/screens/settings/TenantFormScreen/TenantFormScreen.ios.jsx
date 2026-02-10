@@ -2,7 +2,6 @@
  * TenantFormScreen - iOS
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
   ErrorState,
@@ -12,7 +11,7 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledSection, StyledActions } from './TenantFormScreen.ios.styles';
+import { StyledContainer, StyledContent, StyledSection, StyledActions, StyledScrollView } from './TenantFormScreen.ios.styles';
 import useTenantFormScreen from './useTenantFormScreen';
 
 const TenantFormScreenIOS = () => {
@@ -34,25 +33,30 @@ const TenantFormScreenIOS = () => {
 
   if (isEdit && !tenant && isLoading) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-form-loading" />
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
   if (isEdit && hasError && !tenant) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <StyledScrollView>
         <StyledContainer>
           <StyledContent>
             <ErrorState
               title={t('tenant.form.loadError')}
               action={
-                <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
+                <Button
+                  variant="primary"
+                  onPress={onCancel}
+                  accessibilityLabel={t('common.back')}
+                  accessibilityHint={t('tenant.form.cancelHint')}
+                >
                   {t('common.back')}
                 </Button>
               }
@@ -60,12 +64,12 @@ const TenantFormScreenIOS = () => {
             />
           </StyledContent>
         </StyledContainer>
-      </ScrollView>
+      </StyledScrollView>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <StyledScrollView>
       <StyledContainer>
         <StyledContent>
           <Text variant="h1" accessibilityRole="header" testID="tenant-form-title">
@@ -77,6 +81,8 @@ const TenantFormScreenIOS = () => {
               placeholder={t('tenant.form.namePlaceholder')}
               value={name}
               onChangeText={setName}
+              accessibilityLabel={t('tenant.form.nameLabel')}
+              accessibilityHint={t('tenant.form.nameHint')}
               testID="tenant-form-name"
             />
           </StyledSection>
@@ -86,6 +92,8 @@ const TenantFormScreenIOS = () => {
               placeholder={t('tenant.form.slugPlaceholder')}
               value={slug}
               onChangeText={setSlug}
+              accessibilityLabel={t('tenant.form.slugLabel')}
+              accessibilityHint={t('tenant.form.slugHint')}
               testID="tenant-form-slug"
             />
           </StyledSection>
@@ -94,20 +102,34 @@ const TenantFormScreenIOS = () => {
               value={isActive}
               onValueChange={setIsActive}
               label={t('tenant.form.activeLabel')}
+              accessibilityLabel={t('tenant.form.activeLabel')}
+              accessibilityHint={t('tenant.form.activeHint')}
               testID="tenant-form-active"
             />
           </StyledSection>
           <StyledActions>
-            <Button variant="ghost" onPress={onCancel} testID="tenant-form-cancel">
+            <Button
+              variant="ghost"
+              onPress={onCancel}
+              accessibilityLabel={t('tenant.form.cancel')}
+              accessibilityHint={t('tenant.form.cancelHint')}
+              testID="tenant-form-cancel"
+            >
               {t('tenant.form.cancel')}
             </Button>
-            <Button variant="primary" onPress={onSubmit} testID="tenant-form-submit">
+            <Button
+              variant="primary"
+              onPress={onSubmit}
+              accessibilityLabel={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
+              accessibilityHint={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
+              testID="tenant-form-submit"
+            >
               {isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
             </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    </StyledScrollView>
   );
 };
 

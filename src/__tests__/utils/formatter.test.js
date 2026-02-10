@@ -3,7 +3,7 @@
  * File: formatter.test.js
  */
 
-import { formatDate, formatCurrency, formatNumber } from '@utils';
+import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@utils';
 
 describe('Formatter Utilities', () => {
   describe('formatDate', () => {
@@ -31,6 +31,35 @@ describe('Formatter Utilities', () => {
     test('should accept custom locale', () => {
       const date = new Date('2024-01-15');
       const formatted = formatDate(date, 'fr-FR');
+      expect(formatted).toBeTruthy();
+      expect(typeof formatted).toBe('string');
+    });
+  });
+
+  describe('formatDateTime', () => {
+    test('should format a valid date time', () => {
+      const date = new Date('2024-01-15T13:45:00Z');
+      const formatted = formatDateTime(date);
+      expect(formatted).toBeTruthy();
+      expect(typeof formatted).toBe('string');
+    });
+
+    test('should return empty string for null', () => {
+      expect(formatDateTime(null)).toBe('');
+    });
+
+    test('should return empty string for invalid date', () => {
+      expect(formatDateTime('not-a-date')).toBe('');
+    });
+
+    test('should accept custom locale', () => {
+      const formatted = formatDateTime('2024-01-15T13:45:00Z', 'fr-FR');
+      expect(formatted).toBeTruthy();
+      expect(typeof formatted).toBe('string');
+    });
+
+    test('should accept custom timeZone', () => {
+      const formatted = formatDateTime('2024-01-15T13:45:00Z', 'en-US', { timeZone: 'UTC' });
       expect(formatted).toBeTruthy();
       expect(typeof formatted).toBe('string');
     });

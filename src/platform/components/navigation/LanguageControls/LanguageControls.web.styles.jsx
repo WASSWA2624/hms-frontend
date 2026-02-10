@@ -16,6 +16,7 @@ const StyledLanguageControls = styled.div.withConfig({
 
 const StyledFlagTrigger = styled.button.withConfig({
   displayName: 'StyledFlagTrigger',
+  componentId: 'StyledFlagTrigger',
 })`
   display: inline-flex;
   align-items: center;
@@ -51,8 +52,12 @@ const StyledFlagTrigger = styled.button.withConfig({
 
 const StyledLanguageMenu = styled.div.withConfig({
   displayName: 'StyledLanguageMenu',
+  componentId: 'StyledLanguageMenu',
+  shouldForwardProp: (prop) => !['$vertical', '$horizontal', '$top', '$left'].includes(prop),
 })`
-  position: absolute;
+  position: fixed;
+  top: ${({ $top }) => ($top != null ? `${$top}px` : 'auto')};
+  left: ${({ $left }) => ($left != null ? `${$left}px` : 'auto')};
   min-width: 160px;
   padding: 4px;
   background-color: ${({ theme }) => theme.colors.background.primary};
@@ -63,29 +68,8 @@ const StyledLanguageMenu = styled.div.withConfig({
   --lang-menu-offset: ${({ $vertical }) => ($vertical === 'top' ? '4px' : '-4px')};
   animation: langMenuSlide 0.2s ease-out;
 
-  ${({ $vertical }) =>
-    $vertical === 'top'
-      ? `
-    bottom: 100%;
-    margin-bottom: 4px;
-    top: auto;
-  `
-      : `
-    top: 100%;
-    margin-top: 4px;
-    bottom: auto;
-  `}
-
-  ${({ $horizontal }) =>
-    $horizontal === 'left'
-      ? `
-    left: 0;
-    right: auto;
-  `
-      : `
-    right: 0;
-    left: auto;
-  `}
+  transform-origin: ${({ $vertical, $horizontal }) =>
+    `${$vertical === 'top' ? 'bottom' : 'top'} ${$horizontal === 'left' ? 'left' : 'right'}`};
 
   @keyframes langMenuSlide {
     from {
@@ -101,6 +85,7 @@ const StyledLanguageMenu = styled.div.withConfig({
 
 const StyledLanguageItem = styled.button.withConfig({
   displayName: 'StyledLanguageItem',
+  componentId: 'StyledLanguageItem',
 })`
   display: flex;
   align-items: center;
@@ -128,6 +113,7 @@ const StyledLanguageItem = styled.button.withConfig({
 
 const StyledLanguageItemFlag = styled.span.withConfig({
   displayName: 'StyledLanguageItemFlag',
+  componentId: 'StyledLanguageItemFlag',
 })`
   flex-shrink: 0;
   line-height: 1;

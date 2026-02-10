@@ -13,7 +13,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList, StyledListBody } from './TenantListScreen.web.styles';
+import { StyledContainer, StyledContent, StyledHeaderRow, StyledList, StyledListBody } from './TenantListScreen.web.styles';
 import useTenantListScreen from './useTenantListScreen';
 
 const TenantListScreenWeb = () => {
@@ -34,14 +34,27 @@ const TenantListScreenWeb = () => {
     <EmptyState
       title={t('tenant.list.emptyTitle')}
       description={t('tenant.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <Button
+            variant="primary"
+            onPress={onAdd}
+            accessibilityLabel={t('tenant.list.addLabel')}
+            accessibilityHint={t('tenant.list.addHint')}
+            testID="tenant-list-empty-add"
+          >
+            {t('tenant.list.addLabel')}
+          </Button>
+        ) : undefined
+      }
       testID="tenant-list-empty-state"
     />
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={t('tenant.list.title')}>
       <StyledContent>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <StyledHeaderRow>
           <Text variant="h1" accessibilityRole="header" testID="tenant-list-title">
             {t('tenant.list.title')}
           </Text>
@@ -56,16 +69,28 @@ const TenantListScreenWeb = () => {
               {t('tenant.list.addLabel')}
             </Button>
           )}
-        </div>
+        </StyledHeaderRow>
         <StyledListBody role="region" aria-label={t('tenant.list.accessibilityLabel')} data-testid="tenant-list">
-          {isLoading && <LoadingSpinner testID="tenant-list-spinner" />}
+          {isLoading && <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />}
           {!isLoading && hasError && (
             <>
               <ErrorState
                 title={t('listScaffold.errorState.title')}
                 description={errorMessage}
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="tenant-list-error-state"
+                action={
+                  onRetry ? (
+                    <Button
+                      variant="primary"
+                      onPress={onRetry}
+                      accessibilityLabel={t('common.retry')}
+                      accessibilityHint={t('common.retryHint')}
+                      testID="tenant-list-retry"
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  ) : undefined
+                }
+                testID="tenant-list-error"
               />
               {emptyComponent}
             </>
@@ -73,8 +98,20 @@ const TenantListScreenWeb = () => {
           {!isLoading && isOffline && (
             <>
               <OfflineState
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="tenant-list-offline-state"
+                action={
+                  onRetry ? (
+                    <Button
+                      variant="primary"
+                      onPress={onRetry}
+                      accessibilityLabel={t('common.retry')}
+                      accessibilityHint={t('common.retryHint')}
+                      testID="tenant-list-retry"
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  ) : undefined
+                }
+                testID="tenant-list-offline"
               />
               {emptyComponent}
             </>
@@ -84,7 +121,7 @@ const TenantListScreenWeb = () => {
             <StyledList role="list">
               {items.map((tenant) => {
                 const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-                const subtitle = tenant?.slug ? `Slug: ${tenant.slug}` : '';
+                const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
                 return (
                   <li key={tenant.id} role="listitem">
                     <ListItem
@@ -104,6 +141,7 @@ const TenantListScreenWeb = () => {
                         </Button>
                       }
                       accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
+                      accessibilityHint={t('tenant.list.itemHint', { name: title })}
                       testID={`tenant-item-${tenant.id}`}
                     />
                   </li>

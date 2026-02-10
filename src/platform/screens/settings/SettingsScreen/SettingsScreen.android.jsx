@@ -1,17 +1,17 @@
 /**
  * SettingsScreen - Android
- * Template: sidebar nav + content slot for settings sub-pages.
+ * Container for settings routes (uses AppFrame scroll for uniformity).
  */
 import React from 'react';
 import { useI18n } from '@hooks';
-import { StyledContainer } from './SettingsScreen.android.styles';
+import { StyledContainer, StyledContent } from './SettingsScreen.android.styles';
 
 const SettingsScreenAndroid = ({ children }) => {
   const { t } = useI18n();
 
   return (
     <StyledContainer testID="settings-screen" accessibilityLabel={t('settings.screen.label')}>
-      {children}
+      <StyledContent>{children}</StyledContent>
     </StyledContainer>
   );
 };

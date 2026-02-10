@@ -8,21 +8,26 @@ const StyledContainer = styled.main.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
 })`
-  flex: 1;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
+  padding: 0;
+  box-sizing: border-box;
 `;
 
 const StyledContent = styled.div.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledSection = styled.section.withConfig({
@@ -39,6 +44,7 @@ const StyledActions = styled.div.withConfig({
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm}px;
   margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
 export { StyledContainer, StyledContent, StyledSection, StyledActions };

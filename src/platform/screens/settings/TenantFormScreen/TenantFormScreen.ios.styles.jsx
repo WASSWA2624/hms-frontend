@@ -2,41 +2,51 @@
  * TenantFormScreen iOS Styles
  */
 import styled from 'styled-components/native';
+import { ScrollView, View } from 'react-native';
 
-const StyledContainer = styled.View.withConfig({
-  displayName: 'TenantFormScreen_StyledContainer',
-  componentId: 'TenantFormScreen_StyledContainer',
+const StyledScrollView = styled(ScrollView).attrs({
+  contentContainerStyle: { flexGrow: 1 },
+}).withConfig({
+  displayName: 'StyledScrollView',
+  componentId: 'StyledScrollView',
+})`
+  flex: 1;
+`;
+
+const StyledContainer = styled(View).withConfig({
+  displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
 })`
   flex: 1;
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
+  padding: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledContent = styled.View.withConfig({
-  displayName: 'TenantFormScreen_StyledContent',
-  componentId: 'TenantFormScreen_StyledContent',
+const StyledContent = styled(View).withConfig({
+  displayName: 'StyledContent',
+  componentId: 'StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  align-self: center;
 `;
 
 const StyledSection = styled.View.withConfig({
-  displayName: 'TenantFormScreen_StyledSection',
-  componentId: 'TenantFormScreen_StyledSection',
+  displayName: 'StyledSection',
+  componentId: 'StyledSection',
 })`
   margin-top: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledActions = styled.View.withConfig({
-  displayName: 'TenantFormScreen_StyledActions',
-  componentId: 'TenantFormScreen_StyledActions',
+  displayName: 'StyledActions',
+  componentId: 'StyledActions',
 })`
   flex-direction: row;
   gap: ${({ theme }) => theme.spacing.sm}px;
   margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export { StyledScrollView, StyledContainer, StyledContent, StyledSection, StyledActions };

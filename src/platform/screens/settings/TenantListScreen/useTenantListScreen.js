@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, useTenant } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   if (!errorCode) return null;
@@ -66,6 +67,7 @@ const useTenantListScreen = () => {
   const handleDelete = useCallback(
     async (id, e) => {
       if (e?.stopPropagation) e.stopPropagation();
+      if (!confirmAction(t('common.confirmDelete'))) return;
       try {
         await remove(id);
         fetchList();
@@ -73,7 +75,7 @@ const useTenantListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList]
+    [remove, fetchList, t]
   );
 
   return {
