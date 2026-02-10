@@ -56,7 +56,7 @@ const StyledTitle = styled.Text.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: ${({ theme }) => theme.colors.status?.error?.text || theme.colors.error || theme.colors.text.primary};
   text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
@@ -83,7 +83,8 @@ const StyledDescription = styled.Text.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  opacity: 0.85;
   text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;

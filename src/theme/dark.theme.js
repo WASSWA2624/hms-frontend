@@ -27,6 +27,17 @@ const darkColors = {
   textPrimary: '#F3F3F3',
   textSecondary: '#C8CBD1',
   onPrimary: '#FFFFFF',
+  status: {
+    ...colors.status,
+    error: {
+      background: '#2A1214',
+      text: '#FFB4AB',
+    },
+    warning: {
+      background: '#2A1C10',
+      text: '#FFD7A0',
+    },
+  },
   tooltip: {
     background: 'rgba(23, 26, 31, 0.95)',
     text: '#F3F3F3',

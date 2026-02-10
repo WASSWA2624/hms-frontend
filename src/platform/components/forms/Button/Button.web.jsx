@@ -22,7 +22,7 @@ import { SIZES, VARIANTS } from './types';
 /**
  * Button component for Web
  * @param {Object} props - Button props
- * @param {string} props.variant - Button variant (primary, secondary, outline, text)
+ * @param {string} props.variant - Button variant (primary, secondary, outline, text, surface)
  * @param {string} props.size - Button size (small, medium, large)
  * @param {boolean} props.disabled - Disabled state
  * @param {boolean} props.loading - Loading state

@@ -69,7 +69,9 @@ const ButtonAndroid = ({
   const spinnerColor =
     variant === VARIANTS.PRIMARY || variant === VARIANTS.SECONDARY
       ? theme.colors.text.inverse
-      : theme.colors.primary;
+      : variant === VARIANTS.SURFACE
+        ? theme.colors.text.primary
+        : theme.colors.primary;
 
   return (
     <StyledButton

@@ -76,7 +76,7 @@ const FacilityFormScreenWeb = () => {
             title={t('facility.form.loadError')}
             action={
               <Button
-                variant="primary"
+                variant="surface"
                 size="small"
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
@@ -94,7 +94,7 @@ const FacilityFormScreenWeb = () => {
 
   const retryTenantsAction = onRetryTenants ? (
     <Button
-      variant="primary"
+      variant="surface"
       size="small"
       onPress={onRetryTenants}
       accessibilityLabel={t('common.retry')}
@@ -162,7 +162,7 @@ const FacilityFormScreenWeb = () => {
                       <Text variant="body">{t('facility.form.noTenantsMessage')}</Text>
                       <Text variant="body">{t('facility.form.createTenantFirst')}</Text>
                       <Button
-                        variant="primary"
+                        variant="surface"
                         size="small"
                         onPress={onGoToTenants}
                         accessibilityLabel={t('facility.form.goToTenants')}
@@ -244,9 +244,9 @@ const FacilityFormScreenWeb = () => {
 
         <StyledActions>
           <Button
-            variant="ghost"
-            onPress={onCancel}
+            variant="surface"
             size="small"
+            onPress={onCancel}
             accessibilityLabel={t('facility.form.cancel')}
             accessibilityHint={t('facility.form.cancelHint')}
             testID="facility-form-cancel"
@@ -255,9 +255,9 @@ const FacilityFormScreenWeb = () => {
             {t('facility.form.cancel')}
           </Button>
           <Button
-            variant="primary"
-            onPress={onSubmit}
+            variant="surface"
             size="small"
+            onPress={onSubmit}
             loading={isLoading}
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('facility.form.submitEdit') : t('facility.form.submitCreate')}

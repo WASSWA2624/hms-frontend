@@ -81,7 +81,7 @@ const FacilityListScreenWeb = () => {
 
   const retryAction = onRetry ? (
     <Button
-      variant="primary"
+      variant="surface"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
@@ -181,7 +181,7 @@ const FacilityListScreenWeb = () => {
                         onPress={() => onFacilityPress(facility.id)}
                         actions={
                           <Button
-                            variant="ghost"
+                            variant="surface"
                             size="small"
                             onPress={(e) => onDelete(facility.id, e)}
                             accessibilityLabel={t('facility.list.delete')}

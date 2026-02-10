@@ -11,11 +11,21 @@ const StyledErrorState = styled.div.withConfig({
   componentId: 'StyledErrorState',
 })`
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing.xl}px;
+  padding: ${({ size, theme }) => {
+    const paddings = {
+      small: theme.spacing.sm,
+      medium: theme.spacing.md,
+      large: theme.spacing.lg,
+    };
+    return paddings[size] || paddings.medium;
+  }}px;
   background-color: ${({ theme }) => theme.colors.status?.error?.background || theme.colors.background?.secondary};
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   border-left: 4px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
@@ -25,18 +35,33 @@ const StyledIconContainer = styled.div.withConfig({
   displayName: 'StyledIconContainer',
   componentId: 'StyledIconContainer',
 })`
-  margin-bottom: ${({ size, theme }) => {
-    const margins = {
-      small: theme.spacing.md,
-      medium: theme.spacing.lg,
-      large: theme.spacing.xl,
-    };
-    return margins[size] || margins.medium;
-  }}px;
-  display: flex;
+  margin-bottom: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: ${({ size, theme }) => {
+    const sizes = {
+      small: theme.spacing.lg,
+      medium: theme.spacing.xl,
+      large: theme.spacing.xxl,
+    };
+    return sizes[size] || sizes.medium;
+  }}px;
+  height: ${({ size, theme }) => {
+    const sizes = {
+      small: theme.spacing.lg,
+      medium: theme.spacing.xl,
+      large: theme.spacing.xxl,
+    };
+    return sizes[size] || sizes.medium;
+  }}px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  background-color: ${({ theme }) => theme.colors.background?.primary || '#FFFFFF'};
+  border: 1px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
   color: ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
 const StyledTitle = styled.h2.withConfig({
@@ -61,9 +86,28 @@ const StyledTitle = styled.h2.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: ${({ theme }) => theme.colors.status?.error?.text || theme.colors.error || theme.colors.text.primary};
   text-align: center;
-  margin: 0 0 ${({ theme }) => theme.spacing.sm}px 0;
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+`;
+
+const StyledHeaderRow = styled.div.withConfig({
+  displayName: 'StyledHeaderRow',
+  componentId: 'StyledHeaderRow',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  text-align: center;
 `;
 
 const StyledDescription = styled.p.withConfig({
@@ -88,20 +132,25 @@ const StyledDescription = styled.p.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  opacity: 0.85;
   text-align: center;
-  margin: 0 0 ${({ theme }) => theme.spacing.md}px 0;
+  margin: 0 0 ${({ theme }) => theme.spacing.sm}px 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 `;
 
 const StyledActionContainer = styled.div.withConfig({
   displayName: 'StyledActionContainer',
   componentId: 'StyledActionContainer',
 })`
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
-export { StyledErrorState, StyledIconContainer, StyledTitle, StyledDescription, StyledActionContainer };
+export { StyledErrorState, StyledIconContainer, StyledTitle, StyledHeaderRow, StyledDescription, StyledActionContainer };
 

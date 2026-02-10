@@ -37,7 +37,7 @@ const ErrorStateAndroid = ({
   const iconSizeMap = { small: IconSizes.SM, medium: IconSizes.MD, large: IconSizes.LG };
   const defaultIcon = !icon && (
     <Icon
-      glyph="alert-circle"
+      glyph="!"
       size={iconSizeMap[errorState.size] || IconSizes.MD}
       tone={TONES.ERROR}
       decorative

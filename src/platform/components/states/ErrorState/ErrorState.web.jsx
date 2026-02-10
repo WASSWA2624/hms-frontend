@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { StyledErrorState, StyledIconContainer, StyledTitle, StyledDescription, StyledActionContainer } from './ErrorState.web.styles';
+import { StyledErrorState, StyledIconContainer, StyledTitle, StyledHeaderRow, StyledDescription, StyledActionContainer } from './ErrorState.web.styles';
 import { useErrorState } from './useErrorState';
 import { SIZES } from './types';
 import Icon, { SIZES as IconSizes, TONES } from '@platform/components/display/Icon';
@@ -39,7 +39,7 @@ const ErrorStateWeb = ({
   const iconSizeMap = { small: IconSizes.SM, medium: IconSizes.MD, large: IconSizes.LG };
   const defaultIcon = !icon && (
     <Icon
-      glyph="alert-circle"
+      glyph="!"
       size={iconSizeMap[errorState.size] || IconSizes.MD}
       tone={TONES.ERROR}
       decorative
@@ -58,15 +58,19 @@ const ErrorStateWeb = ({
       style={style}
       {...rest}
     >
-      {iconToRender && (
-        <StyledIconContainer size={errorState.size}>
-          {iconToRender}
-        </StyledIconContainer>
-      )}
-      {title && (
-        <StyledTitle size={errorState.size}>
-          {title}
-        </StyledTitle>
+      {(iconToRender || title) && (
+        <StyledHeaderRow>
+          {iconToRender && (
+            <StyledIconContainer size={errorState.size}>
+              {iconToRender}
+            </StyledIconContainer>
+          )}
+          {title && (
+            <StyledTitle size={errorState.size}>
+              {title}
+            </StyledTitle>
+          )}
+        </StyledHeaderRow>
       )}
       {description && (
         <StyledDescription size={errorState.size}>

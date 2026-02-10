@@ -13,6 +13,7 @@ export const VARIANTS = {
   SECONDARY: 'secondary',
   OUTLINE: 'outline',
   TEXT: 'text',
+  SURFACE: 'surface',
 };
 
 /**

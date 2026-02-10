@@ -63,7 +63,7 @@ const TenantFormScreenWeb = () => {
             title={t('tenant.form.loadError')}
             action={
               <Button
-                variant="primary"
+                variant="surface"
                 size="small"
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
@@ -156,9 +156,9 @@ const TenantFormScreenWeb = () => {
 
         <StyledActions>
           <Button
-            variant="ghost"
-            onPress={onCancel}
+            variant="surface"
             size="small"
+            onPress={onCancel}
             accessibilityLabel={t('tenant.form.cancel')}
             accessibilityHint={t('tenant.form.cancelHint')}
             testID="tenant-form-cancel"
@@ -167,9 +167,9 @@ const TenantFormScreenWeb = () => {
             {t('tenant.form.cancel')}
           </Button>
           <Button
-            variant="primary"
-            onPress={onSubmit}
+            variant="surface"
             size="small"
+            onPress={onSubmit}
             loading={isLoading}
             accessibilityLabel={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
             accessibilityHint={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
