@@ -3,17 +3,41 @@
  * File: ContactListScreen.ios.jsx
  */
 import React from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
-  Text,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
 } from '@platform/components';
-import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.ios';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList } from './ContactListScreen.ios.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './ContactListScreen.ios.styles';
 import useContactListScreen from './useContactListScreen';
+
+const resolveContactTypeLabel = (t, value) => {
+  if (!value) return '';
+  const key = `contact.types.${value}`;
+  const resolved = t(key);
+  return resolved === key ? value : resolved;
+};
 
 const ContactListScreenIOS = () => {
   const { t } = useI18n();
@@ -23,6 +47,8 @@ const ContactListScreenIOS = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onContactPress,
     onDelete,
@@ -33,65 +59,136 @@ const ContactListScreenIOS = () => {
     <EmptyState
       title={t('contact.list.emptyTitle')}
       description={t('contact.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            onPress={onAdd}
+            accessibilityRole="button"
+            accessibilityLabel={t('contact.list.addLabel')}
+            accessibilityHint={t('contact.list.addHint')}
+            testID="contact-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('contact.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="contact-list-empty-state"
     />
   );
 
-  const ItemSeparator = () => <View style={{ height: 8 }} />;
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="contact-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   const renderItem = ({ item: contact }) => {
     const title = contact?.value ?? contact?.id ?? '';
-    const subtitle = contact?.contact_type ? `${t('contact.list.typeLabel')}: ${contact.contact_type}` : '';
+    const typeLabel = resolveContactTypeLabel(t, contact?.contact_type);
+    const subtitle = typeLabel ? `${t('contact.list.typeLabel')}: ${typeLabel}` : '';
     return (
       <ListItem
         title={title}
         subtitle={subtitle}
         onPress={() => onContactPress(contact.id)}
-        actions={
+        actions={(
           <Button
-            variant="ghost"
+            variant="surface"
             size="small"
             onPress={(e) => onDelete(contact.id, e)}
             accessibilityLabel={t('contact.list.delete')}
             accessibilityHint={t('contact.list.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
             testID={`contact-delete-${contact.id}`}
           >
             {t('common.remove')}
           </Button>
-        }
+        )}
         accessibilityLabel={t('contact.list.itemLabel', { name: title })}
+        accessibilityHint={t('contact.list.itemHint', { name: title })}
         testID={`contact-item-${contact.id}`}
       />
     );
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="contact-list-title"
-          >
-            {t('contact.list.title')}
-          </Text>
-          <ListScaffold
-            isLoading={isLoading}
-            isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-            hasError={hasError}
-            error={errorMessage}
-            isOffline={isOffline}
-            onRetry={onRetry}
-            accessibilityLabel={t('contact.list.accessibilityLabel')}
-            testID="contact-list"
-            emptyComponent={emptyComponent}
-          >
-            {items.length > 0 ? (
+    <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="contact-list-notice"
+        />
+      ) : null}
+      <StyledContent>
+        <StyledToolbar testID="contact-list-toolbar">
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                onPress={onAdd}
+                accessibilityRole="button"
+                accessibilityLabel={t('contact.list.addLabel')}
+                accessibilityHint={t('contact.list.addHint')}
+                testID="contact-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('contact.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('contact.list.accessibilityLabel')}
+          testID="contact-list-card"
+        >
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="contact-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="contact-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="contact-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(c) => c.id}
+                  keyExtractor={(contact) => contact.id}
                   renderItem={renderItem}
                   ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
@@ -100,10 +197,10 @@ const ContactListScreenIOS = () => {
                 />
               </StyledList>
             ) : null}
-          </ListScaffold>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          </StyledListBody>
+        </Card>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

@@ -11,23 +11,54 @@ const StyledContainer = styled.View.withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledContent = styled.View.withConfig({
   displayName: 'ContactFormScreen_StyledContent',
   componentId: 'ContactFormScreen_StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  align-self: center;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledSection = styled.View.withConfig({
-  displayName: 'ContactFormScreen_StyledSection',
-  componentId: 'ContactFormScreen_StyledSection',
+const StyledInlineStates = styled.View.withConfig({
+  displayName: 'ContactFormScreen_StyledInlineStates',
+  componentId: 'ContactFormScreen_StyledInlineStates',
 })`
-  margin-top: ${({ theme }) => theme.spacing.lg}px;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFormGrid = styled.View.withConfig({
+  displayName: 'ContactFormScreen_StyledFormGrid',
+  componentId: 'ContactFormScreen_StyledFormGrid',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledFieldGroup = styled.View.withConfig({
+  displayName: 'ContactFormScreen_StyledFieldGroup',
+  componentId: 'ContactFormScreen_StyledFieldGroup',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFullRow = styled.View.withConfig({
+  displayName: 'ContactFormScreen_StyledFullRow',
+  componentId: 'ContactFormScreen_StyledFullRow',
+})`
+  width: 100%;
+`;
+
+const StyledHelperStack = styled.View.withConfig({
+  displayName: 'ContactFormScreen_StyledHelperStack',
+  componentId: 'ContactFormScreen_StyledHelperStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledActions = styled.View.withConfig({
@@ -36,7 +67,16 @@ const StyledActions = styled.View.withConfig({
 })`
   flex-direction: row;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledInlineStates,
+  StyledFormGrid,
+  StyledFieldGroup,
+  StyledFullRow,
+  StyledHelperStack,
+  StyledActions,
+};
