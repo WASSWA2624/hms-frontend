@@ -5,16 +5,31 @@
 import React from 'react';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
   LoadingSpinner,
   OfflineState,
-  Stack,
+  OfflineStateSizes,
+  Snackbar,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList, StyledListBody } from './RoleListScreen.web.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './RoleListScreen.web.styles';
 import useRoleListScreen from './useRoleListScreen';
 
 const RoleListScreenWeb = () => {
@@ -25,6 +40,8 @@ const RoleListScreenWeb = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onItemPress,
     onDelete,
@@ -35,84 +52,139 @@ const RoleListScreenWeb = () => {
     <EmptyState
       title={t('role.list.emptyTitle')}
       description={t('role.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            type="button"
+            onClick={onAdd}
+            accessibilityLabel={t('role.list.addLabel')}
+            accessibilityHint={t('role.list.addHint')}
+            testID="role-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('role.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="role-list-empty-state"
     />
   );
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="role-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={t('role.list.title')}>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="role-list-notice"
+        />
+      ) : null}
       <StyledContent>
-        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
-          <Text variant="h1" accessibilityRole="header" testID="role-list-title">
-            {t('role.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('role.list.addLabel')}
-              accessibilityHint={t('role.list.addHint')}
-              testID="role-list-add"
-            >
-              {t('role.list.addLabel')}
-            </Button>
-          )}
-        </Stack>
-        <StyledListBody role="region" aria-label={t('role.list.accessibilityLabel')} data-testid="role-list">
-          {isLoading && <LoadingSpinner testID="role-list-spinner" />}
-          {!isLoading && hasError && (
-            <>
-              <ErrorState
-                title={t('listScaffold.errorState.title')}
-                description={errorMessage}
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="role-list-error-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && isOffline && (
-            <>
-              <OfflineState
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="role-list-offline-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && !hasError && !isOffline && items.length === 0 && emptyComponent}
-          {!isLoading && !hasError && !isOffline && items.length > 0 && (
-            <StyledList role="list">
-              {items.map((item) => {
-                const title = item?.name ?? item?.id ?? '';
-                const subtitle = item?.description ?? '';
-                return (
-                  <li key={item.id} role="listitem">
-                    <ListItem
-                      title={title}
-                      subtitle={subtitle}
-                      onPress={() => onItemPress(item.id)}
-                      actions={
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onPress={(e) => onDelete(item.id, e)}
-                          accessibilityLabel={t('role.list.delete')}
-                          accessibilityHint={t('role.list.deleteHint')}
-                          testID={`role-delete-${item.id}`}
-                        >
-                          {t('common.remove')}
-                        </Button>
-                      }
-                      accessibilityLabel={t('role.list.itemLabel', { name: title })}
-                      testID={`role-item-${item.id}`}
-                    />
-                  </li>
-                );
-              })}
-            </StyledList>
-          )}
-        </StyledListBody>
+        <StyledToolbar data-testid="role-list-toolbar">
+          <StyledSearchSlot>
+            <Text variant="h2" accessibilityRole="header" testID="role-list-title">
+              {t('role.list.title')}
+            </Text>
+          </StyledSearchSlot>
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                type="button"
+                onClick={onAdd}
+                accessibilityLabel={t('role.list.addLabel')}
+                accessibilityHint={t('role.list.addHint')}
+                testID="role-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('role.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('role.list.accessibilityLabel')}
+          testID="role-list-card"
+        >
+          <StyledListBody role="region" aria-label={t('role.list.accessibilityLabel')} data-testid="role-list">
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="role-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="role-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="role-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList && (
+              <StyledList role="list">
+                {items.map((item) => {
+                  const title = item?.name ?? item?.id ?? '';
+                  const subtitle = item?.description ?? '';
+                  return (
+                    <li key={item.id} role="listitem">
+                      <ListItem
+                        title={title}
+                        subtitle={subtitle}
+                        onPress={() => onItemPress(item.id)}
+                        actions={(
+                          <Button
+                            variant="surface"
+                            size="small"
+                            onPress={(e) => onDelete(item.id, e)}
+                            accessibilityLabel={t('role.list.delete')}
+                            accessibilityHint={t('role.list.deleteHint')}
+                            icon={<Icon glyph="✕" size="xs" decorative />}
+                            testID={`role-delete-${item.id}`}
+                          >
+                            {t('common.remove')}
+                          </Button>
+                        )}
+                        accessibilityLabel={t('role.list.itemLabel', { name: title })}
+                        testID={`role-item-${item.id}`}
+                      />
+                    </li>
+                  );
+                })}
+              </StyledList>
+            )}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );
