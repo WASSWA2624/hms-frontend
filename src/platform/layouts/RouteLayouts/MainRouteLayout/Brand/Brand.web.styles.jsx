@@ -65,7 +65,7 @@ const StyledBrandName = styled.span.withConfig({
 })`
   /* Desktop only: Full name visible */
   font-size: ${({ theme }) => theme.typography.fontSize.md}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text.primary};
   white-space: nowrap;
 
@@ -81,7 +81,7 @@ const StyledBrandShortName = styled.span.withConfig({
 })`
   /* Desktop: Hidden */
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text.primary};
   display: none;
   white-space: nowrap;
