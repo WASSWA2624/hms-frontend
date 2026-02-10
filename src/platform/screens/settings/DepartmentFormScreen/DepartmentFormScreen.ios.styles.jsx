@@ -11,24 +11,45 @@ const StyledContainer = styled.View.withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledContent = styled.View.withConfig({
   displayName: 'DepartmentFormScreen_StyledContent',
   componentId: 'DepartmentFormScreen_StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  align-self: center;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
-const StyledSection = styled.View.withConfig({
-  displayName: 'DepartmentFormScreen_StyledSection',
-  componentId: 'DepartmentFormScreen_StyledSection',
+const StyledInlineStates = styled.View.withConfig({
+  displayName: 'DepartmentFormScreen_StyledInlineStates',
+  componentId: 'DepartmentFormScreen_StyledInlineStates',
 })`
-  margin-top: ${({ theme }) => theme.spacing.lg}px;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
+
+const StyledFormGrid = styled.View.withConfig({
+  displayName: 'DepartmentFormScreen_StyledFormGrid',
+  componentId: 'DepartmentFormScreen_StyledFormGrid',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledFieldGroup = styled.View.withConfig({
+  displayName: 'DepartmentFormScreen_StyledFieldGroup',
+  componentId: 'DepartmentFormScreen_StyledFieldGroup',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFullRow = styled.View.withConfig({
+  displayName: 'DepartmentFormScreen_StyledFullRow',
+  componentId: 'DepartmentFormScreen_StyledFullRow',
+})``;
 
 const StyledActions = styled.View.withConfig({
   displayName: 'DepartmentFormScreen_StyledActions',
@@ -36,7 +57,15 @@ const StyledActions = styled.View.withConfig({
 })`
   flex-direction: row;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledInlineStates,
+  StyledFormGrid,
+  StyledFieldGroup,
+  StyledFullRow,
+  StyledActions,
+};

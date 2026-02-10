@@ -3,16 +3,35 @@
  * File: DepartmentListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
   Text,
 } from '@platform/components';
-import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.android';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList } from './DepartmentListScreen.android.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './DepartmentListScreen.android.styles';
 import useDepartmentListScreen from './useDepartmentListScreen';
 
 const DepartmentListScreenAndroid = () => {
@@ -23,6 +42,8 @@ const DepartmentListScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onDepartmentPress,
     onDelete,
@@ -33,11 +54,42 @@ const DepartmentListScreenAndroid = () => {
     <EmptyState
       title={t('department.list.emptyTitle')}
       description={t('department.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            onPress={onAdd}
+            accessibilityRole="button"
+            accessibilityLabel={t('department.list.addLabel')}
+            accessibilityHint={t('department.list.addHint')}
+            testID="department-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('department.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="department-list-empty-state"
     />
   );
 
-  const ItemSeparator = () => <View style={{ height: 8 }} />;
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="department-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   const renderItem = ({ item: department }) => {
     const title = department?.name ?? department?.id ?? '';
@@ -49,11 +101,12 @@ const DepartmentListScreenAndroid = () => {
         onPress={() => onDepartmentPress(department.id)}
         actions={
           <Button
-            variant="ghost"
+            variant="surface"
             size="small"
             onPress={(e) => onDelete(department.id, e)}
             accessibilityLabel={t('department.list.delete')}
             accessibilityHint={t('department.list.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
             testID={`department-delete-${department.id}`}
           >
             {t('common.remove')}
@@ -66,41 +119,70 @@ const DepartmentListScreenAndroid = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-            <Text
-              variant="h1"
-              accessibilityRole="header"
-              testID="department-list-title"
-            >
+    <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="department-list-notice"
+        />
+      ) : null}
+      <StyledContent>
+        <StyledToolbar testID="department-list-toolbar">
+          <StyledSearchSlot>
+            <Text variant="h2" accessibilityRole="header" testID="department-list-title">
               {t('department.list.title')}
             </Text>
+          </StyledSearchSlot>
+          <StyledToolbarActions>
             {onAdd && (
-              <Button
-                variant="primary"
+              <StyledAddButton
                 onPress={onAdd}
+                accessibilityRole="button"
                 accessibilityLabel={t('department.list.addLabel')}
                 accessibilityHint={t('department.list.addHint')}
                 testID="department-list-add"
               >
-                {t('department.list.addLabel')}
-              </Button>
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('department.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
             )}
-          </View>
-          <ListScaffold
-            isLoading={isLoading}
-            isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-            hasError={hasError}
-            error={errorMessage}
-            isOffline={isOffline}
-            onRetry={onRetry}
-            accessibilityLabel={t('department.list.accessibilityLabel')}
-            testID="department-list"
-            emptyComponent={emptyComponent}
-          >
-            {items.length > 0 ? (
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('department.list.accessibilityLabel')}
+          testID="department-list-card"
+        >
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="department-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="department-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="department-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
@@ -113,10 +195,10 @@ const DepartmentListScreenAndroid = () => {
                 />
               </StyledList>
             ) : null}
-          </ListScaffold>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          </StyledListBody>
+        </Card>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

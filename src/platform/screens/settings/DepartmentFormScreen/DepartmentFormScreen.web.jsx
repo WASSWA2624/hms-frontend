@@ -4,14 +4,28 @@
 import React from 'react';
 import {
   Button,
+  Card,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Select,
   Switch,
   Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledSection, StyledActions } from './DepartmentFormScreen.web.styles';
+import {
+  StyledActions,
+  StyledContainer,
+  StyledContent,
+  StyledFieldGroup,
+  StyledFormGrid,
+  StyledFullRow,
+  StyledInlineStates,
+} from './DepartmentFormScreen.web.styles';
 import useDepartmentFormScreen from './useDepartmentFormScreen';
 
 const DepartmentFormScreenWeb = () => {
@@ -20,22 +34,36 @@ const DepartmentFormScreenWeb = () => {
     isEdit,
     name,
     setName,
+    shortName,
+    setShortName,
     departmentType,
     setDepartmentType,
     isActive,
     setIsActive,
     tenantId,
     setTenantId,
+    tenantOptions,
+    tenantListLoading,
+    tenantListError,
+    tenantErrorMessage,
+    hasTenants,
+    isCreateBlocked,
+    typeOptions,
     isLoading,
     hasError,
+    errorMessage,
+    isOffline,
     department,
     onSubmit,
     onCancel,
+    onGoToTenants,
+    onRetryTenants,
+    isSubmitDisabled,
   } = useDepartmentFormScreen();
 
   if (isEdit && !department && isLoading) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('department.form.editTitle')}>
         <StyledContent>
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="department-form-loading" />
         </StyledContent>
@@ -45,12 +73,19 @@ const DepartmentFormScreenWeb = () => {
 
   if (isEdit && hasError && !department) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('department.form.editTitle')}>
         <StyledContent>
           <ErrorState
             title={t('department.form.loadError')}
             action={
-              <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCancel}
+                accessibilityLabel={t('common.back')}
+                accessibilityHint={t('department.form.cancelHint')}
+                icon={<Icon glyph="←" size="xs" decorative />}
+              >
                 {t('common.back')}
               </Button>
             }
@@ -61,76 +96,205 @@ const DepartmentFormScreenWeb = () => {
     );
   }
 
+  const showInlineError = hasError && (!isEdit || Boolean(department));
+  const isFormDisabled = isLoading;
+  const showCreateBlocked = !isEdit && isCreateBlocked;
+  const retryTenantsAction = onRetryTenants ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryTenants}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="department-form-tenant-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={isEdit ? t('department.form.editTitle') : t('department.form.createTitle')}>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="department-form-title">
+        <Text variant="h2" accessibilityRole="header" testID="department-form-title">
           {isEdit ? t('department.form.editTitle') : t('department.form.createTitle')}
         </Text>
 
-        {!isEdit && (
-          <StyledSection>
-            <TextField
-              label={t('department.form.tenantIdLabel')}
-              placeholder={t('department.form.tenantIdPlaceholder')}
-              value={tenantId}
-              onChange={(e) => setTenantId(e.target.value)}
-              accessibilityLabel={t('department.form.tenantIdLabel')}
-              accessibilityHint={t('department.form.tenantIdHint')}
-              testID="department-form-tenant-id"
+        <StyledInlineStates>
+          {isOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              testID="department-form-offline"
             />
-          </StyledSection>
-        )}
+          )}
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('department.form.submitErrorTitle')}
+              description={errorMessage}
+              testID="department-form-submit-error"
+            />
+          )}
+        </StyledInlineStates>
 
-        <StyledSection>
-          <TextField
-            label={t('department.form.nameLabel')}
-            placeholder={t('department.form.namePlaceholder')}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            accessibilityLabel={t('department.form.nameLabel')}
-            accessibilityHint={t('department.form.nameHint')}
-            testID="department-form-name"
-          />
-        </StyledSection>
+        <Card variant="outlined" accessibilityLabel={t('department.form.nameLabel')} testID="department-form-card">
+          <StyledFormGrid>
+            {!isEdit ? (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  {tenantListLoading ? (
+                    <LoadingSpinner
+                      accessibilityLabel={t('common.loading')}
+                      testID="department-form-tenant-loading"
+                    />
+                  ) : tenantListError ? (
+                    <ErrorState
+                      size={ErrorStateSizes.SMALL}
+                      title={t('department.form.tenantLoadErrorTitle')}
+                      description={tenantErrorMessage}
+                      action={retryTenantsAction}
+                      testID="department-form-tenant-error"
+                    />
+                  ) : !hasTenants ? (
+                    <>
+                      <Text variant="body">{t('department.form.noTenantsMessage')}</Text>
+                      <Text variant="body">{t('department.form.createTenantFirst')}</Text>
+                      <Button
+                        variant="surface"
+                        size="small"
+                        onPress={onGoToTenants}
+                        accessibilityLabel={t('department.form.goToTenants')}
+                        accessibilityHint={t('department.form.goToTenantsHint')}
+                        icon={<Icon glyph="→" size="xs" decorative />}
+                        testID="department-form-go-to-tenants"
+                      >
+                        {t('department.form.goToTenants')}
+                      </Button>
+                    </>
+                  ) : (
+                    <Select
+                      label={t('department.form.tenantLabel')}
+                      placeholder={t('department.form.tenantPlaceholder')}
+                      options={tenantOptions}
+                      value={tenantId}
+                      onValueChange={setTenantId}
+                      accessibilityLabel={t('department.form.tenantLabel')}
+                      accessibilityHint={t('department.form.tenantHint')}
+                      helperText={t('department.form.tenantHint')}
+                      required
+                      compact
+                      disabled={isFormDisabled || isCreateBlocked}
+                      testID="department-form-tenant"
+                    />
+                  )}
+                </StyledFieldGroup>
+              </StyledFullRow>
+            ) : (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  <TextField
+                    label={t('department.form.tenantIdLabel')}
+                    value={tenantId}
+                    accessibilityLabel={t('department.form.tenantIdLabel')}
+                    accessibilityHint={t('department.form.tenantLockedHint')}
+                    helperText={t('department.form.tenantLockedHint')}
+                    disabled
+                    testID="department-form-tenant-readonly"
+                  />
+                </StyledFieldGroup>
+              </StyledFullRow>
+            )}
 
-        <StyledSection>
-          <TextField
-            label={t('department.form.typeLabel')}
-            placeholder={t('department.form.typePlaceholder')}
-            value={departmentType}
-            onChange={(e) => setDepartmentType(e.target.value)}
-            accessibilityLabel={t('department.form.typeLabel')}
-            accessibilityHint={t('department.form.typeHint')}
-            testID="department-form-type"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('department.form.nameLabel')}
+                placeholder={t('department.form.namePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                accessibilityLabel={t('department.form.nameLabel')}
+                accessibilityHint={t('department.form.nameHint')}
+                helperText={showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.nameHint')}
+                required
+                density="compact"
+                disabled={isFormDisabled}
+                testID="department-form-name"
+              />
+            </StyledFieldGroup>
 
-        <StyledSection>
-          <Switch
-            value={isActive}
-            onValueChange={setIsActive}
-            label={t('department.form.activeLabel')}
-            accessibilityLabel={t('department.form.activeLabel')}
-            accessibilityHint={t('department.form.activeHint')}
-            testID="department-form-active"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('department.form.shortNameLabel')}
+                placeholder={t('department.form.shortNamePlaceholder')}
+                value={shortName}
+                onChange={(e) => setShortName(e.target.value)}
+                accessibilityLabel={t('department.form.shortNameLabel')}
+                accessibilityHint={t('department.form.shortNameHint')}
+                helperText={t('department.form.shortNameHint')}
+                density="compact"
+                disabled={isFormDisabled}
+                testID="department-form-short-name"
+              />
+            </StyledFieldGroup>
+
+            <StyledFieldGroup>
+              <Select
+                label={t('department.form.typeLabel')}
+                placeholder={t('department.form.typePlaceholder')}
+                options={typeOptions}
+                value={departmentType}
+                onValueChange={setDepartmentType}
+                accessibilityLabel={t('department.form.typeLabel')}
+                accessibilityHint={t('department.form.typeHint')}
+                helperText={t('department.form.typeHint')}
+                compact
+                disabled={isFormDisabled}
+                testID="department-form-type"
+              />
+            </StyledFieldGroup>
+
+            <StyledFullRow>
+              <StyledFieldGroup>
+                <Switch
+                  value={isActive}
+                  onValueChange={setIsActive}
+                  label={t('department.form.activeLabel')}
+                  accessibilityLabel={t('department.form.activeLabel')}
+                  accessibilityHint={t('department.form.activeHint')}
+                  disabled={isFormDisabled}
+                  testID="department-form-active"
+                />
+                <Text variant="caption">
+                  {showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.activeHint')}
+                </Text>
+              </StyledFieldGroup>
+            </StyledFullRow>
+          </StyledFormGrid>
+        </Card>
 
         <StyledActions>
           <Button
-            variant="ghost"
+            variant="surface"
+            size="small"
             onPress={onCancel}
             accessibilityLabel={t('department.form.cancel')}
             accessibilityHint={t('department.form.cancelHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
             testID="department-form-cancel"
+            disabled={isLoading}
           >
             {t('department.form.cancel')}
           </Button>
           <Button
-            variant="primary"
+            variant="surface"
+            size="small"
             onPress={onSubmit}
+            loading={isLoading}
+            disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
+            accessibilityHint={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
+            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="department-form-submit"
           >
             {isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}

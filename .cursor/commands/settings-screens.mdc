@@ -1,22 +1,21 @@
-# Step 11.3.5 — Departments Screen Implementation Prompt
 
-Review and implement **11.3.5** Department -- `(main)/settings/departments` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
+Review and implement **11.3.6** Unit -- `(main)/settings/units` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
 Must be **100% compliant** with:
 - `hms-frontend/.cursor/rules`
 - HMS backend contracts
 - Onboarding journey and app write-up
 Do not implement anything outside this step unless strictly required for CRUD to function.
 ## Scope
-Implement full CRUD for this step: List, Create, Edit, Delete(with confirmation), View details (if defined by backend/spec), Loading, empty, and error states, Success/failure feedback for every action.
+Implement full CRUD for this step: List, Create, Edit, Delete(with confirmation), View details (if defined by backend/spec), Loading, empty, and error states, Success/failure feedback for every action. Make the processes as simple as possible by pre-filling known fields or adding select components for user to select and prevent typos in known or determinable fields.
 All operations must match backend schema and endpoints exactly.
 ## Layout Rules (Strict)
 - Designed like the existing **Dashboard main layout**
 - Use **only main layout scroll** — no nested scroll containers
 - No nested sidebar
 - Use standard breadcrumb + back navigation
-- Match other dashboard screens visually and structurally
+- Match other screens visually and structurally
 ## UI / UX Rules
-- Lightweight, clean, modern, dashboard-consistent
+- Lightweight, clean, modern, fullr responsive for allscreen sizes
 - Compact spacing and components
 - No oversized elements
 - No duplicate or unnecessary UI
@@ -40,6 +39,7 @@ All operations must match backend schema and endpoints exactly.
 - Human-readable, actionable error messages
 - Clear success and failure feedback for every CRUD action
 - User flow must feel guided and safe
+- Disable/enable fields and actions depending on state of dependents and dependables
 ## Constraints
 Do NOT:
 - Change layout or routing architecture
