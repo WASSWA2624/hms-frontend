@@ -54,7 +54,8 @@ const useTenantDetailScreen = () => {
     if (!id) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      await remove(id);
+      const result = await remove(id);
+      if (!result) return;
       handleBack();
     } catch {
       /* error handled by hook */

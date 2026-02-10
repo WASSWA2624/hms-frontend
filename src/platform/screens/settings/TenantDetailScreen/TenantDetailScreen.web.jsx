@@ -4,11 +4,15 @@
  */
 import React from 'react';
 import {
+  Badge,
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -16,7 +20,9 @@ import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './TenantDetailScreen.web.styles';
 import useTenantDetailScreen from './useTenantDetailScreen';
@@ -35,7 +41,9 @@ const TenantDetailScreenWeb = () => {
     onDelete,
   } = useTenantDetailScreen();
 
-  if (isLoading) {
+  const hasTenant = Boolean(tenant);
+
+  if (isLoading && !hasTenant) {
     return (
       <StyledContainer role="main" aria-label={t('tenant.detail.title')}>
         <StyledContent>
@@ -48,45 +56,49 @@ const TenantDetailScreenWeb = () => {
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasTenant) {
     return (
       <StyledContainer role="main" aria-label={t('tenant.detail.title')}>
         <StyledContent>
-            <OfflineState
-              action={
-                <Button
-                  onPress={onRetry}
-                  accessibilityLabel={t('common.retry')}
-                  accessibilityHint={t('common.retryHint')}
-                >
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="tenant-detail-offline"
-            />
+          <OfflineState
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={
+              <Button
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+              >
+                {t('common.retry')}
+              </Button>
+            }
+            testID="tenant-detail-offline"
+          />
         </StyledContent>
       </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasTenant) {
     return (
       <StyledContainer role="main" aria-label={t('tenant.detail.title')}>
         <StyledContent>
-            <ErrorState
-              title={t('tenant.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button
-                  onPress={onRetry}
-                  accessibilityLabel={t('common.retry')}
-                  accessibilityHint={t('common.retryHint')}
-                >
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="tenant-detail-error"
-            />
+          <ErrorState
+            title={t('tenant.detail.errorTitle')}
+            description={errorMessage}
+            action={
+              <Button
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+              >
+                {t('common.retry')}
+              </Button>
+            }
+            testID="tenant-detail-error"
+          />
         </StyledContent>
       </StyledContainer>
     );
@@ -104,6 +116,7 @@ const TenantDetailScreenWeb = () => {
           <StyledActions>
             <Button
               variant="primary"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('tenant.detail.backHint')}
@@ -122,72 +135,123 @@ const TenantDetailScreenWeb = () => {
   const name = tenant?.name ?? '';
   const slug = tenant?.slug ?? '';
   const isActive = tenant?.is_active ?? false;
+  const statusLabel = isActive ? t('common.on') : t('common.off');
+  const statusVariant = isActive ? 'success' : 'warning';
+  const retryAction = onRetry ? (
+    <Button
+      variant="primary"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasTenant && hasError;
+  const showInlineOffline = hasTenant && isOffline;
 
   return (
     <StyledContainer role="main" aria-label={t('tenant.detail.title')}>
       <StyledContent>
-        <Text
-          variant="h1"
-          accessibilityRole="header"
-          testID="tenant-detail-title"
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('tenant.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="tenant-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="tenant-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('tenant.detail.title')}
+          testID="tenant-detail-card"
         >
-          {t('tenant.detail.title')}
-        </Text>
-        <StyledSection>
-          <Text variant="body" testID="tenant-detail-id">
-            {t('tenant.detail.idLabel')}: {tenant.id}
-          </Text>
-        </StyledSection>
-        {name ? (
-          <StyledSection>
-            <Text variant="body" testID="tenant-detail-name">
-              {t('tenant.detail.nameLabel')}: {name}
-            </Text>
-          </StyledSection>
-        ) : null}
-        {slug ? (
-          <StyledSection>
-            <Text variant="body" testID="tenant-detail-slug">
-              {t('tenant.detail.slugLabel')}: {slug}
-            </Text>
-          </StyledSection>
-        ) : null}
-        <StyledSection>
-          <Text variant="body" testID="tenant-detail-active">
-            {t('tenant.detail.activeLabel')}: {isActive ? t('common.on') : t('common.off')}
-          </Text>
-        </StyledSection>
-        {createdAt ? (
-          <StyledSection>
-            <Text variant="body" testID="tenant-detail-created">
-              {t('tenant.detail.createdLabel')}: {createdAt}
-            </Text>
-          </StyledSection>
-        ) : null}
-        {updatedAt ? (
-          <StyledSection>
-            <Text variant="body" testID="tenant-detail-updated">
-              {t('tenant.detail.updatedLabel')}: {updatedAt}
-            </Text>
-          </StyledSection>
-        ) : null}
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('tenant.detail.idLabel')}</Text>
+              <Text variant="body" testID="tenant-detail-id">
+                {tenant.id}
+              </Text>
+            </StyledDetailItem>
+            {name ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('tenant.detail.nameLabel')}</Text>
+                <Text variant="body" testID="tenant-detail-name">
+                  {name}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {slug ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('tenant.detail.slugLabel')}</Text>
+                <Text variant="body" testID="tenant-detail-slug">
+                  {slug}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('tenant.detail.activeLabel')}</Text>
+              <Badge
+                variant={statusVariant}
+                size="small"
+                accessibilityLabel={t('tenant.detail.activeLabel')}
+                testID="tenant-detail-active"
+              >
+                {statusLabel}
+              </Badge>
+            </StyledDetailItem>
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('tenant.detail.createdLabel')}</Text>
+                <Text variant="body" testID="tenant-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('tenant.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="tenant-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
         <StyledActions>
           <Button
             variant="ghost"
+            size="small"
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('tenant.detail.backHint')}
             testID="tenant-detail-back"
+            disabled={isLoading}
           >
             {t('common.back')}
           </Button>
           {onEdit && (
             <Button
               variant="secondary"
+              size="small"
               onPress={onEdit}
               accessibilityLabel={t('tenant.detail.edit')}
               accessibilityHint={t('tenant.detail.editHint')}
               testID="tenant-detail-edit"
+              disabled={isLoading}
             >
               {t('tenant.detail.edit')}
             </Button>
@@ -195,6 +259,8 @@ const TenantDetailScreenWeb = () => {
           <Button
             variant="primary"
             onPress={onDelete}
+            size="small"
+            loading={isLoading}
             accessibilityLabel={t('tenant.detail.delete')}
             accessibilityHint={t('tenant.detail.deleteHint')}
             testID="tenant-detail-delete"

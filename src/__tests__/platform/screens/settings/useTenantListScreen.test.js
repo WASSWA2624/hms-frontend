@@ -46,7 +46,9 @@ describe('useTenantListScreen', () => {
   it('returns items, handlers, and state', () => {
     const { result } = renderHook(() => useTenantListScreen());
     expect(result.current.items).toEqual([]);
+    expect(result.current.search).toBe('');
     expect(typeof result.current.onRetry).toBe('function');
+    expect(typeof result.current.onSearch).toBe('function');
     expect(typeof result.current.onTenantPress).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
   });
@@ -66,11 +68,41 @@ describe('useTenantListScreen', () => {
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
+  it('onSearch updates list with trimmed search', () => {
+    const { result } = renderHook(() => useTenantListScreen());
+    mockReset.mockClear();
+    mockList.mockClear();
+    act(() => {
+      result.current.onSearch('  acme  ');
+    });
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'acme' });
+  });
+
+  it('onRetry uses current search', () => {
+    const { result } = renderHook(() => useTenantListScreen());
+    act(() => {
+      result.current.onSearch('tenant');
+    });
+    mockReset.mockClear();
+    mockList.mockClear();
+    result.current.onRetry();
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'tenant' });
+  });
+
   it('onTenantPress pushes route with id', () => {
     mockPush.mockClear();
     const { result } = renderHook(() => useTenantListScreen());
     result.current.onTenantPress('tid-1');
     expect(mockPush).toHaveBeenCalledWith('/settings/tenants/tid-1');
+  });
+
+  it('onAdd pushes route to create', () => {
+    mockPush.mockClear();
+    const { result } = renderHook(() => useTenantListScreen());
+    result.current.onAdd();
+    expect(mockPush).toHaveBeenCalledWith('/settings/tenants/create');
   });
 
   it('exposes errorMessage when errorCode set', () => {
@@ -88,7 +120,7 @@ describe('useTenantListScreen', () => {
   });
 
   it('onDelete calls remove then fetchList', async () => {
-    mockRemove.mockResolvedValue(undefined);
+    mockRemove.mockResolvedValue({ id: 'tid-1' });
     mockReset.mockClear();
     mockList.mockClear();
     const { result } = renderHook(() => useTenantListScreen());
@@ -98,6 +130,17 @@ describe('useTenantListScreen', () => {
     expect(mockRemove).toHaveBeenCalledWith('tid-1');
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
+  });
+
+  it('onDelete does not refetch when remove returns undefined', async () => {
+    mockRemove.mockResolvedValue(undefined);
+    const { result } = renderHook(() => useTenantListScreen());
+    mockList.mockClear();
+    await act(async () => {
+      await result.current.onDelete('tid-1');
+    });
+    expect(mockRemove).toHaveBeenCalledWith('tid-1');
+    expect(mockList).not.toHaveBeenCalled();
   });
 
   it('onDelete calls stopPropagation when event provided', async () => {

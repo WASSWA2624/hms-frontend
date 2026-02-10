@@ -74,6 +74,13 @@ describe('useTenantDetailScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/settings/tenants');
   });
 
+  it('onEdit pushes edit route when id available', () => {
+    mockPush.mockClear();
+    const { result } = renderHook(() => useTenantDetailScreen());
+    result.current.onEdit();
+    expect(mockPush).toHaveBeenCalledWith('/settings/tenants/tid-1/edit');
+  });
+
   it('exposes errorMessage when errorCode set', () => {
     useTenant.mockReturnValue({
       get: mockGet,
@@ -89,7 +96,7 @@ describe('useTenantDetailScreen', () => {
   });
 
   it('onDelete calls remove then onBack', async () => {
-    mockRemove.mockResolvedValue(undefined);
+    mockRemove.mockResolvedValue({ id: 'tid-1' });
     mockPush.mockClear();
     const { result } = renderHook(() => useTenantDetailScreen());
     await act(async () => {
@@ -97,6 +104,17 @@ describe('useTenantDetailScreen', () => {
     });
     expect(mockRemove).toHaveBeenCalledWith('tid-1');
     expect(mockPush).toHaveBeenCalledWith('/settings/tenants');
+  });
+
+  it('onDelete does not navigate when remove returns undefined', async () => {
+    mockRemove.mockResolvedValue(undefined);
+    mockPush.mockClear();
+    const { result } = renderHook(() => useTenantDetailScreen());
+    await act(async () => {
+      await result.current.onDelete();
+    });
+    expect(mockRemove).toHaveBeenCalledWith('tid-1');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('onDelete does not throw when remove rejects', async () => {

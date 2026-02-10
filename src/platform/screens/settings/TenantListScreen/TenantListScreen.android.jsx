@@ -6,21 +6,27 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
   ListItem,
+  LoadingSpinner,
   OfflineState,
-  Text,
+  OfflineStateSizes,
+  SearchBar,
 } from '@platform/components';
-import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.android';
 import { useI18n } from '@hooks';
 import {
   StyledContainer,
   StyledContent,
-  StyledHeaderRow,
   StyledList,
-  StyledScrollView,
+  StyledListBody,
+  StyledSearchSlot,
   StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
 } from './TenantListScreen.android.styles';
 import useTenantListScreen from './useTenantListScreen';
 
@@ -28,11 +34,13 @@ const TenantListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
     onRetry,
+    onSearch,
     onTenantPress,
     onDelete,
     onAdd,
@@ -46,6 +54,7 @@ const TenantListScreenAndroid = () => {
         onAdd ? (
           <Button
             variant="primary"
+            size="small"
             onPress={onAdd}
             accessibilityLabel={t('tenant.list.addLabel')}
             accessibilityHint={t('tenant.list.addHint')}
@@ -63,6 +72,7 @@ const TenantListScreenAndroid = () => {
   const retryAction = onRetry ? (
     <Button
       variant="primary"
+      size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
@@ -71,18 +81,10 @@ const TenantListScreenAndroid = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
-  const errorComponent = (
-    <ErrorState
-      title={t('listScaffold.errorState.title')}
-      description={errorMessage}
-      action={retryAction}
-    />
-  );
-  const offlineComponent = (
-    <OfflineState
-      action={retryAction}
-    />
-  );
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   const renderItem = ({ item: tenant }) => {
     const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
@@ -112,20 +114,23 @@ const TenantListScreenAndroid = () => {
   };
 
   return (
-    <StyledScrollView>
-      <StyledContainer>
-        <StyledContent>
-          <StyledHeaderRow>
-            <Text
-              variant="h1"
-              accessibilityRole="header"
-              testID="tenant-list-title"
-            >
-              {t('tenant.list.title')}
-            </Text>
+    <StyledContainer>
+      <StyledContent>
+        <StyledToolbar testID="tenant-list-toolbar">
+          <StyledSearchSlot>
+            <SearchBar
+              value={search}
+              onSearch={onSearch}
+              placeholder={t('tenant.list.searchPlaceholder')}
+              accessibilityLabel={t('tenant.list.searchLabel')}
+              testID="tenant-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledToolbarActions>
             {onAdd && (
               <Button
                 variant="primary"
+                size="small"
                 onPress={onAdd}
                 accessibilityLabel={t('tenant.list.addLabel')}
                 accessibilityHint={t('tenant.list.addHint')}
@@ -134,21 +139,39 @@ const TenantListScreenAndroid = () => {
                 {t('tenant.list.addLabel')}
               </Button>
             )}
-          </StyledHeaderRow>
-          <ListScaffold
-            isLoading={isLoading}
-            isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-            hasError={hasError}
-            error={errorMessage}
-            isOffline={isOffline}
-            onRetry={onRetry}
-            accessibilityLabel={t('tenant.list.accessibilityLabel')}
-            testID="tenant-list"
-            emptyComponent={emptyComponent}
-            errorComponent={errorComponent}
-            offlineComponent={offlineComponent}
-          >
-            {items.length > 0 ? (
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('tenant.list.accessibilityLabel')}
+          testID="tenant-list-card"
+        >
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="tenant-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="tenant-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
@@ -161,10 +184,10 @@ const TenantListScreenAndroid = () => {
                 />
               </StyledList>
             ) : null}
-          </ListScaffold>
-        </StyledContent>
-      </StyledContainer>
-    </StyledScrollView>
+          </StyledListBody>
+        </Card>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

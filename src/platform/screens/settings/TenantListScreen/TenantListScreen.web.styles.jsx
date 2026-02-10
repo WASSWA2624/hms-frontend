@@ -4,6 +4,8 @@
  */
 import styled from 'styled-components';
 
+const getTablet = (theme) => theme.breakpoints?.tablet ?? 768;
+
 const StyledContainer = styled.main.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
@@ -31,14 +33,38 @@ const StyledContent = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledHeaderRow = styled.div.withConfig({
-  displayName: 'StyledHeaderRow',
-  componentId: 'StyledHeaderRow',
+const StyledToolbar = styled.div.withConfig({
+  displayName: 'StyledToolbar',
+  componentId: 'StyledToolbar',
+})`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+const StyledSearchSlot = styled.div.withConfig({
+  displayName: 'StyledSearchSlot',
+  componentId: 'StyledSearchSlot',
+})`
+  flex: 1;
+  min-width: 0;
+`;
+
+const StyledToolbarActions = styled.div.withConfig({
+  displayName: 'StyledToolbarActions',
+  componentId: 'StyledToolbarActions',
 })`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  justify-content: flex-end;
+  gap: ${({ theme }) => theme.spacing.sm}px;
   flex-wrap: wrap;
 `;
 
@@ -52,6 +78,15 @@ const StyledListBody = styled.div.withConfig({
   width: 100%;
 `;
 
+const StyledStateStack = styled.div.withConfig({
+  displayName: 'StyledStateStack',
+  componentId: 'StyledStateStack',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledList = styled.ul.withConfig({
   displayName: 'StyledList',
   componentId: 'StyledList',
@@ -61,7 +96,15 @@ const StyledList = styled.ul.withConfig({
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-export { StyledContainer, StyledContent, StyledHeaderRow, StyledListBody, StyledList };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledToolbar,
+  StyledSearchSlot,
+  StyledToolbarActions,
+  StyledListBody,
+  StyledStateStack,
+  StyledList,
+};

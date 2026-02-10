@@ -3,7 +3,7 @@
  * Shared logic for TenantListScreen across platforms.
  * File: useTenantListScreen.js
  */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, useTenant } from '@hooks';
 import { confirmAction } from '@utils';
@@ -31,6 +31,7 @@ const useTenantListScreen = () => {
     reset,
   } = useTenant();
 
+  const [search, setSearch] = useState('');
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -40,18 +41,24 @@ const useTenantListScreen = () => {
     [t, errorCode]
   );
 
-  const fetchList = useCallback(() => {
+  const fetchList = useCallback((params = {}) => {
     reset();
-    list({ page: 1, limit: 20 });
+    list({ page: 1, limit: 20, ...params });
   }, [list, reset]);
 
   useEffect(() => {
-    fetchList();
-  }, [fetchList]);
+    const trimmed = search.trim();
+    fetchList(trimmed ? { search: trimmed } : {});
+  }, [fetchList, search]);
 
   const handleRetry = useCallback(() => {
-    fetchList();
-  }, [fetchList]);
+    const trimmed = search.trim();
+    fetchList(trimmed ? { search: trimmed } : {});
+  }, [fetchList, search]);
+
+  const handleSearch = useCallback((value) => {
+    setSearch(value ?? '');
+  }, []);
 
   const handleTenantPress = useCallback(
     (id) => {
@@ -69,22 +76,26 @@ const useTenantListScreen = () => {
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
-        await remove(id);
-        fetchList();
+        const result = await remove(id);
+        if (!result) return;
+        const trimmed = search.trim();
+        fetchList(trimmed ? { search: trimmed } : {});
       } catch {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, t]
+    [remove, fetchList, t, search]
   );
 
   return {
     items,
+    search,
     isLoading,
     hasError: Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
+    onSearch: handleSearch,
     onTenantPress: handleTenantPress,
     onAdd: handleAdd,
     onDelete: handleDelete,

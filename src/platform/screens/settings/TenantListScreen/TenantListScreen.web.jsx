@@ -1,30 +1,44 @@
 /**
  * TenantListScreen - Web
- * Full UI always renders: title + list area. On error/offline shows inline message + empty list.
+ * Full UI always renders: toolbar + list area. On error/offline shows inline message + empty list.
  */
 import React from 'react';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
   ListItem,
   LoadingSpinner,
   OfflineState,
-  Text,
+  OfflineStateSizes,
+  SearchBar,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledHeaderRow, StyledList, StyledListBody } from './TenantListScreen.web.styles';
+import {
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './TenantListScreen.web.styles';
 import useTenantListScreen from './useTenantListScreen';
 
 const TenantListScreenWeb = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
     onRetry,
+    onSearch,
     onTenantPress,
     onDelete,
     onAdd,
@@ -38,6 +52,7 @@ const TenantListScreenWeb = () => {
         onAdd ? (
           <Button
             variant="primary"
+            size="small"
             onPress={onAdd}
             accessibilityLabel={t('tenant.list.addLabel')}
             accessibilityHint={t('tenant.list.addHint')}
@@ -50,106 +65,115 @@ const TenantListScreenWeb = () => {
       testID="tenant-list-empty-state"
     />
   );
+  const retryAction = onRetry ? (
+    <Button
+      variant="primary"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      testID="tenant-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   return (
     <StyledContainer role="main" aria-label={t('tenant.list.title')}>
       <StyledContent>
-        <StyledHeaderRow>
-          <Text variant="h1" accessibilityRole="header" testID="tenant-list-title">
-            {t('tenant.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('tenant.list.addLabel')}
-              accessibilityHint={t('tenant.list.addHint')}
-              testID="tenant-list-add"
-            >
-              {t('tenant.list.addLabel')}
-            </Button>
-          )}
-        </StyledHeaderRow>
-        <StyledListBody role="region" aria-label={t('tenant.list.accessibilityLabel')} data-testid="tenant-list">
-          {isLoading && <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />}
-          {!isLoading && hasError && (
-            <>
-              <ErrorState
-                title={t('listScaffold.errorState.title')}
-                description={errorMessage}
-                action={
-                  onRetry ? (
-                    <Button
-                      variant="primary"
-                      onPress={onRetry}
-                      accessibilityLabel={t('common.retry')}
-                      accessibilityHint={t('common.retryHint')}
-                      testID="tenant-list-retry"
-                    >
-                      {t('common.retry')}
-                    </Button>
-                  ) : undefined
-                }
-                testID="tenant-list-error"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && isOffline && (
-            <>
-              <OfflineState
-                action={
-                  onRetry ? (
-                    <Button
-                      variant="primary"
-                      onPress={onRetry}
-                      accessibilityLabel={t('common.retry')}
-                      accessibilityHint={t('common.retryHint')}
-                      testID="tenant-list-retry"
-                    >
-                      {t('common.retry')}
-                    </Button>
-                  ) : undefined
-                }
-                testID="tenant-list-offline"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && !hasError && !isOffline && items.length === 0 && emptyComponent}
-          {!isLoading && !hasError && !isOffline && items.length > 0 && (
-            <StyledList role="list">
-              {items.map((tenant) => {
-                const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-                const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
-                return (
-                  <li key={tenant.id} role="listitem">
-                    <ListItem
-                      title={title}
-                      subtitle={subtitle}
-                      onPress={() => onTenantPress(tenant.id)}
-                      actions={
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onPress={(e) => onDelete(tenant.id, e)}
-                          accessibilityLabel={t('tenant.list.delete')}
-                          accessibilityHint={t('tenant.list.deleteHint')}
-                          testID={`tenant-delete-${tenant.id}`}
-                        >
-                          {t('common.remove')}
-                        </Button>
-                      }
-                      accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
-                      accessibilityHint={t('tenant.list.itemHint', { name: title })}
-                      testID={`tenant-item-${tenant.id}`}
-                    />
-                  </li>
-                );
-              })}
-            </StyledList>
-          )}
-        </StyledListBody>
+        <StyledToolbar data-testid="tenant-list-toolbar">
+          <StyledSearchSlot>
+            <SearchBar
+              value={search}
+              onSearch={onSearch}
+              placeholder={t('tenant.list.searchPlaceholder')}
+              accessibilityLabel={t('tenant.list.searchLabel')}
+              testID="tenant-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledToolbarActions>
+            {onAdd && (
+              <Button
+                variant="primary"
+                size="small"
+                onPress={onAdd}
+                accessibilityLabel={t('tenant.list.addLabel')}
+                accessibilityHint={t('tenant.list.addHint')}
+                testID="tenant-list-add"
+              >
+                {t('tenant.list.addLabel')}
+              </Button>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('tenant.list.accessibilityLabel')}
+          testID="tenant-list-card"
+        >
+          <StyledListBody role="region" aria-label={t('tenant.list.accessibilityLabel')} data-testid="tenant-list">
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="tenant-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="tenant-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList && (
+              <StyledList role="list">
+                {items.map((tenant) => {
+                  const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
+                  const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
+                  return (
+                    <li key={tenant.id} role="listitem">
+                      <ListItem
+                        title={title}
+                        subtitle={subtitle}
+                        onPress={() => onTenantPress(tenant.id)}
+                        actions={
+                          <Button
+                            variant="ghost"
+                            size="small"
+                            onPress={(e) => onDelete(tenant.id, e)}
+                            accessibilityLabel={t('tenant.list.delete')}
+                            accessibilityHint={t('tenant.list.deleteHint')}
+                            testID={`tenant-delete-${tenant.id}`}
+                          >
+                            {t('common.remove')}
+                          </Button>
+                        }
+                        accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
+                        accessibilityHint={t('tenant.list.itemHint', { name: title })}
+                        testID={`tenant-item-${tenant.id}`}
+                      />
+                    </li>
+                  );
+                })}
+              </StyledList>
+            )}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );

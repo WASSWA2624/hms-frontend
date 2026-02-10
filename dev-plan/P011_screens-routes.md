@@ -122,7 +122,7 @@ src/app/
 - **11.2.7** Facility selection -- `(auth)/facility-selection`
 - **11.2.8** Home -- `(main)/home`
 
-### Tier 3: Settings (main + tabs)
+### Tier 3: Settings (main)
 - **11.3.1** Settings (main) -- `(main)/settings`
 - **11.3.2** Tenant -- `(main)/settings/tenants`
 - **11.3.3** Facility -- `(main)/settings/facilities`
@@ -146,7 +146,7 @@ src/app/
 - **11.3.21** User session -- `(main)/settings/user-sessions`
 - **11.3.22** OAuth account -- `(main)/settings/oauth-accounts`
 
-### Tier 4: Patients (main + tabs)
+### Tier 4: Patients (main)
 - **11.4.1** Patients (main) -- `(main)/patients`
 - **11.4.2** Patient -- `(main)/patients/patients`
 - **11.4.3** Patient identifier -- `(main)/patients/patient-identifiers`
@@ -156,14 +156,14 @@ src/app/
 - **11.4.7** Patient medical history -- `(main)/patients/patient-medical-histories`
 - **11.4.8** Patient document -- `(main)/patients/patient-documents`
 
-### Tier 5: Scheduling (main + tabs)
+### Tier 5: Scheduling (main)
 - **11.5.1** Scheduling (main) -- `(main)/scheduling`
 - **11.5.2** Appointment -- `(main)/scheduling/appointments`
 - **11.5.3** Provider schedule -- `(main)/scheduling/provider-schedules`
 - **11.5.4** Availability slot -- `(main)/scheduling/availability-slots`
 - **11.5.5** Visit queue -- `(main)/scheduling/visit-queues`
 
-### Tier 6: Clinical (main + tabs)
+### Tier 6: Clinical (main)
 - **11.6.1** Clinical (main) -- `(main)/clinical`
 - **11.6.2** Encounter -- `(main)/clinical/encounters`
 - **11.6.3** Clinical note -- `(main)/clinical/clinical-notes`

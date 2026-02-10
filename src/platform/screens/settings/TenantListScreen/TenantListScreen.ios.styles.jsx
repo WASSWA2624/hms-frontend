@@ -3,18 +3,8 @@
  * File: TenantListScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
-import { ScrollView, View } from 'react-native';
 
-const StyledScrollView = styled(ScrollView).attrs({
-  contentContainerStyle: { flexGrow: 1 },
-}).withConfig({
-  displayName: 'StyledScrollView',
-  componentId: 'StyledScrollView',
-})`
-  flex: 1;
-`;
-
-const StyledContainer = styled(View).withConfig({
+const StyledContainer = styled.View.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
 })`
@@ -22,10 +12,9 @@ const StyledContainer = styled(View).withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledContent = styled(View).withConfig({
+const StyledContent = styled.View.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
 })`
@@ -33,26 +22,57 @@ const StyledContent = styled(View).withConfig({
   width: 100%;
 `;
 
-const StyledHeaderRow = styled(View).withConfig({
-  displayName: 'StyledHeaderRow',
-  componentId: 'StyledHeaderRow',
+const StyledToolbar = styled.View.withConfig({
+  displayName: 'StyledToolbar',
+  componentId: 'StyledToolbar',
+})`
+  flex-direction: column;
+  align-items: stretch;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledSearchSlot = styled.View.withConfig({
+  displayName: 'StyledSearchSlot',
+  componentId: 'StyledSearchSlot',
+})`
+  width: 100%;
+`;
+
+const StyledToolbarActions = styled.View.withConfig({
+  displayName: 'StyledToolbarActions',
+  componentId: 'StyledToolbarActions',
 })`
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.md}px;
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledList = styled(View).withConfig({
+const StyledListBody = styled.View.withConfig({
+  displayName: 'StyledListBody',
+  componentId: 'StyledListBody',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+  width: 100%;
+`;
+
+const StyledStateStack = styled.View.withConfig({
+  displayName: 'StyledStateStack',
+  componentId: 'StyledStateStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledList = styled.View.withConfig({
   displayName: 'StyledList',
   componentId: 'StyledList',
 })`
   width: 100%;
 `;
 
-const StyledSeparator = styled(View).withConfig({
+const StyledSeparator = styled.View.withConfig({
   displayName: 'StyledSeparator',
   componentId: 'StyledSeparator',
 })`
@@ -60,4 +80,14 @@ const StyledSeparator = styled(View).withConfig({
   height: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-export { StyledScrollView, StyledContainer, StyledContent, StyledHeaderRow, StyledList, StyledSeparator };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledToolbar,
+  StyledSearchSlot,
+  StyledToolbarActions,
+  StyledListBody,
+  StyledStateStack,
+  StyledList,
+  StyledSeparator,
+};

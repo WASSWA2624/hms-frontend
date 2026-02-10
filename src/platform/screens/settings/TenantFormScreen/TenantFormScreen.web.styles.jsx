@@ -3,6 +3,8 @@
  */
 import styled from 'styled-components';
 
+const getTablet = (theme) => theme.breakpoints?.tablet ?? 768;
+
 const StyledContainer = styled.main.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
@@ -27,13 +29,45 @@ const StyledContent = styled.div.withConfig({
   margin-right: auto;
   display: flex;
   flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledSection = styled.section.withConfig({
-  displayName: 'StyledSection',
-  componentId: 'StyledSection',
+const StyledInlineStates = styled.div.withConfig({
+  displayName: 'StyledInlineStates',
+  componentId: 'StyledInlineStates',
 })`
-  margin-top: ${({ theme }) => theme.spacing.lg}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFormGrid = styled.div.withConfig({
+  displayName: 'StyledFormGrid',
+  componentId: 'StyledFormGrid',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing.md}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+const StyledFieldGroup = styled.div.withConfig({
+  displayName: 'StyledFieldGroup',
+  componentId: 'StyledFieldGroup',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFullRow = styled.div.withConfig({
+  displayName: 'StyledFullRow',
+  componentId: 'StyledFullRow',
+})`
+  grid-column: 1 / -1;
 `;
 
 const StyledActions = styled.div.withConfig({
@@ -42,8 +76,15 @@ const StyledActions = styled.div.withConfig({
 })`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
   flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledInlineStates,
+  StyledFormGrid,
+  StyledFieldGroup,
+  StyledFullRow,
+  StyledActions,
+};

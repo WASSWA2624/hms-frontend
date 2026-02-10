@@ -14,7 +14,7 @@ export const StyledContainer = styled.main.withConfig({
   min-height: 100%;
   min-width: 0;
   width: 100%;
-  background-color: ${({ theme }) => theme?.colors?.background?.primary ?? '#ffffff'};
+  background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
 export const StyledContent = styled.div.withConfig({
@@ -28,5 +28,5 @@ export const StyledContent = styled.div.withConfig({
   margin-right: auto;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme?.spacing?.lg ?? 24}px;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;

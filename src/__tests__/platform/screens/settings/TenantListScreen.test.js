@@ -31,30 +31,41 @@ const mockT = (key) => {
   const m = {
     'tenant.list.title': 'Tenants',
     'tenant.list.accessibilityLabel': 'Tenants list',
+    'tenant.list.searchPlaceholder': 'Search tenants',
+    'tenant.list.searchLabel': 'Search tenants',
     'tenant.list.emptyTitle': 'No tenants',
     'tenant.list.emptyMessage': 'You have no tenants.',
     'tenant.list.delete': 'Delete tenant',
     'tenant.list.deleteHint': 'Delete this tenant',
     'tenant.list.itemLabel': 'Tenant {{name}}',
+    'tenant.list.itemHint': 'View details for {{name}}',
+    'tenant.list.slugValue': 'Slug: {{slug}}',
+    'tenant.list.addLabel': 'Add tenant',
+    'tenant.list.addHint': 'Create a new tenant',
     'common.remove': 'Remove',
     'listScaffold.loading': 'Loading',
     'listScaffold.empty': 'Empty',
     'listScaffold.error': 'Error',
     'listScaffold.offline': 'Offline',
+    'listScaffold.errorState.title': 'Error',
     'common.retry': 'Retry',
+    'common.retryHint': 'Try again',
   };
   return m[key] || key;
 };
 
 const baseHook = {
   items: [],
+  search: '',
   isLoading: false,
   hasError: false,
   errorMessage: null,
   isOffline: false,
   onRetry: jest.fn(),
+  onSearch: jest.fn(),
   onTenantPress: jest.fn(),
   onDelete: jest.fn(),
+  onAdd: jest.fn(),
 };
 
 describe('TenantListScreen', () => {
@@ -67,17 +78,17 @@ describe('TenantListScreen', () => {
   describe('render', () => {
     it('renders without error (Web)', () => {
       const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
-      expect(getByTestId('tenant-list-title')).toBeTruthy();
+      expect(getByTestId('tenant-list-search')).toBeTruthy();
     });
 
     it('renders without error (Android)', () => {
       const { getByTestId } = renderWithTheme(<TenantListScreenAndroid />);
-      expect(getByTestId('tenant-list-title')).toBeTruthy();
+      expect(getByTestId('tenant-list-search')).toBeTruthy();
     });
 
     it('renders without error (iOS)', () => {
       const { getByTestId } = renderWithTheme(<TenantListScreenIOS />);
-      expect(getByTestId('tenant-list-title')).toBeTruthy();
+      expect(getByTestId('tenant-list-search')).toBeTruthy();
     });
   });
 
@@ -139,6 +150,16 @@ describe('TenantListScreen', () => {
       });
       const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
       expect(getByTestId('tenant-item-1')).toBeTruthy();
+    });
+  });
+
+  describe('actions', () => {
+    it('calls onAdd when add button pressed (Web)', () => {
+      const onAdd = jest.fn();
+      useTenantListScreen.mockReturnValue({ ...baseHook, onAdd });
+      const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      fireEvent.press(getByTestId('tenant-list-add'));
+      expect(onAdd).toHaveBeenCalled();
     });
   });
 

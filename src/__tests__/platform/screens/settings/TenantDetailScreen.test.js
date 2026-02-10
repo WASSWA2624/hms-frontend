@@ -42,12 +42,17 @@ const mockT = (key) => {
     'tenant.detail.backHint': 'Return to tenants list',
     'tenant.detail.delete': 'Delete tenant',
     'tenant.detail.deleteHint': 'Delete this tenant',
+    'tenant.detail.edit': 'Edit tenant',
+    'tenant.detail.editHint': 'Edit this tenant',
     'common.loading': 'Loading',
     'common.retry': 'Retry',
+    'common.retryHint': 'Try again',
     'common.back': 'Back',
     'common.remove': 'Remove',
     'common.on': 'On',
     'common.off': 'Off',
+    'shell.banners.offline.title': 'You are offline',
+    'shell.banners.offline.message': 'Some features may be unavailable.',
   };
   return m[key] || key;
 };
@@ -61,6 +66,7 @@ const baseHook = {
   isOffline: false,
   onRetry: jest.fn(),
   onBack: jest.fn(),
+  onEdit: jest.fn(),
   onDelete: jest.fn(),
 };
 
@@ -151,13 +157,36 @@ describe('TenantDetailScreen', () => {
         },
       });
       const { getByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
-      expect(getByTestId('tenant-detail-title')).toBeTruthy();
+      expect(getByTestId('tenant-detail-card')).toBeTruthy();
       expect(getByTestId('tenant-detail-id')).toBeTruthy();
       expect(getByTestId('tenant-detail-name')).toBeTruthy();
       expect(getByTestId('tenant-detail-slug')).toBeTruthy();
       expect(getByTestId('tenant-detail-active')).toBeTruthy();
       expect(getByTestId('tenant-detail-created')).toBeTruthy();
       expect(getByTestId('tenant-detail-updated')).toBeTruthy();
+    });
+  });
+
+  describe('inline states', () => {
+    it('shows inline error banner when tenant exists (Web)', () => {
+      useTenantDetailScreen.mockReturnValue({
+        ...baseHook,
+        hasError: true,
+        errorMessage: 'Error',
+        tenant: { id: 't1', name: 'Tenant' },
+      });
+      const { getByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
+      expect(getByTestId('tenant-detail-error-banner')).toBeTruthy();
+    });
+
+    it('shows inline offline banner when tenant exists (Web)', () => {
+      useTenantDetailScreen.mockReturnValue({
+        ...baseHook,
+        isOffline: true,
+        tenant: { id: 't1', name: 'Tenant' },
+      });
+      const { getByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
+      expect(getByTestId('tenant-detail-offline-banner')).toBeTruthy();
     });
   });
 
@@ -174,6 +203,7 @@ describe('TenantDetailScreen', () => {
       });
       const { getByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
       expect(getByTestId('tenant-detail-back')).toBeTruthy();
+      expect(getByTestId('tenant-detail-edit')).toBeTruthy();
       expect(getByTestId('tenant-detail-delete')).toBeTruthy();
     });
   });
