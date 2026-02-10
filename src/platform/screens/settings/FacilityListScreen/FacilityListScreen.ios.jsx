@@ -10,15 +10,18 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
+  Icon,
   ListItem,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
-  SearchBar,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
+  StyledAddButton,
+  StyledAddLabel,
   StyledContainer,
   StyledContent,
   StyledList,
@@ -62,16 +65,16 @@ const FacilityListScreenIOS = () => {
       description={t('facility.list.emptyMessage')}
       action={
         onAdd ? (
-          <Button
-            variant="primary"
-            size="small"
+          <StyledAddButton
             onPress={onAdd}
+            accessibilityRole="button"
             accessibilityLabel={t('facility.list.addLabel')}
             accessibilityHint={t('facility.list.addHint')}
             testID="facility-list-empty-add"
           >
-            {t('facility.list.addLabel')}
-          </Button>
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('facility.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
         ) : undefined
       }
       testID="facility-list-empty-state"
@@ -139,26 +142,28 @@ const FacilityListScreenIOS = () => {
       <StyledContent>
         <StyledToolbar testID="facility-list-toolbar">
           <StyledSearchSlot>
-            <SearchBar
+            <TextField
               value={search}
-              onSearch={onSearch}
+              onChangeText={onSearch}
               placeholder={t('facility.list.searchPlaceholder')}
               accessibilityLabel={t('facility.list.searchLabel')}
+              density="compact"
+              type="search"
               testID="facility-list-search"
             />
           </StyledSearchSlot>
           <StyledToolbarActions>
             {onAdd && (
-              <Button
-                variant="primary"
-                size="small"
+              <StyledAddButton
                 onPress={onAdd}
+                accessibilityRole="button"
                 accessibilityLabel={t('facility.list.addLabel')}
                 accessibilityHint={t('facility.list.addHint')}
                 testID="facility-list-add"
               >
-                {t('facility.list.addLabel')}
-              </Button>
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('facility.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
             )}
           </StyledToolbarActions>
         </StyledToolbar>

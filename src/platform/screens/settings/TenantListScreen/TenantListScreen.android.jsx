@@ -10,14 +10,17 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
+  Icon,
   ListItem,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
-  SearchBar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
+  StyledAddButton,
+  StyledAddLabel,
   StyledContainer,
   StyledContent,
   StyledList,
@@ -52,16 +55,16 @@ const TenantListScreenAndroid = () => {
       description={t('tenant.list.emptyMessage')}
       action={
         onAdd ? (
-          <Button
-            variant="primary"
-            size="small"
+          <StyledAddButton
             onPress={onAdd}
+            accessibilityRole="button"
             accessibilityLabel={t('tenant.list.addLabel')}
             accessibilityHint={t('tenant.list.addHint')}
             testID="tenant-list-empty-add"
           >
-            {t('tenant.list.addLabel')}
-          </Button>
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('tenant.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
         ) : undefined
       }
       testID="tenant-list-empty-state"
@@ -118,26 +121,28 @@ const TenantListScreenAndroid = () => {
       <StyledContent>
         <StyledToolbar testID="tenant-list-toolbar">
           <StyledSearchSlot>
-            <SearchBar
+            <TextField
               value={search}
-              onSearch={onSearch}
+              onChangeText={onSearch}
               placeholder={t('tenant.list.searchPlaceholder')}
               accessibilityLabel={t('tenant.list.searchLabel')}
+              density="compact"
+              type="search"
               testID="tenant-list-search"
             />
           </StyledSearchSlot>
           <StyledToolbarActions>
             {onAdd && (
-              <Button
-                variant="primary"
-                size="small"
+              <StyledAddButton
                 onPress={onAdd}
+                accessibilityRole="button"
                 accessibilityLabel={t('tenant.list.addLabel')}
                 accessibilityHint={t('tenant.list.addHint')}
                 testID="tenant-list-add"
               >
-                {t('tenant.list.addLabel')}
-              </Button>
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('tenant.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
             )}
           </StyledToolbarActions>
         </StyledToolbar>

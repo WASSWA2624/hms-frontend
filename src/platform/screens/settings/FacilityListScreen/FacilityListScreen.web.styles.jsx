@@ -68,6 +68,42 @@ const StyledToolbarActions = styled.div.withConfig({
   flex-wrap: wrap;
 `;
 
+const StyledAddButton = styled.button.withConfig({
+  displayName: 'StyledAddButton',
+  componentId: 'StyledAddButton',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: 32px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledAddLabel = styled.span.withConfig({
+  displayName: 'StyledAddLabel',
+  componentId: 'StyledAddLabel',
+})`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
 const StyledListBody = styled.div.withConfig({
   displayName: 'StyledListBody',
   componentId: 'StyledListBody',
@@ -104,6 +140,8 @@ export {
   StyledToolbar,
   StyledSearchSlot,
   StyledToolbarActions,
+  StyledAddButton,
+  StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,

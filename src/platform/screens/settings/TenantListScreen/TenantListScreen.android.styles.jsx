@@ -48,6 +48,31 @@ const StyledToolbarActions = styled.View.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledAddButton = styled.Pressable.withConfig({
+  displayName: 'StyledAddButton',
+  componentId: 'StyledAddButton',
+})`
+  flex-direction: row;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledAddLabel = styled.Text.withConfig({
+  displayName: 'StyledAddLabel',
+  componentId: 'StyledAddLabel',
+})`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
 const StyledListBody = styled.View.withConfig({
   displayName: 'StyledListBody',
   componentId: 'StyledListBody',
@@ -86,6 +111,8 @@ export {
   StyledToolbar,
   StyledSearchSlot,
   StyledToolbarActions,
+  StyledAddButton,
+  StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
