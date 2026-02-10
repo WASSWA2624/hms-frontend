@@ -3,26 +3,32 @@
  * File: UserProfileDetailScreen.ios.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDate, formatDateTime } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
-  StyledSection,
-  StyledActions,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
 } from './UserProfileDetailScreen.ios.styles';
 import useUserProfileDetailScreen from './useUserProfileDetailScreen';
 
-const UserProfileDetailScreenIOS = () => {
-  const { t } = useI18n();
+const UserProfileDetailScreenIos = () => {
+  const { t, locale } = useI18n();
   const {
     profile,
     isLoading,
@@ -35,90 +41,104 @@ const UserProfileDetailScreenIOS = () => {
     onDelete,
   } = useUserProfileDetailScreen();
 
-  if (isLoading) {
+  const hasProfile = Boolean(profile);
+
+  if (isLoading && !hasProfile) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="user-profile-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="user-profile-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasProfile) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-profile-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-profile-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasProfile) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('userProfile.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-profile-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <ErrorState
+            title={t('userProfile.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-profile-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!profile) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('userProfile.detail.notFoundTitle')}
-              description={t('userProfile.detail.notFoundMessage')}
-              testID="user-profile-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="user-profile-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <EmptyState
+            title={t('userProfile.detail.notFoundTitle')}
+            description={t('userProfile.detail.notFoundMessage')}
+            testID="user-profile-detail-not-found"
+          />
+          <StyledActions>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onBack}
+              accessibilityLabel={t('common.back')}
+              accessibilityHint={t('userProfile.detail.backHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="user-profile-detail-back"
+            >
+              {t('common.back')}
+            </Button>
+          </StyledActions>
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  const createdAt = profile.created_at ? new Date(profile.created_at).toLocaleString() : '';
-  const updatedAt = profile.updated_at ? new Date(profile.updated_at).toLocaleString() : '';
-  const dateOfBirth = profile.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString() : '';
+  const createdAt = formatDateTime(profile.created_at, locale);
+  const updatedAt = formatDateTime(profile.updated_at, locale);
+  const dateOfBirth = formatDate(profile.date_of_birth, locale);
   const userId = profile?.user_id ?? '';
   const facilityId = profile?.facility_id ?? '';
   const firstName = profile?.first_name ?? '';
@@ -132,121 +152,169 @@ const UserProfileDetailScreenIOS = () => {
     return resolved === key ? value : resolved;
   };
   const genderLabel = resolveGenderLabel(gender);
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasProfile && hasError;
+  const showInlineOffline = hasProfile && isOffline;
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-profile-detail-title"
+    <StyledContainer>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('userProfile.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="user-profile-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="user-profile-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('userProfile.detail.title')} testID="user-profile-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('userProfile.detail.idLabel')}</Text>
+              <Text variant="body" testID="user-profile-detail-id">
+                {profile.id}
+              </Text>
+            </StyledDetailItem>
+            {userId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.userIdLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-user">
+                  {userId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.facilityIdLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-facility">
+                  {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {firstName ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.firstNameLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-first-name">
+                  {firstName}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {middleName ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.middleNameLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-middle-name">
+                  {middleName}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {lastName ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.lastNameLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-last-name">
+                  {lastName}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {genderLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.genderLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-gender">
+                  {genderLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {dateOfBirth ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.dobLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-dob">
+                  {dateOfBirth}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.createdLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('userProfile.detail.backHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="user-profile-detail-back"
+            disabled={isLoading}
           >
-            {t('userProfile.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="user-profile-detail-id">
-              {t('userProfile.detail.idLabel')}: {profile.id}
-            </Text>
-          </StyledSection>
-          {userId ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-user">
-                {t('userProfile.detail.userIdLabel')}: {userId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {facilityId ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-facility">
-                {t('userProfile.detail.facilityIdLabel')}: {facilityId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {firstName ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-first-name">
-                {t('userProfile.detail.firstNameLabel')}: {firstName}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {middleName ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-middle-name">
-                {t('userProfile.detail.middleNameLabel')}: {middleName}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {lastName ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-last-name">
-                {t('userProfile.detail.lastNameLabel')}: {lastName}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {genderLabel ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-gender">
-                {t('userProfile.detail.genderLabel')}: {genderLabel}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {dateOfBirth ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-dob">
-                {t('userProfile.detail.dobLabel')}: {dateOfBirth}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-created">
-                {t('userProfile.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-profile-detail-updated">
-                {t('userProfile.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          <StyledActions>
+            {t('common.back')}
+          </Button>
+          {onEdit && (
             <Button
-              variant="ghost"
-              onPress={onBack}
-              accessibilityLabel={t('common.back')}
-              accessibilityHint={t('userProfile.detail.backHint')}
-              testID="user-profile-detail-back"
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('userProfile.detail.edit')}
+              accessibilityHint={t('userProfile.detail.editHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="user-profile-detail-edit"
+              disabled={isLoading}
             >
-              {t('common.back')}
+              {t('userProfile.detail.edit')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('userProfile.detail.edit')}
-                accessibilityHint={t('userProfile.detail.editHint')}
-                testID="user-profile-detail-edit"
-              >
-                {t('userProfile.detail.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('userProfile.detail.delete')}
-              accessibilityHint={t('userProfile.detail.deleteHint')}
-              testID="user-profile-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
-          </StyledActions>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('userProfile.detail.delete')}
+            accessibilityHint={t('userProfile.detail.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="user-profile-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 
-export default UserProfileDetailScreenIOS;
+export default UserProfileDetailScreenIos;

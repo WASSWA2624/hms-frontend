@@ -55,6 +55,7 @@ export { default as UserDetailScreen } from './settings/UserDetailScreen';
 export { default as UserFormScreen } from './settings/UserFormScreen';
 export { default as UserProfileListScreen } from './settings/UserProfileListScreen';
 export { default as UserProfileDetailScreen } from './settings/UserProfileDetailScreen';
+export { default as UserProfileFormScreen } from './settings/UserProfileFormScreen';
 export { default as RoleListScreen } from './settings/RoleListScreen';
 export { default as RoleDetailScreen } from './settings/RoleDetailScreen';
 export { default as PermissionListScreen } from './settings/PermissionListScreen';

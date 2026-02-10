@@ -3,8 +3,8 @@
  * Shared logic for UserProfileListScreen across platforms.
  * File: useUserProfileListScreen.js
  */
-import { useCallback, useEffect, useMemo } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, useUserProfile } from '@hooks';
 import { confirmAction } from '@utils';
 
@@ -18,9 +18,21 @@ const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   return resolved === key ? t(loadErrorKey) : resolved;
 };
 
+const resolveNoticeMessage = (t, notice) => {
+  const map = {
+    created: 'userProfile.list.noticeCreated',
+    updated: 'userProfile.list.noticeUpdated',
+    deleted: 'userProfile.list.noticeDeleted',
+    queued: 'userProfile.list.noticeQueued',
+  };
+  const key = map[notice];
+  return key ? t(key) : null;
+};
+
 const useUserProfileListScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
     list,
@@ -31,6 +43,7 @@ const useUserProfileListScreen = () => {
     reset,
   } = useUserProfile();
 
+  const [noticeMessage, setNoticeMessage] = useState(null);
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -39,6 +52,10 @@ const useUserProfileListScreen = () => {
     () => resolveErrorMessage(t, errorCode, 'userProfile.list.loadError'),
     [t, errorCode]
   );
+  const noticeValue = useMemo(() => {
+    if (Array.isArray(notice)) return notice[0];
+    return notice;
+  }, [notice]);
 
   const fetchList = useCallback(() => {
     reset();
@@ -48,6 +65,22 @@ const useUserProfileListScreen = () => {
   useEffect(() => {
     fetchList();
   }, [fetchList]);
+
+  useEffect(() => {
+    if (!noticeValue) return;
+    const message = resolveNoticeMessage(t, noticeValue);
+    if (!message) return;
+    setNoticeMessage(message);
+    router.replace('/settings/user-profiles');
+  }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const timer = setTimeout(() => {
+      setNoticeMessage(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [noticeMessage]);
 
   const handleRetry = useCallback(() => {
     fetchList();
@@ -65,13 +98,19 @@ const useUserProfileListScreen = () => {
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
-        await remove(id);
+        const result = await remove(id);
+        if (!result) return;
         fetchList();
+        const noticeKey = isOffline ? 'queued' : 'deleted';
+        const message = resolveNoticeMessage(t, noticeKey);
+        if (message) {
+          setNoticeMessage(message);
+        }
       } catch {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, t]
+    [remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
@@ -84,6 +123,8 @@ const useUserProfileListScreen = () => {
     hasError: !!errorCode,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
     onDelete: handleDelete,

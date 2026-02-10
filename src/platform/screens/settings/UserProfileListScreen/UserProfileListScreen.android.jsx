@@ -6,14 +6,30 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
-  Stack,
-  Text,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
 } from '@platform/components';
-import { ListScaffold } from '@platform/patterns';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent } from './UserProfileListScreen.android.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './UserProfileListScreen.android.styles';
 import useUserProfileListScreen from './useUserProfileListScreen';
 
 const UserProfileListScreenAndroid = () => {
@@ -24,6 +40,8 @@ const UserProfileListScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onItemPress,
     onDelete,
@@ -34,9 +52,42 @@ const UserProfileListScreenAndroid = () => {
     <EmptyState
       title={t('userProfile.list.emptyTitle')}
       description={t('userProfile.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            onPress={onAdd}
+            accessibilityRole="button"
+            accessibilityLabel={t('userProfile.list.addLabel')}
+            accessibilityHint={t('userProfile.list.addHint')}
+            testID="user-profile-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('userProfile.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="user-profile-list-empty-state"
     />
   );
+
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="user-profile-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   const renderItem = ({ item }) => {
     const fullName = [item?.first_name, item?.middle_name, item?.last_name].filter(Boolean).join(' ');
@@ -49,17 +100,21 @@ const UserProfileListScreenAndroid = () => {
         onPress={() => onItemPress(item.id)}
         actions={
           <Button
-            variant="ghost"
+            variant="surface"
             size="small"
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('userProfile.list.delete')}
             accessibilityHint={t('userProfile.list.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
             testID={`user-profile-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
         }
         accessibilityLabel={t('userProfile.list.itemLabel', {
+          name: title,
+        })}
+        accessibilityHint={t('userProfile.list.itemHint', {
           name: title,
         })}
         testID={`user-profile-item-${item.id}`}
@@ -69,47 +124,78 @@ const UserProfileListScreenAndroid = () => {
 
   return (
     <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="user-profile-list-notice"
+        />
+      ) : null}
       <StyledContent>
-        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-profile-list-title"
-          >
-            {t('userProfile.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('userProfile.list.addLabel')}
-              accessibilityHint={t('userProfile.list.addHint')}
-              testID="user-profile-list-add"
-            >
-              {t('userProfile.list.addLabel')}
-            </Button>
-          )}
-        </Stack>
-        <ListScaffold
-          isLoading={isLoading}
-          isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-          hasError={hasError}
-          error={errorMessage}
-          isOffline={isOffline}
-          onRetry={onRetry}
+        <StyledToolbar testID="user-profile-list-toolbar">
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                onPress={onAdd}
+                accessibilityRole="button"
+                accessibilityLabel={t('userProfile.list.addLabel')}
+                accessibilityHint={t('userProfile.list.addHint')}
+                testID="user-profile-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('userProfile.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
           accessibilityLabel={t('userProfile.list.accessibilityLabel')}
-          testID="user-profile-list"
-          emptyComponent={emptyComponent}
+          testID="user-profile-list-card"
         >
-          {items.length > 0 ? (
-            <FlatList
-              data={items}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
-          ) : null}
-        </ListScaffold>
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="user-profile-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-profile-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-profile-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
+              <StyledList>
+                <FlatList
+                  data={items}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderItem}
+                  ItemSeparatorComponent={ItemSeparator}
+                  scrollEnabled={false}
+                  accessibilityLabel={t('userProfile.list.accessibilityLabel')}
+                  testID="user-profile-list-flatlist"
+                />
+              </StyledList>
+            ) : null}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );

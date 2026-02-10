@@ -4,14 +4,28 @@
 import React from 'react';
 import {
   Button,
+  Card,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
   Select,
   Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledSection, StyledActions } from './UserProfileFormScreen.web.styles';
+import {
+  StyledActions,
+  StyledContainer,
+  StyledContent,
+  StyledFieldGroup,
+  StyledFormGrid,
+  StyledFullRow,
+  StyledHelperStack,
+  StyledInlineStates,
+} from './UserProfileFormScreen.web.styles';
 import useUserProfileFormScreen from './useUserProfileFormScreen';
 
 const UserProfileFormScreenWeb = () => {
@@ -33,16 +47,34 @@ const UserProfileFormScreenWeb = () => {
     genderOptions,
     dateOfBirth,
     setDateOfBirth,
+    userOptions,
+    userListLoading,
+    userListError,
+    userErrorMessage,
+    facilityOptions,
+    facilityListLoading,
+    facilityListError,
+    facilityErrorMessage,
+    hasUsers,
+    hasFacilities,
+    isCreateBlocked,
     isLoading,
     hasError,
+    errorMessage,
+    isOffline,
     profile,
     onSubmit,
     onCancel,
+    onGoToUsers,
+    onGoToFacilities,
+    onRetryUsers,
+    onRetryFacilities,
+    isSubmitDisabled,
   } = useUserProfileFormScreen();
 
   if (isEdit && !profile && isLoading) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('userProfile.form.editTitle')}>
         <StyledContent>
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-profile-form-loading" />
         </StyledContent>
@@ -52,12 +84,19 @@ const UserProfileFormScreenWeb = () => {
 
   if (isEdit && hasError && !profile) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('userProfile.form.editTitle')}>
         <StyledContent>
           <ErrorState
             title={t('userProfile.form.loadError')}
             action={(
-              <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCancel}
+                accessibilityLabel={t('common.back')}
+                accessibilityHint={t('userProfile.form.cancelHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
                 {t('common.back')}
               </Button>
             )}
@@ -68,115 +107,288 @@ const UserProfileFormScreenWeb = () => {
     );
   }
 
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
+  const retryUsersAction = onRetryUsers ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryUsers}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="user-profile-form-user-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const retryFacilitiesAction = onRetryFacilities ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryFacilities}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="user-profile-form-facility-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasError && (!isEdit || Boolean(profile));
+  const blockedMessage = t('userProfile.form.blockedMessage');
+
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={isEdit ? t('userProfile.form.editTitle') : t('userProfile.form.createTitle')}>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="user-profile-form-title">
+        <Text variant="h2" accessibilityRole="header" testID="user-profile-form-title">
           {isEdit ? t('userProfile.form.editTitle') : t('userProfile.form.createTitle')}
         </Text>
 
-        {!isEdit && (
-          <StyledSection>
-            <TextField
-              label={t('userProfile.form.userIdLabel')}
-              placeholder={t('userProfile.form.userIdPlaceholder')}
-              value={userId}
-              onChangeText={setUserId}
-              accessibilityLabel={t('userProfile.form.userIdLabel')}
-              accessibilityHint={t('userProfile.form.userIdHint')}
-              testID="user-profile-form-user-id"
+        <StyledInlineStates>
+          {isOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              testID="user-profile-form-offline"
             />
-          </StyledSection>
-        )}
+          )}
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('userProfile.form.submitErrorTitle')}
+              description={errorMessage}
+              testID="user-profile-form-submit-error"
+            />
+          )}
+        </StyledInlineStates>
 
-        <StyledSection>
-          <TextField
-            label={t('userProfile.form.facilityIdLabel')}
-            placeholder={t('userProfile.form.facilityIdPlaceholder')}
-            value={facilityId}
-            onChangeText={setFacilityId}
-            accessibilityLabel={t('userProfile.form.facilityIdLabel')}
-            accessibilityHint={t('userProfile.form.facilityIdHint')}
-            testID="user-profile-form-facility-id"
-          />
-        </StyledSection>
+        <Card variant="outlined" accessibilityLabel={t('userProfile.form.firstNameLabel')} testID="user-profile-form-card">
+          <StyledFormGrid>
+            {!isEdit ? (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  {userListLoading ? (
+                    <LoadingSpinner
+                      accessibilityLabel={t('common.loading')}
+                      testID="user-profile-form-user-loading"
+                    />
+                  ) : userListError ? (
+                    <ErrorState
+                      size={ErrorStateSizes.SMALL}
+                      title={t('userProfile.form.userLoadErrorTitle')}
+                      description={userErrorMessage}
+                      action={retryUsersAction}
+                      testID="user-profile-form-user-error"
+                    />
+                  ) : !hasUsers ? (
+                    <StyledHelperStack
+                      role="region"
+                      aria-label={t('userProfile.form.userLabel')}
+                      data-testid="user-profile-form-no-users"
+                    >
+                      <Text variant="body">{t('userProfile.form.noUsersMessage')}</Text>
+                      <Text variant="body">{t('userProfile.form.createUserFirst')}</Text>
+                      <Button
+                        variant="surface"
+                        size="small"
+                        onPress={onGoToUsers}
+                        accessibilityLabel={t('userProfile.form.goToUsers')}
+                        accessibilityHint={t('userProfile.form.goToUsersHint')}
+                        icon={<Icon glyph="?" size="xs" decorative />}
+                        testID="user-profile-form-go-to-users"
+                      >
+                        {t('userProfile.form.goToUsers')}
+                      </Button>
+                    </StyledHelperStack>
+                  ) : (
+                    <Select
+                      label={t('userProfile.form.userLabel')}
+                      placeholder={t('userProfile.form.userPlaceholder')}
+                      options={userOptions}
+                      value={userId}
+                      onValueChange={setUserId}
+                      accessibilityLabel={t('userProfile.form.userLabel')}
+                      accessibilityHint={t('userProfile.form.userHint')}
+                      helperText={t('userProfile.form.userHint')}
+                      required
+                      compact
+                      disabled={isFormDisabled}
+                      testID="user-profile-form-user"
+                    />
+                  )}
+                </StyledFieldGroup>
+              </StyledFullRow>
+            ) : (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  <TextField
+                    label={t('userProfile.form.userLabel')}
+                    value={userId}
+                    accessibilityLabel={t('userProfile.form.userLabel')}
+                    accessibilityHint={t('userProfile.form.userLockedHint')}
+                    helperText={t('userProfile.form.userLockedHint')}
+                    disabled
+                    testID="user-profile-form-user-readonly"
+                  />
+                </StyledFieldGroup>
+              </StyledFullRow>
+            )}
 
-        <StyledSection>
-          <TextField
-            label={t('userProfile.form.firstNameLabel')}
-            placeholder={t('userProfile.form.firstNamePlaceholder')}
-            value={firstName}
-            onChangeText={setFirstName}
-            accessibilityLabel={t('userProfile.form.firstNameLabel')}
-            accessibilityHint={t('userProfile.form.firstNameHint')}
-            testID="user-profile-form-first-name"
-          />
-        </StyledSection>
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {facilityListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="user-profile-form-facility-loading"
+                  />
+                ) : facilityListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('userProfile.form.facilityLoadErrorTitle')}
+                    description={facilityErrorMessage}
+                    action={retryFacilitiesAction}
+                    testID="user-profile-form-facility-error"
+                  />
+                ) : !hasFacilities ? (
+                  <StyledHelperStack
+                    role="region"
+                    aria-label={t('userProfile.form.facilityLabel')}
+                    data-testid="user-profile-form-no-facilities"
+                  >
+                    <Text variant="body">{t('userProfile.form.noFacilitiesMessage')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToFacilities}
+                      accessibilityLabel={t('userProfile.form.goToFacilities')}
+                      accessibilityHint={t('userProfile.form.goToFacilitiesHint')}
+                      icon={<Icon glyph="?" size="xs" decorative />}
+                      testID="user-profile-form-go-to-facilities"
+                    >
+                      {t('userProfile.form.goToFacilities')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('userProfile.form.facilityLabel')}
+                    placeholder={t('userProfile.form.facilityPlaceholder')}
+                    options={facilityOptions}
+                    value={facilityId}
+                    onValueChange={setFacilityId}
+                    accessibilityLabel={t('userProfile.form.facilityLabel')}
+                    accessibilityHint={t('userProfile.form.facilityHint')}
+                    helperText={t('userProfile.form.facilityHint')}
+                    compact
+                    disabled={isFormDisabled}
+                    testID="user-profile-form-facility"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
 
-        <StyledSection>
-          <TextField
-            label={t('userProfile.form.middleNameLabel')}
-            placeholder={t('userProfile.form.middleNamePlaceholder')}
-            value={middleName}
-            onChangeText={setMiddleName}
-            accessibilityLabel={t('userProfile.form.middleNameLabel')}
-            accessibilityHint={t('userProfile.form.middleNameHint')}
-            testID="user-profile-form-middle-name"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('userProfile.form.firstNameLabel')}
+                placeholder={t('userProfile.form.firstNamePlaceholder')}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                accessibilityLabel={t('userProfile.form.firstNameLabel')}
+                accessibilityHint={t('userProfile.form.firstNameHint')}
+                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.firstNameHint')}
+                required
+                density="compact"
+                disabled={isFormDisabled}
+                testID="user-profile-form-first-name"
+              />
+            </StyledFieldGroup>
 
-        <StyledSection>
-          <TextField
-            label={t('userProfile.form.lastNameLabel')}
-            placeholder={t('userProfile.form.lastNamePlaceholder')}
-            value={lastName}
-            onChangeText={setLastName}
-            accessibilityLabel={t('userProfile.form.lastNameLabel')}
-            accessibilityHint={t('userProfile.form.lastNameHint')}
-            testID="user-profile-form-last-name"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('userProfile.form.middleNameLabel')}
+                placeholder={t('userProfile.form.middleNamePlaceholder')}
+                value={middleName}
+                onChange={(e) => setMiddleName(e.target.value)}
+                accessibilityLabel={t('userProfile.form.middleNameLabel')}
+                accessibilityHint={t('userProfile.form.middleNameHint')}
+                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.middleNameHint')}
+                density="compact"
+                disabled={isFormDisabled}
+                testID="user-profile-form-middle-name"
+              />
+            </StyledFieldGroup>
 
-        <StyledSection>
-          <Select
-            label={t('userProfile.form.genderLabel')}
-            placeholder={t('userProfile.form.genderPlaceholder')}
-            options={genderOptions}
-            value={gender}
-            onValueChange={setGender}
-            accessibilityLabel={t('userProfile.form.genderLabel')}
-            accessibilityHint={t('userProfile.form.genderHint')}
-            testID="user-profile-form-gender"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <TextField
+                label={t('userProfile.form.lastNameLabel')}
+                placeholder={t('userProfile.form.lastNamePlaceholder')}
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                accessibilityLabel={t('userProfile.form.lastNameLabel')}
+                accessibilityHint={t('userProfile.form.lastNameHint')}
+                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.lastNameHint')}
+                density="compact"
+                disabled={isFormDisabled}
+                testID="user-profile-form-last-name"
+              />
+            </StyledFieldGroup>
 
-        <StyledSection>
-          <TextField
-            label={t('userProfile.form.dobLabel')}
-            placeholder={t('userProfile.form.dobPlaceholder')}
-            value={dateOfBirth}
-            onChangeText={setDateOfBirth}
-            type="date"
-            accessibilityLabel={t('userProfile.form.dobLabel')}
-            accessibilityHint={t('userProfile.form.dobHint')}
-            testID="user-profile-form-dob"
-          />
-        </StyledSection>
+            <StyledFieldGroup>
+              <Select
+                label={t('userProfile.form.genderLabel')}
+                placeholder={t('userProfile.form.genderPlaceholder')}
+                options={genderOptions}
+                value={gender}
+                onValueChange={setGender}
+                accessibilityLabel={t('userProfile.form.genderLabel')}
+                accessibilityHint={t('userProfile.form.genderHint')}
+                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.genderHint')}
+                compact
+                disabled={isFormDisabled}
+                testID="user-profile-form-gender"
+              />
+            </StyledFieldGroup>
+
+            <StyledFieldGroup>
+              <TextField
+                label={t('userProfile.form.dobLabel')}
+                placeholder={t('userProfile.form.dobPlaceholder')}
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                type="date"
+                accessibilityLabel={t('userProfile.form.dobLabel')}
+                accessibilityHint={t('userProfile.form.dobHint')}
+                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.dobHint')}
+                density="compact"
+                disabled={isFormDisabled}
+                testID="user-profile-form-dob"
+              />
+            </StyledFieldGroup>
+          </StyledFormGrid>
+        </Card>
 
         <StyledActions>
           <Button
-            variant="ghost"
+            variant="surface"
+            size="small"
             onPress={onCancel}
             accessibilityLabel={t('userProfile.form.cancel')}
             accessibilityHint={t('userProfile.form.cancelHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
             testID="user-profile-form-cancel"
+            disabled={isLoading}
           >
             {t('userProfile.form.cancel')}
           </Button>
           <Button
-            variant="primary"
+            variant="surface"
+            size="small"
             onPress={onSubmit}
+            loading={isLoading}
+            disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('userProfile.form.submitEdit') : t('userProfile.form.submitCreate')}
+            accessibilityHint={isEdit ? t('userProfile.form.submitEdit') : t('userProfile.form.submitCreate')}
+            icon={<Icon glyph="?" size="xs" decorative />}
             testID="user-profile-form-submit"
           >
             {isEdit ? t('userProfile.form.submitEdit') : t('userProfile.form.submitCreate')}
