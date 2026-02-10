@@ -3,26 +3,39 @@
  * File: UserDetailScreen.web.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
-  StyledSection,
-  StyledActions,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
 } from './UserDetailScreen.web.styles';
 import useUserDetailScreen from './useUserDetailScreen';
 
+const resolveStatusLabel = (t, value) => {
+  if (!value) return '';
+  const key = `user.status.${value}`;
+  const resolved = t(key);
+  return resolved === key ? value : resolved;
+};
+
 const UserDetailScreenWeb = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     user,
     isLoading,
@@ -35,182 +48,255 @@ const UserDetailScreenWeb = () => {
     onDelete,
   } = useUserDetailScreen();
 
-  if (isLoading) {
+  const hasUser = Boolean(user);
+
+  if (isLoading && !hasUser) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="user-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('user.detail.title')}>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="user-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasUser) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('user.detail.title')}>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasUser) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('user.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('user.detail.title')}>
+        <StyledContent>
+          <ErrorState
+            title={t('user.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!user) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('user.detail.notFoundTitle')}
-              description={t('user.detail.notFoundMessage')}
-              testID="user-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="user-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = user.created_at
-    ? new Date(user.created_at).toLocaleString()
-    : '';
-  const updatedAt = user.updated_at
-    ? new Date(user.updated_at).toLocaleString()
-    : '';
-  const email = user?.email ?? '';
-  const phone = user?.phone ?? '';
-  const status = user?.status ?? '';
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('user.detail.title')}>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-detail-title"
-          >
-            {t('user.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="user-detail-id">
-              {t('user.detail.idLabel')}: {user.id}
-            </Text>
-          </StyledSection>
-          {email ? (
-            <StyledSection>
-              <Text variant="body" testID="user-detail-email">
-                {t('user.detail.emailLabel')}: {email}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {phone ? (
-            <StyledSection>
-              <Text variant="body" testID="user-detail-phone">
-                {t('user.detail.phoneLabel')}: {phone}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {status ? (
-            <StyledSection>
-              <Text variant="body" testID="user-detail-status">
-                {t('user.detail.statusLabel')}: {status}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-detail-created">
-                {t('user.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-detail-updated">
-                {t('user.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('user.detail.notFoundTitle')}
+            description={t('user.detail.notFoundMessage')}
+            testID="user-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('user.detail.backHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
               testID="user-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('user.detail.edit')}
-                accessibilityHint={t('user.detail.editHint')}
-                testID="user-detail-edit"
-              >
-                {t('user.detail.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('user.detail.delete')}
-              accessibilityHint={t('user.detail.deleteHint')}
-              testID="user-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(user.created_at, locale);
+  const updatedAt = formatDateTime(user.updated_at, locale);
+  const email = user?.email ?? '';
+  const phone = user?.phone ?? '';
+  const status = user?.status ?? '';
+  const statusLabel = resolveStatusLabel(t, status);
+  const tenantId = user?.tenant_id ?? '';
+  const facilityId = user?.facility_id ?? '';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasUser && hasError;
+  const showInlineOffline = hasUser && isOffline;
+
+  return (
+    <StyledContainer role="main" aria-label={t('user.detail.title')}>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('user.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="user-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="user-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('user.detail.title')} testID="user-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('user.detail.idLabel')}</Text>
+              <Text variant="body" testID="user-detail-id">
+                {user.id}
+              </Text>
+            </StyledDetailItem>
+            {tenantId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="user-detail-tenant">
+                  {tenantId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.facilityLabel')}</Text>
+                <Text variant="body" testID="user-detail-facility">
+                  {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {email ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.emailLabel')}</Text>
+                <Text variant="body" testID="user-detail-email">
+                  {email}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {phone ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.phoneLabel')}</Text>
+                <Text variant="body" testID="user-detail-phone">
+                  {phone}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {status ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.statusLabel')}</Text>
+                <Text variant="body" testID="user-detail-status">
+                  {statusLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.createdLabel')}</Text>
+                <Text variant="body" testID="user-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="user-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('user.detail.backHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="user-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('user.detail.edit')}
+              accessibilityHint={t('user.detail.editHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="user-detail-edit"
+              disabled={isLoading}
+            >
+              {t('user.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('user.detail.delete')}
+            accessibilityHint={t('user.detail.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="user-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

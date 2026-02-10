@@ -2,15 +2,40 @@
  * useUserFormScreen Hook
  * Shared logic for UserFormScreen (create/edit).
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useUser } from '@hooks';
+import { useI18n, useNetwork, useTenant, useFacility, useUser } from '@hooks';
+
+const resolveErrorMessage = (t, errorCode, fallbackKey) => {
+  if (!errorCode) return null;
+  if (errorCode === 'UNKNOWN_ERROR' || errorCode === 'NETWORK_ERROR') {
+    return t(fallbackKey);
+  }
+  const key = `errors.codes.${errorCode}`;
+  const resolved = t(key);
+  return resolved === key ? t(fallbackKey) : resolved;
+};
 
 const useUserFormScreen = () => {
   const { t } = useI18n();
+  const { isOffline } = useNetwork();
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id, tenantId: tenantIdParam } = useLocalSearchParams();
   const { get, create, update, data, isLoading, errorCode, reset } = useUser();
+  const {
+    list: listTenants,
+    data: tenantData,
+    isLoading: tenantListLoading,
+    errorCode: tenantErrorCode,
+    reset: resetTenants,
+  } = useTenant();
+  const {
+    list: listFacilities,
+    data: facilityData,
+    isLoading: facilityListLoading,
+    errorCode: facilityErrorCode,
+    reset: resetFacilities,
+  } = useFacility();
 
   const isEdit = Boolean(id);
   const [tenantId, setTenantId] = useState('');
@@ -19,8 +44,34 @@ const useUserFormScreen = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('ACTIVE');
+  const tenantPrefillRef = useRef(false);
+  const previousTenantRef = useRef('');
 
   const user = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const tenantItems = useMemo(
+    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
+    [tenantData]
+  );
+  const facilityItems = useMemo(
+    () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
+    [facilityData]
+  );
+  const tenantOptions = useMemo(
+    () =>
+      tenantItems.map((tenant) => ({
+        value: tenant.id,
+        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+      })),
+    [tenantItems]
+  );
+  const facilityOptions = useMemo(
+    () =>
+      facilityItems.map((facility) => ({
+        value: facility.id,
+        label: facility.name ?? facility.id ?? '',
+      })),
+    [facilityItems]
+  );
   const statusOptions = useMemo(
     () => ([
       { label: t('user.status.ACTIVE'), value: 'ACTIVE' },
@@ -39,6 +90,13 @@ const useUserFormScreen = () => {
   }, [isEdit, id, get, reset]);
 
   useEffect(() => {
+    if (!isEdit) {
+      resetTenants();
+      listTenants({ page: 1, limit: 200 });
+    }
+  }, [isEdit, listTenants, resetTenants]);
+
+  useEffect(() => {
     if (user) {
       setTenantId(user.tenant_id ?? '');
       setFacilityId(user.facility_id ?? '');
@@ -49,39 +107,118 @@ const useUserFormScreen = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    const trimmedTenant = String(tenantId ?? '').trim();
+    if (!trimmedTenant) {
+      resetFacilities();
+      return;
+    }
+    resetFacilities();
+    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+  }, [tenantId, listFacilities, resetFacilities]);
+
+  useEffect(() => {
+    if (isEdit) return;
+    const trimmedTenant = String(tenantId ?? '').trim();
+    if (previousTenantRef.current && previousTenantRef.current !== trimmedTenant) {
+      setFacilityId('');
+    }
+    previousTenantRef.current = trimmedTenant;
+  }, [tenantId, isEdit]);
+
+  useEffect(() => {
+    if (isEdit) return;
+    if (tenantPrefillRef.current) return;
+    const paramValue = Array.isArray(tenantIdParam) ? tenantIdParam[0] : tenantIdParam;
+    if (paramValue) {
+      setTenantId(String(paramValue));
+      tenantPrefillRef.current = true;
+      return;
+    }
+    if (tenantOptions.length === 1 && !tenantId) {
+      setTenantId(tenantOptions[0].value);
+      tenantPrefillRef.current = true;
+    }
+  }, [isEdit, tenantIdParam, tenantOptions, tenantId]);
+
+  const trimmedTenantId = String(tenantId ?? '').trim();
+  const trimmedFacilityId = String(facilityId ?? '').trim();
+  const trimmedEmail = email.trim();
+  const trimmedPhone = phone.trim();
+  const trimmedPassword = password.trim();
+  const trimmedStatus = status.trim();
+
+  const errorMessage = useMemo(
+    () => resolveErrorMessage(t, errorCode, 'user.form.submitErrorMessage'),
+    [t, errorCode]
+  );
+  const tenantErrorMessage = useMemo(
+    () => resolveErrorMessage(t, tenantErrorCode, 'user.form.tenantLoadErrorMessage'),
+    [t, tenantErrorCode]
+  );
+  const facilityErrorMessage = useMemo(
+    () => resolveErrorMessage(t, facilityErrorCode, 'user.form.facilityLoadErrorMessage'),
+    [t, facilityErrorCode]
+  );
+
+  const hasTenants = tenantOptions.length > 0;
+  const hasFacilities = facilityOptions.length > 0;
+  const isCreateBlocked = !isEdit && !hasTenants;
+  const showFacilityEmpty =
+    !isEdit && Boolean(trimmedTenantId) && !facilityListLoading && !facilityErrorCode && !hasFacilities;
+  const isSubmitDisabled =
+    isLoading ||
+    isCreateBlocked ||
+    !trimmedEmail ||
+    !trimmedStatus ||
+    (!isEdit && (!trimmedTenantId || !trimmedPassword));
+
   const handleSubmit = useCallback(async () => {
     try {
+      if (isSubmitDisabled) return;
+      const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
-        facility_id: facilityId?.trim() || undefined,
-        email: email.trim(),
-        phone: phone.trim() || undefined,
-        status: status || undefined,
+        email: trimmedEmail,
+        status: trimmedStatus || undefined,
       };
-      const trimmedPassword = password.trim();
+      if (trimmedPhone) {
+        payload.phone = trimmedPhone;
+      } else if (isEdit) {
+        payload.phone = null;
+      }
+      if (trimmedFacilityId) {
+        payload.facility_id = trimmedFacilityId;
+      } else if (isEdit) {
+        payload.facility_id = null;
+      }
       if (trimmedPassword) {
         payload.password_hash = trimmedPassword;
       }
-      if (!isEdit && tenantId?.trim()) {
-        payload.tenant_id = tenantId.trim();
+      if (!isEdit && trimmedTenantId) {
+        payload.tenant_id = trimmedTenantId;
       }
       if (isEdit && id) {
-        await update(id, payload);
+        const result = await update(id, payload);
+        if (!result) return;
       } else {
-        await create(payload);
+        const result = await create(payload);
+        if (!result) return;
       }
-      router.replace('/settings/users');
+      router.replace(`/settings/users?notice=${noticeKey}`);
     } catch {
       /* error from hook */
     }
   }, [
+    isSubmitDisabled,
+    isOffline,
     isEdit,
     id,
-    tenantId,
-    facilityId,
-    email,
-    phone,
-    password,
-    status,
+    trimmedEmail,
+    trimmedStatus,
+    trimmedPhone,
+    trimmedPassword,
+    trimmedFacilityId,
+    trimmedTenantId,
     create,
     update,
     router,
@@ -90,6 +227,25 @@ const useUserFormScreen = () => {
   const handleCancel = useCallback(() => {
     router.push('/settings/users');
   }, [router]);
+
+  const handleGoToTenants = useCallback(() => {
+    router.push('/settings/tenants');
+  }, [router]);
+
+  const handleGoToFacilities = useCallback(() => {
+    router.push('/settings/facilities');
+  }, [router]);
+
+  const handleRetryTenants = useCallback(() => {
+    resetTenants();
+    listTenants({ page: 1, limit: 200 });
+  }, [listTenants, resetTenants]);
+
+  const handleRetryFacilities = useCallback(() => {
+    const trimmedTenant = String(tenantId ?? '').trim();
+    resetFacilities();
+    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant || undefined });
+  }, [listFacilities, resetFacilities, tenantId]);
 
   return {
     isEdit,
@@ -106,11 +262,30 @@ const useUserFormScreen = () => {
     status,
     setStatus,
     statusOptions,
+    tenantOptions,
+    tenantListLoading,
+    tenantListError: Boolean(tenantErrorCode),
+    tenantErrorMessage,
+    facilityOptions,
+    facilityListLoading,
+    facilityListError: Boolean(facilityErrorCode),
+    facilityErrorMessage,
+    hasTenants,
+    hasFacilities,
+    isCreateBlocked,
+    showFacilityEmpty,
     isLoading,
     hasError: Boolean(errorCode),
+    errorMessage,
+    isOffline,
     user,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
+    onGoToTenants: handleGoToTenants,
+    onGoToFacilities: handleGoToFacilities,
+    onRetryTenants: handleRetryTenants,
+    onRetryFacilities: handleRetryFacilities,
+    isSubmitDisabled,
     testID: 'user-form-screen',
   };
 };

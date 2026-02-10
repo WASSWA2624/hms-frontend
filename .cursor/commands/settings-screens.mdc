@@ -3,7 +3,7 @@ Review and implement **11.3.12** User -- `(main)/settings/users` as per: `hms-fr
 Must be **100% compliant** with:
 - `hms-frontend/.cursor/rules`
 - HMS backend contracts
-- Onboarding journey and app write-up
+- Onboarding hms-frontend/special-features/onboarding-journey.md and app write-up.md
 Do not implement anything outside this step unless strictly required for CRUD to function.
 ## Scope
 Implement full CRUD for this step: List, Create, Edit, Delete(with confirmation), View details (if defined by backend/spec), Loading, empty, and error states, Success/failure feedback for every action. Make the processes as simple as possible by pre-filling known fields or adding select components for user to select and prevent typos in known or determinable fields.
@@ -15,7 +15,7 @@ All operations must match backend schema and endpoints exactly.
 - Use standard breadcrumb + back navigation
 - Match other screens visually and structurally
 ## UI / UX Rules
-- Lightweight, clean, modern, fullr responsive for allscreen sizes.
+- Lightweight, clean, modern, fully responsive for all screen sizes.
 - The UI should look seamless on all devices (android, iOS and web) and on all screen sizes (mobile, tablets and desktops).
 - Compact spacing and components
 - No oversized elements

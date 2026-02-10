@@ -1,21 +1,41 @@
 /**
  * UserListScreen - Web
- * Full UI always renders: title + list area. On error/offline shows inline message + empty list.
+ * Full UI always renders: toolbar + list area. On error/offline shows inline message + empty list.
  */
 import React from 'react';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
   LoadingSpinner,
   OfflineState,
-  Stack,
-  Text,
+  OfflineStateSizes,
+  Snackbar,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList, StyledListBody } from './UserListScreen.web.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './UserListScreen.web.styles';
 import useUserListScreen from './useUserListScreen';
+
+const resolveStatusLabel = (t, value) => {
+  if (!value) return '';
+  const key = `user.status.${value}`;
+  const resolved = t(key);
+  return resolved === key ? value : resolved;
+};
 
 const UserListScreenWeb = () => {
   const { t } = useI18n();
@@ -25,6 +45,8 @@ const UserListScreenWeb = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onUserPress,
     onDelete,
@@ -35,84 +57,137 @@ const UserListScreenWeb = () => {
     <EmptyState
       title={t('user.list.emptyTitle')}
       description={t('user.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            type="button"
+            onClick={onAdd}
+            accessibilityLabel={t('user.list.addLabel')}
+            accessibilityHint={t('user.list.addHint')}
+            testID="user-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('user.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="user-list-empty-state"
     />
   );
 
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="user-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
+
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={t('user.list.title')}>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="user-list-notice"
+        />
+      ) : null}
       <StyledContent>
-        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
-          <Text variant="h1" accessibilityRole="header" testID="user-list-title">
-            {t('user.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('user.list.addLabel')}
-              accessibilityHint={t('user.list.addHint')}
-              testID="user-list-add"
-            >
-              {t('user.list.addLabel')}
-            </Button>
-          )}
-        </Stack>
-        <StyledListBody role="region" aria-label={t('user.list.accessibilityLabel')} data-testid="user-list">
-          {isLoading && <LoadingSpinner testID="user-list-spinner" />}
-          {!isLoading && hasError && (
-            <>
-              <ErrorState
-                title={t('listScaffold.errorState.title')}
-                description={errorMessage}
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="user-list-error-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && isOffline && (
-            <>
-              <OfflineState
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="user-list-offline-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && !hasError && !isOffline && items.length === 0 && emptyComponent}
-          {!isLoading && !hasError && !isOffline && items.length > 0 && (
-            <StyledList role="list">
-              {items.map((user) => {
-                const title = user?.email ?? user?.phone ?? user?.id ?? '';
-                const subtitle = user?.status ? `${t('user.detail.statusLabel')}: ${user.status}` : '';
-                return (
-                  <li key={user.id} role="listitem">
-                    <ListItem
-                      title={title}
-                      subtitle={subtitle}
-                      onPress={() => onUserPress(user.id)}
-                      actions={
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onPress={(e) => onDelete(user.id, e)}
-                          accessibilityLabel={t('user.list.delete')}
-                          accessibilityHint={t('user.list.deleteHint')}
-                          testID={`user-delete-${user.id}`}
-                        >
-                          {t('common.remove')}
-                        </Button>
-                      }
-                      accessibilityLabel={t('user.list.itemLabel', { name: title })}
-                      testID={`user-item-${user.id}`}
-                    />
-                  </li>
-                );
-              })}
-            </StyledList>
-          )}
-        </StyledListBody>
+        <StyledToolbar data-testid="user-list-toolbar">
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                type="button"
+                onClick={onAdd}
+                accessibilityLabel={t('user.list.addLabel')}
+                accessibilityHint={t('user.list.addHint')}
+                testID="user-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('user.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('user.list.accessibilityLabel')}
+          testID="user-list-card"
+        >
+          <StyledListBody role="region" aria-label={t('user.list.accessibilityLabel')} data-testid="user-list">
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="user-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList && (
+              <StyledList role="list">
+                {items.map((user) => {
+                  const title = user?.email ?? user?.phone ?? user?.id ?? '';
+                  const statusLabel = resolveStatusLabel(t, user?.status);
+                  const subtitle = statusLabel ? `${t('user.list.statusLabel')}: ${statusLabel}` : '';
+                  return (
+                    <li key={user.id} role="listitem">
+                      <ListItem
+                        title={title}
+                        subtitle={subtitle}
+                        onPress={() => onUserPress(user.id)}
+                        actions={(
+                          <Button
+                            variant="surface"
+                            size="small"
+                            onPress={(e) => onDelete(user.id, e)}
+                            accessibilityLabel={t('user.list.delete')}
+                            accessibilityHint={t('user.list.deleteHint')}
+                            icon={<Icon glyph="?" size="xs" decorative />}
+                            testID={`user-delete-${user.id}`}
+                          >
+                            {t('common.remove')}
+                          </Button>
+                        )}
+                        accessibilityLabel={t('user.list.itemLabel', { name: title })}
+                        accessibilityHint={t('user.list.itemHint', { name: title })}
+                        testID={`user-item-${user.id}`}
+                      />
+                    </li>
+                  );
+                })}
+              </StyledList>
+            )}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );

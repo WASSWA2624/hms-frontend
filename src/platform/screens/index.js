@@ -52,6 +52,7 @@ export { default as ContactDetailScreen } from './settings/ContactDetailScreen';
 export { default as ContactFormScreen } from './settings/ContactFormScreen';
 export { default as UserListScreen } from './settings/UserListScreen';
 export { default as UserDetailScreen } from './settings/UserDetailScreen';
+export { default as UserFormScreen } from './settings/UserFormScreen';
 export { default as UserProfileListScreen } from './settings/UserProfileListScreen';
 export { default as UserProfileDetailScreen } from './settings/UserProfileDetailScreen';
 export { default as RoleListScreen } from './settings/RoleListScreen';
