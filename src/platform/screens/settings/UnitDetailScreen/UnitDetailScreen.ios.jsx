@@ -3,26 +3,33 @@
  * File: UnitDetailScreen.ios.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
+  Badge,
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './UnitDetailScreen.ios.styles';
 import useUnitDetailScreen from './useUnitDetailScreen';
 
 const UnitDetailScreenIOS = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     unit,
     isLoading,
@@ -35,172 +42,240 @@ const UnitDetailScreenIOS = () => {
     onDelete,
   } = useUnitDetailScreen();
 
-  if (isLoading) {
+  const hasUnit = Boolean(unit);
+
+  if (isLoading && !hasUnit) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="unit-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="unit-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasUnit) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="unit-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <OfflineState
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="unit-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasUnit) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('unit.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="unit-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <ErrorState
+            title={t('unit.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="unit-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!unit) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('unit.detail.notFoundTitle')}
-              description={t('unit.detail.notFoundMessage')}
-              testID="unit-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="unit-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = unit.created_at
-    ? new Date(unit.created_at).toLocaleString()
-    : '';
-  const updatedAt = unit.updated_at
-    ? new Date(unit.updated_at).toLocaleString()
-    : '';
-  const name = unit?.name ?? '';
-  const isActive = unit?.is_active ?? false;
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <StyledContainer>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="unit-detail-title"
-          >
-            {t('unit.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="unit-detail-id">
-              {t('unit.detail.idLabel')}: {unit.id}
-            </Text>
-          </StyledSection>
-          {name ? (
-            <StyledSection>
-              <Text variant="body" testID="unit-detail-name">
-                {t('unit.detail.nameLabel')}: {name}
-              </Text>
-            </StyledSection>
-          ) : null}
-          <StyledSection>
-            <Text variant="body" testID="unit-detail-active">
-              {t('unit.detail.activeLabel')}: {isActive ? t('common.on') : t('common.off')}
-            </Text>
-          </StyledSection>
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="unit-detail-created">
-                {t('unit.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="unit-detail-updated">
-                {t('unit.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('unit.detail.notFoundTitle')}
+            description={t('unit.detail.notFoundMessage')}
+            testID="unit-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('unit.detail.backHint')}
+              icon={<Icon glyph="←" size="xs" decorative />}
               testID="unit-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('unit.detail.edit')}
-                accessibilityHint={t('unit.detail.editHint')}
-                testID="unit-detail-edit"
-              >
-                {t('common.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('unit.detail.delete')}
-              accessibilityHint={t('unit.detail.deleteHint')}
-              testID="unit-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(unit.created_at, locale);
+  const updatedAt = formatDateTime(unit.updated_at, locale);
+  const name = unit?.name ?? '';
+  const tenantId = unit?.tenant_id ?? '';
+  const isActive = unit?.is_active ?? false;
+  const statusLabel = isActive ? t('common.on') : t('common.off');
+  const statusVariant = isActive ? 'success' : 'warning';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasUnit && hasError;
+  const showInlineOffline = hasUnit && isOffline;
+
+  return (
+    <StyledContainer>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('unit.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="unit-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="unit-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('unit.detail.title')} testID="unit-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('unit.detail.idLabel')}</Text>
+              <Text variant="body" testID="unit-detail-id">
+                {unit.id}
+              </Text>
+            </StyledDetailItem>
+            {tenantId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="unit-detail-tenant">
+                  {tenantId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {name ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.nameLabel')}</Text>
+                <Text variant="body" testID="unit-detail-name">
+                  {name}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('unit.detail.activeLabel')}</Text>
+              <Badge
+                variant={statusVariant}
+                size="small"
+                accessibilityLabel={t('unit.detail.activeLabel')}
+                testID="unit-detail-active"
+              >
+                {statusLabel}
+              </Badge>
+            </StyledDetailItem>
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.createdLabel')}</Text>
+                <Text variant="body" testID="unit-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="unit-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('unit.detail.backHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
+            testID="unit-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('unit.detail.edit')}
+              accessibilityHint={t('unit.detail.editHint')}
+              icon={<Icon glyph="✎" size="xs" decorative />}
+              testID="unit-detail-edit"
+              disabled={isLoading}
+            >
+              {t('unit.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('unit.detail.delete')}
+            accessibilityHint={t('unit.detail.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
+            testID="unit-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

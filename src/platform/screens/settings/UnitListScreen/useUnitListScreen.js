@@ -3,9 +3,10 @@
  * Shared logic for UnitListScreen across platforms.
  * File: useUnitListScreen.js
  */
-import { useCallback, useEffect, useMemo } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useUnit } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   if (!errorCode) return null;
@@ -17,9 +18,21 @@ const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   return resolved === key ? t(loadErrorKey) : resolved;
 };
 
+const resolveNoticeMessage = (t, notice) => {
+  const map = {
+    created: 'unit.list.noticeCreated',
+    updated: 'unit.list.noticeUpdated',
+    deleted: 'unit.list.noticeDeleted',
+    queued: 'unit.list.noticeQueued',
+  };
+  const key = map[notice];
+  return key ? t(key) : null;
+};
+
 const useUnitListScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
     list,
@@ -30,6 +43,7 @@ const useUnitListScreen = () => {
     reset,
   } = useUnit();
 
+  const [noticeMessage, setNoticeMessage] = useState(null);
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -38,6 +52,10 @@ const useUnitListScreen = () => {
     () => resolveErrorMessage(t, errorCode, 'unit.list.loadError'),
     [t, errorCode]
   );
+  const noticeValue = useMemo(() => {
+    if (Array.isArray(notice)) return notice[0];
+    return notice;
+  }, [notice]);
 
   const fetchList = useCallback(() => {
     reset();
@@ -47,6 +65,22 @@ const useUnitListScreen = () => {
   useEffect(() => {
     fetchList();
   }, [fetchList]);
+
+  useEffect(() => {
+    if (!noticeValue) return;
+    const message = resolveNoticeMessage(t, noticeValue);
+    if (!message) return;
+    setNoticeMessage(message);
+    router.replace('/settings/units');
+  }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const timer = setTimeout(() => {
+      setNoticeMessage(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [noticeMessage]);
 
   const handleRetry = useCallback(() => {
     fetchList();
@@ -62,14 +96,21 @@ const useUnitListScreen = () => {
   const handleDelete = useCallback(
     async (id, e) => {
       if (e?.stopPropagation) e.stopPropagation();
+      if (!confirmAction(t('common.confirmDelete'))) return;
       try {
-        await remove(id);
+        const result = await remove(id);
+        if (!result) return;
         fetchList();
+        const noticeKey = isOffline ? 'queued' : 'deleted';
+        const message = resolveNoticeMessage(t, noticeKey);
+        if (message) {
+          setNoticeMessage(message);
+        }
       } catch {
         /* error handled by hook */
       }
     },
-    [remove, fetchList]
+    [remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
@@ -82,6 +123,8 @@ const useUnitListScreen = () => {
     hasError: Boolean(errorCode),
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onUnitPress: handleUnitPress,
     onDelete: handleDelete,

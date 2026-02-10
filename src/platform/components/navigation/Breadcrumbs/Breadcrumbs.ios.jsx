@@ -58,13 +58,25 @@ const BreadcrumbsIOS = ({
     }
   };
 
+  const fallbackItem = useMemo(() => {
+    if (!items?.length) return null;
+    for (let i = items.length - 2; i >= 0; i -= 1) {
+      const candidate = items[i];
+      if (candidate?.href || candidate?.onPress) {
+        return candidate;
+      }
+    }
+    return null;
+  }, [items]);
+
   const canGoBack = useMemo(() => {
     if (onBack) return true;
+    if (fallbackItem) return true;
     if (typeof router?.canGoBack === 'function') {
       return router.canGoBack();
     }
-    return true;
-  }, [onBack, router]);
+    return false;
+  }, [onBack, fallbackItem, router]);
 
   const handleBack = useCallback(() => {
     if (!canGoBack) return;
@@ -72,14 +84,18 @@ const BreadcrumbsIOS = ({
       onBack();
       return;
     }
-    if (router?.back) {
+    if (typeof router?.canGoBack === 'function' && router.canGoBack() && router?.back) {
       router.back();
+      return;
+    }
+    if (fallbackItem) {
+      handleItemPress(fallbackItem, -1);
       return;
     }
     if (router?.push) {
       router.push('/');
     }
-  }, [canGoBack, onBack, router]);
+  }, [canGoBack, onBack, router, fallbackItem]);
 
   return (
     <StyledBreadcrumbs

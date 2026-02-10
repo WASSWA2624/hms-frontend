@@ -3,16 +3,35 @@
  * File: UnitListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
   Text,
 } from '@platform/components';
-import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.android';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList } from './UnitListScreen.android.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './UnitListScreen.android.styles';
 import useUnitListScreen from './useUnitListScreen';
 
 const UnitListScreenAndroid = () => {
@@ -23,6 +42,8 @@ const UnitListScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onUnitPress,
     onDelete,
@@ -33,11 +54,42 @@ const UnitListScreenAndroid = () => {
     <EmptyState
       title={t('unit.list.emptyTitle')}
       description={t('unit.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            onPress={onAdd}
+            accessibilityRole="button"
+            accessibilityLabel={t('unit.list.addLabel')}
+            accessibilityHint={t('unit.list.addHint')}
+            testID="unit-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="unit-list-empty-state"
     />
   );
 
-  const ItemSeparator = () => <View style={{ height: 8 }} />;
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="unit-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
 
   const renderItem = ({ item: unit }) => {
     const title = unit?.name ?? unit?.id ?? '';
@@ -47,11 +99,12 @@ const UnitListScreenAndroid = () => {
         onPress={() => onUnitPress(unit.id)}
         actions={
           <Button
-            variant="ghost"
+            variant="surface"
             size="small"
             onPress={(e) => onDelete(unit.id, e)}
             accessibilityLabel={t('unit.list.delete')}
             accessibilityHint={t('unit.list.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
             testID={`unit-delete-${unit.id}`}
           >
             {t('common.remove')}
@@ -64,41 +117,70 @@ const UnitListScreenAndroid = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-            <Text
-              variant="h1"
-              accessibilityRole="header"
-              testID="unit-list-title"
-            >
+    <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="unit-list-notice"
+        />
+      ) : null}
+      <StyledContent>
+        <StyledToolbar testID="unit-list-toolbar">
+          <StyledSearchSlot>
+            <Text variant="h2" accessibilityRole="header" testID="unit-list-title">
               {t('unit.list.title')}
             </Text>
+          </StyledSearchSlot>
+          <StyledToolbarActions>
             {onAdd && (
-              <Button
-                variant="primary"
+              <StyledAddButton
                 onPress={onAdd}
+                accessibilityRole="button"
                 accessibilityLabel={t('unit.list.addLabel')}
                 accessibilityHint={t('unit.list.addHint')}
                 testID="unit-list-add"
               >
-                {t('unit.list.addLabel')}
-              </Button>
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
             )}
-          </View>
-          <ListScaffold
-            isLoading={isLoading}
-            isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-            hasError={hasError}
-            error={errorMessage}
-            isOffline={isOffline}
-            onRetry={onRetry}
-            accessibilityLabel={t('unit.list.accessibilityLabel')}
-            testID="unit-list"
-            emptyComponent={emptyComponent}
-          >
-            {items.length > 0 ? (
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('unit.list.accessibilityLabel')}
+          testID="unit-list-card"
+        >
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="unit-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="unit-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="unit-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
@@ -111,10 +193,10 @@ const UnitListScreenAndroid = () => {
                 />
               </StyledList>
             ) : null}
-          </ListScaffold>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          </StyledListBody>
+        </Card>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 
