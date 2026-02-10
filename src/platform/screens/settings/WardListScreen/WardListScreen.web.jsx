@@ -5,26 +5,46 @@
 import React from 'react';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
   LoadingSpinner,
   OfflineState,
-  Text,
+  OfflineStateSizes,
+  Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList, StyledListBody } from './WardListScreen.web.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './WardListScreen.web.styles';
 import useWardListScreen from './useWardListScreen';
 
 const WardListScreenWeb = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
+    onSearch,
     onWardPress,
     onDelete,
     onAdd,
@@ -34,84 +54,147 @@ const WardListScreenWeb = () => {
     <EmptyState
       title={t('ward.list.emptyTitle')}
       description={t('ward.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            type="button"
+            onClick={onAdd}
+            accessibilityLabel={t('ward.list.addLabel')}
+            accessibilityHint={t('ward.list.addHint')}
+            testID="ward-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('ward.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="ward-list-empty-state"
     />
   );
 
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="ward-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
+
   return (
-    <StyledContainer>
+    <StyledContainer role="main" aria-label={t('ward.list.title')}>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="ward-list-notice"
+        />
+      ) : null}
       <StyledContent>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-          <Text variant="h1" accessibilityRole="header" testID="ward-list-title">
-            {t('ward.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('ward.list.addLabel')}
-              accessibilityHint={t('ward.list.addHint')}
-              testID="ward-list-add"
-            >
-              {t('ward.list.addLabel')}
-            </Button>
-          )}
-        </div>
-        <StyledListBody role="region" aria-label={t('ward.list.accessibilityLabel')} data-testid="ward-list">
-          {isLoading && <LoadingSpinner testID="ward-list-spinner" />}
-          {!isLoading && hasError && (
-            <>
-              <ErrorState
-                title={t('listScaffold.errorState.title')}
-                description={errorMessage}
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="ward-list-error-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && isOffline && (
-            <>
-              <OfflineState
-                action={onRetry ? <button type="button" onClick={onRetry} aria-label={t('common.retry')}>{t('common.retry')}</button> : undefined}
-                testID="ward-list-offline-state"
-              />
-              {emptyComponent}
-            </>
-          )}
-          {!isLoading && !hasError && !isOffline && items.length === 0 && emptyComponent}
-          {!isLoading && !hasError && !isOffline && items.length > 0 && (
-            <StyledList role="list">
-              {items.map((ward) => {
-                const title = ward?.name ?? ward?.id ?? '';
-                const subtitle = ward?.ward_type ? `${t('ward.list.typeLabel')}: ${ward.ward_type}` : '';
-                return (
-                  <li key={ward.id} role="listitem">
-                    <ListItem
-                      title={title}
-                      subtitle={subtitle}
-                      onPress={() => onWardPress(ward.id)}
-                      actions={
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onPress={(e) => onDelete(ward.id, e)}
-                          accessibilityLabel={t('ward.list.delete')}
-                          accessibilityHint={t('ward.list.deleteHint')}
-                          testID={`ward-delete-${ward.id}`}
-                        >
-                          {t('common.remove')}
-                        </Button>
-                      }
-                      accessibilityLabel={t('ward.list.itemLabel', { name: title })}
-                      testID={`ward-item-${ward.id}`}
-                    />
-                  </li>
-                );
-              })}
-            </StyledList>
-          )}
-        </StyledListBody>
+        <StyledToolbar data-testid="ward-list-toolbar">
+          <StyledSearchSlot>
+            <TextField
+              value={search}
+              onChange={(e) => onSearch(e.target.value)}
+              placeholder={t('ward.list.searchPlaceholder')}
+              accessibilityLabel={t('ward.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="ward-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                type="button"
+                onClick={onAdd}
+                accessibilityLabel={t('ward.list.addLabel')}
+                accessibilityHint={t('ward.list.addHint')}
+                testID="ward-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('ward.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('ward.list.accessibilityLabel')}
+          testID="ward-list-card"
+        >
+          <StyledListBody role="region" aria-label={t('ward.list.accessibilityLabel')} data-testid="ward-list">
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="ward-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="ward-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="ward-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList && (
+              <StyledList role="list">
+                {items.map((ward) => {
+                  const title = ward?.name ?? ward?.id ?? '';
+                  const subtitle = ward?.ward_type ? `${t('ward.list.typeLabel')}: ${ward.ward_type}` : '';
+                  return (
+                    <li key={ward.id} role="listitem">
+                      <ListItem
+                        title={title}
+                        subtitle={subtitle}
+                        onPress={() => onWardPress(ward.id)}
+                        actions={(
+                          <Button
+                            variant="surface"
+                            size="small"
+                            onPress={(e) => onDelete(ward.id, e)}
+                            accessibilityLabel={t('ward.list.delete')}
+                            accessibilityHint={t('ward.list.deleteHint')}
+                            icon={<Icon glyph="?" size="xs" decorative />}
+                            testID={`ward-delete-${ward.id}`}
+                          >
+                            {t('common.remove')}
+                          </Button>
+                        )}
+                        accessibilityLabel={t('ward.list.itemLabel', { name: title })}
+                        accessibilityHint={t('ward.list.itemHint', { name: title })}
+                        testID={`ward-item-${ward.id}`}
+                      />
+                    </li>
+                  );
+                })}
+              </StyledList>
+            )}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );
