@@ -12,23 +12,52 @@ const StyledContainer = styled.View.withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledContent = styled.View.withConfig({
   displayName: 'FacilityFormScreen_StyledContent',
   componentId: 'FacilityFormScreen_StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  align-self: center;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledSection = styled.View.withConfig({
-  displayName: 'FacilityFormScreen_StyledSection',
-  componentId: 'FacilityFormScreen_StyledSection',
+const StyledInlineStates = styled.View.withConfig({
+  displayName: 'FacilityFormScreen_StyledInlineStates',
+  componentId: 'FacilityFormScreen_StyledInlineStates',
 })`
-  margin-top: ${({ theme }) => theme.spacing.lg}px;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFormGrid = styled.View.withConfig({
+  displayName: 'FacilityFormScreen_StyledFormGrid',
+  componentId: 'FacilityFormScreen_StyledFormGrid',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledFieldGroup = styled.View.withConfig({
+  displayName: 'FacilityFormScreen_StyledFieldGroup',
+  componentId: 'FacilityFormScreen_StyledFieldGroup',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFullRow = styled.View.withConfig({
+  displayName: 'FacilityFormScreen_StyledFullRow',
+  componentId: 'FacilityFormScreen_StyledFullRow',
+})``;
+
+const StyledHelperStack = styled.View.withConfig({
+  displayName: 'FacilityFormScreen_StyledHelperStack',
+  componentId: 'FacilityFormScreen_StyledHelperStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledActions = styled.View.withConfig({
@@ -37,7 +66,16 @@ const StyledActions = styled.View.withConfig({
 })`
   flex-direction: row;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledInlineStates,
+  StyledFormGrid,
+  StyledFieldGroup,
+  StyledFullRow,
+  StyledHelperStack,
+  StyledActions,
+};
