@@ -48,7 +48,9 @@ const StyledWelcomeMessage = styled.div.withConfig({
   displayName: 'StyledWelcomeMessage',
   componentId: 'HomeScreen_StyledWelcomeMessage',
 })`
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledWelcomeMeta = styled.div.withConfig({
@@ -56,9 +58,28 @@ const StyledWelcomeMeta = styled.div.withConfig({
   componentId: 'HomeScreen_StyledWelcomeMeta',
 })`
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
   color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledHeroPanel = styled.div.withConfig({
+  displayName: 'StyledHeroPanel',
+  componentId: 'HomeScreen_StyledHeroPanel',
+})`
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.background.primary} 0%, ${({ theme }) => theme.colors.background.secondary} 100%);
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  padding: ${({ theme }) => theme.spacing.lg}px;
+`;
+
+const StyledBadgeRow = styled.div.withConfig({
+  displayName: 'StyledBadgeRow',
+  componentId: 'HomeScreen_StyledBadgeRow',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledSection = styled.section.withConfig({
@@ -113,6 +134,55 @@ const StyledSectionBody = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledStatusStrip = styled.div.withConfig({
+  displayName: 'StyledStatusStrip',
+  componentId: 'HomeScreen_StyledStatusStrip',
+})`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledQuickActions = styled.div.withConfig({
+  displayName: 'StyledQuickActions',
+  componentId: 'HomeScreen_StyledQuickActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledChecklist = styled.ul.withConfig({
+  displayName: 'StyledChecklist',
+  componentId: 'HomeScreen_StyledChecklist',
+})`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledChecklistItemContent = styled.div.withConfig({
+  displayName: 'StyledChecklistItemContent',
+  componentId: 'HomeScreen_StyledChecklistItemContent',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  min-width: 0;
+`;
+
+const StyledChecklistFooter = styled.div.withConfig({
+  displayName: 'StyledChecklistFooter',
+  componentId: 'HomeScreen_StyledChecklistFooter',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledStatGrid = styled.div.withConfig({
   displayName: 'StyledStatGrid',
   componentId: 'HomeScreen_StyledStatGrid',
@@ -127,6 +197,72 @@ const StyledStatGrid = styled.div.withConfig({
 
   @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+`;
+
+const StyledValueGrid = styled.div.withConfig({
+  displayName: 'StyledValueGrid',
+  componentId: 'HomeScreen_StyledValueGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledModuleGrid = styled.div.withConfig({
+  displayName: 'StyledModuleGrid',
+  componentId: 'HomeScreen_StyledModuleGrid',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing.md}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+`;
+
+const StyledPlanRow = styled.div.withConfig({
+  displayName: 'StyledPlanRow',
+  componentId: 'HomeScreen_StyledPlanRow',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledPlanActions = styled.div.withConfig({
+  displayName: 'StyledPlanActions',
+  componentId: 'HomeScreen_StyledPlanActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledActivityMeta = styled.div.withConfig({
+  displayName: 'StyledActivityMeta',
+  componentId: 'HomeScreen_StyledActivityMeta',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledHelpGrid = styled.div.withConfig({
+  displayName: 'StyledHelpGrid',
+  componentId: 'HomeScreen_StyledHelpGrid',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing.md}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
@@ -292,12 +428,25 @@ export {
   StyledWelcomeSection,
   StyledWelcomeMessage,
   StyledWelcomeMeta,
+  StyledHeroPanel,
+  StyledBadgeRow,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitleGroup,
   StyledSectionMeta,
   StyledSectionBody,
+  StyledStatusStrip,
+  StyledQuickActions,
+  StyledChecklist,
+  StyledChecklistItemContent,
+  StyledChecklistFooter,
   StyledStatGrid,
+  StyledValueGrid,
+  StyledModuleGrid,
+  StyledPlanRow,
+  StyledPlanActions,
+  StyledActivityMeta,
+  StyledHelpGrid,
   StyledCardWrapper,
   StyledStatCardContent,
   StyledStatValueRow,
@@ -314,4 +463,3 @@ export {
   StyledLoadingGrid,
   StyledLoadingBlock,
 };
-

@@ -32,6 +32,7 @@ const StyledContent = styled(View).withConfig({
 })`
   flex: 1;
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledWelcomeSection = styled(View).withConfig({
@@ -39,13 +40,14 @@ const StyledWelcomeSection = styled(View).withConfig({
   componentId: 'HomeScreen_StyledWelcomeSection',
 })`
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledWelcomeMessage = styled(View).withConfig({
   displayName: 'StyledWelcomeMessage',
   componentId: 'HomeScreen_StyledWelcomeMessage',
 })`
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledWelcomeMeta = styled(View).withConfig({
@@ -53,13 +55,34 @@ const StyledWelcomeMeta = styled(View).withConfig({
   componentId: 'HomeScreen_StyledWelcomeMeta',
 })`
   margin-top: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHeroPanel = styled(View).withConfig({
+  displayName: 'StyledHeroPanel',
+  componentId: 'HomeScreen_StyledHeroPanel',
+})`
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  padding: ${({ theme }) => theme.spacing.lg}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+const StyledBadgeRow = styled(View).withConfig({
+  displayName: 'StyledBadgeRow',
+  componentId: 'HomeScreen_StyledBadgeRow',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledSection = styled(View).withConfig({
   displayName: 'StyledSection',
   componentId: 'HomeScreen_StyledSection',
 })`
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledSectionHeader = styled(View).withConfig({
@@ -88,6 +111,46 @@ const StyledSectionBody = styled(View).withConfig({
   componentId: 'HomeScreen_StyledSectionBody',
 })`
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledStatusStrip = styled(View).withConfig({
+  displayName: 'StyledStatusStrip',
+  componentId: 'HomeScreen_StyledStatusStrip',
+})`
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledQuickActions = styled(View).withConfig({
+  displayName: 'StyledQuickActions',
+  componentId: 'HomeScreen_StyledQuickActions',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledChecklist = styled(View).withConfig({
+  displayName: 'StyledChecklist',
+  componentId: 'HomeScreen_StyledChecklist',
+})`
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledChecklistItemContent = styled(View).withConfig({
+  displayName: 'StyledChecklistItemContent',
+  componentId: 'HomeScreen_StyledChecklistItemContent',
+})`
+  flex: 1;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledChecklistFooter = styled(View).withConfig({
+  displayName: 'StyledChecklistFooter',
+  componentId: 'HomeScreen_StyledChecklistFooter',
+})`
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledStatGrid = styled(View).withConfig({
@@ -95,6 +158,54 @@ const StyledStatGrid = styled(View).withConfig({
   componentId: 'HomeScreen_StyledStatGrid',
 })`
   width: 100%;
+`;
+
+const StyledValueGrid = styled(View).withConfig({
+  displayName: 'StyledValueGrid',
+  componentId: 'HomeScreen_StyledValueGrid',
+})`
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledModuleGrid = styled(View).withConfig({
+  displayName: 'StyledModuleGrid',
+  componentId: 'HomeScreen_StyledModuleGrid',
+})`
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledPlanRow = styled(View).withConfig({
+  displayName: 'StyledPlanRow',
+  componentId: 'HomeScreen_StyledPlanRow',
+})`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledPlanActions = styled(View).withConfig({
+  displayName: 'StyledPlanActions',
+  componentId: 'HomeScreen_StyledPlanActions',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledActivityMeta = styled(View).withConfig({
+  displayName: 'StyledActivityMeta',
+  componentId: 'HomeScreen_StyledActivityMeta',
+})`
+  margin-left: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHelpGrid = styled(View).withConfig({
+  displayName: 'StyledHelpGrid',
+  componentId: 'HomeScreen_StyledHelpGrid',
+})`
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledCardWrapper = styled(View).withConfig({
@@ -109,6 +220,7 @@ const StyledStatCardContent = styled(View).withConfig({
   componentId: 'HomeScreen_StyledStatCardContent',
 })`
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledStatValueRow = styled(View).withConfig({
@@ -150,6 +262,7 @@ const StyledSectionGrid = styled(View).withConfig({
   componentId: 'HomeScreen_StyledSectionGrid',
 })`
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledCardHeaderContent = styled(View).withConfig({
@@ -157,6 +270,7 @@ const StyledCardHeaderContent = styled(View).withConfig({
   componentId: 'HomeScreen_StyledCardHeaderContent',
 })`
   width: 100%;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledList = styled(View).withConfig({
@@ -223,12 +337,25 @@ export {
   StyledWelcomeSection,
   StyledWelcomeMessage,
   StyledWelcomeMeta,
+  StyledHeroPanel,
+  StyledBadgeRow,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitleGroup,
   StyledSectionMeta,
   StyledSectionBody,
+  StyledStatusStrip,
+  StyledQuickActions,
+  StyledChecklist,
+  StyledChecklistItemContent,
+  StyledChecklistFooter,
   StyledStatGrid,
+  StyledValueGrid,
+  StyledModuleGrid,
+  StyledPlanRow,
+  StyledPlanActions,
+  StyledActivityMeta,
+  StyledHelpGrid,
   StyledCardWrapper,
   StyledStatCardContent,
   StyledStatValueRow,
@@ -245,4 +372,3 @@ export {
   StyledLoadingGrid,
   StyledLoadingBlock,
 };
-

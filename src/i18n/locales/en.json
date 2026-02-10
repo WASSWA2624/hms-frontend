@@ -422,8 +422,304 @@
   "home": {
     "title": "Dashboard",
     "welcome": {
-      "title": "Welcome to your dashboard",
-      "message": "You're successfully logged in. This is your dashboard."
+      "title": "Welcome back, {{name}}",
+      "subtitle": "{{role}} at {{facility}}",
+      "facilityMeta": "{{facility}} - {{branch}}",
+      "roles": {
+        "medicalDirector": "Medical Director",
+        "admin": "Administrator",
+        "owner": "Owner"
+      }
+    },
+    "facility": {
+      "types": {
+        "clinic": "Clinic",
+        "hospital": "Hospital",
+        "lab": "Lab",
+        "pharmacy": "Pharmacy",
+        "emergency": "Emergency"
+      }
+    },
+    "statusStrip": {
+      "title": "Live today",
+      "subtitle": "Auto-adaptive to your facility",
+      "items": {
+        "patientsToday": "Patients today",
+        "appointmentsToday": "Appointments today",
+        "admissionsToday": "Admissions today",
+        "revenueToday": "Revenue today",
+        "pendingBills": "Pending bills"
+      }
+    },
+    "startHere": {
+      "title": "Start here",
+      "subtitle": "Complete the essentials to unlock full value",
+      "progressTitle": "Guided setup",
+      "progressSubtitle": "One step at a time",
+      "progressLabel": "Progress: {{value}}%",
+      "nextBest": "Next best step: {{step}}",
+      "complete": "All set. You are ready for advanced modules.",
+      "cta": "Continue setup",
+      "status": {
+        "done": "Done",
+        "pending": "Next"
+      },
+      "items": {
+        "registerPatient": {
+          "title": "Register first patient",
+          "meta": "Build your patient list"
+        },
+        "bookAppointment": {
+          "title": "Book appointment",
+          "meta": "Start scheduling visits"
+        },
+        "addStaff": {
+          "title": "Add staff member",
+          "meta": "Invite your core team"
+        },
+        "createInvoice": {
+          "title": "Create first invoice",
+          "meta": "Capture your first payment"
+        },
+        "admitPatient": {
+          "title": "Admit first patient",
+          "meta": "Activate inpatient flow"
+        }
+      }
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "subtitle": "One click power moves",
+      "items": {
+        "newPatient": "+ New patient",
+        "appointment": "+ Appointment",
+        "invoice": "+ Invoice",
+        "admit": "+ Admit patient",
+        "labTest": "+ Lab test",
+        "sale": "+ Sale (POS)"
+      }
+    },
+    "workQueue": {
+      "title": "Today's work queue",
+      "subtitle": "Keep patient flow moving",
+      "status": {
+        "next": "Next up",
+        "waiting": "Waiting",
+        "review": "Review",
+        "inProgress": "In progress",
+        "action": "Action"
+      },
+      "items": {
+        "upcomingAppointments": {
+          "title": "Upcoming appointments",
+          "meta": "Next 2 hours"
+        },
+        "waitingPatients": {
+          "title": "Waiting patients",
+          "meta": "OPD queue"
+        },
+        "pendingApprovals": {
+          "title": "Pending approvals",
+          "meta": "Admissions and discharges"
+        },
+        "pendingResults": {
+          "title": "Pending lab results",
+          "meta": "Critical values pending"
+        },
+        "unpaidInvoices": {
+          "title": "Unpaid invoices",
+          "meta": "Collections due today"
+        }
+      }
+    },
+    "attention": {
+      "title": "Alerts and attention",
+      "subtitle": "Resolve quickly",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "info": "Info"
+      },
+      "items": {
+        "lowStock": {
+          "title": "Low stock",
+          "meta": "3 pharmacy items"
+        },
+        "expiringDrugs": {
+          "title": "Expiring drugs",
+          "meta": "5 items in 30 days"
+        },
+        "overdueBills": {
+          "title": "Overdue bills",
+          "meta": "7 invoices past due"
+        },
+        "criticalLabs": {
+          "title": "Critical lab flags",
+          "meta": "2 results to review"
+        },
+        "capacityWarning": {
+          "title": "Capacity warning",
+          "meta": "ICU near limit"
+        }
+      }
+    },
+    "valueProof": {
+      "title": "Value proof",
+      "subtitle": "Impact highlights",
+      "minutes": "{{value}} min",
+      "deltaUp": "+{{value}}% vs last week",
+      "deltaDown": "-{{value}}% vs last week",
+      "deltaNeutral": "{{value}}% vs last week",
+      "items": {
+        "revenue": {
+          "title": "Revenue this week",
+          "comparison": "vs last week"
+        },
+        "patientGrowth": {
+          "title": "Patient growth trend",
+          "comparison": "vs last week"
+        },
+        "collectionRate": {
+          "title": "Collection rate",
+          "comparison": "paid on time"
+        },
+        "turnaround": {
+          "title": "Avg turnaround time",
+          "comparison": "lab average"
+        },
+        "bedOccupancy": {
+          "title": "Bed occupancy",
+          "comparison": "current utilization"
+        }
+      }
+    },
+    "insights": {
+      "title": "Smart insights",
+      "subtitle": "System-generated guidance",
+      "badge": "Insight",
+      "items": {
+        "volumeIncrease": {
+          "title": "Patient volume increased 18% this week",
+          "meta": "Great week for OPD"
+        },
+        "trialLimit": {
+          "title": "You are close to your trial limit",
+          "meta": "Upgrade to keep creating new records"
+        },
+        "expiryRisk": {
+          "title": "Pharmacy expiry risk detected",
+          "meta": "Review near-expiry items"
+        },
+        "readyForIpd": {
+          "title": "You are ready to enable IPD module",
+          "meta": "Unlock inpatient workflows"
+        }
+      }
+    },
+    "modules": {
+      "title": "Next modules to unlock",
+      "subtitle": "Progressive disclosure",
+      "items": {
+        "pharmacy": {
+          "title": "Enable Pharmacy",
+          "benefit": "Track dispensing, stock, and point-of-sale in one flow.",
+          "who": "Best for outpatient clinics",
+          "cta": "Enable Pharmacy"
+        },
+        "lab": {
+          "title": "Enable Lab",
+          "benefit": "Manage samples, results, and turnaround time.",
+          "who": "Best for diagnostic centers",
+          "cta": "Enable Lab"
+        },
+        "inventory": {
+          "title": "Enable Inventory",
+          "benefit": "Stay ahead of expiry and stock-outs.",
+          "who": "Best for multi-department teams",
+          "cta": "Enable Inventory"
+        },
+        "hr": {
+          "title": "Enable HR",
+          "benefit": "Manage shifts, roles, and staffing coverage.",
+          "who": "Best for growing facilities",
+          "cta": "Enable HR"
+        },
+        "insurance": {
+          "title": "Enable Insurance",
+          "benefit": "Handle claims, approvals, and reconciliations.",
+          "who": "Best for insured patients",
+          "cta": "Enable Insurance"
+        }
+      }
+    },
+    "plan": {
+      "status": {
+        "trial": "Free trial",
+        "active": "Active plan"
+      },
+      "trialDays": "{{count}} days left",
+      "usage": {
+        "title": "Usage and plan",
+        "subtitle": "Visibility without pressure",
+        "remaining": "{{count}} actions remaining",
+        "limitNote": "Nothing is blocked. Only new actions pause at the limit."
+      },
+      "actions": {
+        "upgrade": "Upgrade plan",
+        "compare": "Compare plans"
+      }
+    },
+    "activity": {
+      "title": "Activity feed",
+      "subtitle": "The system stays alive",
+      "items": {
+        "patientRegistered": {
+          "title": "Patient registered",
+          "meta": "OPD intake",
+          "time": "2 min ago"
+        },
+        "billGenerated": {
+          "title": "Bill generated",
+          "meta": "Outpatient billing",
+          "time": "12 min ago"
+        },
+        "testCompleted": {
+          "title": "Test completed",
+          "meta": "Lab results ready",
+          "time": "28 min ago"
+        },
+        "stockUpdated": {
+          "title": "Stock updated",
+          "meta": "Inventory adjustment",
+          "time": "45 min ago"
+        },
+        "staffAdded": {
+          "title": "Staff added",
+          "meta": "New nurse onboarded",
+          "time": "1 hour ago"
+        }
+      }
+    },
+    "help": {
+      "title": "Help without asking",
+      "subtitle": "Guided support in context",
+      "items": {
+        "showMe": {
+          "title": "Show me how",
+          "meta": "Context tips for every screen",
+          "cta": "Show me"
+        },
+        "walkthroughs": {
+          "title": "60-second walkthroughs",
+          "meta": "Short videos for common tasks",
+          "cta": "Start walkthrough"
+        },
+        "tips": {
+          "title": "Inline micro-guides",
+          "meta": "Guided prompts during actions",
+          "cta": "See tips"
+        }
+      }
     },
     "lastUpdated": "Updated {{time}}",
     "priority": {

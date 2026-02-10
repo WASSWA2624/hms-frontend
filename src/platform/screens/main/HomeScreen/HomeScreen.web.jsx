@@ -31,19 +31,30 @@ import {
   StyledSectionTitleGroup,
   StyledSectionMeta,
   StyledSectionBody,
-  StyledStatGrid,
-  StyledCardWrapper,
   StyledStatCardContent,
   StyledStatValueRow,
-  StyledCapacityList,
-  StyledCapacityItem,
-  StyledCapacityHeader,
   StyledSectionGrid,
   StyledCardHeaderContent,
   StyledList,
   StyledListItem,
   StyledListItemContent,
   StyledListItemMeta,
+  StyledWelcomeSection,
+  StyledWelcomeMessage,
+  StyledWelcomeMeta,
+  StyledHeroPanel,
+  StyledBadgeRow,
+  StyledStatusStrip,
+  StyledQuickActions,
+  StyledChecklist,
+  StyledChecklistItemContent,
+  StyledChecklistFooter,
+  StyledValueGrid,
+  StyledModuleGrid,
+  StyledPlanRow,
+  StyledPlanActions,
+  StyledActivityMeta,
+  StyledHelpGrid,
   StyledStateWrapper,
   StyledLoadingGrid,
   StyledLoadingBlock,
@@ -56,9 +67,9 @@ import useDashboardScreen from './useDashboardScreen';
 import { STATES } from './types';
 
 const getDeltaConfig = (delta) => {
-  if (delta > 0) return { variant: 'success', key: 'home.summary.deltaUp' };
-  if (delta < 0) return { variant: 'warning', key: 'home.summary.deltaDown' };
-  return { variant: 'primary', key: 'home.summary.deltaNeutral' };
+  if (delta > 0) return { variant: 'success', key: 'home.valueProof.deltaUp' };
+  if (delta < 0) return { variant: 'warning', key: 'home.valueProof.deltaDown' };
+  return { variant: 'primary', key: 'home.valueProof.deltaNeutral' };
 };
 
 /**
@@ -70,36 +81,53 @@ const DashboardScreenWeb = () => {
   const {
     state,
     isOffline,
-    summaryCards,
-    capacityStats,
-    priorityAlerts,
-    appointments,
-    alerts,
-    flowUpdates,
-    staffingUpdates,
-    serviceStatus,
+    facilityContext,
+    smartStatusStrip,
+    onboardingChecklist,
+    quickActions,
+    workQueue,
+    attentionAlerts,
+    valueProofs,
+    insights,
+    moduleDiscovery,
+    usagePlan,
+    activityFeed,
+    helpResources,
     lastUpdated,
     onRetry,
   } = useDashboardScreen();
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const currencyFormatter = useMemo(
+    () => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }),
+    [locale]
+  );
   const timeFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
     [locale]
   );
   const formatNumber = (value) => numberFormatter.format(value);
-  const formatPercent = (used, total) => Math.round((used / total) * 100);
   const formatTime = (value) => timeFormatter.format(value);
+  const formatStatusValue = (item) =>
+    item.format === 'currency' ? currencyFormatter.format(item.value) : formatNumber(item.value);
+  const formatProofValue = (item) => {
+    if (item.format === 'currency') return currencyFormatter.format(item.value);
+    if (item.format === 'percent') return `${formatNumber(item.value)}%`;
+    if (item.format === 'minutes') return t('home.valueProof.minutes', { value: formatNumber(item.value) });
+    return formatNumber(item.value);
+  };
 
   const isEmpty =
-    summaryCards.length === 0 &&
-    capacityStats.length === 0 &&
-    priorityAlerts.length === 0 &&
-    appointments.length === 0 &&
-    alerts.length === 0 &&
-    flowUpdates.length === 0 &&
-    staffingUpdates.length === 0 &&
-    serviceStatus.length === 0;
+    smartStatusStrip.length === 0 &&
+    onboardingChecklist.length === 0 &&
+    quickActions.length === 0 &&
+    workQueue.length === 0 &&
+    attentionAlerts.length === 0 &&
+    valueProofs.length === 0 &&
+    insights.length === 0 &&
+    moduleDiscovery.length === 0 &&
+    activityFeed.length === 0 &&
+    helpResources.length === 0;
 
   const renderLoadingState = () => (
     <StyledStateWrapper>
@@ -176,6 +204,11 @@ const DashboardScreenWeb = () => {
     );
   }
 
+  const completedSteps = onboardingChecklist.filter((item) => item.completed).length;
+  const totalSteps = onboardingChecklist.length;
+  const checklistProgress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+  const nextStep = onboardingChecklist.find((item) => !item.completed);
+
   return (
     <StyledHomeContainer role="main" aria-label={t('home.title')} data-testid="dashboard-screen">
       <StyledContent>
@@ -190,41 +223,115 @@ const DashboardScreenWeb = () => {
         )}
 
         <StyledSection>
+          <StyledHeroPanel>
+            <StyledWelcomeSection>
+              <StyledWelcomeMessage>
+                <Text variant="h1" accessibilityRole="header">
+                  {t('home.welcome.title', { name: facilityContext.userName })}
+                </Text>
+                <Text variant="body">
+                  {t('home.welcome.subtitle', {
+                    role: t(facilityContext.roleKey),
+                    facility: facilityContext.facilityName,
+                  })}
+                </Text>
+              </StyledWelcomeMessage>
+              <StyledWelcomeMeta>
+                <Text variant="caption">
+                  {t('home.welcome.facilityMeta', {
+                    facility: facilityContext.facilityName,
+                    branch: facilityContext.branchName,
+                  })}
+                </Text>
+                <StyledBadgeRow>
+                  <Badge variant="primary">{t(facilityContext.facilityTypeKey)}</Badge>
+                  <Badge variant="success">{t(facilityContext.planStatusKey)}</Badge>
+                  <Badge variant="warning">
+                    {t(facilityContext.planDetailKey, { count: facilityContext.planDetailValue })}
+                  </Badge>
+                </StyledBadgeRow>
+              </StyledWelcomeMeta>
+            </StyledWelcomeSection>
+          </StyledHeroPanel>
+        </StyledSection>
+
+        <StyledSection>
           <StyledSectionHeader>
             <StyledSectionTitleGroup>
               <Text variant="h2" accessibilityRole="header">
-                {t('home.priority.title')}
+                {t('home.statusStrip.title')}
               </Text>
-              <Text variant="caption">{t('home.priority.subtitle')}</Text>
+              <Text variant="caption">{t('home.statusStrip.subtitle')}</Text>
             </StyledSectionTitleGroup>
             <StyledSectionMeta>
               <Text variant="caption">{t('home.lastUpdated', { time: formatTime(lastUpdated) })}</Text>
             </StyledSectionMeta>
           </StyledSectionHeader>
           <StyledSectionBody>
-            <Card>
-              {priorityAlerts.length === 0 ? (
-                <Text variant="caption">{t('home.priority.empty')}</Text>
-              ) : (
-                <StyledList>
-                  {priorityAlerts.map((item) => (
-                    <StyledListItem key={item.id}>
-                      <StyledListItemContent>
-                        <Text variant="body">{t(item.titleKey)}</Text>
-                        <StyledListItemMeta>
-                          <Text variant="caption">{t(item.metaKey)}</Text>
-                        </StyledListItemMeta>
-                      </StyledListItemContent>
-                      <Badge
-                        variant={item.severityVariant}
-                        accessibilityLabel={t(item.severityKey)}
-                      >
-                        {t(item.severityKey)}
-                      </Badge>
-                    </StyledListItem>
-                  ))}
-                </StyledList>
-              )}
+            <StyledStatusStrip>
+              {smartStatusStrip.map((item) => (
+                <Card key={item.id}>
+                  <StyledStatCardContent>
+                    <Text variant="label">{t(item.labelKey)}</Text>
+                    <Text variant="h2">{formatStatusValue(item)}</Text>
+                  </StyledStatCardContent>
+                </Card>
+              ))}
+            </StyledStatusStrip>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.startHere.title')}
+              </Text>
+              <Text variant="caption">{t('home.startHere.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card
+              header={
+                <StyledCardHeaderContent>
+                  <Text variant="h3">{t('home.startHere.progressTitle')}</Text>
+                  <Text variant="caption">{t('home.startHere.progressSubtitle')}</Text>
+                </StyledCardHeaderContent>
+              }
+            >
+              <StyledChecklist>
+                {onboardingChecklist.map((item) => (
+                  <StyledListItem key={item.id}>
+                    <StyledChecklistItemContent>
+                      <Text variant="body">{t(item.titleKey)}</Text>
+                      <StyledListItemMeta>
+                        <Text variant="caption">{t(item.metaKey)}</Text>
+                      </StyledListItemMeta>
+                    </StyledChecklistItemContent>
+                    <Badge variant={item.completed ? 'success' : 'warning'}>
+                      {t(item.completed ? 'home.startHere.status.done' : 'home.startHere.status.pending')}
+                    </Badge>
+                  </StyledListItem>
+                ))}
+              </StyledChecklist>
+              <StyledChecklistFooter>
+                <Text variant="caption">
+                  {t('home.startHere.progressLabel', { value: checklistProgress })}
+                </Text>
+                <ProgressBar
+                  value={checklistProgress}
+                  variant={checklistProgress >= 80 ? 'success' : 'primary'}
+                  accessibilityLabel={t('home.startHere.progressLabel', { value: checklistProgress })}
+                />
+                <Text variant="caption">
+                  {nextStep
+                    ? t('home.startHere.nextBest', { step: t(nextStep.titleKey) })
+                    : t('home.startHere.complete')}
+                </Text>
+                <Button variant="primary" size="small">
+                  {t('home.startHere.cta')}
+                </Button>
+              </StyledChecklistFooter>
             </Card>
           </StyledSectionBody>
         </StyledSection>
@@ -233,185 +340,19 @@ const DashboardScreenWeb = () => {
           <StyledSectionHeader>
             <StyledSectionTitleGroup>
               <Text variant="h2" accessibilityRole="header">
-                {t('home.summary.title')}
+                {t('home.quickActions.title')}
               </Text>
-              <Text variant="caption">{t('home.summary.subtitle')}</Text>
-            </StyledSectionTitleGroup>
-            <StyledSectionMeta>
-              <Text variant="caption">{t('home.summary.meta')}</Text>
-            </StyledSectionMeta>
-          </StyledSectionHeader>
-          <StyledSectionBody>
-            <StyledStatGrid>
-              {summaryCards.map((card) => {
-                const deltaConfig = getDeltaConfig(card.delta);
-                return (
-                  <StyledCardWrapper key={card.id}>
-                    <Card>
-                      <StyledStatCardContent>
-                        <Text variant="label">{t(card.labelKey)}</Text>
-                        <StyledStatValueRow>
-                          <Text variant="h2">{formatNumber(card.value)}</Text>
-                          <Badge
-                            variant={deltaConfig.variant}
-                            accessibilityLabel={t(deltaConfig.key, { value: Math.abs(card.delta) })}
-                          >
-                            {t(deltaConfig.key, { value: Math.abs(card.delta) })}
-                          </Badge>
-                        </StyledStatValueRow>
-                      </StyledStatCardContent>
-                    </Card>
-                  </StyledCardWrapper>
-                );
-              })}
-            </StyledStatGrid>
-          </StyledSectionBody>
-        </StyledSection>
-
-        <StyledSection>
-          <StyledSectionHeader>
-            <StyledSectionTitleGroup>
-              <Text variant="h2" accessibilityRole="header">
-                {t('home.capacity.title')}
-              </Text>
-              <Text variant="caption">{t('home.capacity.subtitle')}</Text>
+              <Text variant="caption">{t('home.quickActions.subtitle')}</Text>
             </StyledSectionTitleGroup>
           </StyledSectionHeader>
           <StyledSectionBody>
-            <Card>
-              <StyledCapacityList>
-                {capacityStats.map((stat) => {
-                  const percent = formatPercent(stat.used, stat.total);
-                  return (
-                    <StyledCapacityItem key={stat.id}>
-                      <StyledCapacityHeader>
-                        <Text variant="body">{t(stat.labelKey)}</Text>
-                        <Text variant="caption">
-                          {t('home.capacity.ratio', {
-                            used: formatNumber(stat.used),
-                            total: formatNumber(stat.total),
-                          })}
-                        </Text>
-                      </StyledCapacityHeader>
-                      <ProgressBar
-                        value={percent}
-                        variant={stat.variant}
-                        accessibilityLabel={t('home.capacity.progress', {
-                          label: t(stat.labelKey),
-                          value: percent,
-                        })}
-                      />
-                    </StyledCapacityItem>
-                  );
-                })}
-              </StyledCapacityList>
-            </Card>
-          </StyledSectionBody>
-        </StyledSection>
-
-        <StyledSection>
-          <StyledSectionHeader>
-            <StyledSectionTitleGroup>
-              <Text variant="h2" accessibilityRole="header">
-                {t('home.flow.title')}
-              </Text>
-              <Text variant="caption">{t('home.flow.subtitle')}</Text>
-            </StyledSectionTitleGroup>
-          </StyledSectionHeader>
-          <StyledSectionBody>
-            <Card>
-              {flowUpdates.length === 0 ? (
-                <Text variant="caption">{t('home.flow.empty')}</Text>
-              ) : (
-                <StyledList>
-                  {flowUpdates.map((item) => (
-                    <StyledListItem key={item.id}>
-                      <StyledListItemContent>
-                        <Text variant="body">{t(item.titleKey)}</Text>
-                        <StyledListItemMeta>
-                          <Text variant="caption">{t(item.metaKey)}</Text>
-                        </StyledListItemMeta>
-                      </StyledListItemContent>
-                      <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
-                        {t(item.statusKey)}
-                      </Badge>
-                    </StyledListItem>
-                  ))}
-                </StyledList>
-              )}
-            </Card>
-          </StyledSectionBody>
-        </StyledSection>
-
-        <StyledSection>
-          <StyledSectionHeader>
-            <StyledSectionTitleGroup>
-              <Text variant="h2" accessibilityRole="header">
-                {t('home.readiness.title')}
-              </Text>
-              <Text variant="caption">{t('home.readiness.subtitle')}</Text>
-            </StyledSectionTitleGroup>
-          </StyledSectionHeader>
-          <StyledSectionBody>
-            <StyledSectionGrid>
-              <Card
-                header={
-                  <StyledCardHeaderContent>
-                    <Text variant="h3">{t('home.staffing.title')}</Text>
-                    <Text variant="caption">{t('home.staffing.subtitle')}</Text>
-                  </StyledCardHeaderContent>
-                }
-              >
-                {staffingUpdates.length === 0 ? (
-                  <Text variant="caption">{t('home.staffing.empty')}</Text>
-                ) : (
-                  <StyledList>
-                    {staffingUpdates.map((item) => (
-                      <StyledListItem key={item.id}>
-                        <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
-                          <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
-                          </StyledListItemMeta>
-                        </StyledListItemContent>
-                        <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
-                          {t(item.statusKey)}
-                        </Badge>
-                      </StyledListItem>
-                    ))}
-                  </StyledList>
-                )}
-              </Card>
-
-              <Card
-                header={
-                  <StyledCardHeaderContent>
-                    <Text variant="h3">{t('home.services.title')}</Text>
-                    <Text variant="caption">{t('home.services.subtitle')}</Text>
-                  </StyledCardHeaderContent>
-                }
-              >
-                {serviceStatus.length === 0 ? (
-                  <Text variant="caption">{t('home.services.empty')}</Text>
-                ) : (
-                  <StyledList>
-                    {serviceStatus.map((item) => (
-                      <StyledListItem key={item.id}>
-                        <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
-                          <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
-                          </StyledListItemMeta>
-                        </StyledListItemContent>
-                        <Badge variant={item.statusVariant} accessibilityLabel={t(item.statusKey)}>
-                          {t(item.statusKey)}
-                        </Badge>
-                      </StyledListItem>
-                    ))}
-                  </StyledList>
-                )}
-              </Card>
-            </StyledSectionGrid>
+            <StyledQuickActions>
+              {quickActions.map((item) => (
+                <Button key={item.id} variant="outline" size="small">
+                  {t(item.labelKey)}
+                </Button>
+              ))}
+            </StyledQuickActions>
           </StyledSectionBody>
         </StyledSection>
 
@@ -429,67 +370,236 @@ const DashboardScreenWeb = () => {
               <Card
                 header={
                   <StyledCardHeaderContent>
-                    <Text variant="h3">{t('home.appointments.title')}</Text>
-                    <Text variant="caption">{t('home.appointments.subtitle')}</Text>
+                    <Text variant="h3">{t('home.workQueue.title')}</Text>
+                    <Text variant="caption">{t('home.workQueue.subtitle')}</Text>
                   </StyledCardHeaderContent>
                 }
               >
-                {appointments.length === 0 ? (
-                  <Text variant="caption">{t('home.appointments.empty')}</Text>
-                ) : (
-                  <StyledList>
-                    {appointments.map((item) => (
-                      <StyledListItem key={item.id}>
-                        <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
-                          <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
-                          </StyledListItemMeta>
-                        </StyledListItemContent>
-                        <Badge
-                          variant={item.statusVariant}
-                          accessibilityLabel={t(item.statusKey)}
-                        >
-                          {t(item.statusKey)}
-                        </Badge>
-                      </StyledListItem>
-                    ))}
-                  </StyledList>
-                )}
+                <StyledList>
+                  {workQueue.map((item) => (
+                    <StyledListItem key={item.id}>
+                      <StyledListItemContent>
+                        <Text variant="body">{t(item.titleKey)}</Text>
+                        <StyledListItemMeta>
+                          <Text variant="caption">{t(item.metaKey)}</Text>
+                        </StyledListItemMeta>
+                      </StyledListItemContent>
+                      <Badge variant={item.statusVariant}>{t(item.statusKey)}</Badge>
+                    </StyledListItem>
+                  ))}
+                </StyledList>
               </Card>
 
               <Card
                 header={
                   <StyledCardHeaderContent>
-                    <Text variant="h3">{t('home.alerts.title')}</Text>
-                    <Text variant="caption">{t('home.alerts.subtitle')}</Text>
+                    <Text variant="h3">{t('home.attention.title')}</Text>
+                    <Text variant="caption">{t('home.attention.subtitle')}</Text>
                   </StyledCardHeaderContent>
                 }
               >
-                {alerts.length === 0 ? (
-                  <Text variant="caption">{t('home.alerts.empty')}</Text>
-                ) : (
-                  <StyledList>
-                    {alerts.map((item) => (
-                      <StyledListItem key={item.id}>
-                        <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
-                          <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
-                          </StyledListItemMeta>
-                        </StyledListItemContent>
-                        <Badge
-                          variant={item.severityVariant}
-                          accessibilityLabel={t(item.severityKey)}
-                        >
-                          {t(item.severityKey)}
-                        </Badge>
-                      </StyledListItem>
-                    ))}
-                  </StyledList>
-                )}
+                <StyledList>
+                  {attentionAlerts.map((item) => (
+                    <StyledListItem key={item.id}>
+                      <StyledListItemContent>
+                        <Text variant="body">{t(item.titleKey)}</Text>
+                        <StyledListItemMeta>
+                          <Text variant="caption">{t(item.metaKey)}</Text>
+                        </StyledListItemMeta>
+                      </StyledListItemContent>
+                      <Badge variant={item.severityVariant}>{t(item.severityKey)}</Badge>
+                    </StyledListItem>
+                  ))}
+                </StyledList>
               </Card>
             </StyledSectionGrid>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.valueProof.title')}
+              </Text>
+              <Text variant="caption">{t('home.valueProof.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <StyledValueGrid>
+              {valueProofs.map((item) => {
+                const deltaConfig = item.delta != null ? getDeltaConfig(item.delta) : null;
+                return (
+                  <Card key={item.id}>
+                    <StyledStatCardContent>
+                      <Text variant="label">{t(item.labelKey)}</Text>
+                      <StyledStatValueRow>
+                        <Text variant="h2">{formatProofValue(item)}</Text>
+                        {deltaConfig ? (
+                          <Badge variant={deltaConfig.variant}>
+                            {t(deltaConfig.key, { value: Math.abs(item.delta) })}
+                          </Badge>
+                        ) : null}
+                      </StyledStatValueRow>
+                      <Text variant="caption">{t(item.comparisonKey)}</Text>
+                    </StyledStatCardContent>
+                  </Card>
+                );
+              })}
+            </StyledValueGrid>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.insights.title')}
+              </Text>
+              <Text variant="caption">{t('home.insights.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card>
+              <StyledList>
+                {insights.map((item) => (
+                  <StyledListItem key={item.id}>
+                    <StyledListItemContent>
+                      <Text variant="body">{t(item.titleKey)}</Text>
+                      <StyledListItemMeta>
+                        <Text variant="caption">{t(item.metaKey)}</Text>
+                      </StyledListItemMeta>
+                    </StyledListItemContent>
+                    <Badge variant={item.variant}>{t('home.insights.badge')}</Badge>
+                  </StyledListItem>
+                ))}
+              </StyledList>
+            </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.modules.title')}
+              </Text>
+              <Text variant="caption">{t('home.modules.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <StyledModuleGrid>
+              {moduleDiscovery.map((module) => (
+                <Card
+                  key={module.id}
+                  header={
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">{t(module.titleKey)}</Text>
+                      <Text variant="caption">{t(module.whoKey)}</Text>
+                    </StyledCardHeaderContent>
+                  }
+                  footer={
+                    <Button variant="secondary" size="small">
+                      {t(module.ctaKey)}
+                    </Button>
+                  }
+                >
+                  <Text variant="body">{t(module.benefitKey)}</Text>
+                </Card>
+              ))}
+            </StyledModuleGrid>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t(usagePlan.titleKey)}
+              </Text>
+              <Text variant="caption">{t(usagePlan.subtitleKey)}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card>
+              <StyledPlanRow>
+                <Text variant="body">{t(usagePlan.statusKey)}</Text>
+                <Badge variant="warning">{t(usagePlan.detailKey, { count: usagePlan.detailValue })}</Badge>
+              </StyledPlanRow>
+              <StyledPlanRow>
+                <Text variant="body">{t(usagePlan.usageKey, { count: usagePlan.usageValue })}</Text>
+                <Text variant="caption">{t(usagePlan.limitKey)}</Text>
+              </StyledPlanRow>
+              <StyledPlanActions>
+                <Button variant="primary" size="small">
+                  {t(usagePlan.upgradeCtaKey)}
+                </Button>
+                <Button variant="text" size="small">
+                  {t(usagePlan.compareCtaKey)}
+                </Button>
+              </StyledPlanActions>
+            </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.activity.title')}
+              </Text>
+              <Text variant="caption">{t('home.activity.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <Card>
+              <StyledList>
+                {activityFeed.map((item) => (
+                  <StyledListItem key={item.id}>
+                    <StyledListItemContent>
+                      <Text variant="body">{t(item.titleKey)}</Text>
+                      <StyledListItemMeta>
+                        <Text variant="caption">{t(item.metaKey)}</Text>
+                      </StyledListItemMeta>
+                    </StyledListItemContent>
+                    <StyledActivityMeta>
+                      <Text variant="caption">{t(item.timeKey)}</Text>
+                    </StyledActivityMeta>
+                  </StyledListItem>
+                ))}
+              </StyledList>
+            </Card>
+          </StyledSectionBody>
+        </StyledSection>
+
+        <StyledSection>
+          <StyledSectionHeader>
+            <StyledSectionTitleGroup>
+              <Text variant="h2" accessibilityRole="header">
+                {t('home.help.title')}
+              </Text>
+              <Text variant="caption">{t('home.help.subtitle')}</Text>
+            </StyledSectionTitleGroup>
+          </StyledSectionHeader>
+          <StyledSectionBody>
+            <StyledHelpGrid>
+              {helpResources.map((item) => (
+                <Card
+                  key={item.id}
+                  header={
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">{t(item.titleKey)}</Text>
+                      <Text variant="caption">{t(item.metaKey)}</Text>
+                    </StyledCardHeaderContent>
+                  }
+                  footer={
+                    <Button variant="text" size="small">
+                      {t(item.ctaKey)}
+                    </Button>
+                  }
+                />
+              ))}
+            </StyledHelpGrid>
           </StyledSectionBody>
         </StyledSection>
       </StyledContent>
@@ -498,4 +608,3 @@ const DashboardScreenWeb = () => {
 };
 
 export default DashboardScreenWeb;
-
