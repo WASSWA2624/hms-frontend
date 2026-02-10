@@ -49,6 +49,7 @@ export { default as AddressDetailScreen } from './settings/AddressDetailScreen';
 export { default as AddressFormScreen } from './settings/AddressFormScreen';
 export { default as ContactListScreen } from './settings/ContactListScreen';
 export { default as ContactDetailScreen } from './settings/ContactDetailScreen';
+export { default as ContactFormScreen } from './settings/ContactFormScreen';
 export { default as UserListScreen } from './settings/UserListScreen';
 export { default as UserDetailScreen } from './settings/UserDetailScreen';
 export { default as UserProfileListScreen } from './settings/UserProfileListScreen';

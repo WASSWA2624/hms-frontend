@@ -17,7 +17,7 @@ export const FLUENT_PRIMARY = '#0078D4';
 export const ASSET_ICON = './assets/favicon.png';
 
 /** Splash screen image (native; defaults to ASSET_ICON) */
-export const ASSET_SPLASH = './assets/favicon.png';
+export const ASSET_SPLASH = ASSET_ICON;
 
 /** Web/PWA: favicon (browser tab); must exist in public/ */
 export const PUBLIC_FAVICON = '/favicon.png';

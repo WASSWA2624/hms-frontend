@@ -17,12 +17,15 @@ const Container = styled.div.withConfig({
   displayName: 'FallbackUI_Container',
   componentId: 'FallbackUI_Container',
 })`
-  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   padding: ${({ theme }) => theme?.spacing?.lg ?? 24}px;
   background-color: ${({ theme }) => theme?.colors?.background?.primary ?? '#FFFFFF'};
+  min-height: 100vh;
+  gap: ${({ theme }) => theme?.spacing?.md ?? 16}px;
 `;
 
 const Title = styled.h1.withConfig({
@@ -31,8 +34,8 @@ const Title = styled.h1.withConfig({
 })`
   font-size: ${({ theme }) => theme?.typography?.fontSize?.lg ?? 20}px;
   color: ${({ theme }) => theme?.colors?.textPrimary ?? theme?.colors?.text?.primary ?? '#000000'};
-  margin: 0 0 ${({ theme }) => theme?.spacing?.sm ?? 8}px 0;
-  text-align: center;
+  margin: 0;
+  max-width: 640px;
 `;
 
 const Message = styled.p.withConfig({
@@ -41,8 +44,8 @@ const Message = styled.p.withConfig({
 })`
   font-size: ${({ theme }) => theme?.typography?.fontSize?.sm ?? 14}px;
   color: ${({ theme }) => theme?.colors?.textSecondary ?? theme?.colors?.text?.secondary ?? '#3C3C43'};
-  margin: 0 0 ${({ theme }) => theme?.spacing?.md ?? 16}px 0;
-  text-align: center;
+  margin: 0;
+  max-width: 640px;
 `;
 
 const RetryButton = styled.button.withConfig({
@@ -64,9 +67,8 @@ const DevMessage = styled.p.withConfig({
 })`
   font-size: 12px;
   color: #666;
-  margin: 8px 0 0 0;
-  text-align: center;
-  max-width: 90%;
+  margin: 0;
+  max-width: 720px;
   word-break: break-word;
 `;
 
