@@ -16,7 +16,7 @@ const StyledContainer = styled.main.withConfig({
     ($embedded ? 'transparent' : theme.colors.background.primary)};
   display: flex;
   flex-direction: column;
-  font-family: 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
 `;
 
 const StyledContent = styled.div.withConfig({

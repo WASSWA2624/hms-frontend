@@ -20,9 +20,7 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledCTA,
-  StyledCtaHelper,
-} from './LandingScreen.android.styles';
+  StyledCTA,} from './LandingScreen.android.styles';
 
 const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
   const { t } = useI18n();
@@ -78,9 +76,6 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
         >
           {t('landing.cta.primary')}
         </Button>
-        <StyledCtaHelper>
-          <Text variant="caption">{t('landing.cta.helper')}</Text>
-        </StyledCtaHelper>
       </StyledCTA>
     </>
   );
@@ -99,3 +94,4 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
 };
 
 export default LandingScreenAndroid;
+

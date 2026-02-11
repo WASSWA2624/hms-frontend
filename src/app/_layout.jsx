@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { Slot, usePathname } from 'expo-router';
 import { ErrorBoundary } from '@errors';
 import { I18nProvider } from '@i18n';
+import { tSync } from '@i18n';
 import { bootstrapApp } from '@bootstrap';
 import { logger } from '@logging';
 import store from '@store';
@@ -13,6 +14,34 @@ import {
 } from '@platform/layouts/common/RootLayoutStyles';
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
 import FaviconHead from '@platform/layouts/common/FaviconHead';
+
+const APP_NAME = tSync('app.name');
+const ROOT_PAGE_NAME = tSync('home.title');
+
+const toTitleCase = (value) =>
+  value
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+const resolvePageName = (pathname) => {
+  if (!pathname || pathname === '/') return ROOT_PAGE_NAME;
+
+  const segments = pathname.split('/').filter(Boolean);
+  const pageSegment = segments[segments.length - 1] || '';
+  if (!pageSegment) return ROOT_PAGE_NAME;
+
+  if (pageSegment === 'landing') return tSync('landing.pageTitle');
+  if (pageSegment === 'settings') return tSync('navigation.header.settings');
+
+  return toTitleCase(pageSegment.replace(/[-_]+/g, ' '));
+};
+
+const resolveDocumentTitle = (pathname) => {
+  const pageName = resolvePageName(pathname);
+  return `${pageName} | ${APP_NAME}`;
+};
 
 /**
  * Root Layout Component
@@ -32,6 +61,11 @@ const RootLayout = () => {
 
   useEffect(() => {
     persistLastRoute(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.title = resolveDocumentTitle(pathname);
   }, [pathname]);
 
   return (

@@ -19,10 +19,11 @@ const StyledContainer = styled.main.withConfig({
   min-height: 100%;
   height: auto;
   width: 100%;
-  background:
-    radial-gradient(circle at 14% 18%, rgba(31, 123, 220, 0.12) 0%, rgba(31, 123, 220, 0) 38%),
-    radial-gradient(circle at 86% 82%, rgba(60, 185, 227, 0.1) 0%, rgba(60, 185, 227, 0) 36%),
-    linear-gradient(165deg, #f4f8ff 0%, #f9fbff 52%, #ffffff 100%);
+  background: linear-gradient(
+    165deg,
+    ${({ theme }) => theme.colors.background.secondary} 0%,
+    ${({ theme }) => theme.colors.background.primary} 100%
+  );
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -63,12 +64,20 @@ const StyledCard = styled.div.withConfig({
   min-width: min(100%, var(--auth-card-default));
   max-width: min(100%, var(--auth-card-max));
   margin: 0 auto;
-  background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+  background: linear-gradient(
+    180deg,
+    ${({ theme }) => theme.colors.background.primary} 0%,
+    ${({ theme }) => theme.colors.background.secondary} 100%
+  );
   border-radius: 0;
   padding: var(--auth-card-pad);
-  border: 1px solid #bcd7f3;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   box-sizing: border-box;
-  box-shadow: 0 20px 44px rgba(18, 57, 100, 0.16);
+  box-shadow: ${({ theme }) => {
+    const shadow = theme.shadows?.md;
+    if (!shadow) return 'none';
+    return `${shadow.shadowOffset?.width ?? 0}px ${shadow.shadowOffset?.height ?? 2}px ${(shadow.shadowRadius ?? 4) * 2}px rgba(0, 0, 0, ${shadow.shadowOpacity ?? 0.15})`;
+  }};
   display: flex;
   flex-direction: column;
   max-height: calc(100dvh - var(--auth-shell-pad));

@@ -18,9 +18,7 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledCTA,
-  StyledCtaHelper,
-} from './LandingScreen.web.styles';
+  StyledCTA,} from './LandingScreen.web.styles';
 import useLandingScreen from './useLandingScreen';
 
 const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
@@ -75,9 +73,6 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
         >
           {t('landing.cta.primary')}
         </Button>
-        <StyledCtaHelper>
-          <Text variant="caption">{t('landing.cta.helper')}</Text>
-        </StyledCtaHelper>
       </StyledCTA>
     </>
   );
@@ -94,3 +89,4 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
 };
 
 export default LandingScreenWeb;
+

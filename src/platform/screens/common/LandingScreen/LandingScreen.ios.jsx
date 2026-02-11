@@ -20,9 +20,7 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledCTA,
-  StyledCtaHelper,
-} from './LandingScreen.ios.styles';
+  StyledCTA,} from './LandingScreen.ios.styles';
 
 const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
   const { t } = useI18n();
@@ -78,9 +76,6 @@ const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false
         >
           {t('landing.cta.primary')}
         </Button>
-        <StyledCtaHelper>
-          <Text variant="caption">{t('landing.cta.helper')}</Text>
-        </StyledCtaHelper>
       </StyledCTA>
     </>
   );
@@ -99,3 +94,4 @@ const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false
 };
 
 export default LandingScreenIOS;
+
