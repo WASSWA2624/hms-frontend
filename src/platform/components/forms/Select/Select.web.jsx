@@ -302,10 +302,10 @@ const SelectWeb = ({
         aria-required={required}
         data-testid={testID}
       >
-        <StyledTriggerText disabled={disabled} $isPlaceholder={!selectedOption}>
+        <StyledTriggerText disabled={disabled} $isPlaceholder={!selectedOption} $compact={compact}>
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden="true">▾</StyledChevron>
+        <StyledChevron aria-hidden="true" $compact={compact}>▾</StyledChevron>
       </StyledTrigger>
 
       {open

@@ -65,6 +65,7 @@ const SelectIOS = ({
   accessibilityLabel,
   accessibilityHint,
   testID,
+  compact = false,
   style,
 }) => {
   const { t } = useI18n();
@@ -145,9 +146,9 @@ const SelectIOS = ({
   }, [open, computeMenuPosition]);
 
   return (
-    <StyledContainer style={style}>
+    <StyledContainer style={style} $compact={compact}>
       {label ? (
-        <StyledLabelRow>
+        <StyledLabelRow $compact={compact}>
           <StyledLabel>{label}</StyledLabel>
           {required ? <StyledRequired> *</StyledRequired> : null}
         </StyledLabelRow>
@@ -161,16 +162,17 @@ const SelectIOS = ({
         disabled={disabled}
         validationState={finalValidationState}
         isFocused={isFocused}
+        $compact={compact}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel || label || defaultPlaceholder}
         accessibilityHint={accessibilityHint || displayHelperText}
         accessibilityState={{ disabled }}
         testID={testID}
       >
-        <StyledTriggerText disabled={disabled} isPlaceholder={!selectedOption}>
+        <StyledTriggerText disabled={disabled} isPlaceholder={!selectedOption} $compact={compact}>
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden>▾</StyledChevron>
+        <StyledChevron aria-hidden $compact={compact}>▾</StyledChevron>
       </StyledTrigger>
 
       {displayHelperText ? (

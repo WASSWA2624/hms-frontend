@@ -82,7 +82,7 @@ const useRegisterScreen = () => {
         facilityName: draft?.facilityName || '',
         adminName: draft?.adminName || '',
         facilityType: optionIds.has(facilityType) ? facilityType : '',
-        email: draft?.email || '',
+        email: '',
         phone: draft?.phone || '',
         password: draft?.password || '',
       });
@@ -189,19 +189,6 @@ const useRegisterScreen = () => {
     }
   }, [form, isSubmitting, register, t, validate]);
 
-  const handleBack = useCallback(() => {
-    if (typeof router.canGoBack === 'function' && router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.push('/landing');
-  }, [router]);
-
-  const handleCancel = useCallback(async () => {
-    await asyncStorage.removeItem(REGISTER_DRAFT_KEY);
-    router.push('/landing');
-  }, [router]);
-
   const handleContinue = useCallback(() => {
     router.push('/landing');
   }, [router]);
@@ -216,8 +203,6 @@ const useRegisterScreen = () => {
     submitError,
     setFieldValue,
     handleSubmit,
-    handleBack,
-    handleCancel,
     handleContinue,
     retryHydration: hydrate,
     hasFacilityOptions: facilityOptions.length > 0,

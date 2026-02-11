@@ -1021,26 +1021,29 @@
         "layoutLabel": "Register page",
         "fields": {
           "facilityName": "Facility / Business name",
-          "adminName": "Admin name",
+          "adminName": "Admin name (Your name)",
           "facilityType": "Facility type",
-          "email": "Email",
+          "email": "Email (required)",
           "phone": "Phone (optional)",
-          "phoneHint": "Digits only, minimum 10 numbers",
-          "password": "Password"
+          "phoneHint": "Use digits only, no + sign (e.g. 256701234567)",
+          "password": "Password",
+          "passwordHint": "Use at least 8 characters with uppercase, lowercase, number, and special character."
         },
         "placeholders": {
           "facilityName": "Enter facility or business name",
           "adminName": "Enter admin full name",
           "facilityType": "Select facility type",
           "email": "Enter email address",
-          "phone": "Enter phone number",
+          "phone": "e.g. 256701234567",
           "password": "Create a strong password"
         },
         "actions": {
           "back": "Back",
           "cancel": "Cancel",
           "createWorkspace": "Create my workspace",
-          "continue": "Continue"
+          "continue": "Continue",
+          "showPassword": "Show",
+          "hidePassword": "Hide"
         },
         "validation": {
           "facilityNameRequired": "Facility or business name is required",

@@ -13,18 +13,12 @@ const StyledContainer = styled.View.withConfig({
   align-self: center;
 `;
 
-const StyledTopActions = styled.View.withConfig({
-  displayName: 'StyledTopActions',
-  componentId: 'StyledTopActions',
+const StyledFormGuidance = styled.View.withConfig({
+  displayName: 'StyledFormGuidance',
+  componentId: 'StyledFormGuidance',
 })`
+  width: 100%;
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledTitleBlock = styled.View.withConfig({
-  displayName: 'StyledTitleBlock',
-  componentId: 'StyledTitleBlock',
-})`
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledForm = styled.View.withConfig({
@@ -34,12 +28,19 @@ const StyledForm = styled.View.withConfig({
   width: 100%;
 `;
 
+const StyledField = styled.View.withConfig({
+  displayName: 'StyledField',
+  componentId: 'StyledField',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledActions = styled.View.withConfig({
   displayName: 'StyledActions',
   componentId: 'StyledActions',
 })`
   flex-direction: row;
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledActionSlot = styled.View.withConfig({
@@ -54,17 +55,18 @@ const StyledStatus = styled.View.withConfig({
   displayName: 'StyledStatus',
   componentId: 'StyledStatus',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 export {
   StyledActions,
   StyledActionSlot,
   StyledContainer,
+  StyledField,
+  StyledFormGuidance,
   StyledForm,
   StyledStatus,
-  StyledTitleBlock,
-  StyledTopActions,
 };
+
 
 

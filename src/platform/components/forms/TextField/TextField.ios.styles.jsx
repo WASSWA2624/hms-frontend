@@ -36,6 +36,7 @@ const StyledRequiredIndicator = styled.Text.withConfig({
 const StyledInputContainer = styled.View.withConfig({
   displayName: 'StyledInputContainer',
   componentId: 'StyledInputContainer',
+  shouldForwardProp: (prop) => prop !== '$density',
 })`
   flex-direction: row;
   align-items: center;
@@ -48,8 +49,8 @@ const StyledInputContainer = styled.View.withConfig({
     if (isFocused) return theme.colors.primary;
     return theme.colors.background.tertiary;
   }};
-  padding-horizontal: ${({ theme }) => theme.spacing.md}px;
-  min-height: 48px;
+  padding-horizontal: ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.sm : theme.spacing.md)}px;
+  min-height: ${({ $density }) => ($density === 'compact' ? 40 : 48)}px;
 `;
 
 const StyledPrefix = styled.View.withConfig({
@@ -62,12 +63,13 @@ const StyledPrefix = styled.View.withConfig({
 const StyledInput = styled.TextInput.withConfig({
   displayName: 'StyledInput',
   componentId: 'StyledInput',
+  shouldForwardProp: (prop) => prop !== '$density',
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $density }) => ($density === 'compact' ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ theme, disabled }) => (disabled ? theme.colors.text.tertiary : theme.colors.text.primary)};
-  padding-vertical: ${({ theme }) => theme.spacing.sm}px;
+  padding-vertical: ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.xs : theme.spacing.sm)}px;
 `;
 
 const StyledSuffix = styled.View.withConfig({

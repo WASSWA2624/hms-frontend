@@ -20,14 +20,15 @@ import useRegisterScreen from './useRegisterScreen';
 import {
   StyledActions,
   StyledContainer,
+  StyledFieldGrid,
+  StyledFormGuidance,
   StyledForm,
   StyledStatus,
-  StyledTitleBlock,
-  StyledTopActions,
 } from './RegisterScreen.web.styles';
 
 const RegisterScreenWeb = () => {
   const { t } = useI18n();
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const {
     form,
     errors,
@@ -38,8 +39,6 @@ const RegisterScreenWeb = () => {
     submitError,
     setFieldValue,
     handleSubmit,
-    handleBack,
-    handleCancel,
     handleContinue,
     retryHydration,
     hasFacilityOptions,
@@ -66,20 +65,12 @@ const RegisterScreenWeb = () => {
   }
 
   const primaryLabel = isSuccess ? t('auth.register.onboarding.actions.continue') : t('auth.register.onboarding.actions.createWorkspace');
+  const passwordToggleLabel = isPasswordVisible
+    ? t('auth.register.onboarding.actions.hidePassword')
+    : t('auth.register.onboarding.actions.showPassword');
 
   return (
     <StyledContainer role="region" aria-label={t('auth.register.onboarding.layoutLabel')}>
-      <StyledTopActions>
-        <Button variant="text" size="small" onPress={handleBack} accessibilityLabel={t('auth.register.onboarding.actions.back')}>
-          {t('auth.register.onboarding.actions.back')}
-        </Button>
-      </StyledTopActions>
-
-      <StyledTitleBlock>
-        <Text variant="h2">{t('auth.register.onboarding.title')}</Text>
-        <Text variant="caption">{t('auth.register.onboarding.subtitle')}</Text>
-      </StyledTitleBlock>
-
       <StyledForm
         onSubmit={(event) => {
           event.preventDefault();
@@ -90,75 +81,90 @@ const RegisterScreenWeb = () => {
           handleSubmit();
         }}
       >
-        <TextField
-          label={t('auth.register.onboarding.fields.facilityName')}
-          placeholder={t('auth.register.onboarding.placeholders.facilityName')}
-          value={form.facilityName}
-          onChangeText={(value) => setFieldValue('facilityName', value)}
-          errorMessage={errors.facilityName}
-          required
-          testID="register-facility-name"
-        />
-        <TextField
-          label={t('auth.register.onboarding.fields.adminName')}
-          placeholder={t('auth.register.onboarding.placeholders.adminName')}
-          value={form.adminName}
-          onChangeText={(value) => setFieldValue('adminName', value)}
-          errorMessage={errors.adminName}
-          required
-          testID="register-admin-name"
-        />
-        <Select
-          label={t('auth.register.onboarding.fields.facilityType')}
-          options={facilityOptions}
-          value={form.facilityType}
-          onValueChange={(value) => setFieldValue('facilityType', value)}
-          placeholder={t('auth.register.onboarding.placeholders.facilityType')}
-          errorMessage={errors.facilityType}
-          required
-          testID="register-facility-type"
-        />
-        <TextField
-          label={t('auth.register.onboarding.fields.email')}
-          placeholder={t('auth.register.onboarding.placeholders.email')}
-          value={form.email}
-          onChangeText={(value) => setFieldValue('email', value)}
-          errorMessage={errors.email}
-          type="email"
-          required
-          testID="register-email"
-        />
-        <TextField
-          label={t('auth.register.onboarding.fields.phone')}
-          placeholder={t('auth.register.onboarding.placeholders.phone')}
-          value={form.phone}
-          onChangeText={(value) => setFieldValue('phone', value)}
-          errorMessage={errors.phone}
-          type="tel"
-          helperText={t('auth.register.onboarding.fields.phoneHint')}
-          testID="register-phone"
-        />
-        <TextField
-          label={t('auth.register.onboarding.fields.password')}
-          placeholder={t('auth.register.onboarding.placeholders.password')}
-          value={form.password}
-          onChangeText={(value) => setFieldValue('password', value)}
-          errorMessage={errors.password}
-          type="password"
-          required
-          testID="register-password"
-        />
+        <StyledFormGuidance>
+          <Text variant="caption">{t('auth.layout.subtitle')}</Text>
+        </StyledFormGuidance>
+        <StyledFieldGrid>
+          <Select
+            label={t('auth.register.onboarding.fields.facilityType')}
+            options={facilityOptions}
+            value={form.facilityType}
+            onValueChange={(value) => setFieldValue('facilityType', value)}
+            placeholder={t('auth.register.onboarding.placeholders.facilityType')}
+            errorMessage={errors.facilityType}
+            compact
+            required
+            testID="register-facility-type"
+          />
+          <TextField
+            label={t('auth.register.onboarding.fields.facilityName')}
+            placeholder={t('auth.register.onboarding.placeholders.facilityName')}
+            value={form.facilityName}
+            onChangeText={(value) => setFieldValue('facilityName', value)}
+            errorMessage={errors.facilityName}
+            density="compact"
+            required
+            testID="register-facility-name"
+          />
+          <TextField
+            label={t('auth.register.onboarding.fields.adminName')}
+            placeholder={t('auth.register.onboarding.placeholders.adminName')}
+            value={form.adminName}
+            onChangeText={(value) => setFieldValue('adminName', value)}
+            errorMessage={errors.adminName}
+            density="compact"
+            required
+            testID="register-admin-name"
+          />
+          <TextField
+            label={t('auth.register.onboarding.fields.email')}
+            placeholder={t('auth.register.onboarding.placeholders.email')}
+            value={form.email}
+            onChangeText={(value) => setFieldValue('email', value)}
+            errorMessage={errors.email}
+            type="email"
+            density="compact"
+            required
+            testID="register-email"
+          />
+          <TextField
+            label={t('auth.register.onboarding.fields.phone')}
+            placeholder={t('auth.register.onboarding.placeholders.phone')}
+            value={form.phone}
+            onChangeText={(value) => setFieldValue('phone', value)}
+            errorMessage={errors.phone}
+            type="tel"
+            helperText={t('auth.register.onboarding.fields.phoneHint')}
+            density="compact"
+            testID="register-phone"
+          />
+          <TextField
+            label={t('auth.register.onboarding.fields.password')}
+            placeholder={t('auth.register.onboarding.placeholders.password')}
+            value={form.password}
+            onChangeText={(value) => setFieldValue('password', value)}
+            errorMessage={errors.password}
+            type={isPasswordVisible ? 'text' : 'password'}
+            helperText={t('auth.register.onboarding.fields.passwordHint')}
+            density="compact"
+            suffix={
+              <Button
+                variant="text"
+                size="small"
+                type="button"
+                onPress={() => setIsPasswordVisible((prev) => !prev)}
+                accessibilityLabel={passwordToggleLabel}
+                testID="register-password-toggle"
+              >
+                {passwordToggleLabel}
+              </Button>
+            }
+            required
+            testID="register-password"
+          />
+        </StyledFieldGrid>
 
         <StyledActions>
-          <Button
-            variant="surface"
-            size="small"
-            onPress={handleCancel}
-            disabled={isSubmitting}
-            accessibilityLabel={t('auth.register.onboarding.actions.cancel')}
-          >
-            {t('auth.register.onboarding.actions.cancel')}
-          </Button>
           <Button
             variant="primary"
             size="small"

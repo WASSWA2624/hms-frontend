@@ -9,18 +9,20 @@ import styled from 'styled-components/native';
 const StyledContainer = styled.View.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   width: 100%;
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme, $compact }) => ($compact ? theme.spacing.xs : theme.spacing.md)}px;
 `;
 
 const StyledLabelRow = styled.View.withConfig({
   displayName: 'StyledLabelRow',
   componentId: 'StyledLabelRow',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   flex-direction: row;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+  margin-bottom: ${({ theme, $compact }) => ($compact ? theme.spacing.xs : theme.spacing.xs)}px;
 `;
 
 const StyledLabel = styled.Text.withConfig({
@@ -46,9 +48,10 @@ const StyledRequired = styled.Text.withConfig({
 const StyledTrigger = styled.Pressable.withConfig({
   displayName: 'StyledTrigger',
   componentId: 'StyledTrigger',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   width: 100%;
-  min-height: 44px;
+  min-height: ${({ $compact }) => ($compact ? 40 : 44)}px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -61,16 +64,17 @@ const StyledTrigger = styled.Pressable.withConfig({
   }};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme, $compact }) => ($compact ? theme.spacing.sm : theme.spacing.md)}px;
 `;
 
 const StyledTriggerText = styled.Text.withConfig({
   displayName: 'StyledTriggerText',
   componentId: 'StyledTriggerText',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ disabled, isPlaceholder, theme }) => {
     if (disabled) return theme.colors.text.tertiary;
     if (isPlaceholder) return theme.colors.text.tertiary;
@@ -81,9 +85,10 @@ const StyledTriggerText = styled.Text.withConfig({
 const StyledChevron = styled.Text.withConfig({
   displayName: 'StyledChevron',
   componentId: 'StyledChevron',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   margin-left: ${({ theme }) => theme.spacing.sm}px;
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 

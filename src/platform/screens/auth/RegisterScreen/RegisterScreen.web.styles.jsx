@@ -16,21 +16,17 @@ const StyledContainer = styled.section.withConfig({
   gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
-const StyledTopActions = styled.div.withConfig({
-  displayName: 'StyledTopActions',
-  componentId: 'StyledTopActions',
+const StyledFormGuidance = styled.div.withConfig({
+  displayName: 'StyledFormGuidance',
+  componentId: 'StyledFormGuidance',
 })`
-  display: flex;
-  justify-content: flex-start;
-`;
-
-const StyledTitleBlock = styled.div.withConfig({
-  displayName: 'StyledTitleBlock',
-  componentId: 'StyledTitleBlock',
-})`
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
   gap: ${({ theme }) => theme.spacing.xs}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledForm = styled.form.withConfig({
@@ -40,7 +36,21 @@ const StyledForm = styled.form.withConfig({
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFieldGrid = styled.div.withConfig({
+  displayName: 'StyledFieldGrid',
+  componentId: 'StyledFieldGrid',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: ${({ theme }) => theme.spacing.sm}px;
+  column-gap: ${({ theme }) => theme.spacing.md}px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 `;
 
 const StyledActions = styled.div.withConfig({
@@ -51,7 +61,7 @@ const StyledActions = styled.div.withConfig({
   align-items: center;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 
   > * {
     flex: 1;
@@ -68,10 +78,10 @@ const StyledStatus = styled.div.withConfig({
 export {
   StyledActions,
   StyledContainer,
+  StyledFieldGrid,
+  StyledFormGuidance,
   StyledForm,
   StyledStatus,
-  StyledTitleBlock,
-  StyledTopActions,
 };
 
 

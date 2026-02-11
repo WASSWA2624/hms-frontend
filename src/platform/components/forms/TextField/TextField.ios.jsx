@@ -115,9 +115,10 @@ const TextFieldIOS = ({
           {required && <StyledRequiredIndicator> *</StyledRequiredIndicator>}
         </StyledLabel>
       )}
-      <StyledInputContainer validationState={finalValidationState} isFocused={isFocused}>
+      <StyledInputContainer validationState={finalValidationState} isFocused={isFocused} $density={density}>
         {prefix && <StyledPrefix>{prefix}</StyledPrefix>}
         <StyledInput
+          $density={density}
           value={internalValue}
           onChangeText={handleChange}
           onFocus={handleFocus}

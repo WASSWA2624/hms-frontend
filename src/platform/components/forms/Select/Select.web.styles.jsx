@@ -55,7 +55,7 @@ const StyledTrigger = styled.button.withConfig({
   shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   width: 100%;
-  min-height: 44px;
+  min-height: ${({ $compact }) => ($compact ? 40 : 44)}px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -89,7 +89,7 @@ const StyledTriggerText = styled.span.withConfig({
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ disabled, $isPlaceholder, theme }) => {
     if (disabled) return theme.colors.text.tertiary;
     if ($isPlaceholder) return theme.colors.text.tertiary;
@@ -101,9 +101,10 @@ const StyledTriggerText = styled.span.withConfig({
 const StyledChevron = styled.span.withConfig({
   displayName: 'StyledChevron',
   componentId: 'StyledChevron',
+  shouldForwardProp: (prop) => prop !== '$compact',
 })`
   margin-left: ${({ theme }) => theme.spacing.sm}px;
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ theme }) => theme.colors.text.secondary};
   display: inline-block;
 `;

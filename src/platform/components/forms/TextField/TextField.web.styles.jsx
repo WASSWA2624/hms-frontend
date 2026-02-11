@@ -56,8 +56,8 @@ const StyledInputContainer = styled.div.withConfig({
     if ($isFocused) return theme.colors.primary;
     return theme.colors.background.tertiary;
   }};
-  padding: 0 ${({ theme }) => theme.spacing.md}px;
-  min-height: 48px;
+  padding: 0 ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.sm : theme.spacing.md)}px;
+  min-height: ${({ $density }) => ($density === 'compact' ? 40 : 48)}px;
   gap: ${({ theme }) => theme.spacing.xs}px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -90,12 +90,13 @@ const StyledPrefix = styled.span.withConfig({
 const StyledInput = styled.input.withConfig({
   displayName: 'StyledInput',
   componentId: 'StyledInput',
+  shouldForwardProp: (prop) => prop !== '$density',
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme, $density }) => ($density === 'compact' ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ theme, disabled }) => (disabled ? theme.colors.text.tertiary : theme.colors.text.primary)};
-  padding: ${({ theme }) => theme.spacing.sm}px 0;
+  padding: ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.xs : theme.spacing.sm)}px 0;
   border: 0;
   outline: 0;
   background: transparent;

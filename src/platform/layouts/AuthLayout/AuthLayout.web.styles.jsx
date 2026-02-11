@@ -103,7 +103,7 @@ const StyledBrandHeader = styled.div.withConfig({
 })`
   display: flex;
   align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledBrandCopy = styled.div.withConfig({
@@ -121,8 +121,8 @@ const StyledBrandName = styled.div.withConfig({
 })`
   display: inline-flex;
   align-items: center;
-  min-height: 48px;
-  line-height: 48px;
+  min-height: 36px;
+  line-height: 36px;
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
@@ -133,11 +133,11 @@ const StyledBranding = styled.div.withConfig({
   display: flex;
   align-items: flex-start;
   flex: 0 0 auto;
-  margin: calc(var(--auth-card-pad) * -1) calc(var(--auth-card-pad) * -1) ${({ theme }) => theme.spacing.md}px;
-  padding: ${({ theme }) => theme.spacing.md}px var(--auth-card-pad) ${({ theme }) => theme.spacing.sm}px;
+  margin: calc(var(--auth-card-pad) * -1) calc(var(--auth-card-pad) * -1) ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.sm}px var(--auth-card-pad) ${({ theme }) => theme.spacing.xs}px;
   background: transparent;
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
-  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
   border-bottom: 0;
 `;
 

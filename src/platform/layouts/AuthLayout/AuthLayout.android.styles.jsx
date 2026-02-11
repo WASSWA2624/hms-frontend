@@ -63,7 +63,7 @@ const StyledBranding = styled.View.withConfig({
   componentId: 'StyledBranding',
 })`
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.xl}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledContent = styled.View.withConfig({

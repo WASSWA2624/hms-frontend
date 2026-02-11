@@ -130,9 +130,10 @@ const TextFieldWeb = ({
           {required && <StyledRequiredIndicator aria-hidden="true"> *</StyledRequiredIndicator>}
         </StyledLabel>
       )}
-      <StyledInputContainer $validationState={finalValidationState} $isFocused={isFocused}>
+      <StyledInputContainer $validationState={finalValidationState} $isFocused={isFocused} $density={density}>
         {prefix && <StyledPrefix>{prefix}</StyledPrefix>}
         <StyledInput
+          $density={density}
           id={inputId}
           value={internalValue}
           onChange={(e) => handleChange(e.target.value)}
