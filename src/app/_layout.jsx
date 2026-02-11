@@ -1,12 +1,13 @@
 import '@debug/web-console-logger';
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { Slot } from 'expo-router';
+import { Slot, usePathname } from 'expo-router';
 import { ErrorBoundary } from '@errors';
 import { I18nProvider } from '@i18n';
 import { bootstrapApp } from '@bootstrap';
 import { logger } from '@logging';
 import store from '@store';
+import { persistLastRoute } from '@navigation/routePersistence';
 import {
   StyledSlotContainer,
 } from '@platform/layouts/common/RootLayoutStyles';
@@ -21,11 +22,17 @@ import FaviconHead from '@platform/layouts/common/FaviconHead';
  * Per state-management.mdc: Redux persist rehydrates async; UI shows defaults until then.
  */
 const RootLayout = () => {
+  const pathname = usePathname();
+
   useEffect(() => {
     bootstrapApp().catch((error) => {
       logger.error('Bootstrap failed (non-blocking)', { error: error?.message });
     });
   }, []);
+
+  useEffect(() => {
+    persistLastRoute(pathname);
+  }, [pathname]);
 
   return (
     <ErrorBoundary>
@@ -44,4 +51,3 @@ const RootLayout = () => {
 };
 
 export default RootLayout;
-

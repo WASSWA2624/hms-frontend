@@ -1,3 +1,4 @@
 // Navigation helpers & guards barrel export
 export * from './guards';
+export * from './routePersistence';
 

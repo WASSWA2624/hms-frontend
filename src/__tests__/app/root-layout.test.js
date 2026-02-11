@@ -30,6 +30,7 @@ jest.mock('expo-router', () => {
         children || React.createElement(Text, null, 'Mock Slot - No Child Routes')
       );
     },
+    usePathname: () => '/dashboard',
     useRouter: () => ({
       push: jest.fn(),
       replace: jest.fn(),

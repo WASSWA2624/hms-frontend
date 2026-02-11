@@ -334,7 +334,7 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - Export `useRoleGuard` hook per `hooks-utils.mdc`:
   - Accepts required role(s) as parameter
   - Checks if user has required role (via Redux selector or hook per `hooks-utils.mdc`)
-  - Accepts optional redirect path parameter for access denied (defaults to `/home` as placeholder; actual route path will be determined in Phase 10/11)
+  - Accepts optional redirect path parameter for access denied (defaults to `/dashboard` as placeholder; actual route path will be determined in Phase 10/11)
   - Redirects to safe route if access denied per `security.mdc`
   - Exposes error code via state/return value
   - Returns access state (hasAccess boolean, error code if denied)
@@ -492,8 +492,8 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 
 **Navigation Paths**:
 When navigating/linking (after routes are created in Phase 10 and Phase 11), **omit group segments** per `app-router.mdc` (do not include `/(auth)` or `/(main)` in user-facing paths):
-- ✅ Correct: `router.push('/login')` or `<Link href="/home" />`
-- ❌ Incorrect: `router.push('/(auth)/login')` or `<Link href="/(main)/home" />`
+- ✅ Correct: `router.push('/login')` or `<Link href="/dashboard" />`
+- ❌ Incorrect: `router.push('/(auth)/login')` or `<Link href="/(main)/dashboard" />`
 
 **Note**: Actual routes (landing, login, home, index, not-found, etc.) are created in Phase 10 (Core Features) and Phase 11 (Screens & Routes). This phase only establishes the infrastructure (route groups, layouts, guards) that will support those routes.
 

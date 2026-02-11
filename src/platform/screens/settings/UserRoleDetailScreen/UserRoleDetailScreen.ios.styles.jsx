@@ -1,43 +1,66 @@
-/**
+﻿/**
  * UserRoleDetailScreen iOS Styles
  * File: UserRoleDetailScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
 const StyledContainer = styled.View.withConfig({
-  displayName: 'StyledContainer',
-  componentId: 'StyledContainer',
+  displayName: 'UserRoleDetailScreen_StyledContainer',
+  componentId: 'UserRoleDetailScreen_StyledContainer',
 })`
   flex: 1;
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledContent = styled.View.withConfig({
-  displayName: 'StyledContent',
-  componentId: 'StyledContent',
+  displayName: 'UserRoleDetailScreen_StyledContent',
+  componentId: 'UserRoleDetailScreen_StyledContent',
 })`
+  flex: 1;
   width: 100%;
-  max-width: 600px;
-  align-self: center;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-const StyledSection = styled.View.withConfig({
-  displayName: 'StyledSection',
-  componentId: 'StyledSection',
+const StyledInlineStates = styled.View.withConfig({
+  displayName: 'UserRoleDetailScreen_StyledInlineStates',
+  componentId: 'UserRoleDetailScreen_StyledInlineStates',
 })`
-  margin-top: ${({ theme }) => theme.spacing.lg}px;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledDetailGrid = styled.View.withConfig({
+  displayName: 'UserRoleDetailScreen_StyledDetailGrid',
+  componentId: 'UserRoleDetailScreen_StyledDetailGrid',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledDetailItem = styled.View.withConfig({
+  displayName: 'UserRoleDetailScreen_StyledDetailItem',
+  componentId: 'UserRoleDetailScreen_StyledDetailItem',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledActions = styled.View.withConfig({
-  displayName: 'StyledActions',
-  componentId: 'StyledActions',
+  displayName: 'UserRoleDetailScreen_StyledActions',
+  componentId: 'UserRoleDetailScreen_StyledActions',
 })`
   flex-direction: row;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.xl}px;
+  flex-wrap: wrap;
 `;
 
-export { StyledContainer, StyledContent, StyledSection, StyledActions };
+export {
+  StyledContainer,
+  StyledContent,
+  StyledInlineStates,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledActions,
+};

@@ -1,8 +1,8 @@
 /**
- * Home Route Tests
+ * Dashboard Route Tests
  * File: home.test.js
- * 
- * Tests the authenticated home route in the main route group
+ *
+ * Tests the authenticated dashboard route in the main route group
  * 
  * Per Step 8.4 requirements:
  * - Test route renders without errors
@@ -23,7 +23,7 @@ const mockPush = jest.fn();
 const mockReplace = jest.fn();
 const mockBack = jest.fn();
 const mockCanGoBack = jest.fn(() => false);
-const mockPathname = '/home';
+const mockPathname = '/dashboard';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -33,7 +33,7 @@ jest.mock('expo-router', () => ({
     canGoBack: mockCanGoBack,
   }),
   usePathname: () => mockPathname,
-  useSegments: () => ['home'],
+  useSegments: () => ['dashboard'],
 }));
 
 jest.mock('@platform/screens', () => ({
@@ -52,7 +52,7 @@ const renderWithTheme = (component) => {
   return render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
 };
 
-describe('Home Route (home.jsx)', () => {
+describe('Dashboard Route (dashboard.jsx)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
@@ -64,21 +64,21 @@ describe('Home Route (home.jsx)', () => {
   });
 
   it('should render without errors', () => {
-    const HomeRoute = require('../../../app/(main)/home').default;
-    renderWithTheme(<HomeRoute />);
+    const DashboardRoute = require('../../../app/(main)/dashboard').default;
+    renderWithTheme(<DashboardRoute />);
     expect(DashboardScreen).toHaveBeenCalled();
   });
 
   it('should render DashboardScreen component', () => {
-    const HomeRoute = require('../../../app/(main)/home').default;
-    renderWithTheme(<HomeRoute />);
+    const DashboardRoute = require('../../../app/(main)/dashboard').default;
+    renderWithTheme(<DashboardRoute />);
     expect(DashboardScreen).toHaveBeenCalledTimes(1);
   });
 
   it('should use default export', () => {
-    const HomeRoute = require('../../../app/(main)/home');
-    expect(HomeRoute.default).toBeDefined();
-    expect(typeof HomeRoute.default).toBe('function');
+    const DashboardRoute = require('../../../app/(main)/dashboard');
+    expect(DashboardRoute.default).toBeDefined();
+    expect(typeof DashboardRoute.default).toBe('function');
   });
 
   it('should be accessible when authenticated (mock navigation)', () => {
@@ -88,16 +88,16 @@ describe('Home Route (home.jsx)', () => {
       user: { id: '1', email: 'test@example.com' },
     });
 
-    const HomeRoute = require('../../../app/(main)/home').default;
-    const result = renderWithTheme(<HomeRoute />);
+    const DashboardRoute = require('../../../app/(main)/dashboard').default;
+    const result = renderWithTheme(<DashboardRoute />);
     
     // Verify route renders successfully when authenticated (accessible)
     expect(result).toBeTruthy();
     expect(DashboardScreen).toHaveBeenCalled();
     
-    // Verify route is at /home path (group segment omitted per app-router.mdc)
+    // Verify route is at /dashboard path (group segment omitted per app-router.mdc)
     // The route is accessible when it renders without errors
-    expect(mockPathname).toBe('/home');
+    expect(mockPathname).toBe('/dashboard');
   });
 
   it('should be protected by auth guard (guard behavior)', () => {
@@ -111,8 +111,8 @@ describe('Home Route (home.jsx)', () => {
       user: { id: '1', email: 'test@example.com' },
     });
 
-    const HomeRoute = require('../../../app/(main)/home').default;
-    const result = renderWithTheme(<HomeRoute />);
+    const DashboardRoute = require('../../../app/(main)/dashboard').default;
+    const result = renderWithTheme(<DashboardRoute />);
     
     // Route should render when authenticated (guard allows access)
     expect(result).toBeTruthy();
@@ -129,8 +129,8 @@ describe('Home Route (home.jsx)', () => {
       user: { id: '1', email: 'test@example.com' },
     });
 
-    const HomeRoute = require('../../../app/(main)/home').default;
-    renderWithTheme(<HomeRoute />);
+    const DashboardRoute = require('../../../app/(main)/dashboard').default;
+    renderWithTheme(<DashboardRoute />);
     
     // Verify DashboardScreen is rendered (route is accessible)
     expect(DashboardScreen).toHaveBeenCalledTimes(1);

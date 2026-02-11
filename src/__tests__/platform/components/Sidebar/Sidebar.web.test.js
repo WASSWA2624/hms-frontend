@@ -52,7 +52,7 @@ describe('Sidebar Component - Web', () => {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      href: '/home',
+      href: '/dashboard',
       icon: 'grid-outline',
     },
     {

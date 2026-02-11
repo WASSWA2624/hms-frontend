@@ -102,7 +102,7 @@ describe('MainLayout with Auth Guard', () => {
     expect(useAuthGuard).toHaveBeenCalled();
   });
 
-  it('should call useAuthGuard with default options (redirects to /home)', () => {
+  it('should call useAuthGuard with default options (redirects to /dashboard)', () => {
     const store = createMockStore();
     render(
       <Provider store={store}>
@@ -112,7 +112,7 @@ describe('MainLayout with Auth Guard', () => {
 
     // useAuthGuard should be called (it will handle redirect internally)
     expect(useAuthGuard).toHaveBeenCalled();
-    // Default behavior: redirects unauthenticated users to /home
+    // Default behavior: redirects unauthenticated users to /dashboard
   });
 
   it('should allow authenticated users to access main routes', async () => {
@@ -137,11 +137,11 @@ describe('MainLayout with Auth Guard', () => {
 
   it('should redirect unauthenticated users to home route', async () => {
     // Mock useAuthGuard to simulate redirect behavior
-    // The hook internally calls router.replace('/home') when unauthenticated
+    // The hook internally calls router.replace('/dashboard') when unauthenticated
     useAuthGuard.mockImplementation(() => {
       const router = useRouter();
       React.useEffect(() => {
-        router.replace('/home');
+        router.replace('/dashboard');
       }, [router]);
       
       return {
@@ -158,7 +158,7 @@ describe('MainLayout with Auth Guard', () => {
     );
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
     });
   });
 
@@ -169,7 +169,7 @@ describe('MainLayout with Auth Guard', () => {
       const router = useRouter();
       React.useEffect(() => {
         if (!authenticated) {
-          router.replace('/home');
+          router.replace('/dashboard');
         }
       }, [authenticated, router]);
       
@@ -202,7 +202,7 @@ describe('MainLayout with Auth Guard', () => {
     );
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
     });
   });
 
@@ -213,7 +213,7 @@ describe('MainLayout with Auth Guard', () => {
       const router = useRouter();
       React.useEffect(() => {
         if (!authenticated) {
-          router.replace('/home');
+          router.replace('/dashboard');
         }
       }, [authenticated, router]);
       
@@ -231,7 +231,7 @@ describe('MainLayout with Auth Guard', () => {
     );
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
     });
 
     // Transition to authenticated

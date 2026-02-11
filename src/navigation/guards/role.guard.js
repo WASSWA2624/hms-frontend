@@ -5,7 +5,7 @@
  * 
  * @param {Object} options - Configuration options
  * @param {string|string[]} options.requiredRoles - Required role(s) for access
- * @param {string} [options.redirectPath='/home'] - Path to redirect to if access denied
+ * @param {string} [options.redirectPath='/dashboard'] - Path to redirect to if access denied
  * @returns {Object} Access state object with { hasAccess, errorCode }
  * 
  * @example
@@ -26,10 +26,11 @@ export const ROLE_GUARD_ERRORS = {
 };
 
 export function useRoleGuard(options) {
-  const { requiredRoles, redirectPath = '/home' } = options || {};
+  const { requiredRoles, redirectPath = '/dashboard' } = options || {};
   
   const router = useRouter();
   const user = useSelector(selectUser);
+  const isRehydrated = useSelector((state) => Boolean(state?._persist?.rehydrated));
   
   // Normalize requiredRoles to array
   const requiredRolesArray = useMemo(() => {
@@ -77,6 +78,7 @@ export function useRoleGuard(options) {
   const hasRedirected = useRef(false);
   
   useEffect(() => {
+    if (!isRehydrated) return;
     if (hasAccess) {
       // Reset redirect flag when access granted
       hasRedirected.current = false;
@@ -85,7 +87,7 @@ export function useRoleGuard(options) {
       hasRedirected.current = true;
       router.replace(redirectPath);
     }
-  }, [hasAccess, redirectPath, router, requiredRolesArray.length]);
+  }, [hasAccess, isRehydrated, redirectPath, router, requiredRolesArray.length]);
   
   return {
     hasAccess,

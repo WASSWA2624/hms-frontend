@@ -54,12 +54,14 @@ const useUserRoleDetailScreen = () => {
     if (!id) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      await remove(id);
-      handleBack();
+      const result = await remove(id);
+      if (!result) return;
+      const noticeKey = isOffline ? 'queued' : 'deleted';
+      router.push(`/settings/user-roles?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, handleBack, t]);
+  }, [id, remove, isOffline, router, t]);
 
   return {
     id,

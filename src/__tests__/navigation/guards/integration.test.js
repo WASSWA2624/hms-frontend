@@ -71,6 +71,7 @@ describe('Navigation Guards Integration', () => {
 
     // Setup default mock state (Phase 0-7: auth state in UI slice)
     mockState = {
+      _persist: { rehydrated: true },
       ui: {
         user: null,
         isAuthenticated: false,
@@ -207,7 +208,7 @@ describe('Navigation Guards Integration', () => {
 
       await waitFor(() => {
         expect(api.hasAccess).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 

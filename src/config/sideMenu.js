@@ -84,7 +84,7 @@ const SETTINGS_ITEMS = [
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
-  { id: 'dashboard', icon: 'grid-outline', path: '/home', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
+  { id: 'dashboard', icon: 'grid-outline', path: '/dashboard', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 

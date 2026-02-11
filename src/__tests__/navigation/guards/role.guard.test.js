@@ -57,6 +57,7 @@ describe('useRoleGuard', () => {
     // Setup default mock state
     // Note: Auth state is in UI slice for Phase 0-7 (will move to auth feature in Phase 9)
     mockState = {
+      _persist: { rehydrated: true },
       ui: {
         theme: 'light',
         locale: 'en',
@@ -166,13 +167,13 @@ describe('useRoleGuard', () => {
   });
 
   describe('Redirect behavior', () => {
-    it('should redirect to default /home path when access denied', async () => {
+    it('should redirect to default /dashboard path when access denied', async () => {
       mockState.ui.user = { id: '1', role: 'USER' };
 
       render(<TestComponent options={{ requiredRoles: 'ADMIN' }} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -237,6 +238,7 @@ describe('useRoleGuard', () => {
 
       useSelector.mockImplementation((selector) => {
         const state = {
+          _persist: { rehydrated: true },
           ui: {
             theme: 'light',
             locale: 'en',
@@ -259,7 +261,7 @@ describe('useRoleGuard', () => {
 
       await waitFor(() => {
         expect(api.hasAccess).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
 
       // Transition to access granted
@@ -279,6 +281,7 @@ describe('useRoleGuard', () => {
 
       useSelector.mockImplementation((selector) => {
         const state = {
+          _persist: { rehydrated: true },
           ui: {
             theme: 'light',
             locale: 'en',
@@ -311,7 +314,7 @@ describe('useRoleGuard', () => {
 
       await waitFor(() => {
         expect(api.hasAccess).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
   });
@@ -363,7 +366,7 @@ describe('useRoleGuard', () => {
       render(<TestComponent options={{ requiredRoles: 'ADMIN' }} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 

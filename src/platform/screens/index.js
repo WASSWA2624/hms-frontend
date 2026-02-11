@@ -66,6 +66,7 @@ export { default as RolePermissionDetailScreen } from './settings/RolePermission
 export { default as RolePermissionFormScreen } from './settings/RolePermissionFormScreen';
 export { default as UserRoleListScreen } from './settings/UserRoleListScreen';
 export { default as UserRoleDetailScreen } from './settings/UserRoleDetailScreen';
+export { default as UserRoleFormScreen } from './settings/UserRoleFormScreen';
 export { default as ApiKeyListScreen } from './settings/ApiKeyListScreen';
 export { default as ApiKeyDetailScreen } from './settings/ApiKeyDetailScreen';
 export { default as ApiKeyPermissionListScreen } from './settings/ApiKeyPermissionListScreen';

@@ -58,6 +58,7 @@ describe('useAuthGuard', () => {
 
     // Setup default mock state (selectors use state.auth)
     mockState = {
+      _persist: { rehydrated: true },
       auth: {
         isAuthenticated: false,
         user: null,
@@ -117,14 +118,14 @@ describe('useAuthGuard', () => {
   });
 
   describe('Redirect behavior', () => {
-    it('should redirect to default /home path when unauthenticated', async () => {
+    it('should redirect to default /dashboard path when unauthenticated', async () => {
       mockState.auth.isAuthenticated = false;
       mockState.auth.user = null;
 
       render(<TestComponent onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -176,6 +177,7 @@ describe('useAuthGuard', () => {
 
       useSelector.mockImplementation((selector) => {
         const state = {
+          _persist: { rehydrated: true },
           auth: { isAuthenticated: currentAuthState, user: currentUser, isLoading: false, errorCode: null },
           ui: { theme: 'light', locale: 'en', isLoading: false },
           network: { isOnline: true, isSyncing: false },
@@ -188,7 +190,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
 
       // Transition to authenticated
@@ -211,6 +213,7 @@ describe('useAuthGuard', () => {
       // Mock useSelector to return current state (selectors use state.auth)
       useSelector.mockImplementation((selector) => {
         const state = {
+          _persist: { rehydrated: true },
           auth: { isAuthenticated: currentAuthState, user: currentUser, isLoading: false, errorCode: null },
           ui: { theme: 'light', locale: 'en', isLoading: false },
           network: { isOnline: true, isSyncing: false },
@@ -234,7 +237,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -245,6 +248,7 @@ describe('useAuthGuard', () => {
       // Mock useSelector to return current state (selectors use state.auth)
       useSelector.mockImplementation((selector) => {
         const state = {
+          _persist: { rehydrated: true },
           auth: { isAuthenticated: currentAuthState, user: currentUser, isLoading: false, errorCode: null },
           ui: { theme: 'light', locale: 'en', isLoading: false },
           network: { isOnline: true, isSyncing: false },
@@ -257,7 +261,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
 
       // Transition to authenticated (should reset redirect flag - covers else if branch)
@@ -280,7 +284,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -309,7 +313,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
         expect(mockRouter.replace).toHaveBeenCalledTimes(1);
       });
 
@@ -377,7 +381,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -388,7 +392,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent options={{}} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
 
@@ -454,7 +458,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent options={{ skipRedirect: false }} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/home');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
       });
     });
   });

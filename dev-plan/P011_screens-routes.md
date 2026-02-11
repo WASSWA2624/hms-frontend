@@ -60,7 +60,7 @@ src/app/
 |
 |-- (main)/
 |   |-- _layout.jsx
-|   |-- home.jsx
+|   |-- dashboard.jsx
 |   |-- patients/
 |   |-- scheduling/
 |   |-- clinical/
@@ -120,7 +120,7 @@ src/app/
 - **11.2.5** Verify phone -- `(auth)/verify-phone`
 - **11.2.6** Tenant selection -- `(auth)/tenant-selection`
 - **11.2.7** Facility selection -- `(auth)/facility-selection`
-- **11.2.8** Home -- `(main)/home`
+- **11.2.8** Dashboard -- `(main)/dashboard`
 
 ### Tier 3: Settings (main)
 - **11.3.1** Settings (main) -- `(main)/settings`

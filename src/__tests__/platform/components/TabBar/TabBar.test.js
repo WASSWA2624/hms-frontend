@@ -25,7 +25,7 @@ const _indexExports = {
 
 // Mock expo-router
 const mockPush = jest.fn();
-const mockPathname = '/home';
+const mockPathname = '/dashboard';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -85,7 +85,7 @@ describe('TabBar Component', () => {
     {
       id: 'home',
       label: 'Home',
-      href: '/home',
+      href: '/dashboard',
       icon: '🏠',
     },
     {
@@ -143,7 +143,7 @@ describe('TabBar Component', () => {
         {
           id: 'home',
           label: 'Home',
-          href: '/home',
+          href: '/dashboard',
           icon: '🏠',
           badge: true,
           badgeCount: 0,
@@ -177,7 +177,7 @@ describe('TabBar Component', () => {
         {
           id: 'home',
           label: 'Home',
-          href: '/home',
+          href: '/dashboard',
         },
       ];
       const { getByTestId } = renderWithProviders(
