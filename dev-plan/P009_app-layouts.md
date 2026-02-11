@@ -60,10 +60,10 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 ---
 
 ### Step 9.1: Base Layout Primitives (All Platforms, All Sizes)
-**Goal**: Create layout frame components (AppFrame, AuthFrame, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
+**Goal**: Create layout frame components (AppFrame, AuthLayout, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
 
 **Actions**:
-1. Under `src/platform/layouts/`: create `AppFrame/`, `AuthFrame/`, and `src/platform/layouts/frames/MainFrame/`. Per `component-structure.mdc`, each in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, optional hook (e.g. `useAppFrame.js`, `useMainFrame.js`), `types.js`, `index.js`. Use barrel export so Metro resolves platform files.
+1. Under `src/platform/layouts/`: create `AppFrame/`, `AuthLayout/`, and `src/platform/layouts/frames/MainFrame/`. Per `component-structure.mdc`, each in its own folder with `.android.jsx`, `.ios.jsx`, `.web.jsx`, matching `.styles.jsx`, optional hook (e.g. `useAppFrame.js`, `useMainFrame.js`), `types.js`, `index.js`. Use barrel export so Metro resolves platform files.
 2. Implement frames to be responsive: use theme breakpoints and spacing tokens; test at mobile, tablet, desktop, large.
 3. Use only theme tokens; Microsoft Fluent styling (subtle radius, light shadows/borders).
 4. Export from `src/platform/layouts/index.js`; wire into route group `_layout.jsx` files (import from `@platform/layouts`).

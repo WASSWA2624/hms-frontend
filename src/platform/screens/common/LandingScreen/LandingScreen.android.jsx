@@ -14,15 +14,15 @@ import {
   StyledContent,
   StyledEmbeddedContent,
   StyledHero,
+  StyledHeroBadge,
   StyledSection,
   StyledOptionsList,
   StyledOptionButton,
+  StyledOptionIcon,
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledChecklist,
-  StyledChecklistItem,
-  StyledChecklistBullet,
+  StyledCtaHelper,
 } from './LandingScreen.android.styles';
 
 const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
@@ -38,10 +38,15 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
   const content = (
     <>
       <StyledHero>
-        <Text variant="h1" accessibilityRole="header">
+        <StyledHeroBadge>
+          <Text variant="caption">{t('landing.badge')}</Text>
+        </StyledHeroBadge>
+        <Text variant="h2" accessibilityRole="header">
           {t('landing.title')}
         </Text>
-        <Text variant="body">{t('landing.description')}</Text>
+        <Text variant="body">
+          {t('landing.description')}
+        </Text>
       </StyledHero>
 
       <StyledSection>
@@ -59,6 +64,9 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
                 onPress={() => selectOption(option.id)}
               >
                 <StyledOptionIndicator $selected={selected} />
+                <StyledOptionIcon>
+                  <Text variant="caption">{option.icon}</Text>
+                </StyledOptionIcon>
                 <Text variant="body">{t(option.labelKey)}</Text>
               </StyledOptionButton>
             );
@@ -81,25 +89,10 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
         >
           {t('landing.cta.primary')}
         </Button>
+        <StyledCtaHelper>
+          <Text variant="caption">{t('landing.cta.helper')}</Text>
+        </StyledCtaHelper>
       </StyledCTA>
-
-      <StyledSection>
-        <Text variant="label">{t('landing.next.title')}</Text>
-        <StyledChecklist>
-          <StyledChecklistItem>
-            <StyledChecklistBullet />
-            <Text variant="caption">{t('landing.next.items.provision')}</Text>
-          </StyledChecklistItem>
-          <StyledChecklistItem>
-            <StyledChecklistBullet />
-            <Text variant="caption">{t('landing.next.items.samples')}</Text>
-          </StyledChecklistItem>
-          <StyledChecklistItem>
-            <StyledChecklistBullet />
-            <Text variant="caption">{t('landing.next.items.checklist')}</Text>
-          </StyledChecklistItem>
-        </StyledChecklist>
-      </StyledSection>
     </>
   );
 

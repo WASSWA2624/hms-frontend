@@ -49,14 +49,32 @@ const StyledHero = styled(View).withConfig({
   displayName: 'StyledHero',
   componentId: 'StyledHero',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
+  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme }) => theme.spacing.md}px;
+  border-radius: ${({ theme }) => theme.radius?.md ?? 8}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledHeroBadge = styled(View).withConfig({
+  displayName: 'StyledHeroBadge',
+  componentId: 'StyledHeroBadge',
+})`
+  align-self: flex-start;
+  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledSection = styled(View).withConfig({
   displayName: 'StyledSection',
   componentId: 'StyledSection',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
+  margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledOptionsList = styled(View).withConfig({
@@ -71,7 +89,7 @@ const StyledOptionButton = styled(Pressable).withConfig({
   componentId: 'StyledOptionButton',
   shouldForwardProp: (prop) => prop !== '$selected',
 })`
-  min-height: 44px;
+  min-height: 54px;
   padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   border-width: 1px;
@@ -82,6 +100,19 @@ const StyledOptionButton = styled(Pressable).withConfig({
   flex-direction: row;
   align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledOptionIcon = styled(View).withConfig({
+  displayName: 'StyledOptionIcon',
+  componentId: 'StyledOptionIcon',
+})`
+  width: 24px;
+  height: 24px;
+  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
+  align-items: center;
+  justify-content: center;
+  margin-right: ${({ theme }) => theme.spacing.xs}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
 `;
 
 const StyledOptionIndicator = styled(View).withConfig({
@@ -111,35 +142,15 @@ const StyledCTA = styled(View).withConfig({
   displayName: 'StyledCTA',
   componentId: 'StyledCTA',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
+  margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;
 
-const StyledChecklist = styled(View).withConfig({
-  displayName: 'StyledChecklist',
-  componentId: 'StyledChecklist',
+const StyledCtaHelper = styled(View).withConfig({
+  displayName: 'StyledCtaHelper',
+  componentId: 'StyledCtaHelper',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledChecklistItem = styled(View).withConfig({
-  displayName: 'StyledChecklistItem',
-  componentId: 'StyledChecklistItem',
-})`
-  flex-direction: row;
-  align-items: flex-start;
-  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const StyledChecklistBullet = styled(View).withConfig({
-  displayName: 'StyledChecklistBullet',
-  componentId: 'StyledChecklistBullet',
-})`
-  width: ${({ theme }) => theme.spacing.xs}px;
-  height: ${({ theme }) => theme.spacing.xs}px;
-  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
-  background-color: ${({ theme }) => theme.colors.primary};
-  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
-  margin-right: ${({ theme }) => theme.spacing.xs}px;
+  align-items: center;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 export {
@@ -148,13 +159,13 @@ export {
   StyledContent,
   StyledEmbeddedContent,
   StyledHero,
+  StyledHeroBadge,
   StyledSection,
   StyledOptionsList,
   StyledOptionButton,
+  StyledOptionIcon,
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledChecklist,
-  StyledChecklistItem,
-  StyledChecklistBullet,
+  StyledCtaHelper,
 };

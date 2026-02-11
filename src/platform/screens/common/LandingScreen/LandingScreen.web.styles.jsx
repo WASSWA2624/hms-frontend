@@ -16,6 +16,7 @@ const StyledContainer = styled.main.withConfig({
     ($embedded ? 'transparent' : theme.colors.background.primary)};
   display: flex;
   flex-direction: column;
+  font-family: 'Segoe UI', 'Inter', 'Roboto', sans-serif;
 `;
 
 const StyledContent = styled.div.withConfig({
@@ -25,13 +26,13 @@ const StyledContent = styled.div.withConfig({
   width: 100%;
   max-width: ${({ theme }) => theme.spacing.xxl * 18}px;
   margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing.xl}px ${({ theme }) => theme.spacing.lg}px;
+  padding: ${({ theme }) => theme.spacing.lg}px ${({ theme }) => theme.spacing.lg}px;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
-    padding: ${({ theme }) => theme.spacing.lg}px ${({ theme }) => theme.spacing.md}px;
+    padding: ${({ theme }) => theme.spacing.md}px ${({ theme }) => theme.spacing.sm}px;
   }
 `;
 
@@ -42,7 +43,7 @@ const StyledEmbeddedContent = styled.div.withConfig({
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledHero = styled.section.withConfig({
@@ -51,7 +52,28 @@ const StyledHero = styled.section.withConfig({
 })`
   display: flex;
   flex-direction: column;
+  padding: ${({ theme }) => theme.spacing.md}px;
+  border-radius: ${({ theme }) => theme.radius?.md ?? 8}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background: linear-gradient(
+    160deg,
+    ${({ theme }) => theme.colors.background.primary} 0%,
+    ${({ theme }) => theme.colors.background.secondary} 100%
+  );
   gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHeroBadge = styled.span.withConfig({
+  displayName: 'StyledHeroBadge',
+  componentId: 'StyledHeroBadge',
+})`
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledSection = styled.section.withConfig({
@@ -60,6 +82,7 @@ const StyledSection = styled.section.withConfig({
 })`
   display: flex;
   flex-direction: column;
+  padding: ${({ theme }) => theme.spacing.sm}px 0;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
@@ -76,7 +99,7 @@ const StyledOptionsGrid = styled.div.withConfig({
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints?.desktop || 1024}px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
@@ -86,7 +109,7 @@ const StyledOptionButton = styled.button.withConfig({
   shouldForwardProp: (prop) => prop !== '$selected',
 })`
   width: 100%;
-  min-height: 44px;
+  min-height: 54px;
   padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
   border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
   border: 1px solid ${({ theme, $selected }) =>
@@ -100,7 +123,9 @@ const StyledOptionButton = styled.button.withConfig({
   text-align: left;
   cursor: pointer;
   font: inherit;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  box-shadow: ${({ theme, $selected }) =>
+    $selected ? `0 6px 18px rgba(0,0,0,0.08)` : 'none'};
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -114,6 +139,21 @@ const StyledOptionButton = styled.button.withConfig({
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
+`;
+
+const StyledOptionIcon = styled.span.withConfig({
+  displayName: 'StyledOptionIcon',
+  componentId: 'StyledOptionIcon',
+})`
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  font-size: 14px;
+  flex-shrink: 0;
 `;
 
 const StyledOptionIndicator = styled.span.withConfig({
@@ -134,6 +174,7 @@ const StyledHelperText = styled.div.withConfig({
   displayName: 'StyledHelperText',
   componentId: 'StyledHelperText',
 })`
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
@@ -142,40 +183,21 @@ const StyledCTA = styled.div.withConfig({
   componentId: 'StyledCTA',
 })`
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+
+  > * {
+    width: 100%;
+  }
 `;
 
-const StyledChecklist = styled.ul.withConfig({
-  displayName: 'StyledChecklist',
-  componentId: 'StyledChecklist',
+const StyledCtaHelper = styled.span.withConfig({
+  displayName: 'StyledCtaHelper',
+  componentId: 'StyledCtaHelper',
 })`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const StyledChecklistItem = styled.li.withConfig({
-  displayName: 'StyledChecklistItem',
-  componentId: 'StyledChecklistItem',
-})`
-  display: flex;
-  align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing.xs}px;
   color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const StyledChecklistBullet = styled.span.withConfig({
-  displayName: 'StyledChecklistBullet',
-  componentId: 'StyledChecklistBullet',
-})`
-  width: ${({ theme }) => theme.spacing.xs}px;
-  height: ${({ theme }) => theme.spacing.xs}px;
-  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
-  background-color: ${({ theme }) => theme.colors.primary};
-  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
-  flex-shrink: 0;
+  text-align: center;
 `;
 
 export {
@@ -183,13 +205,13 @@ export {
   StyledContent,
   StyledEmbeddedContent,
   StyledHero,
+  StyledHeroBadge,
   StyledSection,
   StyledOptionsGrid,
   StyledOptionButton,
+  StyledOptionIcon,
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledChecklist,
-  StyledChecklistItem,
-  StyledChecklistBullet,
+  StyledCtaHelper,
 };

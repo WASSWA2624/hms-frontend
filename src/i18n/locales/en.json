@@ -447,17 +447,18 @@
     }
   },
   "landing": {
-    "title": "Start your HMS workspace",
-    "description": "Choose your facility type to personalize onboarding.",
+    "title": "Launch in 60 seconds",
+    "description": "Pick facility type. Continue.",
+    "badge": "Free trial • No card",
     "errors": {
-      "loadTitle": "Unable to restore your selection",
-      "loadDescription": "Select a facility type to continue onboarding.",
+      "loadTitle": "Could not restore your selection",
+      "loadDescription": "Choose a facility type to continue.",
       "submitTitle": "Unable to continue",
-      "submitDescription": "Please check your connection and try again."
+      "submitDescription": "Check your connection and try again."
     },
     "facility": {
-      "title": "Select your facility type",
-      "hint": "Pick one option to seed your setup. You can change this later.",
+      "title": "Facility type",
+      "hint": "Tap one option.",
       "options": {
         "clinic": "Clinic / Medical Centre",
         "hospital": "Hospital",
@@ -466,18 +467,11 @@
         "emergency": "Emergency / Ambulance Service"
       }
     },
-    "selectionHelper": "You can update this during onboarding.",
+    "selectionHelper": "You can change this later.",
     "cta": {
-      "primary": "Start Free - No Sales Call",
-      "primaryHint": "Begin onboarding with your selected facility type"
-    },
-    "next": {
-      "title": "What happens next",
-      "items": {
-        "provision": "We create your workspace with starter modules",
-        "samples": "Sample data is added so you can explore immediately",
-        "checklist": "You get a facility-specific checklist to activate your workflow"
-      }
+      "primary": "Continue to Sign Up",
+      "primaryHint": "Continue with your selected facility type",
+      "helper": "Fast setup • No sales call"
     }
   },
   "home": {

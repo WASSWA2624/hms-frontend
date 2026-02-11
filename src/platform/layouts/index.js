@@ -10,7 +10,6 @@ export { default as AuthLayout } from './AuthLayout';
 export { default as ModalLayout } from './ModalLayout';
 // Frame primitives (header, footer, content slots)
 export { default as AppFrame } from './AppFrame';
-export { default as AuthFrame } from './AuthFrame';
 export { default as MainFrame } from './frames/MainFrame';
 export { default as PatientFrame } from './PatientFrame';
 
