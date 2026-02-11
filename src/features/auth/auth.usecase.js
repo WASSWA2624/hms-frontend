@@ -94,10 +94,11 @@ const registerUseCase = async (payload) =>
     const response = await registerApi(parsed);
     const data = unwrap(response);
     const { user, tokens } = normalizeAuthResponse(data);
+    const hasSession = Boolean(tokens?.accessToken && tokens?.refreshToken);
     if (tokens?.accessToken && tokens?.refreshToken) {
       await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
     }
-    return user;
+    return { user, hasSession };
   });
 
 const logoutUseCase = async () =>

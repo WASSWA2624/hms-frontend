@@ -45,8 +45,17 @@ const login = createAsyncThunk('auth/login', async (payload, { rejectWithValue }
 
 const register = createAsyncThunk('auth/register', async (payload, { rejectWithValue }) => {
   try {
-    const user = await registerUseCase(payload);
-    return user || null;
+    const result = await registerUseCase(payload);
+    if (result && typeof result === 'object' && ('user' in result || 'hasSession' in result)) {
+      return {
+        user: result.user || null,
+        hasSession: Boolean(result.hasSession),
+      };
+    }
+    return {
+      user: result || null,
+      hasSession: false,
+    };
   } catch (error) {
     console.error('[AUTH_THUNK_REGISTER_ERROR]', error);
     return rejectWithValue({
@@ -212,9 +221,10 @@ const authSlice = createSlice({
         state.errorCode = null;
       })
       .addCase(register.fulfilled, (state, action) => {
+        const payload = action.payload || {};
         state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = Boolean(action.payload);
+        state.user = payload.user || null;
+        state.isAuthenticated = Boolean(payload.hasSession);
         state.lastUpdated = Date.now();
       })
       .addCase(register.rejected, (state, action) => {

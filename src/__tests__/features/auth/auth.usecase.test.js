@@ -62,9 +62,9 @@ describe('auth.usecase', () => {
     expect(tokenManager.setTokens).toHaveBeenCalledWith('a', 'b');
   });
 
-  it('registers and loads current user', async () => {
-    const user = await registerUseCase({ email: 'user' });
-    expect(user).toEqual({ id: '2' });
+  it('registers without auto-authenticating when no tokens are returned', async () => {
+    const result = await registerUseCase({ email: 'user' });
+    expect(result).toEqual({ user: { id: '2' }, hasSession: false });
     const current = await loadCurrentUserUseCase();
     expect(current).toEqual({ id: '3' });
   });
