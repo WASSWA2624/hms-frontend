@@ -5,9 +5,8 @@
  */
 
 import React, { useCallback } from 'react';
-import { useI18n } from '@hooks';
 import { Button, Text } from '@platform/components';
-import useLandingScreen from './useLandingScreen';
+import { useI18n } from '@hooks';
 import {
   StyledContainer,
   StyledContent,
@@ -19,10 +18,10 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledHelperText,
   StyledCTA,
   StyledCtaHelper,
 } from './LandingScreen.web.styles';
+import useLandingScreen from './useLandingScreen';
 
 const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
   const { t } = useI18n();
@@ -40,17 +39,10 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
         <StyledHeroBadge>
           <Text variant="caption">{t('landing.badge')}</Text>
         </StyledHeroBadge>
-        <Text variant="h2" accessibilityRole="header">
-          {t('landing.title')}
-        </Text>
-        <Text variant="body">
-          {t('landing.description')}
-        </Text>
       </StyledHero>
 
       <StyledSection>
-        <Text variant="label">{t('landing.facility.title')}</Text>
-        <Text variant="caption">{t('landing.facility.hint')}</Text>
+        <Text variant="body">{t('landing.facility.prompt')}</Text>
         <StyledOptionsGrid>
           {options.map((option) => {
             const selected = option.id === selectedId;
@@ -69,14 +61,11 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
             );
           })}
         </StyledOptionsGrid>
-        <StyledHelperText>
-          <Text variant="caption">{t('landing.selectionHelper')}</Text>
-        </StyledHelperText>
       </StyledSection>
 
       <StyledCTA>
         <Button
-          size="large"
+          size="medium"
           variant="primary"
           accessibilityLabel={t('landing.cta.primary')}
           accessibilityHint={t('landing.cta.primaryHint')}
@@ -98,7 +87,7 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
   }
 
   return (
-    <StyledContainer role="main" aria-label={t('landing.title')} data-testid={testID || 'landing-screen'}>
+    <StyledContainer role="main" aria-label={t('landing.cta.primary')} data-testid={testID || 'landing-screen'}>
       <StyledContent>{content}</StyledContent>
     </StyledContainer>
   );

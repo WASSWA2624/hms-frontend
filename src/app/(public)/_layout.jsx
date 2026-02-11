@@ -11,11 +11,15 @@ function PublicGroupLayout() {
   const { t } = useI18n();
 
   return (
-    <AuthLayout accessibilityLabel={t('landing.title')} testID="public-group-layout">
+    <AuthLayout
+      accessibilityLabel={t('landing.title')}
+      screenTitle={t('landing.title')}
+      screenSubtitle={t('landing.description')}
+      testID="public-group-layout"
+    >
       <Slot />
     </AuthLayout>
   );
 }
 
 export default PublicGroupLayout;
-

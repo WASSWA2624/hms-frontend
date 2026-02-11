@@ -4,7 +4,7 @@
  * File: AuthLayout.ios.jsx
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import {
   StyledContainer,
   StyledKeyboardAvoidingView,
@@ -39,7 +39,7 @@ const AuthLayoutIOS = ({
       testID={testID}
       accessibilityRole="none"
     >
-      {banner || null}
+      {banner}
       <StyledKeyboardAvoidingView behavior="padding">
         <StyledScrollView
           keyboardShouldPersistTaps="handled"
@@ -66,5 +66,5 @@ const AuthLayoutIOS = ({
   );
 };
 
-export default AuthLayoutIOS;
+export default memo(AuthLayoutIOS);
 

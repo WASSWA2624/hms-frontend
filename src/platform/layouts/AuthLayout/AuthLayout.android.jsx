@@ -4,7 +4,7 @@
  * File: AuthLayout.android.jsx
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import {
   StyledContainer,
   StyledKeyboardAvoidingView,
@@ -39,7 +39,7 @@ const AuthLayoutAndroid = ({
       testID={testID}
       accessibilityRole="none"
     >
-      {banner || null}
+      {banner}
       <StyledKeyboardAvoidingView behavior="height">
         <StyledScrollView
           keyboardShouldPersistTaps="handled"
@@ -66,5 +66,5 @@ const AuthLayoutAndroid = ({
   );
 };
 
-export default AuthLayoutAndroid;
+export default memo(AuthLayoutAndroid);
 

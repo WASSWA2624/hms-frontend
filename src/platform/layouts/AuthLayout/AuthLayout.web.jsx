@@ -4,11 +4,16 @@
  * File: AuthLayout.web.jsx
  */
 
-import React from 'react';
+import React, { memo } from 'react';
+import { AppLogo, AppLogoSizes, Text } from '@platform/components';
+import { useI18n } from '@hooks';
 import {
   StyledBanner,
+  StyledBrandCopy,
   StyledContainer,
   StyledCard,
+  StyledBrandHeader,
+  StyledBrandName,
   StyledBranding,
   StyledContent,
   StyledHelpLinks,
@@ -34,6 +39,9 @@ const AuthLayoutWeb = ({
   testID,
   className,
 }) => {
+  const { t } = useI18n();
+  const appName = t('app.name');
+
   return (
     <StyledContainer
       className={className}
@@ -43,11 +51,17 @@ const AuthLayoutWeb = ({
     >
       {banner ? <StyledBanner role="region">{banner}</StyledBanner> : null}
       <StyledCard>
-        {branding && (
-          <StyledBranding>
-            {branding}
-          </StyledBranding>
-        )}
+        <StyledBranding>
+          <StyledBrandHeader>
+            <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
+            <StyledBrandCopy>
+              <StyledBrandName>
+                <Text variant="h3">{appName}</Text>
+              </StyledBrandName>
+            </StyledBrandCopy>
+          </StyledBrandHeader>
+          {branding}
+        </StyledBranding>
         <StyledContent>
           {children}
         </StyledContent>
@@ -61,5 +75,4 @@ const AuthLayoutWeb = ({
   );
 };
 
-export default AuthLayoutWeb;
-
+export default memo(AuthLayoutWeb);

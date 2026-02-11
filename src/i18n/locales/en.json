@@ -51,6 +51,12 @@
     "name": "Hospital Management System",
     "shortName": "HMS"
   },
+  "auth": {
+    "layout": {
+      "title": "Welcome",
+      "subtitle": "Set up your account to start managing care, billing, and operations."
+    }
+  },
   "errors": {
     "fallback": {
       "title": "Something went wrong",
@@ -447,9 +453,9 @@
     }
   },
   "landing": {
-    "title": "Launch in 60 seconds",
-    "description": "Pick facility type. Continue.",
-    "badge": "Free trial • No card",
+    "title": "",
+    "description": "",
+    "badge": "Free trial: quick setup, centralized management, web/mobile access.",
     "errors": {
       "loadTitle": "Could not restore your selection",
       "loadDescription": "Choose a facility type to continue.",
@@ -457,8 +463,9 @@
       "submitDescription": "Check your connection and try again."
     },
     "facility": {
-      "title": "Facility type",
-      "hint": "Tap one option.",
+      "title": "",
+      "hint": "",
+      "prompt": "What is the type of your facility? Pick one from the list below",
       "options": {
         "clinic": "Clinic / Medical Centre",
         "hospital": "Hospital",
@@ -467,9 +474,9 @@
         "emergency": "Emergency / Ambulance Service"
       }
     },
-    "selectionHelper": "You can change this later.",
+    "selectionHelper": "",
     "cta": {
-      "primary": "Continue to Sign Up",
+      "primary": "Proceed",
       "primaryHint": "Continue with your selected facility type",
       "helper": "Fast setup • No sales call"
     }
@@ -2646,7 +2653,7 @@
       "blockedMessage": "Add a tenant to enable facility details.",
       "typeLabel": "Type",
       "typePlaceholder": "Select type",
-      "typeHint": "Facility type",
+      "typeHint": "Choose facility category",
       "typeHOSPITAL": "Hospital",
       "typeCLINIC": "Clinic",
       "typeLAB": "Lab",

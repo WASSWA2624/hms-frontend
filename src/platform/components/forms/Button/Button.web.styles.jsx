@@ -130,21 +130,53 @@ const StyledButton = styled.button.withConfig({
   opacity: ${({ state }) => (state === 'disabled' ? 0.5 : 1)};
   cursor: ${({ state }) => (state === 'disabled' ? 'not-allowed' : 'pointer')};
   user-select: none;
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease,
+    opacity 120ms ease,
+    background-color 120ms ease;
+  box-shadow: ${({ variant, state, theme }) => {
+    if (state === 'disabled') return 'none';
+    if (variant === 'text') return 'none';
+    if (variant === 'outline') return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 16px rgba(10, 30, 70, 0.1)`;
+    if (variant === 'surface') return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 18px rgba(10, 30, 70, 0.12)`;
+    return '0 3px 0 rgba(8, 34, 74, 0.28), 0 12px 22px rgba(8, 34, 74, 0.22)';
+  }};
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    top: 1px;
+    height: 42%;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: ${({ variant, state }) => {
+      if (state === 'disabled' || variant === 'text') return 0;
+      return 0.28;
+    }};
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+  }
 
   &:hover {
     ${({ variant, state, theme }) => {
       if (state === 'disabled' || state === 'loading') return '';
       if (variant === 'primary') {
-        return `background-color: ${theme.colors.primary}; opacity: 0.9;`;
+        return `background-color: ${theme.colors.primary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 rgba(8, 34, 74, 0.32), 0 16px 28px rgba(8, 34, 74, 0.24);`;
       }
       if (variant === 'secondary') {
-        return `background-color: ${theme.colors.secondary}; opacity: 0.9;`;
+        return `background-color: ${theme.colors.secondary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 rgba(8, 34, 74, 0.32), 0 16px 28px rgba(8, 34, 74, 0.24);`;
       }
       if (variant === 'outline') {
-        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.secondary};`;
+        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.secondary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px rgba(10, 30, 70, 0.14);`;
       }
       if (variant === 'surface') {
-        return `background-color: ${theme.colors.background.tertiary};`;
+        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px rgba(10, 30, 70, 0.14);`;
       }
       if (variant === 'text') {
         return `background-color: ${theme.colors.background.secondary};`;
@@ -157,16 +189,16 @@ const StyledButton = styled.button.withConfig({
     ${({ variant, state, theme }) => {
       if (state === 'disabled' || state === 'loading') return '';
       if (variant === 'primary') {
-        return `background-color: ${theme.colors.primary}; opacity: 0.8;`;
+        return `background-color: ${theme.colors.primary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 rgba(8, 34, 74, 0.24), 0 4px 10px rgba(8, 34, 74, 0.18);`;
       }
       if (variant === 'secondary') {
-        return `background-color: ${theme.colors.secondary}; opacity: 0.8;`;
+        return `background-color: ${theme.colors.secondary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 rgba(8, 34, 74, 0.24), 0 4px 10px rgba(8, 34, 74, 0.18);`;
       }
       if (variant === 'outline') {
-        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.tertiary};`;
+        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px rgba(10, 30, 70, 0.1);`;
       }
       if (variant === 'surface') {
-        return `background-color: ${theme.colors.background.tertiary};`;
+        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px rgba(10, 30, 70, 0.1);`;
       }
       if (variant === 'text') {
         return `background-color: ${theme.colors.background.tertiary};`;

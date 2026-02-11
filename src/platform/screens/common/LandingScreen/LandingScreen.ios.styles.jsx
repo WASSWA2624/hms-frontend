@@ -49,7 +49,7 @@ const StyledHero = styled(View).withConfig({
   displayName: 'StyledHero',
   componentId: 'StyledHero',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
   padding: ${({ theme }) => theme.spacing.md}px;
   border-radius: ${({ theme }) => theme.radius?.md ?? 8}px;
   border-width: 1px;
@@ -64,9 +64,8 @@ const StyledHeroBadge = styled(View).withConfig({
   align-self: flex-start;
   border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.primary};
-  background-color: ${({ theme }) => theme.colors.background.primary};
+  border-width: 0;
+  background-color: transparent;
   margin-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
@@ -74,7 +73,7 @@ const StyledSection = styled(View).withConfig({
   displayName: 'StyledSection',
   componentId: 'StyledSection',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledOptionsList = styled(View).withConfig({
@@ -142,6 +141,7 @@ const StyledCTA = styled(View).withConfig({
   displayName: 'StyledCTA',
   componentId: 'StyledCTA',
 })`
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
   margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;
 
@@ -169,3 +169,5 @@ export {
   StyledCTA,
   StyledCtaHelper,
 };
+
+

@@ -77,7 +77,7 @@ const StyledHelpLinks = styled.View.withConfig({
   displayName: 'StyledHelpLinks',
   componentId: 'StyledHelpLinks',
 })`
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
   align-items: center;
 `;
 

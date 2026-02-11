@@ -20,7 +20,6 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledHelperText,
   StyledCTA,
   StyledCtaHelper,
 } from './LandingScreen.android.styles';
@@ -41,17 +40,10 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
         <StyledHeroBadge>
           <Text variant="caption">{t('landing.badge')}</Text>
         </StyledHeroBadge>
-        <Text variant="h2" accessibilityRole="header">
-          {t('landing.title')}
-        </Text>
-        <Text variant="body">
-          {t('landing.description')}
-        </Text>
       </StyledHero>
 
       <StyledSection>
-        <Text variant="label">{t('landing.facility.title')}</Text>
-        <Text variant="caption">{t('landing.facility.hint')}</Text>
+        <Text variant="body">{t('landing.facility.prompt')}</Text>
         <StyledOptionsList>
           {options.map((option) => {
             const selected = option.id === selectedId;
@@ -72,14 +64,11 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
             );
           })}
         </StyledOptionsList>
-        <StyledHelperText>
-          <Text variant="caption">{t('landing.selectionHelper')}</Text>
-        </StyledHelperText>
       </StyledSection>
 
       <StyledCTA>
         <Button
-          size="large"
+          size="medium"
           variant="primary"
           accessibilityLabel={t('landing.cta.primary')}
           accessibilityHint={t('landing.cta.primaryHint')}
@@ -101,7 +90,7 @@ const LandingScreenAndroid = ({ onStart, initialFacilityId, testID, embedded = f
   }
 
   return (
-    <StyledContainer testID={testID || 'landing-screen'} accessibilityLabel={t('landing.title')}>
+    <StyledContainer testID={testID || 'landing-screen'} accessibilityLabel={t('landing.cta.primary')}>
       <StyledScroll>
         <StyledContent>{content}</StyledContent>
       </StyledScroll>

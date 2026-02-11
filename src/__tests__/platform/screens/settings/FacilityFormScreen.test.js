@@ -36,7 +36,7 @@ const mockT = (key) => {
     'facility.form.nameHint': 'Display name for the facility',
     'facility.form.typeLabel': 'Type',
     'facility.form.typePlaceholder': 'Select type',
-    'facility.form.typeHint': 'Facility type',
+    'facility.form.typeHint': 'Choose facility category',
     'facility.form.activeLabel': 'Active',
     'facility.form.activeHint': 'Whether the facility is active',
     'facility.form.tenantLabel': 'Tenant',
