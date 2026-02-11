@@ -3,26 +3,32 @@
  * File: ApiKeyPermissionDetailScreen.ios.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './ApiKeyPermissionDetailScreen.ios.styles';
 import useApiKeyPermissionDetailScreen from './useApiKeyPermissionDetailScreen';
 
 const ApiKeyPermissionDetailScreenIOS = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     apiKeyPermission,
     isLoading,
@@ -35,170 +41,227 @@ const ApiKeyPermissionDetailScreenIOS = () => {
     onDelete,
   } = useApiKeyPermissionDetailScreen();
 
-  if (isLoading) {
+  const hasApiKeyPermission = Boolean(apiKeyPermission);
+
+  if (isLoading && !hasApiKeyPermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="api-key-permission-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="api-key-permission-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasApiKeyPermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="api-key-permission-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="api-key-permission-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasApiKeyPermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('apiKeyPermission.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="api-key-permission-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <ErrorState
+            title={t('apiKeyPermission.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="api-key-permission-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!apiKeyPermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('apiKeyPermission.detail.notFoundTitle')}
-              description={t('apiKeyPermission.detail.notFoundMessage')}
-              testID="api-key-permission-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="api-key-permission-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = apiKeyPermission.created_at ? new Date(apiKeyPermission.created_at).toLocaleString() : '';
-  const updatedAt = apiKeyPermission.updated_at ? new Date(apiKeyPermission.updated_at).toLocaleString() : '';
-  const apiKeyId = apiKeyPermission?.api_key_id ?? '';
-  const permissionId = apiKeyPermission?.permission_id ?? '';
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <StyledContainer>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="api-key-permission-detail-title"
-          >
-            {t('apiKeyPermission.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="api-key-permission-detail-id">
-              {t('apiKeyPermission.detail.idLabel')}: {apiKeyPermission.id}
-            </Text>
-          </StyledSection>
-          {apiKeyId ? (
-            <StyledSection>
-              <Text variant="body" testID="api-key-permission-detail-api-key">
-                {t('apiKeyPermission.detail.apiKeyIdLabel')}: {apiKeyId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {permissionId ? (
-            <StyledSection>
-              <Text variant="body" testID="api-key-permission-detail-permission">
-                {t('apiKeyPermission.detail.permissionIdLabel')}: {permissionId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="api-key-permission-detail-created">
-                {t('apiKeyPermission.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="api-key-permission-detail-updated">
-                {t('apiKeyPermission.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('apiKeyPermission.detail.notFoundTitle')}
+            description={t('apiKeyPermission.detail.notFoundMessage')}
+            testID="api-key-permission-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('apiKeyPermission.detail.backHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
               testID="api-key-permission-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('apiKeyPermission.detail.edit')}
-                accessibilityHint={t('apiKeyPermission.detail.editHint')}
-                testID="api-key-permission-detail-edit"
-              >
-                {t('apiKeyPermission.detail.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('apiKeyPermission.detail.delete')}
-              accessibilityHint={t('apiKeyPermission.detail.deleteHint')}
-              testID="api-key-permission-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(apiKeyPermission.created_at, locale);
+  const updatedAt = formatDateTime(apiKeyPermission.updated_at, locale);
+  const apiKeyId = apiKeyPermission?.api_key_id ?? '';
+  const permissionId = apiKeyPermission?.permission_id ?? '';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasApiKeyPermission && hasError;
+  const showInlineOffline = hasApiKeyPermission && isOffline;
+
+  return (
+    <StyledContainer>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('apiKeyPermission.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="api-key-permission-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="api-key-permission-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('apiKeyPermission.detail.title')} testID="api-key-permission-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('apiKeyPermission.detail.idLabel')}</Text>
+              <Text variant="body" testID="api-key-permission-detail-id">
+                {apiKeyPermission.id}
+              </Text>
+            </StyledDetailItem>
+            {apiKeyId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.apiKeyIdLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-api-key">
+                  {apiKeyId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {permissionId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.permissionIdLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-permission">
+                  {permissionId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.createdLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('apiKeyPermission.detail.backHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="api-key-permission-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('apiKeyPermission.detail.edit')}
+              accessibilityHint={t('apiKeyPermission.detail.editHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="api-key-permission-detail-edit"
+              disabled={isLoading}
+            >
+              {t('apiKeyPermission.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('apiKeyPermission.detail.delete')}
+            accessibilityHint={t('apiKeyPermission.detail.deleteHint')}
+            icon={<Icon glyph="?" size="xs" decorative />}
+            testID="api-key-permission-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

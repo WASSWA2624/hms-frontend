@@ -71,6 +71,7 @@ export { default as ApiKeyListScreen } from './settings/ApiKeyListScreen';
 export { default as ApiKeyDetailScreen } from './settings/ApiKeyDetailScreen';
 export { default as ApiKeyPermissionListScreen } from './settings/ApiKeyPermissionListScreen';
 export { default as ApiKeyPermissionDetailScreen } from './settings/ApiKeyPermissionDetailScreen';
+export { default as ApiKeyPermissionFormScreen } from './settings/ApiKeyPermissionFormScreen';
 export { default as UserMfaListScreen } from './settings/UserMfaListScreen';
 export { default as UserMfaDetailScreen } from './settings/UserMfaDetailScreen';
 export { default as OauthAccountListScreen } from './settings/OauthAccountListScreen';

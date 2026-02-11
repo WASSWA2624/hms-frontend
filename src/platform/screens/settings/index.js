@@ -18,6 +18,7 @@ export { default as ApiKeyListScreen } from './ApiKeyListScreen';
 export { default as ApiKeyDetailScreen } from './ApiKeyDetailScreen';
 export { default as ApiKeyPermissionListScreen } from './ApiKeyPermissionListScreen';
 export { default as ApiKeyPermissionDetailScreen } from './ApiKeyPermissionDetailScreen';
+export { default as ApiKeyPermissionFormScreen } from './ApiKeyPermissionFormScreen';
 export { default as UserMfaListScreen } from './UserMfaListScreen';
 export { default as UserMfaDetailScreen } from './UserMfaDetailScreen';
 export { default as OauthAccountListScreen } from './OauthAccountListScreen';
