@@ -15,7 +15,12 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
+jest.mock('@utils', () => ({
+  confirmAction: jest.fn(() => true),
+}));
+
 const useUserSession = require('@hooks').useUserSession;
+const { confirmAction } = require('@utils');
 
 describe('useUserSessionListScreen', () => {
   const mockList = jest.fn();
@@ -37,6 +42,7 @@ describe('useUserSessionListScreen', () => {
   it('returns items, handlers, and state', () => {
     const { result } = renderHook(() => useUserSessionListScreen());
     expect(result.current.items).toEqual([]);
+    expect(result.current.noticeMessage).toBeNull();
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onSessionPress).toBe('function');
     expect(typeof result.current.onRevoke).toBe('function');
@@ -79,7 +85,7 @@ describe('useUserSessionListScreen', () => {
   });
 
   it('onRevoke calls revoke then fetchList', async () => {
-    mockRevoke.mockResolvedValue(undefined);
+    mockRevoke.mockResolvedValue({ id: 'sid-1' });
     mockReset.mockClear();
     mockList.mockClear();
     const { result } = renderHook(() => useUserSessionListScreen());
@@ -87,13 +93,14 @@ describe('useUserSessionListScreen', () => {
       await result.current.onRevoke('sid-1');
     });
     expect(mockRevoke).toHaveBeenCalledWith('sid-1');
+    expect(confirmAction).toHaveBeenCalled();
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
   it('onRevoke calls stopPropagation when event provided', async () => {
     const stopPropagation = jest.fn();
-    mockRevoke.mockResolvedValue(undefined);
+    mockRevoke.mockResolvedValue({ id: 'sid-1' });
     const { result } = renderHook(() => useUserSessionListScreen());
     await act(async () => {
       await result.current.onRevoke('sid-1', { stopPropagation });
@@ -101,8 +108,8 @@ describe('useUserSessionListScreen', () => {
     expect(stopPropagation).toHaveBeenCalled();
   });
 
-  it('onRevoke does not throw or refetch when revoke rejects', async () => {
-    mockRevoke.mockRejectedValue(new Error('revoke failed'));
+  it('onRevoke does not refetch when revoke returns no result', async () => {
+    mockRevoke.mockResolvedValue(undefined);
     const { result } = renderHook(() => useUserSessionListScreen());
     mockList.mockClear();
     await act(async () => {
@@ -110,5 +117,14 @@ describe('useUserSessionListScreen', () => {
     });
     expect(mockRevoke).toHaveBeenCalledWith('sid-1');
     expect(mockList).not.toHaveBeenCalled();
+  });
+
+  it('onRevoke does not call revoke when confirmation is cancelled', async () => {
+    confirmAction.mockReturnValueOnce(false);
+    const { result } = renderHook(() => useUserSessionListScreen());
+    await act(async () => {
+      await result.current.onRevoke('sid-1');
+    });
+    expect(mockRevoke).not.toHaveBeenCalled();
   });
 });

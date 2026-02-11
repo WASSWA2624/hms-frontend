@@ -12,7 +12,6 @@ const StyledContainer = styled.View.withConfig({
   width: 100%;
   min-height: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.xl}px;
 `;
 
 const StyledContent = styled.View.withConfig({
@@ -20,16 +19,31 @@ const StyledContent = styled.View.withConfig({
   componentId: 'StyledContent',
 })`
   width: 100%;
-  max-width: 800px;
-  align-self: center;
+  flex: 1;
 `;
 
 const StyledList = styled.View.withConfig({
   displayName: 'StyledList',
   componentId: 'StyledList',
 })`
+  width: 100%;
+`;
+
+const StyledListBody = styled.View.withConfig({
+  displayName: 'StyledListBody',
+  componentId: 'StyledListBody',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+  width: 100%;
+`;
+
+const StyledStateStack = styled.View.withConfig({
+  displayName: 'StyledStateStack',
+  componentId: 'StyledStateStack',
+})`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-export { StyledContainer, StyledContent, StyledList };
+export { StyledContainer, StyledContent, StyledList, StyledListBody, StyledStateStack };

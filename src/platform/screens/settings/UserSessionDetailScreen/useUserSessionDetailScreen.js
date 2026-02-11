@@ -3,9 +3,10 @@
  * Shared logic for UserSessionDetailScreen across platforms.
  * File: useUserSessionDetailScreen.js
  */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useUserSession } from '@hooks';
+import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -14,12 +15,23 @@ const resolveErrorMessage = (t, errorCode) => {
   return resolved === key ? t('errors.codes.UNKNOWN_ERROR') : resolved;
 };
 
+const resolveNoticeMessage = (t, notice) => {
+  const map = {
+    revoked: 'userSession.list.noticeRevoked',
+    queued: 'userSession.list.noticeQueued',
+    revokeFailed: 'userSession.list.noticeRevokeFailed',
+  };
+  const key = map[notice];
+  return key ? t(key) : null;
+};
+
 const useUserSessionDetailScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const { get, revoke, data, isLoading, errorCode, reset } = useUserSession();
+  const [noticeMessage, setNoticeMessage] = useState(null);
 
   const session = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -37,6 +49,14 @@ const useUserSessionDetailScreen = () => {
     fetchDetail();
   }, [fetchDetail]);
 
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const timer = setTimeout(() => {
+      setNoticeMessage(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [noticeMessage]);
+
   const handleRetry = useCallback(() => {
     fetchDetail();
   }, [fetchDetail]);
@@ -47,13 +67,22 @@ const useUserSessionDetailScreen = () => {
 
   const handleRevoke = useCallback(async () => {
     if (!id) return;
+    if (!confirmAction(t('common.confirmDelete'))) return;
+    let result;
     try {
-      await revoke(id);
-      handleBack();
+      result = await revoke(id);
     } catch {
-      /* error handled by hook */
+      result = undefined;
     }
-  }, [id, revoke, handleBack]);
+    if (!result) {
+      const message = resolveNoticeMessage(t, 'revokeFailed');
+      if (message) setNoticeMessage(message);
+      return;
+    }
+    const message = resolveNoticeMessage(t, isOffline ? 'queued' : 'revoked');
+    if (message) setNoticeMessage(message);
+    handleBack();
+  }, [id, revoke, handleBack, isOffline, t]);
 
   return {
     id,
@@ -62,6 +91,8 @@ const useUserSessionDetailScreen = () => {
     hasError: Boolean(errorCode),
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onBack: handleBack,
     onRevoke: handleRevoke,

@@ -21,7 +21,10 @@ const listUserSessions = async (params = {}) =>
   execute(async () => {
     const parsed = parseUserSessionListParams(params);
     const response = await listUserSessionsApi(parsed);
-    const items = normalizeUserSessionList(Array.isArray(response?.data) ? response.data : []);
+    const responseItems = Array.isArray(response?.data)
+      ? response.data
+      : (Array.isArray(response?.data?.data) ? response.data.data : []);
+    const items = normalizeUserSessionList(responseItems);
     const pagination = response?.pagination ?? response?.raw?.pagination ?? {};
     return { items, pagination };
   });

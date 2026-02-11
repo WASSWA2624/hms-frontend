@@ -20,8 +20,13 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(() => ({ id: 'session-1' })),
 }));
 
+jest.mock('@utils', () => ({
+  confirmAction: jest.fn(() => true),
+}));
+
 const useUserSession = require('@hooks').useUserSession;
 const useLocalSearchParams = require('expo-router').useLocalSearchParams;
+const { confirmAction } = require('@utils');
 
 describe('useUserSessionDetailScreen', () => {
   beforeEach(() => {
@@ -41,6 +46,7 @@ describe('useUserSessionDetailScreen', () => {
     const { result } = renderHook(() => useUserSessionDetailScreen());
     expect(result.current.id).toBe('session-1');
     expect(result.current.session).toBeNull();
+    expect(result.current.noticeMessage).toBeNull();
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onBack).toBe('function');
     expect(typeof result.current.onRevoke).toBe('function');
@@ -77,13 +83,14 @@ describe('useUserSessionDetailScreen', () => {
   });
 
   it('onRevoke calls revoke then onBack', async () => {
-    mockRevoke.mockResolvedValue(undefined);
+    mockRevoke.mockResolvedValue({ id: 'session-1' });
     mockPush.mockClear();
     const { result } = renderHook(() => useUserSessionDetailScreen());
     await act(async () => {
       await result.current.onRevoke();
     });
     expect(mockRevoke).toHaveBeenCalledWith('session-1');
+    expect(confirmAction).toHaveBeenCalled();
     expect(mockPush).toHaveBeenCalledWith('/settings/user-sessions');
   });
 
@@ -111,5 +118,14 @@ describe('useUserSessionDetailScreen', () => {
     });
     expect(mockRevoke).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('onRevoke does not call revoke when confirmation is cancelled', async () => {
+    confirmAction.mockReturnValueOnce(false);
+    const { result } = renderHook(() => useUserSessionDetailScreen());
+    await act(async () => {
+      await result.current.onRevoke();
+    });
+    expect(mockRevoke).not.toHaveBeenCalled();
   });
 });

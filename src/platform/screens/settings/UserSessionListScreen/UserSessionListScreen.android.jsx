@@ -3,26 +3,40 @@
  * File: UserSessionListScreen.android.jsx
  */
 import React from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
   ListItem,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
   Text,
 } from '@platform/components';
-import ListScaffold from '@platform/patterns/ListScaffold/ListScaffold.android';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledList } from './UserSessionListScreen.android.styles';
+import {
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledStateStack,
+} from './UserSessionListScreen.android.styles';
 import useUserSessionListScreen from './useUserSessionListScreen';
 
 const UserSessionListScreenAndroid = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     items,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onSessionPress,
     onRevoke,
@@ -41,7 +55,7 @@ const UserSessionListScreenAndroid = () => {
   const renderItem = ({ item: session }) => {
     const title = session?.user?.email ?? session?.id ?? '';
     const subtitle = session?.created_at
-      ? new Date(session.created_at).toLocaleString()
+      ? new Date(session.created_at).toLocaleString(locale)
       : '';
     return (
       <ListItem
@@ -51,7 +65,7 @@ const UserSessionListScreenAndroid = () => {
         actions={
           session.revoked_at ? null : (
             <Button
-              variant="ghost"
+              variant="surface"
               size="small"
               onPress={(e) => onRevoke(session.id, e)}
               accessibilityLabel={t('userSession.list.revoke')}
@@ -68,29 +82,80 @@ const UserSessionListScreenAndroid = () => {
     );
   };
 
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      testID="user-session-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
-        <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-session-list-title"
-          >
-            {t('userSession.list.title')}
-          </Text>
-          <ListScaffold
-            isLoading={isLoading}
-            isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-            hasError={hasError}
-            error={errorMessage}
-            isOffline={isOffline}
-            onRetry={onRetry}
+    <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="user-session-list-notice"
+        />
+      ) : null}
+      <StyledContent>
+        <Text
+          variant="h1"
+          accessibilityRole="header"
+          testID="user-session-list-title"
+        >
+          {t('userSession.list.title')}
+        </Text>
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('userSession.list.accessibilityLabel')}
+          testID="user-session-list-card"
+        >
+          <StyledListBody
             accessibilityLabel={t('userSession.list.accessibilityLabel')}
             testID="user-session-list"
-            emptyComponent={emptyComponent}
           >
-            {items.length > 0 ? (
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="user-session-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-session-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading ? (
+              <LoadingSpinner
+                accessibilityLabel={t('common.loading')}
+                testID="user-session-list-loading"
+              />
+            ) : null}
+            {showEmpty ? emptyComponent : null}
+            {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
@@ -103,10 +168,10 @@ const UserSessionListScreenAndroid = () => {
                 />
               </StyledList>
             ) : null}
-          </ListScaffold>
-        </StyledContent>
-      </StyledContainer>
-    </ScrollView>
+          </StyledListBody>
+        </Card>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

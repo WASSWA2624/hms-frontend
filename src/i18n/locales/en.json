@@ -1147,7 +1147,10 @@
       "loadError": "Unable to load sessions. Check your connection and try again.",
       "revoke": "Revoke session",
       "revokeHint": "Revoke this session and log it out",
-      "itemLabel": "Session for {{email}}"
+      "itemLabel": "Session for {{email}}",
+      "noticeRevoked": "Session revoked.",
+      "noticeQueued": "Session revoke queued until you are back online.",
+      "noticeRevokeFailed": "Unable to revoke this session. Try again."
     },
     "detail": {
       "title": "Session Details",
