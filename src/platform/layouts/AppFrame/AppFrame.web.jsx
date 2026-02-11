@@ -13,6 +13,7 @@ import {
   StyledContainer,
   StyledContent,
   StyledContentBody,
+  StyledEndSpacer,
   StyledScreenSlot,
   StyledFooter,
   StyledHeader,
@@ -105,6 +106,7 @@ const AppFrameWeb = ({
             )}
             <StyledScreenSlot>
               {children}
+              <StyledEndSpacer aria-hidden="true" />
             </StyledScreenSlot>
           </StyledContentBody>
         </StyledContent>

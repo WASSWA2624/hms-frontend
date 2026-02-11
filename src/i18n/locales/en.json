@@ -449,6 +449,12 @@
   "landing": {
     "title": "Start your HMS workspace",
     "description": "Choose your facility type to personalize onboarding.",
+    "errors": {
+      "loadTitle": "Unable to restore your selection",
+      "loadDescription": "Select a facility type to continue onboarding.",
+      "submitTitle": "Unable to continue",
+      "submitDescription": "Please check your connection and try again."
+    },
     "facility": {
       "title": "Select your facility type",
       "hint": "Pick one option to seed your setup. You can change this later.",

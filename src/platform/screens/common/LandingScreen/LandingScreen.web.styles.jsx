@@ -8,10 +8,12 @@ import styled from 'styled-components';
 const StyledContainer = styled.main.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
+  shouldForwardProp: (prop) => prop !== '$embedded',
 })`
-  min-height: 100vh;
+  min-height: ${({ $embedded }) => ($embedded ? 'auto' : '100vh')};
   width: 100%;
-  background-color: ${({ theme }) => theme.colors.background.primary};
+  background-color: ${({ theme, $embedded }) =>
+    ($embedded ? 'transparent' : theme.colors.background.primary)};
   display: flex;
   flex-direction: column;
 `;
@@ -31,6 +33,16 @@ const StyledContent = styled.div.withConfig({
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     padding: ${({ theme }) => theme.spacing.lg}px ${({ theme }) => theme.spacing.md}px;
   }
+`;
+
+const StyledEmbeddedContent = styled.div.withConfig({
+  displayName: 'StyledEmbeddedContent',
+  componentId: 'StyledEmbeddedContent',
+})`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledHero = styled.section.withConfig({
@@ -169,6 +181,7 @@ const StyledChecklistBullet = styled.span.withConfig({
 export {
   StyledContainer,
   StyledContent,
+  StyledEmbeddedContent,
   StyledHero,
   StyledSection,
   StyledOptionsGrid,

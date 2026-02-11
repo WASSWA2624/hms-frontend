@@ -11,6 +11,7 @@ import {
   StyledBreadcrumbs,
   StyledContainer,
   StyledContent,
+  StyledEndSpacer,
   StyledFooter,
   StyledHeader,
   StyledOverlay,
@@ -82,6 +83,7 @@ const AppFrameIOS = ({
           )}
           <StyledScreenSlot>
             {children}
+            <StyledEndSpacer />
           </StyledScreenSlot>
         </StyledContent>
       </StyledScrollView>

@@ -4,12 +4,18 @@
  * File: useLandingScreen.js
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_FACILITY_OPTION, FACILITY_OPTIONS } from './types';
 
 const useLandingScreen = ({ initialSelection } = {}) => {
   const [selectedId, setSelectedId] = useState(initialSelection || DEFAULT_FACILITY_OPTION);
   const options = useMemo(() => FACILITY_OPTIONS, []);
+
+  useEffect(() => {
+    if (!initialSelection) return;
+    const hasMatch = FACILITY_OPTIONS.some((option) => option.id === initialSelection);
+    if (hasMatch) setSelectedId(initialSelection);
+  }, [initialSelection]);
 
   const selectOption = useCallback((id) => {
     if (!id) return;

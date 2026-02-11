@@ -89,6 +89,14 @@ const StyledScreenSlot = styled.View.withConfig({
   padding: ${({ theme }) => theme.spacing.xs * 2}px;
 `;
 
+const StyledEndSpacer = styled.View.withConfig({
+  displayName: 'StyledEndSpacer',
+  componentId: 'StyledEndSpacer',
+})`
+  width: 100%;
+  height: ${({ theme }) => theme.spacing.lg}px;
+`;
+
 const StyledFooter = styled.View.withConfig({
   displayName: 'StyledFooter',
   componentId: 'StyledFooter',
@@ -120,6 +128,7 @@ export {
   StyledBreadcrumbs,
   StyledContainer,
   StyledContent,
+  StyledEndSpacer,
   StyledScreenSlot,
   StyledFooter,
   StyledHeader,

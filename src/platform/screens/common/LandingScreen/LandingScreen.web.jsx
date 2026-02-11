@@ -11,6 +11,7 @@ import useLandingScreen from './useLandingScreen';
 import {
   StyledContainer,
   StyledContent,
+  StyledEmbeddedContent,
   StyledHero,
   StyledSection,
   StyledOptionsGrid,
@@ -23,7 +24,7 @@ import {
   StyledChecklistBullet,
 } from './LandingScreen.web.styles';
 
-const LandingScreenWeb = ({ onStart, initialFacilityId, testID }) => {
+const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
   const { t } = useI18n();
   const { options, selectedId, selectOption } = useLandingScreen({
     initialSelection: initialFacilityId,
@@ -33,71 +34,81 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID }) => {
     if (onStart) onStart(selectedId);
   }, [onStart, selectedId]);
 
+  const content = (
+    <>
+      <StyledHero>
+        <Text variant="h1" accessibilityRole="header">
+          {t('landing.title')}
+        </Text>
+        <Text variant="body">{t('landing.description')}</Text>
+      </StyledHero>
+
+      <StyledSection>
+        <Text variant="label">{t('landing.facility.title')}</Text>
+        <Text variant="caption">{t('landing.facility.hint')}</Text>
+        <StyledOptionsGrid>
+          {options.map((option) => {
+            const selected = option.id === selectedId;
+            return (
+              <StyledOptionButton
+                key={option.id}
+                type="button"
+                $selected={selected}
+                aria-pressed={selected}
+                onClick={() => selectOption(option.id)}
+              >
+                <StyledOptionIndicator $selected={selected} />
+                <Text variant="body">{t(option.labelKey)}</Text>
+              </StyledOptionButton>
+            );
+          })}
+        </StyledOptionsGrid>
+        <StyledHelperText>
+          <Text variant="caption">{t('landing.selectionHelper')}</Text>
+        </StyledHelperText>
+      </StyledSection>
+
+      <StyledCTA>
+        <Button
+          size="large"
+          variant="primary"
+          accessibilityLabel={t('landing.cta.primary')}
+          accessibilityHint={t('landing.cta.primaryHint')}
+          onPress={handleStart}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
+          {t('landing.cta.primary')}
+        </Button>
+      </StyledCTA>
+
+      <StyledSection>
+        <Text variant="label">{t('landing.next.title')}</Text>
+        <StyledChecklist>
+          <StyledChecklistItem>
+            <StyledChecklistBullet />
+            <Text variant="caption">{t('landing.next.items.provision')}</Text>
+          </StyledChecklistItem>
+          <StyledChecklistItem>
+            <StyledChecklistBullet />
+            <Text variant="caption">{t('landing.next.items.samples')}</Text>
+          </StyledChecklistItem>
+          <StyledChecklistItem>
+            <StyledChecklistBullet />
+            <Text variant="caption">{t('landing.next.items.checklist')}</Text>
+          </StyledChecklistItem>
+        </StyledChecklist>
+      </StyledSection>
+    </>
+  );
+
+  if (embedded) {
+    return <StyledEmbeddedContent data-testid={testID || 'landing-screen'}>{content}</StyledEmbeddedContent>;
+  }
+
   return (
     <StyledContainer role="main" aria-label={t('landing.title')} data-testid={testID || 'landing-screen'}>
-      <StyledContent>
-        <StyledHero>
-          <Text variant="h1" accessibilityRole="header">
-            {t('landing.title')}
-          </Text>
-          <Text variant="body">{t('landing.description')}</Text>
-        </StyledHero>
-
-        <StyledSection>
-          <Text variant="label">{t('landing.facility.title')}</Text>
-          <Text variant="caption">{t('landing.facility.hint')}</Text>
-          <StyledOptionsGrid>
-            {options.map((option) => {
-              const selected = option.id === selectedId;
-              return (
-                <StyledOptionButton
-                  key={option.id}
-                  type="button"
-                  $selected={selected}
-                  aria-pressed={selected}
-                  onClick={() => selectOption(option.id)}
-                >
-                  <StyledOptionIndicator $selected={selected} />
-                  <Text variant="body">{t(option.labelKey)}</Text>
-                </StyledOptionButton>
-              );
-            })}
-          </StyledOptionsGrid>
-          <StyledHelperText>
-            <Text variant="caption">{t('landing.selectionHelper')}</Text>
-          </StyledHelperText>
-        </StyledSection>
-
-        <StyledCTA>
-          <Button
-            size="large"
-            variant="primary"
-            accessibilityLabel={t('landing.cta.primary')}
-            accessibilityHint={t('landing.cta.primaryHint')}
-            onPress={handleStart}
-          >
-            {t('landing.cta.primary')}
-          </Button>
-        </StyledCTA>
-
-        <StyledSection>
-          <Text variant="label">{t('landing.next.title')}</Text>
-          <StyledChecklist>
-            <StyledChecklistItem>
-              <StyledChecklistBullet />
-              <Text variant="caption">{t('landing.next.items.provision')}</Text>
-            </StyledChecklistItem>
-            <StyledChecklistItem>
-              <StyledChecklistBullet />
-              <Text variant="caption">{t('landing.next.items.samples')}</Text>
-            </StyledChecklistItem>
-            <StyledChecklistItem>
-              <StyledChecklistBullet />
-              <Text variant="caption">{t('landing.next.items.checklist')}</Text>
-            </StyledChecklistItem>
-          </StyledChecklist>
-        </StyledSection>
-      </StyledContent>
+      <StyledContent>{content}</StyledContent>
     </StyledContainer>
   );
 };

@@ -147,7 +147,7 @@ const StyledContentBody = styled.div.withConfig({
   width: 100%;
   box-sizing: border-box;
   padding: 0;
-  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
+  scroll-padding-bottom: ${({ theme }) => theme.spacing.lg}px;
   margin: 0;
 `;
 
@@ -163,6 +163,15 @@ const StyledScreenSlot = styled.div.withConfig({
   width: 100%;
   padding: ${({ theme }) => theme.spacing.xs * 2}px;
   box-sizing: border-box;
+`;
+
+const StyledEndSpacer = styled.div.withConfig({
+  displayName: 'StyledEndSpacer',
+  componentId: 'StyledEndSpacer',
+})`
+  width: 100%;
+  height: ${({ theme }) => theme.spacing.lg}px;
+  flex: 0 0 auto;
 `;
 
 const StyledFooter = styled.footer.withConfig({
@@ -218,6 +227,7 @@ export {
   StyledContainer,
   StyledContent,
   StyledContentBody,
+  StyledEndSpacer,
   StyledScreenSlot,
   StyledFooter,
   StyledHeader,

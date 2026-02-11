@@ -35,6 +35,16 @@ const StyledContent = styled(View).withConfig({
   flex: 1;
 `;
 
+const StyledEmbeddedContent = styled(View).withConfig({
+  displayName: 'StyledEmbeddedContent',
+  componentId: 'StyledEmbeddedContent',
+})`
+  width: 100%;
+  padding-horizontal: ${({ theme }) => theme.spacing.lg}px;
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledHero = styled(View).withConfig({
   displayName: 'StyledHero',
   componentId: 'StyledHero',
@@ -136,6 +146,7 @@ export {
   StyledContainer,
   StyledScroll,
   StyledContent,
+  StyledEmbeddedContent,
   StyledHero,
   StyledSection,
   StyledOptionsList,
