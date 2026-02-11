@@ -4,13 +4,27 @@
 import React from 'react';
 import {
   Button,
+  Card,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Select,
   Text,
-  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent, StyledSection, StyledActions } from './RolePermissionFormScreen.android.styles';
+import {
+  StyledActions,
+  StyledContainer,
+  StyledContent,
+  StyledFieldGroup,
+  StyledFormGrid,
+  StyledFullRow,
+  StyledHelperStack,
+  StyledInlineStates,
+} from './RolePermissionFormScreen.android.styles';
 import useRolePermissionFormScreen from './useRolePermissionFormScreen';
 
 const RolePermissionFormScreenAndroid = () => {
@@ -21,11 +35,29 @@ const RolePermissionFormScreenAndroid = () => {
     setRoleId,
     permissionId,
     setPermissionId,
+    roleOptions,
+    permissionOptions,
+    roleListLoading,
+    roleListError,
+    roleErrorMessage,
+    permissionListLoading,
+    permissionListError,
+    permissionErrorMessage,
+    hasRoles,
+    hasPermissions,
+    isCreateBlocked,
     isLoading,
     hasError,
+    errorMessage,
+    isOffline,
     rolePermission,
     onSubmit,
     onCancel,
+    onGoToRoles,
+    onGoToPermissions,
+    onRetryRoles,
+    onRetryPermissions,
+    isSubmitDisabled,
   } = useRolePermissionFormScreen();
 
   if (isEdit && !rolePermission && isLoading) {
@@ -45,7 +77,14 @@ const RolePermissionFormScreenAndroid = () => {
           <ErrorState
             title={t('rolePermission.form.loadError')}
             action={(
-              <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCancel}
+                accessibilityLabel={t('common.back')}
+                accessibilityHint={t('rolePermission.form.cancelHint')}
+                icon={<Icon glyph="←" size="xs" decorative />}
+              >
                 {t('common.back')}
               </Button>
             )}
@@ -56,51 +95,187 @@ const RolePermissionFormScreenAndroid = () => {
     );
   }
 
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
+  const retryRolesAction = onRetryRoles ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryRoles}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="role-permission-form-role-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const retryPermissionsAction = onRetryPermissions ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryPermissions}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="role-permission-form-permission-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasError && (!isEdit || Boolean(rolePermission));
+  const showRoleBlocked = !isEdit && !hasRoles;
+  const showPermissionBlocked = !isEdit && !hasPermissions;
+
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h1" accessibilityRole="header" testID="role-permission-form-title">
+        <Text variant="h2" accessibilityRole="header" testID="role-permission-form-title">
           {isEdit ? t('rolePermission.form.editTitle') : t('rolePermission.form.createTitle')}
         </Text>
 
-        <StyledSection>
-          <TextField
-            label={t('rolePermission.form.roleIdLabel')}
-            placeholder={t('rolePermission.form.roleIdPlaceholder')}
-            value={roleId}
-            onChangeText={setRoleId}
-            accessibilityLabel={t('rolePermission.form.roleIdLabel')}
-            accessibilityHint={t('rolePermission.form.roleIdHint')}
-            testID="role-permission-form-role-id"
-          />
-        </StyledSection>
+        <StyledInlineStates>
+          {isOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              testID="role-permission-form-offline"
+            />
+          )}
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('rolePermission.form.submitErrorTitle')}
+              description={errorMessage}
+              testID="role-permission-form-submit-error"
+            />
+          )}
+        </StyledInlineStates>
 
-        <StyledSection>
-          <TextField
-            label={t('rolePermission.form.permissionIdLabel')}
-            placeholder={t('rolePermission.form.permissionIdPlaceholder')}
-            value={permissionId}
-            onChangeText={setPermissionId}
-            accessibilityLabel={t('rolePermission.form.permissionIdLabel')}
-            accessibilityHint={t('rolePermission.form.permissionIdHint')}
-            testID="role-permission-form-permission-id"
-          />
-        </StyledSection>
+        <Card variant="outlined" accessibilityLabel={t('rolePermission.form.roleLabel')} testID="role-permission-form-card">
+          <StyledFormGrid>
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {roleListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="role-permission-form-role-loading"
+                  />
+                ) : roleListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('rolePermission.form.roleLoadErrorTitle')}
+                    description={roleErrorMessage}
+                    action={retryRolesAction}
+                    testID="role-permission-form-role-error"
+                  />
+                ) : !hasRoles ? (
+                  <StyledHelperStack>
+                    <Text variant="body">{t('rolePermission.form.noRolesMessage')}</Text>
+                    <Text variant="body">{t('rolePermission.form.createRoleFirst')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToRoles}
+                      accessibilityLabel={t('rolePermission.form.goToRoles')}
+                      accessibilityHint={t('rolePermission.form.goToRolesHint')}
+                      icon={<Icon glyph="→" size="xs" decorative />}
+                      testID="role-permission-form-go-to-roles"
+                    >
+                      {t('rolePermission.form.goToRoles')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('rolePermission.form.roleLabel')}
+                    placeholder={t('rolePermission.form.rolePlaceholder')}
+                    options={roleOptions}
+                    value={roleId}
+                    onValueChange={setRoleId}
+                    accessibilityLabel={t('rolePermission.form.roleLabel')}
+                    accessibilityHint={t('rolePermission.form.roleHint')}
+                    helperText={showRoleBlocked ? t('rolePermission.form.blockedMessage') : t('rolePermission.form.roleHint')}
+                    required
+                    disabled={isFormDisabled}
+                    testID="role-permission-form-role"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
+
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {permissionListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="role-permission-form-permission-loading"
+                  />
+                ) : permissionListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('rolePermission.form.permissionLoadErrorTitle')}
+                    description={permissionErrorMessage}
+                    action={retryPermissionsAction}
+                    testID="role-permission-form-permission-error"
+                  />
+                ) : !hasPermissions ? (
+                  <StyledHelperStack>
+                    <Text variant="body">{t('rolePermission.form.noPermissionsMessage')}</Text>
+                    <Text variant="body">{t('rolePermission.form.createPermissionFirst')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToPermissions}
+                      accessibilityLabel={t('rolePermission.form.goToPermissions')}
+                      accessibilityHint={t('rolePermission.form.goToPermissionsHint')}
+                      icon={<Icon glyph="→" size="xs" decorative />}
+                      testID="role-permission-form-go-to-permissions"
+                    >
+                      {t('rolePermission.form.goToPermissions')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('rolePermission.form.permissionLabel')}
+                    placeholder={t('rolePermission.form.permissionPlaceholder')}
+                    options={permissionOptions}
+                    value={permissionId}
+                    onValueChange={setPermissionId}
+                    accessibilityLabel={t('rolePermission.form.permissionLabel')}
+                    accessibilityHint={t('rolePermission.form.permissionHint')}
+                    helperText={showPermissionBlocked ? t('rolePermission.form.blockedMessage') : t('rolePermission.form.permissionHint')}
+                    required
+                    disabled={isFormDisabled}
+                    testID="role-permission-form-permission"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
+          </StyledFormGrid>
+        </Card>
 
         <StyledActions>
           <Button
-            variant="ghost"
+            variant="surface"
+            size="small"
             onPress={onCancel}
             accessibilityLabel={t('rolePermission.form.cancel')}
             accessibilityHint={t('rolePermission.form.cancelHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
             testID="role-permission-form-cancel"
+            disabled={isLoading}
           >
             {t('rolePermission.form.cancel')}
           </Button>
           <Button
-            variant="primary"
+            variant="surface"
+            size="small"
             onPress={onSubmit}
+            loading={isLoading}
+            disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}
+            accessibilityHint={isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}
+            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="role-permission-form-submit"
           >
             {isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}

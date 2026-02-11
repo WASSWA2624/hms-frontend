@@ -3,26 +3,32 @@
  * File: RolePermissionDetailScreen.web.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './RolePermissionDetailScreen.web.styles';
 import useRolePermissionDetailScreen from './useRolePermissionDetailScreen';
 
 const RolePermissionDetailScreenWeb = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     rolePermission,
     isLoading,
@@ -35,170 +41,227 @@ const RolePermissionDetailScreenWeb = () => {
     onDelete,
   } = useRolePermissionDetailScreen();
 
-  if (isLoading) {
+  const hasRolePermission = Boolean(rolePermission);
+
+  if (isLoading && !hasRolePermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="role-permission-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="role-permission-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasRolePermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="role-permission-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="role-permission-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasRolePermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('rolePermission.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="role-permission-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
+        <StyledContent>
+          <ErrorState
+            title={t('rolePermission.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="role-permission-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!rolePermission) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('rolePermission.detail.notFoundTitle')}
-              description={t('rolePermission.detail.notFoundMessage')}
-              testID="role-permission-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="role-permission-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = rolePermission.created_at ? new Date(rolePermission.created_at).toLocaleString() : '';
-  const updatedAt = rolePermission.updated_at ? new Date(rolePermission.updated_at).toLocaleString() : '';
-  const roleId = rolePermission?.role_id ?? '';
-  const permissionId = rolePermission?.permission_id ?? '';
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="role-permission-detail-title"
-          >
-            {t('rolePermission.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="role-permission-detail-id">
-              {t('rolePermission.detail.idLabel')}: {rolePermission.id}
-            </Text>
-          </StyledSection>
-          {roleId ? (
-            <StyledSection>
-              <Text variant="body" testID="role-permission-detail-role">
-                {t('rolePermission.detail.roleIdLabel')}: {roleId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {permissionId ? (
-            <StyledSection>
-              <Text variant="body" testID="role-permission-detail-permission">
-                {t('rolePermission.detail.permissionIdLabel')}: {permissionId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="role-permission-detail-created">
-                {t('rolePermission.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="role-permission-detail-updated">
-                {t('rolePermission.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('rolePermission.detail.notFoundTitle')}
+            description={t('rolePermission.detail.notFoundMessage')}
+            testID="role-permission-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('rolePermission.detail.backHint')}
+              icon={<Icon glyph="←" size="xs" decorative />}
               testID="role-permission-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('rolePermission.detail.edit')}
-                accessibilityHint={t('rolePermission.detail.editHint')}
-                testID="role-permission-detail-edit"
-              >
-                {t('rolePermission.detail.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('rolePermission.detail.delete')}
-              accessibilityHint={t('rolePermission.detail.deleteHint')}
-              testID="role-permission-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(rolePermission.created_at, locale);
+  const updatedAt = formatDateTime(rolePermission.updated_at, locale);
+  const roleId = rolePermission?.role_id ?? '';
+  const permissionId = rolePermission?.permission_id ?? '';
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasRolePermission && hasError;
+  const showInlineOffline = hasRolePermission && isOffline;
+
+  return (
+    <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('rolePermission.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="role-permission-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="role-permission-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('rolePermission.detail.title')} testID="role-permission-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('rolePermission.detail.idLabel')}</Text>
+              <Text variant="body" testID="role-permission-detail-id">
+                {rolePermission.id}
+              </Text>
+            </StyledDetailItem>
+            {roleId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.roleIdLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-role">
+                  {roleId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {permissionId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.permissionIdLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-permission">
+                  {permissionId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.createdLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('rolePermission.detail.backHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
+            testID="role-permission-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('rolePermission.detail.edit')}
+              accessibilityHint={t('rolePermission.detail.editHint')}
+              icon={<Icon glyph="✎" size="xs" decorative />}
+              testID="role-permission-detail-edit"
+              disabled={isLoading}
+            >
+              {t('rolePermission.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('rolePermission.detail.delete')}
+            accessibilityHint={t('rolePermission.detail.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
+            testID="role-permission-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 
