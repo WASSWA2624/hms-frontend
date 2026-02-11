@@ -1,5 +1,5 @@
 
-Implement step **11.1.1** Landing + facility type selection -- `(public)/landing` as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Implement step **11.1.2** Register (minimal signup) -- `(auth)/register` as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance to the following:
 - All rules defined in `hms-frontend/.cursor/rules/*`

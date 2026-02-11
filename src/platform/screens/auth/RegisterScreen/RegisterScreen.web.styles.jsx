@@ -1,0 +1,77 @@
+/**
+ * RegisterScreen Web Styles
+ * File: RegisterScreen.web.styles.jsx
+ */
+import styled from 'styled-components';
+
+const StyledContainer = styled.section.withConfig({
+  displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
+})`
+  width: 100%;
+  max-width: ${({ theme }) => theme.spacing.xxl * 18}px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledTopActions = styled.div.withConfig({
+  displayName: 'StyledTopActions',
+  componentId: 'StyledTopActions',
+})`
+  display: flex;
+  justify-content: flex-start;
+`;
+
+const StyledTitleBlock = styled.div.withConfig({
+  displayName: 'StyledTitleBlock',
+  componentId: 'StyledTitleBlock',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledForm = styled.form.withConfig({
+  displayName: 'StyledForm',
+  componentId: 'StyledForm',
+})`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledActions = styled.div.withConfig({
+  displayName: 'StyledActions',
+  componentId: 'StyledActions',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+
+  > * {
+    flex: 1;
+  }
+`;
+
+const StyledStatus = styled.div.withConfig({
+  displayName: 'StyledStatus',
+  componentId: 'StyledStatus',
+})`
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+export {
+  StyledActions,
+  StyledContainer,
+  StyledForm,
+  StyledStatus,
+  StyledTitleBlock,
+  StyledTopActions,
+};
+
+

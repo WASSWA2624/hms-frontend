@@ -51,12 +51,6 @@
     "name": "Hospital Management System",
     "shortName": "HMS"
   },
-  "auth": {
-    "layout": {
-      "title": "Welcome",
-      "subtitle": "Set up your account to start managing care, billing, and operations."
-    }
-  },
   "errors": {
     "fallback": {
       "title": "Something went wrong",
@@ -478,7 +472,7 @@
     "cta": {
       "primary": "Proceed",
       "primaryHint": "Continue with your selected facility type",
-      "helper": "Fast setup • No sales call"
+      "helper": ""
     }
   },
   "home": {
@@ -969,6 +963,10 @@
     }
   },
   "auth": {
+    "layout": {
+      "title": "Welcome",
+      "subtitle": "Set up your account to start managing care, billing, and operations."
+    },
     "login": {
       "title": "Login",
       "description": "Click the button below to sign in and view the main application layouts",
@@ -1017,6 +1015,57 @@
     "register": {
       "title": "Create account",
       "description": "Register a new account to access HMS",
+      "onboarding": {
+        "title": "Create your workspace",
+        "subtitle": "Complete the quick signup to continue onboarding.",
+        "layoutLabel": "Register page",
+        "fields": {
+          "facilityName": "Facility / Business name",
+          "adminName": "Admin name",
+          "facilityType": "Facility type",
+          "email": "Email",
+          "phone": "Phone (optional)",
+          "phoneHint": "Digits only, minimum 10 numbers",
+          "password": "Password"
+        },
+        "placeholders": {
+          "facilityName": "Enter facility or business name",
+          "adminName": "Enter admin full name",
+          "facilityType": "Select facility type",
+          "email": "Enter email address",
+          "phone": "Enter phone number",
+          "password": "Create a strong password"
+        },
+        "actions": {
+          "back": "Back",
+          "cancel": "Cancel",
+          "createWorkspace": "Create my workspace",
+          "continue": "Continue"
+        },
+        "validation": {
+          "facilityNameRequired": "Facility or business name is required",
+          "adminNameRequired": "Admin name is required",
+          "facilityTypeRequired": "Facility type is required",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Enter a valid email address",
+          "phoneInvalid": "Enter a valid phone number",
+          "passwordRequired": "Password is required",
+          "passwordMinLength": "Password must be at least 8 characters",
+          "passwordUppercase": "Password must include at least one uppercase letter",
+          "passwordLowercase": "Password must include at least one lowercase letter",
+          "passwordNumber": "Password must include at least one number",
+          "passwordSpecial": "Password must include at least one special character"
+        },
+        "feedback": {
+          "success": "Registration submitted successfully. Continue onboarding.",
+          "errorTitle": "Unable to register",
+          "tenantRequired": "Registration link is incomplete. Please restart from the onboarding link."
+        },
+        "empty": {
+          "title": "No facility options available",
+          "description": "Reload and try again."
+        }
+      },
       "steps": {
         "organization": {
           "title": "Organization setup",
@@ -2737,3 +2786,4 @@
     }
   }
 }
+

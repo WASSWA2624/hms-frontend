@@ -99,6 +99,39 @@ describe('Public Landing Route', () => {
       params: {
         facility: 'clinic',
         facility_type: 'CLINIC',
+        tenant_id: '',
+        facility_id: '',
+      },
+    });
+  });
+
+  test('forwards onboarding context params to register route', async () => {
+    mockParams.current = {
+      facility: 'hospital',
+      tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+      facility_id: '660e8400-e29b-41d4-a716-446655440000',
+    };
+    mockMapFacilityToBackendType.mockReturnValue('HOSPITAL');
+
+    const Route = require('../../../app/(public)/landing').default;
+    render(React.createElement(Route));
+
+    await waitFor(() => {
+      expect(mockLandingScreen).toHaveBeenCalled();
+    });
+
+    const props = mockLandingScreen.mock.calls.at(-1)[0];
+    await act(async () => {
+      await props.onStart('hospital');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/register',
+      params: {
+        facility: 'hospital',
+        facility_type: 'HOSPITAL',
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+        facility_id: '660e8400-e29b-41d4-a716-446655440000',
       },
     });
   });
