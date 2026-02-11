@@ -34,6 +34,10 @@ const hasUppercase = /[A-Z]/;
 const hasLowercase = /[a-z]/;
 const hasNumber = /[0-9]/;
 const hasSpecial = /[^A-Za-z0-9]/;
+const MAX_NAME_LENGTH = 255;
+const MAX_EMAIL_LENGTH = 320;
+const MAX_PHONE_LENGTH = 15;
+const MAX_PASSWORD_LENGTH = 128;
 
 const resolveErrorMessage = (code, message, t) => {
   if (!code) return message || t('errors.fallback.message');
@@ -100,54 +104,98 @@ const useRegisterScreen = () => {
     asyncStorage.setItem(REGISTER_DRAFT_KEY, form);
   }, [form, isHydrating]);
 
-  const setFieldValue = useCallback((key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => {
-      if (!prev[key]) return prev;
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-    setSubmitError(null);
+  const normalizeValue = useCallback((key, value) => {
+    if (key === 'facilityName' || key === 'adminName') {
+      return String(value || '').replace(/\s+/g, ' ').slice(0, MAX_NAME_LENGTH);
+    }
+    if (key === 'email') {
+      return String(value || '').trim().slice(0, MAX_EMAIL_LENGTH);
+    }
+    if (key === 'phone') {
+      return toPhoneDigits(value).slice(0, MAX_PHONE_LENGTH);
+    }
+    if (key === 'password') {
+      return String(value || '').slice(0, MAX_PASSWORD_LENGTH);
+    }
+    return value;
   }, []);
 
-  const validate = useCallback(() => {
-    const next = {};
-
-    if (!form.facilityName.trim()) next.facilityName = t('auth.register.onboarding.validation.facilityNameRequired');
-    if (!form.adminName.trim()) next.adminName = t('auth.register.onboarding.validation.adminNameRequired');
-    if (!form.facilityType || !optionIds.has(form.facilityType)) next.facilityType = t('auth.register.onboarding.validation.facilityTypeRequired');
-
-    const email = form.email.trim().toLowerCase();
-    if (!email) {
-      next.email = t('auth.register.onboarding.validation.emailRequired');
-    } else if (!emailRegex.test(email)) {
-      next.email = t('auth.register.onboarding.validation.emailInvalid');
+  const validateField = useCallback((key, sourceForm) => {
+    if (key === 'facilityName') {
+      const value = sourceForm.facilityName.trim();
+      if (!value) return t('auth.register.onboarding.validation.facilityNameRequired');
+      if (value.length > MAX_NAME_LENGTH) return t('forms.validation.maxLength', { max: MAX_NAME_LENGTH });
+      return '';
     }
-
-    const password = form.password;
-    if (!password) {
-      next.password = t('auth.register.onboarding.validation.passwordRequired');
-    } else if (password.length < 8) {
-      next.password = t('auth.register.onboarding.validation.passwordMinLength');
-    } else if (!hasUppercase.test(password)) {
-      next.password = t('auth.register.onboarding.validation.passwordUppercase');
-    } else if (!hasLowercase.test(password)) {
-      next.password = t('auth.register.onboarding.validation.passwordLowercase');
-    } else if (!hasNumber.test(password)) {
-      next.password = t('auth.register.onboarding.validation.passwordNumber');
-    } else if (!hasSpecial.test(password)) {
-      next.password = t('auth.register.onboarding.validation.passwordSpecial');
+    if (key === 'adminName') {
+      const value = sourceForm.adminName.trim();
+      if (!value) return t('auth.register.onboarding.validation.adminNameRequired');
+      if (value.length > MAX_NAME_LENGTH) return t('forms.validation.maxLength', { max: MAX_NAME_LENGTH });
+      return '';
     }
-
-    const phone = toPhoneDigits(form.phone);
-    if (phone && phone.length < 10) {
-      next.phone = t('auth.register.onboarding.validation.phoneInvalid');
+    if (key === 'facilityType') {
+      if (!sourceForm.facilityType || !optionIds.has(sourceForm.facilityType)) {
+        return t('auth.register.onboarding.validation.facilityTypeRequired');
+      }
+      return '';
     }
+    if (key === 'email') {
+      const email = sourceForm.email.trim().toLowerCase();
+      if (!email) return t('auth.register.onboarding.validation.emailRequired');
+      if (email.length > MAX_EMAIL_LENGTH) return t('forms.validation.maxLength', { max: MAX_EMAIL_LENGTH });
+      if (!emailRegex.test(email)) return t('auth.register.onboarding.validation.emailInvalid');
+      return '';
+    }
+    if (key === 'password') {
+      const password = sourceForm.password;
+      if (!password) return t('auth.register.onboarding.validation.passwordRequired');
+      if (password.length < 8) return t('auth.register.onboarding.validation.passwordMinLength');
+      if (!hasUppercase.test(password)) return t('auth.register.onboarding.validation.passwordUppercase');
+      if (!hasLowercase.test(password)) return t('auth.register.onboarding.validation.passwordLowercase');
+      if (!hasNumber.test(password)) return t('auth.register.onboarding.validation.passwordNumber');
+      if (!hasSpecial.test(password)) return t('auth.register.onboarding.validation.passwordSpecial');
+      if (password.length > MAX_PASSWORD_LENGTH) return t('forms.validation.maxLength', { max: MAX_PASSWORD_LENGTH });
+      return '';
+    }
+    if (key === 'phone') {
+      const phone = sourceForm.phone;
+      if (!phone) return '';
+      if (!/^[0-9]+$/.test(phone)) return t('auth.register.onboarding.validation.phoneInvalid');
+      if (phone.length < 10) return t('auth.register.onboarding.validation.phoneInvalid');
+      return '';
+    }
+    return '';
+  }, [optionIds, t]);
 
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }, [form, optionIds, t]);
+  const validate = useCallback((sourceForm = form) => {
+    const next = {
+      facilityName: validateField('facilityName', sourceForm),
+      adminName: validateField('adminName', sourceForm),
+      facilityType: validateField('facilityType', sourceForm),
+      email: validateField('email', sourceForm),
+      phone: validateField('phone', sourceForm),
+      password: validateField('password', sourceForm),
+    };
+
+    const compact = Object.fromEntries(Object.entries(next).filter(([, message]) => Boolean(message)));
+    setErrors(compact);
+    return Object.keys(compact).length === 0;
+  }, [form, validateField]);
+
+  const setFieldValue = useCallback((key, value) => {
+    setForm((prev) => {
+      const nextForm = { ...prev, [key]: normalizeValue(key, value) };
+      const message = validateField(key, nextForm);
+      setErrors((prevErrors) => {
+        const nextErrors = { ...prevErrors };
+        if (message) nextErrors[key] = message;
+        else delete nextErrors[key];
+        return nextErrors;
+      });
+      return nextForm;
+    });
+    setSubmitError(null);
+  }, [normalizeValue, validateField]);
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || submitInFlightRef.current) return false;

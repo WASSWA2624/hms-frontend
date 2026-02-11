@@ -69,6 +69,7 @@ const RegisterScreenAndroid = () => {
   const passwordToggleLabel = isPasswordVisible
     ? t('auth.register.onboarding.actions.hidePassword')
     : t('auth.register.onboarding.actions.showPassword');
+  const getValidationState = (field) => (errors[field] ? 'error' : 'default');
 
   return (
     <StyledContainer>
@@ -84,6 +85,7 @@ const RegisterScreenAndroid = () => {
             onValueChange={(value) => setFieldValue('facilityType', value)}
             placeholder={t('auth.register.onboarding.placeholders.facilityType')}
             errorMessage={errors.facilityType}
+            validationState={getValidationState('facilityType')}
             compact
             required
             testID="register-facility-type"
@@ -96,6 +98,8 @@ const RegisterScreenAndroid = () => {
             value={form.facilityName}
             onChangeText={(value) => setFieldValue('facilityName', value)}
             errorMessage={errors.facilityName}
+            validationState={getValidationState('facilityName')}
+            maxLength={255}
             density="compact"
             required
             testID="register-facility-name"
@@ -108,6 +112,8 @@ const RegisterScreenAndroid = () => {
             value={form.adminName}
             onChangeText={(value) => setFieldValue('adminName', value)}
             errorMessage={errors.adminName}
+            validationState={getValidationState('adminName')}
+            maxLength={255}
             density="compact"
             required
             testID="register-admin-name"
@@ -120,7 +126,9 @@ const RegisterScreenAndroid = () => {
             value={form.email}
             onChangeText={(value) => setFieldValue('email', value)}
             errorMessage={errors.email}
+            validationState={getValidationState('email')}
             type="email"
+            maxLength={320}
             density="compact"
             required
             testID="register-email"
@@ -133,7 +141,9 @@ const RegisterScreenAndroid = () => {
             value={form.phone}
             onChangeText={(value) => setFieldValue('phone', value)}
             errorMessage={errors.phone}
+            validationState={getValidationState('phone')}
             type="tel"
+            maxLength={15}
             helperText={t('auth.register.onboarding.fields.phoneHint')}
             density="compact"
             testID="register-phone"
@@ -146,7 +156,9 @@ const RegisterScreenAndroid = () => {
             value={form.password}
             onChangeText={(value) => setFieldValue('password', value)}
             errorMessage={errors.password}
+            validationState={getValidationState('password')}
             type="password"
+            maxLength={128}
             secureTextEntry={!isPasswordVisible}
             helperText={t('auth.register.onboarding.fields.passwordHint')}
             density="compact"

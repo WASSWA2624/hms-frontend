@@ -55,7 +55,7 @@ const StyledTrigger = styled.button.withConfig({
   shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   width: 100%;
-  min-height: ${({ $compact }) => ($compact ? 40 : 44)}px;
+  min-height: ${({ $compact }) => ($compact ? 36 : 44)}px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -68,7 +68,7 @@ const StyledTrigger = styled.button.withConfig({
   }};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ $compact, theme }) => ($compact ? theme.spacing.sm : theme.spacing.md)}px;
+  padding: ${({ $compact, theme }) => ($compact ? theme.spacing.xs : theme.spacing.md)}px;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   text-align: left;
 

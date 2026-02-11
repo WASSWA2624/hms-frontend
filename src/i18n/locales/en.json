@@ -1040,7 +1040,7 @@
         "actions": {
           "back": "Back",
           "cancel": "Cancel",
-          "createWorkspace": "Create my workspace",
+          "createWorkspace": "Create",
           "continue": "Continue",
           "showPassword": "Show",
           "hidePassword": "Hide"

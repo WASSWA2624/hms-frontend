@@ -56,8 +56,8 @@ const StyledInputContainer = styled.div.withConfig({
     if ($isFocused) return theme.colors.primary;
     return theme.colors.background.tertiary;
   }};
-  padding: 0 ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.sm : theme.spacing.md)}px;
-  min-height: ${({ $density }) => ($density === 'compact' ? 40 : 48)}px;
+  padding: 0 ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.xs : theme.spacing.md)}px;
+  min-height: ${({ $density }) => ($density === 'compact' ? 36 : 48)}px;
   gap: ${({ theme }) => theme.spacing.xs}px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -96,7 +96,7 @@ const StyledInput = styled.input.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme, $density }) => ($density === 'compact' ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
   color: ${({ theme, disabled }) => (disabled ? theme.colors.text.tertiary : theme.colors.text.primary)};
-  padding: ${({ theme, $density }) => ($density === 'compact' ? theme.spacing.xs : theme.spacing.sm)}px 0;
+  padding: ${({ theme, $density }) => ($density === 'compact' ? 0 : theme.spacing.sm)}px 0;
   border: 0;
   outline: 0;
   background: transparent;
