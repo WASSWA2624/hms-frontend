@@ -1,5 +1,5 @@
 
-Review and implement **11.3.21** User session -- `(main)/settings/user-sessions` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
+Review and implement **11.3.22** OAuth account -- `(main)/settings/oauth-accounts` as per: `hms-frontend/dev-plan/P011_screens-routes.md`
 Must be **100% compliant** with:
 - `hms-frontend/.cursor/rules`
 - HMS backend contracts

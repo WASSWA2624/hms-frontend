@@ -357,24 +357,78 @@
       }
     }
   },
-  "auth-account": {
+  "oauthAccount": {
     "list": {
       "title": "OAuth Accounts",
       "accessibilityLabel": "OAuth accounts list",
       "emptyTitle": "No OAuth accounts",
       "emptyMessage": "No OAuth accounts have been linked yet.",
       "loadError": "Unable to load OAuth accounts. Check your connection and try again.",
+      "addLabel": "Add OAuth account",
+      "addHint": "Open form to add an OAuth account",
       "delete": "Remove",
       "deleteHint": "Remove this OAuth account",
-      "itemLabel": "OAuth account {{name}}"
+      "itemLabel": "OAuth account {{name}}",
+      "providerLabel": "Provider",
+      "userLabel": "User",
+      "noticeCreated": "OAuth account created successfully.",
+      "noticeUpdated": "OAuth account updated successfully.",
+      "noticeDeleted": "OAuth account deleted successfully.",
+      "noticeQueued": "Action queued and will sync when online."
+    },
+    "form": {
+      "createTitle": "Add OAuth account",
+      "editTitle": "Edit OAuth account",
+      "loadError": "Unable to load OAuth account details.",
+      "submitErrorTitle": "Unable to save OAuth account",
+      "submitErrorMessage": "Check the form and try again.",
+      "userLabel": "User",
+      "userPlaceholder": "Select user",
+      "userHint": "Choose the user linked to this account.",
+      "userLoadErrorTitle": "Unable to load users",
+      "userLoadErrorMessage": "Check your connection and retry.",
+      "noUsersMessage": "No users are available yet.",
+      "createUserFirst": "Create at least one user before adding an OAuth account.",
+      "goToUsers": "Go to users",
+      "goToUsersHint": "Navigate to users and create a user first",
+      "blockedMessage": "Create a user before adding an OAuth account.",
+      "providerLabel": "Provider",
+      "providerPlaceholder": "e.g. Google",
+      "providerHint": "Enter the OAuth provider name.",
+      "providerUserIdLabel": "Provider user ID",
+      "providerUserIdPlaceholder": "Provider user identifier",
+      "providerUserIdHint": "Enter the user identifier from the provider.",
+      "accessTokenLabel": "Access token",
+      "accessTokenPlaceholder": "Encrypted access token",
+      "accessTokenHint": "Optional on update; include to rotate token.",
+      "refreshTokenLabel": "Refresh token",
+      "refreshTokenPlaceholder": "Encrypted refresh token",
+      "refreshTokenHint": "Optional on update; include to rotate token.",
+      "expiresAtLabel": "Expiry date",
+      "expiresAtPlaceholder": "YYYY-MM-DD",
+      "expiresAtHint": "Optional token expiry date.",
+      "cancel": "Cancel",
+      "cancelHint": "Return to OAuth accounts list",
+      "submitCreate": "Create OAuth account",
+      "submitEdit": "Save changes"
     },
     "detail": {
-      "title": "OAuth Account"
-    }
-  },
-  "oauthAccount": {
-    "detail": {
-      "title": "OAuth Account"
+      "title": "OAuth Account",
+      "errorTitle": "Unable to load OAuth account",
+      "notFoundTitle": "OAuth account not found",
+      "notFoundMessage": "This OAuth account may have been removed.",
+      "backHint": "Return to OAuth accounts list",
+      "edit": "Edit",
+      "editHint": "Edit this OAuth account",
+      "delete": "Delete",
+      "deleteHint": "Delete this OAuth account",
+      "idLabel": "ID",
+      "userIdLabel": "User",
+      "providerLabel": "Provider",
+      "providerUserIdLabel": "Provider user ID",
+      "expiresAtLabel": "Expires",
+      "createdLabel": "Created",
+      "updatedLabel": "Updated"
     }
   },
   "listScaffold": {

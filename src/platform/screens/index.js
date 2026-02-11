@@ -77,3 +77,4 @@ export { default as UserMfaDetailScreen } from './settings/UserMfaDetailScreen';
 export { default as UserMfaFormScreen } from './settings/UserMfaFormScreen';
 export { default as OauthAccountListScreen } from './settings/OauthAccountListScreen';
 export { default as OauthAccountDetailScreen } from './settings/OauthAccountDetailScreen';
+export { default as OauthAccountFormScreen } from './settings/OauthAccountFormScreen';

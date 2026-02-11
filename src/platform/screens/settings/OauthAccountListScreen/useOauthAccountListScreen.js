@@ -3,8 +3,8 @@
  * Shared logic for OauthAccountListScreen across platforms.
  * File: useOauthAccountListScreen.js
  */
-import { useCallback, useEffect, useMemo } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useOauthAccount } from '@hooks';
 import { confirmAction } from '@utils';
 
@@ -21,6 +21,7 @@ const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
 const useOauthAccountListScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
     list,
@@ -35,10 +36,15 @@ const useOauthAccountListScreen = () => {
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
   );
+  const [noticeMessage, setNoticeMessage] = useState(null);
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'oauthAccount.list.loadError'),
     [t, errorCode]
   );
+  const noticeValue = useMemo(() => {
+    if (Array.isArray(notice)) return notice[0];
+    return notice;
+  }, [notice]);
 
   const fetchList = useCallback(() => {
     reset();
@@ -48,6 +54,29 @@ const useOauthAccountListScreen = () => {
   useEffect(() => {
     fetchList();
   }, [fetchList]);
+
+  useEffect(() => {
+    if (!noticeValue) return;
+    const map = {
+      created: 'oauthAccount.list.noticeCreated',
+      updated: 'oauthAccount.list.noticeUpdated',
+      deleted: 'oauthAccount.list.noticeDeleted',
+      queued: 'oauthAccount.list.noticeQueued',
+    };
+    const key = map[noticeValue];
+    if (!key) return;
+    const message = t(key);
+    setNoticeMessage(message);
+    router.replace('/settings/oauth-accounts');
+  }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!noticeMessage) return;
+    const timer = setTimeout(() => {
+      setNoticeMessage(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [noticeMessage]);
 
   const handleRetry = useCallback(() => {
     fetchList();
@@ -65,13 +94,23 @@ const useOauthAccountListScreen = () => {
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
-        await remove(id);
+        const result = await remove(id);
+        if (!result) return;
         fetchList();
+        const noticeKey = isOffline ? 'queued' : 'deleted';
+        const noticeMap = {
+          deleted: 'oauthAccount.list.noticeDeleted',
+          queued: 'oauthAccount.list.noticeQueued',
+        };
+        const key = noticeMap[noticeKey];
+        if (key) {
+          setNoticeMessage(t(key));
+        }
       } catch {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, t]
+    [remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
@@ -84,6 +123,8 @@ const useOauthAccountListScreen = () => {
     hasError: !!errorCode,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
     onDelete: handleDelete,

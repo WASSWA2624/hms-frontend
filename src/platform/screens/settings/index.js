@@ -24,6 +24,7 @@ export { default as UserMfaDetailScreen } from './UserMfaDetailScreen';
 export { default as UserMfaFormScreen } from './UserMfaFormScreen';
 export { default as OauthAccountListScreen } from './OauthAccountListScreen';
 export { default as OauthAccountDetailScreen } from './OauthAccountDetailScreen';
+export { default as OauthAccountFormScreen } from './OauthAccountFormScreen';
 export { default as TenantListScreen } from './TenantListScreen';
 export { default as TenantDetailScreen } from './TenantDetailScreen';
 export { default as FacilityListScreen } from './FacilityListScreen';

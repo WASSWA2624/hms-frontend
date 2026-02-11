@@ -1,0 +1,112 @@
+
+Implement step **11.1.1** Landing + facility type selection -- `(public)/landing` as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance to the following:
+- All rules defined in `hms-frontend/.cursor/rules/*`
+- hms-backend contracts
+- Follow the `hms-frontend/special-features/onboarding-journey.md` for the onboarding implementation 
+- Must be in line with the `app write-up.md`
+Only implement what is required for this single screen to function correctly.
+
+---
+
+## Scope
+
+Implement full functionality required for this screen:
+
+- Form/UI rendering
+- Backend-aligned API calls
+- Validation
+- Loading, empty, error states
+- Success/failure feedback
+- Navigation (Back / Cancel / Continue)
+- Resume/state handling if applicable
+- Prefill known or inferable fields
+- Use selects instead of free text where possible
+
+Do NOT implement future steps or unrelated onboarding screens.
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing **Auth Layout**
+- No layout redesign
+- No nested scroll containers
+- No nested sidebars
+- Use existing navigation patterns
+- Match current auth/onboarding screens visually
+
+---
+
+## UI / UX Rules
+
+- Clean, compact, modern UI
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android)
+- Logical form flow
+- Inline validation
+- Required fields clear
+- Helpful placeholders and or guiding explanaions
+- No duplicate UI
+- No oversized elements
+- No dead-end navigation
+
+Buttons:
+- Use existing auth button styles
+- Compact + consistent
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully
+- Human-readable error messages
+- Clear success confirmation
+- Disable invalid actions
+- Preserve form state when possible
+
+All operations MUST match backend schema exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Redefine onboarding logic or flows
+- Modify auth layout
+- Add global components or patterns
+- Change routing architecture
+- Invent backend fields or behaviors
+- Implement billing, modules, or onboarding steps not required here
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing auth layout reused
+- Backend-aligned API usage
+- Responsive UI
+- Clear validation + feedback
+- Works independently in isolation
+- Seamlessly integrates into onboarding journey
+- First-time users can complete step without external help
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component
+2. Form components (if applicable)
+3. API integration hooks
+4. Validation logic
+5. State handling logic
+6. Loading + error UI
+7. Success feedback implementation
+8. Navigation handlers
+9. Backend contract alignment confirmation
+
+Do NOT include unrelated files or future onboarding steps.
