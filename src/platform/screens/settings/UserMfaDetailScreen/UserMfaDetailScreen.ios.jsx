@@ -3,26 +3,32 @@
  * File: UserMfaDetailScreen.ios.jsx
  */
 import React from 'react';
-import { ScrollView } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
   ErrorState,
+  ErrorStateSizes,
+  Icon,
   LoadingSpinner,
   OfflineState,
+  OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { formatDateTime } from '@utils';
 import {
   StyledContainer,
   StyledContent,
-  StyledSection,
+  StyledDetailGrid,
+  StyledDetailItem,
+  StyledInlineStates,
   StyledActions,
 } from './UserMfaDetailScreen.ios.styles';
 import useUserMfaDetailScreen from './useUserMfaDetailScreen';
 
 const UserMfaDetailScreenIOS = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const {
     userMfa,
     isLoading,
@@ -35,191 +41,246 @@ const UserMfaDetailScreenIOS = () => {
     onDelete,
   } = useUserMfaDetailScreen();
 
-  if (isLoading) {
+  const hasUserMfa = Boolean(userMfa);
+
+  if (isLoading && !hasUserMfa) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <LoadingSpinner
-              accessibilityLabel={t('common.loading')}
-              testID="user-mfa-detail-loading"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="user-mfa-detail-loading"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (isOffline) {
+  if (isOffline && !hasUserMfa) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <OfflineState
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-mfa-detail-offline"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <OfflineState
+            size={OfflineStateSizes.SMALL}
+            title={t('shell.banners.offline.title')}
+            description={t('shell.banners.offline.message')}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-mfa-detail-offline"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
-  if (hasError) {
+  if (hasError && !hasUserMfa) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <ErrorState
-              title={t('userMfa.detail.errorTitle')}
-              description={errorMessage}
-              action={
-                <Button onPress={onRetry} accessibilityLabel={t('common.retry')}>
-                  {t('common.retry')}
-                </Button>
-              }
-              testID="user-mfa-detail-error"
-            />
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
+      <StyledContainer>
+        <StyledContent>
+          <ErrorState
+            title={t('userMfa.detail.errorTitle')}
+            description={errorMessage}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+                icon={<Icon glyph="↻" size="xs" decorative />}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+            testID="user-mfa-detail-error"
+          />
+        </StyledContent>
+      </StyledContainer>
     );
   }
 
   if (!userMfa) {
     return (
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <StyledContainer>
-          <StyledContent>
-            <EmptyState
-              title={t('userMfa.detail.notFoundTitle')}
-              description={t('userMfa.detail.notFoundMessage')}
-              testID="user-mfa-detail-not-found"
-            />
-            <StyledActions>
-              <Button
-                variant="primary"
-                onPress={onBack}
-                accessibilityLabel={t('common.back')}
-                testID="user-mfa-detail-back"
-              >
-                {t('common.back')}
-              </Button>
-            </StyledActions>
-          </StyledContent>
-        </StyledContainer>
-      </ScrollView>
-    );
-  }
-
-  const createdAt = userMfa.created_at ? new Date(userMfa.created_at).toLocaleString() : '';
-  const updatedAt = userMfa.updated_at ? new Date(userMfa.updated_at).toLocaleString() : '';
-  const lastUsedAt = userMfa.last_used_at ? new Date(userMfa.last_used_at).toLocaleString() : '';
-  const userId = userMfa?.user_id ?? '';
-  const channel = userMfa?.channel ?? '';
-  const isEnabled = userMfa?.is_enabled ?? false;
-  const resolveChannelLabel = (value) => {
-    if (!value) return '';
-    const key = `userMfa.channel.${value}`;
-    const resolved = t(key);
-    return resolved === key ? value : resolved;
-  };
-  const channelLabel = resolveChannelLabel(channel);
-
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <StyledContainer>
         <StyledContent>
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-mfa-detail-title"
-          >
-            {t('userMfa.detail.title')}
-          </Text>
-          <StyledSection>
-            <Text variant="body" testID="user-mfa-detail-id">
-              {t('userMfa.detail.idLabel')}: {userMfa.id}
-            </Text>
-          </StyledSection>
-          {userId ? (
-            <StyledSection>
-              <Text variant="body" testID="user-mfa-detail-user">
-                {t('userMfa.detail.userIdLabel')}: {userId}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {channelLabel ? (
-            <StyledSection>
-              <Text variant="body" testID="user-mfa-detail-channel">
-                {t('userMfa.detail.channelLabel')}: {channelLabel}
-              </Text>
-            </StyledSection>
-          ) : null}
-          <StyledSection>
-            <Text variant="body" testID="user-mfa-detail-enabled">
-              {t('userMfa.detail.enabledLabel')}: {isEnabled ? t('common.on') : t('common.off')}
-            </Text>
-          </StyledSection>
-          {lastUsedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-mfa-detail-last-used">
-                {t('userMfa.detail.lastUsedLabel')}: {lastUsedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {createdAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-mfa-detail-created">
-                {t('userMfa.detail.createdLabel')}: {createdAt}
-              </Text>
-            </StyledSection>
-          ) : null}
-          {updatedAt ? (
-            <StyledSection>
-              <Text variant="body" testID="user-mfa-detail-updated">
-                {t('userMfa.detail.updatedLabel')}: {updatedAt}
-              </Text>
-            </StyledSection>
-          ) : null}
+          <EmptyState
+            title={t('userMfa.detail.notFoundTitle')}
+            description={t('userMfa.detail.notFoundMessage')}
+            testID="user-mfa-detail-not-found"
+          />
           <StyledActions>
             <Button
-              variant="ghost"
+              variant="surface"
+              size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('userMfa.detail.backHint')}
+              icon={<Icon glyph="←" size="xs" decorative />}
               testID="user-mfa-detail-back"
             >
               {t('common.back')}
             </Button>
-            {onEdit && (
-              <Button
-                variant="secondary"
-                onPress={onEdit}
-                accessibilityLabel={t('userMfa.detail.edit')}
-                accessibilityHint={t('userMfa.detail.editHint')}
-                testID="user-mfa-detail-edit"
-              >
-                {t('userMfa.detail.edit')}
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              onPress={onDelete}
-              accessibilityLabel={t('userMfa.detail.delete')}
-              accessibilityHint={t('userMfa.detail.deleteHint')}
-              testID="user-mfa-detail-delete"
-            >
-              {t('common.remove')}
-            </Button>
           </StyledActions>
         </StyledContent>
       </StyledContainer>
-    </ScrollView>
+    );
+  }
+
+  const createdAt = formatDateTime(userMfa.created_at, locale);
+  const updatedAt = formatDateTime(userMfa.updated_at, locale);
+  const lastUsedAt = formatDateTime(userMfa.last_used_at, locale);
+  const userId = userMfa?.user_id ?? '';
+  const channel = userMfa?.channel ?? '';
+  const isEnabled = userMfa?.is_enabled ?? false;
+  const channelKey = channel ? `userMfa.channel.${channel}` : '';
+  const resolvedChannel = channelKey ? t(channelKey) : '';
+  const channelLabel = resolvedChannel === channelKey ? channel : resolvedChannel;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showInlineError = hasUserMfa && hasError;
+  const showInlineOffline = hasUserMfa && isOffline;
+
+  return (
+    <StyledContainer>
+      <StyledContent>
+        <StyledInlineStates>
+          {showInlineError && (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('userMfa.detail.errorTitle')}
+              description={errorMessage}
+              action={retryAction}
+              testID="user-mfa-detail-error-banner"
+            />
+          )}
+          {showInlineOffline && (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              action={retryAction}
+              testID="user-mfa-detail-offline-banner"
+            />
+          )}
+        </StyledInlineStates>
+        <Card variant="outlined" accessibilityLabel={t('userMfa.detail.title')} testID="user-mfa-detail-card">
+          <StyledDetailGrid>
+            <StyledDetailItem>
+              <Text variant="label">{t('userMfa.detail.idLabel')}</Text>
+              <Text variant="body" testID="user-mfa-detail-id">
+                {userMfa.id}
+              </Text>
+            </StyledDetailItem>
+            {userId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.userIdLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-user">
+                  {userId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {channelLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.channelLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-channel">
+                  {channelLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('userMfa.detail.enabledLabel')}</Text>
+              <Text variant="body" testID="user-mfa-detail-enabled">
+                {isEnabled ? t('common.on') : t('common.off')}
+              </Text>
+            </StyledDetailItem>
+            {lastUsedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.lastUsedLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-last-used">
+                  {lastUsedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {createdAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.createdLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-created">
+                  {createdAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {updatedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.updatedLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-updated">
+                  {updatedAt}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+          </StyledDetailGrid>
+        </Card>
+        <StyledActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onBack}
+            accessibilityLabel={t('common.back')}
+            accessibilityHint={t('userMfa.detail.backHint')}
+            icon={<Icon glyph="←" size="xs" decorative />}
+            testID="user-mfa-detail-back"
+            disabled={isLoading}
+          >
+            {t('common.back')}
+          </Button>
+          {onEdit && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              accessibilityLabel={t('userMfa.detail.edit')}
+              accessibilityHint={t('userMfa.detail.editHint')}
+              icon={<Icon glyph="✎" size="xs" decorative />}
+              testID="user-mfa-detail-edit"
+              disabled={isLoading}
+            >
+              {t('userMfa.detail.edit')}
+            </Button>
+          )}
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onDelete}
+            loading={isLoading}
+            accessibilityLabel={t('userMfa.detail.delete')}
+            accessibilityHint={t('userMfa.detail.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
+            testID="user-mfa-detail-delete"
+          >
+            {t('common.remove')}
+          </Button>
+        </StyledActions>
+      </StyledContent>
+    </StyledContainer>
   );
 };
 

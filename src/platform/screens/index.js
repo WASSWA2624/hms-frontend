@@ -13,7 +13,7 @@ export { default as NotFoundScreen } from './common/NotFoundScreen';
 export { default as ErrorScreen } from './common/ErrorScreen';
 
 // Main screens (authenticated/main screens)
-export { default as DashboardScreen } from './main/HomeScreen';
+export { default as DashboardScreen } from './main/DashboardScreen';
 
 // Settings screens (direct platform path so Metro resolves .android/.web, not barrel)
 export { default as SettingsScreen } from './settings/SettingsScreen/SettingsScreen';
@@ -74,5 +74,6 @@ export { default as ApiKeyPermissionDetailScreen } from './settings/ApiKeyPermis
 export { default as ApiKeyPermissionFormScreen } from './settings/ApiKeyPermissionFormScreen';
 export { default as UserMfaListScreen } from './settings/UserMfaListScreen';
 export { default as UserMfaDetailScreen } from './settings/UserMfaDetailScreen';
+export { default as UserMfaFormScreen } from './settings/UserMfaFormScreen';
 export { default as OauthAccountListScreen } from './settings/OauthAccountListScreen';
 export { default as OauthAccountDetailScreen } from './settings/OauthAccountDetailScreen';

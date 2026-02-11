@@ -6,14 +6,32 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import {
   Button,
+  Card,
   EmptyState,
+  ErrorState,
+  ErrorStateSizes,
+  Icon,
   ListItem,
-  Stack,
+  LoadingSpinner,
+  OfflineState,
+  OfflineStateSizes,
+  Snackbar,
   Text,
 } from '@platform/components';
-import { ListScaffold } from '@platform/patterns';
 import { useI18n } from '@hooks';
-import { StyledContainer, StyledContent } from './UserMfaListScreen.ios.styles';
+import {
+  StyledAddButton,
+  StyledAddLabel,
+  StyledContainer,
+  StyledContent,
+  StyledList,
+  StyledListBody,
+  StyledSearchSlot,
+  StyledSeparator,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
+} from './UserMfaListScreen.ios.styles';
 import useUserMfaListScreen from './useUserMfaListScreen';
 
 const UserMfaListScreenIos = () => {
@@ -24,6 +42,8 @@ const UserMfaListScreenIos = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onItemPress,
     onDelete,
@@ -34,32 +54,68 @@ const UserMfaListScreenIos = () => {
     <EmptyState
       title={t('userMfa.list.emptyTitle')}
       description={t('userMfa.list.emptyMessage')}
+      action={
+        onAdd ? (
+          <StyledAddButton
+            onPress={onAdd}
+            accessibilityRole="button"
+            accessibilityLabel={t('userMfa.list.addLabel')}
+            accessibilityHint={t('userMfa.list.addHint')}
+            testID="user-mfa-list-empty-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('userMfa.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : undefined
+      }
       testID="user-mfa-list-empty-state"
     />
   );
 
+  const ItemSeparator = () => <StyledSeparator />;
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="user-mfa-list-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline;
+  const showEmpty = !isLoading && items.length === 0;
+  const showList = items.length > 0;
+
   const renderItem = ({ item }) => {
     const channel = item?.channel ?? '';
     const userId = item?.user_id ?? '';
-    const title = channel ? `${t('userMfa.list.channelLabel')}: ${channel}` : (item?.id ?? '');
+    const channelKey = channel ? `userMfa.channel.${channel}` : '';
+    const channelLabel = channelKey ? t(channelKey) : '';
+    const title = channelLabel ? `${t('userMfa.list.channelLabel')}: ${channelLabel}` : (item?.id ?? '');
     const subtitle = userId ? `${t('userMfa.list.userLabel')}: ${userId}` : '';
     return (
       <ListItem
         title={title}
         subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
-        actions={
+        actions={(
           <Button
-            variant="ghost"
+            variant="surface"
             size="small"
             onPress={(e) => onDelete(item.id, e)}
             accessibilityLabel={t('userMfa.list.delete')}
             accessibilityHint={t('userMfa.list.deleteHint')}
+            icon={<Icon glyph="✕" size="xs" decorative />}
             testID={`user-mfa-delete-${item.id}`}
           >
             {t('common.remove')}
           </Button>
-        }
+        )}
         accessibilityLabel={t('userMfa.list.itemLabel', {
           name: title,
         })}
@@ -70,47 +126,83 @@ const UserMfaListScreenIos = () => {
 
   return (
     <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="user-mfa-list-notice"
+        />
+      ) : null}
       <StyledContent>
-        <Stack direction="horizontal" align="center" justify="space-between" wrap spacing="sm">
-          <Text
-            variant="h1"
-            accessibilityRole="header"
-            testID="user-mfa-list-title"
-          >
-            {t('userMfa.list.title')}
-          </Text>
-          {onAdd && (
-            <Button
-              variant="primary"
-              onPress={onAdd}
-              accessibilityLabel={t('userMfa.list.addLabel')}
-              accessibilityHint={t('userMfa.list.addHint')}
-              testID="user-mfa-list-add"
-            >
-              {t('userMfa.list.addLabel')}
-            </Button>
-          )}
-        </Stack>
-        <ListScaffold
-          isLoading={isLoading}
-          isEmpty={!isLoading && !hasError && !isOffline && items.length === 0}
-          hasError={hasError}
-          error={errorMessage}
-          isOffline={isOffline}
-          onRetry={onRetry}
+        <StyledToolbar testID="user-mfa-list-toolbar">
+          <StyledSearchSlot>
+            <Text variant="h2" accessibilityRole="header" testID="user-mfa-list-title">
+              {t('userMfa.list.title')}
+            </Text>
+          </StyledSearchSlot>
+          <StyledToolbarActions>
+            {onAdd && (
+              <StyledAddButton
+                onPress={onAdd}
+                accessibilityRole="button"
+                accessibilityLabel={t('userMfa.list.addLabel')}
+                accessibilityHint={t('userMfa.list.addHint')}
+                testID="user-mfa-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t('userMfa.list.addLabel')}</StyledAddLabel>
+              </StyledAddButton>
+            )}
+          </StyledToolbarActions>
+        </StyledToolbar>
+        <Card
+          variant="outlined"
           accessibilityLabel={t('userMfa.list.accessibilityLabel')}
-          testID="user-mfa-list"
-          emptyComponent={emptyComponent}
+          testID="user-mfa-list-card"
         >
-          {items.length > 0 ? (
-            <FlatList
-              data={items}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
-          ) : null}
-        </ListScaffold>
+          <StyledListBody>
+            <StyledStateStack>
+              {showError && (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('listScaffold.errorState.title')}
+                  description={errorMessage}
+                  action={retryAction}
+                  testID="user-mfa-list-error"
+                />
+              )}
+              {showOffline && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-mfa-list-offline"
+                />
+              )}
+            </StyledStateStack>
+            {isLoading && (
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-mfa-list-loading" />
+            )}
+            {showEmpty && emptyComponent}
+            {showList ? (
+              <StyledList>
+                <FlatList
+                  data={items}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderItem}
+                  ItemSeparatorComponent={ItemSeparator}
+                  scrollEnabled={false}
+                  accessibilityLabel={t('userMfa.list.accessibilityLabel')}
+                  testID="user-mfa-list-flatlist"
+                />
+              </StyledList>
+            ) : null}
+          </StyledListBody>
+        </Card>
       </StyledContent>
     </StyledContainer>
   );

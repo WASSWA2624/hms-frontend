@@ -21,6 +21,7 @@ export { default as ApiKeyPermissionDetailScreen } from './ApiKeyPermissionDetai
 export { default as ApiKeyPermissionFormScreen } from './ApiKeyPermissionFormScreen';
 export { default as UserMfaListScreen } from './UserMfaListScreen';
 export { default as UserMfaDetailScreen } from './UserMfaDetailScreen';
+export { default as UserMfaFormScreen } from './UserMfaFormScreen';
 export { default as OauthAccountListScreen } from './OauthAccountListScreen';
 export { default as OauthAccountDetailScreen } from './OauthAccountDetailScreen';
 export { default as TenantListScreen } from './TenantListScreen';
