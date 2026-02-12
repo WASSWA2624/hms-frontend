@@ -15,6 +15,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Snackbar,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -33,6 +34,15 @@ import {
 } from './TenantListScreen.ios.styles';
 import useTenantListScreen from './useTenantListScreen';
 
+const resolveTenantSubtitle = (t, tenant) => {
+  const parts = [];
+  if (tenant?.slug) {
+    parts.push(t('tenant.list.slugValue', { slug: tenant.slug }));
+  }
+  parts.push(tenant?.is_active ? t('tenant.list.statusActive') : t('tenant.list.statusInactive'));
+  return parts.join(' • ');
+};
+
 const TenantListScreenIOS = () => {
   const { t } = useI18n();
   const {
@@ -42,6 +52,8 @@ const TenantListScreenIOS = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onSearch,
     onTenantPress,
@@ -86,18 +98,18 @@ const TenantListScreenIOS = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   const renderItem = ({ item: tenant }) => {
     const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-    const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
+    const subtitle = resolveTenantSubtitle(t, tenant);
     return (
       <ListItem
         title={title}
         subtitle={subtitle}
         onPress={() => onTenantPress(tenant.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="ghost"
             size="small"
@@ -108,7 +120,7 @@ const TenantListScreenIOS = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
         accessibilityHint={t('tenant.list.itemHint', { name: title })}
         testID={`tenant-item-${tenant.id}`}
@@ -118,6 +130,16 @@ const TenantListScreenIOS = () => {
 
   return (
     <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="tenant-list-notice"
+        />
+      ) : null}
       <StyledContent>
         <StyledToolbar testID="tenant-list-toolbar">
           <StyledSearchSlot>

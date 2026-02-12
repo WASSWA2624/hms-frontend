@@ -107,4 +107,15 @@ describe('Sidebar Component - Web', () => {
     fireEvent.click(resultButton);
     expect(mockPush).toHaveBeenCalledWith('/settings/roles');
   });
+
+  it('filters hidden child items from search when isItemVisible excludes them', () => {
+    const isItemVisible = (item) => item.id !== 'settings-roles';
+    const { getByLabelText, queryByText } = renderWithTheme(
+      <SidebarWeb items={items} isItemVisible={isItemVisible} testID="sidebar" />
+    );
+    const input = getByLabelText('Search navigation');
+
+    fireEvent.change(input, { target: { value: 'roles' } });
+    expect(queryByText('Roles')).toBeNull();
+  });
 });

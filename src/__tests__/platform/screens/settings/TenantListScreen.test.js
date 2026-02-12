@@ -42,6 +42,10 @@ const mockT = (key) => {
     'tenant.list.slugValue': 'Slug: {{slug}}',
     'tenant.list.addLabel': 'Add tenant',
     'tenant.list.addHint': 'Create a new tenant',
+    'tenant.list.noticeCreated': 'Tenant created.',
+    'tenant.list.noticeUpdated': 'Tenant updated.',
+    'tenant.list.noticeDeleted': 'Tenant removed.',
+    'tenant.list.noticeQueued': 'Changes queued.',
     'common.remove': 'Remove',
     'listScaffold.loading': 'Loading',
     'listScaffold.empty': 'Empty',
@@ -61,6 +65,8 @@ const baseHook = {
   hasError: false,
   errorMessage: null,
   isOffline: false,
+  noticeMessage: null,
+  onDismissNotice: jest.fn(),
   onRetry: jest.fn(),
   onSearch: jest.fn(),
   onTenantPress: jest.fn(),
@@ -124,6 +130,20 @@ describe('TenantListScreen', () => {
       const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
       expect(getByTestId('tenant-list-error')).toBeTruthy();
     });
+
+    it('does not show empty state while error is shown (Web)', () => {
+      useTenantListScreen.mockReturnValue({
+        ...baseHook,
+        items: [],
+        isLoading: false,
+        hasError: true,
+        isOffline: false,
+        errorMessage: 'Something went wrong',
+      });
+      const { queryByTestId, getByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      expect(getByTestId('tenant-list-error')).toBeTruthy();
+      expect(queryByTestId('tenant-list-empty-state')).toBeNull();
+    });
   });
 
   describe('offline', () => {
@@ -153,6 +173,17 @@ describe('TenantListScreen', () => {
     });
   });
 
+  describe('notice', () => {
+    it('shows notice message (Web)', () => {
+      useTenantListScreen.mockReturnValue({
+        ...baseHook,
+        noticeMessage: 'Tenant created.',
+      });
+      const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      expect(getByTestId('tenant-list-notice')).toBeTruthy();
+    });
+  });
+
   describe('actions', () => {
     it('calls onAdd when add button pressed (Web)', () => {
       const onAdd = jest.fn();
@@ -160,6 +191,16 @@ describe('TenantListScreen', () => {
       const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
       fireEvent.press(getByTestId('tenant-list-add'));
       expect(onAdd).toHaveBeenCalled();
+    });
+
+    it('hides delete action when onDelete is undefined (Web)', () => {
+      useTenantListScreen.mockReturnValue({
+        ...baseHook,
+        onDelete: undefined,
+        items: [{ id: '1', name: 'Tenant 1', slug: 'tenant-1' }],
+      });
+      const { queryByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      expect(queryByTestId('tenant-delete-1')).toBeNull();
     });
   });
 

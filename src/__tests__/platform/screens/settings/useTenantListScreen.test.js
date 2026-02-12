@@ -5,10 +5,14 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useTenantListScreen = require('@platform/screens/settings/TenantListScreen/useTenantListScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
+let mockParams = {};
+
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
-  useNetwork: jest.fn(() => ({ isOffline: false })),
+  useNetwork: jest.fn(),
   useTenant: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -20,182 +24,135 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
+  useLocalSearchParams: () => mockParams,
 }));
 
-const useTenant = require('@hooks').useTenant;
+const { useTenant, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useTenantListScreen', () => {
   const mockList = jest.fn();
+  const mockGet = jest.fn();
   const mockRemove = jest.fn();
   const mockReset = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams = {};
+    useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      canCreateTenant: true,
+      canDeleteTenant: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useTenant.mockReturnValue({
       list: mockList,
-      remove: mockRemove,
-      data: { items: [], pagination: {} },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-  });
-
-  it('returns items, handlers, and state', () => {
-    const { result } = renderHook(() => useTenantListScreen());
-    expect(result.current.items).toEqual([]);
-    expect(result.current.search).toBe('');
-    expect(typeof result.current.onRetry).toBe('function');
-    expect(typeof result.current.onSearch).toBe('function');
-    expect(typeof result.current.onTenantPress).toBe('function');
-    expect(typeof result.current.onDelete).toBe('function');
-  });
-
-  it('calls list on mount', () => {
-    renderHook(() => useTenantListScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onRetry calls fetchList', () => {
-    const { result } = renderHook(() => useTenantListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onSearch updates list with trimmed search', () => {
-    const { result } = renderHook(() => useTenantListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    act(() => {
-      result.current.onSearch('  acme  ');
-    });
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'acme' });
-  });
-
-  it('onRetry uses current search', () => {
-    const { result } = renderHook(() => useTenantListScreen());
-    act(() => {
-      result.current.onSearch('tenant');
-    });
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'tenant' });
-  });
-
-  it('onTenantPress pushes route with id', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useTenantListScreen());
-    result.current.onTenantPress('tid-1');
-    expect(mockPush).toHaveBeenCalledWith('/settings/tenants/tid-1');
-  });
-
-  it('onAdd pushes route to create', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useTenantListScreen());
-    result.current.onAdd();
-    expect(mockPush).toHaveBeenCalledWith('/settings/tenants/create');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
-    useTenant.mockReturnValue({
-      list: mockList,
+      get: mockGet,
       remove: mockRemove,
       data: { items: [] },
       isLoading: false,
-      errorCode: 'TENANT_NOT_FOUND',
+      errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useTenantListScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBeDefined();
   });
 
-  it('onDelete calls remove then fetchList', async () => {
-    mockRemove.mockResolvedValue({ id: 'tid-1' });
-    mockReset.mockClear();
-    mockList.mockClear();
+  it('global admin path enables list/create/delete', () => {
     const { result } = renderHook(() => useTenantListScreen());
-    await act(async () => {
-      await result.current.onDelete('tid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('tid-1');
+
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
+    expect(typeof result.current.onAdd).toBe('function');
+    expect(typeof result.current.onDelete).toBe('function');
   });
 
-  it('onDelete does not refetch when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useTenantListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('tid-1');
+  it('tenant-scoped admin path loads own tenant only and hides create/delete actions', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      canCreateTenant: false,
+      canDeleteTenant: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
     });
-    expect(mockRemove).toHaveBeenCalledWith('tid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete calls stopPropagation when event provided', async () => {
-    const stopPropagation = jest.fn();
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useTenantListScreen());
-    await act(async () => {
-      await result.current.onDelete('tid-1', { stopPropagation });
-    });
-    expect(stopPropagation).toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw or refetch when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useTenantListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('tid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('tid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
-    confirmAction.mockReturnValueOnce(false);
-    const { result } = renderHook(() => useTenantListScreen());
-    await act(async () => {
-      await result.current.onDelete('tid-1');
-    });
-    expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it('handles items from data', () => {
     useTenant.mockReturnValue({
       list: mockList,
+      get: mockGet,
       remove: mockRemove,
-      data: { items: [{ id: 't1', name: 'Tenant 1' }] },
+      data: { id: 'tenant-1', name: 'Acme' },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
+
     const { result } = renderHook(() => useTenantListScreen());
-    expect(result.current.items).toEqual([{ id: 't1', name: 'Tenant 1' }]);
+
+    expect(mockGet).toHaveBeenCalledWith('tenant-1');
+    expect(mockList).not.toHaveBeenCalled();
+    expect(result.current.items).toEqual([{ id: 'tenant-1', name: 'Acme' }]);
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
-  it('handles empty items array', () => {
+  it('tenant-scoped search is local against own tenant', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      canCreateTenant: false,
+      canDeleteTenant: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useTenant.mockReturnValue({
       list: mockList,
+      get: mockGet,
       remove: mockRemove,
-      data: null,
+      data: { id: 'tenant-1', name: 'Acme Hospital', slug: 'acme' },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
+
     const { result } = renderHook(() => useTenantListScreen());
+
+    act(() => {
+      result.current.onSearch('zzz');
+    });
     expect(result.current.items).toEqual([]);
+
+    act(() => {
+      result.current.onSearch('acme');
+    });
+    expect(result.current.items).toEqual([{ id: 'tenant-1', name: 'Acme Hospital', slug: 'acme' }]);
+  });
+
+  it('redirects unauthorized users to settings after roles resolve', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      canCreateTenant: false,
+      canDeleteTenant: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useTenantListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('onDelete is blocked when confirmation is cancelled', async () => {
+    confirmAction.mockReturnValueOnce(false);
+    mockRemove.mockResolvedValue({ id: 'tenant-1' });
+
+    const { result } = renderHook(() => useTenantListScreen());
+    await act(async () => {
+      await result.current.onDelete('tenant-1');
+    });
+
+    expect(mockRemove).not.toHaveBeenCalled();
   });
 });

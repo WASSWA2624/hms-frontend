@@ -59,7 +59,14 @@ const SidebarWeb = ({
 
   const tree = useMemo(() => {
     const list = Array.isArray(items) ? items : [];
-    return list.filter((item) => (isItemVisible ? isItemVisible(item) : true));
+    return list
+      .map((item) => ({
+        ...item,
+        children: Array.isArray(item.children)
+          ? (isItemVisible ? item.children.filter((child) => isItemVisible(child)) : item.children)
+          : item.children,
+      }))
+      .filter((item) => (isItemVisible ? isItemVisible(item) : true));
   }, [items, isItemVisible]);
 
   const { results: searchResults, hasQuery } = useSidebarSearch({

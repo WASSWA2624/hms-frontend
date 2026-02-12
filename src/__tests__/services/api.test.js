@@ -46,7 +46,7 @@ const { apiClient } = require('@services/api');
 const { tokenManager } = require('@security');
 const { handleError } = require('@errors');
 const { async: asyncStorage } = require('@services/storage');
-const { getCsrfHeaders } = require('@services/csrf');
+const { getCsrfHeaders, clearCsrfToken } = require('@services/csrf');
 
 describe('API Client', () => {
   beforeEach(() => {
@@ -267,6 +267,44 @@ describe('API Client', () => {
       ).rejects.toBeDefined();
 
       expect(handleError).toHaveBeenCalled();
+    });
+
+    it('retries mutation request once when csrf session is missing', async () => {
+      tokenManager.getAccessToken.mockResolvedValue(null);
+      getCsrfHeaders
+        .mockResolvedValueOnce({ 'X-CSRF-Token': 'stale-token' })
+        .mockResolvedValueOnce({ 'X-CSRF-Token': 'fresh-token' });
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          statusText: 'Forbidden',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'errors.csrf.missing', errors: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 201,
+          headers: { get: () => 'application/json' },
+          json: async () => ({ status: 201, message: 'ok', data: { id: 'tenant-1' } }),
+        });
+
+      const result = await apiClient({
+        url: 'https://api.example.com/tenants',
+        method: 'POST',
+        body: { name: 'Tenant' },
+      });
+
+      expect(clearCsrfToken).toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({
+        data: { id: 'tenant-1' },
+        message: 'ok',
+        meta: undefined,
+        pagination: undefined,
+        raw: { status: 201, message: 'ok', data: { id: 'tenant-1' } },
+        status: 201,
+      });
     });
   });
 });

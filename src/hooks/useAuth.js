@@ -12,17 +12,7 @@ import {
   selectUser,
 } from '@store/selectors';
 import { actions as authActions } from '@store/slices/auth.slice';
-
-const normalizeRole = (role) => {
-  if (!role) return null;
-  return String(role).trim().toLowerCase();
-};
-
-const normalizeRoles = (roles) => {
-  if (!roles) return [];
-  const list = Array.isArray(roles) ? roles : [roles];
-  return list.map(normalizeRole).filter(Boolean);
-};
+import { normalizeRoles } from './roleUtils';
 
 /**
  * useAuth hook
@@ -36,7 +26,7 @@ const useAuth = () => {
   const errorCode = useSelector(selectAuthErrorCode);
 
   const roles = useMemo(() => {
-    const userRoles = user?.roles || user?.role || [];
+    const userRoles = user?.roles || user?.role || user?.role_name || [];
     return normalizeRoles(userRoles);
   }, [user]);
 

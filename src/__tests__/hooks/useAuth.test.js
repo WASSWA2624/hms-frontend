@@ -104,4 +104,33 @@ describe('useAuth', () => {
     expect(result.isLoading).toBe(true);
     expect(result.errorCode).toBe('UNAUTHORIZED');
   });
+
+  it('normalizes nested role object shapes', () => {
+    const store = createStore({
+      auth: {
+        user: {
+          id: '1',
+          roles: [
+            { name: 'TENANT_ADMIN' },
+            { role: { name: 'ADMIN' } },
+            { role: 'App_Admin' },
+            { roleName: 'SUPER_ADMIN' },
+            { role_name: 'TENANT_ADMIN' },
+          ],
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        errorCode: null,
+        lastUpdated: null,
+      },
+    });
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+    expect(result.roles).toEqual(['tenant_admin', 'admin', 'app_admin', 'super_admin']);
+    expect(result.role).toBe('tenant_admin');
+  });
 });

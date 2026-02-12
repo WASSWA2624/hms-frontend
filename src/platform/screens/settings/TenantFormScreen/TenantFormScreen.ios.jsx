@@ -39,10 +39,13 @@ const TenantFormScreenIOS = () => {
     isLoading,
     hasError,
     errorMessage,
+    nameError,
+    slugError,
     isOffline,
     tenant,
     onSubmit,
     onCancel,
+    isSubmitDisabled,
   } = useTenantFormScreen();
 
   if (isEdit && !tenant && isLoading) {
@@ -114,7 +117,9 @@ const TenantFormScreenIOS = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('tenant.form.nameLabel')}
                 accessibilityHint={t('tenant.form.nameHint')}
-                helperText={t('tenant.form.nameHint')}
+                helperText={nameError || t('tenant.form.nameHint')}
+                validationState={nameError ? 'error' : undefined}
+                errorMessage={nameError || undefined}
                 required
                 density="compact"
                 disabled={isLoading}
@@ -129,7 +134,9 @@ const TenantFormScreenIOS = () => {
                 onChangeText={setSlug}
                 accessibilityLabel={t('tenant.form.slugLabel')}
                 accessibilityHint={t('tenant.form.slugHint')}
-                helperText={t('tenant.form.slugHint')}
+                helperText={slugError || t('tenant.form.slugHint')}
+                validationState={slugError ? 'error' : undefined}
+                errorMessage={slugError || undefined}
                 density="compact"
                 disabled={isLoading}
                 testID="tenant-form-slug"
@@ -169,6 +176,7 @@ const TenantFormScreenIOS = () => {
             size="small"
             onPress={onSubmit}
             loading={isLoading}
+            disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
             accessibilityHint={isEdit ? t('tenant.form.submitEdit') : t('tenant.form.submitCreate')}
             testID="tenant-form-submit"

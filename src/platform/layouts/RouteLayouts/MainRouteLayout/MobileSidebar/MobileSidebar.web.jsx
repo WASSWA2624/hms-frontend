@@ -62,6 +62,7 @@ export default function MobileSidebar({
           <Sidebar
             accessibilityLabel={sidebarLabel}
             items={mainItems}
+            isItemVisible={isItemVisible}
             collapsed={false}
             footerSlot={null}
             testID="main-sidebar-mobile"

@@ -39,6 +39,7 @@ const TenantDetailScreenWeb = () => {
     onBack,
     onEdit,
     onDelete,
+    onAssignTenantAdmin,
   } = useTenantDetailScreen();
 
   const hasTenant = Boolean(tenant);
@@ -256,17 +257,32 @@ const TenantDetailScreenWeb = () => {
               {t('tenant.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="primary"
-            onPress={onDelete}
-            size="small"
-            loading={isLoading}
-            accessibilityLabel={t('tenant.detail.delete')}
-            accessibilityHint={t('tenant.detail.deleteHint')}
-            testID="tenant-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onAssignTenantAdmin && (
+            <Button
+              variant="secondary"
+              size="small"
+              onPress={onAssignTenantAdmin}
+              accessibilityLabel={t('tenant.detail.assignAdmin')}
+              accessibilityHint={t('tenant.detail.assignAdminHint')}
+              testID="tenant-detail-assign-admin"
+              disabled={isLoading}
+            >
+              {t('tenant.detail.assignAdmin')}
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="primary"
+              onPress={onDelete}
+              size="small"
+              loading={isLoading}
+              accessibilityLabel={t('tenant.detail.delete')}
+              accessibilityHint={t('tenant.detail.deleteHint')}
+              testID="tenant-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

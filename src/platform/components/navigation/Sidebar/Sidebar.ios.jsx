@@ -47,7 +47,14 @@ const SidebarIOS = ({
             label: getNavItemLabel(t, it),
             icon: it.icon,
           }));
-    return isItemVisible ? list.filter(isItemVisible) : list;
+    return list
+      .map((item) => ({
+        ...item,
+        children: Array.isArray(item.children)
+          ? (isItemVisible ? item.children.filter((child) => isItemVisible(child)) : item.children)
+          : item.children,
+      }))
+      .filter((item) => (isItemVisible ? isItemVisible(item) : true));
   }, [itemsProp, isItemVisible, t]);
 
   const expandedIdResolved = useMemo(() => {

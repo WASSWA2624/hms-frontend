@@ -14,6 +14,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Snackbar,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -31,6 +32,15 @@ import {
 } from './TenantListScreen.web.styles';
 import useTenantListScreen from './useTenantListScreen';
 
+const resolveTenantSubtitle = (t, tenant) => {
+  const parts = [];
+  if (tenant?.slug) {
+    parts.push(t('tenant.list.slugValue', { slug: tenant.slug }));
+  }
+  parts.push(tenant?.is_active ? t('tenant.list.statusActive') : t('tenant.list.statusInactive'));
+  return parts.join(' • ');
+};
+
 const TenantListScreenWeb = () => {
   const { t } = useI18n();
   const {
@@ -40,6 +50,8 @@ const TenantListScreenWeb = () => {
     hasError,
     errorMessage,
     isOffline,
+    noticeMessage,
+    onDismissNotice,
     onRetry,
     onSearch,
     onTenantPress,
@@ -82,11 +94,21 @@ const TenantListScreenWeb = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   return (
     <StyledContainer role="main" aria-label={t('tenant.list.title')}>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="tenant-list-notice"
+        />
+      ) : null}
       <StyledContent>
         <StyledToolbar data-testid="tenant-list-toolbar">
           <StyledSearchSlot>
@@ -149,14 +171,14 @@ const TenantListScreenWeb = () => {
               <StyledList role="list">
                 {items.map((tenant) => {
                   const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-                  const subtitle = tenant?.slug ? t('tenant.list.slugValue', { slug: tenant.slug }) : '';
+                  const subtitle = resolveTenantSubtitle(t, tenant);
                   return (
                     <li key={tenant.id} role="listitem">
                       <ListItem
                         title={title}
                         subtitle={subtitle}
                         onPress={() => onTenantPress(tenant.id)}
-                        actions={
+                        actions={onDelete ? (
                           <Button
                             variant="surface"
                             size="small"
@@ -167,7 +189,7 @@ const TenantListScreenWeb = () => {
                           >
                             {t('common.remove')}
                           </Button>
-                        }
+                        ) : undefined}
                         accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
                         accessibilityHint={t('tenant.list.itemHint', { name: title })}
                         testID={`tenant-item-${tenant.id}`}

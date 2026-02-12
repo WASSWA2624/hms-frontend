@@ -63,10 +63,13 @@ const baseHook = {
   isLoading: false,
   hasError: false,
   errorMessage: null,
+  nameError: null,
+  slugError: null,
   isOffline: false,
   tenant: null,
   onSubmit: jest.fn(),
   onCancel: jest.fn(),
+  isSubmitDisabled: false,
 };
 
 describe('TenantFormScreen', () => {

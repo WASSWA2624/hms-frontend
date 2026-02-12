@@ -44,6 +44,8 @@ const mockT = (key) => {
     'tenant.detail.deleteHint': 'Delete this tenant',
     'tenant.detail.edit': 'Edit tenant',
     'tenant.detail.editHint': 'Edit this tenant',
+    'tenant.detail.assignAdmin': 'Assign tenant admin',
+    'tenant.detail.assignAdminHint': 'Assign tenant admin',
     'common.loading': 'Loading',
     'common.retry': 'Retry',
     'common.retryHint': 'Try again',
@@ -68,6 +70,7 @@ const baseHook = {
   onBack: jest.fn(),
   onEdit: jest.fn(),
   onDelete: jest.fn(),
+  onAssignTenantAdmin: undefined,
 };
 
 describe('TenantDetailScreen', () => {
@@ -205,6 +208,26 @@ describe('TenantDetailScreen', () => {
       expect(getByTestId('tenant-detail-back')).toBeTruthy();
       expect(getByTestId('tenant-detail-edit')).toBeTruthy();
       expect(getByTestId('tenant-detail-delete')).toBeTruthy();
+    });
+
+    it('shows assign-admin button for global admin and hides it otherwise', () => {
+      useTenantDetailScreen.mockReturnValue({
+        ...baseHook,
+        tenant: { id: 't1', name: 'Tenant' },
+        onAssignTenantAdmin: jest.fn(),
+      });
+      const { getByTestId, queryByTestId, rerender } = renderWithTheme(<TenantDetailScreenWeb />);
+      expect(getByTestId('tenant-detail-assign-admin')).toBeTruthy();
+
+      useTenantDetailScreen.mockReturnValue({
+        ...baseHook,
+        tenant: { id: 't1', name: 'Tenant' },
+        onDelete: undefined,
+        onAssignTenantAdmin: undefined,
+      });
+      rerender(<ThemeProvider theme={lightTheme}><TenantDetailScreenWeb /></ThemeProvider>);
+      expect(queryByTestId('tenant-detail-assign-admin')).toBeNull();
+      expect(queryByTestId('tenant-detail-delete')).toBeNull();
     });
   });
 

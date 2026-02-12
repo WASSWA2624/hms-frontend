@@ -4,8 +4,8 @@
  * Children: id, icon, path, name (no children). Icons via MENU_ICON_GLYPHS / getMenuIconGlyph.
  */
 
-/** @typedef {{ id: string, icon: string, path: string, name: string, children?: null | Array<{ id: string, icon: string, path: string, name: string }> }} MainNavItem */
-/** @typedef {{ id: string, icon: string, path: string, name: string }} MainNavChild */
+/** @typedef {{ id: string, icon: string, path: string, name: string, roles?: string[], children?: null | Array<{ id: string, icon: string, path: string, name: string, roles?: string[] }> }} MainNavItem */
+/** @typedef {{ id: string, icon: string, path: string, name: string, roles?: string[] }} MainNavChild */
 
 /** Icon key → glyph (single source of truth for menu icons; UI uses getMenuIconGlyph). */
 export const MENU_ICON_GLYPHS = {
@@ -71,7 +71,13 @@ const SETTINGS_ITEMS = [
   { id: 'settings-role-permissions', icon: 'shield-checkmark-outline', path: '/settings/role-permissions', name: `${MAIN_NAV_I18N}.settings-role-permissions` },
   { id: 'settings-roles', icon: 'people-outline', path: '/settings/roles', name: `${MAIN_NAV_I18N}.settings-roles` },
   { id: 'settings-rooms', icon: 'home-outline', path: '/settings/rooms', name: `${MAIN_NAV_I18N}.settings-rooms` },
-  { id: 'settings-tenants', icon: 'layers-outline', path: '/settings/tenants', name: `${MAIN_NAV_I18N}.settings-tenants` },
+  {
+    id: 'settings-tenants',
+    icon: 'layers-outline',
+    path: '/settings/tenants',
+    name: `${MAIN_NAV_I18N}.settings-tenants`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   { id: 'settings-units', icon: 'grid-outline', path: '/settings/units', name: `${MAIN_NAV_I18N}.settings-units` },
   { id: 'settings-user-mfas', icon: 'lock-closed-outline', path: '/settings/user-mfas', name: `${MAIN_NAV_I18N}.settings-user-mfas` },
   { id: 'settings-user-profiles', icon: 'person-outline', path: '/settings/user-profiles', name: `${MAIN_NAV_I18N}.settings-user-profiles` },

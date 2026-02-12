@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useTenant } from '@hooks';
+import { useI18n, useNetwork, useTenant, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,8 +20,25 @@ const useTenantDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    canEditTenant,
+    canDeleteTenant,
+    canAssignTenantAdmins,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useTenant();
 
+  const requestedTenantId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const targetTenantId = useMemo(() => {
+    if (!canManageAllTenants) return tenantId || null;
+    return requestedTenantId;
+  }, [canManageAllTenants, requestedTenantId, tenantId]);
   const tenant = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
@@ -29,14 +46,38 @@ const useTenantDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!targetTenantId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(targetTenantId);
+  }, [targetTenantId, get, reset]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canAccessTenantSettings) {
+      router.replace('/settings');
+      return;
+    }
+    if (canManageAllTenants) return;
+    if (!tenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (requestedTenantId && requestedTenantId !== tenantId) {
+      router.replace(`/settings/tenants/${tenantId}`);
+    }
+  }, [
+    isResolved,
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    requestedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canAccessTenantSettings) return;
     fetchDetail();
-  }, [fetchDetail]);
+  }, [isResolved, canAccessTenantSettings, fetchDetail]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,32 +88,43 @@ const useTenantDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/tenants/${id}/edit`);
-  }, [id, router]);
+    if (!canEditTenant || !targetTenantId) return;
+    router.push(`/settings/tenants/${targetTenantId}/edit`);
+  }, [canEditTenant, targetTenantId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteTenant || !targetTenantId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(targetTenantId);
       if (!result) return;
-      handleBack();
+      const noticeKey = isOffline ? 'queued' : 'deleted';
+      router.push(`/settings/tenants?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, handleBack, t]);
+  }, [canDeleteTenant, targetTenantId, remove, isOffline, router, t]);
+
+  const handleAssignTenantAdmin = useCallback(() => {
+    if (!canAssignTenantAdmins || !targetTenantId) return;
+    const tenantQuery = encodeURIComponent(String(targetTenantId));
+    router.push(
+      `/settings/user-roles/create?tenantId=${tenantQuery}&roleName=TENANT_ADMIN`
+    );
+  }, [canAssignTenantAdmins, targetTenantId, router]);
 
   return {
-    id,
+    id: targetTenantId || requestedTenantId,
     tenant,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditTenant ? handleEdit : undefined,
+    onDelete: canDeleteTenant ? handleDelete : undefined,
+    onAssignTenantAdmin: canAssignTenantAdmins ? handleAssignTenantAdmin : undefined,
   };
 };
 

@@ -24,6 +24,8 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   return resolved === key ? t(fallbackKey) : resolved;
 };
 
+const normalizeRoleName = (value) => String(value ?? '').trim().toUpperCase();
+
 const useUserRoleFormScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
@@ -34,6 +36,7 @@ const useUserRoleFormScreen = () => {
     facilityId: facilityIdParam,
     userId: userIdParam,
     roleId: roleIdParam,
+    roleName: roleNameParam,
   } = useLocalSearchParams();
   const { get, create, update, data, isLoading, errorCode, reset } = useUserRole();
   const {
@@ -229,16 +232,28 @@ const useUserRoleFormScreen = () => {
     if (isEdit) return;
     if (rolePrefillRef.current) return;
     const paramValue = Array.isArray(roleIdParam) ? roleIdParam[0] : roleIdParam;
+    const roleNameValue = Array.isArray(roleNameParam) ? roleNameParam[0] : roleNameParam;
     if (paramValue) {
       setRoleId(String(paramValue));
       rolePrefillRef.current = true;
       return;
     }
+    const normalizedRoleName = normalizeRoleName(roleNameValue);
+    if (normalizedRoleName) {
+      const matchedRole = roleItems.find(
+        (role) => normalizeRoleName(role?.name ?? role?.role?.name) === normalizedRoleName
+      );
+      if (matchedRole?.id) {
+        setRoleId(String(matchedRole.id));
+        rolePrefillRef.current = true;
+        return;
+      }
+    }
     if (roleOptions.length === 1 && !roleId) {
       setRoleId(roleOptions[0].value);
       rolePrefillRef.current = true;
     }
-  }, [isEdit, roleIdParam, roleOptions, roleId]);
+  }, [isEdit, roleIdParam, roleNameParam, roleItems, roleOptions, roleId]);
 
   const trimmedUserId = String(userId ?? '').trim();
   const trimmedRoleId = String(roleId ?? '').trim();
