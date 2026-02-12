@@ -11,8 +11,6 @@ import {
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
-  Select,
-  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -33,15 +31,11 @@ const RegisterScreenAndroid = () => {
   const {
     form,
     errors,
-    facilityOptions,
     isHydrating,
     isSubmitting,
-    isSuccess,
-    successMessageKey,
     submitError,
     setFieldValue,
     handleSubmit,
-    handleContinue,
     retryHydration,
     hasFacilityOptions,
   } = useRegisterScreen();
@@ -66,7 +60,7 @@ const RegisterScreenAndroid = () => {
     );
   }
 
-  const primaryLabel = isSuccess ? t('auth.register.onboarding.actions.continue') : t('auth.register.onboarding.actions.createWorkspace');
+  const primaryLabel = t('auth.register.onboarding.actions.createWorkspace');
   const passwordToggleLabel = isPasswordVisible
     ? t('auth.register.onboarding.actions.hidePassword')
     : t('auth.register.onboarding.actions.showPassword');
@@ -75,23 +69,7 @@ const RegisterScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledForm>
-        <StyledFormGuidance>
-          <Text variant="caption">{t('auth.layout.subtitle')}</Text>
-        </StyledFormGuidance>
-        <StyledField>
-          <Select
-            label={t('auth.register.onboarding.fields.facilityType')}
-            options={facilityOptions}
-            value={form.facilityType}
-            onValueChange={(value) => setFieldValue('facilityType', value)}
-            placeholder={t('auth.register.onboarding.placeholders.facilityType')}
-            errorMessage={errors.facilityType}
-            validationState={getValidationState('facilityType')}
-            compact
-            required
-            testID="register-facility-type"
-          />
-        </StyledField>
+        <StyledFormGuidance />
         <StyledField>
           <TextField
             label={t('auth.register.onboarding.fields.facilityName')}
@@ -137,48 +115,6 @@ const RegisterScreenAndroid = () => {
         </StyledField>
         <StyledField>
           <TextField
-            label={t('auth.register.onboarding.fields.phone')}
-            placeholder={t('auth.register.onboarding.placeholders.phone')}
-            value={form.phone}
-            onChangeText={(value) => setFieldValue('phone', value)}
-            errorMessage={errors.phone}
-            validationState={getValidationState('phone')}
-            type="tel"
-            maxLength={15}
-            helperText={t('auth.register.onboarding.fields.phoneHint')}
-            density="compact"
-            testID="register-phone"
-          />
-        </StyledField>
-        <StyledField>
-          <TextField
-            label={t('auth.register.onboarding.fields.location')}
-            placeholder={t('auth.register.onboarding.placeholders.location')}
-            value={form.location}
-            onChangeText={(value) => setFieldValue('location', value)}
-            errorMessage={errors.location}
-            validationState={getValidationState('location')}
-            maxLength={255}
-            density="compact"
-            testID="register-location"
-          />
-        </StyledField>
-        <StyledField>
-          <TextField
-            label={t('auth.register.onboarding.fields.interests')}
-            placeholder={t('auth.register.onboarding.placeholders.interests')}
-            value={form.interests}
-            onChangeText={(value) => setFieldValue('interests', value)}
-            errorMessage={errors.interests}
-            validationState={getValidationState('interests')}
-            helperText={t('auth.register.onboarding.fields.interestsHint')}
-            maxLength={2000}
-            density="compact"
-            testID="register-interests"
-          />
-        </StyledField>
-        <StyledField>
-          <TextField
             label={t('auth.register.onboarding.fields.password')}
             placeholder={t('auth.register.onboarding.placeholders.password')}
             value={form.password}
@@ -211,7 +147,7 @@ const RegisterScreenAndroid = () => {
             <Button
               variant="primary"
               size="small"
-              onPress={isSuccess ? handleContinue : handleSubmit}
+              onPress={handleSubmit}
               loading={isSubmitting}
               disabled={isSubmitting}
               accessibilityLabel={primaryLabel}
@@ -230,11 +166,6 @@ const RegisterScreenAndroid = () => {
             description={submitError.message}
             testID="register-submit-error"
           />
-        ) : null}
-        {isSuccess ? (
-          <Text variant="caption" testID="register-submit-success">
-            {t(successMessageKey)}
-          </Text>
         ) : null}
       </StyledStatus>
     </StyledContainer>

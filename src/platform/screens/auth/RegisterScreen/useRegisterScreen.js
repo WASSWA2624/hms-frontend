@@ -21,9 +21,6 @@ const initialForm = {
   adminName: '',
   facilityType: '',
   email: '',
-  phone: '',
-  location: '',
-  interests: '',
   password: '',
 };
 
@@ -32,7 +29,6 @@ const toSingleValue = (value) => {
   return typeof value === 'string' ? value : '';
 };
 
-const toPhoneDigits = (value) => String(value || '').replace(/[^\d]/g, '');
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const hasUppercase = /[A-Z]/;
 const hasLowercase = /[a-z]/;
@@ -40,24 +36,7 @@ const hasNumber = /[0-9]/;
 const hasSpecial = /[^A-Za-z0-9]/;
 const MAX_NAME_LENGTH = 255;
 const MAX_EMAIL_LENGTH = 320;
-const MAX_PHONE_LENGTH = 15;
-const MAX_LOCATION_LENGTH = 255;
-const MAX_INTERESTS_LENGTH = 2000;
 const MAX_PASSWORD_LENGTH = 128;
-const interestsPattern = /^[^,]+(?:\s*,\s*[^,]+)*$/;
-
-const normalizeInterestsValue = (value) => {
-  const normalized = String(value || '')
-    .replace(/[\r\n;|]+/g, ',')
-    .replace(/\s+/g, ' ');
-
-  const items = normalized
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  return items.join(', ').slice(0, MAX_INTERESTS_LENGTH);
-};
 
 const resolveErrorMessage = (code, message, t) => {
   if (!code) return message || t('errors.fallback.message');
@@ -78,14 +57,8 @@ const useRegisterScreen = () => {
   const [isHydrating, setIsHydrating] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [successMessageKey, setSuccessMessageKey] = useState('auth.register.onboarding.feedback.success');
 
   const optionIds = useMemo(() => new Set(FACILITY_OPTIONS.map((item) => item.id)), []);
-  const facilityOptions = useMemo(
-    () => FACILITY_OPTIONS.map((item) => ({ label: t(item.labelKey), value: item.id })),
-    [t]
-  );
   const facilityParam = toSingleValue(params?.facility);
   const facilityTypeParam = toSingleValue(params?.facilityType);
   const facilityTypeSnakeParam = toSingleValue(params?.facility_type);
@@ -108,9 +81,6 @@ const useRegisterScreen = () => {
         adminName: draft?.adminName || '',
         facilityType: optionIds.has(facilityType) ? facilityType : '',
         email: '',
-        phone: draft?.phone || '',
-        location: draft?.location || '',
-        interests: normalizeInterestsValue(draft?.interests || ''),
         password: draft?.password || '',
       });
     } finally {
@@ -133,15 +103,6 @@ const useRegisterScreen = () => {
     }
     if (key === 'email') {
       return String(value || '').trim().slice(0, MAX_EMAIL_LENGTH);
-    }
-    if (key === 'phone') {
-      return toPhoneDigits(value).slice(0, MAX_PHONE_LENGTH);
-    }
-    if (key === 'location') {
-      return String(value || '').replace(/\s+/g, ' ').slice(0, MAX_LOCATION_LENGTH);
-    }
-    if (key === 'interests') {
-      return normalizeInterestsValue(value);
     }
     if (key === 'password') {
       return String(value || '').slice(0, MAX_PASSWORD_LENGTH);
@@ -186,32 +147,6 @@ const useRegisterScreen = () => {
       if (password.length > MAX_PASSWORD_LENGTH) return t('forms.validation.maxLength', { max: MAX_PASSWORD_LENGTH });
       return '';
     }
-    if (key === 'phone') {
-      const phone = sourceForm.phone;
-      if (!phone) return '';
-      if (!/^[0-9]+$/.test(phone)) return t('auth.register.onboarding.validation.phoneInvalid');
-      if (phone.length < 10) return t('auth.register.onboarding.validation.phoneInvalid');
-      return '';
-    }
-    if (key === 'location') {
-      const location = sourceForm.location.trim();
-      if (!location) return '';
-      if (location.length > MAX_LOCATION_LENGTH) {
-        return t('forms.validation.maxLength', { max: MAX_LOCATION_LENGTH });
-      }
-      return '';
-    }
-    if (key === 'interests') {
-      const interests = sourceForm.interests.trim();
-      if (!interests) return '';
-      if (!interestsPattern.test(interests)) {
-        return t('auth.register.onboarding.validation.interestsInvalid');
-      }
-      if (interests.length > MAX_INTERESTS_LENGTH) {
-        return t('forms.validation.maxLength', { max: MAX_INTERESTS_LENGTH });
-      }
-      return '';
-    }
     return '';
   }, [optionIds, t]);
 
@@ -221,9 +156,6 @@ const useRegisterScreen = () => {
       adminName: validateField('adminName', sourceForm),
       facilityType: validateField('facilityType', sourceForm),
       email: validateField('email', sourceForm),
-      phone: validateField('phone', sourceForm),
-      location: validateField('location', sourceForm),
-      interests: validateField('interests', sourceForm),
       password: validateField('password', sourceForm),
     };
 
@@ -249,9 +181,12 @@ const useRegisterScreen = () => {
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || submitInFlightRef.current) return false;
-    setIsSuccess(false);
-    setSuccessMessageKey('auth.register.onboarding.feedback.success');
     setSubmitError(null);
+
+    if (!optionIds.has(form.facilityType)) {
+      router.replace('/landing');
+      return false;
+    }
 
     const isValid = validate();
     if (!isValid) return false;
@@ -262,9 +197,6 @@ const useRegisterScreen = () => {
       const payload = {
         email: form.email.trim().toLowerCase(),
         password: form.password,
-        phone: toPhoneDigits(form.phone) || undefined,
-        location: form.location.trim() || undefined,
-        interests: form.interests.trim() || undefined,
         facility_name: form.facilityName.trim(),
         admin_name: form.adminName.trim(),
         facility_type: mapFacilityToBackendType(form.facilityType) || undefined,
@@ -277,7 +209,6 @@ const useRegisterScreen = () => {
         const responseUser = action?.payload?.user || null;
         const responseVerification = action?.payload?.verification || null;
         const emailAlreadyUsed = Boolean(responseVerification?.email_already_used);
-        const facilityDetailsDiffer = Boolean(responseVerification?.facility_details_differ);
         const resolvedFirstName = String(responseUser?.profile?.first_name || '').trim();
         const resolvedLastName = String(responseUser?.profile?.last_name || '').trim();
         const resolvedAdminName = `${resolvedFirstName} ${resolvedLastName}`.trim() || payload.admin_name;
@@ -302,14 +233,13 @@ const useRegisterScreen = () => {
           next_path: '/verify-email',
           params: { email: payload.email },
         });
-        setSuccessMessageKey(
-          emailAlreadyUsed && facilityDetailsDiffer
-            ? 'auth.register.onboarding.feedback.existingEmailWithFacilityMismatch'
-            : emailAlreadyUsed
-            ? 'auth.register.onboarding.feedback.existingEmail'
-            : 'auth.register.onboarding.feedback.success'
-        );
-        setIsSuccess(true);
+        router.replace({
+          pathname: '/verify-email',
+          params: {
+            email: payload.email,
+            reason: emailAlreadyUsed ? 'pending_verification' : '',
+          },
+        });
         return true;
       }
 
@@ -321,31 +251,18 @@ const useRegisterScreen = () => {
       submitInFlightRef.current = false;
       setIsSubmitting(false);
     }
-  }, [form, isSubmitting, register, t, validate]);
-
-  const handleContinue = useCallback(() => {
-    router.push({
-      pathname: '/verify-email',
-      params: {
-        email: form.email.trim().toLowerCase(),
-      },
-    });
-  }, [form.email, router]);
+  }, [form, isSubmitting, optionIds, register, router, t, validate]);
 
   return {
     form,
     errors,
-    facilityOptions,
     isHydrating,
     isSubmitting,
-    isSuccess,
-    successMessageKey,
     submitError,
     setFieldValue,
     handleSubmit,
-    handleContinue,
     retryHydration: hydrate,
-    hasFacilityOptions: facilityOptions.length > 0,
+    hasFacilityOptions: optionIds.size > 0,
   };
 };
 

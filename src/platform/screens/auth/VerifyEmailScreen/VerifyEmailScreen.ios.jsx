@@ -25,6 +25,7 @@ const VerifyEmailScreenIOS = () => {
   const {
     form,
     errors,
+    useManualCode,
     isHydrating,
     isVerifying,
     isResending,
@@ -34,6 +35,7 @@ const VerifyEmailScreenIOS = () => {
     setFieldValue,
     handleSubmit,
     handleResend,
+    setUseManualCode,
     goToLogin,
   } = useVerifyEmailScreen();
 
@@ -63,47 +65,69 @@ const VerifyEmailScreenIOS = () => {
           />
         </StyledField>
 
-        <StyledField>
-          <TextField
-            label={t('auth.verifyEmail.fields.token.label')}
-            placeholder={t('auth.verifyEmail.fields.token.placeholder')}
-            value={form.token}
-            onChangeText={(value) => setFieldValue('token', value)}
-            errorMessage={errors.token}
-            validationState={getValidationState('token')}
-            helperText={t('auth.verifyEmail.fields.token.hint')}
-            maxLength={64}
-            density="compact"
-            required
-            testID="verify-email-token"
-          />
-        </StyledField>
+        {useManualCode ? (
+          <StyledField>
+            <TextField
+              label={t('auth.verifyEmail.fields.token.label')}
+              placeholder={t('auth.verifyEmail.fields.token.placeholder')}
+              value={form.token}
+              onChangeText={(value) => setFieldValue('token', value)}
+              errorMessage={errors.token}
+              validationState={getValidationState('token')}
+              helperText={t('auth.verifyEmail.fields.token.hint')}
+              maxLength={64}
+              density="compact"
+              required
+              testID="verify-email-token"
+            />
+          </StyledField>
+        ) : null}
 
         <StyledActions>
           <Button
             variant="primary"
             size="small"
             onPress={handleSubmit}
-            loading={isVerifying}
-            disabled={isVerifying || isVerified}
-            accessibilityLabel={t('auth.verifyEmail.buttonHint')}
+            loading={useManualCode ? isVerifying : isResending}
+            disabled={isVerifying || isResending || isVerified}
+            accessibilityLabel={useManualCode ? t('auth.verifyEmail.buttonHint') : t('auth.verifyEmail.actions.resendHint')}
             testID="verify-email-submit"
           >
-            {t('auth.verifyEmail.button')}
+            {useManualCode ? t('auth.verifyEmail.button') : t('auth.verifyEmail.actions.resend')}
           </Button>
           <Button
             variant="text"
             size="small"
-            onPress={isVerified ? goToLogin : handleResend}
-            loading={isResending}
+            onPress={isVerified ? goToLogin : (useManualCode ? () => setUseManualCode(false) : () => setUseManualCode(true))}
             disabled={isResending || isVerifying}
             accessibilityLabel={
-              isVerified ? t('auth.verifyEmail.actions.loginHint') : t('auth.verifyEmail.actions.resendHint')
+              isVerified
+                ? t('auth.verifyEmail.actions.loginHint')
+                : useManualCode
+                ? 'Use magic link instead'
+                : 'Enter verification code manually'
             }
             testID="verify-email-resend"
           >
-            {isVerified ? t('auth.verifyEmail.actions.login') : t('auth.verifyEmail.actions.resend')}
+            {isVerified
+              ? t('auth.verifyEmail.actions.login')
+              : useManualCode
+              ? 'Use magic link instead'
+              : 'Enter code manually'}
           </Button>
+          {!isVerified ? (
+            <Button
+              variant="text"
+              size="small"
+              onPress={handleResend}
+              loading={isResending}
+              disabled={isResending || isVerifying}
+              accessibilityLabel={t('auth.verifyEmail.actions.resendHint')}
+              testID="verify-email-resend-direct"
+            >
+              {t('auth.verifyEmail.actions.resend')}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledForm>
 
@@ -132,4 +156,3 @@ const VerifyEmailScreenIOS = () => {
 };
 
 export default VerifyEmailScreenIOS;
-

@@ -4,7 +4,7 @@
  * Checks authentication state and redirects unauthenticated users.
  * 
  * @param {Object} options - Configuration options
- * @param {string} [options.redirectPath='/dashboard'] - Path to redirect to if unauthenticated
+ * @param {string} [options.redirectPath='/welcome'] - Path to redirect to if unauthenticated
  * @param {boolean} [options.skipRedirect=false] - If true, skip automatic redirect (useful for auth layouts that need to redirect authenticated users)
  * @returns {Object} Auth state object with { authenticated, user }
  * 
@@ -20,7 +20,7 @@ import { useRouter } from 'expo-router';
 import { selectIsAuthenticated, selectUser } from '@store/selectors';
 
 export function useAuthGuard(options = {}) {
-  const { redirectPath = '/dashboard', skipRedirect = false } = options;
+  const { redirectPath = '/welcome', skipRedirect = false } = options;
   
   const router = useRouter();
   const isAuthenticated = useSelector(selectIsAuthenticated);

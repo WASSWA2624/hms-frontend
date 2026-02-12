@@ -11,8 +11,6 @@ import {
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
-  Select,
-  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -32,15 +30,11 @@ const RegisterScreenWeb = () => {
   const {
     form,
     errors,
-    facilityOptions,
     isHydrating,
     isSubmitting,
-    isSuccess,
-    successMessageKey,
     submitError,
     setFieldValue,
     handleSubmit,
-    handleContinue,
     retryHydration,
     hasFacilityOptions,
   } = useRegisterScreen();
@@ -65,7 +59,7 @@ const RegisterScreenWeb = () => {
     );
   }
 
-  const primaryLabel = isSuccess ? t('auth.register.onboarding.actions.continue') : t('auth.register.onboarding.actions.createWorkspace');
+  const primaryLabel = t('auth.register.onboarding.actions.createWorkspace');
   const passwordToggleLabel = isPasswordVisible
     ? t('auth.register.onboarding.actions.hidePassword')
     : t('auth.register.onboarding.actions.showPassword');
@@ -76,29 +70,11 @@ const RegisterScreenWeb = () => {
       <StyledForm
         onSubmit={(event) => {
           event.preventDefault();
-          if (isSuccess) {
-            handleContinue();
-            return;
-          }
           handleSubmit();
         }}
       >
-        <StyledFormGuidance>
-          <Text variant="caption">{t('auth.layout.subtitle')}</Text>
-        </StyledFormGuidance>
+        <StyledFormGuidance />
         <StyledFieldGrid>
-          <Select
-            label={t('auth.register.onboarding.fields.facilityType')}
-            options={facilityOptions}
-            value={form.facilityType}
-            onValueChange={(value) => setFieldValue('facilityType', value)}
-            placeholder={t('auth.register.onboarding.placeholders.facilityType')}
-            errorMessage={errors.facilityType}
-            validationState={getValidationState('facilityType')}
-            compact
-            required
-            testID="register-facility-type"
-          />
           <TextField
             label={t('auth.register.onboarding.fields.facilityName')}
             placeholder={t('auth.register.onboarding.placeholders.facilityName')}
@@ -135,42 +111,6 @@ const RegisterScreenWeb = () => {
             density="compact"
             required
             testID="register-email"
-          />
-          <TextField
-            label={t('auth.register.onboarding.fields.phone')}
-            placeholder={t('auth.register.onboarding.placeholders.phone')}
-            value={form.phone}
-            onChangeText={(value) => setFieldValue('phone', value)}
-            errorMessage={errors.phone}
-            validationState={getValidationState('phone')}
-            type="tel"
-            maxLength={15}
-            helperText={t('auth.register.onboarding.fields.phoneHint')}
-            density="compact"
-            testID="register-phone"
-          />
-          <TextField
-            label={t('auth.register.onboarding.fields.location')}
-            placeholder={t('auth.register.onboarding.placeholders.location')}
-            value={form.location}
-            onChangeText={(value) => setFieldValue('location', value)}
-            errorMessage={errors.location}
-            validationState={getValidationState('location')}
-            maxLength={255}
-            density="compact"
-            testID="register-location"
-          />
-          <TextField
-            label={t('auth.register.onboarding.fields.interests')}
-            placeholder={t('auth.register.onboarding.placeholders.interests')}
-            value={form.interests}
-            onChangeText={(value) => setFieldValue('interests', value)}
-            errorMessage={errors.interests}
-            validationState={getValidationState('interests')}
-            helperText={t('auth.register.onboarding.fields.interestsHint')}
-            maxLength={2000}
-            density="compact"
-            testID="register-interests"
           />
           <TextField
             label={t('auth.register.onboarding.fields.password')}
@@ -222,11 +162,6 @@ const RegisterScreenWeb = () => {
             description={submitError.message}
             testID="register-submit-error"
           />
-        ) : null}
-        {isSuccess ? (
-          <Text variant="caption" testID="register-submit-success">
-            {t(successMessageKey)}
-          </Text>
         ) : null}
       </StyledStatus>
     </StyledContainer>

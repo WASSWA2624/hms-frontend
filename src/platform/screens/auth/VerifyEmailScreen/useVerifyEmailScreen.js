@@ -41,6 +41,7 @@ const useVerifyEmailScreen = () => {
   const [isHydrating, setIsHydrating] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [useManualCode, setUseManualCode] = useState(Boolean(tokenParam));
   const [submitError, setSubmitError] = useState(null);
   const [resendMessage, setResendMessage] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -79,6 +80,7 @@ const useVerifyEmailScreen = () => {
       }
 
       if (key === 'token') {
+        if (!useManualCode) return '';
         const value = sourceForm.token.trim();
         if (!value) return t('auth.verifyEmail.validation.codeRequired');
         if (value.length > VERIFY_CODE_LENGTH) {
@@ -89,20 +91,22 @@ const useVerifyEmailScreen = () => {
 
       return '';
     },
-    [t]
+    [t, useManualCode]
   );
 
   const validate = useCallback(
     (sourceForm = form) => {
       const next = {
         email: validateField('email', sourceForm),
-        token: validateField('token', sourceForm),
       };
+      if (useManualCode) {
+        next.token = validateField('token', sourceForm);
+      }
       const compact = Object.fromEntries(Object.entries(next).filter(([, value]) => Boolean(value)));
       setErrors(compact);
       return Object.keys(compact).length === 0;
     },
-    [form, validateField]
+    [form, useManualCode, validateField]
   );
 
   const setFieldValue = useCallback(
@@ -134,6 +138,30 @@ const useVerifyEmailScreen = () => {
     setIsVerified(true);
     setSubmitError(null);
   }, []);
+
+  const requestMagicLink = useCallback(
+    async (emailValue) => {
+      const action = await resendVerification({
+        type: 'email',
+        email: emailValue,
+      });
+      const status = action?.meta?.requestStatus;
+      if (status === 'fulfilled') {
+        await saveAuthResumeContext({
+          identifier: emailValue,
+          next_path: '/verify-email',
+          params: { email: emailValue },
+        });
+        setResendMessage(t('auth.verifyEmail.feedback.resent'));
+        return true;
+      }
+      const code = action?.payload?.code || action?.error?.code || action?.error?.message || 'UNKNOWN_ERROR';
+      const message = resolveErrorMessage(code, action?.payload?.message, t);
+      setSubmitError({ code, message });
+      return false;
+    },
+    [resendVerification, t]
+  );
 
   const submitVerification = useCallback(
     async (tokenValue, emailValue) => {
@@ -187,16 +215,32 @@ const useVerifyEmailScreen = () => {
     setSubmitError(null);
     setResendMessage('');
 
-    const isValid = validate();
+    const emailValue = form.email.trim().toLowerCase();
+    const emailError = validateField('email', { ...form, email: emailValue });
+    if (emailError) {
+      setErrors((prev) => ({ ...prev, email: emailError }));
+      return false;
+    }
+
+    if (!useManualCode) {
+      setIsResending(true);
+      try {
+        return await requestMagicLink(emailValue);
+      } finally {
+        setIsResending(false);
+      }
+    }
+
+    const isValid = validate({ ...form, email: emailValue });
     if (!isValid) return false;
 
     setIsVerifying(true);
     try {
-      return await submitVerification(form.token.trim(), form.email.trim().toLowerCase());
+      return await submitVerification(form.token.trim(), emailValue);
     } finally {
       setIsVerifying(false);
     }
-  }, [form.email, form.token, isVerifying, submitVerification, validate]);
+  }, [form, isVerifying, requestMagicLink, submitVerification, useManualCode, validate, validateField]);
 
   const handleResend = useCallback(async () => {
     if (isResending) return false;
@@ -210,28 +254,11 @@ const useVerifyEmailScreen = () => {
     setIsResending(true);
     setSubmitError(null);
     try {
-      const action = await resendVerification({
-        type: 'email',
-        email: emailValue,
-      });
-      const status = action?.meta?.requestStatus;
-      if (status === 'fulfilled') {
-        await saveAuthResumeContext({
-          identifier: emailValue,
-          next_path: '/verify-email',
-          params: { email: emailValue },
-        });
-        setResendMessage(t('auth.verifyEmail.feedback.resent'));
-        return true;
-      }
-      const code = action?.payload?.code || action?.error?.code || action?.error?.message || 'UNKNOWN_ERROR';
-      const message = resolveErrorMessage(code, action?.payload?.message, t);
-      setSubmitError({ code, message });
-      return false;
+      return await requestMagicLink(emailValue);
     } finally {
       setIsResending(false);
     }
-  }, [form, isResending, resendVerification, t, validateField]);
+  }, [form, isResending, requestMagicLink, validateField]);
 
   const goToLogin = useCallback(() => {
     const emailValue = form.email.trim().toLowerCase();
@@ -253,6 +280,7 @@ const useVerifyEmailScreen = () => {
   return {
     form,
     errors,
+    useManualCode,
     isHydrating,
     isVerifying,
     isResending,
@@ -262,6 +290,7 @@ const useVerifyEmailScreen = () => {
     setFieldValue,
     handleSubmit,
     handleResend,
+    setUseManualCode,
     goToLogin,
   };
 };
