@@ -9,6 +9,10 @@ This document is the **single entry point** for all coding standards, architectu
 
 **Important:** `index.mdc` is a **TOC + meta index** — it may describe where rules live, but must not duplicate/define the rules themselves. All authoritative rules live in the linked `.mdc` files below.
 
+**Current implementation alignment (2026-02-12):**
+- Route/screen progress is tracked in `hms-frontend/dev-plan/` (especially `P011_screens-routes.md`).
+- Platform UI bridge exports (`ScreenName.jsx` / `ComponentName.jsx`) are governed by `component-structure.mdc`.
+
 ## Rule documents
 - [Core development principles](./core-principles.mdc) ⭐ **START HERE** - Fundamental principles that guide all development
 - [Tech stack & modules](./tech-stack.mdc) - **Single source of truth for all dependencies**

@@ -1,7 +1,7 @@
 # Phase 10: Core HMS Features
 
 ## Purpose
-Implement the HMS core modules aligned with `hms-backend/write-up.md` and `hms-backend/dev-plan/P011_modules.mdc`. Each step is **atomic** and covers **one backend module** using the standard feature template.
+Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-plan/P011_modules.mdc`. Each step is **atomic** and covers **one backend module** using the standard feature template.
 
 ## Rule References
 - `.cursor/rules/features-domain.mdc` (Feature Template Structure - MANDATORY)

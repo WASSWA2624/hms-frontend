@@ -222,18 +222,19 @@ src/app/
 Per screen: routes per `app-router.mdc`; screen per `platform-ui.mdc` + `component-structure.mdc`; wire to hooks; i18n; loading/error/empty/guarded states; nav entry for main screens. Tests per `testing.mdc`; a11y per `accessibility.mdc`.
 
 ## Completeness
-- [ ] 11.1.1-11.1.14 (public entry + onboarding)
-- [ ] 11.2.1-11.2.8 (auth, home)
-- [ ] 11.3.1-11.3.22 (Settings main + tabs)
+- [ ] 11.1.1-11.1.14 (public entry + onboarding; done: 11.1.1, 11.1.2; pending: 11.1.3-11.1.14)
+- [ ] 11.2.1-11.2.8 (auth, home; done: 11.2.1, 11.2.4, 11.2.8; pending: 11.2.2, 11.2.3, 11.2.5, 11.2.6, 11.2.7)
+- [x] 11.3.1-11.3.22 (Settings main + tabs)
 - [ ] 11.4.1-11.6.9 (Patients, Scheduling, Clinical)
 - [ ] 11.7.1-11.9.4 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
 - [ ] 11.10.1-11.11.5 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
 - [ ] Nav + deep links for all main screens
 
 ## Settings status (11.3.1-11.3.22)
-- **11.3.1-11.3.3** settings, tenant, facility -- List OK, Detail OK, Create/Edit OK
-- **11.3.4-11.3.9** branch, department, unit, room, ward, bed -- List OK, Detail OK, Create/Edit OK
-- **11.3.10-11.3.11** address, contact -- List OK, Detail OK, Create/Edit OK
-- **11.3.12-11.3.22** user ... oauth-account -- List OK, Detail OK, Create/Edit TBD
+- **11.3.1-11.3.17** settings through user-role -- List OK, Detail OK, Create/Edit OK
+- **11.3.18** api-key -- List OK, Detail OK, Create/Edit N/A (current read-only flow)
+- **11.3.19-11.3.20** api-key-permission, user-mfa -- List OK, Detail OK, Create/Edit OK
+- **11.3.21** user-session -- List OK, Detail OK, Create/Edit N/A (current read-only flow)
+- **11.3.22** oauth-account -- List OK, Detail OK, Create/Edit OK
 
 Backend: facility/tenant usecases unwrap `response.data.data`; other CRUD same pattern when backend returns `{ data }`.

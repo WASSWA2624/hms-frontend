@@ -19,6 +19,7 @@ platform/
 │           ├── ComponentName.android.jsx
 │           ├── ComponentName.ios.jsx
 │           ├── ComponentName.web.jsx
+│           ├── ComponentName.jsx          # Optional bridge export only (no logic/styles)
 │           ├── ComponentName.android.styles.jsx
 │           ├── ComponentName.ios.styles.jsx
 │           ├── ComponentName.web.styles.jsx
@@ -31,6 +32,7 @@ platform/
             ├── ScreenName.android.jsx
             ├── ScreenName.ios.jsx
             ├── ScreenName.web.jsx
+            ├── ScreenName.jsx            # Optional bridge export only (no logic/styles)
             ├── ScreenName.android.styles.jsx
             ├── ScreenName.ios.styles.jsx
             ├── ScreenName.web.styles.jsx
@@ -48,8 +50,8 @@ platform/
 
 2. **Platform Separation**:  
    - Do not use `Platform.OS` checks.  
-   - Each component requires `.android.jsx`, `.ios.jsx`, and `.web.jsx` files.  
-   - Never use `ComponentName.jsx` without a platform suffix.
+   - Each component/screen/layout requires `.android.jsx`, `.ios.jsx`, and `.web.jsx` files.  
+   - `ComponentName.jsx` / `ScreenName.jsx` is allowed only as a bridge export file; it must not contain UI logic, styles, hooks, or side effects.
 
 3. **Styles**:  
    - Styles go in platform-specific `.styles.jsx` files.  
@@ -69,11 +71,12 @@ platform/
    - Component files should handle rendering only.
 
 5. **Barrel/Index Files**: See `coding-conventions.mdc`. Always `index.js` (never `index.jsx`) for barrel files.  
-   - For the main component export, only do:
+   - For the main component export, default pattern:
      ```js
      export { default } from './ComponentName';
      ```
-     Rely on Metro bundler for platform file resolution (do not include platform suffix in the path).
+     This relies on Metro platform resolution.
+   - If a bridge file exists (`ComponentName.jsx` / `ScreenName.jsx`), it must be a pure re-export and may intentionally target a platform-specific file (for example, `*.web`) when web-first behavior is required.
    - Additional exports (hooks, types/constants) follow:
      ```js
      export { default as useComponentName } from './useComponentName';
@@ -115,7 +118,8 @@ export { VARIANTS, SIZES, STATES } from './types';
 ### Forbidden
 
 - `Platform.OS` usage in components
-- Components/styles without platform suffix
+- Missing required `.android.jsx`, `.ios.jsx`, or `.web.jsx` implementations
+- Using unsuffixed bridge files for anything other than pure re-exports
 - Creating styled-components outside `.styles.jsx` files or inside functions/components/hooks
 - Creating styled-components without both `displayName` and `componentId` in `.withConfig()`
 - Direct/relative imports from platform files outside barrel

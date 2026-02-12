@@ -1,7 +1,7 @@
 # Phase 12: Advanced Features
 
 ## Purpose
-Implement optional HMS capabilities described in `hms-backend/write-up.md`. Each step is **atomic** and covers one advanced capability slice.
+Implement optional HMS capabilities described in `write-up.md`. Each step is **atomic** and covers one advanced capability slice.
 
 ## Rule References
 - `.cursor/rules/features-domain.mdc` (Feature Template Structure - MANDATORY)
