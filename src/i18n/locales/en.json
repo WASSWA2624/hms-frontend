@@ -450,8 +450,9 @@
     }
   },
   "landing": {
-    "title": "",
-    "description": "",
+    "pageTitle": "Get Started",
+    "title": "Welcome",
+    "description": "Start by selecting your facility type to continue onboarding.",
     "badge": "Start at no cost: Quick setup. Centralized management. Available on Mobile and Web. Manage your facility on your phone or computer.",
     "errors": {
       "loadTitle": "Could not restore your selection",
@@ -460,8 +461,8 @@
       "submitDescription": "Check your connection and try again."
     },
     "facility": {
-      "title": "",
-      "hint": "",
+      "title": "Facility type",
+      "hint": "Pick the option that best matches your primary operation.",
       "prompt": "What is the type of your facility? Pick one from the list below",
       "options": {
         "clinic": "Clinic / Medical Centre",
@@ -471,11 +472,11 @@
         "emergency": "Emergency / Ambulance Service"
       }
     },
-    "selectionHelper": "",
+    "selectionHelper": "You can change this later from app settings.",
     "cta": {
       "primary": "Proceed",
       "primaryHint": "Continue with your selected facility type",
-      "helper": ""
+      "helper": "Continue to create your account."
     }
   },
   "home": {
@@ -1040,6 +1041,9 @@
           "email": "Email (required)",
           "phone": "Phone (optional)",
           "phoneHint": "Use digits only, no + sign (e.g. 256701234567)",
+          "location": "Location (optional)",
+          "interests": "Interests (optional)",
+          "interestsHint": "Use comma-separated values (e.g. billing, telemedicine, pharmacy).",
           "password": "Password",
           "passwordHint": "Use at least 8 characters with uppercase, lowercase, number, and special character."
         },
@@ -1049,6 +1053,8 @@
           "facilityType": "Select facility type",
           "email": "Enter email address",
           "phone": "e.g. 256701234567",
+          "location": "City, country",
+          "interests": "e.g. Billing, EMR, Telemedicine",
           "password": "Create a strong password"
         },
         "actions": {
@@ -1066,6 +1072,7 @@
           "emailRequired": "Email is required",
           "emailInvalid": "Enter a valid email address",
           "phoneInvalid": "Enter a valid phone number",
+          "interestsInvalid": "Enter interests as comma-separated values (e.g. Billing, EMR, Telemedicine).",
           "passwordRequired": "Password is required",
           "passwordMinLength": "Password must be at least 8 characters",
           "passwordUppercase": "Password must include at least one uppercase letter",

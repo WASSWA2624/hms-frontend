@@ -152,6 +152,33 @@ const RegisterScreenAndroid = () => {
         </StyledField>
         <StyledField>
           <TextField
+            label={t('auth.register.onboarding.fields.location')}
+            placeholder={t('auth.register.onboarding.placeholders.location')}
+            value={form.location}
+            onChangeText={(value) => setFieldValue('location', value)}
+            errorMessage={errors.location}
+            validationState={getValidationState('location')}
+            maxLength={255}
+            density="compact"
+            testID="register-location"
+          />
+        </StyledField>
+        <StyledField>
+          <TextField
+            label={t('auth.register.onboarding.fields.interests')}
+            placeholder={t('auth.register.onboarding.placeholders.interests')}
+            value={form.interests}
+            onChangeText={(value) => setFieldValue('interests', value)}
+            errorMessage={errors.interests}
+            validationState={getValidationState('interests')}
+            helperText={t('auth.register.onboarding.fields.interestsHint')}
+            maxLength={2000}
+            density="compact"
+            testID="register-interests"
+          />
+        </StyledField>
+        <StyledField>
+          <TextField
             label={t('auth.register.onboarding.fields.password')}
             placeholder={t('auth.register.onboarding.placeholders.password')}
             value={form.password}

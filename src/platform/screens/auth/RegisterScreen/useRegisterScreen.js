@@ -21,6 +21,8 @@ const initialForm = {
   facilityType: '',
   email: '',
   phone: '',
+  location: '',
+  interests: '',
   password: '',
 };
 
@@ -38,7 +40,23 @@ const hasSpecial = /[^A-Za-z0-9]/;
 const MAX_NAME_LENGTH = 255;
 const MAX_EMAIL_LENGTH = 320;
 const MAX_PHONE_LENGTH = 15;
+const MAX_LOCATION_LENGTH = 255;
+const MAX_INTERESTS_LENGTH = 2000;
 const MAX_PASSWORD_LENGTH = 128;
+const interestsPattern = /^[^,]+(?:\s*,\s*[^,]+)*$/;
+
+const normalizeInterestsValue = (value) => {
+  const normalized = String(value || '')
+    .replace(/[\r\n;|]+/g, ',')
+    .replace(/\s+/g, ' ');
+
+  const items = normalized
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return items.join(', ').slice(0, MAX_INTERESTS_LENGTH);
+};
 
 const resolveErrorMessage = (code, message, t) => {
   if (!code) return message || t('errors.fallback.message');
@@ -90,6 +108,8 @@ const useRegisterScreen = () => {
         facilityType: optionIds.has(facilityType) ? facilityType : '',
         email: '',
         phone: draft?.phone || '',
+        location: draft?.location || '',
+        interests: normalizeInterestsValue(draft?.interests || ''),
         password: draft?.password || '',
       });
     } finally {
@@ -115,6 +135,12 @@ const useRegisterScreen = () => {
     }
     if (key === 'phone') {
       return toPhoneDigits(value).slice(0, MAX_PHONE_LENGTH);
+    }
+    if (key === 'location') {
+      return String(value || '').replace(/\s+/g, ' ').slice(0, MAX_LOCATION_LENGTH);
+    }
+    if (key === 'interests') {
+      return normalizeInterestsValue(value);
     }
     if (key === 'password') {
       return String(value || '').slice(0, MAX_PASSWORD_LENGTH);
@@ -166,6 +192,25 @@ const useRegisterScreen = () => {
       if (phone.length < 10) return t('auth.register.onboarding.validation.phoneInvalid');
       return '';
     }
+    if (key === 'location') {
+      const location = sourceForm.location.trim();
+      if (!location) return '';
+      if (location.length > MAX_LOCATION_LENGTH) {
+        return t('forms.validation.maxLength', { max: MAX_LOCATION_LENGTH });
+      }
+      return '';
+    }
+    if (key === 'interests') {
+      const interests = sourceForm.interests.trim();
+      if (!interests) return '';
+      if (!interestsPattern.test(interests)) {
+        return t('auth.register.onboarding.validation.interestsInvalid');
+      }
+      if (interests.length > MAX_INTERESTS_LENGTH) {
+        return t('forms.validation.maxLength', { max: MAX_INTERESTS_LENGTH });
+      }
+      return '';
+    }
     return '';
   }, [optionIds, t]);
 
@@ -176,6 +221,8 @@ const useRegisterScreen = () => {
       facilityType: validateField('facilityType', sourceForm),
       email: validateField('email', sourceForm),
       phone: validateField('phone', sourceForm),
+      location: validateField('location', sourceForm),
+      interests: validateField('interests', sourceForm),
       password: validateField('password', sourceForm),
     };
 
@@ -215,6 +262,8 @@ const useRegisterScreen = () => {
         email: form.email.trim().toLowerCase(),
         password: form.password,
         phone: toPhoneDigits(form.phone) || undefined,
+        location: form.location.trim() || undefined,
+        interests: form.interests.trim() || undefined,
         facility_name: form.facilityName.trim(),
         admin_name: form.adminName.trim(),
         facility_type: mapFacilityToBackendType(form.facilityType) || undefined,

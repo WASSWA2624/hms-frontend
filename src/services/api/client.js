@@ -10,6 +10,27 @@ import { async as asyncStorage } from '@services/storage';
 import { getCsrfHeaders, clearCsrfToken } from '@services/csrf';
 import { attachAuthHeader, handleAuthError } from './interceptors';
 
+const resolveTimeZone = () => {
+  try {
+    return Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone || '';
+  } catch {
+    return '';
+  }
+};
+
+const resolvePlatform = () => {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.userAgent) {
+      if (/android/i.test(navigator.userAgent)) return 'android';
+      if (/iphone|ipad|ipod/i.test(navigator.userAgent)) return 'ios';
+      return 'web';
+    }
+  } catch {
+    // Ignore runtime platform detection errors.
+  }
+  return 'unknown';
+};
+
 const resolveRequestLocale = async () => {
   try {
     const storedLocale = await asyncStorage.getItem(LOCALE_STORAGE_KEY);
@@ -75,12 +96,16 @@ const apiClient = async (config) => {
 
   try {
     const locale = await resolveRequestLocale();
+    const timezone = resolveTimeZone();
+    const platform = resolvePlatform();
     const response = await fetch(authConfig.url, {
       method: authConfig.method,
       credentials: 'include', // Include cookies for session
       headers: {
         'Content-Type': 'application/json',
         ...(locale ? { 'Accept-Language': locale, 'x-locale': locale } : {}),
+        ...(timezone ? { 'x-timezone': timezone } : {}),
+        ...(platform ? { 'x-platform': platform } : {}),
         ...authConfig.headers,
         ...csrfHeaders,
       },
