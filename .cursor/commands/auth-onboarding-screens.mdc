@@ -1,40 +1,39 @@
-Implement step **11.1.3** Resume link sent (check email) -- `(auth)/resume-link-sent` as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Review and implement the current step under ### Tier 3: Settings (main) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:
 - All rules in `hms-frontend/.cursor/rules/*`
-- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` and implemented auth endpoints
-- `hms-frontend/special-features/onboarding-journey.md`
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected settings resource
 - `write-up.md`
 
-Only implement what is required for this single screen to function correctly.
+Only implement what is required for this single Tier 3 screen to function correctly.
 
 ---
 
 ## Scope
 
-Implement full functionality required for this screen:
+Implement full functionality required for the selected Tier 3 step (`11.3.1` to `11.3.22`):
 
-- UI rendering for "check your email" state
-- Backend-aligned API call(s) if resend/check is supported
-- Validation (email format or token input, if applicable)
-- Loading, empty, and error states
-- Success/failure feedback
-- Navigation (Back / Continue)
-- Resume-state handling and deep-link readiness
-- Prefill known fields where applicable
+- Route + screen wiring under `(main)/settings/*`
+- Backend-aligned API integration for the selected settings entity
+- Loading, empty, error, and success states
+- Validation for all create/edit inputs
+- List, detail, create, edit, and delete flows where backend supports them
+- Read-only behavior where create/edit is intentionally not supported (for example `11.3.18` and `11.3.21`)
+- Navigation (Back / Cancel / Save) with no dead ends
+- Prefill known fields and use select controls for known relations where applicable
 
-Do NOT implement future steps or unrelated onboarding/auth screens.
+Do NOT implement steps outside Tier 3.
 
 ---
 
 ## Layout Rules (Strict)
 
-- Reuse existing **Auth Layout**
+- Reuse existing **Main Layout** and **Settings Layout**
 - No layout redesign
 - No nested scroll containers
 - No nested sidebars
-- Use existing navigation patterns
-- Match current auth/onboarding screens visually
+- Use existing breadcrumb and route navigation patterns
+- Match current settings screens visually and structurally
 
 ---
 
@@ -42,25 +41,31 @@ Do NOT implement future steps or unrelated onboarding/auth screens.
 
 - Clean, compact, modern UI
 - Fully responsive (mobile, tablet, desktop, web, iOS, Android)
-- Clear call-to-action hierarchy
-- Human-friendly instructional copy via i18n keys
+- Clear action hierarchy
+- Human-friendly copy via i18n keys only
 - No duplicate UI
 - No oversized elements
 - No dead-end navigation
 
 Buttons:
-- Use existing auth button styles
+- Use existing settings/main button styles
 - Compact and consistent
+
+Forms:
+- Clear labels and helpful placeholders
+- Inline validation messages
+- Required fields clearly indicated
+- Logical field order
 
 ---
 
 ## Reliability
 
 - Handle API/network errors gracefully
-- Human-readable error messages
-- Clear resend/continue confirmations
-- Disable invalid actions
-- Preserve state when possible
+- Human-readable, actionable error messages
+- Clear success/failure feedback for every supported action
+- Disable invalid actions based on validation and dependencies
+- Preserve user state where possible
 
 All operations MUST match backend schema and endpoint behavior exactly.
 
@@ -70,24 +75,22 @@ All operations MUST match backend schema and endpoint behavior exactly.
 
 Do NOT:
 
-- Redefine onboarding logic or flows
-- Modify auth layout
-- Add global components or patterns
-- Change routing architecture
+- Modify auth/onboarding flows
+- Change layout or routing architecture
+- Add global components or new patterns
 - Invent backend fields or behaviors
-- Implement billing, modules, or onboarding steps not required here
+- Implement screens outside Tier 3
 
 ---
 
 ## Acceptance Criteria
 
 - 100% rules compliance
-- Existing auth layout reused
-- Backend-aligned API usage
-- Responsive UI
-- Clear validation and feedback
-- Works independently in isolation
-- Seamlessly integrates into onboarding journey
+- Existing main/settings layouts reused
+- Backend-aligned functionality for the selected Tier 3 step
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen works independently and integrates with current settings navigation
 
 ---
 
@@ -95,14 +98,14 @@ Do NOT:
 
 Return ONLY:
 
-1. Screen/Page component
-2. Form components (if applicable)
-3. API integration hooks (if applicable)
+1. Screen/Page component(s) for the selected Tier 3 step
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
 4. Validation logic (if applicable)
 5. State handling logic
-6. Loading + error UI
-7. Success feedback implementation
+6. Loading + empty + error UI
+7. Success/failure feedback implementation
 8. Navigation handlers
 9. Backend contract alignment confirmation
 
-Do NOT include unrelated files or future onboarding steps.
+Do NOT include files or logic outside the selected Tier 3 screen.
