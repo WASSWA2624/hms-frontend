@@ -23,15 +23,26 @@ const resolveErrorMessage = (code, message, t) => {
   return translated !== key ? translated : message || t('errors.fallback.message');
 };
 
+const canUseClipboard = () =>
+  typeof navigator !== 'undefined' &&
+  Boolean(navigator.clipboard) &&
+  typeof navigator.clipboard.writeText === 'function';
+
 const useVerifyEmailScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { t } = useI18n();
   const { verifyEmail, resendVerification } = useAuth();
   const autoVerifyTriggeredRef = useRef(false);
+  const autoCopyTriggeredRef = useRef(false);
 
   const tokenParam = useMemo(() => toSingleValue(params?.token).trim(), [params?.token]);
   const emailParam = useMemo(() => toSingleValue(params?.email).trim().toLowerCase(), [params?.email]);
+  const copyActionParam = useMemo(
+    () => toSingleValue(params?.copy_action).trim().toLowerCase(),
+    [params?.copy_action]
+  );
+  const copyValueParam = useMemo(() => toSingleValue(params?.copy_value), [params?.copy_value]);
 
   const [form, setForm] = useState({
     email: '',
@@ -190,6 +201,46 @@ const useVerifyEmailScreen = () => {
     submitVerification(tokenParam, emailParam)
       .finally(() => setIsVerifying(false));
   }, [emailParam, isHydrating, submitVerification, tokenParam]);
+
+  useEffect(() => {
+    if (isHydrating || autoCopyTriggeredRef.current) return;
+    if (!copyActionParam || !copyValueParam) return;
+    autoCopyTriggeredRef.current = true;
+
+    const normalizedAction = copyActionParam === 'code' ? 'code' : 'link';
+    if (!canUseClipboard()) {
+      setSubmitError({
+        code: 'COPY_UNSUPPORTED',
+        message: t('auth.verifyEmail.copy.notSupported'),
+      });
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(copyValueParam)
+      .then(() => {
+        setSubmitError(null);
+        if (normalizedAction === 'code') {
+          setUseManualCode(true);
+          setFieldValue('token', copyValueParam.slice(0, VERIFY_CODE_LENGTH));
+          setResendMessage(t('auth.verifyEmail.copy.codeCopied'));
+        } else {
+          setResendMessage(t('auth.verifyEmail.copy.linkCopied'));
+        }
+      })
+      .catch(() => {
+        setSubmitError({
+          code: 'COPY_FAILED',
+          message: t('auth.verifyEmail.copy.failed'),
+        });
+      });
+  }, [
+    copyActionParam,
+    copyValueParam,
+    isHydrating,
+    setFieldValue,
+    t,
+  ]);
 
   useEffect(() => {
     if (!isVerified) return;

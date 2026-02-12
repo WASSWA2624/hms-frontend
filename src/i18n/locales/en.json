@@ -1245,6 +1245,12 @@
       "feedback": {
         "resent": "A new verification code and link have been sent to your email."
       },
+      "copy": {
+        "codeCopied": "Verification code copied to clipboard.",
+        "linkCopied": "Verification link copied to clipboard.",
+        "failed": "Unable to copy automatically. Copy it manually from the email.",
+        "notSupported": "Clipboard copy is not supported on this device/browser."
+      },
       "validation": {
         "emailRequired": "Email is required",
         "emailInvalid": "Enter a valid email address",
