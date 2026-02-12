@@ -19,7 +19,7 @@ function AuthGroupLayout() {
 
   return (
     <AuthLayout
-      accessibilityLabel={t('auth.register.onboarding.layoutLabel')}
+      accessibilityLabel={t('auth.layout.title')}
       testID="auth-group-layout"
     >
       <Slot />

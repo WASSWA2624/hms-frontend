@@ -12,6 +12,7 @@ import {
   resolveFacilitySelection,
   saveOnboardingEntry,
 } from '@navigation/onboardingEntry';
+import { saveRegistrationContext } from '@navigation/registrationContext';
 import { FACILITY_OPTIONS, REGISTER_DRAFT_KEY } from './types';
 
 const initialForm = {
@@ -221,8 +222,22 @@ const useRegisterScreen = () => {
       const status = action?.meta?.requestStatus;
 
       if (status === 'fulfilled') {
+        const responseUser = action?.payload?.user || null;
+        const responseVerification = action?.payload?.verification || null;
         await asyncStorage.removeItem(REGISTER_DRAFT_KEY);
         await saveOnboardingEntry(form.facilityType);
+        await saveRegistrationContext({
+          email: payload.email,
+          admin_name: payload.admin_name,
+          facility_name: payload.facility_name,
+          facility_type: payload.facility_type,
+          tenant_id: responseUser?.tenant_id || '',
+          facility_id: responseUser?.facility_id || '',
+          tenant_name: responseUser?.tenant?.name || payload.facility_name,
+          facility_display_name: responseUser?.facility?.name || payload.facility_name,
+          created_at: new Date().toISOString(),
+          verification_expires_in_minutes: responseVerification?.expires_in_minutes || 15,
+        });
         setIsSuccess(true);
         return true;
       }
@@ -238,8 +253,13 @@ const useRegisterScreen = () => {
   }, [form, isSubmitting, register, t, validate]);
 
   const handleContinue = useCallback(() => {
-    router.push('/landing');
-  }, [router]);
+    router.push({
+      pathname: '/verify-email',
+      params: {
+        email: form.email.trim().toLowerCase(),
+      },
+    });
+  }, [form.email, router]);
 
   return {
     form,

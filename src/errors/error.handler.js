@@ -55,6 +55,21 @@ const extractErrorCode = (message) => {
   if (messageLower.includes('multiple tenant') || messageLower.includes('tenant selection')) {
     return 'MULTIPLE_TENANTS';
   }
+  if (messageLower.includes('pending verification')) {
+    return 'ACCOUNT_PENDING';
+  }
+  if (messageLower.includes('suspended')) {
+    return 'ACCOUNT_SUSPENDED';
+  }
+  if (messageLower.includes('not active') || messageLower.includes('inactive')) {
+    return 'ACCOUNT_INACTIVE';
+  }
+  if (messageLower.includes('invalid or expired token') || messageLower.includes('invalid token')) {
+    return 'TOKEN_INVALID';
+  }
+  if (messageLower.includes('already verified')) {
+    return 'ALREADY_VERIFIED';
+  }
 
   return 'UNKNOWN_ERROR';
 };

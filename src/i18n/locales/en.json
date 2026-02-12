@@ -75,6 +75,9 @@
     "TOKEN_EXPIRED": "Token has expired",
     "MISSING_TOKEN": "Authentication required. Please sign in.",
     "REFRESH_TOKEN_INVALID": "Invalid or expired refresh token",
+      "SESSION_EXPIRED": "Your session has expired. Sign in again.",
+      "SESSION_REVOKED": "This session is no longer valid.",
+      "UNAUTHORIZED_FACILITY": "You do not have access to the selected facility.",
       "USER_NOT_FOUND": "User not found",
       "USER_EXISTS": "User with this email already exists",
       "SESSION_NOT_FOUND": "Session not found",
@@ -969,7 +972,7 @@
     },
     "login": {
       "title": "Login",
-      "description": "Click the button below to sign in and view the main application layouts",
+      "description": "Sign in to continue to your workspace.",
       "button": "Sign In",
       "buttonHint": "Sign in to access the application",
       "biometric": {
@@ -994,6 +997,10 @@
           "placeholder": "Enter your password",
           "hint": "Enter your account password"
         },
+        "remember": {
+          "label": "Keep me logged in on this device",
+          "hint": "When off, the session ends after you close the app or browser."
+        },
         "tenant": {
           "label": "Tenant ID",
           "placeholder": "Enter tenant ID",
@@ -1009,7 +1016,14 @@
         "forgotPassword": "Forgot password?",
         "forgotPasswordHint": "Recover your account password",
         "register": "Create an account",
-        "registerHint": "Register a new account"
+        "registerHint": "Register a new account",
+        "verifyEmail": "Verify email",
+        "verifyEmailHint": "Confirm your email address"
+      },
+      "validation": {
+        "identifierRequired": "Email or phone number is required",
+        "identifierInvalid": "Enter a valid email or phone number",
+        "passwordRequired": "Password is required"
       }
     },
     "register": {
@@ -1060,7 +1074,7 @@
           "passwordSpecial": "Password must include at least one special character"
         },
         "feedback": {
-          "success": "Registration submitted successfully. Continue onboarding.",
+          "success": "Registration submitted successfully. Verify your email to continue.",
           "errorTitle": "Unable to register",
           "tenantRequired": "Registration link is incomplete. Please restart from the onboarding link."
         },
@@ -1180,7 +1194,7 @@
     },
     "verifyEmail": {
       "title": "Verify email",
-      "description": "Confirm your email address with the verification token",
+      "description": "Use the code or link sent to your email. The code expires in 15 minutes.",
       "button": "Verify email",
       "buttonHint": "Submit your email verification token",
       "error": {
@@ -1189,19 +1203,29 @@
       "success": {
         "message": "Your email has been verified successfully."
       },
+      "feedback": {
+        "resent": "A new verification code and link have been sent to your email."
+      },
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
+        "codeRequired": "Verification code or token is required"
+      },
       "fields": {
         "token": {
-          "label": "Verification token",
-          "placeholder": "Enter verification token",
-          "hint": "Enter the token sent to your email"
+          "label": "Verification code or token",
+          "placeholder": "Enter the code or token from your email",
+          "hint": "Use the code from the email or paste the token from the link."
         },
         "email": {
-          "label": "Email address (optional)",
+          "label": "Email address",
           "placeholder": "you@example.com",
-          "hint": "Provide your email address if requested"
+          "hint": "Use the same email you used during registration."
         }
       },
       "actions": {
+        "resend": "Request new code/link",
+        "resendHint": "Send a fresh verification email",
         "login": "Return to sign in",
         "loginHint": "Go back to the login screen"
       }

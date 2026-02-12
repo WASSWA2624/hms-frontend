@@ -3,7 +3,9 @@
  * Shared behavior/logic for DashboardScreen across all platforms
  * File: useDashboardScreen.js
  */
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@hooks';
+import { readRegistrationContext } from '@navigation/registrationContext';
 import { STATES } from './types';
 
 const SUMMARY_CARDS = [
@@ -163,16 +165,58 @@ const SERVICE_STATUS = [
   },
 ];
 
-const FACILITY_CONTEXT = {
+const DEFAULT_FACILITY_CONTEXT = {
   userName: 'Dr. Amina',
   roleKey: 'home.welcome.roles.medicalDirector',
   facilityName: 'CityCare Hospital',
-  branchName: 'Main Campus',
+  branchName: '',
   facilityTypeKey: 'home.facility.types.hospital',
   planStatusKey: 'home.plan.status.trial',
   planDetailKey: 'home.plan.trialDays',
   planDetailValue: 9,
 };
+
+const mapRoleToWelcomeKey = (value) => {
+  const normalized = String(value || '').toUpperCase();
+  if (normalized.includes('OWNER') || normalized.includes('ADMIN')) {
+    return 'home.welcome.roles.owner';
+  }
+  if (normalized.includes('DOCTOR') || normalized.includes('MEDICAL')) {
+    return 'home.welcome.roles.medicalDirector';
+  }
+  return 'home.welcome.roles.admin';
+};
+
+const mapFacilityTypeToKey = (value) => {
+  const normalized = String(value || '').toUpperCase();
+  if (normalized === 'CLINIC') return 'home.facility.types.clinic';
+  if (normalized === 'HOSPITAL') return 'home.facility.types.hospital';
+  if (normalized === 'LAB') return 'home.facility.types.lab';
+  if (normalized === 'PHARMACY') return 'home.facility.types.pharmacy';
+  if (normalized === 'EMERGENCY') return 'home.facility.types.emergency';
+  return DEFAULT_FACILITY_CONTEXT.facilityTypeKey;
+};
+
+const normalizeUserName = (user, registrationContext) => {
+  const firstName = user?.profile?.first_name || '';
+  const lastName = user?.profile?.last_name || '';
+  const profileName = `${firstName} ${lastName}`.trim();
+  if (profileName) return profileName;
+
+  if (registrationContext?.admin_name) return registrationContext.admin_name;
+
+  if (user?.email && user.email.includes('@')) {
+    return user.email.split('@')[0];
+  }
+
+  return DEFAULT_FACILITY_CONTEXT.userName;
+};
+
+const resolveFacilityName = (user, registrationContext) =>
+  user?.facility?.name ||
+  registrationContext?.facility_display_name ||
+  registrationContext?.facility_name ||
+  DEFAULT_FACILITY_CONTEXT.facilityName;
 
 const SMART_STATUS_STRIP = [
   { id: 'patientsToday', labelKey: 'home.statusStrip.items.patientsToday', value: 128 },
@@ -477,13 +521,55 @@ const HELP_RESOURCES = [
  * @returns {Object} Hook return object
  */
 const useDashboardScreen = () => {
+  const { user } = useAuth();
+  const [registrationContext, setRegistrationContext] = useState(null);
+  const [isHydrating, setIsHydrating] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const hydrate = async () => {
+      setIsHydrating(true);
+      try {
+        const context = await readRegistrationContext();
+        if (active) setRegistrationContext(context);
+      } finally {
+        if (active) setIsHydrating(false);
+      }
+    };
+
+    hydrate();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const facilityContext = useMemo(() => {
+    const roleName =
+      user?.roles?.[0]?.role?.name ||
+      user?.roles?.[0]?.name ||
+      user?.role ||
+      '';
+    const facilityName = resolveFacilityName(user, registrationContext);
+    const resolvedFacilityType =
+      user?.facility?.facility_type || registrationContext?.facility_type || '';
+    return {
+      ...DEFAULT_FACILITY_CONTEXT,
+      userName: normalizeUserName(user, registrationContext),
+      roleKey: mapRoleToWelcomeKey(roleName),
+      facilityName,
+      branchName: registrationContext?.tenant_name || user?.tenant?.name || facilityName,
+      facilityTypeKey: mapFacilityTypeToKey(resolvedFacilityType),
+    };
+  }, [registrationContext, user]);
+
   const lastUpdated = useMemo(() => new Date(), []);
   const handleRetry = useCallback(() => {}, []);
 
   return {
-    state: STATES.IDLE,
+    state: isHydrating ? STATES.LOADING : STATES.IDLE,
     isOffline: false,
-    facilityContext: FACILITY_CONTEXT,
+    facilityContext,
     smartStatusStrip: SMART_STATUS_STRIP,
     onboardingChecklist: ONBOARDING_CHECKLIST,
     quickActions: QUICK_ACTIONS,

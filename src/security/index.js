@@ -9,6 +9,7 @@ export const tokenManager = {
   getRefreshToken: tokenManagerModule.getRefreshToken,
   setTokens: tokenManagerModule.setTokens,
   clearTokens: tokenManagerModule.clearTokens,
+  shouldPersistTokens: tokenManagerModule.shouldPersistTokens,
   isTokenExpired: tokenManagerModule.isTokenExpired,
 };
 
@@ -17,6 +18,7 @@ export {
   getRefreshToken,
   setTokens,
   clearTokens,
+  shouldPersistTokens,
   isTokenExpired,
 } from './token.manager';
 

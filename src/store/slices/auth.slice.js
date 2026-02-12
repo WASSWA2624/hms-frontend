@@ -50,11 +50,13 @@ const register = createAsyncThunk('auth/register', async (payload, { rejectWithV
       return {
         user: result.user || null,
         hasSession: Boolean(result.hasSession),
+        verification: result.verification || null,
       };
     }
     return {
       user: result || null,
       hasSession: false,
+      verification: null,
     };
   } catch (error) {
     console.error('[AUTH_THUNK_REGISTER_ERROR]', error);

@@ -48,6 +48,7 @@ const identifyUseCase = async (payload) =>
 const loginUseCase = async (payload) =>
   execute(async () => {
     const parsed = parseCredentials(payload);
+    const rememberSession = Boolean(payload?.remember_me || payload?.rememberMe);
     try {
       const response = await loginApi(parsed);
       const data = unwrap(response);
@@ -65,7 +66,9 @@ const loginUseCase = async (payload) =>
 
       const { user, tokens } = normalizeAuthResponse(data);
       if (tokens?.accessToken && tokens?.refreshToken) {
-        await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
+        await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, {
+          persist: rememberSession,
+        });
       }
       return user;
     } catch (apiError) {
@@ -94,11 +97,12 @@ const registerUseCase = async (payload) =>
     const response = await registerApi(parsed);
     const data = unwrap(response);
     const { user, tokens } = normalizeAuthResponse(data);
+    const verification = data?.verification || null;
     const hasSession = Boolean(tokens?.accessToken && tokens?.refreshToken);
     if (tokens?.accessToken && tokens?.refreshToken) {
       await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
     }
-    return { user, hasSession };
+    return { user, hasSession, verification };
   });
 
 const logoutUseCase = async () =>
@@ -119,7 +123,8 @@ const refreshSessionUseCase = async () =>
     const data = unwrap(response);
     const { tokens } = normalizeAuthResponse(data);
     if (tokens?.accessToken && tokens?.refreshToken) {
-      await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
+      const persist = await tokenManager.shouldPersistTokens();
+      await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, { persist });
     }
     return tokens;
   });
