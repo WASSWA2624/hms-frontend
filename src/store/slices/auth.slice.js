@@ -224,9 +224,11 @@ const authSlice = createSlice({
         state.errorCode = null;
       })
       .addCase(login.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const requiresFacilitySelection = Boolean(payload?.requiresFacilitySelection);
         state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = Boolean(action.payload);
+        state.user = requiresFacilitySelection ? null : (payload || null);
+        state.isAuthenticated = Boolean(!requiresFacilitySelection && payload?.id);
         state.lastUpdated = Date.now();
       })
       .addCase(login.rejected, (state, action) => {
@@ -272,7 +274,10 @@ const authSlice = createSlice({
       })
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
         state.errorCode = normalizeErrorCode(action.payload);
+        state.lastUpdated = Date.now();
       })
       .addCase(refreshSession.pending, (state) => {
         state.isLoading = true;

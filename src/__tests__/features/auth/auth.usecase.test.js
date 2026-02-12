@@ -37,6 +37,7 @@ jest.mock('@security', () => ({
     setTokens: jest.fn(),
     clearTokens: jest.fn(),
     getRefreshToken: jest.fn(),
+    shouldPersistTokens: jest.fn(),
   },
 }));
 
@@ -50,6 +51,7 @@ describe('auth.usecase', () => {
     tokenManager.setTokens.mockResolvedValue(true);
     tokenManager.clearTokens.mockResolvedValue(true);
     tokenManager.getRefreshToken.mockResolvedValue('refresh');
+    tokenManager.shouldPersistTokens.mockResolvedValue(true);
   });
 
   it('logs in and stores tokens', async () => {
@@ -59,12 +61,12 @@ describe('auth.usecase', () => {
       tenant_id: '550e8400-e29b-41d4-a716-446655440000'
     });
     expect(user).toEqual({ id: '1' });
-    expect(tokenManager.setTokens).toHaveBeenCalledWith('a', 'b');
+    expect(tokenManager.setTokens).toHaveBeenCalledWith('a', 'b', { persist: false });
   });
 
   it('registers without auto-authenticating when no tokens are returned', async () => {
     const result = await registerUseCase({ email: 'user' });
-    expect(result).toEqual({ user: { id: '2' }, hasSession: false });
+    expect(result).toEqual({ user: { id: '2' }, hasSession: false, verification: null });
     const current = await loadCurrentUserUseCase();
     expect(current).toEqual({ id: '3' });
   });
@@ -72,7 +74,9 @@ describe('auth.usecase', () => {
   it('refreshes session and logs out', async () => {
     const tokens = await refreshSessionUseCase();
     expect(tokens).toEqual({ accessToken: 'a', refreshToken: 'b' });
+    expect(tokenManager.setTokens).toHaveBeenCalledWith('a', 'b', { persist: true });
     await logoutUseCase();
+    expect(logoutApi).toHaveBeenCalledWith({ refresh_token: 'refresh' });
     expect(tokenManager.clearTokens).toHaveBeenCalled();
   });
 

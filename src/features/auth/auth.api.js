@@ -20,10 +20,11 @@ const loginApi = (payload) =>
     body: payload,
   });
 
-const logoutApi = () =>
+const logoutApi = (payload) =>
   apiClient({
     url: endpoints.AUTH.LOGOUT,
     method: 'POST',
+    ...(payload ? { body: payload } : {}),
   });
 
 const refreshApi = (payload) =>

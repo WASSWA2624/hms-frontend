@@ -45,6 +45,13 @@ const resolveErrorMessage = (code, message, t) => {
   return translated !== key ? translated : message || t('errors.fallback.message');
 };
 
+const toDraftPayload = (value) => ({
+  facilityName: value?.facilityName || '',
+  adminName: value?.adminName || '',
+  facilityType: value?.facilityType || '',
+  email: value?.email || '',
+});
+
 const useRegisterScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
@@ -80,8 +87,8 @@ const useRegisterScreen = () => {
         facilityName: draft?.facilityName || '',
         adminName: draft?.adminName || '',
         facilityType: optionIds.has(facilityType) ? facilityType : '',
-        email: '',
-        password: draft?.password || '',
+        email: draft?.email || '',
+        password: '',
       });
     } finally {
       setIsHydrating(false);
@@ -94,7 +101,7 @@ const useRegisterScreen = () => {
 
   useEffect(() => {
     if (isHydrating) return;
-    asyncStorage.setItem(REGISTER_DRAFT_KEY, form);
+    asyncStorage.setItem(REGISTER_DRAFT_KEY, toDraftPayload(form));
   }, [form, isHydrating]);
 
   const normalizeValue = useCallback((key, value) => {

@@ -52,7 +52,6 @@ const useVerifyEmailScreen = () => {
   const [isHydrating, setIsHydrating] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [useManualCode, setUseManualCode] = useState(Boolean(tokenParam));
   const [submitError, setSubmitError] = useState(null);
   const [resendMessage, setResendMessage] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -91,7 +90,6 @@ const useVerifyEmailScreen = () => {
       }
 
       if (key === 'token') {
-        if (!useManualCode) return '';
         const value = sourceForm.token.trim();
         if (!value) return t('auth.verifyEmail.validation.codeRequired');
         if (value.length > VERIFY_CODE_LENGTH) {
@@ -102,22 +100,20 @@ const useVerifyEmailScreen = () => {
 
       return '';
     },
-    [t, useManualCode]
+    [t]
   );
 
   const validate = useCallback(
     (sourceForm = form) => {
       const next = {
         email: validateField('email', sourceForm),
+        token: validateField('token', sourceForm),
       };
-      if (useManualCode) {
-        next.token = validateField('token', sourceForm);
-      }
       const compact = Object.fromEntries(Object.entries(next).filter(([, value]) => Boolean(value)));
       setErrors(compact);
       return Object.keys(compact).length === 0;
     },
-    [form, useManualCode, validateField]
+    [form, validateField]
   );
 
   const setFieldValue = useCallback(
@@ -221,7 +217,6 @@ const useVerifyEmailScreen = () => {
       .then(() => {
         setSubmitError(null);
         if (normalizedAction === 'code') {
-          setUseManualCode(true);
           setFieldValue('token', copyValueParam.slice(0, VERIFY_CODE_LENGTH));
           setResendMessage(t('auth.verifyEmail.copy.codeCopied'));
         } else {
@@ -267,21 +262,6 @@ const useVerifyEmailScreen = () => {
     setResendMessage('');
 
     const emailValue = form.email.trim().toLowerCase();
-    const emailError = validateField('email', { ...form, email: emailValue });
-    if (emailError) {
-      setErrors((prev) => ({ ...prev, email: emailError }));
-      return false;
-    }
-
-    if (!useManualCode) {
-      setIsResending(true);
-      try {
-        return await requestMagicLink(emailValue);
-      } finally {
-        setIsResending(false);
-      }
-    }
-
     const isValid = validate({ ...form, email: emailValue });
     if (!isValid) return false;
 
@@ -291,7 +271,7 @@ const useVerifyEmailScreen = () => {
     } finally {
       setIsVerifying(false);
     }
-  }, [form, isVerifying, requestMagicLink, submitVerification, useManualCode, validate, validateField]);
+  }, [form, isVerifying, submitVerification, validate]);
 
   const handleResend = useCallback(async () => {
     if (isResending) return false;
@@ -331,7 +311,6 @@ const useVerifyEmailScreen = () => {
   return {
     form,
     errors,
-    useManualCode,
     isHydrating,
     isVerifying,
     isResending,
@@ -341,7 +320,6 @@ const useVerifyEmailScreen = () => {
     setFieldValue,
     handleSubmit,
     handleResend,
-    setUseManualCode,
     goToLogin,
   };
 };

@@ -88,13 +88,16 @@ const registerUseCase = async (payload) =>
 
 const logoutUseCase = async () =>
   execute(async () => {
+    const refreshToken = await tokenManager.getRefreshToken();
     try {
-      await logoutApi();
-      return true;
+      await logoutApi(refreshToken ? { refresh_token: refreshToken } : undefined);
+    } catch {
+      // Local logout must still succeed even if network/API logout fails.
     } finally {
       await tokenManager.clearTokens();
       clearCsrfToken();
     }
+    return true;
   });
 
 const refreshSessionUseCase = async () =>

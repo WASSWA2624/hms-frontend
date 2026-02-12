@@ -7,6 +7,7 @@ import { configureStore } from '@reduxjs/toolkit';
 jest.mock('@features/auth', () => ({
   changePasswordUseCase: jest.fn(),
   forgotPasswordUseCase: jest.fn(),
+  identifyUseCase: jest.fn(),
   loginUseCase: jest.fn(),
   registerUseCase: jest.fn(),
   logoutUseCase: jest.fn(),
@@ -21,6 +22,7 @@ jest.mock('@features/auth', () => ({
 import { actions, reducer } from '@store/slices/auth.slice';
 import {
   loginUseCase,
+  identifyUseCase,
   registerUseCase,
   logoutUseCase,
   refreshSessionUseCase,
@@ -43,7 +45,8 @@ const createStore = () =>
 describe('auth.slice', () => {
   beforeEach(() => {
     loginUseCase.mockResolvedValue({ id: '1' });
-    registerUseCase.mockResolvedValue({ id: '2' });
+    identifyUseCase.mockResolvedValue({ users: [] });
+    registerUseCase.mockResolvedValue({ user: { id: '2' }, hasSession: false, verification: null });
     logoutUseCase.mockResolvedValue(true);
     refreshSessionUseCase.mockResolvedValue({ accessToken: 'a', refreshToken: 'b' });
     loadCurrentUserUseCase.mockResolvedValue({ id: '3' });
@@ -86,6 +89,31 @@ describe('auth.slice', () => {
       tenant_id: '550e8400-e29b-41d4-a716-446655440000'
     }));
     expect(store.getState().auth.errorCode).toBe('UNAUTHORIZED');
+  });
+
+  it('does not authenticate when login requires facility selection', async () => {
+    const store = createStore();
+    loginUseCase.mockResolvedValueOnce({ requiresFacilitySelection: true, facilities: [] });
+    await store.dispatch(actions.login({
+      email: 'user@example.com',
+      password: 'pass',
+      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
+    }));
+    expect(store.getState().auth.isAuthenticated).toBe(false);
+    expect(store.getState().auth.user).toBeNull();
+  });
+
+  it('clears local auth state even when logout request fails', async () => {
+    const store = createStore();
+    await store.dispatch(actions.login({
+      email: 'user@example.com',
+      password: 'pass',
+      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
+    }));
+    logoutUseCase.mockRejectedValueOnce({ code: 'NETWORK_ERROR' });
+    await store.dispatch(actions.logout());
+    expect(store.getState().auth.isAuthenticated).toBe(false);
+    expect(store.getState().auth.user).toBeNull();
   });
 
   it('handles verification and password flows', async () => {
