@@ -1,1 +1,0 @@
-{"version":3,"names":["default"],"sources":["AddressFormScreen.jsx"],"sourcesContent":["/**\r\n * AddressFormScreen\r\n * Platform-agnostic export\r\n */\r\nexport { default } from './AddressFormScreen.web';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAIA,SAASA,OAAO","ignoreList":[]}

@@ -147,6 +147,7 @@ const FacilityListScreenAndroid = () => {
               onChangeText={onSearch}
               placeholder={t('facility.list.searchPlaceholder')}
               accessibilityLabel={t('facility.list.searchLabel')}
+              accessibilityHint={t('facility.list.searchHint')}
               density="compact"
               type="search"
               testID="facility-list-search"

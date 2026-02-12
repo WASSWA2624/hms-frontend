@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '@platform/components/display/Icon';
 import { getMenuIconGlyph } from '@config/sideMenu';
+import { useI18n } from '@hooks';
 import { Row, RowPressable, IconBox, Label, ExpandTouch, ExpandChevron } from './SidebarItem.ios.styles.jsx';
 
 const normalize = (props) => {
@@ -34,6 +35,7 @@ const normalize = (props) => {
 };
 
 const SidebarItemIOS = (props) => {
+  const { t } = useI18n();
   const { path, label, icon, collapsed, active, onPress, level = 0, hasChildren, expanded, onToggleExpand } = normalize(props);
 
   const handlePress = () => {
@@ -47,6 +49,7 @@ const SidebarItemIOS = (props) => {
         testID={testID}
         onPress={handlePress}
         accessibilityLabel={label}
+        accessibilityHint={t('navigation.sidebar.itemHint', { label })}
         accessibilityState={{ selected: !!active }}
       >
         <IconBox>
@@ -58,7 +61,12 @@ const SidebarItemIOS = (props) => {
         <ExpandTouch
           onPress={() => onToggleExpand?.()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          accessibilityLabel={expanded ? 'Collapse' : 'Expand'}
+          accessibilityLabel={
+            expanded
+              ? t('navigation.sidebar.collapseSectionLabel', { label })
+              : t('navigation.sidebar.expandSectionLabel', { label })
+          }
+          accessibilityHint={t('navigation.sidebar.expandToggleHint', { label })}
           accessibilityRole="button"
           $expanded={expanded}
         >

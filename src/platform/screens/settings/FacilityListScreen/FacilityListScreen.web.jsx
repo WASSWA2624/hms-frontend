@@ -117,6 +117,7 @@ const FacilityListScreenWeb = () => {
               onChange={(e) => onSearch(e.target.value)}
               placeholder={t('facility.list.searchPlaceholder')}
               accessibilityLabel={t('facility.list.searchLabel')}
+              accessibilityHint={t('facility.list.searchHint')}
               density="compact"
               type="search"
               testID="facility-list-search"
@@ -164,7 +165,9 @@ const FacilityListScreenWeb = () => {
               )}
             </StyledStateStack>
             {isLoading && (
-              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="facility-list-loading" />
+              <div role="status" aria-live="polite">
+                <LoadingSpinner accessibilityLabel={t('common.loading')} testID="facility-list-loading" />
+              </div>
             )}
             {showEmpty && emptyComponent}
             {showList && (

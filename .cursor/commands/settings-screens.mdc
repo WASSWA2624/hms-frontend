@@ -1,4 +1,4 @@
-**11.3.2** Tenant -- `(main)/settings/tenants`
+**11.3.3** Facility -- `(main)/settings/facilities`
 
 Review and implement all missing and non compliant aspects of the above dev sptep as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
@@ -23,8 +23,41 @@ Implement full functionality required for the selected Tier 3 step (`11.3.1` to 
 - Read-only behavior where create/edit is intentionally not supported (for example `11.3.18` and `11.3.21`)
 - Navigation (Back / Cancel / Save) with no dead ends
 - Prefill known fields and use select controls for known relations where applicable
+- Role-feature access control for logged-in user on all actions, features, and routes
+- Accessibility control for all role-gated features and navigation flows
+- Settings navbar/menu items must respect role-feature access and remain accessible (active, disabled, and hidden states)
 
 Do NOT implement steps outside Tier 3.
+
+---
+
+## Access Control (Mandatory)
+
+- Enforce role/feature access for the logged user using existing access-control hooks/utilities/patterns already used in the app
+- Use a single permission source of truth (existing role-feature mapping) for both rendering and route decisions
+- Apply access checks to both:
+  - UI actions (view/list/create/edit/delete/retry/export/etc. where applicable)
+  - Route navigation (including deep links to detail/create/edit routes)
+- Never rely on UI hiding alone; route-level protection must prevent unauthorized access
+- Block unauthorized data actions before API calls and handle backend `401/403` responses with clear feedback
+- For unauthorized actions:
+  - Hide action if feature should not be discoverable
+  - Or disable action with accessible explanation/hint when visibility is required
+- For unauthorized routes:
+  - Redirect to nearest allowed settings route with clear non-technical feedback
+  - Preserve safe navigation (Back/Cancel) and avoid dead ends
+- If backend does not support an action or user lacks permission, keep screen functional in read-only mode where appropriate
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Apply role-feature access to settings sidebar/top navigation items and route entries consistently
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers
+- Mark active nav item with `aria-current="page"` and visible active styling
+- For visible-but-blocked nav/actions, use `aria-disabled="true"`, prevent route/action execution, and provide accessible reason text
+- Ensure keyboard navigation order, focus visibility, and focus restoration after route change/redirect/error
+- Provide screen-reader friendly feedback for denied access, loading, errors, and successful actions
 
 ---
 
@@ -59,6 +92,13 @@ Forms:
 - Required fields clearly indicated
 - Logical field order
 
+Accessibility + permissions UX:
+- Every interactive control must include accessible label/hint, including role-gated controls
+- Disabled/hidden permission states must communicate clear reason (human-readable + accessible)
+- Keyboard navigation and focus visibility must remain intact for web
+- Current location and available routes must be clear when items are gated by role/feature access
+- Any enabled action must satisfy both permission checks and backend support checks
+
 ---
 
 ## Reliability
@@ -68,6 +108,19 @@ Forms:
 - Clear success/failure feedback for every supported action
 - Disable invalid actions based on validation and dependencies
 - Preserve user state where possible
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders)
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety
+
+---
+
+## Backend Linkage (Mandatory)
+
+- Every implemented feature/action must call the real backend endpoint defined for the selected Tier 3 resource
+- Keep request/response fields strictly aligned with backend DTO/schema and validation rules
+- Do not ship mock data, fake success states, or disconnected UI actions
+- If backend intentionally lacks support for an action, expose read-only UX and remove/write-block unsupported actions
+- Surface backend validation/business errors inline where applicable and as global feedback where needed
 
 All operations MUST match backend schema and endpoint behavior exactly.
 
@@ -93,6 +146,11 @@ Do NOT:
 - Responsive UI with clear validation and feedback
 - No nested scroll
 - Screen works independently and integrates with current settings navigation
+- Role-feature access is enforced for actions and routes (including deep links)
+- Accessibility is preserved for all states, including unauthorized/disabled states
+- All applicable features/actions are fully functional and backend-linked
+- Settings/navbar items, route guards, and action controls stay synchronized with role-feature permissions
+- Unauthorized users cannot execute actions via URL, keyboard, or direct API-triggering UI paths
 
 ---
 
@@ -109,5 +167,9 @@ Return ONLY:
 7. Success/failure feedback implementation
 8. Navigation handlers
 9. Backend contract alignment confirmation
+10. Role-feature access control implementation confirmation (actions + routes)
+11. Accessibility control confirmation for gated and non-gated actions/features
+12. Navigation/menu accessibility + route-guard confirmation (`aria-current`, `aria-disabled`, keyboard/focus behavior)
+13. Action-to-backend linkage confirmation for all enabled features in the selected screen
 
 Do NOT include files or logic outside the selected Tier 3 screen.

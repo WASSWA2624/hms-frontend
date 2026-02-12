@@ -2,6 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import Icon from '@platform/components/display/Icon';
 import { getMenuIconGlyph } from '@config/sideMenu';
+import { useI18n } from '@hooks';
 import { Row, IconWrapper, Label, ExpandButton } from './SidebarItem.web.styles.jsx';
 
 const normalize = (props) => {
@@ -35,6 +36,7 @@ const normalize = (props) => {
 };
 
 const SidebarItemWeb = (props) => {
+  const { t } = useI18n();
   const router = useRouter();
   const { path, label, icon, collapsed, active, onClick, level = 0, hasChildren, expanded, onToggleExpand } = normalize(props);
   const glyph = getMenuIconGlyph(icon);
@@ -61,6 +63,7 @@ const SidebarItemWeb = (props) => {
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label={label}
+      aria-description={t('navigation.sidebar.itemHint', { label })}
       aria-current={active ? 'page' : undefined}
       aria-expanded={hasChildren ? expanded : undefined}
       title={collapsed ? label : undefined}
@@ -78,7 +81,12 @@ const SidebarItemWeb = (props) => {
       {hasChildren && !collapsed && (
         <ExpandButton
           type="button"
-          aria-label={expanded ? 'Collapse' : 'Expand'}
+          aria-label={
+            expanded
+              ? t('navigation.sidebar.collapseSectionLabel', { label })
+              : t('navigation.sidebar.expandSectionLabel', { label })
+          }
+          aria-description={t('navigation.sidebar.expandToggleHint', { label })}
           onClick={handleExpandClick}
           $expanded={expanded}
         >

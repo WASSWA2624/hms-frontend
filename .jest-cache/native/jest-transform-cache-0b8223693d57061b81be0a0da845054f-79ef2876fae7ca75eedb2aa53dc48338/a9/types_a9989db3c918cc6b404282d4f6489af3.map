@@ -1,1 +1,0 @@
-{"version":3,"names":["SECTION_TITLE_TEST_ID","cov_1jmc97kag2","s"],"sources":["types.js"],"sourcesContent":["/**\r\n * GeneralSettingsPanel types\r\n */\r\nexport const SECTION_TITLE_TEST_ID = 'general-settings-section-title';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAGA,OAAO,IAAMA,qBAAqB,IAAAC,cAAA,GAAAC,CAAA,OAAG,gCAAgC","ignoreList":[]}

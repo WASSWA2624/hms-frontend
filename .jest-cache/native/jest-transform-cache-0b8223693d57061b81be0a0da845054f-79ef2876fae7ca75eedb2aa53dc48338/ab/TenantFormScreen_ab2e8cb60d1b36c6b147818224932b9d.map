@@ -1,1 +1,0 @@
-{"version":3,"names":["default"],"sources":["TenantFormScreen.jsx"],"sourcesContent":["/**\r\n * TenantFormScreen - Platform export\r\n */\r\nexport { default } from './TenantFormScreen.web';\r\n"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAGA,SAASA,OAAO","ignoreList":[]}

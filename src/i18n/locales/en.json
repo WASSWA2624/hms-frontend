@@ -127,7 +127,11 @@
       "searchLabel": "Search navigation",
       "searchPlaceholder": "Search menu",
       "searchResultsLabel": "Navigation search results",
-      "searchEmpty": "No matches found"
+      "searchEmpty": "No matches found",
+      "itemHint": "Open {{label}}",
+      "expandSectionLabel": "Expand {{label}} section",
+      "collapseSectionLabel": "Collapse {{label}} section",
+      "expandToggleHint": "Show or hide nested navigation items for {{label}}"
     },
     "fullscreen": {
       "enter": "Full screen",
@@ -2732,6 +2736,7 @@
       "accessibilityLabel": "Facilities list",
       "searchPlaceholder": "Search facilities",
       "searchLabel": "Search facilities",
+      "searchHint": "Filter the facilities list by name or type",
       "emptyTitle": "No facilities",
       "emptyMessage": "You have no facilities.",
       "loadError": "Unable to load facilities. Check your connection and try again.",
