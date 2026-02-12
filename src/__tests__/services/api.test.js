@@ -85,6 +85,7 @@ describe('API Client', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
             'Accept-Language': 'en',
+            'x-locale': 'en',
           }),
           credentials: 'include',
         })

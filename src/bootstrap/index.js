@@ -6,6 +6,7 @@
 import { initSecurity } from './init.security';
 import { initStore } from './init.store';
 import { initTheme } from './init.theme';
+import { initLocale } from './init.locale';
 import { initOffline } from './init.offline';
 import { logger } from '@logging';
 
@@ -43,7 +44,8 @@ if (typeof __DEV__ !== 'undefined' && __DEV__ && typeof console !== 'undefined')
  * 1. Security (protects everything)
  * 2. Store (required by most layers)
  * 3. Theme (required by UI)
- * 4. Offline (depends on store and services)
+ * 4. Locale (from persisted preference or device locale)
+ * 5. Offline (depends on store and services)
  */
 export async function bootstrapApp() {
   try {
@@ -57,8 +59,11 @@ export async function bootstrapApp() {
     
     // 3. Theme - required by UI
     await initTheme();
+
+    // 4. Locale - set app locale from preference/device
+    await initLocale();
     
-    // 4. Offline - depends on store and services
+    // 5. Offline - depends on store and services
     await initOffline();
     
     logger.info('Application bootstrap completed successfully');

@@ -37,6 +37,7 @@ const RegisterScreenAndroid = () => {
     isHydrating,
     isSubmitting,
     isSuccess,
+    successMessageKey,
     submitError,
     setFieldValue,
     handleSubmit,
@@ -205,7 +206,7 @@ const RegisterScreenAndroid = () => {
         ) : null}
         {isSuccess ? (
           <Text variant="caption" testID="register-submit-success">
-            {t('auth.register.onboarding.feedback.success')}
+            {t(successMessageKey)}
           </Text>
         ) : null}
       </StyledStatus>

@@ -60,6 +60,7 @@ const useRegisterScreen = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessageKey, setSuccessMessageKey] = useState('auth.register.onboarding.feedback.success');
 
   const optionIds = useMemo(() => new Set(FACILITY_OPTIONS.map((item) => item.id)), []);
   const facilityOptions = useMemo(
@@ -201,6 +202,7 @@ const useRegisterScreen = () => {
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || submitInFlightRef.current) return false;
     setIsSuccess(false);
+    setSuccessMessageKey('auth.register.onboarding.feedback.success');
     setSubmitError(null);
 
     const isValid = validate();
@@ -224,20 +226,34 @@ const useRegisterScreen = () => {
       if (status === 'fulfilled') {
         const responseUser = action?.payload?.user || null;
         const responseVerification = action?.payload?.verification || null;
+        const emailAlreadyUsed = Boolean(responseVerification?.email_already_used);
+        const facilityDetailsDiffer = Boolean(responseVerification?.facility_details_differ);
+        const resolvedFirstName = String(responseUser?.profile?.first_name || '').trim();
+        const resolvedLastName = String(responseUser?.profile?.last_name || '').trim();
+        const resolvedAdminName = `${resolvedFirstName} ${resolvedLastName}`.trim() || payload.admin_name;
+        const resolvedFacilityName = responseUser?.facility?.name || payload.facility_name;
+        const resolvedFacilityType = responseUser?.facility?.facility_type || payload.facility_type;
         await asyncStorage.removeItem(REGISTER_DRAFT_KEY);
         await saveOnboardingEntry(form.facilityType);
         await saveRegistrationContext({
           email: payload.email,
-          admin_name: payload.admin_name,
-          facility_name: payload.facility_name,
-          facility_type: payload.facility_type,
+          admin_name: resolvedAdminName,
+          facility_name: resolvedFacilityName,
+          facility_type: resolvedFacilityType,
           tenant_id: responseUser?.tenant_id || '',
           facility_id: responseUser?.facility_id || '',
-          tenant_name: responseUser?.tenant?.name || payload.facility_name,
-          facility_display_name: responseUser?.facility?.name || payload.facility_name,
+          tenant_name: responseUser?.tenant?.name || resolvedFacilityName,
+          facility_display_name: responseUser?.facility?.name || resolvedFacilityName,
           created_at: new Date().toISOString(),
           verification_expires_in_minutes: responseVerification?.expires_in_minutes || 15,
         });
+        setSuccessMessageKey(
+          emailAlreadyUsed && facilityDetailsDiffer
+            ? 'auth.register.onboarding.feedback.existingEmailWithFacilityMismatch'
+            : emailAlreadyUsed
+            ? 'auth.register.onboarding.feedback.existingEmail'
+            : 'auth.register.onboarding.feedback.success'
+        );
         setIsSuccess(true);
         return true;
       }
@@ -268,6 +284,7 @@ const useRegisterScreen = () => {
     isHydrating,
     isSubmitting,
     isSuccess,
+    successMessageKey,
     submitError,
     setFieldValue,
     handleSubmit,

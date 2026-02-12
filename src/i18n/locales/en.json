@@ -1075,6 +1075,8 @@
         },
         "feedback": {
           "success": "Registration submitted successfully. Verify your email to continue.",
+          "existingEmail": "This email has already been used. Check your email to continue verification.",
+          "existingEmailWithFacilityMismatch": "This email has already been used. Check your email to continue verification. The facility details you entered are different from your current account and can be updated later in Settings.",
           "errorTitle": "Unable to register",
           "tenantRequired": "Registration link is incomplete. Please restart from the onboarding link."
         },

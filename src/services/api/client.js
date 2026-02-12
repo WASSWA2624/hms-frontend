@@ -80,7 +80,7 @@ const apiClient = async (config) => {
       credentials: 'include', // Include cookies for session
       headers: {
         'Content-Type': 'application/json',
-        ...(locale ? { 'Accept-Language': locale } : {}),
+        ...(locale ? { 'Accept-Language': locale, 'x-locale': locale } : {}),
         ...authConfig.headers,
         ...csrfHeaders,
       },

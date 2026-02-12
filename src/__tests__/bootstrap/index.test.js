@@ -6,6 +6,7 @@ import { bootstrapApp } from '@bootstrap';
 import { initSecurity } from '@bootstrap/init.security';
 import { initStore } from '@bootstrap/init.store';
 import { initTheme } from '@bootstrap/init.theme';
+import { initLocale } from '@bootstrap/init.locale';
 import { initOffline } from '@bootstrap/init.offline';
 import { logger } from '@logging';
 
@@ -26,6 +27,7 @@ jest.mock('@store', () => ({
 jest.mock('@bootstrap/init.security');
 jest.mock('@bootstrap/init.store');
 jest.mock('@bootstrap/init.theme');
+jest.mock('@bootstrap/init.locale');
 jest.mock('@bootstrap/init.offline');
 jest.mock('@logging', () => ({
   logger: {
@@ -42,27 +44,30 @@ describe('Bootstrap', () => {
     initSecurity.mockResolvedValue(undefined);
     initStore.mockResolvedValue(undefined);
     initTheme.mockResolvedValue(undefined);
+    initLocale.mockResolvedValue(undefined);
     initOffline.mockResolvedValue(undefined);
   });
 
   describe('bootstrapApp', () => {
-    it('calls init modules in correct order: security → store → theme → offline', async () => {
+    it('calls init modules in correct order: security -> store -> theme -> locale -> offline', async () => {
       await bootstrapApp();
 
       expect(initSecurity).toHaveBeenCalledTimes(1);
       expect(initStore).toHaveBeenCalledTimes(1);
       expect(initTheme).toHaveBeenCalledTimes(1);
+      expect(initLocale).toHaveBeenCalledTimes(1);
       expect(initOffline).toHaveBeenCalledTimes(1);
 
-      // Verify order by checking call indices
       const securityCallOrder = initSecurity.mock.invocationCallOrder[0];
       const storeCallOrder = initStore.mock.invocationCallOrder[0];
       const themeCallOrder = initTheme.mock.invocationCallOrder[0];
+      const localeCallOrder = initLocale.mock.invocationCallOrder[0];
       const offlineCallOrder = initOffline.mock.invocationCallOrder[0];
 
       expect(securityCallOrder).toBeLessThan(storeCallOrder);
       expect(storeCallOrder).toBeLessThan(themeCallOrder);
-      expect(themeCallOrder).toBeLessThan(offlineCallOrder);
+      expect(themeCallOrder).toBeLessThan(localeCallOrder);
+      expect(localeCallOrder).toBeLessThan(offlineCallOrder);
     });
 
     it('is idempotent (can be called multiple times)', async () => {
@@ -73,6 +78,7 @@ describe('Bootstrap', () => {
       expect(initSecurity).toHaveBeenCalledTimes(3);
       expect(initStore).toHaveBeenCalledTimes(3);
       expect(initTheme).toHaveBeenCalledTimes(3);
+      expect(initLocale).toHaveBeenCalledTimes(3);
       expect(initOffline).toHaveBeenCalledTimes(3);
     });
 
@@ -92,6 +98,7 @@ describe('Bootstrap', () => {
       expect(initSecurity).toHaveBeenCalled();
       expect(initStore).toHaveBeenCalled();
       expect(initTheme).not.toHaveBeenCalled();
+      expect(initLocale).not.toHaveBeenCalled();
       expect(initOffline).not.toHaveBeenCalled();
 
       expect(logger.error).toHaveBeenCalledWith(
@@ -106,8 +113,6 @@ describe('Bootstrap', () => {
       const securityError = new Error('Security initialization failed');
       initSecurity.mockRejectedValue(securityError);
 
-      // Security init should not throw (per init.security.js implementation)
-      // But if it does throw, bootstrap should fail
       initSecurity.mockImplementation(() => {
         throw securityError;
       });
@@ -116,14 +121,15 @@ describe('Bootstrap', () => {
 
       expect(initSecurity).toHaveBeenCalled();
       expect(initStore).not.toHaveBeenCalled();
+      expect(initTheme).not.toHaveBeenCalled();
+      expect(initLocale).not.toHaveBeenCalled();
+      expect(initOffline).not.toHaveBeenCalled();
     });
 
     it('handles non-fatal errors (theme initialization failure)', async () => {
       const themeError = new Error('Theme initialization failed');
       initTheme.mockRejectedValue(themeError);
 
-      // Theme init should not throw (per init.theme.js implementation)
-      // But if it does throw, bootstrap should fail
       initTheme.mockImplementation(() => {
         throw themeError;
       });
@@ -133,6 +139,24 @@ describe('Bootstrap', () => {
       expect(initSecurity).toHaveBeenCalled();
       expect(initStore).toHaveBeenCalled();
       expect(initTheme).toHaveBeenCalled();
+      expect(initLocale).not.toHaveBeenCalled();
+      expect(initOffline).not.toHaveBeenCalled();
+    });
+
+    it('handles non-fatal errors (locale initialization failure)', async () => {
+      const localeError = new Error('Locale initialization failed');
+      initLocale.mockRejectedValue(localeError);
+
+      initLocale.mockImplementation(() => {
+        throw localeError;
+      });
+
+      await expect(bootstrapApp()).rejects.toThrow('Locale initialization failed');
+
+      expect(initSecurity).toHaveBeenCalled();
+      expect(initStore).toHaveBeenCalled();
+      expect(initTheme).toHaveBeenCalled();
+      expect(initLocale).toHaveBeenCalled();
       expect(initOffline).not.toHaveBeenCalled();
     });
 
@@ -140,8 +164,6 @@ describe('Bootstrap', () => {
       const offlineError = new Error('Offline initialization failed');
       initOffline.mockRejectedValue(offlineError);
 
-      // Offline init should not throw (per init.offline.js implementation)
-      // But if it does throw, bootstrap should fail
       initOffline.mockImplementation(() => {
         throw offlineError;
       });
@@ -151,6 +173,7 @@ describe('Bootstrap', () => {
       expect(initSecurity).toHaveBeenCalled();
       expect(initStore).toHaveBeenCalled();
       expect(initTheme).toHaveBeenCalled();
+      expect(initLocale).toHaveBeenCalled();
       expect(initOffline).toHaveBeenCalled();
     });
 
@@ -158,6 +181,7 @@ describe('Bootstrap', () => {
       let resolveSecurity;
       let resolveStore;
       let resolveTheme;
+      let resolveLocale;
       let resolveOffline;
 
       const securityPromise = new Promise((resolve) => {
@@ -169,6 +193,9 @@ describe('Bootstrap', () => {
       const themePromise = new Promise((resolve) => {
         resolveTheme = resolve;
       });
+      const localePromise = new Promise((resolve) => {
+        resolveLocale = resolve;
+      });
       const offlinePromise = new Promise((resolve) => {
         resolveOffline = resolve;
       });
@@ -176,14 +203,13 @@ describe('Bootstrap', () => {
       initSecurity.mockReturnValue(securityPromise);
       initStore.mockReturnValue(storePromise);
       initTheme.mockReturnValue(themePromise);
+      initLocale.mockReturnValue(localePromise);
       initOffline.mockReturnValue(offlinePromise);
 
       const bootstrapPromise = bootstrapApp();
 
-      // Verify first module is called immediately
       expect(initSecurity).toHaveBeenCalled();
 
-      // Resolve in order and verify subsequent modules are called
       resolveSecurity();
       await new Promise((r) => setTimeout(r, 10));
       expect(initStore).toHaveBeenCalled();
@@ -193,6 +219,10 @@ describe('Bootstrap', () => {
       expect(initTheme).toHaveBeenCalled();
 
       resolveTheme();
+      await new Promise((r) => setTimeout(r, 10));
+      expect(initLocale).toHaveBeenCalled();
+
+      resolveLocale();
       await new Promise((r) => setTimeout(r, 10));
       expect(initOffline).toHaveBeenCalled();
 
@@ -205,4 +235,3 @@ describe('Bootstrap', () => {
     });
   });
 });
-
