@@ -12,6 +12,7 @@ import {
   resolveFacilitySelection,
   saveOnboardingEntry,
 } from '@navigation/onboardingEntry';
+import { saveAuthResumeContext } from '@navigation/authResumeContext';
 import { saveRegistrationContext } from '@navigation/registrationContext';
 import { FACILITY_OPTIONS, REGISTER_DRAFT_KEY } from './types';
 
@@ -295,6 +296,11 @@ const useRegisterScreen = () => {
           facility_display_name: responseUser?.facility?.name || resolvedFacilityName,
           created_at: new Date().toISOString(),
           verification_expires_in_minutes: responseVerification?.expires_in_minutes || 15,
+        });
+        await saveAuthResumeContext({
+          identifier: payload.email,
+          next_path: '/verify-email',
+          params: { email: payload.email },
         });
         setSuccessMessageKey(
           emailAlreadyUsed && facilityDetailsDiffer

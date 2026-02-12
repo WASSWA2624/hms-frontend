@@ -12,8 +12,7 @@ import { tokenManager } from '@security';
 import { actions as authActions } from '@store/slices/auth.slice';
 
 const FIRST_LAUNCH_KEY = 'hms.app.first_launch_completed';
-const LANDING_ROUTE = '/landing';
-const LOGIN_ROUTE = '/login';
+const WELCOME_ROUTE = '/welcome';
 
 const wasThunkFulfilled = (action) =>
   Boolean(action?.type && String(action.type).endsWith('/fulfilled'));
@@ -43,7 +42,7 @@ export default function IndexRoute() {
         const hasOpenedBefore = await asyncStorage.getItem(FIRST_LAUNCH_KEY);
         if (!hasOpenedBefore) {
           await asyncStorage.setItem(FIRST_LAUNCH_KEY, true);
-          const target = LANDING_ROUTE;
+          const target = WELCOME_ROUTE;
           frameId = schedule(() => {
             schedule(() => {
               if (!canceled) router.replace(target);
@@ -52,7 +51,7 @@ export default function IndexRoute() {
           return;
         }
 
-        let target = LOGIN_ROUTE;
+        let target = WELCOME_ROUTE;
         const shouldPersistSession = await tokenManager.shouldPersistTokens();
         if (shouldPersistSession) {
           const accessToken = await tokenManager.getAccessToken();
@@ -93,7 +92,7 @@ export default function IndexRoute() {
       } catch {
         frameId = schedule(() => {
           schedule(() => {
-            if (!canceled) router.replace(LOGIN_ROUTE);
+            if (!canceled) router.replace(WELCOME_ROUTE);
           });
         });
       }

@@ -8,6 +8,7 @@ import {
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
+  Select,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -27,12 +28,15 @@ const LoginScreenAndroid = () => {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const {
     form,
+    isPasswordStep,
+    tenantOptions,
     errors,
     isHydrating,
     isSubmitting,
     submitError,
     setFieldValue,
     toggleRememberSession,
+    goBackToIdentifier,
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
@@ -61,49 +65,74 @@ const LoginScreenAndroid = () => {
             helperText={t('auth.login.fields.email.hint')}
             maxLength={320}
             density="compact"
+            disabled={isPasswordStep}
             required
             testID="login-identifier"
           />
         </StyledField>
 
-        <StyledField>
-          <TextField
-            label={t('auth.login.fields.password.label')}
-            placeholder={t('auth.login.fields.password.placeholder')}
-            value={form.password}
-            onChangeText={(value) => setFieldValue('password', value)}
-            errorMessage={errors.password}
-            validationState={getValidationState('password')}
-            helperText={t('auth.login.fields.password.hint')}
-            type="password"
-            secureTextEntry={!isPasswordVisible}
-            maxLength={128}
-            density="compact"
-            suffix={
-              <Button
-                variant="text"
-                size="small"
-                onPress={() => setIsPasswordVisible((prev) => !prev)}
-                accessibilityLabel={togglePasswordLabel}
-                testID="login-password-toggle"
-              >
-                {togglePasswordLabel}
-              </Button>
-            }
-            required
-            testID="login-password"
-          />
-        </StyledField>
+        {isPasswordStep ? (
+          <>
+            {tenantOptions.length > 1 ? (
+              <StyledField>
+                <Select
+                  label={t('auth.login.fields.tenant.label')}
+                  options={tenantOptions}
+                  value={form.tenant_id}
+                  onValueChange={(value) => setFieldValue('tenant_id', value)}
+                  placeholder={t('auth.login.fields.tenant.placeholder')}
+                  errorMessage={errors.tenant_id}
+                  validationState={getValidationState('tenant_id')}
+                  helperText={t('auth.login.fields.tenant.hint')}
+                  compact
+                  required
+                  testID="login-tenant"
+                />
+              </StyledField>
+            ) : null}
 
-        <StyledRemember>
-          <Checkbox
-            checked={form.rememberSession}
-            onChange={toggleRememberSession}
-            label={t('auth.login.fields.remember.label')}
-            accessibilityHint={t('auth.login.fields.remember.hint')}
-            testID="login-remember-session"
-          />
-        </StyledRemember>
+            <StyledField>
+              <TextField
+                label={t('auth.login.fields.password.label')}
+                placeholder={t('auth.login.fields.password.placeholder')}
+                value={form.password}
+                onChangeText={(value) => setFieldValue('password', value)}
+                errorMessage={errors.password}
+                validationState={getValidationState('password')}
+                helperText={t('auth.login.fields.password.hint')}
+                type="password"
+                secureTextEntry={!isPasswordVisible}
+                maxLength={128}
+                density="compact"
+                suffix={
+                  <Button
+                    variant="text"
+                    size="small"
+                    onPress={() => setIsPasswordVisible((prev) => !prev)}
+                    accessibilityLabel={togglePasswordLabel}
+                    testID="login-password-toggle"
+                  >
+                    {togglePasswordLabel}
+                  </Button>
+                }
+                required
+                testID="login-password"
+              />
+            </StyledField>
+          </>
+        ) : null}
+
+        {isPasswordStep ? (
+          <StyledRemember>
+            <Checkbox
+              checked={form.rememberSession}
+              onChange={toggleRememberSession}
+              label={t('auth.login.fields.remember.label')}
+              accessibilityHint={t('auth.login.fields.remember.hint')}
+              testID="login-remember-session"
+            />
+          </StyledRemember>
+        ) : null}
 
         <StyledActions>
           <Button
@@ -115,8 +144,19 @@ const LoginScreenAndroid = () => {
             accessibilityLabel={t('auth.login.buttonHint')}
             testID="login-submit"
           >
-            {t('auth.login.button')}
+            {isPasswordStep ? t('auth.login.button') : t('common.continue')}
           </Button>
+          {isPasswordStep ? (
+            <Button
+              variant="text"
+              size="small"
+              onPress={goBackToIdentifier}
+              accessibilityLabel={t('auth.login.actions.useDifferentIdentifierHint')}
+              testID="login-change-identifier"
+            >
+              {t('auth.login.actions.useDifferentIdentifier')}
+            </Button>
+          ) : null}
         </StyledActions>
 
         <StyledLinks>
@@ -156,4 +196,3 @@ const LoginScreenAndroid = () => {
 };
 
 export default LoginScreenAndroid;
-

@@ -49,46 +49,27 @@ const loginUseCase = async (payload) =>
   execute(async () => {
     const parsed = parseCredentials(payload);
     const rememberSession = Boolean(payload?.remember_me || payload?.rememberMe);
-    try {
-      const response = await loginApi(parsed);
-      const data = unwrap(response);
-      if (!data) throw new Error('Invalid login response');
+    const response = await loginApi(parsed);
+    const data = unwrap(response);
+    if (!data) throw new Error('Invalid login response');
 
-      if (data.requires_facility_selection) {
-        return {
-          requiresFacilitySelection: true,
-          facilities: data.facilities || [],
-          tenantId: data.tenant_id,
-          identifier: payload.email || payload.phone,
-          password: payload.password,
-        };
-      }
-
-      const { user, tokens } = normalizeAuthResponse(data);
-      if (tokens?.accessToken && tokens?.refreshToken) {
-        await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, {
-          persist: rememberSession,
-        });
-      }
-      return user;
-    } catch (apiError) {
-      const isDevelopment = process.env.NODE_ENV === 'development' || __DEV__;
-      const isNetworkError = apiError?.code === 'NETWORK_ERROR' || apiError?.status >= 500;
-      if (isDevelopment && isNetworkError) {
-        const testUser = {
-          id: 'test-user-' + Date.now(),
-          email: parsed.email || 'test@hospital.com',
-          phone: parsed.phone || '+1234567890',
-          role: 'SUPER_ADMIN',
-          status: 'ACTIVE',
-          first_name: 'Test',
-          last_name: 'User',
-        };
-        await tokenManager.setTokens('test-token-' + Date.now(), 'test-token-' + Date.now());
-        return testUser;
-      }
-      throw apiError;
+    if (data.requires_facility_selection) {
+      return {
+        requiresFacilitySelection: true,
+        facilities: data.facilities || [],
+        tenantId: data.tenant_id,
+        identifier: payload.email || payload.phone,
+        password: payload.password,
+      };
     }
+
+    const { user, tokens } = normalizeAuthResponse(data);
+    if (tokens?.accessToken && tokens?.refreshToken) {
+      await tokenManager.setTokens(tokens.accessToken, tokens.refreshToken, {
+        persist: rememberSession,
+      });
+    }
+    return user;
   });
 
 const registerUseCase = async (payload) =>

@@ -23,10 +23,10 @@ import { MainRouteLayout } from '@platform/layouts';
 
 /**
  * Main group layout: applies auth guard then renders platform route layout.
- * Unauthenticated users are redirected to /login.
+ * Unauthenticated users are redirected to /welcome.
  */
 function MainGroupLayout() {
-  useAuthGuard({ redirectPath: '/login' });
+  useAuthGuard({ redirectPath: '/welcome' });
   return <MainRouteLayout />;
 }
 

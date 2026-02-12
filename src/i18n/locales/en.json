@@ -971,6 +971,32 @@
       "title": "Welcome",
       "subtitle": "Set up your account to start managing care, billing, and operations."
     },
+    "welcome": {
+      "title": "Get started",
+      "description": "Choose the fastest path to continue.",
+      "resume": {
+        "title": "Continue where you left off",
+        "description": "Resume with {{identifier}}",
+        "actions": {
+          "signin": "Continue sign in",
+          "signinHint": "Continue signing in with saved details",
+          "verify": "Continue verification",
+          "verifyHint": "Continue email verification",
+          "create": "Continue setup",
+          "createHint": "Continue account setup",
+          "dismiss": "Start fresh",
+          "dismissHint": "Clear saved progress and start a new flow"
+        }
+      },
+      "actions": {
+        "signIn": "Sign in",
+        "signInHint": "Continue to sign in",
+        "createAccount": "Create account",
+        "createAccountHint": "Create a new account",
+        "verifyEmail": "Verify email",
+        "verifyEmailHint": "Open email verification flow"
+      }
+    },
     "login": {
       "title": "Login",
       "description": "Sign in to continue to your workspace.",
@@ -1003,9 +1029,9 @@
           "hint": "When off, the session ends after you close the app or browser."
         },
         "tenant": {
-          "label": "Tenant ID",
-          "placeholder": "Enter tenant ID",
-          "hint": "Enter the tenant ID provided by your organization"
+          "label": "Organization",
+          "placeholder": "Select organization",
+          "hint": "Select the organization linked to this account"
         },
         "facility": {
           "label": "Facility ID (optional)",
@@ -1019,12 +1045,15 @@
         "register": "Create an account",
         "registerHint": "Register a new account",
         "verifyEmail": "Verify email",
-        "verifyEmailHint": "Confirm your email address"
+        "verifyEmailHint": "Confirm your email address",
+        "useDifferentIdentifier": "Use a different email or phone",
+        "useDifferentIdentifierHint": "Go back and change your email or phone number"
       },
       "validation": {
         "identifierRequired": "Email or phone number is required",
         "identifierInvalid": "Enter a valid email or phone number",
-        "passwordRequired": "Password is required"
+        "passwordRequired": "Password is required",
+        "tenantRequired": "Select your organization to continue"
       }
     },
     "register": {

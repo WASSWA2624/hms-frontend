@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth, useI18n } from '@hooks';
+import { clearAuthResumeContext, saveAuthResumeContext } from '@navigation/authResumeContext';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { VERIFY_CODE_LENGTH } from './types';
 
@@ -164,10 +165,18 @@ const useVerifyEmailScreen = () => {
 
   useEffect(() => {
     if (!isVerified) return;
+    const verifiedEmail = form.email.trim().toLowerCase();
+    if (verifiedEmail) {
+      saveAuthResumeContext({
+        identifier: verifiedEmail,
+        next_path: '/login',
+        params: { email: verifiedEmail },
+      });
+    }
     const timeoutId = setTimeout(() => {
       router.replace({
         pathname: '/login',
-        params: { email: form.email.trim().toLowerCase() },
+        params: { email: verifiedEmail },
       });
     }, 1200);
     return () => clearTimeout(timeoutId);
@@ -207,6 +216,11 @@ const useVerifyEmailScreen = () => {
       });
       const status = action?.meta?.requestStatus;
       if (status === 'fulfilled') {
+        await saveAuthResumeContext({
+          identifier: emailValue,
+          next_path: '/verify-email',
+          params: { email: emailValue },
+        });
         setResendMessage(t('auth.verifyEmail.feedback.resent'));
         return true;
       }
@@ -220,9 +234,19 @@ const useVerifyEmailScreen = () => {
   }, [form, isResending, resendVerification, t, validateField]);
 
   const goToLogin = useCallback(() => {
+    const emailValue = form.email.trim().toLowerCase();
+    if (emailValue) {
+      saveAuthResumeContext({
+        identifier: emailValue,
+        next_path: '/login',
+        params: { email: emailValue },
+      });
+    } else {
+      clearAuthResumeContext();
+    }
     router.replace({
       pathname: '/login',
-      params: { email: form.email.trim().toLowerCase() },
+      params: { email: emailValue },
     });
   }, [form.email, router]);
 
@@ -243,4 +267,3 @@ const useVerifyEmailScreen = () => {
 };
 
 export default useVerifyEmailScreen;
-

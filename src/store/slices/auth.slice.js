@@ -7,6 +7,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
   changePasswordUseCase,
   forgotPasswordUseCase,
+  identifyUseCase,
   loadCurrentUserUseCase,
   loginUseCase,
   logoutUseCase,
@@ -63,6 +64,20 @@ const register = createAsyncThunk('auth/register', async (payload, { rejectWithV
     return rejectWithValue({
       code: error?.code || 'UNKNOWN_ERROR',
       message: error?.message || 'Registration failed',
+      status: error?.status || 500
+    });
+  }
+});
+
+const identify = createAsyncThunk('auth/identify', async (payload, { rejectWithValue }) => {
+  try {
+    const result = await identifyUseCase(payload);
+    return result || { users: [] };
+  } catch (error) {
+    console.error('[AUTH_THUNK_IDENTIFY_ERROR]', error);
+    return rejectWithValue({
+      code: error?.code || 'UNKNOWN_ERROR',
+      message: error?.message || 'Identify failed',
       status: error?.status || 500
     });
   }
@@ -233,6 +248,18 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.errorCode = normalizeErrorCode(action.payload);
       })
+      .addCase(identify.pending, (state) => {
+        state.isLoading = true;
+        state.errorCode = null;
+      })
+      .addCase(identify.fulfilled, (state) => {
+        state.isLoading = false;
+        state.lastUpdated = Date.now();
+      })
+      .addCase(identify.rejected, (state, action) => {
+        state.isLoading = false;
+        state.errorCode = normalizeErrorCode(action.payload);
+      })
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
         state.errorCode = null;
@@ -353,6 +380,7 @@ const actions = {
   ...authSlice.actions,
   login,
   register,
+  identify,
   logout,
   refreshSession,
   loadCurrentUser,

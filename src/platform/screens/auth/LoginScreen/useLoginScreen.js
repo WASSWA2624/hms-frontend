@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth, useI18n } from '@hooks';
+import { clearAuthResumeContext, saveAuthResumeContext } from '@navigation/authResumeContext';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { LOGIN_FORM_FIELDS } from './types';
 
@@ -28,19 +29,33 @@ const useLoginScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { t } = useI18n();
-  const { login } = useAuth();
+  const { identify, login } = useAuth();
+
+  const stepParam = useMemo(() => toSingleValue(params?.step).trim().toLowerCase(), [params?.step]);
 
   const [form, setForm] = useState({
     identifier: '',
     password: '',
+    tenant_id: '',
     rememberSession: false,
   });
+  const [step, setStep] = useState('identifier');
+  const [tenantOptions, setTenantOptions] = useState([]);
   const [errors, setErrors] = useState({});
   const [isHydrating, setIsHydrating] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
   const prefilledEmail = useMemo(() => toSingleValue(params?.email).trim().toLowerCase(), [params?.email]);
+
+  useEffect(() => {
+    if (!stepParam) return;
+    if (stepParam === 'password') {
+      setStep('password');
+      return;
+    }
+    setStep('identifier');
+  }, [stepParam]);
 
   useEffect(() => {
     let active = true;
@@ -73,11 +88,14 @@ const useLoginScreen = () => {
     if (key === LOGIN_FORM_FIELDS.PASSWORD) {
       return String(value || '').slice(0, MAX_PASSWORD_LENGTH);
     }
+    if (key === LOGIN_FORM_FIELDS.TENANT_ID) {
+      return String(value || '').trim();
+    }
     return value;
   }, []);
 
   const validateField = useCallback(
-    (key, sourceForm) => {
+    (key, sourceForm, currentStep = step) => {
       if (key === LOGIN_FORM_FIELDS.IDENTIFIER) {
         const value = String(sourceForm.identifier || '').trim();
         if (!value) return t('auth.login.validation.identifierRequired');
@@ -94,6 +112,7 @@ const useLoginScreen = () => {
       }
 
       if (key === LOGIN_FORM_FIELDS.PASSWORD) {
+        if (currentStep !== 'password') return '';
         if (!sourceForm.password) return t('auth.login.validation.passwordRequired');
         if (sourceForm.password.length > MAX_PASSWORD_LENGTH) {
           return t('forms.validation.maxLength', { max: MAX_PASSWORD_LENGTH });
@@ -101,89 +120,240 @@ const useLoginScreen = () => {
         return '';
       }
 
+      if (key === LOGIN_FORM_FIELDS.TENANT_ID) {
+        if (currentStep !== 'password') return '';
+        if (tenantOptions.length > 1 && !sourceForm.tenant_id) {
+          return t('auth.login.validation.tenantRequired');
+        }
+        return '';
+      }
+
       return '';
     },
-    [t]
+    [step, t, tenantOptions.length]
   );
 
   const validate = useCallback(
-    (sourceForm = form) => {
-      const next = {
-        identifier: validateField(LOGIN_FORM_FIELDS.IDENTIFIER, sourceForm),
-        password: validateField(LOGIN_FORM_FIELDS.PASSWORD, sourceForm),
-      };
+    (sourceForm = form, currentStep = step) => {
+      const next = { identifier: validateField(LOGIN_FORM_FIELDS.IDENTIFIER, sourceForm, currentStep) };
+      if (currentStep === 'password') {
+        next.password = validateField(LOGIN_FORM_FIELDS.PASSWORD, sourceForm, currentStep);
+        next.tenant_id = validateField(LOGIN_FORM_FIELDS.TENANT_ID, sourceForm, currentStep);
+      }
       const compact = Object.fromEntries(Object.entries(next).filter(([, value]) => Boolean(value)));
       setErrors(compact);
       return Object.keys(compact).length === 0;
     },
-    [form, validateField]
+    [form, step, validateField]
   );
 
   const setFieldValue = useCallback(
     (key, value) => {
       setForm((prev) => {
         const next = { ...prev, [key]: normalizeFieldValue(key, value) };
-        const message = validateField(key, next);
+        const message = validateField(key, next, step);
         setErrors((prevErrors) => {
           const nextErrors = { ...prevErrors };
           if (message) nextErrors[key] = message;
           else delete nextErrors[key];
           return nextErrors;
         });
+        if (key === LOGIN_FORM_FIELDS.IDENTIFIER && step === 'password') {
+          next.password = '';
+          next.tenant_id = '';
+          setStep('identifier');
+          setTenantOptions([]);
+          setErrors({});
+        }
         return next;
       });
       setSubmitError(null);
     },
-    [normalizeFieldValue, validateField]
+    [normalizeFieldValue, step, validateField]
   );
 
   const toggleRememberSession = useCallback(() => {
     setForm((prev) => ({ ...prev, rememberSession: !prev.rememberSession }));
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    if (isSubmitting) return false;
+  const goBackToIdentifier = useCallback(() => {
+    setStep('identifier');
+    setTenantOptions([]);
+    setErrors({});
     setSubmitError(null);
+    setForm((prev) => ({
+      ...prev,
+      password: '',
+      tenant_id: '',
+    }));
+  }, []);
 
-    const isValid = validate();
+  const handleIdentifySubmit = useCallback(async () => {
+    const isValid = validate(form, 'identifier');
     if (!isValid) return false;
 
-    setIsSubmitting(true);
-    try {
-      const identifier = form.identifier.trim();
-      const isEmail = identifier.includes('@');
-      const payload = {
-        password: form.password,
-        remember_me: form.rememberSession,
-      };
-      if (isEmail) {
-        payload.email = identifier.toLowerCase();
-      } else {
-        payload.phone = identifier.replace(/[^\d]/g, '');
-      }
+    const identifier = form.identifier.trim();
+    const action = await identify({ identifier });
+    const status = action?.meta?.requestStatus;
 
-      const action = await login(payload);
-      const status = action?.meta?.requestStatus;
-      if (status === 'fulfilled') {
-        if (action?.payload?.requiresFacilitySelection) {
-          setSubmitError({
-            code: 'MULTIPLE_TENANTS',
-            message: t('errors.codes.MULTIPLE_TENANTS'),
-          });
-          return false;
-        }
-        router.replace('/dashboard');
-        return true;
-      }
-
+    if (status !== 'fulfilled') {
       const code = action?.payload?.code || action?.error?.code || action?.error?.message || 'UNKNOWN_ERROR';
       const message = resolveErrorMessage(code, action?.payload?.message, t);
       setSubmitError({ code, message });
       return false;
+    }
+
+    const users = Array.isArray(action?.payload?.users) ? action.payload.users : [];
+    const summary = action?.payload?.summary || {};
+    const hasActive = Boolean(summary?.has_active);
+    const hasPending = Boolean(summary?.has_pending);
+
+    if (users.length === 0) {
+      await saveAuthResumeContext({
+        identifier,
+        next_path: '/landing',
+      });
+      router.push('/landing');
+      return true;
+    }
+
+    if (!hasActive && hasPending) {
+      await saveAuthResumeContext({
+        identifier,
+        next_path: '/verify-email',
+        params: {
+          email: identifier.includes('@') ? identifier.toLowerCase() : '',
+          reason: 'pending_verification',
+        },
+      });
+      router.push({
+        pathname: '/verify-email',
+        params: {
+          email: identifier.includes('@') ? identifier.toLowerCase() : '',
+          reason: 'pending_verification',
+        },
+      });
+      return true;
+    }
+
+    if (!hasActive && !hasPending) {
+      setSubmitError({
+        code: 'ACCOUNT_INACTIVE',
+        message: resolveErrorMessage('ACCOUNT_INACTIVE', null, t),
+      });
+      return false;
+    }
+
+    const options = users
+      .filter((item) => item?.tenant_id)
+      .filter((item) => item?.status === 'ACTIVE')
+      .map((item) => ({
+        label: item.tenant_name || item.tenant_slug || item.tenant_id,
+        value: item.tenant_id,
+      }));
+
+    if (options.length === 0) {
+      setSubmitError({
+        code: 'ACCOUNT_INACTIVE',
+        message: resolveErrorMessage('ACCOUNT_INACTIVE', null, t),
+      });
+      return false;
+    }
+
+    await saveAuthResumeContext({
+      identifier,
+      next_path: '/login',
+      params: {
+        step: 'password',
+        email: identifier.includes('@') ? identifier.toLowerCase() : '',
+      },
+    });
+
+    setTenantOptions(options);
+    setStep('password');
+    setErrors({});
+    setSubmitError(null);
+    setForm((prev) => ({
+      ...prev,
+      password: '',
+      tenant_id: options.length === 1 ? String(options[0].value) : '',
+    }));
+    return true;
+  }, [form, identify, router, t, validate]);
+
+  const handlePasswordSubmit = useCallback(async () => {
+    const isValid = validate(form, 'password');
+    if (!isValid) return false;
+
+    const identifier = form.identifier.trim();
+    const isEmail = identifier.includes('@');
+    const payload = {
+      password: form.password,
+      remember_me: form.rememberSession,
+    };
+    if (isEmail) {
+      payload.email = identifier.toLowerCase();
+    } else {
+      payload.phone = identifier.replace(/[^\d]/g, '');
+    }
+    if (form.tenant_id) {
+      payload.tenant_id = form.tenant_id;
+    }
+
+    const action = await login(payload);
+    const status = action?.meta?.requestStatus;
+    if (status === 'fulfilled') {
+      if (action?.payload?.requiresFacilitySelection) {
+        setSubmitError({
+          code: 'MULTIPLE_TENANTS',
+          message: t('errors.codes.MULTIPLE_TENANTS'),
+        });
+        return false;
+      }
+      await clearAuthResumeContext();
+      router.replace('/dashboard');
+      return true;
+    }
+
+    const code = action?.payload?.code || action?.error?.code || action?.error?.message || 'UNKNOWN_ERROR';
+    const message = resolveErrorMessage(code, action?.payload?.message, t);
+
+    if (code === 'ACCOUNT_PENDING') {
+      await saveAuthResumeContext({
+        identifier,
+        next_path: '/verify-email',
+        params: {
+          email: isEmail ? identifier.toLowerCase() : '',
+          reason: 'pending_verification',
+        },
+      });
+      router.push({
+        pathname: '/verify-email',
+        params: {
+          email: isEmail ? identifier.toLowerCase() : '',
+          reason: 'pending_verification',
+        },
+      });
+    }
+
+    setSubmitError({ code, message });
+    return false;
+  }, [form, login, router, t, validate]);
+
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitting) return false;
+    setSubmitError(null);
+
+    setIsSubmitting(true);
+    try {
+      if (step === 'identifier') {
+        return handleIdentifySubmit();
+      }
+      return handlePasswordSubmit();
     } finally {
       setIsSubmitting(false);
     }
-  }, [form.identifier, form.password, form.rememberSession, isSubmitting, login, router, t, validate]);
+  }, [handleIdentifySubmit, handlePasswordSubmit, isSubmitting, step]);
 
   const goToRegister = useCallback(() => {
     router.push('/landing');
@@ -200,12 +370,16 @@ const useLoginScreen = () => {
 
   return {
     form,
+    step,
+    isPasswordStep: step === 'password',
+    tenantOptions,
     errors,
     isHydrating,
     isSubmitting,
     submitError,
     setFieldValue,
     toggleRememberSession,
+    goBackToIdentifier,
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
@@ -213,4 +387,3 @@ const useLoginScreen = () => {
 };
 
 export default useLoginScreen;
-

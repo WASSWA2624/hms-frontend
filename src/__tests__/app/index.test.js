@@ -1,9 +1,9 @@
 /**
  * Root Index Route Tests
  * Startup redirect flow:
- * - First launch -> /landing
+ * - First launch -> /welcome
  * - Returning + persistent session -> last route (fallback: /dashboard)
- * - Otherwise -> /login
+ * - Otherwise -> /welcome
  */
 const React = require('react');
 const { render, waitFor } = require('@testing-library/react-native');
@@ -85,14 +85,14 @@ describe('Index Route (index.jsx)', () => {
     mockClearAuth.mockReturnValue({ type: 'auth/clearAuth' });
   });
 
-  it('redirects first-time users to /landing', async () => {
+  it('redirects first-time users to /welcome', async () => {
     mockStorageGetItem.mockResolvedValue(null);
 
     const IndexRoute = require('../../app/index').default;
     renderWithTheme(<IndexRoute />);
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith('/landing');
+      expect(mockReplace).toHaveBeenCalledWith('/welcome');
     });
 
     expect(mockStorageSetItem).toHaveBeenCalledWith('hms.app.first_launch_completed', true);
@@ -133,7 +133,7 @@ describe('Index Route (index.jsx)', () => {
     });
   });
 
-  it('redirects returning users without persistent login to /login', async () => {
+  it('redirects returning users without persistent login to /welcome', async () => {
     mockStorageGetItem.mockResolvedValue(true);
     mockShouldPersistTokens.mockResolvedValue(false);
 
@@ -144,14 +144,14 @@ describe('Index Route (index.jsx)', () => {
     renderWithTheme(<IndexRoute />, store);
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith('/login');
+      expect(mockReplace).toHaveBeenCalledWith('/welcome');
     });
 
     expect(mockClearAuth).toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalledWith({ type: 'auth/clearAuth' });
   });
 
-  it('redirects to /login when persistent tokens exist but session restore fails', async () => {
+  it('redirects to /welcome when persistent tokens exist but session restore fails', async () => {
     mockStorageGetItem.mockResolvedValue(true);
     mockShouldPersistTokens.mockResolvedValue(true);
     mockGetAccessToken.mockResolvedValue('expired-access-token');
@@ -166,7 +166,7 @@ describe('Index Route (index.jsx)', () => {
     renderWithTheme(<IndexRoute />, store);
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith('/login');
+      expect(mockReplace).toHaveBeenCalledWith('/welcome');
     });
 
     expect(mockClearTokens).toHaveBeenCalled();

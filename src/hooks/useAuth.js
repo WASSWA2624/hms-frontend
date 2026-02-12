@@ -49,6 +49,7 @@ const useAuth = () => {
     errorCode: errorCode || null,
     login: useCallback((payload) => dispatch(authActions.login(payload)), [dispatch]),
     register: useCallback((payload) => dispatch(authActions.register(payload)), [dispatch]),
+    identify: useCallback((payload) => dispatch(authActions.identify(payload)), [dispatch]),
     logout: useCallback(() => dispatch(authActions.logout()), [dispatch]),
     refreshSession: useCallback(() => dispatch(authActions.refreshSession()), [dispatch]),
     loadCurrentUser: useCallback(() => dispatch(authActions.loadCurrentUser()), [dispatch]),

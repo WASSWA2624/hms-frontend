@@ -70,6 +70,9 @@ const extractErrorCode = (message) => {
   if (messageLower.includes('already verified')) {
     return 'ALREADY_VERIFIED';
   }
+  if (messageLower.includes('database') || messageLower.includes('server')) {
+    return 'SERVER_ERROR';
+  }
 
   return 'UNKNOWN_ERROR';
 };

@@ -31,6 +31,18 @@ const resolvePlatform = () => {
   return 'unknown';
 };
 
+const canAttachCustomContextHeaders = (url) => {
+  // Native runtimes are not subject to browser CORS preflight restrictions.
+  if (typeof window === 'undefined') return true;
+
+  try {
+    const requestUrl = new URL(url, window.location.origin);
+    return requestUrl.origin === window.location.origin;
+  } catch {
+    return false;
+  }
+};
+
 const resolveRequestLocale = async () => {
   try {
     const storedLocale = await asyncStorage.getItem(LOCALE_STORAGE_KEY);
@@ -98,14 +110,16 @@ const apiClient = async (config) => {
     const locale = await resolveRequestLocale();
     const timezone = resolveTimeZone();
     const platform = resolvePlatform();
+    const attachCustomHeaders = canAttachCustomContextHeaders(authConfig.url);
     const response = await fetch(authConfig.url, {
       method: authConfig.method,
       credentials: 'include', // Include cookies for session
       headers: {
         'Content-Type': 'application/json',
-        ...(locale ? { 'Accept-Language': locale, 'x-locale': locale } : {}),
-        ...(timezone ? { 'x-timezone': timezone } : {}),
-        ...(platform ? { 'x-platform': platform } : {}),
+        ...(locale ? { 'Accept-Language': locale } : {}),
+        ...(attachCustomHeaders && locale ? { 'x-locale': locale } : {}),
+        ...(attachCustomHeaders && timezone ? { 'x-timezone': timezone } : {}),
+        ...(attachCustomHeaders && platform ? { 'x-platform': platform } : {}),
         ...authConfig.headers,
         ...csrfHeaders,
       },
@@ -132,6 +146,7 @@ const apiClient = async (config) => {
       const error = {
         status: response.status,
         statusText: response.statusText,
+        code: errorData?.code || null,
         message: errorData?.message || `API request failed: ${response.statusText}`,
         errors: errorData?.errors || [],
       };
