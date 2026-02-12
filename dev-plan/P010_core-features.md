@@ -21,6 +21,16 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - Errors layer exists (Phase 1)
 - Shared utilities exist (URL helpers, pagination, error normalization)
 
+## Review Snapshot (2026-02-12)
+- Reviewed against `hms-backend/dev-plan/P011_modules.mdc`.
+- Core module steps listed in this phase: **144**.
+- Missing modules: **None**.
+- Modules present but not required: **None**.
+- Read-only backend modules are still required in frontend scope (list/detail access):
+  - `audit-log`
+  - `integration-log`
+- Optional capabilities remain in `P012_advanced-features.md` and do not add/remove Phase 10 modules.
+
 ## Feature Development Contract (applies to every step)
 For each module step, implement the full feature template:
 - `src/features/index.js` (root barrel exporting all feature modules)
@@ -31,7 +41,7 @@ For each module step, implement the full feature template:
 - `src/features/<feature>/<feature>.events.js` (optional)
 - `src/features/<feature>/index.js`
 - `src/store/slices/<feature>.slice.js` (if global state is needed)
-- `src/hooks/use<Feature>.js` (required when UI screens or components need to access the feature—see features-domain.mdc)
+- `src/hooks/use<Feature>.js` (required when UI screens or components need to access the feature - see features-domain.mdc)
 
 ## Testing Requirements (applies to every step)
 - Rules/models: 100% coverage (all branches)
@@ -233,3 +243,4 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.20.3: `webhook-subscription`
 
 **Note**: Telemedicine and patient engagement flows reuse core modules and are implemented in Phase 12 as optional/advanced features.
+
