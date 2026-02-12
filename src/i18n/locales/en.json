@@ -81,7 +81,8 @@
       "USER_NOT_FOUND": "User not found",
       "USER_EXISTS": "User with this email already exists",
       "SESSION_NOT_FOUND": "Session not found",
-      "ALREADY_VERIFIED": "Account is already verified"
+      "ALREADY_VERIFIED": "Account is already verified",
+      "EMAIL_DELIVERY_UNAVAILABLE": "Unable to send verification email right now. Please try again later."
     }
   },
   "forms": {

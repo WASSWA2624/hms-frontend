@@ -154,7 +154,6 @@ const useRegisterScreen = () => {
     const next = {
       facilityName: validateField('facilityName', sourceForm),
       adminName: validateField('adminName', sourceForm),
-      facilityType: validateField('facilityType', sourceForm),
       email: validateField('email', sourceForm),
       password: validateField('password', sourceForm),
     };
@@ -183,7 +182,11 @@ const useRegisterScreen = () => {
     if (isSubmitting || submitInFlightRef.current) return false;
     setSubmitError(null);
 
-    if (!optionIds.has(form.facilityType)) {
+    const resolvedFacilityId = resolveFacilitySelection(
+      form.facilityType || facilityFromQuery || facilityParam || facilityTypeParam || facilityTypeSnakeParam
+    );
+
+    if (!resolvedFacilityId) {
       router.replace('/landing');
       return false;
     }
@@ -199,7 +202,7 @@ const useRegisterScreen = () => {
         password: form.password,
         facility_name: form.facilityName.trim(),
         admin_name: form.adminName.trim(),
-        facility_type: mapFacilityToBackendType(form.facilityType) || undefined,
+        facility_type: mapFacilityToBackendType(resolvedFacilityId) || undefined,
       };
 
       const action = await register(payload);
@@ -215,7 +218,7 @@ const useRegisterScreen = () => {
         const resolvedFacilityName = responseUser?.facility?.name || payload.facility_name;
         const resolvedFacilityType = responseUser?.facility?.facility_type || payload.facility_type;
         await asyncStorage.removeItem(REGISTER_DRAFT_KEY);
-        await saveOnboardingEntry(form.facilityType);
+        await saveOnboardingEntry(resolvedFacilityId);
         await saveRegistrationContext({
           email: payload.email,
           admin_name: resolvedAdminName,
@@ -251,7 +254,18 @@ const useRegisterScreen = () => {
       submitInFlightRef.current = false;
       setIsSubmitting(false);
     }
-  }, [form, isSubmitting, optionIds, register, router, t, validate]);
+  }, [
+    facilityFromQuery,
+    facilityParam,
+    facilityTypeParam,
+    facilityTypeSnakeParam,
+    form,
+    isSubmitting,
+    register,
+    router,
+    t,
+    validate,
+  ]);
 
   return {
     form,
