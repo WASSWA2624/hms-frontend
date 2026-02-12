@@ -1,4 +1,4 @@
-Review and implement the current step under ### Tier 3: Settings (main) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Review and implement all missing and non compliant aspects of **11.3.1** Settings (main) -- `(main)/settings` as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:
 - All rules in `hms-frontend/.cursor/rules/*`
