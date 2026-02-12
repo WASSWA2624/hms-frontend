@@ -34,14 +34,21 @@ const mockT = (key) => {
     'facility.form.nameLabel': 'Name',
     'facility.form.namePlaceholder': 'Enter facility name',
     'facility.form.nameHint': 'Display name for the facility',
+    'facility.form.nameRequired': 'Facility name is required.',
+    'facility.form.nameTooLong': 'Facility name must be at most 255 characters.',
     'facility.form.typeLabel': 'Type',
     'facility.form.typePlaceholder': 'Select type',
     'facility.form.typeHint': 'Choose facility category',
+    'facility.form.typeRequired': 'Facility type is required.',
+    'facility.form.typeInvalid': 'Select a valid facility type.',
     'facility.form.activeLabel': 'Active',
     'facility.form.activeHint': 'Whether the facility is active',
     'facility.form.tenantLabel': 'Tenant',
+    'facility.form.tenantLockedLabel': 'Tenant',
+    'facility.form.tenantLockedHint': 'Tenant is fixed to your assigned tenant.',
     'facility.form.tenantPlaceholder': 'Select tenant',
     'facility.form.tenantHint': 'Tenant that owns this facility',
+    'facility.form.tenantRequired': 'Tenant is required when creating a facility.',
     'facility.form.noTenantsMessage': 'There are no tenants.',
     'facility.form.createTenantFirst': 'Create a tenant first to add a facility.',
     'facility.form.goToTenants': 'Go to Tenants',
@@ -76,6 +83,11 @@ const baseHook = {
   tenantListLoading: false,
   tenantListError: false,
   tenantErrorMessage: null,
+  nameError: null,
+  typeError: null,
+  tenantError: null,
+  isTenantLocked: false,
+  lockedTenantDisplay: '',
   isLoading: false,
   hasError: false,
   errorMessage: null,
@@ -169,6 +181,33 @@ describe('FacilityFormScreen', () => {
       });
       const { getByTestId } = renderWithTheme(<FacilityFormScreenWeb />);
       expect(getByTestId('facility-form-tenant-error')).toBeTruthy();
+    });
+
+    it('shows locked tenant field for tenant-scoped create (Web)', () => {
+      useFacilityFormScreen.mockReturnValue({
+        ...baseHook,
+        isTenantLocked: true,
+        lockedTenantDisplay: 'tenant-1',
+      });
+      const { getByTestId } = renderWithTheme(<FacilityFormScreenWeb />);
+      expect(getByTestId('facility-form-tenant-locked')).toBeTruthy();
+    });
+  });
+
+  describe('validation', () => {
+    it('renders inline validation messages (Web)', () => {
+      useFacilityFormScreen.mockReturnValue({
+        ...baseHook,
+        hasTenants: true,
+        tenantOptions: [{ value: 'tenant-1', label: 'Tenant 1' }],
+        nameError: 'Facility name is required.',
+        typeError: 'Facility type is required.',
+        tenantError: 'Tenant is required when creating a facility.',
+      });
+      const { getByTestId } = renderWithTheme(<FacilityFormScreenWeb />);
+      expect(getByTestId('facility-form-name').props.errorMessage).toBe('Facility name is required.');
+      expect(getByTestId('facility-form-type').props.errorMessage).toBe('Facility type is required.');
+      expect(getByTestId('facility-form-tenant').props.errorMessage).toBe('Tenant is required when creating a facility.');
     });
   });
 

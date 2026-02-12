@@ -2750,7 +2750,8 @@
       "noticeCreated": "Facility created.",
       "noticeUpdated": "Facility updated.",
       "noticeDeleted": "Facility removed.",
-      "noticeQueued": "Changes queued. We'll sync when you're back online."
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have access to that facility."
     },
     "detail": {
       "title": "Facility Details",
@@ -2776,10 +2777,14 @@
       "nameLabel": "Name",
       "namePlaceholder": "Enter facility name",
       "nameHint": "Display name for the facility",
+      "nameRequired": "Facility name is required.",
+      "nameTooLong": "Facility name must be at most {{max}} characters.",
       "blockedMessage": "Add a tenant to enable facility details.",
       "typeLabel": "Type",
       "typePlaceholder": "Select type",
       "typeHint": "Choose facility category",
+      "typeRequired": "Facility type is required.",
+      "typeInvalid": "Select a valid facility type.",
       "typeHOSPITAL": "Hospital",
       "typeCLINIC": "Clinic",
       "typeLAB": "Lab",
@@ -2797,6 +2802,9 @@
       "tenantLabel": "Tenant",
       "tenantPlaceholder": "Select tenant",
       "tenantHint": "Tenant that owns this facility",
+      "tenantRequired": "Tenant is required when creating a facility.",
+      "tenantLockedLabel": "Tenant",
+      "tenantLockedHint": "Tenant is fixed to your assigned tenant.",
       "noTenantsMessage": "There are no tenants.",
       "createTenantFirst": "Create a tenant first to add a facility.",
       "goToTenants": "Go to Tenants",
@@ -2806,6 +2814,9 @@
       "cancel": "Cancel",
       "cancelHint": "Return without saving",
       "loadError": "Failed to load facility for editing"
+    },
+    "access": {
+      "deniedMessage": "You do not have permission to access this facility."
     }
   },
   "tenant": {

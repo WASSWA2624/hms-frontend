@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useFacility } from '@hooks';
+import { useI18n, useNetwork, useFacility, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useFacilityDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useFacility();
+  const facilityId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageFacilities = canAccessTenantSettings;
+  const canEditFacility = canManageFacilities;
+  const canDeleteFacility = canManageFacilities;
+  const isTenantScopedAdmin = canManageFacilities && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const facility = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useFacilityDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageFacilities || !facilityId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(facilityId);
+  }, [isResolved, canManageFacilities, facilityId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageFacilities) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageFacilities, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageFacilities || !isTenantScopedAdmin || !facility) return;
+    const facilityTenantId = String(facility.tenant_id ?? '').trim();
+    if (!facilityTenantId || facilityTenantId !== normalizedTenantId) {
+      router.replace('/settings/facilities?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageFacilities,
+    isTenantScopedAdmin,
+    facility,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !isTenantScopedAdmin) return;
+    if (facility) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/facilities?notice=accessDenied');
+    }
+  }, [isResolved, isTenantScopedAdmin, facility, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useFacilityDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/facilities/${id}/edit`);
-  }, [id, router]);
+    if (!canEditFacility || !facilityId) return;
+    router.push(`/settings/facilities/${facilityId}/edit`);
+  }, [canEditFacility, facilityId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteFacility || !facilityId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(facilityId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/facilities?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteFacility, facilityId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: facilityId,
     facility,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditFacility ? handleEdit : undefined,
+    onDelete: canDeleteFacility ? handleDelete : undefined,
   };
 };
 

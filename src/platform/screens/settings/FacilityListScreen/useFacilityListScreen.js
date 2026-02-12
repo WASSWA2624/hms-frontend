@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useFacility } from '@hooks';
+import { useI18n, useNetwork, useFacility, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -25,6 +25,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'facility.list.noticeUpdated',
     deleted: 'facility.list.noticeDeleted',
     queued: 'facility.list.noticeQueued',
+    accessDenied: 'facility.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -36,6 +37,12 @@ const useFacilityListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -46,6 +53,9 @@ const useFacilityListScreen = () => {
 
   const [search, setSearch] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const canManageFacilities = canAccessTenantSettings;
+  const canCreateFacility = canManageFacilities;
+  const canDeleteFacility = canManageFacilities;
 
   // listFacilities returns normalized array; API may return { items: [] }. Support both.
   const items = useMemo(
@@ -62,14 +72,33 @@ const useFacilityListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageFacilities) return;
+    if (!canManageAllTenants && !tenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = tenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [isResolved, canManageFacilities, canManageAllTenants, tenantId, list, reset]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageFacilities) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !tenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageFacilities, canManageAllTenants, tenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageFacilities) return;
+    if (!canManageAllTenants && !tenantId) return;
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
-  }, [fetchList, search]);
+  }, [isResolved, canManageFacilities, canManageAllTenants, tenantId, fetchList, search]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -113,6 +142,7 @@ const useFacilityListScreen = () => {
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteFacility) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -129,14 +159,14 @@ const useFacilityListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, t, search, isOffline]
+    [canDeleteFacility, remove, fetchList, t, search, isOffline]
   );
 
   return {
     items,
     search,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
@@ -144,8 +174,8 @@ const useFacilityListScreen = () => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onFacilityPress: handleFacilityPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteFacility ? handleDelete : undefined,
+    onAdd: canCreateFacility ? handleAdd : undefined,
   };
 };
 

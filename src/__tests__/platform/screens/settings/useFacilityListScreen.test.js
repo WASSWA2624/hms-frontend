@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useFacility: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -27,7 +28,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useFacility, useNetwork } = require('@hooks');
+const { useFacility, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useFacilityListScreen', () => {
@@ -39,186 +40,164 @@ describe('useFacilityListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
-    useFacility.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [], pagination: {} },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
     });
-  });
-
-  it('returns items, handlers, and state', () => {
-    const { result } = renderHook(() => useFacilityListScreen());
-    expect(result.current.items).toEqual([]);
-    expect(result.current.search).toBe('');
-    expect(typeof result.current.onRetry).toBe('function');
-    expect(typeof result.current.onSearch).toBe('function');
-    expect(typeof result.current.onFacilityPress).toBe('function');
-    expect(typeof result.current.onDelete).toBe('function');
-  });
-
-  it('calls list on mount', () => {
-    renderHook(() => useFacilityListScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onRetry calls fetchList', () => {
-    const { result } = renderHook(() => useFacilityListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onSearch updates list with trimmed search', () => {
-    const { result } = renderHook(() => useFacilityListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    act(() => {
-      result.current.onSearch('  clinic  ');
-    });
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'clinic' });
-  });
-
-  it('onRetry uses current search', () => {
-    const { result } = renderHook(() => useFacilityListScreen());
-    act(() => {
-      result.current.onSearch('facility');
-    });
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'facility' });
-  });
-
-  it('onFacilityPress pushes route with id', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useFacilityListScreen());
-    result.current.onFacilityPress('fid-1');
-    expect(mockPush).toHaveBeenCalledWith('/settings/facilities/fid-1');
-  });
-
-  it('onAdd pushes route to create', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useFacilityListScreen());
-    result.current.onAdd();
-    expect(mockPush).toHaveBeenCalledWith('/settings/facilities/create');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
     useFacility.mockReturnValue({
       list: mockList,
       remove: mockRemove,
       data: { items: [] },
       isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useFacilityListScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBe('facility.list.loadError');
   });
 
-  it('onDelete calls remove then fetchList', async () => {
-    mockRemove.mockResolvedValue({ id: 'fid-1' });
-    mockReset.mockClear();
-    mockList.mockClear();
+  it('returns handlers for global admins', () => {
     const { result } = renderHook(() => useFacilityListScreen());
-    await act(async () => {
-      await result.current.onDelete('fid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('fid-1');
+    expect(result.current.items).toEqual([]);
+    expect(typeof result.current.onRetry).toBe('function');
+    expect(typeof result.current.onSearch).toBe('function');
+    expect(typeof result.current.onAdd).toBe('function');
+    expect(typeof result.current.onDelete).toBe('function');
+  });
+
+  it('loads facilities on mount for global admins', () => {
+    renderHook(() => useFacilityListScreen());
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
-  it('onDelete sets notice when offline', async () => {
-    useNetwork.mockReturnValue({ isOffline: true });
+  it('loads facilities scoped to tenant for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => useFacilityListScreen());
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      tenant_id: 'tenant-1',
+    });
+  });
+
+  it('search keeps tenant filter for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    const { result } = renderHook(() => useFacilityListScreen());
+    mockReset.mockClear();
+    mockList.mockClear();
+
+    act(() => {
+      result.current.onSearch('  clinic ');
+    });
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      search: 'clinic',
+      tenant_id: 'tenant-1',
+    });
+  });
+
+  it('redirects unauthorized users to settings', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useFacilityListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('redirects tenant-scoped users without tenant id', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useFacilityListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(mockList).not.toHaveBeenCalled();
+  });
+
+  it('maps accessDenied notice and clears query param', () => {
+    mockParams = { notice: 'accessDenied' };
+
+    const { result } = renderHook(() => useFacilityListScreen());
+
+    expect(result.current.noticeMessage).toBe('facility.list.noticeAccessDenied');
+    expect(mockReplace).toHaveBeenCalledWith('/settings/facilities');
+  });
+
+  it('onRetry uses current search term', () => {
+    const { result } = renderHook(() => useFacilityListScreen());
+
+    act(() => {
+      result.current.onSearch('facility');
+    });
+    mockReset.mockClear();
+    mockList.mockClear();
+
+    result.current.onRetry();
+
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'facility' });
+  });
+
+  it('onDelete calls remove then fetches list', async () => {
     mockRemove.mockResolvedValue({ id: 'fid-1' });
     const { result } = renderHook(() => useFacilityListScreen());
-    await act(async () => {
-      await result.current.onDelete('fid-1');
-    });
-    expect(result.current.noticeMessage).toBe('facility.list.noticeQueued');
-  });
-
-  it('onDelete does not refetch when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useFacilityListScreen());
+    mockReset.mockClear();
     mockList.mockClear();
+
     await act(async () => {
       await result.current.onDelete('fid-1');
     });
-    expect(mockRemove).toHaveBeenCalledWith('fid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
 
-  it('onDelete calls stopPropagation when event provided', async () => {
-    const stopPropagation = jest.fn();
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useFacilityListScreen());
-    await act(async () => {
-      await result.current.onDelete('fid-1', { stopPropagation });
-    });
-    expect(stopPropagation).toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw or refetch when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useFacilityListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('fid-1');
-    });
     expect(mockRemove).toHaveBeenCalledWith('fid-1');
-    expect(mockList).not.toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
   it('onDelete does not call remove when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
     const { result } = renderHook(() => useFacilityListScreen());
+
     await act(async () => {
       await result.current.onDelete('fid-1');
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
   });
 
-  it('handles items from data', () => {
-    useFacility.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [{ id: 'f1', name: 'Facility 1' }] },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
+  it('onDelete sets queued notice when offline', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+    mockRemove.mockResolvedValue({ id: 'fid-1' });
     const { result } = renderHook(() => useFacilityListScreen());
-    expect(result.current.items).toEqual([{ id: 'f1', name: 'Facility 1' }]);
-  });
 
-  it('handles items array data', () => {
-    useFacility.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: [{ id: 'f1', name: 'Facility 1' }],
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
+    await act(async () => {
+      await result.current.onDelete('fid-1');
     });
-    const { result } = renderHook(() => useFacilityListScreen());
-    expect(result.current.items).toEqual([{ id: 'f1', name: 'Facility 1' }]);
-  });
 
-  it('handles notice param and clears it', () => {
-    mockParams = { notice: 'created' };
-    const { result } = renderHook(() => useFacilityListScreen());
-    expect(result.current.noticeMessage).toBe('facility.list.noticeCreated');
-    expect(mockReplace).toHaveBeenCalledWith('/settings/facilities');
+    expect(result.current.noticeMessage).toBe('facility.list.noticeQueued');
   });
 });

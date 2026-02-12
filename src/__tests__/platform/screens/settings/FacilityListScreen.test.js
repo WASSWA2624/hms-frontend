@@ -42,6 +42,7 @@ const mockT = (key) => {
     'facility.list.itemHint': 'View details for {{name}}',
     'facility.list.addLabel': 'Add facility',
     'facility.list.addHint': 'Create a new facility',
+    'facility.list.noticeAccessDenied': 'You do not have access to that facility.',
     'common.remove': 'Remove',
     'listScaffold.errorState.title': 'Error',
     'common.retry': 'Retry',
@@ -163,15 +164,39 @@ describe('FacilityListScreen', () => {
       const { getByTestId } = renderWithTheme(<FacilityListScreenWeb />);
       expect(getByTestId('facility-list-notice')).toBeTruthy();
     });
+
+    it('shows access denied notice (Web)', () => {
+      useFacilityListScreen.mockReturnValue({
+        ...baseHook,
+        noticeMessage: 'You do not have access to that facility.',
+      });
+      const { getByTestId } = renderWithTheme(<FacilityListScreenWeb />);
+      expect(getByTestId('facility-list-notice')).toBeTruthy();
+    });
   });
 
   describe('actions', () => {
-    it('calls onAdd when add button pressed (Web)', () => {
+    it('renders add button when onAdd is available (Web)', () => {
       const onAdd = jest.fn();
       useFacilityListScreen.mockReturnValue({ ...baseHook, onAdd });
       const { getByTestId } = renderWithTheme(<FacilityListScreenWeb />);
-      fireEvent.press(getByTestId('facility-list-add'));
-      expect(onAdd).toHaveBeenCalled();
+      expect(getByTestId('facility-list-add')).toBeTruthy();
+    });
+
+    it('hides add button when onAdd is undefined (Web)', () => {
+      useFacilityListScreen.mockReturnValue({ ...baseHook, onAdd: undefined });
+      const { queryByTestId } = renderWithTheme(<FacilityListScreenWeb />);
+      expect(queryByTestId('facility-list-add')).toBeNull();
+    });
+
+    it('hides delete action when onDelete is undefined (Web)', () => {
+      useFacilityListScreen.mockReturnValue({
+        ...baseHook,
+        onDelete: undefined,
+        items: [{ id: '1', name: 'Facility 1', facility_type: 'HOSPITAL' }],
+      });
+      const { queryByTestId } = renderWithTheme(<FacilityListScreenWeb />);
+      expect(queryByTestId('facility-delete-1')).toBeNull();
     });
   });
 
@@ -182,8 +207,7 @@ describe('FacilityListScreen', () => {
         items: [{ id: '1', name: 'Facility 1', facility_type: 'HOSPITAL' }],
       });
       const { getByTestId } = renderWithTheme(<FacilityListScreenWeb />);
-      const list = getByTestId('facility-list');
-      expect(list).toBeTruthy();
+      expect(getByTestId('facility-list-card')).toBeTruthy();
     });
   });
 

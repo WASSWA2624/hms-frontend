@@ -210,6 +210,25 @@ describe('FacilityDetailScreen', () => {
       expect(getByTestId('facility-detail-edit')).toBeTruthy();
       expect(getByTestId('facility-detail-delete')).toBeTruthy();
     });
+
+    it('hides edit/delete actions when handlers are unavailable (Web)', () => {
+      useFacilityDetailScreen.mockReturnValue({
+        ...baseHook,
+        onEdit: undefined,
+        onDelete: undefined,
+        facility: {
+          id: 'f1',
+          tenant_id: 't1',
+          name: 'Test Facility',
+          facility_type: 'HOSPITAL',
+          is_active: true,
+        },
+      });
+      const { queryByTestId: queryById, getByTestId } = renderWithTheme(<FacilityDetailScreenWeb />);
+      expect(getByTestId('facility-detail-back')).toBeTruthy();
+      expect(queryById('facility-detail-edit')).toBeNull();
+      expect(queryById('facility-detail-delete')).toBeNull();
+    });
   });
 
   describe('exports', () => {

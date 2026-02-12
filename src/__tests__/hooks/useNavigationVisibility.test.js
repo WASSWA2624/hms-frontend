@@ -72,4 +72,25 @@ describe('useNavigationVisibility', () => {
     expect(result.isItemVisible({ id: 'settings-tenants', roles: ['APP_ADMIN'] })).toBe(false);
     expect(result.isItemVisible({ id: 'dashboard' })).toBe(true);
   });
+
+  it('hides facilities item for non-admin roles and shows for scoped admins', () => {
+    let result;
+    useResolvedRoles.mockReturnValue({ roles: ['user'], isResolved: true });
+    render(<TestComponent onResult={(value) => (result = value)} />);
+    expect(
+      result.isItemVisible({
+        id: 'settings-facilities',
+        roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+      })
+    ).toBe(false);
+
+    useResolvedRoles.mockReturnValue({ roles: ['admin'], isResolved: true });
+    render(<TestComponent onResult={(value) => (result = value)} />);
+    expect(
+      result.isItemVisible({
+        id: 'settings-facilities',
+        roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+      })
+    ).toBe(true);
+  });
 });

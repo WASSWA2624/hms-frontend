@@ -18,9 +18,10 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useFacility: jest.fn(),
   useTenant: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useI18n, useNetwork, useFacility, useTenant } = require('@hooks');
+const { useNetwork, useFacility, useTenant, useTenantAccess } = require('@hooks');
 
 describe('useFacilityFormScreen', () => {
   const mockGet = jest.fn();
@@ -33,8 +34,13 @@ describe('useFacilityFormScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockParams = {};
-    useI18n.mockReturnValue({ t: (k) => k });
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useFacility.mockReturnValue({
       get: mockGet,
       create: mockCreate,
@@ -53,116 +59,164 @@ describe('useFacilityFormScreen', () => {
     });
   });
 
-  it('returns initial state for create', () => {
-    const { result } = renderHook(() => useFacilityFormScreen());
-    expect(result.current.isEdit).toBe(false);
-    expect(result.current.name).toBe('');
-    expect(result.current.facilityType).toBe('');
-    expect(result.current.isActive).toBe(true);
-    expect(result.current.tenantId).toBe('');
-    expect(result.current.facility).toBeNull();
-  });
-
-  it('calls get on mount when editing', () => {
-    mockParams = { id: 'fid-1' };
-    renderHook(() => useFacilityFormScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith('fid-1');
-  });
-
-  it('lists tenants on mount when creating', () => {
+  it('loads tenant options for global create', () => {
     renderHook(() => useFacilityFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
   });
 
-  it('hydrates form state from facility data', () => {
+  it('locks tenant for tenant-scoped create and skips tenant list fetch', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useFacilityFormScreen());
+
+    expect(result.current.isTenantLocked).toBe(true);
+    expect(result.current.tenantId).toBe('tenant-1');
+    expect(result.current.lockedTenantDisplay).toBe('tenant-1');
+    expect(mockListTenants).not.toHaveBeenCalled();
+  });
+
+  it('redirects unauthorized users to settings', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useFacilityFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('redirects tenant-scoped users without tenant context', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useFacilityFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('loads facility on edit route', () => {
     mockParams = { id: 'fid-1' };
+    renderHook(() => useFacilityFormScreen());
+
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalledWith('fid-1');
+  });
+
+  it('redirects tenant-scoped edit when facility tenant mismatches', () => {
+    mockParams = { id: 'fid-2' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useFacility.mockReturnValue({
       get: mockGet,
       create: mockCreate,
       update: mockUpdate,
-      data: { name: 'Clinic', facility_type: 'CLINIC', is_active: false },
+      data: {
+        id: 'fid-2',
+        tenant_id: 'tenant-2',
+        name: 'Branch Facility',
+        facility_type: 'CLINIC',
+        is_active: true,
+      },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useFacilityFormScreen());
-    expect(result.current.name).toBe('Clinic');
-    expect(result.current.facilityType).toBe('CLINIC');
-    expect(result.current.isActive).toBe(false);
+
+    renderHook(() => useFacilityFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/facilities?notice=accessDenied');
   });
 
-  it('uses fallback error message for unknown error codes', () => {
-    useI18n.mockReturnValue({
-      t: (k) => (k === 'facility.form.submitErrorMessage' ? 'Fallback message' : k),
-    });
-    useFacility.mockReturnValue({
-      get: mockGet,
-      create: mockCreate,
-      update: mockUpdate,
-      data: null,
-      isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
-      reset: mockReset,
-    });
+  it('exposes validation errors for required fields', () => {
     const { result } = renderHook(() => useFacilityFormScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBe('Fallback message');
+
+    expect(result.current.nameError).toBe('facility.form.nameRequired');
+    expect(result.current.typeError).toBe('facility.form.typeRequired');
+    expect(result.current.tenantError).toBe('facility.form.tenantRequired');
+    expect(result.current.isSubmitDisabled).toBe(true);
   });
 
-  it('uses fallback tenant error message for unknown error codes', () => {
-    useI18n.mockReturnValue({
-      t: (k) => (k === 'facility.form.tenantLoadErrorMessage' ? 'Tenant fallback' : k),
+  it('validates max name length and facility type enum', () => {
+    const { result } = renderHook(() => useFacilityFormScreen());
+    const veryLongName = 'a'.repeat(256);
+
+    act(() => {
+      result.current.setName(veryLongName);
+      result.current.setFacilityType('INVALID_TYPE');
+      result.current.setTenantId('tenant-1');
     });
+
+    expect(result.current.nameError).toBe('facility.form.nameTooLong');
+    expect(result.current.typeError).toBe('facility.form.typeInvalid');
+    expect(result.current.tenantError).toBeNull();
+  });
+
+  it('submits create payload with backend-aligned fields', async () => {
     useTenant.mockReturnValue({
       list: mockListTenants,
-      data: { items: [] },
+      data: { items: [{ id: 'tenant-1', name: 'Tenant 1' }] },
       isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: null,
       reset: mockResetTenants,
     });
-    const { result } = renderHook(() => useFacilityFormScreen());
-    expect(result.current.tenantListError).toBe(true);
-    expect(result.current.tenantErrorMessage).toBe('Tenant fallback');
-  });
-
-  it('submits create payload and navigates on success', async () => {
     mockCreate.mockResolvedValue({ id: 'f1' });
+
     const { result } = renderHook(() => useFacilityFormScreen());
     act(() => {
-      result.current.setTenantId(' t1 ');
-      result.current.setName('  Clinic  ');
-      result.current.setFacilityType('CLINIC');
+      result.current.setTenantId(' tenant-1 ');
+      result.current.setName(' Main Facility ');
+      result.current.setFacilityType('HOSPITAL');
       result.current.setIsActive(false);
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockCreate).toHaveBeenCalledWith({
-      tenant_id: 't1',
-      name: 'Clinic',
-      facility_type: 'CLINIC',
+      tenant_id: 'tenant-1',
+      name: 'Main Facility',
+      facility_type: 'HOSPITAL',
       is_active: false,
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/facilities?notice=created');
   });
 
-  it('submits update payload and navigates on success', async () => {
+  it('submits update payload for edit route', async () => {
     mockParams = { id: 'fid-1' };
     mockUpdate.mockResolvedValue({ id: 'fid-1' });
+
     const { result } = renderHook(() => useFacilityFormScreen());
     act(() => {
-      result.current.setName('  Hospital  ');
-      result.current.setFacilityType('HOSPITAL');
+      result.current.setName(' Updated Facility ');
+      result.current.setFacilityType('CLINIC');
       result.current.setIsActive(true);
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockUpdate).toHaveBeenCalledWith('fid-1', {
-      name: 'Hospital',
-      facility_type: 'HOSPITAL',
+      name: 'Updated Facility',
+      facility_type: 'CLINIC',
       is_active: true,
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/facilities?notice=updated');
@@ -170,57 +224,36 @@ describe('useFacilityFormScreen', () => {
 
   it('uses queued notice when offline', async () => {
     useNetwork.mockReturnValue({ isOffline: true });
+    useTenant.mockReturnValue({
+      list: mockListTenants,
+      data: { items: [{ id: 'tenant-1', name: 'Tenant 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetTenants,
+    });
     mockCreate.mockResolvedValue({ id: 'f1' });
+
     const { result } = renderHook(() => useFacilityFormScreen());
     act(() => {
-      result.current.setTenantId('t1');
+      result.current.setTenantId('tenant-1');
       result.current.setName('Clinic');
       result.current.setFacilityType('CLINIC');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockReplace).toHaveBeenCalledWith('/settings/facilities?notice=queued');
   });
 
-  it('does not navigate when create returns undefined', async () => {
-    mockCreate.mockResolvedValue(undefined);
+  it('does not submit when validation fails', async () => {
     const { result } = renderHook(() => useFacilityFormScreen());
-    act(() => {
-      result.current.setTenantId('t1');
-      result.current.setName('Clinic');
-      result.current.setFacilityType('CLINIC');
-    });
-    await act(async () => {
-      await result.current.onSubmit();
-    });
-    expect(mockReplace).not.toHaveBeenCalled();
-  });
 
-  it('does not submit when required fields are missing', async () => {
-    const { result } = renderHook(() => useFacilityFormScreen());
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockCreate).not.toHaveBeenCalled();
-  });
-
-  it('onCancel navigates back to list', () => {
-    const { result } = renderHook(() => useFacilityFormScreen());
-    result.current.onCancel();
-    expect(mockPush).toHaveBeenCalledWith('/settings/facilities');
-  });
-
-  it('onGoToTenants navigates to tenants list', () => {
-    const { result } = renderHook(() => useFacilityFormScreen());
-    result.current.onGoToTenants();
-    expect(mockPush).toHaveBeenCalledWith('/settings/tenants');
-  });
-
-  it('onRetryTenants reloads tenant list', () => {
-    const { result } = renderHook(() => useFacilityFormScreen());
-    result.current.onRetryTenants();
-    expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
   });
 });

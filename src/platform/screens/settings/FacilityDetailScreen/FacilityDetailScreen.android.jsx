@@ -272,17 +272,19 @@ const FacilityDetailScreenAndroid = () => {
               {t('facility.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="primary"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('facility.detail.delete')}
-            accessibilityHint={t('facility.detail.deleteHint')}
-            testID="facility-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="primary"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('facility.detail.delete')}
+              accessibilityHint={t('facility.detail.deleteHint')}
+              testID="facility-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

@@ -45,6 +45,11 @@ const FacilityFormScreenIOS = () => {
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    nameError,
+    typeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     hasTenants,
     isCreateBlocked,
     isLoading,
@@ -144,7 +149,20 @@ const FacilityFormScreenIOS = () => {
             {!isEdit && (
               <StyledFullRow>
                 <StyledFieldGroup>
-                  {tenantListLoading ? (
+                  {isTenantLocked ? (
+                    <TextField
+                      label={t('facility.form.tenantLockedLabel')}
+                      value={lockedTenantDisplay}
+                      accessibilityLabel={t('facility.form.tenantLockedLabel')}
+                      accessibilityHint={t('facility.form.tenantLockedHint')}
+                      helperText={tenantError || t('facility.form.tenantLockedHint')}
+                      errorMessage={tenantError || undefined}
+                      required
+                      density="compact"
+                      disabled
+                      testID="facility-form-tenant-locked"
+                    />
+                  ) : tenantListLoading ? (
                     <LoadingSpinner
                       accessibilityLabel={t('common.loading')}
                       testID="facility-form-tenant-loading"
@@ -185,7 +203,8 @@ const FacilityFormScreenIOS = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('facility.form.tenantLabel')}
                       accessibilityHint={t('facility.form.tenantHint')}
-                      helperText={t('facility.form.tenantHint')}
+                      helperText={tenantError || t('facility.form.tenantHint')}
+                      errorMessage={tenantError || undefined}
                       required
                       disabled={isFormDisabled}
                       testID="facility-form-tenant"
@@ -203,7 +222,8 @@ const FacilityFormScreenIOS = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('facility.form.nameLabel')}
                 accessibilityHint={t('facility.form.nameHint')}
-                helperText={showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.nameHint')}
+                helperText={nameError || (showCreateBlocked ? t('facility.form.blockedMessage') : t('facility.form.nameHint'))}
+                errorMessage={nameError || undefined}
                 required
                 density="compact"
                 disabled={isFormDisabled}
@@ -220,7 +240,8 @@ const FacilityFormScreenIOS = () => {
                 onValueChange={setFacilityType}
                 accessibilityLabel={t('facility.form.typeLabel')}
                 accessibilityHint={t('facility.form.typeHint')}
-                helperText={t('facility.form.typeHint')}
+                helperText={typeError || t('facility.form.typeHint')}
+                errorMessage={typeError || undefined}
                 required
                 disabled={isFormDisabled}
                 testID="facility-form-type"

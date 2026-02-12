@@ -5,8 +5,11 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useFacility, useNetwork, useTenant } from '@hooks';
+import { useI18n, useFacility, useNetwork, useTenant, useTenantAccess } from '@hooks';
 import { FACILITY_TYPES } from './types';
+
+const MAX_NAME_LENGTH = 255;
+const FACILITY_TYPE_VALUES = new Set(FACILITY_TYPES.map(({ value }) => value));
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -23,6 +26,12 @@ const useFacilityFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useFacility();
   const {
     list: listTenants,
@@ -32,17 +41,31 @@ const useFacilityFormScreen = () => {
     reset: resetTenants,
   } = useTenant();
 
-  const isEdit = Boolean(id);
+  const routeFacilityId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeFacilityId);
+  const canManageFacilities = canAccessTenantSettings;
+  const canCreateFacility = canManageFacilities;
+  const canEditFacility = canManageFacilities;
+  const isTenantScopedAdmin = canManageFacilities && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [name, setName] = useState('');
   const [facilityType, setFacilityType] = useState('');
   const [isActive, setIsActive] = useState(true);
-  const [tenantId, setTenantId] = useState('');
+  const [tenantIdValue, setTenantIdValue] = useState('');
 
   const facility = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
 
   const tenantItems = useMemo(
-    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
-    [tenantData]
+    () => (isTenantScopedAdmin || isEdit
+      ? []
+      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+    [tenantData, isTenantScopedAdmin, isEdit]
   );
   const tenantOptions = useMemo(
     () =>
@@ -54,26 +77,92 @@ const useFacilityFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageFacilities) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateFacility) {
+      router.replace('/settings/facilities?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditFacility) {
+      router.replace('/settings/facilities?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageFacilities,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateFacility,
+    canEditFacility,
+    router,
+  ]);
 
   useEffect(() => {
-    if (!isEdit) {
-      resetTenants();
-      listTenants({ page: 1, limit: 200 });
+    if (!isResolved || !canManageFacilities || !isEdit || !routeFacilityId) return;
+    if (!canEditFacility) return;
+      reset();
+    get(routeFacilityId);
+  }, [isResolved, canManageFacilities, isEdit, routeFacilityId, canEditFacility, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageFacilities || isEdit) return;
+    if (!canCreateFacility) return;
+    if (isTenantScopedAdmin) {
+      setTenantIdValue(normalizedScopedTenantId);
+      return;
     }
-  }, [isEdit, listTenants, resetTenants]);
+    resetTenants();
+    listTenants({ page: 1, limit: 200 });
+  }, [
+    isResolved,
+    canManageFacilities,
+    isEdit,
+    canCreateFacility,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
     if (facility) {
       setName(facility.name ?? '');
       setFacilityType(facility.facility_type ?? '');
       setIsActive(facility.is_active ?? true);
+      setTenantIdValue(String(facility.tenant_id ?? normalizedScopedTenantId ?? ''));
     }
-  }, [facility]);
+  }, [facility, normalizedScopedTenantId]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageFacilities || !isTenantScopedAdmin || !isEdit || !facility) return;
+    const facilityTenantId = String(facility.tenant_id ?? '').trim();
+    if (!normalizedScopedTenantId || !facilityTenantId || facilityTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/facilities?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageFacilities,
+    isTenantScopedAdmin,
+    isEdit,
+    facility,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !isTenantScopedAdmin || !isEdit) return;
+    if (facility) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/facilities?notice=accessDenied');
+    }
+  }, [isResolved, isTenantScopedAdmin, isEdit, facility, errorCode, router]);
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'facility.form.submitErrorMessage'),
@@ -85,21 +174,64 @@ const useFacilityFormScreen = () => {
   );
 
   const trimmedName = name.trim();
-  const trimmedTenantId = String(tenantId ?? '').trim();
-  const hasTenants = tenantOptions.length > 0;
-  const requiresTenant = !isEdit;
-  const isCreateBlocked = requiresTenant && !hasTenants;
+  const trimmedFacilityType = String(facilityType ?? '').trim();
+  const trimmedTenantId = String(tenantIdValue ?? '').trim();
+  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
+  const isCreateBlocked = !isEdit && !isTenantScopedAdmin && !hasTenants;
+  const nameError = useMemo(() => {
+    if (!trimmedName) return t('facility.form.nameRequired');
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      return t('facility.form.nameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedName, t]);
+  const typeError = useMemo(() => {
+    if (!trimmedFacilityType) return t('facility.form.typeRequired');
+    if (!FACILITY_TYPE_VALUES.has(trimmedFacilityType)) return t('facility.form.typeInvalid');
+    return null;
+  }, [trimmedFacilityType, t]);
+  const tenantError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedTenantId) return t('facility.form.tenantRequired');
+    return null;
+  }, [isEdit, trimmedTenantId, t]);
+  const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const lockedTenantDisplay = useMemo(() => {
+    if (!isTenantLocked) return '';
+    return trimmedTenantId || normalizedScopedTenantId;
+  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
   const isSubmitDisabled =
-    isLoading || isCreateBlocked || !trimmedName || !facilityType || (requiresTenant && !trimmedTenantId);
+    !isResolved ||
+    isLoading ||
+    isCreateBlocked ||
+    Boolean(nameError) ||
+    Boolean(typeError) ||
+    Boolean(tenantError) ||
+    (isEdit ? !canEditFacility : !canCreateFacility);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateFacility) {
+        router.replace('/settings/facilities?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditFacility) {
+        router.replace('/settings/facilities?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const facilityTenantId = String(facility?.tenant_id ?? '').trim();
+        if (!facilityTenantId || facilityTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/facilities?notice=accessDenied');
+          return;
+        }
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
-      if (isEdit && id) {
-        const result = await update(id, {
+      if (isEdit && routeFacilityId) {
+        const result = await update(routeFacilityId, {
           name: trimmedName,
-          facility_type: facilityType || undefined,
+          facility_type: trimmedFacilityType || undefined,
           is_active: isActive,
         });
         if (!result) return;
@@ -120,10 +252,15 @@ const useFacilityFormScreen = () => {
     isSubmitDisabled,
     isOffline,
     isEdit,
-    id,
+    routeFacilityId,
+    canCreateFacility,
+    canEditFacility,
+    isTenantScopedAdmin,
+    facility,
+    normalizedScopedTenantId,
     trimmedName,
     trimmedTenantId,
-    facilityType,
+    trimmedFacilityType,
     isActive,
     create,
     update,
@@ -144,9 +281,10 @@ const useFacilityFormScreen = () => {
   }));
 
   const handleRetryTenants = useCallback(() => {
+    if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
     isEdit,
@@ -156,19 +294,24 @@ const useFacilityFormScreen = () => {
     setFacilityType,
     isActive,
     setIsActive,
-    tenantId,
-    setTenantId,
+    tenantId: tenantIdValue,
+    setTenantId: setTenantIdValue,
     tenantOptions,
-    tenantListLoading,
-    tenantListError: Boolean(tenantErrorCode),
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin ? false : Boolean(tenantErrorCode),
+    tenantErrorMessage: isTenantScopedAdmin ? null : tenantErrorMessage,
     hasTenants,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     facility,
+    nameError,
+    typeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

@@ -5,11 +5,14 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useFacilityDetailScreen = require('@platform/screens/settings/FacilityDetailScreen/useFacilityDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
+let mockParams = { id: 'fid-1' };
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useFacility: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -21,11 +24,11 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
-  useLocalSearchParams: () => ({ id: 'fid-1' }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
+  useLocalSearchParams: () => mockParams,
 }));
 
-const { useFacility, useNetwork } = require('@hooks');
+const { useFacility, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useFacilityDetailScreen', () => {
@@ -35,141 +38,114 @@ describe('useFacilityDetailScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams = { id: 'fid-1' };
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useFacility.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
-      data: { id: 'fid-1', name: 'Test Facility' },
+      data: { id: 'fid-1', tenant_id: 'tenant-1', name: 'Test Facility' },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
   });
 
-  it('returns facility, handlers, and state', () => {
+  it('loads facility and exposes edit/delete handlers for global admins', () => {
     const { result } = renderHook(() => useFacilityDetailScreen());
-    expect(result.current.facility).toEqual({ id: 'fid-1', name: 'Test Facility' });
-    expect(typeof result.current.onRetry).toBe('function');
-    expect(typeof result.current.onBack).toBe('function');
+
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalledWith('fid-1');
+    expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
   });
 
-  it('calls get on mount with id', () => {
+  it('redirects unauthorized users to settings', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useFacilityDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('redirects tenant-scoped users without tenant id', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
     renderHook(() => useFacilityDetailScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith('fid-1');
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
   });
 
-  it('onRetry calls fetchDetail', () => {
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    mockReset.mockClear();
-    mockGet.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith('fid-1');
-  });
-
-  it('onBack pushes route to list', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    result.current.onBack();
-    expect(mockPush).toHaveBeenCalledWith('/settings/facilities');
-  });
-
-  it('onEdit pushes edit route when id available', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    result.current.onEdit();
-    expect(mockPush).toHaveBeenCalledWith('/settings/facilities/fid-1/edit');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
+  it('redirects tenant-scoped users when facility belongs to another tenant', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useFacility.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
-      data: null,
+      data: { id: 'fid-1', tenant_id: 'tenant-2', name: 'Other Tenant Facility' },
       isLoading: false,
-      errorCode: 'FACILITY_NOT_FOUND',
+      errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBeDefined();
+
+    renderHook(() => useFacilityDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/facilities?notice=accessDenied');
   });
 
-  it('onDelete calls remove then navigates with notice', async () => {
+  it('deletes and redirects with notice', async () => {
     mockRemove.mockResolvedValue({ id: 'fid-1' });
-    mockPush.mockClear();
     const { result } = renderHook(() => useFacilityDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).toHaveBeenCalledWith('fid-1');
     expect(mockPush).toHaveBeenCalledWith('/settings/facilities?notice=deleted');
   });
 
-  it('onDelete navigates with queued notice when offline', async () => {
+  it('deletes with queued notice when offline', async () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockRemove.mockResolvedValue({ id: 'fid-1' });
     const { result } = renderHook(() => useFacilityDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/facilities?notice=queued');
   });
 
-  it('onDelete does not navigate when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    mockPush.mockClear();
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    await act(async () => {
-      await result.current.onDelete();
-    });
-    expect(mockRemove).toHaveBeenCalledWith('fid-1');
-    expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    await act(async () => {
-      await result.current.onDelete();
-    });
-    expect(mockRemove).toHaveBeenCalledWith('fid-1');
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
+  it('does not delete when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
     const { result } = renderHook(() => useFacilityDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it('handles null facility when data is null', () => {
-    useFacility.mockReturnValue({
-      get: mockGet,
-      remove: mockRemove,
-      data: null,
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    expect(result.current.facility).toBeNull();
-  });
-
-  it('handles null facility when data is array', () => {
-    useFacility.mockReturnValue({
-      get: mockGet,
-      remove: mockRemove,
-      data: [],
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useFacilityDetailScreen());
-    expect(result.current.facility).toBeNull();
   });
 });

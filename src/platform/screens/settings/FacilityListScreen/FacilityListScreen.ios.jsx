@@ -108,7 +108,7 @@ const FacilityListScreenIOS = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onFacilityPress(facility.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="ghost"
             size="small"
@@ -119,7 +119,7 @@ const FacilityListScreenIOS = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('facility.list.itemLabel', { name: title })}
         accessibilityHint={t('facility.list.itemHint', { name: title })}
         testID={`facility-item-${facility.id}`}
