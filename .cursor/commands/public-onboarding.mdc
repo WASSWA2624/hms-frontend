@@ -23,6 +23,7 @@ You must ensure 100% compliance with:
 - `hms-frontend/special-features/onboarding-journey.md`
 - Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc`
 - Actual mounted backend routes in `hms-backend/src/app/router.js` and the referenced module route files
+- If backend changes are required, full compliance with `hms-backend/.cursor/rules/*` is mandatory
 - `hms-frontend/write-up.md`
 
 Only implement what is required for this/these Tier 1 screen(s) to function correctly.
@@ -76,6 +77,15 @@ Do NOT implement steps outside the selected Tier 1 step(s).
   - `POST /api/v1/payments/:id/refund`
   - `order-payment-methods/*` endpoints when not mounted
 - If backend support does not exist for a selected write action, provide informational/read-only UX and block unsupported writes
+
+---
+
+## Backend Change Policy (Mandatory)
+
+- Modify backend only when strictly required for the selected Tier 1 step(s)
+- Any backend modification must follow existing backend rules in `hms-backend/.cursor/rules/*`
+- Backend edits must preserve existing backend architecture and conventions (versioned routing, module structure, validation, response format, auth/security, and tests)
+- Do not introduce ad-hoc backend behavior that bypasses backend rules or established module patterns
 
 ---
 
