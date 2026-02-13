@@ -101,3 +101,10 @@ export { default as SchedulingOverviewScreen } from './scheduling/SchedulingOver
 export { default as SchedulingResourceListScreen } from './scheduling/SchedulingResourceListScreen';
 export { default as SchedulingResourceDetailScreen } from './scheduling/SchedulingResourceDetailScreen';
 export { default as SchedulingResourceFormScreen } from './scheduling/SchedulingResourceFormScreen';
+
+// Clinical screens
+export { default as ClinicalScreen } from './clinical/ClinicalScreen';
+export { default as ClinicalOverviewScreen } from './clinical/ClinicalOverviewScreen';
+export { default as ClinicalResourceListScreen } from './clinical/ClinicalResourceListScreen';
+export { default as ClinicalResourceDetailScreen } from './clinical/ClinicalResourceDetailScreen';
+export { default as ClinicalResourceFormScreen } from './clinical/ClinicalResourceFormScreen';

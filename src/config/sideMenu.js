@@ -26,6 +26,7 @@ export const MENU_ICON_GLYPHS = {
   'grid-outline': '▦',
   'person-outline': '👤',
   'time-outline': '🕐',
+  'heart-outline': '❤',
   'medkit-outline': '🏥',
   'log-in-outline': '🔐',
   'person-add-outline': '👤',
@@ -48,6 +49,7 @@ const PATIENT_ACCESS_ROLES = [
   'EMERGENCY_OFFICER',
 ];
 const SCHEDULING_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
+const CLINICAL_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -281,6 +283,66 @@ const SCHEDULING_ITEMS = [
   },
 ];
 
+/** @type {MainNavChild[]} */
+const CLINICAL_ITEMS = [
+  {
+    id: 'clinical-encounters',
+    icon: 'time-outline',
+    path: '/clinical/encounters',
+    name: `${MAIN_NAV_I18N}.clinical-encounters`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-clinical-notes',
+    icon: 'folder-outline',
+    path: '/clinical/clinical-notes',
+    name: `${MAIN_NAV_I18N}.clinical-clinical-notes`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-diagnoses',
+    icon: 'medkit-outline',
+    path: '/clinical/diagnoses',
+    name: `${MAIN_NAV_I18N}.clinical-diagnoses`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-procedures',
+    icon: 'grid-outline',
+    path: '/clinical/procedures',
+    name: `${MAIN_NAV_I18N}.clinical-procedures`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-vital-signs',
+    icon: 'heart-outline',
+    path: '/clinical/vital-signs',
+    name: `${MAIN_NAV_I18N}.clinical-vital-signs`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-care-plans',
+    icon: 'layers-outline',
+    path: '/clinical/care-plans',
+    name: `${MAIN_NAV_I18N}.clinical-care-plans`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-referrals',
+    icon: 'git-branch-outline',
+    path: '/clinical/referrals',
+    name: `${MAIN_NAV_I18N}.clinical-referrals`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-follow-ups',
+    icon: 'mail-outline',
+    path: '/clinical/follow-ups',
+    name: `${MAIN_NAV_I18N}.clinical-follow-ups`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+];
+
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
@@ -300,6 +362,14 @@ export const MAIN_NAV_ITEMS = [
     name: `${MAIN_NAV_I18N}.scheduling`,
     roles: SCHEDULING_ACCESS_ROLES,
     children: SCHEDULING_ITEMS,
+  },
+  {
+    id: 'clinical',
+    icon: 'medkit-outline',
+    path: '/clinical',
+    name: `${MAIN_NAV_I18N}.clinical`,
+    roles: CLINICAL_ACCESS_ROLES,
+    children: CLINICAL_ITEMS,
   },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
@@ -322,4 +392,4 @@ export const PATIENT_MENU_ITEMS = [
 /** @deprecated Kept for export compatibility */
 export const AUTH_ITEMS = [];
 
-export { SETTINGS_ITEMS, PATIENTS_ITEMS, SCHEDULING_ITEMS };
+export { SETTINGS_ITEMS, PATIENTS_ITEMS, SCHEDULING_ITEMS, CLINICAL_ITEMS };
