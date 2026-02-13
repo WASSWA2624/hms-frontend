@@ -76,8 +76,8 @@ const deleteProviderSchedule = async (id) =>
     if (queued) {
       return normalizeProviderSchedule({ id: parsedId });
     }
-    const response = await providerScheduleApi.remove(parsedId);
-    return normalizeProviderSchedule(response.data);
+    await providerScheduleApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

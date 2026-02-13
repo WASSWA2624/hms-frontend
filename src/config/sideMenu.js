@@ -47,6 +47,7 @@ const PATIENT_ACCESS_ROLES = [
   'RECEPTIONIST',
   'EMERGENCY_OFFICER',
 ];
+const SCHEDULING_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -248,6 +249,38 @@ const PATIENTS_ITEMS = [
   },
 ];
 
+/** @type {MainNavChild[]} */
+const SCHEDULING_ITEMS = [
+  {
+    id: 'scheduling-appointments',
+    icon: 'time-outline',
+    path: '/scheduling/appointments',
+    name: `${MAIN_NAV_I18N}.scheduling-appointments`,
+    roles: SCHEDULING_ACCESS_ROLES,
+  },
+  {
+    id: 'scheduling-provider-schedules',
+    icon: 'time-outline',
+    path: '/scheduling/provider-schedules',
+    name: `${MAIN_NAV_I18N}.scheduling-provider-schedules`,
+    roles: SCHEDULING_ACCESS_ROLES,
+  },
+  {
+    id: 'scheduling-availability-slots',
+    icon: 'grid-outline',
+    path: '/scheduling/availability-slots',
+    name: `${MAIN_NAV_I18N}.scheduling-availability-slots`,
+    roles: SCHEDULING_ACCESS_ROLES,
+  },
+  {
+    id: 'scheduling-visit-queues',
+    icon: 'people-outline',
+    path: '/scheduling/visit-queues',
+    name: `${MAIN_NAV_I18N}.scheduling-visit-queues`,
+    roles: SCHEDULING_ACCESS_ROLES,
+  },
+];
+
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
@@ -259,6 +292,14 @@ export const MAIN_NAV_ITEMS = [
     name: `${MAIN_NAV_I18N}.patients`,
     roles: PATIENT_ACCESS_ROLES,
     children: PATIENTS_ITEMS,
+  },
+  {
+    id: 'scheduling',
+    icon: 'time-outline',
+    path: '/scheduling',
+    name: `${MAIN_NAV_I18N}.scheduling`,
+    roles: SCHEDULING_ACCESS_ROLES,
+    children: SCHEDULING_ITEMS,
   },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
@@ -281,4 +322,4 @@ export const PATIENT_MENU_ITEMS = [
 /** @deprecated Kept for export compatibility */
 export const AUTH_ITEMS = [];
 
-export { SETTINGS_ITEMS, PATIENTS_ITEMS };
+export { SETTINGS_ITEMS, PATIENTS_ITEMS, SCHEDULING_ITEMS };

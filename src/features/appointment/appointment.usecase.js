@@ -72,8 +72,31 @@ const deleteAppointment = async (id) =>
     if (queued) {
       return normalizeAppointment({ id: parsedId });
     }
-    const response = await appointmentApi.remove(parsedId);
+    await appointmentApi.remove(parsedId);
+    return { id: parsedId };
+  });
+
+const cancelAppointment = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseAppointmentId(id);
+    const parsed = parseAppointmentPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.APPOINTMENTS.CANCEL(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeAppointment({ id: parsedId, status: 'CANCELLED', ...parsed });
+    }
+    const response = await appointmentApi.cancel(parsedId, parsed);
     return normalizeAppointment(response.data);
   });
 
-export { listAppointments, getAppointment, createAppointment, updateAppointment, deleteAppointment };
+export {
+  listAppointments,
+  getAppointment,
+  createAppointment,
+  updateAppointment,
+  deleteAppointment,
+  cancelAppointment,
+};

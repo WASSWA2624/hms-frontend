@@ -233,6 +233,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/appointments/${id}`,
     UPDATE: (id) => `${baseUrl}/appointments/${id}`,
     DELETE: (id) => `${baseUrl}/appointments/${id}`,
+    CANCEL: (id) => `${baseUrl}/appointments/${id}/cancel`,
   },
   APPOINTMENT_PARTICIPANTS: {
     LIST: `${baseUrl}/appointment-participants`,

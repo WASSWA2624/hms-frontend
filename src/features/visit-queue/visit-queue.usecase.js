@@ -72,8 +72,8 @@ const deleteVisitQueue = async (id) =>
     if (queued) {
       return normalizeVisitQueue({ id: parsedId });
     }
-    const response = await visitQueueApi.remove(parsedId);
-    return normalizeVisitQueue(response.data);
+    await visitQueueApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export { listVisitQueues, getVisitQueue, createVisitQueue, updateVisitQueue, deleteVisitQueue };

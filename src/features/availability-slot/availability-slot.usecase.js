@@ -76,8 +76,8 @@ const deleteAvailabilitySlot = async (id) =>
     if (queued) {
       return normalizeAvailabilitySlot({ id: parsedId });
     }
-    const response = await availabilitySlotApi.remove(parsedId);
-    return normalizeAvailabilitySlot(response.data);
+    await availabilitySlotApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

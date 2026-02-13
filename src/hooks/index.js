@@ -67,6 +67,7 @@ export { default as usePatientAllergy } from './usePatientAllergy';
 export { default as usePatientMedicalHistory } from './usePatientMedicalHistory';
 export { default as usePatientDocument } from './usePatientDocument';
 export { default as usePatientAccess } from './usePatientAccess';
+export { default as useSchedulingAccess } from './useSchedulingAccess';
 export { default as useInventoryItem } from './useInventoryItem';
 export { default as useInventoryStock } from './useInventoryStock';
 export { default as useStockMovement } from './useStockMovement';

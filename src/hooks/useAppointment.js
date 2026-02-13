@@ -4,6 +4,7 @@
  */
 import useCrud from '@hooks/useCrud';
 import {
+  cancelAppointment,
   createAppointment,
   deleteAppointment,
   getAppointment,
@@ -18,6 +19,7 @@ const useAppointment = () =>
     create: createAppointment,
     update: updateAppointment,
     remove: deleteAppointment,
+    cancel: cancelAppointment,
   });
 
 export default useAppointment;

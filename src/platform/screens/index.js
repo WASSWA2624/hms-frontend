@@ -94,3 +94,10 @@ export { default as PatientsOverviewScreen } from './patients/PatientsOverviewSc
 export { default as PatientResourceListScreen } from './patients/PatientResourceListScreen';
 export { default as PatientResourceDetailScreen } from './patients/PatientResourceDetailScreen';
 export { default as PatientResourceFormScreen } from './patients/PatientResourceFormScreen';
+
+// Scheduling screens
+export { default as SchedulingScreen } from './scheduling/SchedulingScreen';
+export { default as SchedulingOverviewScreen } from './scheduling/SchedulingOverviewScreen';
+export { default as SchedulingResourceListScreen } from './scheduling/SchedulingResourceListScreen';
+export { default as SchedulingResourceDetailScreen } from './scheduling/SchedulingResourceDetailScreen';
+export { default as SchedulingResourceFormScreen } from './scheduling/SchedulingResourceFormScreen';
