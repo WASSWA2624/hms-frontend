@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useRoom } from '@hooks';
+import { useI18n, useNetwork, useRoom, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'room.list.noticeUpdated',
     deleted: 'room.list.noticeDeleted',
     queued: 'room.list.noticeQueued',
+    accessDenied: 'room.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useRoomListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -45,6 +52,10 @@ const useRoomListScreen = () => {
 
   const [search, setSearch] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageRooms = canAccessTenantSettings;
+  const canCreateRoom = canManageRooms;
+  const canDeleteRoom = canManageRooms;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -59,14 +70,40 @@ const useRoomListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageRooms) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [
+    isResolved,
+    canManageRooms,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageRooms) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageRooms, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRooms) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
-  }, [fetchList, search]);
+  }, [isResolved, canManageRooms, canManageAllTenants, normalizedTenantId, fetchList, search]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -84,6 +121,15 @@ const useRoomListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageRooms) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageRooms, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
@@ -95,13 +141,15 @@ const useRoomListScreen = () => {
 
   const handleRoomPress = useCallback(
     (id) => {
+      if (!canManageRooms) return;
       router.push(`/settings/rooms/${id}`);
     },
-    [router]
+    [canManageRooms, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteRoom) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -118,18 +166,19 @@ const useRoomListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t, search]
+    [canDeleteRoom, remove, fetchList, isOffline, t, search]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateRoom) return;
     router.push('/settings/rooms/create');
-  }, [router]);
+  }, [canCreateRoom, router]);
 
   return {
     items,
     search,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
@@ -137,8 +186,8 @@ const useRoomListScreen = () => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onRoomPress: handleRoomPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteRoom ? handleDelete : undefined,
+    onAdd: canCreateRoom ? handleAdd : undefined,
   };
 };
 

@@ -57,6 +57,12 @@ const RoomFormScreenIOS = () => {
     errorMessage,
     isOffline,
     room,
+    nameError,
+    floorError,
+    tenantError,
+    facilityError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -136,6 +142,11 @@ const RoomFormScreenIOS = () => {
     ? t('room.form.facilityBlockedMessage')
     : t('room.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('room.form.nameHint'));
+  const floorHelperText = floorError || (showCreateBlocked ? blockedMessage : t('room.form.floorHint'));
+  const tenantHelperText = tenantError || t('room.form.tenantHint');
+  const facilityHelperText = facilityError || t('room.form.facilityHint');
+  const tenantLockedHint = t('room.form.tenantLockedHint');
 
   return (
     <StyledContainer>
@@ -164,7 +175,7 @@ const RoomFormScreenIOS = () => {
 
         <Card variant="outlined" accessibilityLabel={t('room.form.nameLabel')} testID="room-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -209,7 +220,8 @@ const RoomFormScreenIOS = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('room.form.tenantLabel')}
                       accessibilityHint={t('room.form.tenantHint')}
-                      helperText={t('room.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="room-form-tenant"
@@ -222,10 +234,10 @@ const RoomFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('room.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('room.form.tenantLabel')}
-                    accessibilityHint={t('room.form.tenantLockedHint')}
-                    helperText={t('room.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="room-form-tenant-readonly"
                   />
@@ -291,7 +303,8 @@ const RoomFormScreenIOS = () => {
                       onValueChange={setFacilityId}
                       accessibilityLabel={t('room.form.facilityLabel')}
                       accessibilityHint={t('room.form.facilityHint')}
-                      helperText={t('room.form.facilityHint')}
+                      errorMessage={facilityError}
+                      helperText={facilityHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="room-form-facility"
@@ -323,8 +336,10 @@ const RoomFormScreenIOS = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('room.form.nameLabel')}
                 accessibilityHint={t('room.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('room.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="room-form-name"
@@ -339,7 +354,9 @@ const RoomFormScreenIOS = () => {
                 onChangeText={setFloor}
                 accessibilityLabel={t('room.form.floorLabel')}
                 accessibilityHint={t('room.form.floorHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('room.form.floorHint')}
+                errorMessage={floorError}
+                helperText={floorHelperText}
+                maxLength={50}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="room-form-floor"

@@ -57,6 +57,12 @@ const RoomFormScreenWeb = () => {
     errorMessage,
     isOffline,
     room,
+    nameError,
+    floorError,
+    tenantError,
+    facilityError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -136,6 +142,11 @@ const RoomFormScreenWeb = () => {
     ? t('room.form.facilityBlockedMessage')
     : t('room.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('room.form.nameHint'));
+  const floorHelperText = floorError || (showCreateBlocked ? blockedMessage : t('room.form.floorHint'));
+  const tenantHelperText = tenantError || t('room.form.tenantHint');
+  const facilityHelperText = facilityError || t('room.form.facilityHint');
+  const tenantLockedHint = t('room.form.tenantLockedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('room.form.editTitle') : t('room.form.createTitle')}>
@@ -165,7 +176,7 @@ const RoomFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('room.form.nameLabel')} testID="room-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -210,7 +221,8 @@ const RoomFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('room.form.tenantLabel')}
                       accessibilityHint={t('room.form.tenantHint')}
-                      helperText={t('room.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -224,10 +236,10 @@ const RoomFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('room.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('room.form.tenantLabel')}
-                    accessibilityHint={t('room.form.tenantLockedHint')}
-                    helperText={t('room.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="room-form-tenant-readonly"
                   />
@@ -294,7 +306,8 @@ const RoomFormScreenWeb = () => {
                       onValueChange={setFacilityId}
                       accessibilityLabel={t('room.form.facilityLabel')}
                       accessibilityHint={t('room.form.facilityHint')}
-                      helperText={t('room.form.facilityHint')}
+                      errorMessage={facilityError}
+                      helperText={facilityHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -327,8 +340,10 @@ const RoomFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('room.form.nameLabel')}
                 accessibilityHint={t('room.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('room.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="room-form-name"
@@ -343,7 +358,9 @@ const RoomFormScreenWeb = () => {
                 onChange={(e) => setFloor(e.target.value)}
                 accessibilityLabel={t('room.form.floorLabel')}
                 accessibilityHint={t('room.form.floorHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('room.form.floorHint')}
+                errorMessage={floorError}
+                helperText={floorHelperText}
+                maxLength={50}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="room-form-floor"

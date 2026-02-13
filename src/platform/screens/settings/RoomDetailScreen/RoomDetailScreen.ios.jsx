@@ -264,18 +264,20 @@ const RoomDetailScreenIOS = () => {
               {t('room.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('room.detail.delete')}
-            accessibilityHint={t('room.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="room-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('room.detail.delete')}
+              accessibilityHint={t('room.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="room-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

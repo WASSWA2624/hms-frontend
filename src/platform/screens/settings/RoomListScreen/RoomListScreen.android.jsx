@@ -91,7 +91,7 @@ const RoomListScreenAndroid = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   const renderItem = ({ item: room }) => {
@@ -102,7 +102,7 @@ const RoomListScreenAndroid = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onRoomPress(room.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -114,7 +114,7 @@ const RoomListScreenAndroid = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('room.list.itemLabel', { name: title })}
         accessibilityHint={t('room.list.itemHint', { name: title })}
         testID={`room-item-${room.id}`}

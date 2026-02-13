@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useRoom } from '@hooks';
+import { useI18n, useNetwork, useRoom, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,23 @@ const useRoomDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useRoom();
+
+  const roomId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageRooms = canAccessTenantSettings;
+  const canEditRoom = canManageRooms;
+  const canDeleteRoom = canManageRooms;
+  const isTenantScopedAdmin = canManageRooms && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const room = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +45,48 @@ const useRoomDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageRooms || !roomId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(roomId);
+  }, [isResolved, canManageRooms, roomId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageRooms) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageRooms, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRooms || !isTenantScopedAdmin || !room) return;
+    const roomTenantId = String(room.tenant_id ?? '').trim();
+    if (!roomTenantId || roomTenantId !== normalizedTenantId) {
+      router.replace('/settings/rooms?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageRooms,
+    isTenantScopedAdmin,
+    room,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRooms) return;
+    if (room) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/rooms?notice=accessDenied');
+    }
+  }, [isResolved, canManageRooms, room, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +97,34 @@ const useRoomDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/rooms/${id}/edit`);
-  }, [id, router]);
+    if (!canEditRoom || !roomId) return;
+    router.push(`/settings/rooms/${roomId}/edit`);
+  }, [canEditRoom, roomId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteRoom || !roomId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(roomId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/rooms?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteRoom, roomId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: roomId,
     room,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditRoom ? handleEdit : undefined,
+    onDelete: canDeleteRoom ? handleDelete : undefined,
   };
 };
 
