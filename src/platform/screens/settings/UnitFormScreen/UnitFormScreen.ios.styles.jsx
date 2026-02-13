@@ -51,6 +51,14 @@ const StyledFullRow = styled.View.withConfig({
   componentId: 'UnitFormScreen_StyledFullRow',
 })``;
 
+const StyledHelperStack = styled.View.withConfig({
+  displayName: 'UnitFormScreen_StyledHelperStack',
+  componentId: 'UnitFormScreen_StyledHelperStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledActions = styled.View.withConfig({
   displayName: 'UnitFormScreen_StyledActions',
   componentId: 'UnitFormScreen_StyledActions',
@@ -67,5 +75,6 @@ export {
   StyledFormGrid,
   StyledFieldGroup,
   StyledFullRow,
+  StyledHelperStack,
   StyledActions,
 };

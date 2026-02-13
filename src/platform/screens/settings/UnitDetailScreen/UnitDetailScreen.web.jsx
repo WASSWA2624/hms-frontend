@@ -140,6 +140,8 @@ const UnitDetailScreenWeb = () => {
   const updatedAt = formatDateTime(unit.updated_at, locale);
   const name = unit?.name ?? '';
   const tenantId = unit?.tenant_id ?? '';
+  const facilityId = unit?.facility_id ?? '';
+  const departmentId = unit?.department_id ?? '';
   const isActive = unit?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -194,6 +196,22 @@ const UnitDetailScreenWeb = () => {
                 <Text variant="label">{t('unit.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="unit-detail-tenant">
                   {tenantId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.facilityLabel')}</Text>
+                <Text variant="body" testID="unit-detail-facility">
+                  {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {departmentId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('unit.detail.departmentLabel')}</Text>
+                <Text variant="body" testID="unit-detail-department">
+                  {departmentId}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -261,18 +279,20 @@ const UnitDetailScreenWeb = () => {
               {t('unit.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('unit.detail.delete')}
-            accessibilityHint={t('unit.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="unit-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('unit.detail.delete')}
+              accessibilityHint={t('unit.detail.deleteHint')}
+              icon={<Icon glyph="✕" size="xs" decorative />}
+              testID="unit-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

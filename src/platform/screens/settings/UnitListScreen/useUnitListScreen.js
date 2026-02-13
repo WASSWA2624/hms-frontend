@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useUnit } from '@hooks';
+import { useI18n, useNetwork, useUnit, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'unit.list.noticeUpdated',
     deleted: 'unit.list.noticeDeleted',
     queued: 'unit.list.noticeQueued',
+    accessDenied: 'unit.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useUnitListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useUnitListScreen = () => {
   } = useUnit();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageUnits = canAccessTenantSettings;
+  const canCreateUnit = canManageUnits;
+  const canDeleteUnit = canManageUnits;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -57,14 +68,33 @@ const useUnitListScreen = () => {
     return notice;
   }, [notice]);
 
-  const fetchList = useCallback(() => {
+  const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageUnits) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(nextParams);
+  }, [isResolved, canManageUnits, canManageAllTenants, normalizedTenantId, list, reset]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUnits) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageUnits, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUnits) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageUnits, canManageAllTenants, normalizedTenantId, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -82,19 +112,30 @@ const useUnitListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageUnits) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageUnits, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     fetchList();
   }, [fetchList]);
 
   const handleUnitPress = useCallback(
     (id) => {
+      if (!canManageUnits) return;
       router.push(`/settings/units/${id}`);
     },
-    [router]
+    [canManageUnits, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteUnit) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +151,26 @@ const useUnitListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteUnit, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateUnit) return;
     router.push('/settings/units/create');
-  }, [router]);
+  }, [canCreateUnit, router]);
 
   return {
     items,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onUnitPress: handleUnitPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteUnit ? handleDelete : undefined,
+    onAdd: canCreateUnit ? handleAdd : undefined,
   };
 };
 

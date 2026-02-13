@@ -1,6 +1,6 @@
-**11.3.4** Branch -- `(main)/settings/branches`
+**11.3.6** Unit -- `(main)/settings/units`
 
-Review and implement all missing and non compliant aspects of the above dev sptep as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Review and implement all missing and non compliant aspects of the above dev step as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:
 - All rules in `hms-frontend/.cursor/rules/*`

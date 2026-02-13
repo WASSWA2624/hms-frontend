@@ -88,7 +88,7 @@ const UnitListScreenAndroid = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   const renderItem = ({ item: unit }) => {
@@ -97,7 +97,7 @@ const UnitListScreenAndroid = () => {
       <ListItem
         title={title}
         onPress={() => onUnitPress(unit.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -109,8 +109,9 @@ const UnitListScreenAndroid = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('unit.list.itemLabel', { name: title })}
+        accessibilityHint={t('unit.list.itemHint', { name: title })}
         testID={`unit-item-${unit.id}`}
       />
     );

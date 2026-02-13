@@ -24,6 +24,7 @@ import {
   StyledFieldGroup,
   StyledFormGrid,
   StyledFullRow,
+  StyledHelperStack,
   StyledInlineStates,
 } from './UnitFormScreen.web.styles';
 import useUnitFormScreen from './useUnitFormScreen';
@@ -38,21 +39,43 @@ const UnitFormScreenWeb = () => {
     setIsActive,
     tenantId,
     setTenantId,
+    facilityId,
+    setFacilityId,
+    departmentId,
+    setDepartmentId,
     tenantOptions,
+    facilityOptions,
+    departmentOptions,
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    facilityListLoading,
+    facilityListError,
+    facilityErrorMessage,
+    departmentListLoading,
+    departmentListError,
+    departmentErrorMessage,
     hasTenants,
+    hasFacilities,
+    hasDepartments,
     isCreateBlocked,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
     unit,
+    nameError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
+    onGoToFacilities,
+    onGoToDepartments,
     onRetryTenants,
+    onRetryFacilities,
+    onRetryDepartments,
     isSubmitDisabled,
   } = useUnitFormScreen();
 
@@ -72,7 +95,7 @@ const UnitFormScreenWeb = () => {
         <StyledContent>
           <ErrorState
             title={t('unit.form.loadError')}
-            action={
+            action={(
               <Button
                 variant="surface"
                 size="small"
@@ -83,7 +106,7 @@ const UnitFormScreenWeb = () => {
               >
                 {t('common.back')}
               </Button>
-            }
+            )}
             testID="unit-form-load-error"
           />
         </StyledContent>
@@ -91,9 +114,7 @@ const UnitFormScreenWeb = () => {
     );
   }
 
-  const showInlineError = hasError && (!isEdit || Boolean(unit));
-  const isFormDisabled = isLoading;
-  const showCreateBlocked = !isEdit && isCreateBlocked;
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
   const retryTenantsAction = onRetryTenants ? (
     <Button
       variant="surface"
@@ -107,6 +128,42 @@ const UnitFormScreenWeb = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const retryFacilitiesAction = onRetryFacilities ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryFacilities}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="unit-form-facility-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const retryDepartmentsAction = onRetryDepartments ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryDepartments}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="↻" size="xs" decorative />}
+      testID="unit-form-department-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+
+  const showInlineError = hasError && (!isEdit || Boolean(unit));
+  const showTenantBlocked = !isEdit && isCreateBlocked;
+  const blockedMessage = t('unit.form.blockedMessage');
+  const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const showDepartmentEmpty =
+    Boolean(tenantId) && !departmentListLoading && !departmentListError && !hasDepartments;
+  const nameHelperText = nameError || (showTenantBlocked ? blockedMessage : t('unit.form.nameHint'));
+  const tenantHelperText = tenantError || t('unit.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('unit.form.tenantLockedHint') : t('unit.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('unit.form.editTitle') : t('unit.form.createTitle')}>
@@ -136,7 +193,7 @@ const UnitFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('unit.form.nameLabel')} testID="unit-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -153,7 +210,11 @@ const UnitFormScreenWeb = () => {
                       testID="unit-form-tenant-error"
                     />
                   ) : !hasTenants ? (
-                    <>
+                    <StyledHelperStack
+                      role="region"
+                      aria-label={t('unit.form.tenantLabel')}
+                      data-testid="unit-form-no-tenants"
+                    >
                       <Text variant="body">{t('unit.form.noTenantsMessage')}</Text>
                       <Text variant="body">{t('unit.form.createTenantFirst')}</Text>
                       <Button
@@ -167,7 +228,7 @@ const UnitFormScreenWeb = () => {
                       >
                         {t('unit.form.goToTenants')}
                       </Button>
-                    </>
+                    </StyledHelperStack>
                   ) : (
                     <Select
                       label={t('unit.form.tenantLabel')}
@@ -177,10 +238,11 @@ const UnitFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('unit.form.tenantLabel')}
                       accessibilityHint={t('unit.form.tenantHint')}
-                      helperText={t('unit.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
-                      disabled={isFormDisabled || isCreateBlocked}
+                      disabled={isFormDisabled}
                       testID="unit-form-tenant"
                     />
                   )}
@@ -190,17 +252,147 @@ const UnitFormScreenWeb = () => {
               <StyledFullRow>
                 <StyledFieldGroup>
                   <TextField
-                    label={t('unit.form.tenantIdLabel')}
-                    value={tenantId}
-                    accessibilityLabel={t('unit.form.tenantIdLabel')}
-                    accessibilityHint={t('unit.form.tenantLockedHint')}
-                    helperText={t('unit.form.tenantLockedHint')}
+                    label={t('unit.form.tenantLabel')}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    accessibilityLabel={t('unit.form.tenantLabel')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="unit-form-tenant-readonly"
                   />
                 </StyledFieldGroup>
               </StyledFullRow>
             )}
+
+            <StyledFieldGroup>
+              {facilityListLoading ? (
+                <LoadingSpinner
+                  accessibilityLabel={t('common.loading')}
+                  testID="unit-form-facility-loading"
+                />
+              ) : facilityListError ? (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('unit.form.facilityLoadErrorTitle')}
+                  description={facilityErrorMessage}
+                  action={retryFacilitiesAction}
+                  testID="unit-form-facility-error"
+                />
+              ) : !tenantId && !isEdit ? (
+                <Select
+                  label={t('unit.form.facilityLabel')}
+                  placeholder={t('unit.form.facilityPlaceholder')}
+                  options={[]}
+                  value=""
+                  onValueChange={() => {}}
+                  accessibilityLabel={t('unit.form.facilityLabel')}
+                  accessibilityHint={t('unit.form.selectTenantFirst')}
+                  helperText={t('unit.form.selectTenantFirst')}
+                  compact
+                  disabled
+                  testID="unit-form-select-tenant"
+                />
+              ) : showFacilityEmpty ? (
+                <StyledHelperStack
+                  role="region"
+                  aria-label={t('unit.form.facilityLabel')}
+                  data-testid="unit-form-no-facilities"
+                >
+                  <Text variant="body">{t('unit.form.noFacilitiesMessage')}</Text>
+                  <Text variant="body">{t('unit.form.createFacilityOptional')}</Text>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={onGoToFacilities}
+                    accessibilityLabel={t('unit.form.goToFacilities')}
+                    accessibilityHint={t('unit.form.goToFacilitiesHint')}
+                    icon={<Icon glyph="→" size="xs" decorative />}
+                    testID="unit-form-go-to-facilities"
+                  >
+                    {t('unit.form.goToFacilities')}
+                  </Button>
+                </StyledHelperStack>
+              ) : (
+                <Select
+                  label={t('unit.form.facilityLabel')}
+                  placeholder={t('unit.form.facilityPlaceholder')}
+                  options={facilityOptions}
+                  value={facilityId}
+                  onValueChange={setFacilityId}
+                  accessibilityLabel={t('unit.form.facilityLabel')}
+                  accessibilityHint={t('unit.form.facilityHint')}
+                  helperText={t('unit.form.facilityHint')}
+                  compact
+                  disabled={isFormDisabled || (!isEdit && !tenantId)}
+                  testID="unit-form-facility"
+                />
+              )}
+            </StyledFieldGroup>
+
+            <StyledFieldGroup>
+              {departmentListLoading ? (
+                <LoadingSpinner
+                  accessibilityLabel={t('common.loading')}
+                  testID="unit-form-department-loading"
+                />
+              ) : departmentListError ? (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('unit.form.departmentLoadErrorTitle')}
+                  description={departmentErrorMessage}
+                  action={retryDepartmentsAction}
+                  testID="unit-form-department-error"
+                />
+              ) : !tenantId && !isEdit ? (
+                <Select
+                  label={t('unit.form.departmentLabel')}
+                  placeholder={t('unit.form.departmentPlaceholder')}
+                  options={[]}
+                  value=""
+                  onValueChange={() => {}}
+                  accessibilityLabel={t('unit.form.departmentLabel')}
+                  accessibilityHint={t('unit.form.selectTenantFirst')}
+                  helperText={t('unit.form.selectTenantFirst')}
+                  compact
+                  disabled
+                  testID="unit-form-select-tenant-department"
+                />
+              ) : showDepartmentEmpty ? (
+                <StyledHelperStack
+                  role="region"
+                  aria-label={t('unit.form.departmentLabel')}
+                  data-testid="unit-form-no-departments"
+                >
+                  <Text variant="body">{t('unit.form.noDepartmentsMessage')}</Text>
+                  <Text variant="body">{t('unit.form.createDepartmentOptional')}</Text>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={onGoToDepartments}
+                    accessibilityLabel={t('unit.form.goToDepartments')}
+                    accessibilityHint={t('unit.form.goToDepartmentsHint')}
+                    icon={<Icon glyph="→" size="xs" decorative />}
+                    testID="unit-form-go-to-departments"
+                  >
+                    {t('unit.form.goToDepartments')}
+                  </Button>
+                </StyledHelperStack>
+              ) : (
+                <Select
+                  label={t('unit.form.departmentLabel')}
+                  placeholder={t('unit.form.departmentPlaceholder')}
+                  options={departmentOptions}
+                  value={departmentId}
+                  onValueChange={setDepartmentId}
+                  accessibilityLabel={t('unit.form.departmentLabel')}
+                  accessibilityHint={t('unit.form.departmentHint')}
+                  helperText={facilityId ? t('unit.form.departmentHint') : t('unit.form.departmentHintNoFacility')}
+                  compact
+                  disabled={isFormDisabled || (!isEdit && !tenantId)}
+                  testID="unit-form-department"
+                />
+              )}
+            </StyledFieldGroup>
 
             <StyledFieldGroup>
               <TextField
@@ -210,8 +402,10 @@ const UnitFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('unit.form.nameLabel')}
                 accessibilityHint={t('unit.form.nameHint')}
-                helperText={showCreateBlocked ? t('unit.form.tenantRequiredMessage') : t('unit.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="unit-form-name"
@@ -230,7 +424,7 @@ const UnitFormScreenWeb = () => {
                   testID="unit-form-active"
                 />
                 <Text variant="caption">
-                  {showCreateBlocked ? t('unit.form.tenantRequiredMessage') : t('unit.form.activeHint')}
+                  {showTenantBlocked ? blockedMessage : t('unit.form.activeHint')}
                 </Text>
               </StyledFieldGroup>
             </StyledFullRow>
