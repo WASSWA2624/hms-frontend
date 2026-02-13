@@ -1,0 +1,276 @@
+Steps to review and implement:
+- **11.4.1** Patients (main) -- `(main)/patients`
+- **11.4.2** Patient -- `(main)/patients/patients`
+- **11.4.3** Patient identifier -- `(main)/patients/patient-identifiers`
+- **11.4.4** Patient contact -- `(main)/patients/patient-contacts`
+- **11.4.5** Patient guardian -- `(main)/patients/patient-guardians`
+- **11.4.6** Patient allergy -- `(main)/patients/patient-allergies`
+- **11.4.7** Patient medical history -- `(main)/patients/patient-medical-histories`
+- **11.4.8** Patient document -- `(main)/patients/patient-documents`
+
+Review and implement all missing and non compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/dev-plan/P011_screens-routes.md`
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for selected patient resources
+- Actual mounted backend routes in `hms-backend/src/app/router.js` and referenced patient module route files
+- If backend changes are required, full compliance with `hms-backend/.cursor/rules/*` is mandatory
+- `hms-frontend/write-up.md`
+
+Only implement what is required for this/these Tier 4 screen(s) to function correctly.
+
+---
+
+## Scope
+
+Implement full functionality required for the selected Tier 4 step(s) (`11.4.1` to `11.4.8`):
+
+- Route + screen wiring under `(main)/patients/*`
+- Backend-aligned API integration for selected patient resources
+- Loading, empty, error, and success states
+- Validation for all required create/edit inputs
+- List, detail, create, edit, and delete flows where backend supports them
+- Navigation (Back / Cancel / Save / Continue) with no dead ends
+- Parent-child flow continuity from Patients main screen to selected sub-resources
+- Prefill and relationship handling (`tenant_id`, `facility_id`, `patient_id`) from trusted context
+- Role-feature access control for logged-in users on all patient routes and actions
+- Accessibility control for all patient actions and route states
+
+The selected step(s) can be one or more of:
+- `11.4.1` Patients (main) -- `(main)/patients`
+- `11.4.2` Patient -- `(main)/patients/patients`
+- `11.4.3` Patient identifier -- `(main)/patients/patient-identifiers`
+- `11.4.4` Patient contact -- `(main)/patients/patient-contacts`
+- `11.4.5` Patient guardian -- `(main)/patients/patient-guardians`
+- `11.4.6` Patient allergy -- `(main)/patients/patient-allergies`
+- `11.4.7` Patient medical history -- `(main)/patients/patient-medical-histories`
+- `11.4.8` Patient document -- `(main)/patients/patient-documents`
+
+Do NOT implement steps outside the selected Tier 4 step(s).
+
+---
+
+## Backend Reality Check (Mandatory)
+
+- Treat `hms-backend/src/app/router.js` + patient module route files as source of truth
+- Do not call frontend endpoint constants that are not mounted by backend routes
+- Do not invent nested shortcut endpoints such as:
+  - `/api/v1/patients/:id/identifiers`
+  - `/api/v1/patients/:id/contacts`
+  - `/api/v1/patients/:id/guardians`
+  - `/api/v1/patients/:id/allergies`
+  - `/api/v1/patients/:id/medical-histories`
+  - `/api/v1/patients/:id/documents`
+- Use mounted top-level resources with filters (`patient_id`, `tenant_id`) where needed
+- If backend support does not exist for a selected write action, provide informational/read-only UX and block unsupported writes
+
+---
+
+## Backend Change Policy (Mandatory)
+
+- Modify backend only when strictly required for selected Tier 4 step(s)
+- Any backend modification must follow existing backend rules in `hms-backend/.cursor/rules/*`
+- Backend edits must preserve existing backend architecture and conventions (versioned routing, module structure, validation, response format, auth/security, and tests)
+- Do not introduce ad-hoc backend behavior that bypasses backend rules or established module patterns
+
+---
+
+## Access Control (Mandatory)
+
+- Enforce access using existing auth/session and role-feature hooks/utilities/patterns already used in the app
+- Use a single source of truth for auth/session + role-feature access
+- Apply access checks to both:
+  - UI actions (view/create/edit/delete/retry/export where applicable)
+  - Route navigation (including direct deep links to `(main)/patients/*`)
+- Never rely on UI hiding alone; route-level protection must prevent unauthorized access
+- Block unauthorized data actions before API calls and handle backend `401/403` responses with clear feedback
+- For unauthorized routes, redirect to nearest allowed main route and preserve safe navigation
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers
+- Ensure current location is perceivable via visible and accessible state
+- For visible-but-blocked actions, use `aria-disabled="true"` on web, prevent execution, and provide an accessible reason
+- Ensure keyboard navigation order, focus visibility, and focus restoration after submit/redirect/error
+- Provide screen-reader friendly feedback for loading, errors, denied actions, and successful actions
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing **Main Layout** and existing route-group layout patterns for `(main)/patients`
+- If patients route-group layout is missing, create it using existing composition patterns (no redesign)
+- No layout redesign
+- No nested scroll containers
+- No nested sidebars
+- Match current main/settings/dashboard screens visually and structurally
+
+---
+
+## UI / UX Rules
+
+- Clean, compact, modern UI
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android)
+- Clear action hierarchy
+- Human-friendly copy via i18n keys only
+- No duplicate UI
+- No oversized elements
+- No dead-end navigation
+
+Buttons:
+- Use existing main/patients button styles
+- Compact and consistent
+
+Forms:
+- Clear labels and helpful placeholders
+- Inline validation messages
+- Required fields clearly indicated
+- Logical field order
+- Disable invalid submit actions while preserving accessible reason text
+
+Patient flow UX:
+- The selected Tier 4 flow must be self-directed for first-time staff users without a user manual
+- Keep primary actions obvious and reduce cognitive load
+- Explain required patient context (for example patient linkage requirements) in plain language
+- Minimize required data entry to backend-required fields only
+- Preserve selected patient context while navigating between related patient sub-resources
+
+---
+
+## Security by Design (Mandatory)
+
+- Apply secure-by-default behavior across all selected patient screens/actions
+- Collect only data required for the selected step; do not request unnecessary sensitive data
+- Never expose secrets/tokens/PII in logs, analytics, or UI debug text
+- Prevent duplicate/replay-like submissions with pending/disabled action states
+- Validate and sanitize all route/query params before use (`id`, `patient_id`, `tenant_id`, pagination/filter values)
+- Use existing secure auth/session storage and request utilities
+- Enforce route/action guards before API calls, not only via UI visibility
+- For blocked/unauthorized states, show clear non-technical feedback without leaking sensitive details
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully
+- Human-readable, actionable error messages
+- Clear success/failure feedback for every supported action
+- Disable duplicate submissions while pending
+- Preserve user state where possible (filters, selected patient context, pagination)
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders)
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety
+
+---
+
+## Backend Linkage (Mandatory)
+
+Every implemented feature/action must call real backend endpoints for selected Tier 4 step(s):
+
+- `11.4.1` Patients (main) (`(main)/patients`)
+  - Use mounted patient resource endpoints for primary list/context: `GET /api/v1/patients`
+  - Do not invent aggregate/dashboard endpoints for patients main
+- `11.4.2` Patient (`(main)/patients/patients`)
+  - `GET /api/v1/patients`
+  - `GET /api/v1/patients/:id`
+  - `POST /api/v1/patients`
+  - `PUT /api/v1/patients/:id`
+  - `DELETE /api/v1/patients/:id`
+- `11.4.3` Patient identifier (`(main)/patients/patient-identifiers`)
+  - `GET /api/v1/patient-identifiers`
+  - `GET /api/v1/patient-identifiers/:id`
+  - `POST /api/v1/patient-identifiers`
+  - `PUT /api/v1/patient-identifiers/:id`
+  - `DELETE /api/v1/patient-identifiers/:id`
+- `11.4.4` Patient contact (`(main)/patients/patient-contacts`)
+  - `GET /api/v1/patient-contacts`
+  - `GET /api/v1/patient-contacts/:id`
+  - `POST /api/v1/patient-contacts`
+  - `PUT /api/v1/patient-contacts/:id`
+  - `DELETE /api/v1/patient-contacts/:id`
+- `11.4.5` Patient guardian (`(main)/patients/patient-guardians`)
+  - `GET /api/v1/patient-guardians`
+  - `GET /api/v1/patient-guardians/:id`
+  - `POST /api/v1/patient-guardians`
+  - `PUT /api/v1/patient-guardians/:id`
+  - `DELETE /api/v1/patient-guardians/:id`
+- `11.4.6` Patient allergy (`(main)/patients/patient-allergies`)
+  - `GET /api/v1/patient-allergies`
+  - `GET /api/v1/patient-allergies/:id`
+  - `POST /api/v1/patient-allergies`
+  - `PUT /api/v1/patient-allergies/:id`
+  - `DELETE /api/v1/patient-allergies/:id`
+- `11.4.7` Patient medical history (`(main)/patients/patient-medical-histories`)
+  - `GET /api/v1/patient-medical-histories`
+  - `GET /api/v1/patient-medical-histories/:id`
+  - `POST /api/v1/patient-medical-histories`
+  - `PUT /api/v1/patient-medical-histories/:id`
+  - `DELETE /api/v1/patient-medical-histories/:id`
+- `11.4.8` Patient document (`(main)/patients/patient-documents`)
+  - `GET /api/v1/patient-documents`
+  - `GET /api/v1/patient-documents/:id`
+  - `POST /api/v1/patient-documents`
+  - `PUT /api/v1/patient-documents/:id`
+  - `DELETE /api/v1/patient-documents/:id`
+  - Note: mounted backend contract is metadata CRUD (`document_type`, `storage_key`, optional `file_name`, `content_type`); do not invent non-mounted multipart upload endpoints
+
+Keep request/response fields strictly aligned with backend schema/validation rules.
+Do not ship mock data, fake success states, or disconnected UI actions.
+If backend intentionally lacks support for an action, expose read-only/informational UX and block unsupported writes.
+
+All operations MUST match backend schema and endpoint behavior exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Modify Tier 1/Tier 2/Tier 3 screens or flows unless required by selected Tier 4 step(s)
+- Change layout or routing architecture outside required Tier 4 route wiring
+- Add global components or new patterns
+- Invent backend fields, endpoints, or behaviors
+- Implement screens outside selected Tier 4 step(s)
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing layout patterns reused
+- Backend-aligned functionality for selected Tier 4 step(s)
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen(s) work independently and integrate with current main navigation
+- Access control is enforced for actions and routes (including deep links)
+- Accessibility is preserved for all states, including unauthorized/disabled states
+- The selected patient flow can be completed without a manual
+- The selected patient flow remains secure by default (no data leakage, no insecure shortcuts)
+- All applicable features/actions are fully functional and backend-linked
+- Unauthorized users cannot execute restricted actions via URL, keyboard, or direct API-triggering UI paths
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component(s) for selected Tier 4 step(s)
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
+4. Validation logic (if applicable)
+5. State handling logic
+6. Loading + empty + error UI
+7. Success/failure feedback implementation
+8. Navigation handlers
+9. Backend contract alignment confirmation
+10. Access control implementation confirmation (actions + routes)
+11. Accessibility control confirmation for all states
+12. Route-guard + navigation accessibility confirmation (keyboard/focus/blocked actions)
+13. Action-to-backend linkage confirmation for all enabled features in selected screen(s)
+14. Explicit note for any selected action intentionally read-only due to missing backend support
+
+Do NOT include files or logic outside selected Tier 4 screen(s).
