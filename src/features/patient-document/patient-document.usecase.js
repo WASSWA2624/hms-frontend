@@ -76,8 +76,8 @@ const deletePatientDocument = async (id) =>
     if (queued) {
       return normalizePatientDocument({ id: parsedId });
     }
-    const response = await patientDocumentApi.remove(parsedId);
-    return normalizePatientDocument(response.data);
+    await patientDocumentApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

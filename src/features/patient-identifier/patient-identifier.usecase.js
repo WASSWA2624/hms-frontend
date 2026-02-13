@@ -76,8 +76,8 @@ const deletePatientIdentifier = async (id) =>
     if (queued) {
       return normalizePatientIdentifier({ id: parsedId });
     }
-    const response = await patientIdentifierApi.remove(parsedId);
-    return normalizePatientIdentifier(response.data);
+    await patientIdentifierApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

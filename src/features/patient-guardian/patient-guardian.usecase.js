@@ -76,8 +76,8 @@ const deletePatientGuardian = async (id) =>
     if (queued) {
       return normalizePatientGuardian({ id: parsedId });
     }
-    const response = await patientGuardianApi.remove(parsedId);
-    return normalizePatientGuardian(response.data);
+    await patientGuardianApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

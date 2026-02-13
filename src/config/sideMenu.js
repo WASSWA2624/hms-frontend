@@ -35,6 +35,18 @@ export const MENU_ICON_GLYPHS = {
 
 const DEFAULT_ICON_GLYPH = '•';
 const MAIN_NAV_I18N = 'navigation.items.main';
+const PATIENT_ACCESS_ROLES = [
+  'APP_ADMIN',
+  'SUPER_ADMIN',
+  'TENANT_ADMIN',
+  'ADMIN',
+  'DOCTOR',
+  'NURSE',
+  'CLINICAL_OFFICER',
+  'FRONT_DESK',
+  'RECEPTIONIST',
+  'EMERGENCY_OFFICER',
+];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -183,10 +195,71 @@ const SETTINGS_ITEMS = [
   { id: 'settings-wards', icon: 'medkit-outline', path: '/settings/wards', name: `${MAIN_NAV_I18N}.settings-wards` },
 ];
 
+/** @type {MainNavChild[]} */
+const PATIENTS_ITEMS = [
+  {
+    id: 'patients-patients',
+    icon: 'people-outline',
+    path: '/patients/patients',
+    name: `${MAIN_NAV_I18N}.patients-patients`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-identifiers',
+    icon: 'person-outline',
+    path: '/patients/patient-identifiers',
+    name: `${MAIN_NAV_I18N}.patients-patient-identifiers`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-contacts',
+    icon: 'call-outline',
+    path: '/patients/patient-contacts',
+    name: `${MAIN_NAV_I18N}.patients-patient-contacts`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-guardians',
+    icon: 'people-outline',
+    path: '/patients/patient-guardians',
+    name: `${MAIN_NAV_I18N}.patients-patient-guardians`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-allergies',
+    icon: 'medkit-outline',
+    path: '/patients/patient-allergies',
+    name: `${MAIN_NAV_I18N}.patients-patient-allergies`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-medical-histories',
+    icon: 'folder-outline',
+    path: '/patients/patient-medical-histories',
+    name: `${MAIN_NAV_I18N}.patients-patient-medical-histories`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+  {
+    id: 'patients-patient-documents',
+    icon: 'folder-outline',
+    path: '/patients/patient-documents',
+    name: `${MAIN_NAV_I18N}.patients-patient-documents`,
+    roles: PATIENT_ACCESS_ROLES,
+  },
+];
+
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
   { id: 'dashboard', icon: 'grid-outline', path: '/dashboard', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
+  {
+    id: 'patients',
+    icon: 'people-outline',
+    path: '/patients',
+    name: `${MAIN_NAV_I18N}.patients`,
+    roles: PATIENT_ACCESS_ROLES,
+    children: PATIENTS_ITEMS,
+  },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 
@@ -208,4 +281,4 @@ export const PATIENT_MENU_ITEMS = [
 /** @deprecated Kept for export compatibility */
 export const AUTH_ITEMS = [];
 
-export { SETTINGS_ITEMS };
+export { SETTINGS_ITEMS, PATIENTS_ITEMS };

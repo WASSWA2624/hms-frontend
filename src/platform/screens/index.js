@@ -87,3 +87,10 @@ export { default as UserMfaFormScreen } from './settings/UserMfaFormScreen';
 export { default as OauthAccountListScreen } from './settings/OauthAccountListScreen';
 export { default as OauthAccountDetailScreen } from './settings/OauthAccountDetailScreen';
 export { default as OauthAccountFormScreen } from './settings/OauthAccountFormScreen';
+
+// Patients screens
+export { default as PatientsScreen } from './patients/PatientsScreen';
+export { default as PatientsOverviewScreen } from './patients/PatientsOverviewScreen';
+export { default as PatientResourceListScreen } from './patients/PatientResourceListScreen';
+export { default as PatientResourceDetailScreen } from './patients/PatientResourceDetailScreen';
+export { default as PatientResourceFormScreen } from './patients/PatientResourceFormScreen';

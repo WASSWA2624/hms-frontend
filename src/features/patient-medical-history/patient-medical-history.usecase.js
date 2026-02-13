@@ -79,8 +79,8 @@ const deletePatientMedicalHistory = async (id) =>
     if (queued) {
       return normalizePatientMedicalHistory({ id: parsedId });
     }
-    const response = await patientMedicalHistoryApi.remove(parsedId);
-    return normalizePatientMedicalHistory(response.data);
+    await patientMedicalHistoryApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {

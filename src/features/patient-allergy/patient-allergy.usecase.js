@@ -76,8 +76,8 @@ const deletePatientAllergy = async (id) =>
     if (queued) {
       return normalizePatientAllergy({ id: parsedId });
     }
-    const response = await patientAllergyApi.remove(parsedId);
-    return normalizePatientAllergy(response.data);
+    await patientAllergyApi.remove(parsedId);
+    return { id: parsedId };
   });
 
 export {
