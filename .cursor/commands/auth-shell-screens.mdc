@@ -1,3 +1,14 @@
+Steps to review and implement:
+- **11.2.1** Login -- `(auth)/login`
+- **11.2.2** Forgot password -- `(auth)/forgot-password`
+- **11.2.3** Reset password -- `(auth)/reset-password`
+- **11.2.4** Verify email -- `(auth)/verify-email`
+- **11.2.5** Verify phone -- `(auth)/verify-phone`
+- **11.2.6** Tenant selection -- `(auth)/tenant-selection`
+- **11.2.7** Facility selection -- `(auth)/facility-selection`
+- **11.2.8** Dashboard -- `(main)/dashboard`
+
+
 Review and implement all missing and non compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:

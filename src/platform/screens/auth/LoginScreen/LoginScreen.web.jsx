@@ -40,6 +40,7 @@ const LoginScreenWeb = () => {
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
+    goToForgotPassword,
   } = useLoginScreen();
 
   if (isHydrating) {
@@ -166,6 +167,16 @@ const LoginScreenWeb = () => {
         </StyledActions>
 
         <StyledLinks>
+          <Button
+            variant="text"
+            size="small"
+            type="button"
+            onPress={goToForgotPassword}
+            accessibilityLabel={t('auth.login.actions.forgotPasswordHint')}
+            testID="login-forgot-password-link"
+          >
+            {t('auth.login.actions.forgotPassword')}
+          </Button>
           <Button
             variant="text"
             size="small"

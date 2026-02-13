@@ -4,4 +4,5 @@ export * from './routePersistence';
 export * from './onboardingEntry';
 export * from './registrationContext';
 export * from './authResumeContext';
+export * from './facilitySelectionSession';
 

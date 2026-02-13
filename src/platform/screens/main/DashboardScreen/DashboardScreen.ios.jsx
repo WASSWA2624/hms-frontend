@@ -97,6 +97,7 @@ const DashboardScreenIOS = () => {
     helpResources,
     lastUpdated,
     onRetry,
+    onQuickAction,
   } = useDashboardScreen();
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
@@ -357,7 +358,14 @@ const DashboardScreenIOS = () => {
             <StyledSectionBody>
               <StyledQuickActions>
                 {quickActions.map((item) => (
-                  <Button key={item.id} variant="outline" size="small">
+                  <Button
+                    key={item.id}
+                    variant={item.isEnabled ? 'outline' : 'surface'}
+                    size="small"
+                    onPress={() => onQuickAction(item)}
+                    disabled={!item.isEnabled}
+                    accessibilityHint={!item.isEnabled && item.blockedReasonKey ? t(item.blockedReasonKey) : undefined}
+                  >
                     {t(item.labelKey)}
                   </Button>
                 ))}

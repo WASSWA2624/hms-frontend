@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth, useI18n } from '@hooks';
 import { clearAuthResumeContext, saveAuthResumeContext } from '@navigation/authResumeContext';
+import { saveFacilitySelectionSession } from '@navigation/facilitySelectionSession';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { LOGIN_FORM_FIELDS } from './types';
 
@@ -32,6 +33,8 @@ const useLoginScreen = () => {
   const { identify, login } = useAuth();
 
   const stepParam = useMemo(() => toSingleValue(params?.step).trim().toLowerCase(), [params?.step]);
+  const tenantParam = useMemo(() => toSingleValue(params?.tenant_id).trim(), [params?.tenant_id]);
+  const identifierParam = useMemo(() => toSingleValue(params?.identifier).trim(), [params?.identifier]);
 
   const [form, setForm] = useState({
     identifier: '',
@@ -65,10 +68,11 @@ const useLoginScreen = () => {
       try {
         const registration = await readRegistrationContext();
         if (!active) return;
-        const identifier = prefilledEmail || registration?.email || '';
+        const identifier = prefilledEmail || identifierParam || registration?.email || '';
         setForm((prev) => ({
           ...prev,
           identifier,
+          tenant_id: tenantParam || prev.tenant_id,
         }));
       } finally {
         if (active) setIsHydrating(false);
@@ -79,7 +83,7 @@ const useLoginScreen = () => {
     return () => {
       active = false;
     };
-  }, [prefilledEmail]);
+  }, [identifierParam, prefilledEmail, tenantParam]);
 
   const normalizeFieldValue = useCallback((key, value) => {
     if (key === LOGIN_FORM_FIELDS.IDENTIFIER) {
@@ -304,11 +308,31 @@ const useLoginScreen = () => {
     const status = action?.meta?.requestStatus;
     if (status === 'fulfilled') {
       if (action?.payload?.requiresFacilitySelection) {
-        setSubmitError({
-          code: 'MULTIPLE_TENANTS',
-          message: t('errors.codes.MULTIPLE_TENANTS'),
+        const saved = saveFacilitySelectionSession({
+          identifier,
+          password: form.password,
+          tenant_id: action?.payload?.tenantId || form.tenant_id,
+          remember_me: form.rememberSession,
+          facilities: action?.payload?.facilities || [],
         });
-        return false;
+        if (!saved) {
+          setSubmitError({
+            code: 'MULTIPLE_TENANTS',
+            message: t('errors.codes.MULTIPLE_TENANTS'),
+          });
+          return false;
+        }
+
+        await saveAuthResumeContext({
+          identifier,
+          next_path: '/facility-selection',
+          params: {
+            identifier: isEmail ? identifier.toLowerCase() : identifier,
+            tenant_id: action?.payload?.tenantId || form.tenant_id || '',
+          },
+        });
+        router.push('/facility-selection');
+        return true;
       }
       await clearAuthResumeContext();
       router.replace('/dashboard');
@@ -368,6 +392,18 @@ const useLoginScreen = () => {
     });
   }, [form.identifier, router]);
 
+  const goToForgotPassword = useCallback(() => {
+    const trimmedIdentifier = form.identifier.trim();
+    router.push({
+      pathname: '/forgot-password',
+      params: {
+        email: trimmedIdentifier.includes('@') ? trimmedIdentifier.toLowerCase() : '',
+        identifier: trimmedIdentifier && !trimmedIdentifier.includes('@') ? trimmedIdentifier : '',
+        tenant_id: form.tenant_id || '',
+      },
+    });
+  }, [form.identifier, form.tenant_id, router]);
+
   return {
     form,
     step,
@@ -383,6 +419,7 @@ const useLoginScreen = () => {
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
+    goToForgotPassword,
   };
 };
 

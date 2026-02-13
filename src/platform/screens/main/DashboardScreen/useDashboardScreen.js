@@ -4,7 +4,9 @@
  * File: useDashboardScreen.js
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAuth } from '@hooks';
+import { useRouter } from 'expo-router';
+import { useAuth, useNavigationVisibility } from '@hooks';
+import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { STATES } from './types';
 
@@ -260,12 +262,42 @@ const ONBOARDING_CHECKLIST = [
 ];
 
 const QUICK_ACTIONS = [
-  { id: 'newPatient', labelKey: 'home.quickActions.items.newPatient' },
-  { id: 'appointment', labelKey: 'home.quickActions.items.appointment' },
-  { id: 'invoice', labelKey: 'home.quickActions.items.invoice' },
-  { id: 'admit', labelKey: 'home.quickActions.items.admit' },
-  { id: 'labTest', labelKey: 'home.quickActions.items.labTest' },
-  { id: 'sale', labelKey: 'home.quickActions.items.sale' },
+  {
+    id: 'newPatient',
+    labelKey: 'home.quickActions.items.newPatient',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
+    supported: false,
+  },
+  {
+    id: 'appointment',
+    labelKey: 'home.quickActions.items.appointment',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'RECEPTIONIST'],
+    supported: false,
+  },
+  {
+    id: 'invoice',
+    labelKey: 'home.quickActions.items.invoice',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'CASHIER', 'BILLING'],
+    supported: false,
+  },
+  {
+    id: 'admit',
+    labelKey: 'home.quickActions.items.admit',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
+    supported: false,
+  },
+  {
+    id: 'labTest',
+    labelKey: 'home.quickActions.items.labTest',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'LAB_TECH'],
+    supported: false,
+  },
+  {
+    id: 'sale',
+    labelKey: 'home.quickActions.items.sale',
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'PHARMACIST', 'CASHIER'],
+    supported: false,
+  },
 ];
 
 const WORK_QUEUE = [
@@ -516,63 +548,135 @@ const HELP_RESOURCES = [
   },
 ];
 
+const toActionAccessItem = (roles) => ({
+  roles: Array.isArray(roles) ? roles : [],
+});
+
 /**
  * DashboardScreen hook
  * @returns {Object} Hook return object
  */
 const useDashboardScreen = () => {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, isAuthenticated, loadCurrentUser, logout } = useAuth();
+  const { isItemVisible } = useNavigationVisibility();
+  const dashboardNavItem = useMemo(
+    () => MAIN_NAV_ITEMS.find((item) => item?.id === 'dashboard') || null,
+    []
+  );
+  const canAccessDashboard = useMemo(
+    () => isItemVisible(dashboardNavItem),
+    [dashboardNavItem, isItemVisible]
+  );
+
+  const [resolvedUser, setResolvedUser] = useState(user || null);
   const [registrationContext, setRegistrationContext] = useState(null);
   const [isHydrating, setIsHydrating] = useState(true);
+  const [screenState, setScreenState] = useState(STATES.LOADING);
+  const [lastUpdated, setLastUpdated] = useState(() => new Date());
+
+  const hydrateDashboard = useCallback(async () => {
+    if (!isAuthenticated) {
+      setIsHydrating(false);
+      return;
+    }
+    if (!canAccessDashboard) {
+      setIsHydrating(false);
+      router.replace('/login');
+      return;
+    }
+
+    setIsHydrating(true);
+    setScreenState(STATES.LOADING);
+    try {
+      let effectiveUser = user || null;
+      if (!effectiveUser) {
+        const loadAction = await loadCurrentUser();
+        const loadStatus = loadAction?.meta?.requestStatus;
+        if (loadStatus !== 'fulfilled' || !loadAction?.payload) {
+          const responseStatus = loadAction?.payload?.status || loadAction?.error?.status;
+          if (responseStatus === 401 || responseStatus === 403) {
+            await logout();
+            router.replace('/login');
+            return;
+          }
+          setScreenState(STATES.ERROR);
+          return;
+        }
+        effectiveUser = loadAction.payload;
+      }
+
+      const context = await readRegistrationContext();
+      setRegistrationContext(context);
+      setResolvedUser(effectiveUser);
+      setLastUpdated(new Date());
+      setScreenState(STATES.IDLE);
+    } catch {
+      setScreenState(STATES.ERROR);
+    } finally {
+      setIsHydrating(false);
+    }
+  }, [canAccessDashboard, isAuthenticated, loadCurrentUser, logout, router, user]);
 
   useEffect(() => {
-    let active = true;
+    hydrateDashboard();
+  }, [hydrateDashboard]);
 
-    const hydrate = async () => {
-      setIsHydrating(true);
-      try {
-        const context = await readRegistrationContext();
-        if (active) setRegistrationContext(context);
-      } finally {
-        if (active) setIsHydrating(false);
-      }
-    };
-
-    hydrate();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const effectiveUser = resolvedUser || user || null;
 
   const facilityContext = useMemo(() => {
     const roleName =
-      user?.roles?.[0]?.role?.name ||
-      user?.roles?.[0]?.name ||
-      user?.role ||
+      effectiveUser?.roles?.[0]?.role?.name ||
+      effectiveUser?.roles?.[0]?.name ||
+      effectiveUser?.role ||
       '';
-    const facilityName = resolveFacilityName(user, registrationContext);
+    const facilityName = resolveFacilityName(effectiveUser, registrationContext);
     const resolvedFacilityType =
-      user?.facility?.facility_type || registrationContext?.facility_type || '';
+      effectiveUser?.facility?.facility_type || registrationContext?.facility_type || '';
     return {
       ...DEFAULT_FACILITY_CONTEXT,
-      userName: normalizeUserName(user, registrationContext),
+      userName: normalizeUserName(effectiveUser, registrationContext),
       roleKey: mapRoleToWelcomeKey(roleName),
       facilityName,
-      branchName: registrationContext?.tenant_name || user?.tenant?.name || facilityName,
+      branchName: registrationContext?.tenant_name || effectiveUser?.tenant?.name || facilityName,
       facilityTypeKey: mapFacilityTypeToKey(resolvedFacilityType),
     };
-  }, [registrationContext, user]);
+  }, [effectiveUser, registrationContext]);
 
-  const lastUpdated = useMemo(() => new Date(), []);
-  const handleRetry = useCallback(() => {}, []);
+  const quickActions = useMemo(
+    () =>
+      QUICK_ACTIONS.map((item) => {
+        const hasRoleAccess = isItemVisible(toActionAccessItem(item.roles));
+        const isEnabled = hasRoleAccess && Boolean(item.supported);
+        return {
+          ...item,
+          isEnabled,
+          blockedReasonKey: hasRoleAccess
+            ? item.supported
+              ? ''
+              : 'home.quickActions.blocked.unavailable'
+            : 'home.quickActions.blocked.access',
+        };
+      }),
+    [isItemVisible]
+  );
+
+  const handleQuickAction = useCallback((action) => {
+    if (!action?.isEnabled) return false;
+    return false;
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    hydrateDashboard();
+  }, [hydrateDashboard]);
 
   return {
-    state: isHydrating ? STATES.LOADING : STATES.IDLE,
+    state: isHydrating ? STATES.LOADING : screenState,
     isOffline: false,
     facilityContext,
     smartStatusStrip: SMART_STATUS_STRIP,
     onboardingChecklist: ONBOARDING_CHECKLIST,
-    quickActions: QUICK_ACTIONS,
+    quickActions,
     workQueue: WORK_QUEUE,
     attentionAlerts: ATTENTION_ALERTS,
     valueProofs: VALUE_PROOFS,
@@ -591,6 +695,7 @@ const useDashboardScreen = () => {
     serviceStatus: SERVICE_STATUS,
     lastUpdated,
     onRetry: handleRetry,
+    onQuickAction: handleQuickAction,
   };
 };
 

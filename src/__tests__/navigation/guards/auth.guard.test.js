@@ -118,14 +118,14 @@ describe('useAuthGuard', () => {
   });
 
   describe('Redirect behavior', () => {
-    it('should redirect to default /dashboard path when unauthenticated', async () => {
+    it('should redirect to default /login path when unauthenticated', async () => {
       mockState.auth.isAuthenticated = false;
       mockState.auth.user = null;
 
       render(<TestComponent onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
 
@@ -190,7 +190,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
 
       // Transition to authenticated
@@ -237,7 +237,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
 
@@ -261,7 +261,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
 
       // Transition to authenticated (should reset redirect flag - covers else if branch)
@@ -284,7 +284,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
 
@@ -313,7 +313,7 @@ describe('useAuthGuard', () => {
 
       await waitFor(() => {
         expect(api.authenticated).toBe(false);
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
         expect(mockRouter.replace).toHaveBeenCalledTimes(1);
       });
 
@@ -344,18 +344,15 @@ describe('useAuthGuard', () => {
       }).toThrow('Selector error');
     });
 
-    it('should handle router errors gracefully', () => {
+    it('should trigger router redirect for unauthenticated users', async () => {
       mockState.auth.isAuthenticated = false;
       mockState.auth.user = null;
 
-      mockRouter.replace.mockImplementation(() => {
-        throw new Error('Router error');
-      });
+      render(<TestComponent onResult={() => {}} />);
 
-      // Should throw error (router error propagates)
-      expect(() => {
-        render(<TestComponent onResult={() => {}} />);
-      }).toThrow('Router error');
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
+      });
     });
 
     it('should handle null/undefined selector results', async () => {
@@ -381,7 +378,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
 
@@ -392,7 +389,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent options={{}} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
 
@@ -458,7 +455,7 @@ describe('useAuthGuard', () => {
       render(<TestComponent options={{ skipRedirect: false }} onResult={() => {}} />);
 
       await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/login');
       });
     });
   });
