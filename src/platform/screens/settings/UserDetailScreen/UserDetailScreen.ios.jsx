@@ -282,18 +282,20 @@ const UserDetailScreenIOS = () => {
               {t('user.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('user.detail.delete')}
-            accessibilityHint={t('user.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="user-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('user.detail.delete')}
+              accessibilityHint={t('user.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="user-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

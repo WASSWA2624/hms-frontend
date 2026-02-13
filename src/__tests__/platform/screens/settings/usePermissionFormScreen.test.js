@@ -18,9 +18,10 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(() => ({ isOffline: false })),
   usePermission: jest.fn(),
   useTenant: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useI18n, useNetwork, usePermission, useTenant } = require('@hooks');
+const { useI18n, useNetwork, usePermission, useTenant, useTenantAccess } = require('@hooks');
 
 describe('usePermissionFormScreen', () => {
   const mockGet = jest.fn();
@@ -35,6 +36,12 @@ describe('usePermissionFormScreen', () => {
     mockParams = {};
     useI18n.mockReturnValue({ t: (k) => k });
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     usePermission.mockReturnValue({
       get: mockGet,
       create: mockCreate,
@@ -51,6 +58,34 @@ describe('usePermissionFormScreen', () => {
       errorCode: null,
       reset: mockResetTenants,
     });
+  });
+
+  it('redirects users without permission access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePermissionFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('prefills tenant for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePermissionFormScreen());
+
+    expect(result.current.tenantId).toBe('tenant-1');
+    expect(result.current.tenantListLoading).toBe(false);
+    expect(mockListTenants).not.toHaveBeenCalled();
   });
 
   it('returns initial state for create', () => {

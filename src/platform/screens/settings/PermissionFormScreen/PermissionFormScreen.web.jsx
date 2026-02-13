@@ -50,6 +50,11 @@ const PermissionFormScreenWeb = () => {
     errorMessage,
     isOffline,
     permission,
+    nameError,
+    descriptionError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -93,7 +98,7 @@ const PermissionFormScreenWeb = () => {
       onPress={onRetryTenants}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
+      icon={<Icon glyph="â†»" size="xs" decorative />}
       testID="permission-form-tenant-retry"
     >
       {t('common.retry')}
@@ -104,6 +109,12 @@ const PermissionFormScreenWeb = () => {
   const blockedMessage = showTenantBlocked
     ? t('permission.form.blockedMessage')
     : t('permission.form.nameHint');
+  const nameHelperText = nameError || blockedMessage;
+  const descriptionHelperText = descriptionError || (
+    showTenantBlocked ? t('permission.form.blockedMessage') : t('permission.form.descriptionHint')
+  );
+  const tenantHelperText = tenantError || t('permission.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('permission.form.tenantLockedHint') : t('permission.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('permission.form.editTitle') : t('permission.form.createTitle')}>
@@ -133,7 +144,7 @@ const PermissionFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('permission.form.nameLabel')} testID="permission-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -163,7 +174,7 @@ const PermissionFormScreenWeb = () => {
                         onPress={onGoToTenants}
                         accessibilityLabel={t('permission.form.goToTenants')}
                         accessibilityHint={t('permission.form.goToTenantsHint')}
-                        icon={<Icon glyph="→" size="xs" decorative />}
+                        icon={<Icon glyph="â†’" size="xs" decorative />}
                         testID="permission-form-go-to-tenants"
                       >
                         {t('permission.form.goToTenants')}
@@ -178,7 +189,8 @@ const PermissionFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('permission.form.tenantLabel')}
                       accessibilityHint={t('permission.form.tenantHint')}
-                      helperText={t('permission.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -192,10 +204,10 @@ const PermissionFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('permission.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('permission.form.tenantLabel')}
-                    accessibilityHint={t('permission.form.tenantLockedHint')}
-                    helperText={t('permission.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="permission-form-tenant-readonly"
                   />
@@ -211,8 +223,10 @@ const PermissionFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('permission.form.nameLabel')}
                 accessibilityHint={t('permission.form.nameHint')}
-                helperText={blockedMessage}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="permission-form-name"
@@ -228,7 +242,9 @@ const PermissionFormScreenWeb = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   accessibilityLabel={t('permission.form.descriptionLabel')}
                   accessibilityHint={t('permission.form.descriptionHint')}
-                  helperText={showTenantBlocked ? t('permission.form.blockedMessage') : t('permission.form.descriptionHint')}
+                  errorMessage={descriptionError}
+                  helperText={descriptionHelperText}
+                  maxLength={255}
                   disabled={isFormDisabled}
                   testID="permission-form-description"
                 />
@@ -244,7 +260,7 @@ const PermissionFormScreenWeb = () => {
             onPress={onCancel}
             accessibilityLabel={t('permission.form.cancel')}
             accessibilityHint={t('permission.form.cancelHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
+            icon={<Icon glyph="â†" size="xs" decorative />}
             testID="permission-form-cancel"
             disabled={isLoading}
           >
@@ -258,7 +274,7 @@ const PermissionFormScreenWeb = () => {
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
             accessibilityHint={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
-            icon={<Icon glyph="✓" size="xs" decorative />}
+            icon={<Icon glyph="âœ“" size="xs" decorative />}
             testID="permission-form-submit"
           >
             {isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}

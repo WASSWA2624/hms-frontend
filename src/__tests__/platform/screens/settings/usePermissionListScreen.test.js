@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   usePermission: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -27,7 +28,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { usePermission, useNetwork } = require('@hooks');
+const { usePermission, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('usePermissionListScreen', () => {
@@ -39,6 +40,12 @@ describe('usePermissionListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     usePermission.mockReturnValue({
       list: mockList,
       remove: mockRemove,
@@ -46,6 +53,38 @@ describe('usePermissionListScreen', () => {
       isLoading: false,
       errorCode: null,
       reset: mockReset,
+    });
+  });
+
+  it('redirects users without permission access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePermissionListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('calls list with tenant scope for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => usePermissionListScreen());
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      tenant_id: 'tenant-1',
     });
   });
 
@@ -194,6 +233,15 @@ describe('usePermissionListScreen', () => {
     mockParams = { notice: 'created' };
     const { result } = renderHook(() => usePermissionListScreen());
     expect(result.current.noticeMessage).toBe('permission.list.noticeCreated');
+    expect(mockReplace).toHaveBeenCalledWith('/settings/permissions');
+  });
+
+  it('maps accessDenied notice and clears query param', () => {
+    mockParams = { notice: 'accessDenied' };
+
+    const { result } = renderHook(() => usePermissionListScreen());
+
+    expect(result.current.noticeMessage).toBe('permission.list.noticeAccessDenied');
     expect(mockReplace).toHaveBeenCalledWith('/settings/permissions');
   });
 });

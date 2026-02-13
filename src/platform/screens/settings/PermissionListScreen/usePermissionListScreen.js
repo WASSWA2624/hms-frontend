@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, usePermission } from '@hooks';
+import { useI18n, useNetwork, usePermission, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'permission.list.noticeUpdated',
     deleted: 'permission.list.noticeDeleted',
     queued: 'permission.list.noticeQueued',
+    accessDenied: 'permission.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const usePermissionListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const usePermissionListScreen = () => {
   } = usePermission();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManagePermissions = canAccessTenantSettings;
+  const canCreatePermission = canManagePermissions;
+  const canDeletePermission = canManagePermissions;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -57,14 +68,40 @@ const usePermissionListScreen = () => {
     return notice;
   }, [notice]);
 
-  const fetchList = useCallback(() => {
+  const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManagePermissions) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(nextParams);
+  }, [
+    isResolved,
+    canManagePermissions,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManagePermissions) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManagePermissions, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManagePermissions, canManageAllTenants, normalizedTenantId, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -82,19 +119,30 @@ const usePermissionListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManagePermissions, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     fetchList();
   }, [fetchList]);
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManagePermissions) return;
       router.push(`/settings/permissions/${id}`);
     },
-    [router]
+    [canManagePermissions, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeletePermission) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +158,26 @@ const usePermissionListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeletePermission, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreatePermission) return;
     router.push('/settings/permissions/create');
-  }, [router]);
+  }, [canCreatePermission, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeletePermission ? handleDelete : undefined,
+    onAdd: canCreatePermission ? handleAdd : undefined,
   };
 };
 

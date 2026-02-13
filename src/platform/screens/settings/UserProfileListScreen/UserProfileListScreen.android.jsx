@@ -98,7 +98,7 @@ const UserProfileListScreenAndroid = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -110,7 +110,7 @@ const UserProfileListScreenAndroid = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('userProfile.list.itemLabel', {
           name: title,
         })}

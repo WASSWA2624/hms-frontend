@@ -5,11 +5,13 @@ const { renderHook, act } = require('@testing-library/react-native');
 const usePermissionDetailScreen = require('@platform/screens/settings/PermissionDetailScreen/usePermissionDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   usePermission: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -21,11 +23,11 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ id: 'pid-1' }),
 }));
 
-const { usePermission, useNetwork } = require('@hooks');
+const { usePermission, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('usePermissionDetailScreen', () => {
@@ -36,6 +38,12 @@ describe('usePermissionDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     usePermission.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
@@ -44,6 +52,21 @@ describe('usePermissionDetailScreen', () => {
       errorCode: null,
       reset: mockReset,
     });
+  });
+
+  it('redirects users without permission access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePermissionDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('returns permission, handlers, and state', () => {

@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useRole } from '@hooks';
+import { useI18n, useNetwork, useRole, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useRoleDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useRole();
+  const roleId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageRoles = canAccessTenantSettings;
+  const canEditRole = canManageRoles;
+  const canDeleteRole = canManageRoles;
+  const isTenantScopedAdmin = canManageRoles && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const role = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useRoleDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageRoles || !roleId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(roleId);
+  }, [isResolved, canManageRoles, roleId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageRoles) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageRoles, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRoles || !isTenantScopedAdmin || !role) return;
+    const roleTenantId = String(role.tenant_id ?? '').trim();
+    if (!roleTenantId || roleTenantId !== normalizedTenantId) {
+      router.replace('/settings/roles?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageRoles,
+    isTenantScopedAdmin,
+    role,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRoles) return;
+    if (role) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/roles?notice=accessDenied');
+    }
+  }, [isResolved, canManageRoles, role, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useRoleDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/roles/${id}/edit`);
-  }, [id, router]);
+    if (!canEditRole || !roleId) return;
+    router.push(`/settings/roles/${roleId}/edit`);
+  }, [canEditRole, roleId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteRole || !roleId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(roleId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/roles?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteRole, roleId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: roleId,
     role,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditRole ? handleEdit : undefined,
+    onDelete: canDeleteRole ? handleDelete : undefined,
   };
 };
 

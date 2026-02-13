@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useContact } from '@hooks';
+import { useI18n, useNetwork, useContact, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useContactDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useContact();
+  const routeContactId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageContacts = canAccessTenantSettings;
+  const canEditContact = canManageContacts;
+  const canDeleteContact = canManageContacts;
+  const isTenantScopedAdmin = canManageContacts && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const contact = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useContactDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageContacts || !routeContactId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(routeContactId);
+  }, [isResolved, canManageContacts, routeContactId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageContacts) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageContacts, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageContacts || !isTenantScopedAdmin || !contact) return;
+    const contactTenantId = String(contact.tenant_id ?? '').trim();
+    if (!contactTenantId || contactTenantId !== normalizedTenantId) {
+      router.replace('/settings/contacts?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageContacts,
+    isTenantScopedAdmin,
+    contact,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageContacts) return;
+    if (contact) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/contacts?notice=accessDenied');
+    }
+  }, [isResolved, canManageContacts, contact, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useContactDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/contacts/${id}/edit`);
-  }, [id, router]);
+    if (!canEditContact || !routeContactId) return;
+    router.push(`/settings/contacts/${routeContactId}/edit`);
+  }, [canEditContact, routeContactId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteContact || !routeContactId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(routeContactId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/contacts?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteContact, routeContactId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: routeContactId,
     contact,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditContact ? handleEdit : undefined,
+    onDelete: canDeleteContact ? handleDelete : undefined,
   };
 };
 

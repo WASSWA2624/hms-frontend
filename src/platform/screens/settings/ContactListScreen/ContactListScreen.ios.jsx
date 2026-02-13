@@ -93,7 +93,7 @@ const ContactListScreenIOS = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   const renderItem = ({ item: contact }) => {
@@ -105,7 +105,7 @@ const ContactListScreenIOS = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onContactPress(contact.id)}
-        actions={(
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -117,7 +117,7 @@ const ContactListScreenIOS = () => {
           >
             {t('common.remove')}
           </Button>
-        )}
+        ) : undefined}
         accessibilityLabel={t('contact.list.itemLabel', { name: title })}
         accessibilityHint={t('contact.list.itemHint', { name: title })}
         testID={`contact-item-${contact.id}`}

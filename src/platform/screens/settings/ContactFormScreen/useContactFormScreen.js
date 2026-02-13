@@ -4,7 +4,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useContact, useTenant } from '@hooks';
+import { useI18n, useNetwork, useContact, useTenant, useTenantAccess } from '@hooks';
+
+const MAX_VALUE_LENGTH = 255;
+const CONTACT_TYPES = ['PHONE', 'EMAIL', 'FAX', 'OTHER'];
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +24,12 @@ const useContactFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, tenantId: tenantIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useContact();
   const {
     list: listTenants,
@@ -30,7 +39,20 @@ const useContactFormScreen = () => {
     reset: resetTenants,
   } = useTenant();
 
-  const isEdit = Boolean(id);
+  const routeContactId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeContactId);
+  const canManageContacts = canAccessTenantSettings;
+  const canCreateContact = canManageContacts;
+  const canEditContact = canManageContacts;
+  const isTenantScopedAdmin = canManageContacts && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
+
   const [value, setValue] = useState('');
   const [contactType, setContactType] = useState('');
   const [isPrimary, setIsPrimary] = useState(false);
@@ -39,52 +61,115 @@ const useContactFormScreen = () => {
 
   const contact = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
-    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
-    [tenantData]
+    () => (isTenantScopedAdmin || isEdit
+      ? []
+      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+    [tenantData, isTenantScopedAdmin, isEdit]
   );
-  const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
-        value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      })),
-    [tenantItems]
-  );
+  const tenantOptions = useMemo(() => {
+    if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
+      return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+    }
+    return tenantItems.map((tenant) => ({
+      value: tenant.id,
+      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+    }));
+  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]);
   const contactTypeOptions = useMemo(
-    () => ([
-      { label: t('contact.types.PHONE'), value: 'PHONE' },
-      { label: t('contact.types.EMAIL'), value: 'EMAIL' },
-      { label: t('contact.types.FAX'), value: 'FAX' },
-      { label: t('contact.types.OTHER'), value: 'OTHER' },
-    ]),
+    () => CONTACT_TYPES.map((type) => ({ label: t(`contact.types.${type}`), value: type })),
     [t]
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageContacts) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateContact) {
+      router.replace('/settings/contacts?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditContact) {
+      router.replace('/settings/contacts?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageContacts,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateContact,
+    canEditContact,
+    router,
+  ]);
 
   useEffect(() => {
-    if (!isEdit) {
-      resetTenants();
-      listTenants({ page: 1, limit: 200 });
-    }
-  }, [isEdit, listTenants, resetTenants]);
+    if (!isResolved || !canManageContacts || !isEdit || !routeContactId) return;
+    if (!canEditContact) return;
+    reset();
+    get(routeContactId);
+  }, [isResolved, canManageContacts, isEdit, routeContactId, canEditContact, get, reset]);
 
   useEffect(() => {
-    if (contact) {
-      setValue(contact.value ?? '');
-      setContactType(contact.contact_type ?? contact.type ?? '');
-      setIsPrimary(contact.is_primary ?? false);
-      setTenantId(contact.tenant_id ?? '');
+    if (!isResolved || !canManageContacts || isEdit) return;
+    if (!canCreateContact) return;
+    if (isTenantScopedAdmin) {
+      setTenantId(normalizedScopedTenantId);
+      tenantPrefillRef.current = true;
+      return;
     }
-  }, [contact]);
+    resetTenants();
+    listTenants({ page: 1, limit: 200 });
+  }, [
+    isResolved,
+    canManageContacts,
+    isEdit,
+    canCreateContact,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
-    if (isEdit) return;
+    if (!isResolved || !canManageContacts || !isEdit) return;
+    if (contact) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/contacts?notice=accessDenied');
+    }
+  }, [isResolved, canManageContacts, isEdit, contact, errorCode, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageContacts || !isTenantScopedAdmin || !isEdit || !contact) return;
+    const contactTenantId = String(contact.tenant_id ?? '').trim();
+    if (!contactTenantId || contactTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/contacts?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageContacts,
+    isTenantScopedAdmin,
+    isEdit,
+    contact,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!contact) return;
+    setValue(contact.value ?? '');
+    setContactType(contact.contact_type ?? contact.type ?? '');
+    setIsPrimary(contact.is_primary ?? false);
+    setTenantId(String(contact.tenant_id ?? normalizedScopedTenantId ?? ''));
+  }, [contact, normalizedScopedTenantId]);
+
+  useEffect(() => {
+    if (isEdit || isTenantScopedAdmin) return;
     if (tenantPrefillRef.current) return;
     const paramValue = Array.isArray(tenantIdParam) ? tenantIdParam[0] : tenantIdParam;
     if (paramValue) {
@@ -96,11 +181,11 @@ const useContactFormScreen = () => {
       setTenantId(tenantOptions[0].value);
       tenantPrefillRef.current = true;
     }
-  }, [isEdit, tenantIdParam, tenantOptions, tenantId]);
+  }, [isEdit, isTenantScopedAdmin, tenantIdParam, tenantOptions, tenantId]);
 
   const trimmedTenantId = String(tenantId ?? '').trim();
-  const trimmedValue = value.trim();
-  const trimmedContactType = contactType.trim();
+  const trimmedValue = String(value ?? '').trim();
+  const trimmedContactType = String(contactType ?? '').trim();
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'contact.form.submitErrorMessage'),
     [t, errorCode]
@@ -110,18 +195,57 @@ const useContactFormScreen = () => {
     [t, tenantErrorCode]
   );
   const tenantListError = Boolean(tenantErrorCode);
-  const hasTenants = tenantOptions.length > 0;
+  const valueError = useMemo(() => {
+    if (!trimmedValue) return t('contact.form.valueRequired');
+    if (trimmedValue.length > MAX_VALUE_LENGTH) {
+      return t('contact.form.valueTooLong', { max: MAX_VALUE_LENGTH });
+    }
+    return null;
+  }, [trimmedValue, t]);
+  const contactTypeError = useMemo(() => {
+    if (!trimmedContactType) return t('contact.form.typeRequired');
+    if (!CONTACT_TYPES.includes(trimmedContactType)) return t('contact.form.typeInvalid');
+    return null;
+  }, [trimmedContactType, t]);
+  const tenantError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedTenantId) return t('contact.form.tenantRequired');
+    return null;
+  }, [isEdit, trimmedTenantId, t]);
+  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
+  const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const lockedTenantDisplay = useMemo(() => {
+    if (!isTenantLocked) return '';
+    return trimmedTenantId || normalizedScopedTenantId;
+  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
   const isSubmitDisabled =
+    !isResolved ||
     isLoading ||
     isCreateBlocked ||
-    !trimmedValue ||
-    !trimmedContactType ||
-    (!isEdit && !trimmedTenantId);
+    Boolean(valueError) ||
+    Boolean(contactTypeError) ||
+    Boolean(tenantError) ||
+    (isEdit ? !canEditContact : !canCreateContact);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateContact) {
+        router.replace('/settings/contacts?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditContact) {
+        router.replace('/settings/contacts?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const contactTenantId = String(contact?.tenant_id ?? '').trim();
+        if (!contactTenantId || contactTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/contacts?notice=accessDenied');
+          return;
+        }
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         value: trimmedValue,
@@ -131,8 +255,8 @@ const useContactFormScreen = () => {
       if (!isEdit && trimmedTenantId) {
         payload.tenant_id = trimmedTenantId;
       }
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeContactId) {
+        const result = await update(routeContactId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -144,13 +268,18 @@ const useContactFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    id,
+    canCreateContact,
+    canEditContact,
+    isTenantScopedAdmin,
+    contact,
+    normalizedScopedTenantId,
+    isOffline,
     trimmedValue,
     trimmedContactType,
     isPrimary,
     trimmedTenantId,
+    routeContactId,
     create,
     update,
     router,
@@ -165,9 +294,10 @@ const useContactFormScreen = () => {
   }, [router]);
 
   const handleRetryTenants = useCallback(() => {
+    if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
     isEdit,
@@ -181,16 +311,21 @@ const useContactFormScreen = () => {
     tenantId,
     setTenantId,
     tenantOptions,
-    tenantListLoading,
-    tenantListError,
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin ? false : tenantListError,
+    tenantErrorMessage: isTenantScopedAdmin ? null : tenantErrorMessage,
     hasTenants,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     contact,
+    valueError,
+    contactTypeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

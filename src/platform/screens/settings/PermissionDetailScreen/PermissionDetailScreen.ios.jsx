@@ -255,7 +255,8 @@ const PermissionDetailScreenIOS = () => {
               {t('permission.detail.edit')}
             </Button>
           )}
-          <Button
+          {onDelete && (
+            <Button
             variant="surface"
             size="small"
             onPress={onDelete}
@@ -266,7 +267,8 @@ const PermissionDetailScreenIOS = () => {
             testID="permission-detail-delete"
           >
             {t('common.remove')}
-          </Button>
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

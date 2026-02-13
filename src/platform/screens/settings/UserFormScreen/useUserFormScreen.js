@@ -4,7 +4,14 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useTenant, useFacility, useUser } from '@hooks';
+import { useI18n, useNetwork, useTenant, useFacility, useUser, useTenantAccess } from '@hooks';
+import { isValidEmail } from '@utils';
+
+const MAX_EMAIL_LENGTH = 255;
+const MAX_PHONE_LENGTH = 40;
+const MAX_PASSWORD_LENGTH = 255;
+const MIN_PASSWORD_LENGTH = 8;
+const USER_STATUSES = ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING'];
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +28,16 @@ const useUserFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, tenantId: tenantIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
+  const routeUserId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
   const { get, create, update, data, isLoading, errorCode, reset } = useUser();
   const {
     list: listTenants,
@@ -37,7 +54,15 @@ const useUserFormScreen = () => {
     reset: resetFacilities,
   } = useFacility();
 
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(routeUserId);
+  const canManageUsers = canAccessTenantSettings;
+  const canCreateUser = canManageUsers;
+  const canEditUser = canManageUsers;
+  const isTenantScopedAdmin = canManageUsers && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [tenantId, setTenantId] = useState('');
   const [facilityId, setFacilityId] = useState('');
   const [email, setEmail] = useState('');
@@ -49,28 +74,39 @@ const useUserFormScreen = () => {
 
   const user = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
-    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
-    [tenantData]
+    () => (isTenantScopedAdmin || isEdit
+      ? []
+      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+    [tenantData, isTenantScopedAdmin, isEdit]
   );
   const facilityItems = useMemo(
     () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
     [facilityData]
   );
   const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
+    () => {
+      if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
+        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+      }
+      return tenantItems.map((tenant) => ({
         value: tenant.id,
         label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      })),
-    [tenantItems]
+      }));
+    },
+    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
   );
   const facilityOptions = useMemo(
-    () =>
-      facilityItems.map((facility) => ({
+    () => {
+      const options = facilityItems.map((facility) => ({
         value: facility.id,
         label: facility.name ?? facility.id ?? '',
-      })),
-    [facilityItems]
+      }));
+      if (facilityId && !options.some((option) => option.value === facilityId)) {
+        return [{ value: facilityId, label: facilityId }, ...options];
+      }
+      return options;
+    },
+    [facilityItems, facilityId]
   );
   const statusOptions = useMemo(
     () => ([
@@ -83,31 +119,98 @@ const useUserFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageUsers) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateUser) {
+      router.replace('/settings/users?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditUser) {
+      router.replace('/settings/users?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUsers,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateUser,
+    canEditUser,
+    router,
+  ]);
 
   useEffect(() => {
-    if (!isEdit) {
-      resetTenants();
-      listTenants({ page: 1, limit: 200 });
+    if (!isResolved || !canManageUsers || !isEdit || !routeUserId) return;
+    if (!canEditUser) return;
+    reset();
+    get(routeUserId);
+  }, [isResolved, canManageUsers, isEdit, routeUserId, canEditUser, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUsers || !isEdit) return;
+    if (user) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/users?notice=accessDenied');
     }
-  }, [isEdit, listTenants, resetTenants]);
+  }, [isResolved, canManageUsers, isEdit, user, errorCode, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUsers || !isTenantScopedAdmin || !isEdit || !user) return;
+    const userTenantId = String(user.tenant_id ?? '').trim();
+    if (!userTenantId || userTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/users?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUsers,
+    isTenantScopedAdmin,
+    isEdit,
+    user,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUsers || isEdit) return;
+    if (!canCreateUser) return;
+    if (isTenantScopedAdmin) {
+      setTenantId(normalizedScopedTenantId);
+      tenantPrefillRef.current = true;
+      return;
+    }
+    resetTenants();
+    listTenants({ page: 1, limit: 200 });
+  }, [
+    isResolved,
+    canManageUsers,
+    isEdit,
+    canCreateUser,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
     if (user) {
-      setTenantId(user.tenant_id ?? '');
-      setFacilityId(user.facility_id ?? '');
+      setTenantId(String(user.tenant_id ?? normalizedScopedTenantId ?? ''));
+      setFacilityId(String(user.facility_id ?? ''));
       setEmail(user.email ?? '');
       setPhone(user.phone ?? '');
       setStatus(user.status ?? 'ACTIVE');
       setPassword('');
     }
-  }, [user]);
+  }, [user, normalizedScopedTenantId]);
 
   useEffect(() => {
+    if (!isResolved || !canManageUsers) return;
     const trimmedTenant = String(tenantId ?? '').trim();
     if (!trimmedTenant) {
       resetFacilities();
@@ -115,7 +218,7 @@ const useUserFormScreen = () => {
     }
     resetFacilities();
     listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
-  }, [tenantId, listFacilities, resetFacilities]);
+  }, [isResolved, canManageUsers, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -128,6 +231,7 @@ const useUserFormScreen = () => {
 
   useEffect(() => {
     if (isEdit) return;
+    if (isTenantScopedAdmin) return;
     if (tenantPrefillRef.current) return;
     const paramValue = Array.isArray(tenantIdParam) ? tenantIdParam[0] : tenantIdParam;
     if (paramValue) {
@@ -139,7 +243,7 @@ const useUserFormScreen = () => {
       setTenantId(tenantOptions[0].value);
       tenantPrefillRef.current = true;
     }
-  }, [isEdit, tenantIdParam, tenantOptions, tenantId]);
+  }, [isEdit, isTenantScopedAdmin, tenantIdParam, tenantOptions, tenantId]);
 
   const trimmedTenantId = String(tenantId ?? '').trim();
   const trimmedFacilityId = String(facilityId ?? '').trim();
@@ -160,22 +264,90 @@ const useUserFormScreen = () => {
     () => resolveErrorMessage(t, facilityErrorCode, 'user.form.facilityLoadErrorMessage'),
     [t, facilityErrorCode]
   );
+  const emailError = useMemo(() => {
+    if (!trimmedEmail) return t('user.form.emailRequired');
+    if (trimmedEmail.length > MAX_EMAIL_LENGTH) {
+      return t('user.form.emailTooLong', { max: MAX_EMAIL_LENGTH });
+    }
+    if (!isValidEmail(trimmedEmail)) {
+      return t('user.form.emailInvalid');
+    }
+    return null;
+  }, [trimmedEmail, t]);
+  const phoneError = useMemo(() => {
+    if (!trimmedPhone) return null;
+    if (trimmedPhone.length > MAX_PHONE_LENGTH) {
+      return t('user.form.phoneTooLong', { max: MAX_PHONE_LENGTH });
+    }
+    return null;
+  }, [trimmedPhone, t]);
+  const passwordError = useMemo(() => {
+    if (!trimmedPassword) {
+      return isEdit ? null : t('user.form.passwordRequired');
+    }
+    if (trimmedPassword.length < MIN_PASSWORD_LENGTH) {
+      return t('user.form.passwordTooShort', { min: MIN_PASSWORD_LENGTH });
+    }
+    if (trimmedPassword.length > MAX_PASSWORD_LENGTH) {
+      return t('user.form.passwordTooLong', { max: MAX_PASSWORD_LENGTH });
+    }
+    return null;
+  }, [isEdit, trimmedPassword, t]);
+  const statusError = useMemo(() => {
+    if (!trimmedStatus) return t('user.form.statusRequired');
+    if (!USER_STATUSES.includes(trimmedStatus)) {
+      return t('user.form.statusInvalid');
+    }
+    return null;
+  }, [trimmedStatus, t]);
+  const tenantError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedTenantId) return t('user.form.tenantRequired');
+    return null;
+  }, [isEdit, trimmedTenantId, t]);
 
-  const hasTenants = tenantOptions.length > 0;
+  const hasTenants = isTenantScopedAdmin
+    ? Boolean(trimmedTenantId)
+    : (tenantOptions.length > 0 || Boolean(trimmedTenantId));
   const hasFacilities = facilityOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
+  const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const lockedTenantDisplay = useMemo(() => {
+    if (!isTenantLocked) return '';
+    return trimmedTenantId || normalizedScopedTenantId;
+  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
   const showFacilityEmpty =
     !isEdit && Boolean(trimmedTenantId) && !facilityListLoading && !facilityErrorCode && !hasFacilities;
   const isSubmitDisabled =
+    !isResolved ||
     isLoading ||
     isCreateBlocked ||
-    !trimmedEmail ||
-    !trimmedStatus ||
-    (!isEdit && (!trimmedTenantId || !trimmedPassword));
+    Boolean(emailError) ||
+    Boolean(phoneError) ||
+    Boolean(passwordError) ||
+    Boolean(statusError) ||
+    Boolean(tenantError) ||
+    (isEdit ? !canEditUser : !canCreateUser);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateUser) {
+        router.replace('/settings/users?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditUser) {
+        router.replace('/settings/users?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const userTenantId = String(user?.tenant_id ?? '').trim();
+        if (!userTenantId || userTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/users?notice=accessDenied');
+          return;
+        }
+      }
+
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         email: trimmedEmail,
@@ -192,13 +364,13 @@ const useUserFormScreen = () => {
         payload.facility_id = null;
       }
       if (trimmedPassword) {
-        payload.password_hash = trimmedPassword;
+        payload.password = trimmedPassword;
       }
-      if (!isEdit && trimmedTenantId) {
-        payload.tenant_id = trimmedTenantId;
+      if (!isEdit) {
+        payload.tenant_id = isTenantScopedAdmin ? normalizedScopedTenantId : trimmedTenantId;
       }
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeUserId) {
+        const result = await update(routeUserId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -210,9 +382,14 @@ const useUserFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    id,
+    canCreateUser,
+    canEditUser,
+    isTenantScopedAdmin,
+    user,
+    normalizedScopedTenantId,
+    isOffline,
+    routeUserId,
     trimmedEmail,
     trimmedStatus,
     trimmedPhone,
@@ -237,14 +414,16 @@ const useUserFormScreen = () => {
   }, [router]);
 
   const handleRetryTenants = useCallback(() => {
+    if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant || undefined });
+    if (!trimmedTenant) return;
+    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
   }, [listFacilities, resetFacilities, tenantId]);
 
   return {
@@ -263,9 +442,9 @@ const useUserFormScreen = () => {
     setStatus,
     statusOptions,
     tenantOptions,
-    tenantListLoading,
-    tenantListError: Boolean(tenantErrorCode),
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin || isEdit ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin || isEdit ? false : Boolean(tenantErrorCode),
+    tenantErrorMessage: isTenantScopedAdmin || isEdit ? null : tenantErrorMessage,
     facilityOptions,
     facilityListLoading,
     facilityListError: Boolean(facilityErrorCode),
@@ -274,11 +453,18 @@ const useUserFormScreen = () => {
     hasFacilities,
     isCreateBlocked,
     showFacilityEmpty,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     user,
+    emailError,
+    phoneError,
+    passwordError,
+    statusError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

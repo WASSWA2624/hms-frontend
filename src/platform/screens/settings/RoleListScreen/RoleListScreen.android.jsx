@@ -99,7 +99,7 @@ const RoleListScreenAndroid = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -111,7 +111,7 @@ const RoleListScreenAndroid = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('role.list.itemLabel', { name: title })}
         testID={`role-item-${item.id}`}
       />

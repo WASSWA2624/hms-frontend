@@ -4,8 +4,17 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useFacility, useUser, useUserProfile } from '@hooks';
+import {
+  useI18n,
+  useNetwork,
+  useFacility,
+  useTenantAccess,
+  useUser,
+  useUserProfile,
+} from '@hooks';
 import { normalizeIsoDateTime, toDateInputValue } from '@utils';
+
+const MAX_NAME_LENGTH = 120;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -20,8 +29,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
 const useUserProfileFormScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const router = useRouter();
   const { id, userId: userIdParam, facilityId: facilityIdParam } = useLocalSearchParams();
+  const routeProfileId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
   const { get, create, update, data, isLoading, errorCode, reset } = useUserProfile();
   const {
     list: listUsers,
@@ -38,7 +57,15 @@ const useUserProfileFormScreen = () => {
     reset: resetFacilities,
   } = useFacility();
 
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(routeProfileId);
+  const canManageUserProfiles = canAccessTenantSettings;
+  const canCreateUserProfile = canManageUserProfiles;
+  const canEditUserProfile = canManageUserProfiles;
+  const isTenantScopedAdmin = canManageUserProfiles && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [userId, setUserId] = useState('');
   const [facilityId, setFacilityId] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -58,22 +85,26 @@ const useUserProfileFormScreen = () => {
     () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
     [facilityData]
   );
-  const userOptions = useMemo(
-    () =>
-      userItems.map((user) => ({
-        value: user.id,
-        label: user.email ?? user.phone ?? user.id ?? '',
-      })),
-    [userItems]
-  );
-  const facilityOptions = useMemo(
-    () =>
-      facilityItems.map((facility) => ({
-        value: facility.id,
-        label: facility.name ?? facility.id ?? '',
-      })),
-    [facilityItems]
-  );
+  const userOptions = useMemo(() => {
+    const options = userItems.map((user) => ({
+      value: user.id,
+      label: user.email ?? user.phone ?? user.id ?? '',
+    }));
+    if (!isEdit && userId && !options.some((option) => option.value === userId)) {
+      return [{ value: userId, label: userId }, ...options];
+    }
+    return options;
+  }, [userItems, isEdit, userId]);
+  const facilityOptions = useMemo(() => {
+    const options = facilityItems.map((facility) => ({
+      value: facility.id,
+      label: facility.name ?? facility.id ?? '',
+    }));
+    if (facilityId && !options.some((option) => option.value === facilityId)) {
+      return [{ value: facilityId, label: facilityId }, ...options];
+    }
+    return options;
+  }, [facilityItems, facilityId]);
   const genderOptions = useMemo(
     () => ([
       { label: t('userProfile.gender.MALE'), value: 'MALE' },
@@ -85,22 +116,94 @@ const useUserProfileFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageUserProfiles) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateUserProfile) {
+      router.replace('/settings/user-profiles?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditUserProfile) {
+      router.replace('/settings/user-profiles?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateUserProfile,
+    canEditUserProfile,
+    router,
+  ]);
 
   useEffect(() => {
-    if (isEdit) return;
+    if (!isResolved || !canManageUserProfiles || !isEdit || !routeProfileId) return;
+    if (!canEditUserProfile) return;
+    reset();
+    get(routeProfileId);
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    isEdit,
+    routeProfileId,
+    canEditUserProfile,
+    get,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserProfiles || !isEdit) return;
+    if (profile) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/user-profiles?notice=accessDenied');
+    }
+  }, [isResolved, canManageUserProfiles, isEdit, profile, errorCode, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserProfiles || isEdit) return;
+    if (!canCreateUserProfile) return;
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
     resetUsers();
-    listUsers({ page: 1, limit: 200 });
-  }, [isEdit, listUsers, resetUsers]);
+    listUsers(params);
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    isEdit,
+    canCreateUserProfile,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listUsers,
+    resetUsers,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageUserProfiles) return;
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200 });
-  }, [listFacilities, resetFacilities]);
+    listFacilities(params);
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listFacilities,
+    resetFacilities,
+  ]);
 
   useEffect(() => {
     if (profile) {
@@ -142,7 +245,7 @@ const useUserProfileFormScreen = () => {
       setFacilityId(facilityOptions[0].value);
       facilityPrefillRef.current = true;
     }
-  }, [facilityIdParam, facilityOptions, facilityId]);
+  }, [facilityIdParam, facilityOptions, facilityId, isEdit]);
 
   const trimmedUserId = String(userId ?? '').trim();
   const trimmedFacilityId = String(facilityId ?? '').trim();
@@ -150,6 +253,10 @@ const useUserProfileFormScreen = () => {
   const trimmedMiddleName = middleName.trim();
   const trimmedLastName = lastName.trim();
   const trimmedGender = gender.trim();
+  const normalizedDateOfBirth = useMemo(
+    () => normalizeIsoDateTime(dateOfBirth),
+    [dateOfBirth]
+  );
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'userProfile.form.submitErrorMessage'),
@@ -163,19 +270,63 @@ const useUserProfileFormScreen = () => {
     () => resolveErrorMessage(t, facilityErrorCode, 'userProfile.form.facilityLoadErrorMessage'),
     [t, facilityErrorCode]
   );
+  const userError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedUserId) return t('userProfile.form.userRequired');
+    return null;
+  }, [isEdit, trimmedUserId, t]);
+  const firstNameError = useMemo(() => {
+    if (!trimmedFirstName) return t('userProfile.form.firstNameRequired');
+    if (trimmedFirstName.length > MAX_NAME_LENGTH) {
+      return t('userProfile.form.firstNameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedFirstName, t]);
+  const middleNameError = useMemo(() => {
+    if (!trimmedMiddleName) return null;
+    if (trimmedMiddleName.length > MAX_NAME_LENGTH) {
+      return t('userProfile.form.middleNameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedMiddleName, t]);
+  const lastNameError = useMemo(() => {
+    if (!trimmedLastName) return null;
+    if (trimmedLastName.length > MAX_NAME_LENGTH) {
+      return t('userProfile.form.lastNameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedLastName, t]);
+  const dateOfBirthError = useMemo(() => {
+    if (!String(dateOfBirth ?? '').trim()) return null;
+    if (!normalizedDateOfBirth) return t('userProfile.form.dobInvalid');
+    return null;
+  }, [dateOfBirth, normalizedDateOfBirth, t]);
 
   const hasUsers = userOptions.length > 0;
   const hasFacilities = facilityOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasUsers;
   const isSubmitDisabled =
+    !isResolved ||
     isLoading ||
     isCreateBlocked ||
-    !trimmedFirstName ||
-    (!isEdit && !trimmedUserId);
+    Boolean(userError) ||
+    Boolean(firstNameError) ||
+    Boolean(middleNameError) ||
+    Boolean(lastNameError) ||
+    Boolean(dateOfBirthError) ||
+    (isEdit ? !canEditUserProfile : !canCreateUserProfile);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateUserProfile) {
+        router.replace('/settings/user-profiles?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditUserProfile) {
+        router.replace('/settings/user-profiles?notice=accessDenied');
+        return;
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         first_name: trimmedFirstName,
@@ -205,9 +356,8 @@ const useUserProfileFormScreen = () => {
         payload.gender = null;
       }
 
-      const normalizedDob = normalizeIsoDateTime(dateOfBirth);
-      if (normalizedDob) {
-        payload.date_of_birth = normalizedDob;
+      if (normalizedDateOfBirth) {
+        payload.date_of_birth = normalizedDateOfBirth;
       } else if (isEdit) {
         payload.date_of_birth = null;
       }
@@ -216,8 +366,8 @@ const useUserProfileFormScreen = () => {
         payload.user_id = trimmedUserId;
       }
 
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeProfileId) {
+        const result = await update(routeProfileId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -229,18 +379,20 @@ const useUserProfileFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    id,
+    canCreateUserProfile,
+    canEditUserProfile,
+    isOffline,
     trimmedFirstName,
     trimmedFacilityId,
     trimmedMiddleName,
     trimmedLastName,
     trimmedGender,
-    dateOfBirth,
+    normalizedDateOfBirth,
     trimmedUserId,
-    create,
+    routeProfileId,
     update,
+    create,
     router,
   ]);
 
@@ -257,14 +409,41 @@ const useUserProfileFormScreen = () => {
   }, [router]);
 
   const handleRetryUsers = useCallback(() => {
+    if (isEdit || !isResolved || !canManageUserProfiles) return;
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
     resetUsers();
-    listUsers({ page: 1, limit: 200 });
-  }, [listUsers, resetUsers]);
+    listUsers(params);
+  }, [
+    isEdit,
+    isResolved,
+    canManageUserProfiles,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listUsers,
+    resetUsers,
+  ]);
 
   const handleRetryFacilities = useCallback(() => {
+    if (!isResolved || !canManageUserProfiles) return;
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200 });
-  }, [listFacilities, resetFacilities]);
+    listFacilities(params);
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listFacilities,
+    resetFacilities,
+  ]);
 
   return {
     isEdit,
@@ -294,11 +473,16 @@ const useUserProfileFormScreen = () => {
     hasUsers,
     hasFacilities,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     profile,
+    userError,
+    firstNameError,
+    middleNameError,
+    lastNameError,
+    dateOfBirthError,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToUsers: handleGoToUsers,

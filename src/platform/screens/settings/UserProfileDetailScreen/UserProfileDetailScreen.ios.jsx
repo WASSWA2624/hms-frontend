@@ -299,18 +299,20 @@ const UserProfileDetailScreenIos = () => {
               {t('userProfile.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('userProfile.detail.delete')}
-            accessibilityHint={t('userProfile.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="user-profile-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('userProfile.detail.delete')}
+              accessibilityHint={t('userProfile.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="user-profile-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

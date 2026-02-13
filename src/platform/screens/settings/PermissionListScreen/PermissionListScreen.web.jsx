@@ -55,8 +55,7 @@ const PermissionListScreenWeb = () => {
       action={
         onAdd ? (
           <StyledAddButton
-            type="button"
-            onClick={onAdd}
+            onPress={onAdd}
             accessibilityLabel={t('permission.list.addLabel')}
             accessibilityHint={t('permission.list.addHint')}
             testID="permission-list-empty-add"
@@ -76,7 +75,7 @@ const PermissionListScreenWeb = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
+      icon={<Icon glyph="â†»" size="xs" decorative />}
       testID="permission-list-retry"
     >
       {t('common.retry')}
@@ -109,8 +108,7 @@ const PermissionListScreenWeb = () => {
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
-                type="button"
-                onClick={onAdd}
+                onPress={onAdd}
                 accessibilityLabel={t('permission.list.addLabel')}
                 accessibilityHint={t('permission.list.addHint')}
                 testID="permission-list-add"
@@ -126,7 +124,12 @@ const PermissionListScreenWeb = () => {
           accessibilityLabel={t('permission.list.accessibilityLabel')}
           testID="permission-list-card"
         >
-          <StyledListBody role="region" aria-label={t('permission.list.accessibilityLabel')} data-testid="permission-list">
+          <StyledListBody
+            role="region"
+            aria-label={t('permission.list.accessibilityLabel')}
+            data-testid="permission-list"
+            testID="permission-list"
+          >
             <StyledStateStack>
               {showError && (
                 <ErrorState
@@ -162,19 +165,19 @@ const PermissionListScreenWeb = () => {
                         title={title}
                         subtitle={subtitle}
                         onPress={() => onItemPress(item.id)}
-                        actions={(
+                        actions={onDelete ? (
                           <Button
                             variant="surface"
                             size="small"
                             onPress={(e) => onDelete(item.id, e)}
                             accessibilityLabel={t('permission.list.delete')}
                             accessibilityHint={t('permission.list.deleteHint')}
-                            icon={<Icon glyph="✕" size="xs" decorative />}
+                            icon={<Icon glyph="âœ•" size="xs" decorative />}
                             testID={`permission-delete-${item.id}`}
                           >
                             {t('common.remove')}
                           </Button>
-                        )}
+                        ) : undefined}
                         accessibilityLabel={t('permission.list.itemLabel', { name: title })}
                         testID={`permission-item-${item.id}`}
                       />

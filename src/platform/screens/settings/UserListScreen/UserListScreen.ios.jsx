@@ -100,24 +100,25 @@ const UserListScreenIos = () => {
     const title = user?.email ?? user?.phone ?? user?.id ?? '';
     const statusLabel = resolveStatusLabel(t, user?.status);
     const subtitle = statusLabel ? `${t('user.list.statusLabel')}: ${statusLabel}` : '';
+    const actions = onDelete ? (
+      <Button
+        variant="surface"
+        size="small"
+        onPress={(e) => onDelete(user.id, e)}
+        accessibilityLabel={t('user.list.delete')}
+        accessibilityHint={t('user.list.deleteHint')}
+        icon={<Icon glyph="?" size="xs" decorative />}
+        testID={`user-delete-${user.id}`}
+      >
+        {t('common.remove')}
+      </Button>
+    ) : undefined;
     return (
       <ListItem
         title={title}
         subtitle={subtitle}
         onPress={() => onUserPress(user.id)}
-        actions={(
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(user.id, e)}
-            accessibilityLabel={t('user.list.delete')}
-            accessibilityHint={t('user.list.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID={`user-delete-${user.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        )}
+        actions={actions}
         accessibilityLabel={t('user.list.itemLabel', {
           name: title,
         })}

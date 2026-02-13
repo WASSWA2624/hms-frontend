@@ -50,6 +50,11 @@ const PermissionFormScreenIOS = () => {
     errorMessage,
     isOffline,
     permission,
+    nameError,
+    descriptionError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -80,7 +85,7 @@ const PermissionFormScreenIOS = () => {
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
                 accessibilityHint={t('permission.form.cancelHint')}
-                icon={<Icon glyph="←" size="xs" decorative />}
+                icon={<Icon glyph="â†" size="xs" decorative />}
               >
                 {t('common.back')}
               </Button>
@@ -100,7 +105,7 @@ const PermissionFormScreenIOS = () => {
       onPress={onRetryTenants}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
+      icon={<Icon glyph="â†»" size="xs" decorative />}
       testID="permission-form-tenant-retry"
     >
       {t('common.retry')}
@@ -111,6 +116,12 @@ const PermissionFormScreenIOS = () => {
   const blockedMessage = showTenantBlocked
     ? t('permission.form.blockedMessage')
     : t('permission.form.nameHint');
+  const nameHelperText = nameError || blockedMessage;
+  const descriptionHelperText = descriptionError || (
+    showTenantBlocked ? t('permission.form.blockedMessage') : t('permission.form.descriptionHint')
+  );
+  const tenantHelperText = tenantError || t('permission.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('permission.form.tenantLockedHint') : t('permission.form.tenantScopedHint');
 
   return (
     <StyledContainer>
@@ -140,7 +151,7 @@ const PermissionFormScreenIOS = () => {
 
         <Card variant="outlined" accessibilityLabel={t('permission.form.nameLabel')} testID="permission-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -166,7 +177,7 @@ const PermissionFormScreenIOS = () => {
                         onPress={onGoToTenants}
                         accessibilityLabel={t('permission.form.goToTenants')}
                         accessibilityHint={t('permission.form.goToTenantsHint')}
-                        icon={<Icon glyph="→" size="xs" decorative />}
+                        icon={<Icon glyph="â†’" size="xs" decorative />}
                         testID="permission-form-go-to-tenants"
                       >
                         {t('permission.form.goToTenants')}
@@ -181,7 +192,8 @@ const PermissionFormScreenIOS = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('permission.form.tenantLabel')}
                       accessibilityHint={t('permission.form.tenantHint')}
-                      helperText={t('permission.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="permission-form-tenant"
@@ -194,10 +206,10 @@ const PermissionFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('permission.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('permission.form.tenantLabel')}
-                    accessibilityHint={t('permission.form.tenantLockedHint')}
-                    helperText={t('permission.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="permission-form-tenant-readonly"
                   />
@@ -213,8 +225,10 @@ const PermissionFormScreenIOS = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('permission.form.nameLabel')}
                 accessibilityHint={t('permission.form.nameHint')}
-                helperText={blockedMessage}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={120}
                 disabled={isFormDisabled}
                 testID="permission-form-name"
               />
@@ -229,7 +243,9 @@ const PermissionFormScreenIOS = () => {
                   onChangeText={setDescription}
                   accessibilityLabel={t('permission.form.descriptionLabel')}
                   accessibilityHint={t('permission.form.descriptionHint')}
-                  helperText={showTenantBlocked ? t('permission.form.blockedMessage') : t('permission.form.descriptionHint')}
+                  errorMessage={descriptionError}
+                  helperText={descriptionHelperText}
+                  maxLength={255}
                   disabled={isFormDisabled}
                   testID="permission-form-description"
                 />
@@ -245,7 +261,7 @@ const PermissionFormScreenIOS = () => {
             onPress={onCancel}
             accessibilityLabel={t('permission.form.cancel')}
             accessibilityHint={t('permission.form.cancelHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
+            icon={<Icon glyph="â†" size="xs" decorative />}
             testID="permission-form-cancel"
             disabled={isLoading}
           >
@@ -259,7 +275,7 @@ const PermissionFormScreenIOS = () => {
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
             accessibilityHint={isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}
-            icon={<Icon glyph="✓" size="xs" decorative />}
+            icon={<Icon glyph="âœ“" size="xs" decorative />}
             testID="permission-form-submit"
           >
             {isEdit ? t('permission.form.submitEdit') : t('permission.form.submitCreate')}

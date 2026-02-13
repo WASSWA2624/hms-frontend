@@ -19,9 +19,17 @@ jest.mock('@hooks', () => ({
   useUser: jest.fn(),
   useTenant: jest.fn(),
   useFacility: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useI18n, useNetwork, useUser, useTenant, useFacility } = require('@hooks');
+const {
+  useI18n,
+  useNetwork,
+  useUser,
+  useTenant,
+  useFacility,
+  useTenantAccess,
+} = require('@hooks');
 
 describe('useUserFormScreen', () => {
   const mockGet = jest.fn();
@@ -38,6 +46,12 @@ describe('useUserFormScreen', () => {
     mockParams = {};
     useI18n.mockReturnValue({ t: (k) => k });
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUser.mockReturnValue({
       get: mockGet,
       create: mockCreate,
@@ -179,7 +193,7 @@ describe('useUserFormScreen', () => {
       result.current.setFacilityId(' f1 ');
       result.current.setEmail('  test@example.com  ');
       result.current.setPhone('  +15551234567  ');
-      result.current.setPassword('  secret  ');
+      result.current.setPassword('  secret123  ');
       result.current.setStatus('ACTIVE');
     });
     await act(async () => {
@@ -191,7 +205,7 @@ describe('useUserFormScreen', () => {
       email: 'test@example.com',
       phone: '+15551234567',
       status: 'ACTIVE',
-      password_hash: 'secret',
+      password: 'secret123',
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/users?notice=created');
   });
@@ -225,7 +239,7 @@ describe('useUserFormScreen', () => {
     act(() => {
       result.current.setTenantId('t1');
       result.current.setEmail('test@example.com');
-      result.current.setPassword('secret');
+      result.current.setPassword('secret123');
       result.current.setStatus('ACTIVE');
     });
     await act(async () => {
@@ -240,7 +254,7 @@ describe('useUserFormScreen', () => {
     act(() => {
       result.current.setTenantId('t1');
       result.current.setEmail('test@example.com');
-      result.current.setPassword('secret');
+      result.current.setPassword('secret123');
       result.current.setStatus('ACTIVE');
     });
     await act(async () => {
@@ -292,5 +306,25 @@ describe('useUserFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 200, tenant_id: 't1' });
+  });
+
+  it('blocks submit when tenant access is denied', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+    const { result } = renderHook(() => useUserFormScreen());
+    act(() => {
+      result.current.setTenantId('t1');
+      result.current.setEmail('test@example.com');
+      result.current.setPassword('secret123');
+      result.current.setStatus('ACTIVE');
+    });
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 });

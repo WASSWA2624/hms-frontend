@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, usePermission } from '@hooks';
+import { useI18n, useNetwork, usePermission, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const usePermissionDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = usePermission();
+  const permissionId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManagePermissions = canAccessTenantSettings;
+  const canEditPermission = canManagePermissions;
+  const canDeletePermission = canManagePermissions;
+  const isTenantScopedAdmin = canManagePermissions && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const permission = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const usePermissionDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManagePermissions || !permissionId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(permissionId);
+  }, [isResolved, canManagePermissions, permissionId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManagePermissions) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManagePermissions, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions || !isTenantScopedAdmin || !permission) return;
+    const permissionTenantId = String(permission.tenant_id ?? '').trim();
+    if (!permissionTenantId || permissionTenantId !== normalizedTenantId) {
+      router.replace('/settings/permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManagePermissions,
+    isTenantScopedAdmin,
+    permission,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions) return;
+    if (permission) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/permissions?notice=accessDenied');
+    }
+  }, [isResolved, canManagePermissions, permission, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const usePermissionDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/permissions/${id}/edit`);
-  }, [id, router]);
+    if (!canEditPermission || !permissionId) return;
+    router.push(`/settings/permissions/${permissionId}/edit`);
+  }, [canEditPermission, permissionId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeletePermission || !permissionId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(permissionId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/permissions?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeletePermission, permissionId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: permissionId,
     permission,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditPermission ? handleEdit : undefined,
+    onDelete: canDeletePermission ? handleDelete : undefined,
   };
 };
 

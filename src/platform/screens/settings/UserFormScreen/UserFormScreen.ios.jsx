@@ -61,6 +61,13 @@ const UserFormScreenIOS = () => {
     errorMessage,
     isOffline,
     user,
+    emailError,
+    phoneError,
+    passwordError,
+    statusError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -135,6 +142,12 @@ const UserFormScreenIOS = () => {
   const showInlineError = hasError && (!isEdit || Boolean(user));
   const showTenantBlocked = !isEdit && isCreateBlocked;
   const blockedMessage = t('user.form.blockedMessage');
+  const emailHelperText = emailError || (showTenantBlocked ? blockedMessage : t('user.form.emailHint'));
+  const phoneHelperText = phoneError || t('user.form.phoneHint');
+  const passwordHelperText = passwordError || (isEdit ? t('user.form.passwordEditHint') : t('user.form.passwordHint'));
+  const statusHelperText = statusError || t('user.form.statusHint');
+  const tenantHelperText = tenantError || t('user.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('user.form.tenantLockedHint') : t('user.form.tenantScopedHint');
 
   return (
     <StyledContainer>
@@ -164,7 +177,7 @@ const UserFormScreenIOS = () => {
 
         <Card variant="outlined" accessibilityLabel={t('user.form.emailLabel')} testID="user-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -208,7 +221,8 @@ const UserFormScreenIOS = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('user.form.tenantLabel')}
                       accessibilityHint={t('user.form.tenantHint')}
-                      helperText={t('user.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -222,10 +236,10 @@ const UserFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('user.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('user.form.tenantLabel')}
-                    accessibilityHint={t('user.form.tenantLockedHint')}
-                    helperText={t('user.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="user-form-tenant-readonly"
                   />
@@ -306,8 +320,10 @@ const UserFormScreenIOS = () => {
                 type="email"
                 accessibilityLabel={t('user.form.emailLabel')}
                 accessibilityHint={t('user.form.emailHint')}
-                helperText={showTenantBlocked ? blockedMessage : t('user.form.emailHint')}
+                errorMessage={emailError}
+                helperText={emailHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-form-email"
@@ -323,7 +339,9 @@ const UserFormScreenIOS = () => {
                 type="tel"
                 accessibilityLabel={t('user.form.phoneLabel')}
                 accessibilityHint={t('user.form.phoneHint')}
-                helperText={t('user.form.phoneHint')}
+                errorMessage={phoneError}
+                helperText={phoneHelperText}
+                maxLength={40}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-form-phone"
@@ -339,8 +357,10 @@ const UserFormScreenIOS = () => {
                 type="password"
                 accessibilityLabel={t('user.form.passwordLabel')}
                 accessibilityHint={isEdit ? t('user.form.passwordEditHint') : t('user.form.passwordHint')}
-                helperText={isEdit ? t('user.form.passwordEditHint') : t('user.form.passwordHint')}
+                errorMessage={passwordError}
+                helperText={passwordHelperText}
                 required={!isEdit}
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-form-password"
@@ -356,7 +376,8 @@ const UserFormScreenIOS = () => {
                 onValueChange={setStatus}
                 accessibilityLabel={t('user.form.statusLabel')}
                 accessibilityHint={t('user.form.statusHint')}
-                helperText={t('user.form.statusHint')}
+                errorMessage={statusError}
+                helperText={statusHelperText}
                 required
                 compact
                 disabled={isFormDisabled}

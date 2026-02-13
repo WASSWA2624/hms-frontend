@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useUser: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -27,7 +28,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useUser, useNetwork } = require('@hooks');
+const { useUser, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useUserListScreen', () => {
@@ -39,6 +40,12 @@ describe('useUserListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUser.mockReturnValue({
       list: mockList,
       remove: mockRemove,
@@ -195,5 +202,28 @@ describe('useUserListScreen', () => {
     const { result } = renderHook(() => useUserListScreen());
     expect(result.current.noticeMessage).toBe('user.list.noticeCreated');
     expect(mockReplace).toHaveBeenCalledWith('/settings/users');
+  });
+
+  it('returns loading state while tenant access is unresolved', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: false,
+    });
+    const { result } = renderHook(() => useUserListScreen());
+    expect(result.current.isLoading).toBe(true);
+  });
+
+  it('hides create/delete actions when tenant access is denied', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+    const { result } = renderHook(() => useUserListScreen());
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 });

@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useUserProfile } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUserProfile } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'userProfile.list.noticeUpdated',
     deleted: 'userProfile.list.noticeDeleted',
     queued: 'userProfile.list.noticeQueued',
+    accessDenied: 'userProfile.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useUserProfileListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useUserProfileListScreen = () => {
   } = useUserProfile();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageUserProfiles = canAccessTenantSettings;
+  const canCreateUserProfile = canManageUserProfiles;
+  const canDeleteUserProfile = canManageUserProfiles;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,9 +69,29 @@ const useUserProfileListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageUserProfiles) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     reset();
     list({ page: 1, limit: 20 });
-  }, [list, reset]);
+  }, [
+    isResolved,
+    canManageUserProfiles,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserProfiles) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageUserProfiles, canManageAllTenants, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchList();
@@ -82,19 +113,30 @@ const useUserProfileListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageUserProfiles) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageUserProfiles, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     fetchList();
   }, [fetchList]);
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageUserProfiles) return;
       router.push(`/settings/user-profiles/${id}`);
     },
-    [router]
+    [canManageUserProfiles, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteUserProfile) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +152,26 @@ const useUserProfileListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteUserProfile, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateUserProfile) return;
     router.push('/settings/user-profiles/create');
-  }, [router]);
+  }, [canCreateUserProfile, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteUserProfile ? handleDelete : undefined,
+    onAdd: canCreateUserProfile ? handleAdd : undefined,
   };
 };
 

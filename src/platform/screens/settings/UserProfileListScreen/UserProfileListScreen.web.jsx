@@ -163,7 +163,7 @@ const UserProfileListScreenWeb = () => {
                         title={title}
                         subtitle={subtitle}
                         onPress={() => onItemPress(item.id)}
-                        actions={(
+                        actions={onDelete ? (
                           <Button
                             variant="surface"
                             size="small"
@@ -175,7 +175,7 @@ const UserProfileListScreenWeb = () => {
                           >
                             {t('common.remove')}
                           </Button>
-                        )}
+                        ) : undefined}
                         accessibilityLabel={t('userProfile.list.itemLabel', { name: title })}
                         accessibilityHint={t('userProfile.list.itemHint', { name: title })}
                         testID={`user-profile-item-${item.id}`}

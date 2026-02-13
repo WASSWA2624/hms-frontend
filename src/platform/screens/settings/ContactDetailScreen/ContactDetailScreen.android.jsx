@@ -326,18 +326,20 @@ const ContactDetailScreenAndroid = () => {
               {t('contact.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('contact.detail.delete')}
-            accessibilityHint={t('contact.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="contact-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('contact.detail.delete')}
+              accessibilityHint={t('contact.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="contact-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

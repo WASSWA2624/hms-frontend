@@ -48,6 +48,11 @@ const ContactFormScreenWeb = () => {
     tenantErrorMessage,
     hasTenants,
     isCreateBlocked,
+    valueError,
+    contactTypeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     isLoading,
     hasError,
     errorMessage,
@@ -111,6 +116,10 @@ const ContactFormScreenWeb = () => {
   ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(contact));
   const blockedMessage = t('contact.form.blockedMessage');
+  const valueHelperText = valueError || (isCreateBlocked ? blockedMessage : t('contact.form.valueHint'));
+  const typeHelperText = contactTypeError || (isCreateBlocked ? blockedMessage : t('contact.form.typeHint'));
+  const tenantHelperText = tenantError || t('contact.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('contact.form.tenantLockedHint') : t('contact.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('contact.form.editTitle') : t('contact.form.createTitle')}>
@@ -140,7 +149,7 @@ const ContactFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('contact.form.valueLabel')} testID="contact-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -185,7 +194,8 @@ const ContactFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('contact.form.tenantLabel')}
                       accessibilityHint={t('contact.form.tenantHint')}
-                      helperText={t('contact.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -199,10 +209,10 @@ const ContactFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('contact.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('contact.form.tenantLabel')}
-                    accessibilityHint={t('contact.form.tenantLockedHint')}
-                    helperText={t('contact.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="contact-form-tenant-readonly"
                   />
@@ -218,8 +228,10 @@ const ContactFormScreenWeb = () => {
                 onChange={(e) => setValue(e.target.value)}
                 accessibilityLabel={t('contact.form.valueLabel')}
                 accessibilityHint={t('contact.form.valueHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('contact.form.valueHint')}
+                errorMessage={valueError}
+                helperText={valueHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="contact-form-value"
@@ -235,7 +247,8 @@ const ContactFormScreenWeb = () => {
                 onValueChange={setContactType}
                 accessibilityLabel={t('contact.form.typeLabel')}
                 accessibilityHint={t('contact.form.typeHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('contact.form.typeHint')}
+                errorMessage={contactTypeError}
+                helperText={typeHelperText}
                 required
                 compact
                 disabled={isFormDisabled}

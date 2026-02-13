@@ -70,7 +70,7 @@ const PermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
+                icon={<Icon glyph="â†»" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -96,7 +96,7 @@ const PermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
+                icon={<Icon glyph="â†»" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -124,7 +124,7 @@ const PermissionDetailScreenWeb = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('permission.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
+              icon={<Icon glyph="â†" size="xs" decorative />}
               testID="permission-detail-back"
             >
               {t('common.back')}
@@ -147,7 +147,7 @@ const PermissionDetailScreenWeb = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
+      icon={<Icon glyph="â†»" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -235,7 +235,7 @@ const PermissionDetailScreenWeb = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('permission.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
+            icon={<Icon glyph="â†" size="xs" decorative />}
             testID="permission-detail-back"
             disabled={isLoading}
           >
@@ -248,25 +248,27 @@ const PermissionDetailScreenWeb = () => {
               onPress={onEdit}
               accessibilityLabel={t('permission.detail.edit')}
               accessibilityHint={t('permission.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
+              icon={<Icon glyph="âœŽ" size="xs" decorative />}
               testID="permission-detail-edit"
               disabled={isLoading}
             >
               {t('permission.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('permission.detail.delete')}
-            accessibilityHint={t('permission.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="permission-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('permission.detail.delete')}
+              accessibilityHint={t('permission.detail.deleteHint')}
+              icon={<Icon glyph="âœ•" size="xs" decorative />}
+              testID="permission-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

@@ -5,11 +5,13 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useUserDetailScreen = require('@platform/screens/settings/UserDetailScreen/useUserDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useUser: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -21,11 +23,11 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ id: 'uid-1' }),
 }));
 
-const { useUser, useNetwork } = require('@hooks');
+const { useUser, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useUserDetailScreen', () => {
@@ -36,6 +38,12 @@ describe('useUserDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUser.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
@@ -171,5 +179,17 @@ describe('useUserDetailScreen', () => {
     });
     const { result } = renderHook(() => useUserDetailScreen());
     expect(result.current.user).toBeNull();
+  });
+
+  it('hides edit/delete actions when user access is denied', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+    const { result } = renderHook(() => useUserDetailScreen());
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 });

@@ -63,6 +63,11 @@ const UserProfileFormScreenWeb = () => {
     errorMessage,
     isOffline,
     profile,
+    userError,
+    firstNameError,
+    middleNameError,
+    lastNameError,
+    dateOfBirthError,
     onSubmit,
     onCancel,
     onGoToUsers,
@@ -136,6 +141,11 @@ const UserProfileFormScreenWeb = () => {
   ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(profile));
   const blockedMessage = t('userProfile.form.blockedMessage');
+  const userHelperText = userError || t('userProfile.form.userHint');
+  const firstNameHelperText = firstNameError || (isCreateBlocked ? blockedMessage : t('userProfile.form.firstNameHint'));
+  const middleNameHelperText = middleNameError || (isCreateBlocked ? blockedMessage : t('userProfile.form.middleNameHint'));
+  const lastNameHelperText = lastNameError || (isCreateBlocked ? blockedMessage : t('userProfile.form.lastNameHint'));
+  const dateOfBirthHelperText = dateOfBirthError || (isCreateBlocked ? blockedMessage : t('userProfile.form.dobHint'));
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('userProfile.form.editTitle') : t('userProfile.form.createTitle')}>
@@ -210,7 +220,8 @@ const UserProfileFormScreenWeb = () => {
                       onValueChange={setUserId}
                       accessibilityLabel={t('userProfile.form.userLabel')}
                       accessibilityHint={t('userProfile.form.userHint')}
-                      helperText={t('userProfile.form.userHint')}
+                      errorMessage={userError}
+                      helperText={userHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -295,8 +306,10 @@ const UserProfileFormScreenWeb = () => {
                 onChange={(e) => setFirstName(e.target.value)}
                 accessibilityLabel={t('userProfile.form.firstNameLabel')}
                 accessibilityHint={t('userProfile.form.firstNameHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.firstNameHint')}
+                errorMessage={firstNameError}
+                helperText={firstNameHelperText}
                 required
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-profile-form-first-name"
@@ -311,7 +324,9 @@ const UserProfileFormScreenWeb = () => {
                 onChange={(e) => setMiddleName(e.target.value)}
                 accessibilityLabel={t('userProfile.form.middleNameLabel')}
                 accessibilityHint={t('userProfile.form.middleNameHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.middleNameHint')}
+                errorMessage={middleNameError}
+                helperText={middleNameHelperText}
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-profile-form-middle-name"
@@ -326,7 +341,9 @@ const UserProfileFormScreenWeb = () => {
                 onChange={(e) => setLastName(e.target.value)}
                 accessibilityLabel={t('userProfile.form.lastNameLabel')}
                 accessibilityHint={t('userProfile.form.lastNameHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.lastNameHint')}
+                errorMessage={lastNameError}
+                helperText={lastNameHelperText}
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-profile-form-last-name"
@@ -358,7 +375,8 @@ const UserProfileFormScreenWeb = () => {
                 type="date"
                 accessibilityLabel={t('userProfile.form.dobLabel')}
                 accessibilityHint={t('userProfile.form.dobHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('userProfile.form.dobHint')}
+                errorMessage={dateOfBirthError}
+                helperText={dateOfBirthHelperText}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-profile-form-dob"

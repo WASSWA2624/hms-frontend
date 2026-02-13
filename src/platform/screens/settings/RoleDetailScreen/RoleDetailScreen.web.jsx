@@ -264,18 +264,20 @@ const RoleDetailScreenWeb = () => {
               {t('role.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('role.detail.delete')}
-            accessibilityHint={t('role.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="role-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('role.detail.delete')}
+              accessibilityHint={t('role.detail.deleteHint')}
+              icon={<Icon glyph="✕" size="xs" decorative />}
+              testID="role-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

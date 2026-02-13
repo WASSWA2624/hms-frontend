@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useContact } from '@hooks';
+import { useI18n, useNetwork, useContact, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'contact.list.noticeUpdated',
     deleted: 'contact.list.noticeDeleted',
     queued: 'contact.list.noticeQueued',
+    accessDenied: 'contact.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useContactListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useContactListScreen = () => {
   } = useContact();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageContacts = canAccessTenantSettings;
+  const canCreateContact = canManageContacts;
+  const canDeleteContact = canManageContacts;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,39 @@ const useContactListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageContacts) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [
+    isResolved,
+    canManageContacts,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageContacts) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageContacts, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageContacts) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageContacts, canManageAllTenants, normalizedTenantId, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -82,19 +119,30 @@ const useContactListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageContacts) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageContacts, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     fetchList();
   }, [fetchList]);
 
   const handleContactPress = useCallback(
     (id) => {
+      if (!canManageContacts) return;
       router.push(`/settings/contacts/${id}`);
     },
-    [router]
+    [canManageContacts, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteContact) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +158,26 @@ const useContactListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteContact, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateContact) return;
     router.push('/settings/contacts/create');
-  }, [router]);
+  }, [canCreateContact, router]);
 
   return {
     items,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onContactPress: handleContactPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteContact ? handleDelete : undefined,
+    onAdd: canCreateContact ? handleAdd : undefined,
   };
 };
 

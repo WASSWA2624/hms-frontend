@@ -99,7 +99,7 @@ const PermissionListScreenIos = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onItemPress(item.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -111,7 +111,7 @@ const PermissionListScreenIos = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('permission.list.itemLabel', {
           name: title,
         })}

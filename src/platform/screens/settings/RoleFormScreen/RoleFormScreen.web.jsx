@@ -58,6 +58,11 @@ const RoleFormScreenWeb = () => {
     errorMessage,
     isOffline,
     role,
+    nameError,
+    descriptionError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -137,6 +142,12 @@ const RoleFormScreenWeb = () => {
     ? t('role.form.facilityBlockedMessage')
     : t('role.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('role.form.nameHint'));
+  const descriptionHelperText = descriptionError || (showCreateBlocked
+    ? blockedMessage
+    : t('role.form.descriptionHint'));
+  const tenantHelperText = tenantError || t('role.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('role.form.tenantLockedHint') : t('role.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('role.form.editTitle') : t('role.form.createTitle')}>
@@ -166,7 +177,7 @@ const RoleFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('role.form.nameLabel')} testID="role-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -211,7 +222,8 @@ const RoleFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('role.form.tenantLabel')}
                       accessibilityHint={t('role.form.tenantHint')}
-                      helperText={t('role.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -225,10 +237,10 @@ const RoleFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('role.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('role.form.tenantLabel')}
-                    accessibilityHint={t('role.form.tenantLockedHint')}
-                    helperText={t('role.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="role-form-tenant-readonly"
                   />
@@ -236,89 +248,72 @@ const RoleFormScreenWeb = () => {
               </StyledFullRow>
             )}
 
-            {!isEdit ? (
-              <StyledFullRow>
-                <StyledFieldGroup>
-                  {facilityListLoading ? (
-                    <LoadingSpinner
-                      accessibilityLabel={t('common.loading')}
-                      testID="role-form-facility-loading"
-                    />
-                  ) : facilityListError ? (
-                    <ErrorState
-                      size={ErrorStateSizes.SMALL}
-                      title={t('role.form.facilityLoadErrorTitle')}
-                      description={facilityErrorMessage}
-                      action={retryFacilitiesAction}
-                      testID="role-form-facility-error"
-                    />
-                  ) : !tenantId ? (
-                    <Select
-                      label={t('role.form.facilityLabel')}
-                      placeholder={t('role.form.facilityPlaceholder')}
-                      options={[]}
-                      value=""
-                      onValueChange={() => {}}
-                      accessibilityLabel={t('role.form.facilityLabel')}
-                      accessibilityHint={t('role.form.selectTenantFirst')}
-                      helperText={t('role.form.selectTenantFirst')}
-                      compact
-                      disabled
-                      testID="role-form-select-tenant"
-                    />
-                  ) : showFacilityEmpty ? (
-                    <StyledHelperStack
-                      role="region"
-                      aria-label={t('role.form.facilityLabel')}
-                      data-testid="role-form-no-facilities"
-                    >
-                      <Text variant="body">{t('role.form.noFacilitiesMessage')}</Text>
-                      <Text variant="body">{t('role.form.createFacilityRequired')}</Text>
-                      <Button
-                        variant="surface"
-                        size="small"
-                        onPress={onGoToFacilities}
-                        accessibilityLabel={t('role.form.goToFacilities')}
-                        accessibilityHint={t('role.form.goToFacilitiesHint')}
-                        icon={<Icon glyph="→" size="xs" decorative />}
-                        testID="role-form-go-to-facilities"
-                      >
-                        {t('role.form.goToFacilities')}
-                      </Button>
-                    </StyledHelperStack>
-                  ) : (
-                    <Select
-                      label={t('role.form.facilityLabel')}
-                      placeholder={t('role.form.facilityPlaceholder')}
-                      options={facilityOptions}
-                      value={facilityId}
-                      onValueChange={setFacilityId}
-                      accessibilityLabel={t('role.form.facilityLabel')}
-                      accessibilityHint={t('role.form.facilityHint')}
-                      helperText={t('role.form.facilityHint')}
-                      required
-                      compact
-                      disabled={isFormDisabled}
-                      testID="role-form-facility"
-                    />
-                  )}
-                </StyledFieldGroup>
-              </StyledFullRow>
-            ) : (
-              <StyledFullRow>
-                <StyledFieldGroup>
-                  <TextField
-                    label={t('role.form.facilityLabel')}
-                    value={facilityId}
-                    accessibilityLabel={t('role.form.facilityLabel')}
-                    accessibilityHint={t('role.form.facilityLockedHint')}
-                    helperText={t('role.form.facilityLockedHint')}
-                    disabled
-                    testID="role-form-facility-readonly"
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {facilityListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="role-form-facility-loading"
                   />
-                </StyledFieldGroup>
-              </StyledFullRow>
-            )}
+                ) : facilityListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('role.form.facilityLoadErrorTitle')}
+                    description={facilityErrorMessage}
+                    action={retryFacilitiesAction}
+                    testID="role-form-facility-error"
+                  />
+                ) : !tenantId && !isEdit ? (
+                  <Select
+                    label={t('role.form.facilityLabel')}
+                    placeholder={t('role.form.facilityPlaceholder')}
+                    options={[]}
+                    value=""
+                    onValueChange={() => {}}
+                    accessibilityLabel={t('role.form.facilityLabel')}
+                    accessibilityHint={t('role.form.selectTenantFirst')}
+                    helperText={t('role.form.selectTenantFirst')}
+                    compact
+                    disabled
+                    testID="role-form-select-tenant"
+                  />
+                ) : showFacilityEmpty ? (
+                  <StyledHelperStack
+                    role="region"
+                    aria-label={t('role.form.facilityLabel')}
+                    data-testid="role-form-no-facilities"
+                  >
+                    <Text variant="body">{t('role.form.noFacilitiesMessage')}</Text>
+                    <Text variant="body">{t('role.form.createFacilityOptional')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToFacilities}
+                      accessibilityLabel={t('role.form.goToFacilities')}
+                      accessibilityHint={t('role.form.goToFacilitiesHint')}
+                      icon={<Icon glyph=">" size="xs" decorative />}
+                      testID="role-form-go-to-facilities"
+                    >
+                      {t('role.form.goToFacilities')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('role.form.facilityLabel')}
+                    placeholder={t('role.form.facilityPlaceholder')}
+                    options={facilityOptions}
+                    value={facilityId}
+                    onValueChange={setFacilityId}
+                    accessibilityLabel={t('role.form.facilityLabel')}
+                    accessibilityHint={t('role.form.facilityHint')}
+                    helperText={t('role.form.facilityHint')}
+                    compact
+                    disabled={isFormDisabled}
+                    testID="role-form-facility"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
 
             <StyledFieldGroup>
               <TextField
@@ -328,8 +323,10 @@ const RoleFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('role.form.nameLabel')}
                 accessibilityHint={t('role.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('role.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="role-form-name"
@@ -345,7 +342,9 @@ const RoleFormScreenWeb = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   accessibilityLabel={t('role.form.descriptionLabel')}
                   accessibilityHint={t('role.form.descriptionHint')}
-                  helperText={showCreateBlocked ? blockedMessage : t('role.form.descriptionHint')}
+                  errorMessage={descriptionError}
+                  helperText={descriptionHelperText}
+                  maxLength={255}
                   disabled={isFormDisabled}
                   testID="role-form-description"
                 />

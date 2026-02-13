@@ -4,7 +4,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, usePermission, useTenant } from '@hooks';
+import { useI18n, useNetwork, usePermission, useTenant, useTenantAccess } from '@hooks';
+
+const MAX_NAME_LENGTH = 120;
+const MAX_DESCRIPTION_LENGTH = 255;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +24,16 @@ const usePermissionFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, tenantId: tenantIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
+  const routePermissionId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
   const { get, create, update, data, isLoading, errorCode, reset } = usePermission();
   const {
     list: listTenants,
@@ -30,7 +43,16 @@ const usePermissionFormScreen = () => {
     reset: resetTenants,
   } = useTenant();
 
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(routePermissionId);
+  const canManagePermissions = canAccessTenantSettings;
+  const canCreatePermission = canManagePermissions;
+  const canEditPermission = canManagePermissions;
+  const isTenantScopedAdmin = canManagePermissions && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
+
   const [tenantId, setTenantId] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -38,41 +60,111 @@ const usePermissionFormScreen = () => {
 
   const permission = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
-    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
-    [tenantData]
+    () => (isTenantScopedAdmin || isEdit
+      ? []
+      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+    [tenantData, isTenantScopedAdmin, isEdit]
   );
-  const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
-        value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      })),
-    [tenantItems]
-  );
-
-  useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+  const tenantOptions = useMemo(() => {
+    if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
+      return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
     }
-  }, [isEdit, id, get, reset]);
+    return tenantItems.map((tenant) => ({
+      value: tenant.id,
+      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+    }));
+  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (isEdit) return;
+    if (!isResolved) return;
+    if (!canManagePermissions) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreatePermission) {
+      router.replace('/settings/permissions?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditPermission) {
+      router.replace('/settings/permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManagePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreatePermission,
+    canEditPermission,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions || !isEdit || !routePermissionId) return;
+    if (!canEditPermission) return;
+    reset();
+    get(routePermissionId);
+  }, [isResolved, canManagePermissions, isEdit, routePermissionId, canEditPermission, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions || !isEdit) return;
+    if (permission) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/permissions?notice=accessDenied');
+    }
+  }, [isResolved, canManagePermissions, isEdit, permission, errorCode, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions || !isTenantScopedAdmin || !isEdit || !permission) return;
+    const permissionTenantId = String(permission.tenant_id ?? '').trim();
+    if (!permissionTenantId || permissionTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManagePermissions,
+    isTenantScopedAdmin,
+    isEdit,
+    permission,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManagePermissions || isEdit) return;
+    if (!canCreatePermission) return;
+    if (isTenantScopedAdmin) {
+      setTenantId(normalizedScopedTenantId);
+      tenantPrefillRef.current = true;
+      return;
+    }
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [isEdit, listTenants, resetTenants]);
+  }, [
+    isResolved,
+    canManagePermissions,
+    isEdit,
+    canCreatePermission,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
     if (permission) {
-      setTenantId(permission.tenant_id ?? '');
+      setTenantId(String(permission.tenant_id ?? normalizedScopedTenantId ?? ''));
       setName(permission.name ?? '');
       setDescription(permission.description ?? '');
     }
-  }, [permission]);
+  }, [permission, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (isEdit) return;
+    if (isEdit || isTenantScopedAdmin) return;
     if (tenantPrefillRef.current) return;
     const paramValue = Array.isArray(tenantIdParam) ? tenantIdParam[0] : tenantIdParam;
     if (paramValue) {
@@ -84,7 +176,7 @@ const usePermissionFormScreen = () => {
       setTenantId(tenantOptions[0].value);
       tenantPrefillRef.current = true;
     }
-  }, [isEdit, tenantIdParam, tenantOptions, tenantId]);
+  }, [isEdit, isTenantScopedAdmin, tenantIdParam, tenantOptions, tenantId]);
 
   const trimmedTenantId = String(tenantId ?? '').trim();
   const trimmedName = name.trim();
@@ -98,16 +190,62 @@ const usePermissionFormScreen = () => {
     () => resolveErrorMessage(t, tenantErrorCode, 'permission.form.tenantLoadErrorMessage'),
     [t, tenantErrorCode]
   );
+  const nameError = useMemo(() => {
+    if (!trimmedName) return t('permission.form.nameRequired');
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      return t('permission.form.nameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedName, t]);
+  const descriptionError = useMemo(() => {
+    if (!trimmedDescription) return null;
+    if (trimmedDescription.length > MAX_DESCRIPTION_LENGTH) {
+      return t('permission.form.descriptionTooLong', { max: MAX_DESCRIPTION_LENGTH });
+    }
+    return null;
+  }, [trimmedDescription, t]);
+  const tenantError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedTenantId) return t('permission.form.tenantRequired');
+    return null;
+  }, [isEdit, trimmedTenantId, t]);
 
   const tenantListError = Boolean(tenantErrorCode);
-  const hasTenants = tenantOptions.length > 0;
+  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
+  const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const lockedTenantDisplay = useMemo(() => {
+    if (!isTenantLocked) return '';
+    return trimmedTenantId || normalizedScopedTenantId;
+  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
   const isSubmitDisabled =
-    isLoading || isCreateBlocked || !trimmedName || (!isEdit && !trimmedTenantId);
+    !isResolved ||
+    isLoading ||
+    isCreateBlocked ||
+    Boolean(nameError) ||
+    Boolean(descriptionError) ||
+    Boolean(tenantError) ||
+    (isEdit ? !canEditPermission : !canCreatePermission);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreatePermission) {
+        router.replace('/settings/permissions?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditPermission) {
+        router.replace('/settings/permissions?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const permissionTenantId = String(permission?.tenant_id ?? '').trim();
+        if (!permissionTenantId || permissionTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/permissions?notice=accessDenied');
+          return;
+        }
+      }
+
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         name: trimmedName,
@@ -117,12 +255,12 @@ const usePermissionFormScreen = () => {
       } else if (isEdit) {
         payload.description = null;
       }
-      if (!isEdit && trimmedTenantId) {
-        payload.tenant_id = trimmedTenantId;
+      if (!isEdit) {
+        payload.tenant_id = isTenantScopedAdmin ? normalizedScopedTenantId : trimmedTenantId;
       }
 
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routePermissionId) {
+        const result = await update(routePermissionId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -134,12 +272,17 @@ const usePermissionFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    id,
+    canCreatePermission,
+    canEditPermission,
+    isTenantScopedAdmin,
+    permission,
+    normalizedScopedTenantId,
+    isOffline,
     trimmedName,
     trimmedDescription,
     trimmedTenantId,
+    routePermissionId,
     create,
     update,
     router,
@@ -154,9 +297,10 @@ const usePermissionFormScreen = () => {
   }, [router]);
 
   const handleRetryTenants = useCallback(() => {
+    if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
     isEdit,
@@ -167,16 +311,21 @@ const usePermissionFormScreen = () => {
     description,
     setDescription,
     tenantOptions,
-    tenantListLoading,
-    tenantListError,
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin || isEdit ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin || isEdit ? false : tenantListError,
+    tenantErrorMessage: isTenantScopedAdmin || isEdit ? null : tenantErrorMessage,
     hasTenants,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     permission,
+    nameError,
+    descriptionError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

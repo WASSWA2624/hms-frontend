@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useUser } from '@hooks';
+import { useI18n, useNetwork, useUser, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useUserDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useUser();
+  const userId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageUsers = canAccessTenantSettings;
+  const canEditUser = canManageUsers;
+  const canDeleteUser = canManageUsers;
+  const isTenantScopedAdmin = canManageUsers && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const user = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useUserDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageUsers || !userId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(userId);
+  }, [isResolved, canManageUsers, userId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUsers) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageUsers, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUsers || !isTenantScopedAdmin || !user) return;
+    const userTenantId = String(user.tenant_id ?? '').trim();
+    if (!userTenantId || userTenantId !== normalizedTenantId) {
+      router.replace('/settings/users?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUsers,
+    isTenantScopedAdmin,
+    user,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUsers) return;
+    if (user) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/users?notice=accessDenied');
+    }
+  }, [isResolved, canManageUsers, user, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useUserDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/users/${id}/edit`);
-  }, [id, router]);
+    if (!canEditUser || !userId) return;
+    router.push(`/settings/users/${userId}/edit`);
+  }, [canEditUser, userId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteUser || !userId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(userId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/users?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteUser, userId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: userId,
     user,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditUser ? handleEdit : undefined,
+    onDelete: canDeleteUser ? handleDelete : undefined,
   };
 };
 
