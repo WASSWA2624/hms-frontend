@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useBranch } from '@hooks';
+import { useI18n, useNetwork, useBranch, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useBranchDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useBranch();
+  const branchId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageBranches = canAccessTenantSettings;
+  const canEditBranch = canManageBranches;
+  const canDeleteBranch = canManageBranches;
+  const isTenantScopedAdmin = canManageBranches && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const branch = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useBranchDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageBranches || !branchId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(branchId);
+  }, [isResolved, canManageBranches, branchId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageBranches) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageBranches, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches || !isTenantScopedAdmin || !branch) return;
+    const branchTenantId = String(branch.tenant_id ?? '').trim();
+    if (!branchTenantId || branchTenantId !== normalizedTenantId) {
+      router.replace('/settings/branches?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageBranches,
+    isTenantScopedAdmin,
+    branch,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches) return;
+    if (branch) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/branches?notice=accessDenied');
+    }
+  }, [isResolved, canManageBranches, branch, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useBranchDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/branches/${id}/edit`);
-  }, [id, router]);
+    if (!canEditBranch || !branchId) return;
+    router.push(`/settings/branches/${branchId}/edit`);
+  }, [canEditBranch, branchId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteBranch || !branchId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(branchId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/branches?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteBranch, branchId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: branchId,
     branch,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditBranch ? handleEdit : undefined,
+    onDelete: canDeleteBranch ? handleDelete : undefined,
   };
 };
 

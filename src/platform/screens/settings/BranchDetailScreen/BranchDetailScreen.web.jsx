@@ -270,18 +270,20 @@ const BranchDetailScreenWeb = () => {
               {t('branch.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('branch.detail.delete')}
-            accessibilityHint={t('branch.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="branch-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('branch.detail.delete')}
+              accessibilityHint={t('branch.detail.deleteHint')}
+              icon={<Icon glyph="✕" size="xs" decorative />}
+              testID="branch-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>
@@ -289,3 +291,4 @@ const BranchDetailScreenWeb = () => {
 };
 
 export default BranchDetailScreenWeb;
+

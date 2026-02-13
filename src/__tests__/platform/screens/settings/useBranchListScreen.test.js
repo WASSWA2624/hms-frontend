@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useBranch: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -27,7 +28,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useBranch, useNetwork } = require('@hooks');
+const { useBranch, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useBranchListScreen', () => {
@@ -39,6 +40,12 @@ describe('useBranchListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useBranch.mockReturnValue({
       list: mockList,
       remove: mockRemove,
@@ -59,10 +66,56 @@ describe('useBranchListScreen', () => {
     expect(typeof result.current.onDelete).toBe('function');
   });
 
+  it('redirects users without branch access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('redirects tenant-scoped users without tenant id', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useBranchListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(mockList).not.toHaveBeenCalled();
+  });
+
   it('calls list on mount', () => {
     renderHook(() => useBranchListScreen());
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
+  });
+
+  it('calls list with tenant scope for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => useBranchListScreen());
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      tenant_id: 'tenant-1',
+    });
   });
 
   it('onRetry calls fetchList', () => {
@@ -83,6 +136,29 @@ describe('useBranchListScreen', () => {
     });
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'main' });
+  });
+
+  it('onSearch keeps tenant scope for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    const { result } = renderHook(() => useBranchListScreen());
+    mockReset.mockClear();
+    mockList.mockClear();
+
+    act(() => {
+      result.current.onSearch('  main  ');
+    });
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      search: 'main',
+      tenant_id: 'tenant-1',
+    });
   });
 
   it('onRetry uses current search', () => {
@@ -219,6 +295,15 @@ describe('useBranchListScreen', () => {
     mockParams = { notice: 'created' };
     const { result } = renderHook(() => useBranchListScreen());
     expect(result.current.noticeMessage).toBe('branch.list.noticeCreated');
+    expect(mockReplace).toHaveBeenCalledWith('/settings/branches');
+  });
+
+  it('maps accessDenied notice and clears query param', () => {
+    mockParams = { notice: 'accessDenied' };
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    expect(result.current.noticeMessage).toBe('branch.list.noticeAccessDenied');
     expect(mockReplace).toHaveBeenCalledWith('/settings/branches');
   });
 });

@@ -19,9 +19,10 @@ jest.mock('@hooks', () => ({
   useBranch: jest.fn(),
   useTenant: jest.fn(),
   useFacility: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useI18n, useNetwork, useBranch, useTenant, useFacility } = require('@hooks');
+const { useI18n, useNetwork, useBranch, useTenant, useFacility, useTenantAccess } = require('@hooks');
 
 describe('useBranchFormScreen', () => {
   const mockGet = jest.fn();
@@ -38,6 +39,12 @@ describe('useBranchFormScreen', () => {
     mockParams = {};
     useI18n.mockReturnValue({ t: (k) => k });
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useBranch.mockReturnValue({
       get: mockGet,
       create: mockCreate,
@@ -61,6 +68,34 @@ describe('useBranchFormScreen', () => {
       errorCode: null,
       reset: mockResetFacilities,
     });
+  });
+
+  it('redirects users without branch access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useBranchFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('prefills tenant for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useBranchFormScreen());
+
+    expect(result.current.tenantId).toBe('tenant-1');
+    expect(result.current.tenantListLoading).toBe(false);
+    expect(mockListTenants).not.toHaveBeenCalled();
   });
 
   it('returns initial state for create', () => {
@@ -165,6 +200,20 @@ describe('useBranchFormScreen', () => {
 
   it('submits create payload and navigates on success', async () => {
     mockCreate.mockResolvedValue({ id: 'b1' });
+    useTenant.mockReturnValue({
+      list: mockListTenants,
+      data: { items: [{ id: 't1', name: 'Tenant 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetTenants,
+    });
+    useFacility.mockReturnValue({
+      list: mockListFacilities,
+      data: { items: [{ id: 'f1', name: 'Facility 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetFacilities,
+    });
     const { result } = renderHook(() => useBranchFormScreen());
     act(() => {
       result.current.setTenantId(' t1 ');
@@ -207,10 +256,25 @@ describe('useBranchFormScreen', () => {
   it('uses queued notice when offline', async () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockCreate.mockResolvedValue({ id: 'b1' });
+    useTenant.mockReturnValue({
+      list: mockListTenants,
+      data: { items: [{ id: 't1', name: 'Tenant 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetTenants,
+    });
+    useFacility.mockReturnValue({
+      list: mockListFacilities,
+      data: { items: [{ id: 'f1', name: 'Facility 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetFacilities,
+    });
     const { result } = renderHook(() => useBranchFormScreen());
     act(() => {
       result.current.setTenantId('t1');
       result.current.setName('Branch');
+      result.current.setFacilityId('f1');
     });
     await act(async () => {
       await result.current.onSubmit();

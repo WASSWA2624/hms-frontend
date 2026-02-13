@@ -90,7 +90,7 @@ const BranchListScreenIOS = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
   const showList = items.length > 0;
 
   const renderItem = ({ item: branch }) => {
@@ -103,7 +103,7 @@ const BranchListScreenIOS = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onBranchPress(branch.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -115,7 +115,7 @@ const BranchListScreenIOS = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('branch.list.itemLabel', { name: title })}
         accessibilityHint={t('branch.list.itemHint', { name: title })}
         testID={`branch-item-${branch.id}`}
@@ -214,3 +214,4 @@ const BranchListScreenIOS = () => {
 };
 
 export default BranchListScreenIOS;
+

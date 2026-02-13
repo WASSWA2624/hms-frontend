@@ -58,6 +58,10 @@ const BranchFormScreenIOS = () => {
     errorMessage,
     isOffline,
     branch,
+    nameError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -137,6 +141,9 @@ const BranchFormScreenIOS = () => {
     ? t('branch.form.facilityBlockedMessage')
     : t('branch.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('branch.form.nameHint'));
+  const tenantHelperText = tenantError || t('branch.form.tenantHint');
+  const tenantLockedHint = isEdit ? t('branch.form.tenantLockedHint') : t('branch.form.tenantScopedHint');
 
   return (
     <StyledContainer>
@@ -165,7 +172,7 @@ const BranchFormScreenIOS = () => {
 
         <Card variant="outlined" accessibilityLabel={t('branch.form.nameLabel')} testID="branch-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -210,7 +217,8 @@ const BranchFormScreenIOS = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('branch.form.tenantLabel')}
                       accessibilityHint={t('branch.form.tenantHint')}
-                      helperText={t('branch.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="branch-form-tenant"
@@ -223,10 +231,10 @@ const BranchFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('branch.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('branch.form.tenantLabel')}
-                    accessibilityHint={t('branch.form.tenantLockedHint')}
-                    helperText={t('branch.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="branch-form-tenant-readonly"
                   />
@@ -242,8 +250,10 @@ const BranchFormScreenIOS = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('branch.form.nameLabel')}
                 accessibilityHint={t('branch.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('branch.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="branch-form-name"
@@ -284,7 +294,7 @@ const BranchFormScreenIOS = () => {
                   testID="branch-form-no-facilities"
                 >
                   <Text variant="body">{t('branch.form.noFacilitiesMessage')}</Text>
-                  <Text variant="body">{t('branch.form.createFacilityRequired')}</Text>
+                  <Text variant="body">{t('branch.form.createFacilityOptional')}</Text>
                   <Button
                     variant="surface"
                     size="small"
@@ -365,3 +375,4 @@ const BranchFormScreenIOS = () => {
 };
 
 export default BranchFormScreenIOS;
+

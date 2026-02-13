@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useBranch } from '@hooks';
+import { useI18n, useNetwork, useBranch, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'branch.list.noticeUpdated',
     deleted: 'branch.list.noticeDeleted',
     queued: 'branch.list.noticeQueued',
+    accessDenied: 'branch.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useBranchListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -45,6 +52,10 @@ const useBranchListScreen = () => {
 
   const [search, setSearch] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageBranches = canAccessTenantSettings;
+  const canCreateBranch = canManageBranches;
+  const canDeleteBranch = canManageBranches;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -59,14 +70,33 @@ const useBranchListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageBranches) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [isResolved, canManageBranches, canManageAllTenants, normalizedTenantId, list, reset]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageBranches) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageBranches, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
-  }, [fetchList, search]);
+  }, [isResolved, canManageBranches, canManageAllTenants, normalizedTenantId, fetchList, search]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -84,6 +114,15 @@ const useBranchListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageBranches) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageBranches, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
@@ -95,13 +134,15 @@ const useBranchListScreen = () => {
 
   const handleBranchPress = useCallback(
     (id) => {
+      if (!canManageBranches) return;
       router.push(`/settings/branches/${id}`);
     },
-    [router]
+    [canManageBranches, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteBranch) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -118,18 +159,19 @@ const useBranchListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, t, search, isOffline]
+    [canDeleteBranch, remove, fetchList, t, search, isOffline]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateBranch) return;
     router.push('/settings/branches/create');
-  }, [router]);
+  }, [canCreateBranch, router]);
 
   return {
     items,
     search,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
@@ -137,8 +179,8 @@ const useBranchListScreen = () => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onBranchPress: handleBranchPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteBranch ? handleDelete : undefined,
+    onAdd: canCreateBranch ? handleAdd : undefined,
   };
 };
 

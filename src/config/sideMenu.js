@@ -62,7 +62,13 @@ const SETTINGS_ITEMS = [
   { id: 'settings-api-keys', icon: 'key-outline', path: '/settings/api-keys', name: `${MAIN_NAV_I18N}.settings-api-keys` },
   { id: 'settings-api-key-permissions', icon: 'shield-outline', path: '/settings/api-key-permissions', name: `${MAIN_NAV_I18N}.settings-api-key-permissions` },
   { id: 'settings-beds', icon: 'bed-outline', path: '/settings/beds', name: `${MAIN_NAV_I18N}.settings-beds` },
-  { id: 'settings-branches', icon: 'git-branch-outline', path: '/settings/branches', name: `${MAIN_NAV_I18N}.settings-branches` },
+  {
+    id: 'settings-branches',
+    icon: 'git-branch-outline',
+    path: '/settings/branches',
+    name: `${MAIN_NAV_I18N}.settings-branches`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   { id: 'settings-contacts', icon: 'people-outline', path: '/settings/contacts', name: `${MAIN_NAV_I18N}.settings-contacts` },
   { id: 'settings-departments', icon: 'folder-outline', path: '/settings/departments', name: `${MAIN_NAV_I18N}.settings-departments` },
   {

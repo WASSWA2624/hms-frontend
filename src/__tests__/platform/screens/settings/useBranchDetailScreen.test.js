@@ -5,11 +5,13 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useBranchDetailScreen = require('@platform/screens/settings/BranchDetailScreen/useBranchDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useBranch: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -21,11 +23,11 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ id: 'bid-1' }),
 }));
 
-const { useBranch, useNetwork } = require('@hooks');
+const { useBranch, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useBranchDetailScreen', () => {
@@ -36,6 +38,12 @@ describe('useBranchDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
     useBranch.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
@@ -52,6 +60,55 @@ describe('useBranchDetailScreen', () => {
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onBack).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
+  });
+
+  it('redirects users without branch access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useBranchDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('redirects tenant-scoped users without tenant id', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => useBranchDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('redirects tenant-scoped users when branch tenant does not match', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useBranch.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: { id: 'bid-1', tenant_id: 'tenant-2', name: 'Test Branch' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    renderHook(() => useBranchDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/branches?notice=accessDenied');
   });
 
   it('calls get on mount with id', () => {

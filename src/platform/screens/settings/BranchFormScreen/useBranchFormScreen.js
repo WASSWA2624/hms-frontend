@@ -4,7 +4,9 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useBranch, useFacility, useNetwork, useTenant } from '@hooks';
+import { useI18n, useBranch, useFacility, useNetwork, useTenant, useTenantAccess } from '@hooks';
+
+const MAX_NAME_LENGTH = 255;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +23,12 @@ const useBranchFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useBranch();
   const {
     list: listTenants,
@@ -37,7 +45,19 @@ const useBranchFormScreen = () => {
     reset: resetFacilities,
   } = useFacility();
 
-  const isEdit = Boolean(id);
+  const routeBranchId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeBranchId);
+  const canManageBranches = canAccessTenantSettings;
+  const canCreateBranch = canManageBranches;
+  const canEditBranch = canManageBranches;
+  const isTenantScopedAdmin = canManageBranches && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [name, setName] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [tenantId, setTenantId] = useState('');
@@ -46,20 +66,26 @@ const useBranchFormScreen = () => {
 
   const branch = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
-    () => (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? [])),
-    [tenantData]
+    () => (isTenantScopedAdmin || isEdit
+      ? []
+      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+    [tenantData, isTenantScopedAdmin, isEdit]
   );
   const facilityItems = useMemo(
     () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
     [facilityData]
   );
   const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
+    () => {
+      if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
+        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+      }
+      return tenantItems.map((tenant) => ({
         value: tenant.id,
         label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      })),
-    [tenantItems]
+      }));
+    },
+    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
   );
   const facilityOptions = useMemo(
     () =>
@@ -71,27 +97,92 @@ const useBranchFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageBranches) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateBranch) {
+      router.replace('/settings/branches?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditBranch) {
+      router.replace('/settings/branches?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageBranches,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateBranch,
+    canEditBranch,
+    router,
+  ]);
 
   useEffect(() => {
-    if (!isEdit) {
-      resetTenants();
-      listTenants({ page: 1, limit: 200 });
+    if (!isResolved || !canManageBranches || !isEdit || !routeBranchId) return;
+    if (!canEditBranch) return;
+    reset();
+    get(routeBranchId);
+  }, [isResolved, canManageBranches, isEdit, routeBranchId, canEditBranch, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches || isEdit) return;
+    if (!canCreateBranch) return;
+    if (isTenantScopedAdmin) {
+      setTenantId(normalizedScopedTenantId);
+      return;
     }
-  }, [isEdit, listTenants, resetTenants]);
+    resetTenants();
+    listTenants({ page: 1, limit: 200 });
+  }, [
+    isResolved,
+    canManageBranches,
+    isEdit,
+    canCreateBranch,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
     if (branch) {
       setName(branch.name ?? '');
       setIsActive(branch.is_active ?? true);
-      setTenantId(branch.tenant_id ?? '');
+      setTenantId(String(branch.tenant_id ?? normalizedScopedTenantId ?? ''));
       setFacilityId(branch.facility_id ?? '');
     }
-  }, [branch]);
+  }, [branch, normalizedScopedTenantId]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches || !isTenantScopedAdmin || !isEdit || !branch) return;
+    const branchTenantId = String(branch.tenant_id ?? '').trim();
+    if (!normalizedScopedTenantId || !branchTenantId || branchTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/branches?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageBranches,
+    isTenantScopedAdmin,
+    isEdit,
+    branch,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBranches || !isEdit) return;
+    if (branch) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/branches?notice=accessDenied');
+    }
+  }, [isResolved, canManageBranches, isEdit, branch, errorCode, router]);
 
   useEffect(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
@@ -128,18 +219,56 @@ const useBranchFormScreen = () => {
   const trimmedName = name.trim();
   const trimmedTenantId = String(tenantId ?? '').trim();
   const trimmedFacilityId = String(facilityId ?? '').trim();
-  const hasTenants = tenantOptions.length > 0;
+  const facilityListError = Boolean(facilityErrorCode);
+  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const hasFacilities = facilityOptions.length > 0;
   const requiresTenant = !isEdit;
   const isCreateBlocked = requiresTenant && !hasTenants;
-  const isFacilityBlocked =
-    !isEdit && Boolean(trimmedTenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  // Backend allows facility_id to be optional for branches.
+  const isFacilityBlocked = false;
+  const nameError = useMemo(() => {
+    if (!trimmedName) return t('branch.form.nameRequired');
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      return t('branch.form.nameTooLong', { max: MAX_NAME_LENGTH });
+    }
+    return null;
+  }, [trimmedName, t]);
+  const tenantError = useMemo(() => {
+    if (isEdit) return null;
+    if (!trimmedTenantId) return t('branch.form.tenantRequired');
+    return null;
+  }, [isEdit, trimmedTenantId, t]);
+  const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const lockedTenantDisplay = useMemo(() => {
+    if (!isTenantLocked) return '';
+    return trimmedTenantId || normalizedScopedTenantId;
+  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
   const isSubmitDisabled =
-    isLoading || isCreateBlocked || isFacilityBlocked || !trimmedName || (requiresTenant && !trimmedTenantId);
+    !isResolved ||
+    isLoading ||
+    isCreateBlocked ||
+    Boolean(nameError) ||
+    Boolean(tenantError) ||
+    (isEdit ? !canEditBranch : !canCreateBranch);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateBranch) {
+        router.replace('/settings/branches?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditBranch) {
+        router.replace('/settings/branches?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const branchTenantId = String(branch?.tenant_id ?? '').trim();
+        if (!branchTenantId || branchTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/branches?notice=accessDenied');
+          return;
+        }
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         name: trimmedName,
@@ -153,8 +282,8 @@ const useBranchFormScreen = () => {
       } else if (isEdit) {
         payload.facility_id = null;
       }
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeBranchId) {
+        const result = await update(routeBranchId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -168,7 +297,12 @@ const useBranchFormScreen = () => {
     isSubmitDisabled,
     isOffline,
     isEdit,
-    id,
+    routeBranchId,
+    canCreateBranch,
+    canEditBranch,
+    isTenantScopedAdmin,
+    branch,
+    normalizedScopedTenantId,
     trimmedName,
     trimmedTenantId,
     trimmedFacilityId,
@@ -191,9 +325,10 @@ const useBranchFormScreen = () => {
   }, [router]);
 
   const handleRetryTenants = useCallback(() => {
+    if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
@@ -212,22 +347,26 @@ const useBranchFormScreen = () => {
     facilityId,
     setFacilityId,
     tenantOptions,
-    tenantListLoading,
-    tenantListError: Boolean(tenantErrorCode),
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin ? false : Boolean(tenantErrorCode),
+    tenantErrorMessage: isTenantScopedAdmin ? null : tenantErrorMessage,
     facilityOptions,
     facilityListLoading,
-    facilityListError: Boolean(facilityErrorCode),
+    facilityListError,
     facilityErrorMessage,
     hasTenants,
     hasFacilities,
     isCreateBlocked,
     isFacilityBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     branch,
+    nameError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

@@ -2167,7 +2167,8 @@
       "noticeCreated": "Branch created.",
       "noticeUpdated": "Branch updated.",
       "noticeDeleted": "Branch removed.",
-      "noticeQueued": "Changes queued. We'll sync when you're back online."
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have access to that branch."
     },
     "detail": {
       "title": "Branch Details",
@@ -2193,6 +2194,8 @@
       "nameLabel": "Name",
       "namePlaceholder": "Enter branch name",
       "nameHint": "Display name for the branch",
+      "nameRequired": "Branch name is required.",
+      "nameTooLong": "Branch name must be {{max}} characters or less.",
       "blockedMessage": "Add a tenant to enable branch details.",
       "activeLabel": "Active",
       "activeHint": "Whether the branch is active",
@@ -2205,7 +2208,9 @@
       "tenantLabel": "Tenant",
       "tenantPlaceholder": "Select tenant",
       "tenantHint": "Tenant that owns this branch",
+      "tenantRequired": "Tenant is required.",
       "tenantLockedHint": "Tenant is set when the branch is created.",
+      "tenantScopedHint": "Your tenant scope is applied automatically.",
       "facilityLabel": "Facility",
       "facilityPlaceholder": "Select facility (optional)",
       "facilityHint": "Optional facility for this branch",
