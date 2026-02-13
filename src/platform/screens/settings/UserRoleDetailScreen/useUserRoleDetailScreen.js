@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useUserRole } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUserRole } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useUserRoleDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useUserRole();
+  const userRoleId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageUserRoles = canAccessTenantSettings;
+  const canEditUserRole = canManageUserRoles;
+  const canDeleteUserRole = canManageUserRoles;
+  const isTenantScopedAdmin = canManageUserRoles && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const userRole = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,54 @@ const useUserRoleDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageUserRoles || !userRoleId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(userRoleId);
+  }, [isResolved, canManageUserRoles, userRoleId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserRoles) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isTenantScopedAdmin,
+    normalizedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles || !isTenantScopedAdmin || !userRole) return;
+    const recordTenantId = String(userRole?.tenant_id ?? '').trim();
+    if (!recordTenantId || recordTenantId !== normalizedTenantId) {
+      router.replace('/settings/user-roles?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isTenantScopedAdmin,
+    userRole,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles) return;
+    if (userRole) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/user-roles?notice=accessDenied');
+    }
+  }, [isResolved, canManageUserRoles, userRole, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +102,34 @@ const useUserRoleDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/user-roles/${id}/edit`);
-  }, [id, router]);
+    if (!canEditUserRole || !userRoleId) return;
+    router.push(`/settings/user-roles/${userRoleId}/edit`);
+  }, [canEditUserRole, userRoleId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteUserRole || !userRoleId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(userRoleId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/user-roles?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteUserRole, userRoleId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: userRoleId,
     userRole,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditUserRole ? handleEdit : undefined,
+    onDelete: canDeleteUserRole ? handleDelete : undefined,
   };
 };
 

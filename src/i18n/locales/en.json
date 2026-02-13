@@ -382,7 +382,8 @@
       "noticeCreated": "OAuth account created successfully.",
       "noticeUpdated": "OAuth account updated successfully.",
       "noticeDeleted": "OAuth account deleted successfully.",
-      "noticeQueued": "Action queued and will sync when online."
+      "noticeQueued": "Action queued and will sync when online.",
+      "noticeAccessDenied": "You do not have permission to access OAuth accounts."
     },
     "form": {
       "createTitle": "Add OAuth account",
@@ -1359,7 +1360,8 @@
       "itemLabel": "Session for {{email}}",
       "noticeRevoked": "Session revoked.",
       "noticeQueued": "Session revoke queued until you are back online.",
-      "noticeRevokeFailed": "Unable to revoke this session. Try again."
+      "noticeRevokeFailed": "Unable to revoke this session. Try again.",
+      "noticeAccessDenied": "You do not have permission to access user sessions."
     },
     "detail": {
       "title": "Session Details",
@@ -1770,7 +1772,8 @@
       "noticeCreated": "API key created.",
       "noticeUpdated": "API key updated.",
       "noticeDeleted": "API key removed.",
-      "noticeQueued": "Changes queued. We'll sync when you're back online."
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have permission to access API keys."
     },
     "detail": {
       "title": "API Key Details",
@@ -1951,7 +1954,8 @@
       "noticeCreated": "MFA setting created.",
       "noticeUpdated": "MFA setting updated.",
       "noticeDeleted": "MFA setting removed.",
-      "noticeQueued": "MFA setting queued for sync."
+      "noticeQueued": "MFA setting queued for sync.",
+      "noticeAccessDenied": "You do not have permission to access MFA settings."
     },
     "detail": {
       "title": "MFA Setting Details",
@@ -2028,7 +2032,8 @@
       "noticeCreated": "User role created.",
       "noticeUpdated": "User role updated.",
       "noticeDeleted": "User role removed.",
-      "noticeQueued": "User role queued for sync."
+      "noticeQueued": "User role queued for sync.",
+      "noticeAccessDenied": "You do not have permission to access user roles."
     },
     "detail": {
       "title": "User Role Details",
@@ -2114,7 +2119,8 @@
       "noticeCreated": "API key permission created.",
       "noticeUpdated": "API key permission updated.",
       "noticeDeleted": "API key permission removed.",
-      "noticeQueued": "API key permission queued for sync."
+      "noticeQueued": "API key permission queued for sync.",
+      "noticeAccessDenied": "You do not have permission to access API key permissions."
     },
     "detail": {
       "title": "API Key Permission Details",
@@ -2180,7 +2186,8 @@
       "noticeCreated": "Role permission created.",
       "noticeUpdated": "Role permission updated.",
       "noticeDeleted": "Role permission removed.",
-      "noticeQueued": "Role permission queued for sync."
+      "noticeQueued": "Role permission queued for sync.",
+      "noticeAccessDenied": "You do not have permission to access role permissions."
     },
     "detail": {
       "title": "Role Permission Details",

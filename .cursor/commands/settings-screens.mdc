@@ -1,19 +1,19 @@
 
 
-Review and implement all missing and non compliant aspects of the provided dev step as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Review and implement all missing and non compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:
 - All rules in `hms-frontend/.cursor/rules/*`
 - Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected settings resource
 - `write-up.md`
 
-Only implement what is required for this single Tier 3 screen to function correctly.
+Only implement what is required for this/these Tier 3 screen(s) to function correctly.
 
 ---
 
 ## Scope
 
-Implement full functionality required for the selected Tier 3 step (`11.3.1` to `11.3.22`):
+Implement full functionality required for the selected Tier 3 step(s) (`11.3.1` to `11.3.22`):
 
 - Route + screen wiring under `(main)/settings/*`
 - Backend-aligned API integration for the selected settings entity

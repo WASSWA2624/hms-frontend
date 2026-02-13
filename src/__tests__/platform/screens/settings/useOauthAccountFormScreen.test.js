@@ -18,9 +18,10 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useOauthAccount: jest.fn(),
   useUser: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useNetwork, useOauthAccount, useUser } = require('@hooks');
+const { useNetwork, useOauthAccount, useUser, useTenantAccess } = require('@hooks');
 
 describe('useOauthAccountFormScreen', () => {
   const mockGet = jest.fn();
@@ -34,6 +35,12 @@ describe('useOauthAccountFormScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useOauthAccount.mockReturnValue({
       get: mockGet,
       create: mockCreate,

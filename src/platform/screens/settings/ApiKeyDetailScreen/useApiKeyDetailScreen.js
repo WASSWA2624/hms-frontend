@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useApiKey } from '@hooks';
+import { useI18n, useNetwork, useApiKey, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useApiKeyDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useApiKey();
+  const apiKeyId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageApiKeys = canAccessTenantSettings;
+  const canEditApiKey = false;
+  const canDeleteApiKey = canManageApiKeys;
+  const isTenantScopedAdmin = canManageApiKeys && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const apiKey = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,54 @@ const useApiKeyDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageApiKeys || !apiKeyId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(apiKeyId);
+  }, [isResolved, canManageApiKeys, apiKeyId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageApiKeys) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageApiKeys,
+    isTenantScopedAdmin,
+    normalizedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeys || !isTenantScopedAdmin || !apiKey) return;
+    const recordTenantId = String(apiKey?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedTenantId) {
+      router.replace('/settings/api-keys?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageApiKeys,
+    isTenantScopedAdmin,
+    apiKey,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeys) return;
+    if (apiKey) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/api-keys?notice=accessDenied');
+    }
+  }, [isResolved, canManageApiKeys, apiKey, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,31 +102,34 @@ const useApiKeyDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/api-keys/${id}/edit`);
-  }, [id, router]);
+    if (!canEditApiKey || !apiKeyId) return;
+    router.push(`/settings/api-keys/${apiKeyId}/edit`);
+  }, [canEditApiKey, apiKeyId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteApiKey || !apiKeyId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      await remove(id);
-      handleBack();
+      const result = await remove(apiKeyId);
+      if (!result) return;
+      const noticeKey = isOffline ? 'queued' : 'deleted';
+      router.push(`/settings/api-keys?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, handleBack, t]);
+  }, [canDeleteApiKey, apiKeyId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: apiKeyId,
     apiKey,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditApiKey ? handleEdit : undefined,
+    onDelete: canDeleteApiKey ? handleDelete : undefined,
   };
 };
 

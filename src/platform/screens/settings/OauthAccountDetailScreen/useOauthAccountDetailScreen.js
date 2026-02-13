@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useOauthAccount } from '@hooks';
+import { useI18n, useNetwork, useOauthAccount, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useOauthAccountDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useOauthAccount();
+  const oauthAccountId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageOauthAccounts = canAccessTenantSettings;
+  const canEditOauthAccount = canManageOauthAccounts;
+  const canDeleteOauthAccount = canManageOauthAccounts;
+  const isTenantScopedAdmin = canManageOauthAccounts && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const oauthAccount = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,54 @@ const useOauthAccountDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageOauthAccounts || !oauthAccountId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(oauthAccountId);
+  }, [isResolved, canManageOauthAccounts, oauthAccountId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageOauthAccounts) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageOauthAccounts,
+    isTenantScopedAdmin,
+    normalizedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageOauthAccounts || !isTenantScopedAdmin || !oauthAccount) return;
+    const recordTenantId = String(oauthAccount?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedTenantId) {
+      router.replace('/settings/oauth-accounts?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageOauthAccounts,
+    isTenantScopedAdmin,
+    oauthAccount,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageOauthAccounts) return;
+    if (oauthAccount) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/oauth-accounts?notice=accessDenied');
+    }
+  }, [isResolved, canManageOauthAccounts, oauthAccount, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +102,34 @@ const useOauthAccountDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/oauth-accounts/${id}/edit`);
-  }, [id, router]);
+    if (!canEditOauthAccount || !oauthAccountId) return;
+    router.push(`/settings/oauth-accounts/${oauthAccountId}/edit`);
+  }, [canEditOauthAccount, oauthAccountId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteOauthAccount || !oauthAccountId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(oauthAccountId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/oauth-accounts?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteOauthAccount, oauthAccountId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: oauthAccountId,
     oauthAccount,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditOauthAccount ? handleEdit : undefined,
+    onDelete: canDeleteOauthAccount ? handleDelete : undefined,
   };
 };
 

@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useRolePermission: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -27,7 +28,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useRolePermission, useNetwork } = require('@hooks');
+const { useRolePermission, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useRolePermissionListScreen', () => {
@@ -39,6 +40,12 @@ describe('useRolePermissionListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useRolePermission.mockReturnValue({
       list: mockList,
       remove: mockRemove,

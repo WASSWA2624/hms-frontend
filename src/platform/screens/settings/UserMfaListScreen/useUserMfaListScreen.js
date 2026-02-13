@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useUserMfa } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUserMfa } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'userMfa.list.noticeUpdated',
     deleted: 'userMfa.list.noticeDeleted',
     queued: 'userMfa.list.noticeQueued',
+    accessDenied: 'userMfa.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useUserMfaListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useUserMfaListScreen = () => {
   } = useUserMfa();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageUserMfas = canAccessTenantSettings;
+  const canCreateUserMfa = canManageUserMfas;
+  const canDeleteUserMfa = canManageUserMfas;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,44 @@ const useUserMfaListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageUserMfas) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageUserMfas,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserMfas) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageUserMfas, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -73,6 +115,15 @@ const useUserMfaListScreen = () => {
     setNoticeMessage(message);
     router.replace('/settings/user-mfas');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageUserMfas, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -88,13 +139,15 @@ const useUserMfaListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageUserMfas) return;
       router.push(`/settings/user-mfas/${id}`);
     },
-    [router]
+    [canManageUserMfas, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteUserMfa) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +163,26 @@ const useUserMfaListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteUserMfa, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateUserMfa) return;
     router.push('/settings/user-mfas/create');
-  }, [router]);
+  }, [canCreateUserMfa, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteUserMfa ? handleDelete : undefined,
+    onAdd: canCreateUserMfa ? handleAdd : undefined,
   };
 };
 

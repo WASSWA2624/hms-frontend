@@ -80,7 +80,12 @@ const UserSessionListScreenWeb = () => {
           accessibilityLabel={t('userSession.list.accessibilityLabel')}
           testID="user-session-list-card"
         >
-          <StyledListBody role="region" aria-label={t('userSession.list.accessibilityLabel')} data-testid="user-session-list">
+          <StyledListBody
+            role="region"
+            aria-label={t('userSession.list.accessibilityLabel')}
+            data-testid="user-session-list"
+            testID="user-session-list"
+          >
             <StyledStateStack>
               {showError && (
                 <ErrorState

@@ -19,9 +19,17 @@ jest.mock('@hooks', () => ({
   useRolePermission: jest.fn(),
   useRole: jest.fn(),
   usePermission: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
-const { useI18n, useNetwork, useRolePermission, useRole, usePermission } = require('@hooks');
+const {
+  useI18n,
+  useNetwork,
+  useRolePermission,
+  useRole,
+  usePermission,
+  useTenantAccess,
+} = require('@hooks');
 
 describe('useRolePermissionFormScreen', () => {
   const mockGet = jest.fn();
@@ -38,6 +46,12 @@ describe('useRolePermissionFormScreen', () => {
     mockParams = {};
     useI18n.mockReturnValue({ t: (k) => k });
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useRolePermission.mockReturnValue({
       get: mockGet,
       create: mockCreate,

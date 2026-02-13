@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useApiKey } from '@hooks';
+import { useI18n, useNetwork, useApiKey, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'apiKey.list.noticeUpdated',
     deleted: 'apiKey.list.noticeDeleted',
     queued: 'apiKey.list.noticeQueued',
+    accessDenied: 'apiKey.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useApiKeyListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useApiKeyListScreen = () => {
   } = useApiKey();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageApiKeys = canAccessTenantSettings;
+  const canDeleteApiKey = canManageApiKeys;
+  const canCreateApiKey = false;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,44 @@ const useApiKeyListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageApiKeys) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageApiKeys,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageApiKeys) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageApiKeys,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeys) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageApiKeys, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -73,6 +115,15 @@ const useApiKeyListScreen = () => {
     setNoticeMessage(message);
     router.replace('/settings/api-keys');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeys) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageApiKeys, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -88,13 +139,15 @@ const useApiKeyListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageApiKeys) return;
       router.push(`/settings/api-keys/${id}`);
     },
-    [router]
+    [canManageApiKeys, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteApiKey) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +163,26 @@ const useApiKeyListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteApiKey, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateApiKey) return;
     router.push('/settings/api-keys/create');
-  }, [router]);
+  }, [canCreateApiKey, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteApiKey ? handleDelete : undefined,
+    onAdd: canCreateApiKey ? handleAdd : undefined,
   };
 };
 

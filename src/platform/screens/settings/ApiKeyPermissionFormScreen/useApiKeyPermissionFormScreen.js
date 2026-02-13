@@ -4,7 +4,14 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useApiKey, useApiKeyPermission, usePermission } from '@hooks';
+import {
+  useI18n,
+  useNetwork,
+  useApiKey,
+  useApiKeyPermission,
+  usePermission,
+  useTenantAccess,
+} from '@hooks';
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +28,12 @@ const useApiKeyPermissionFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, apiKeyId: apiKeyIdParam, permissionId: permissionIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useApiKeyPermission();
   const {
     list: listApiKeys,
@@ -37,7 +50,19 @@ const useApiKeyPermissionFormScreen = () => {
     reset: resetPermissions,
   } = usePermission();
 
-  const isEdit = Boolean(id);
+  const routeApiKeyPermissionId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeApiKeyPermissionId);
+  const canManageApiKeyPermissions = canAccessTenantSettings;
+  const canCreateApiKeyPermission = canManageApiKeyPermissions;
+  const canEditApiKeyPermission = canManageApiKeyPermissions;
+  const isTenantScopedAdmin = canManageApiKeyPermissions && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [apiKeyId, setApiKeyId] = useState('');
   const [permissionId, setPermissionId] = useState('');
   const apiKeyPrefillRef = useRef(false);
@@ -70,21 +95,83 @@ const useApiKeyPermissionFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageApiKeyPermissions) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateApiKeyPermission) {
+      router.replace('/settings/api-key-permissions?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditApiKeyPermission) {
+      router.replace('/settings/api-key-permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateApiKeyPermission,
+    canEditApiKeyPermission,
+    router,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions || !isEdit || !routeApiKeyPermissionId) return;
+    if (!canEditApiKeyPermission) return;
+    if (isEdit && routeApiKeyPermissionId) {
+      reset();
+      get(routeApiKeyPermissionId);
+    }
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isEdit,
+    routeApiKeyPermissionId,
+    canEditApiKeyPermission,
+    get,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
     resetApiKeys();
-    listApiKeys({ page: 1, limit: 200 });
-  }, [listApiKeys, resetApiKeys]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listApiKeys(params);
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listApiKeys,
+    resetApiKeys,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
     resetPermissions();
-    listPermissions({ page: 1, limit: 200 });
-  }, [listPermissions, resetPermissions]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listPermissions(params);
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listPermissions,
+    resetPermissions,
+  ]);
 
   useEffect(() => {
     if (apiKeyPermission) {
@@ -92,6 +179,22 @@ const useApiKeyPermissionFormScreen = () => {
       setPermissionId(apiKeyPermission.permission_id ?? '');
     }
   }, [apiKeyPermission]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions || !isTenantScopedAdmin || !isEdit || !apiKeyPermission) return;
+    const recordTenantId = String(apiKeyPermission?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/api-key-permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    isEdit,
+    apiKeyPermission,
+    normalizedScopedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -123,6 +226,12 @@ const useApiKeyPermissionFormScreen = () => {
     }
   }, [isEdit, permissionIdParam, permissionOptions, permissionId]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    router.replace('/settings/api-key-permissions?notice=accessDenied');
+  }, [isResolved, canManageApiKeyPermissions, errorCode, router]);
+
   const trimmedApiKeyId = String(apiKeyId ?? '').trim();
   const trimmedPermissionId = String(permissionId ?? '').trim();
 
@@ -153,13 +262,21 @@ const useApiKeyPermissionFormScreen = () => {
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateApiKeyPermission) {
+        router.replace('/settings/api-key-permissions?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditApiKeyPermission) {
+        router.replace('/settings/api-key-permissions?notice=accessDenied');
+        return;
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         api_key_id: trimmedApiKeyId,
         permission_id: trimmedPermissionId,
       };
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeApiKeyPermissionId) {
+        const result = await update(routeApiKeyPermissionId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -173,9 +290,11 @@ const useApiKeyPermissionFormScreen = () => {
     isSubmitDisabled,
     isOffline,
     isEdit,
-    id,
     trimmedApiKeyId,
     trimmedPermissionId,
+    canCreateApiKeyPermission,
+    canEditApiKeyPermission,
+    routeApiKeyPermissionId,
     create,
     update,
     router,
@@ -194,14 +313,38 @@ const useApiKeyPermissionFormScreen = () => {
   }, [router]);
 
   const handleRetryApiKeys = useCallback(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
     resetApiKeys();
-    listApiKeys({ page: 1, limit: 200 });
-  }, [listApiKeys, resetApiKeys]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listApiKeys(params);
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listApiKeys,
+    resetApiKeys,
+  ]);
 
   const handleRetryPermissions = useCallback(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
     resetPermissions();
-    listPermissions({ page: 1, limit: 200 });
-  }, [listPermissions, resetPermissions]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listPermissions(params);
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listPermissions,
+    resetPermissions,
+  ]);
 
   return {
     isEdit,
@@ -220,8 +363,8 @@ const useApiKeyPermissionFormScreen = () => {
     hasApiKeys,
     hasPermissions,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     apiKeyPermission,

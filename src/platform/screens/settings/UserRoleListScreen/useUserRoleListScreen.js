@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useUserRole } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUserRole } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'userRole.list.noticeUpdated',
     deleted: 'userRole.list.noticeDeleted',
     queued: 'userRole.list.noticeQueued',
+    accessDenied: 'userRole.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useUserRoleListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useUserRoleListScreen = () => {
   } = useUserRole();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageUserRoles = canAccessTenantSettings;
+  const canCreateUserRole = canManageUserRoles;
+  const canDeleteUserRole = canManageUserRoles;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,44 @@ const useUserRoleListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageUserRoles) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageUserRoles,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserRoles) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageUserRoles,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageUserRoles, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -73,6 +115,15 @@ const useUserRoleListScreen = () => {
     setNoticeMessage(message);
     router.replace('/settings/user-roles');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageUserRoles, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -88,13 +139,15 @@ const useUserRoleListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageUserRoles) return;
       router.push(`/settings/user-roles/${id}`);
     },
-    [router]
+    [canManageUserRoles, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteUserRole) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +163,26 @@ const useUserRoleListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteUserRole, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateUserRole) return;
     router.push('/settings/user-roles/create');
-  }, [router]);
+  }, [canCreateUserRole, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteUserRole ? handleDelete : undefined,
+    onAdd: canCreateUserRole ? handleAdd : undefined,
   };
 };
 

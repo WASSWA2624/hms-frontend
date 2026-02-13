@@ -1,4 +1,4 @@
-﻿/**
+/**
  * useUserRoleFormScreen Hook
  * Shared logic for UserRoleFormScreen (create/edit).
  */
@@ -10,6 +10,7 @@ import {
   useNetwork,
   useRole,
   useTenant,
+  useTenantAccess,
   useUser,
   useUserRole,
 } from '@hooks';
@@ -38,6 +39,12 @@ const useUserRoleFormScreen = () => {
     roleId: roleIdParam,
     roleName: roleNameParam,
   } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useUserRole();
   const {
     list: listTenants,
@@ -68,7 +75,19 @@ const useUserRoleFormScreen = () => {
     reset: resetRoles,
   } = useRole();
 
-  const isEdit = Boolean(id);
+  const routeUserRoleId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeUserRoleId);
+  const canManageUserRoles = canAccessTenantSettings;
+  const canCreateUserRole = canManageUserRoles;
+  const canEditUserRole = canManageUserRoles;
+  const isTenantScopedAdmin = canManageUserRoles && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [tenantId, setTenantId] = useState('');
   const [facilityId, setFacilityId] = useState('');
   const [userId, setUserId] = useState('');
@@ -96,14 +115,22 @@ const useUserRoleFormScreen = () => {
     () => (Array.isArray(roleData) ? roleData : (roleData?.items ?? [])),
     [roleData]
   );
-  const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
-        value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      })),
-    [tenantItems]
-  );
+  const tenantOptions = useMemo(() => {
+    if (isTenantScopedAdmin) {
+      if (!normalizedScopedTenantId) return [];
+      const scopedTenant = tenantItems.find(
+        (tenant) => String(tenant?.id ?? '').trim() === normalizedScopedTenantId
+      );
+      return [{
+        value: normalizedScopedTenantId,
+        label: scopedTenant?.name ?? scopedTenant?.slug ?? normalizedScopedTenantId,
+      }];
+    }
+    return tenantItems.map((tenant) => ({
+      value: tenant.id,
+      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+    }));
+  }, [tenantItems, isTenantScopedAdmin, normalizedScopedTenantId]);
   const facilityOptions = useMemo(
     () =>
       facilityItems.map((facility) => ({
@@ -130,29 +157,103 @@ const useUserRoleFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageUserRoles) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateUserRole) {
+      router.replace('/settings/user-roles?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditUserRole) {
+      router.replace('/settings/user-roles?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateUserRole,
+    canEditUserRole,
+    router,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageUserRoles || !isEdit || !routeUserRoleId) return;
+    if (!canEditUserRole) return;
+    reset();
+    get(routeUserRoleId);
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isEdit,
+    routeUserRoleId,
+    canEditUserRole,
+    get,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles || isEdit) return;
+    if (!canCreateUserRole) return;
+    if (isTenantScopedAdmin) {
+      setTenantId(normalizedScopedTenantId);
+      return;
+    }
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isEdit,
+    canCreateUserRole,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listTenants,
+    resetTenants,
+  ]);
 
   useEffect(() => {
     if (userRole) {
-      setTenantId(userRole.tenant_id ?? '');
+      setTenantId(userRole.tenant_id ?? normalizedScopedTenantId);
       setFacilityId(userRole.facility_id ?? '');
       setUserId(userRole.user_id ?? '');
       setRoleId(userRole.role_id ?? '');
     }
-  }, [userRole]);
+  }, [userRole, normalizedScopedTenantId]);
 
   const trimmedTenantId = String(tenantId ?? '').trim();
 
   useEffect(() => {
+    if (!isResolved || !canManageUserRoles || !isTenantScopedAdmin || !isEdit || !userRole) return;
+    const recordTenantId = String(userRole?.tenant_id ?? '').trim();
+    if (!recordTenantId || recordTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/user-roles?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isTenantScopedAdmin,
+    isEdit,
+    userRole,
+    normalizedScopedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    router.replace('/settings/user-roles?notice=accessDenied');
+  }, [isResolved, canManageUserRoles, errorCode, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserRoles) return;
     if (!trimmedTenantId) {
       resetFacilities();
       resetUsers();
@@ -165,9 +266,20 @@ const useUserRoleFormScreen = () => {
     listUsers({ page: 1, limit: 200, tenant_id: trimmedTenantId });
     resetRoles();
     listRoles({ page: 1, limit: 200, tenant_id: trimmedTenantId });
-  }, [trimmedTenantId, listFacilities, resetFacilities, listUsers, resetUsers, listRoles, resetRoles]);
+  }, [
+    isResolved,
+    canManageUserRoles,
+    trimmedTenantId,
+    listFacilities,
+    resetFacilities,
+    listUsers,
+    resetUsers,
+    listRoles,
+    resetRoles,
+  ]);
 
   useEffect(() => {
+    if (isEdit) return;
     if (!previousTenantRef.current) {
       previousTenantRef.current = trimmedTenantId;
       return;
@@ -181,10 +293,10 @@ const useUserRoleFormScreen = () => {
       rolePrefillRef.current = false;
     }
     previousTenantRef.current = trimmedTenantId;
-  }, [trimmedTenantId]);
+  }, [trimmedTenantId, isEdit]);
 
   useEffect(() => {
-    if (isEdit) return;
+    if (isEdit || isTenantScopedAdmin) return;
     if (tenantPrefillRef.current) return;
     const paramValue = Array.isArray(tenantIdParam) ? tenantIdParam[0] : tenantIdParam;
     if (paramValue) {
@@ -196,7 +308,7 @@ const useUserRoleFormScreen = () => {
       setTenantId(tenantOptions[0].value);
       tenantPrefillRef.current = true;
     }
-  }, [isEdit, tenantIdParam, tenantOptions, tenantId]);
+  }, [isEdit, isTenantScopedAdmin, tenantIdParam, tenantOptions, tenantId]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -280,21 +392,39 @@ const useUserRoleFormScreen = () => {
     [t, roleErrorCode]
   );
 
-  const hasTenants = tenantOptions.length > 0;
+  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const hasFacilities = facilityOptions.length > 0;
   const hasUsers = userOptions.length > 0;
   const hasRoles = roleOptions.length > 0;
   const isCreateBlocked = !isEdit && (!hasTenants || !hasUsers || !hasRoles);
   const isSubmitDisabled =
+    !isResolved ||
     isLoading ||
     isCreateBlocked ||
     !trimmedTenantId ||
     !trimmedUserId ||
-    !trimmedRoleId;
+    !trimmedRoleId ||
+    (isEdit ? !canEditUserRole : !canCreateUserRole);
 
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateUserRole) {
+        router.replace('/settings/user-roles?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditUserRole) {
+        router.replace('/settings/user-roles?notice=accessDenied');
+        return;
+      }
+      if (isEdit && isTenantScopedAdmin) {
+        const recordTenantId = String(userRole?.tenant_id ?? '').trim();
+        if (!recordTenantId || recordTenantId !== normalizedScopedTenantId) {
+          router.replace('/settings/user-roles?notice=accessDenied');
+          return;
+        }
+      }
+
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         tenant_id: trimmedTenantId,
@@ -306,8 +436,9 @@ const useUserRoleFormScreen = () => {
       } else if (isEdit) {
         payload.facility_id = null;
       }
-      if (isEdit && id) {
-        const result = await update(id, payload);
+
+      if (isEdit && routeUserRoleId) {
+        const result = await update(routeUserRoleId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -319,15 +450,20 @@ const useUserRoleFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    id,
+    canCreateUserRole,
+    canEditUserRole,
+    isTenantScopedAdmin,
+    userRole,
+    normalizedScopedTenantId,
+    isOffline,
     trimmedTenantId,
     trimmedUserId,
     trimmedRoleId,
     trimmedFacilityId,
-    create,
+    routeUserRoleId,
     update,
+    create,
     router,
   ]);
 
@@ -352,24 +488,35 @@ const useUserRoleFormScreen = () => {
   }, [router]);
 
   const handleRetryTenants = useCallback(() => {
+    if (!isResolved || !canManageUserRoles || isTenantScopedAdmin || isEdit) return;
     resetTenants();
     listTenants({ page: 1, limit: 200 });
-  }, [listTenants, resetTenants]);
+  }, [
+    isResolved,
+    canManageUserRoles,
+    isTenantScopedAdmin,
+    isEdit,
+    listTenants,
+    resetTenants,
+  ]);
 
   const handleRetryFacilities = useCallback(() => {
+    if (!isResolved || !canManageUserRoles) return;
     resetFacilities();
     listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
-  }, [listFacilities, resetFacilities, trimmedTenantId]);
+  }, [isResolved, canManageUserRoles, listFacilities, resetFacilities, trimmedTenantId]);
 
   const handleRetryUsers = useCallback(() => {
+    if (!isResolved || !canManageUserRoles) return;
     resetUsers();
     listUsers({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
-  }, [listUsers, resetUsers, trimmedTenantId]);
+  }, [isResolved, canManageUserRoles, listUsers, resetUsers, trimmedTenantId]);
 
   const handleRetryRoles = useCallback(() => {
+    if (!isResolved || !canManageUserRoles) return;
     resetRoles();
     listRoles({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
-  }, [listRoles, resetRoles, trimmedTenantId]);
+  }, [isResolved, canManageUserRoles, listRoles, resetRoles, trimmedTenantId]);
 
   return {
     isEdit,
@@ -382,9 +529,9 @@ const useUserRoleFormScreen = () => {
     roleId,
     setRoleId,
     tenantOptions,
-    tenantListLoading,
-    tenantListError: Boolean(tenantErrorCode),
-    tenantErrorMessage,
+    tenantListLoading: isTenantScopedAdmin ? false : tenantListLoading,
+    tenantListError: isTenantScopedAdmin ? false : Boolean(tenantErrorCode),
+    tenantErrorMessage: isTenantScopedAdmin ? null : tenantErrorMessage,
     facilityOptions,
     facilityListLoading,
     facilityListError: Boolean(facilityErrorCode),
@@ -402,8 +549,8 @@ const useUserRoleFormScreen = () => {
     hasUsers,
     hasRoles,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     userRole,

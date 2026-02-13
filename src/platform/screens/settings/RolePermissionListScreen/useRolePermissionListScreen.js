@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useRolePermission } from '@hooks';
+import { useI18n, useNetwork, useRolePermission, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'rolePermission.list.noticeUpdated',
     deleted: 'rolePermission.list.noticeDeleted',
     queued: 'rolePermission.list.noticeQueued',
+    accessDenied: 'rolePermission.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useRolePermissionListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useRolePermissionListScreen = () => {
   } = useRolePermission();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageRolePermissions = canAccessTenantSettings;
+  const canCreateRolePermission = canManageRolePermissions;
+  const canDeleteRolePermission = canManageRolePermissions;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,44 @@ const useRolePermissionListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageRolePermissions) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageRolePermissions) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRolePermissions) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageRolePermissions, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -73,6 +115,15 @@ const useRolePermissionListScreen = () => {
     setNoticeMessage(message);
     router.replace('/settings/role-permissions');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRolePermissions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageRolePermissions, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -88,13 +139,15 @@ const useRolePermissionListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageRolePermissions) return;
       router.push(`/settings/role-permissions/${id}`);
     },
-    [router]
+    [canManageRolePermissions, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteRolePermission) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +163,26 @@ const useRolePermissionListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteRolePermission, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateRolePermission) return;
     router.push('/settings/role-permissions/create');
-  }, [router]);
+  }, [canCreateRolePermission, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteRolePermission ? handleDelete : undefined,
+    onAdd: canCreateRolePermission ? handleAdd : undefined,
   };
 };
 

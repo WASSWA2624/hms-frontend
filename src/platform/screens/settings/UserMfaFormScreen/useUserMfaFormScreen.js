@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useUser, useUserMfa } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUser, useUserMfa } from '@hooks';
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +21,12 @@ const useUserMfaFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, userId: userIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useUserMfa();
   const {
     list: listUsers,
@@ -30,7 +36,19 @@ const useUserMfaFormScreen = () => {
     reset: resetUsers,
   } = useUser();
 
-  const isEdit = Boolean(id);
+  const routeUserMfaId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeUserMfaId);
+  const canManageUserMfas = canAccessTenantSettings;
+  const canCreateUserMfa = canManageUserMfas;
+  const canEditUserMfa = canManageUserMfas;
+  const isTenantScopedAdmin = canManageUserMfas && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [userId, setUserId] = useState('');
   const [channel, setChannel] = useState('');
   const [secret, setSecret] = useState('');
@@ -59,16 +77,66 @@ const useUserMfaFormScreen = () => {
   ]), [t]);
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageUserMfas) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateUserMfa) {
+      router.replace('/settings/user-mfas?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditUserMfa) {
+      router.replace('/settings/user-mfas?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateUserMfa,
+    canEditUserMfa,
+    router,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageUserMfas || !isEdit || !routeUserMfaId) return;
+    if (!canEditUserMfa) return;
+    if (isEdit && routeUserMfaId) {
+      reset();
+      get(routeUserMfaId);
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isEdit,
+    routeUserMfaId,
+    canEditUserMfa,
+    get,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas) return;
     resetUsers();
-    listUsers({ page: 1, limit: 200 });
-  }, [listUsers, resetUsers]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listUsers(params);
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listUsers,
+    resetUsers,
+  ]);
 
   useEffect(() => {
     if (userMfa) {
@@ -77,6 +145,22 @@ const useUserMfaFormScreen = () => {
       setIsEnabled(userMfa.is_enabled ?? true);
     }
   }, [userMfa]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas || !isTenantScopedAdmin || !isEdit || !userMfa) return;
+    const recordTenantId = String(userMfa?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/user-mfas?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    isEdit,
+    userMfa,
+    normalizedScopedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -92,6 +176,12 @@ const useUserMfaFormScreen = () => {
       userPrefillRef.current = true;
     }
   }, [isEdit, userIdParam, userOptions, userId]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    router.replace('/settings/user-mfas?notice=accessDenied');
+  }, [isResolved, canManageUserMfas, errorCode, router]);
 
   const trimmedUserId = String(userId ?? '').trim();
   const trimmedChannel = String(channel ?? '').trim();
@@ -118,6 +208,14 @@ const useUserMfaFormScreen = () => {
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateUserMfa) {
+        router.replace('/settings/user-mfas?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditUserMfa) {
+        router.replace('/settings/user-mfas?notice=accessDenied');
+        return;
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         channel: trimmedChannel,
@@ -129,8 +227,8 @@ const useUserMfaFormScreen = () => {
       if (trimmedSecret) {
         payload.secret_encrypted = trimmedSecret;
       }
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeUserMfaId) {
+        const result = await update(routeUserMfaId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -144,11 +242,13 @@ const useUserMfaFormScreen = () => {
     isSubmitDisabled,
     isOffline,
     isEdit,
-    id,
     trimmedChannel,
     trimmedUserId,
     trimmedSecret,
     isEnabled,
+    canCreateUserMfa,
+    canEditUserMfa,
+    routeUserMfaId,
     create,
     update,
     router,
@@ -163,9 +263,21 @@ const useUserMfaFormScreen = () => {
   }, [router]);
 
   const handleRetryUsers = useCallback(() => {
+    if (!isResolved || !canManageUserMfas) return;
     resetUsers();
-    listUsers({ page: 1, limit: 200 });
-  }, [listUsers, resetUsers]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listUsers(params);
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listUsers,
+    resetUsers,
+  ]);
 
   return {
     isEdit,
@@ -184,8 +296,8 @@ const useUserMfaFormScreen = () => {
     userErrorMessage,
     hasUsers,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     userMfa,

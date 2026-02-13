@@ -4,7 +4,14 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, usePermission, useRole, useRolePermission } from '@hooks';
+import {
+  useI18n,
+  useNetwork,
+  usePermission,
+  useRole,
+  useRolePermission,
+  useTenantAccess,
+} from '@hooks';
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +28,12 @@ const useRolePermissionFormScreen = () => {
   const { isOffline } = useNetwork();
   const router = useRouter();
   const { id, roleId: roleIdParam, permissionId: permissionIdParam } = useLocalSearchParams();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId: scopedTenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, create, update, data, isLoading, errorCode, reset } = useRolePermission();
   const {
     list: listRoles,
@@ -37,7 +50,19 @@ const useRolePermissionFormScreen = () => {
     reset: resetPermissions,
   } = usePermission();
 
-  const isEdit = Boolean(id);
+  const routeRolePermissionId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const isEdit = Boolean(routeRolePermissionId);
+  const canManageRolePermissions = canAccessTenantSettings;
+  const canCreateRolePermission = canManageRolePermissions;
+  const canEditRolePermission = canManageRolePermissions;
+  const isTenantScopedAdmin = canManageRolePermissions && !canManageAllTenants;
+  const normalizedScopedTenantId = useMemo(
+    () => String(scopedTenantId ?? '').trim(),
+    [scopedTenantId]
+  );
   const [roleId, setRoleId] = useState('');
   const [permissionId, setPermissionId] = useState('');
   const rolePrefillRef = useRef(false);
@@ -70,21 +95,83 @@ const useRolePermissionFormScreen = () => {
   );
 
   useEffect(() => {
-    if (isEdit && id) {
-      reset();
-      get(id);
+    if (!isResolved) return;
+    if (!canManageRolePermissions) {
+      router.replace('/settings');
+      return;
     }
-  }, [isEdit, id, get, reset]);
+    if (isTenantScopedAdmin && !normalizedScopedTenantId) {
+      router.replace('/settings');
+      return;
+    }
+    if (!isEdit && !canCreateRolePermission) {
+      router.replace('/settings/role-permissions?notice=accessDenied');
+      return;
+    }
+    if (isEdit && !canEditRolePermission) {
+      router.replace('/settings/role-permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    isEdit,
+    canCreateRolePermission,
+    canEditRolePermission,
+    router,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageRolePermissions || !isEdit || !routeRolePermissionId) return;
+    if (!canEditRolePermission) return;
+    if (isEdit && routeRolePermissionId) {
+      reset();
+      get(routeRolePermissionId);
+    }
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isEdit,
+    routeRolePermissionId,
+    canEditRolePermission,
+    get,
+    reset,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRolePermissions) return;
     resetRoles();
-    listRoles({ page: 1, limit: 200 });
-  }, [listRoles, resetRoles]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listRoles(params);
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listRoles,
+    resetRoles,
+  ]);
 
   useEffect(() => {
+    if (!isResolved || !canManageRolePermissions) return;
     resetPermissions();
-    listPermissions({ page: 1, limit: 200 });
-  }, [listPermissions, resetPermissions]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listPermissions(params);
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listPermissions,
+    resetPermissions,
+  ]);
 
   useEffect(() => {
     if (rolePermission) {
@@ -92,6 +179,22 @@ const useRolePermissionFormScreen = () => {
       setPermissionId(rolePermission.permission_id ?? '');
     }
   }, [rolePermission]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRolePermissions || !isTenantScopedAdmin || !isEdit || !rolePermission) return;
+    const recordTenantId = String(rolePermission?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
+      router.replace('/settings/role-permissions?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    isEdit,
+    rolePermission,
+    normalizedScopedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -123,6 +226,12 @@ const useRolePermissionFormScreen = () => {
     }
   }, [isEdit, permissionIdParam, permissionOptions, permissionId]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageRolePermissions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    router.replace('/settings/role-permissions?notice=accessDenied');
+  }, [isResolved, canManageRolePermissions, errorCode, router]);
+
   const trimmedRoleId = String(roleId ?? '').trim();
   const trimmedPermissionId = String(permissionId ?? '').trim();
 
@@ -153,13 +262,21 @@ const useRolePermissionFormScreen = () => {
   const handleSubmit = useCallback(async () => {
     try {
       if (isSubmitDisabled) return;
+      if (!isEdit && !canCreateRolePermission) {
+        router.replace('/settings/role-permissions?notice=accessDenied');
+        return;
+      }
+      if (isEdit && !canEditRolePermission) {
+        router.replace('/settings/role-permissions?notice=accessDenied');
+        return;
+      }
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         role_id: trimmedRoleId,
         permission_id: trimmedPermissionId,
       };
-      if (isEdit && id) {
-        const result = await update(id, payload);
+      if (isEdit && routeRolePermissionId) {
+        const result = await update(routeRolePermissionId, payload);
         if (!result) return;
       } else {
         const result = await create(payload);
@@ -173,9 +290,11 @@ const useRolePermissionFormScreen = () => {
     isSubmitDisabled,
     isOffline,
     isEdit,
-    id,
     trimmedRoleId,
     trimmedPermissionId,
+    canCreateRolePermission,
+    canEditRolePermission,
+    routeRolePermissionId,
     create,
     update,
     router,
@@ -194,14 +313,38 @@ const useRolePermissionFormScreen = () => {
   }, [router]);
 
   const handleRetryRoles = useCallback(() => {
+    if (!isResolved || !canManageRolePermissions) return;
     resetRoles();
-    listRoles({ page: 1, limit: 200 });
-  }, [listRoles, resetRoles]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listRoles(params);
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listRoles,
+    resetRoles,
+  ]);
 
   const handleRetryPermissions = useCallback(() => {
+    if (!isResolved || !canManageRolePermissions) return;
     resetPermissions();
-    listPermissions({ page: 1, limit: 200 });
-  }, [listPermissions, resetPermissions]);
+    const params = { page: 1, limit: 200 };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedScopedTenantId;
+    }
+    listPermissions(params);
+  }, [
+    isResolved,
+    canManageRolePermissions,
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    listPermissions,
+    resetPermissions,
+  ]);
 
   return {
     isEdit,
@@ -220,8 +363,8 @@ const useRolePermissionFormScreen = () => {
     hasRoles,
     hasPermissions,
     isCreateBlocked,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     rolePermission,

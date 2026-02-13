@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useOauthAccount } from '@hooks';
+import { useI18n, useNetwork, useOauthAccount, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -18,11 +18,29 @@ const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   return resolved === key ? t(loadErrorKey) : resolved;
 };
 
+const resolveNoticeMessage = (t, notice) => {
+  const map = {
+    created: 'oauthAccount.list.noticeCreated',
+    updated: 'oauthAccount.list.noticeUpdated',
+    deleted: 'oauthAccount.list.noticeDeleted',
+    queued: 'oauthAccount.list.noticeQueued',
+    accessDenied: 'oauthAccount.list.noticeAccessDenied',
+  };
+  const key = map[notice];
+  return key ? t(key) : null;
+};
+
 const useOauthAccountListScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const {
     list,
     remove,
@@ -37,6 +55,10 @@ const useOauthAccountListScreen = () => {
     [data]
   );
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageOauthAccounts = canAccessTenantSettings;
+  const canCreateOauthAccount = canManageOauthAccounts;
+  const canDeleteOauthAccount = canManageOauthAccounts;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'oauthAccount.list.loadError'),
     [t, errorCode]
@@ -47,28 +69,61 @@ const useOauthAccountListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageOauthAccounts) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageOauthAccounts,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageOauthAccounts) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageOauthAccounts,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageOauthAccounts) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageOauthAccounts, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
-    const map = {
-      created: 'oauthAccount.list.noticeCreated',
-      updated: 'oauthAccount.list.noticeUpdated',
-      deleted: 'oauthAccount.list.noticeDeleted',
-      queued: 'oauthAccount.list.noticeQueued',
-    };
-    const key = map[noticeValue];
-    if (!key) return;
-    const message = t(key);
+    const message = resolveNoticeMessage(t, noticeValue);
+    if (!message) return;
     setNoticeMessage(message);
     router.replace('/settings/oauth-accounts');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageOauthAccounts) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageOauthAccounts, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -84,13 +139,15 @@ const useOauthAccountListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageOauthAccounts) return;
       router.push(`/settings/oauth-accounts/${id}`);
     },
-    [router]
+    [canManageOauthAccounts, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteOauthAccount) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -98,37 +155,34 @@ const useOauthAccountListScreen = () => {
         if (!result) return;
         fetchList();
         const noticeKey = isOffline ? 'queued' : 'deleted';
-        const noticeMap = {
-          deleted: 'oauthAccount.list.noticeDeleted',
-          queued: 'oauthAccount.list.noticeQueued',
-        };
-        const key = noticeMap[noticeKey];
-        if (key) {
-          setNoticeMessage(t(key));
+        const message = resolveNoticeMessage(t, noticeKey);
+        if (message) {
+          setNoticeMessage(message);
         }
       } catch {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteOauthAccount, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateOauthAccount) return;
     router.push('/settings/oauth-accounts/create');
-  }, [router]);
+  }, [canCreateOauthAccount, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteOauthAccount ? handleDelete : undefined,
+    onAdd: canCreateOauthAccount ? handleAdd : undefined,
   };
 };
 

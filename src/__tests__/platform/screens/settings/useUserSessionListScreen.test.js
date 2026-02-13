@@ -5,21 +5,25 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useUserSessionListScreen = require('@platform/screens/settings/UserSessionListScreen/useUserSessionListScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
+let mockParams = {};
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useUserSession: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
+  useLocalSearchParams: () => mockParams,
 }));
 
 jest.mock('@utils', () => ({
   confirmAction: jest.fn(() => true),
 }));
 
-const useUserSession = require('@hooks').useUserSession;
+const { useUserSession, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useUserSessionListScreen', () => {
@@ -29,6 +33,13 @@ describe('useUserSessionListScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams = {};
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUserSession.mockReturnValue({
       list: mockList,
       revoke: mockRevoke,

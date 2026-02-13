@@ -5,16 +5,18 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useOauthAccountDetailScreen = require('@platform/screens/settings/OauthAccountDetailScreen/useOauthAccountDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 let mockParams = { id: 'oauth-1' };
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useOauthAccount: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => mockParams,
 }));
 
@@ -22,7 +24,7 @@ jest.mock('@utils', () => ({
   confirmAction: jest.fn(() => true),
 }));
 
-const { useOauthAccount, useNetwork } = require('@hooks');
+const { useOauthAccount, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useOauthAccountDetailScreen', () => {
@@ -34,6 +36,12 @@ describe('useOauthAccountDetailScreen', () => {
     jest.clearAllMocks();
     mockParams = { id: 'oauth-1' };
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useOauthAccount.mockReturnValue({
       get: mockGet,
       remove: mockRemove,

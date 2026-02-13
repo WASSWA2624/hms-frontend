@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useOauthAccount: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
@@ -23,7 +24,7 @@ jest.mock('@utils', () => ({
   confirmAction: jest.fn(() => true),
 }));
 
-const { useOauthAccount, useNetwork } = require('@hooks');
+const { useOauthAccount, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useOauthAccountListScreen', () => {
@@ -35,6 +36,12 @@ describe('useOauthAccountListScreen', () => {
     jest.clearAllMocks();
     mockParams = {};
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useOauthAccount.mockReturnValue({
       list: mockList,
       remove: mockRemove,

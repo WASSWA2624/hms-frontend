@@ -5,11 +5,13 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useRolePermissionDetailScreen = require('@platform/screens/settings/RolePermissionDetailScreen/useRolePermissionDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useRolePermission: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -21,11 +23,11 @@ jest.mock('@utils', () => {
 });
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: () => ({ id: 'rp-1' }),
 }));
 
-const { useRolePermission, useNetwork } = require('@hooks');
+const { useRolePermission, useNetwork, useTenantAccess } = require('@hooks');
 const { confirmAction } = require('@utils');
 
 describe('useRolePermissionDetailScreen', () => {
@@ -36,6 +38,12 @@ describe('useRolePermissionDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useNetwork.mockReturnValue({ isOffline: false });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useRolePermission.mockReturnValue({
       get: mockGet,
       remove: mockRemove,

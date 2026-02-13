@@ -5,6 +5,7 @@ const { renderHook, act } = require('@testing-library/react-native');
 const useUserSessionDetailScreen = require('@platform/screens/settings/UserSessionDetailScreen/useUserSessionDetailScreen').default;
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 const mockGet = jest.fn();
 const mockRevoke = jest.fn();
 const mockReset = jest.fn();
@@ -13,10 +14,11 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(() => ({ t: (k) => k })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useUserSession: jest.fn(),
+  useTenantAccess: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useLocalSearchParams: jest.fn(() => ({ id: 'session-1' })),
 }));
 
@@ -24,7 +26,7 @@ jest.mock('@utils', () => ({
   confirmAction: jest.fn(() => true),
 }));
 
-const useUserSession = require('@hooks').useUserSession;
+const { useUserSession, useTenantAccess } = require('@hooks');
 const useLocalSearchParams = require('expo-router').useLocalSearchParams;
 const { confirmAction } = require('@utils');
 
@@ -32,6 +34,12 @@ describe('useUserSessionDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useLocalSearchParams.mockReturnValue({ id: 'session-1' });
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: true,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUserSession.mockReturnValue({
       get: mockGet,
       revoke: mockRevoke,

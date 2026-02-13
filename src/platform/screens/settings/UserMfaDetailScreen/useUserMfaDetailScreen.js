@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useUserMfa } from '@hooks';
+import { useI18n, useNetwork, useTenantAccess, useUserMfa } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useUserMfaDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useUserMfa();
+  const userMfaId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageUserMfas = canAccessTenantSettings;
+  const canEditUserMfa = canManageUserMfas;
+  const canDeleteUserMfa = canManageUserMfas;
+  const isTenantScopedAdmin = canManageUserMfas && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const userMfa = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,54 @@ const useUserMfaDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageUserMfas || !userMfaId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(userMfaId);
+  }, [isResolved, canManageUserMfas, userMfaId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserMfas) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    normalizedTenantId,
+    router,
+  ]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas || !isTenantScopedAdmin || !userMfa) return;
+    const recordTenantId = String(userMfa?.tenant_id ?? '').trim();
+    if (recordTenantId && recordTenantId !== normalizedTenantId) {
+      router.replace('/settings/user-mfas?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageUserMfas,
+    isTenantScopedAdmin,
+    userMfa,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserMfas) return;
+    if (userMfa) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/user-mfas?notice=accessDenied');
+    }
+  }, [isResolved, canManageUserMfas, userMfa, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +102,34 @@ const useUserMfaDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/user-mfas/${id}/edit`);
-  }, [id, router]);
+    if (!canEditUserMfa || !userMfaId) return;
+    router.push(`/settings/user-mfas/${userMfaId}/edit`);
+  }, [canEditUserMfa, userMfaId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteUserMfa || !userMfaId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(userMfaId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/user-mfas?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteUserMfa, userMfaId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: userMfaId,
     userMfa,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditUserMfa ? handleEdit : undefined,
+    onDelete: canDeleteUserMfa ? handleDelete : undefined,
   };
 };
 

@@ -4,8 +4,8 @@
  * File: useUserSessionListScreen.js
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { useI18n, useNetwork, useUserSession } from '@hooks';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useI18n, useNetwork, useTenantAccess, useUserSession } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -23,6 +23,7 @@ const resolveNoticeMessage = (t, notice) => {
     revoked: 'userSession.list.noticeRevoked',
     queued: 'userSession.list.noticeQueued',
     revokeFailed: 'userSession.list.noticeRevokeFailed',
+    accessDenied: 'userSession.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -31,7 +32,14 @@ const resolveNoticeMessage = (t, notice) => {
 const useUserSessionListScreen = () => {
   const { t } = useI18n();
   const router = useRouter();
+  const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const {
     list,
     revoke,
@@ -41,24 +49,79 @@ const useUserSessionListScreen = () => {
     reset,
   } = useUserSession();
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageUserSessions = canAccessTenantSettings;
+  const canRevokeSession = canManageUserSessions;
 
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
   );
+  const noticeValue = useMemo(() => {
+    if (Array.isArray(notice)) return notice[0];
+    return notice;
+  }, [notice]);
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'userSession.list.loadError'),
     [t, errorCode]
   );
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageUserSessions) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageUserSessions,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageUserSessions) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageUserSessions,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserSessions) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageUserSessions, fetchList]);
+
+  useEffect(() => {
+    if (!noticeValue) return;
+    const message = resolveNoticeMessage(t, noticeValue);
+    if (!message) return;
+    setNoticeMessage(message);
+    router.replace('/settings/user-sessions');
+  }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageUserSessions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageUserSessions, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -74,13 +137,15 @@ const useUserSessionListScreen = () => {
 
   const handleSessionPress = useCallback(
     (id) => {
+      if (!canManageUserSessions) return;
       router.push(`/settings/user-sessions/${id}`);
     },
-    [router]
+    [canManageUserSessions, router]
   );
 
   const handleRevoke = useCallback(
     async (id, e) => {
+      if (!canRevokeSession) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       let result;
@@ -99,20 +164,20 @@ const useUserSessionListScreen = () => {
       const message = resolveNoticeMessage(t, noticeKey);
       if (message) setNoticeMessage(message);
     },
-    [revoke, fetchList, isOffline, t]
+    [canRevokeSession, revoke, fetchList, isOffline, t]
   );
 
   return {
     items,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onSessionPress: handleSessionPress,
-    onRevoke: handleRevoke,
+    onRevoke: canRevokeSession ? handleRevoke : undefined,
   };
 };
 

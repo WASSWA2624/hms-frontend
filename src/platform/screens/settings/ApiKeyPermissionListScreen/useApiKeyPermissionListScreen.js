@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useApiKeyPermission } from '@hooks';
+import { useI18n, useNetwork, useApiKeyPermission, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'apiKeyPermission.list.noticeUpdated',
     deleted: 'apiKeyPermission.list.noticeDeleted',
     queued: 'apiKeyPermission.list.noticeQueued',
+    accessDenied: 'apiKeyPermission.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useApiKeyPermissionListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -44,6 +51,10 @@ const useApiKeyPermissionListScreen = () => {
   } = useApiKeyPermission();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageApiKeyPermissions = canAccessTenantSettings;
+  const canCreateApiKeyPermission = canManageApiKeyPermissions;
+  const canDeleteApiKeyPermission = canManageApiKeyPermissions;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -58,13 +69,44 @@ const useApiKeyPermissionListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const params = { page: 1, limit: 20 };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20 });
-  }, [list, reset]);
+    list(params);
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageApiKeyPermissions) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [
+    isResolved,
+    canManageApiKeyPermissions,
+    canManageAllTenants,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
     fetchList();
-  }, [fetchList]);
+  }, [isResolved, canManageApiKeyPermissions, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -73,6 +115,15 @@ const useApiKeyPermissionListScreen = () => {
     setNoticeMessage(message);
     router.replace('/settings/api-key-permissions');
   }, [noticeValue, router, t]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageApiKeyPermissions) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageApiKeyPermissions, errorCode, t]);
 
   useEffect(() => {
     if (!noticeMessage) return;
@@ -88,13 +139,15 @@ const useApiKeyPermissionListScreen = () => {
 
   const handleItemPress = useCallback(
     (id) => {
+      if (!canManageApiKeyPermissions) return;
       router.push(`/settings/api-key-permissions/${id}`);
     },
-    [router]
+    [canManageApiKeyPermissions, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteApiKeyPermission) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -110,25 +163,26 @@ const useApiKeyPermissionListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t]
+    [canDeleteApiKeyPermission, remove, fetchList, isOffline, t]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateApiKeyPermission) return;
     router.push('/settings/api-key-permissions/create');
-  }, [router]);
+  }, [canCreateApiKeyPermission, router]);
 
   return {
     items,
-    isLoading,
-    hasError: !!errorCode,
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && !!errorCode,
     errorMessage,
     isOffline,
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
     onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteApiKeyPermission ? handleDelete : undefined,
+    onAdd: canCreateApiKeyPermission ? handleAdd : undefined,
   };
 };
 

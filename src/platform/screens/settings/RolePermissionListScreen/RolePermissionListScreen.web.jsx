@@ -57,6 +57,7 @@ const RolePermissionListScreenWeb = () => {
           <StyledAddButton
             type="button"
             onClick={onAdd}
+            onPress={onAdd}
             accessibilityLabel={t('rolePermission.list.addLabel')}
             accessibilityHint={t('rolePermission.list.addHint')}
             testID="role-permission-list-empty-add"
@@ -111,6 +112,7 @@ const RolePermissionListScreenWeb = () => {
               <StyledAddButton
                 type="button"
                 onClick={onAdd}
+                onPress={onAdd}
                 accessibilityLabel={t('rolePermission.list.addLabel')}
                 accessibilityHint={t('rolePermission.list.addHint')}
                 testID="role-permission-list-add"
@@ -126,7 +128,12 @@ const RolePermissionListScreenWeb = () => {
           accessibilityLabel={t('rolePermission.list.accessibilityLabel')}
           testID="role-permission-list-card"
         >
-          <StyledListBody role="region" aria-label={t('rolePermission.list.accessibilityLabel')} data-testid="role-permission-list">
+          <StyledListBody
+            role="region"
+            aria-label={t('rolePermission.list.accessibilityLabel')}
+            data-testid="role-permission-list"
+            testID="role-permission-list"
+          >
             <StyledStateStack>
               {showError && (
                 <ErrorState
