@@ -71,10 +71,10 @@
       "ACCOUNT_SUSPENDED": "Account has been suspended",
       "ACCOUNT_PENDING": "Account is pending verification",
       "PASSWORD_INCORRECT": "Current password is incorrect",
-    "TOKEN_INVALID": "Invalid or expired token",
-    "TOKEN_EXPIRED": "Token has expired",
-    "MISSING_TOKEN": "Authentication required. Please sign in.",
-    "REFRESH_TOKEN_INVALID": "Invalid or expired refresh token",
+      "TOKEN_INVALID": "Invalid or expired token",
+      "TOKEN_EXPIRED": "Token has expired",
+      "MISSING_TOKEN": "Authentication required. Please sign in.",
+      "REFRESH_TOKEN_INVALID": "Invalid or expired refresh token",
       "SESSION_EXPIRED": "Your session has expired. Sign in again.",
       "SESSION_REVOKED": "This session is no longer valid.",
       "UNAUTHORIZED_FACILITY": "You do not have access to the selected facility.",
@@ -1783,75 +1783,75 @@
       "loadError": "Failed to load role for editing"
     }
   },
-    "permission": {
-      "list": {
-        "title": "Permissions",
-        "accessibilityLabel": "Permissions list",
-        "emptyTitle": "No permissions",
-        "emptyMessage": "You have no permissions.",
-        "loadError": "Unable to load permissions. Check your connection and try again.",
-        "delete": "Delete permission",
-        "deleteHint": "Delete this permission",
-        "itemLabel": "Permission {{name}}",
-        "addLabel": "Add permission",
-        "addHint": "Create a new permission",
-        "noticeCreated": "Permission created.",
-        "noticeUpdated": "Permission updated.",
-        "noticeDeleted": "Permission removed.",
-        "noticeQueued": "Changes queued. We'll sync when you're back online.",
-        "noticeAccessDenied": "You do not have access to that permission."
-      },
-      "detail": {
-        "title": "Permission Details",
-        "idLabel": "Permission ID",
-        "tenantLabel": "Tenant",
-        "nameLabel": "Name",
-        "descriptionLabel": "Description",
-        "createdLabel": "Created",
-        "updatedLabel": "Updated",
-        "errorTitle": "Failed to load permission",
-        "notFoundTitle": "Permission not found",
-        "notFoundMessage": "This permission may have been removed.",
-        "backHint": "Return to permissions list",
-        "delete": "Delete permission",
-        "deleteHint": "Delete this permission",
-        "edit": "Edit permission",
-        "editHint": "Edit this permission"
-      },
-      "form": {
-        "createTitle": "Add Permission",
-        "editTitle": "Edit Permission",
-        "loadError": "Failed to load permission for editing",
-        "tenantLabel": "Tenant",
-        "tenantPlaceholder": "Select tenant",
-        "tenantHint": "Required for new permissions",
-        "tenantRequired": "Tenant is required.",
-        "tenantLockedHint": "Tenant is fixed after creation",
-        "tenantScopedHint": "Your tenant scope is applied automatically.",
-        "tenantLoadErrorTitle": "Unable to load tenants",
-        "tenantLoadErrorMessage": "We couldn't load tenants. Try again.",
-        "noTenantsMessage": "No tenants available yet.",
-        "createTenantFirst": "Create a tenant before adding permissions.",
-        "goToTenants": "Go to Tenants",
-        "goToTenantsHint": "Open tenant settings",
-        "nameLabel": "Permission name",
-        "namePlaceholder": "e.g. roles.read",
-        "nameHint": "Required",
-        "nameRequired": "Permission name is required.",
-        "nameTooLong": "Permission name must be {{max}} characters or less.",
-        "descriptionLabel": "Description",
-        "descriptionPlaceholder": "Optional notes about the permission",
-        "descriptionHint": "Optional",
-        "descriptionTooLong": "Description must be {{max}} characters or less.",
-        "submitCreate": "Create Permission",
-        "submitEdit": "Save Changes",
-        "submitErrorTitle": "Unable to save permission",
-        "submitErrorMessage": "We couldn't save the permission. Try again.",
-        "cancel": "Cancel",
-        "cancelHint": "Return without saving",
-        "blockedMessage": "Create a tenant before adding permissions."
-      }
+  "permission": {
+    "list": {
+      "title": "Permissions",
+      "accessibilityLabel": "Permissions list",
+      "emptyTitle": "No permissions",
+      "emptyMessage": "You have no permissions.",
+      "loadError": "Unable to load permissions. Check your connection and try again.",
+      "delete": "Delete permission",
+      "deleteHint": "Delete this permission",
+      "itemLabel": "Permission {{name}}",
+      "addLabel": "Add permission",
+      "addHint": "Create a new permission",
+      "noticeCreated": "Permission created.",
+      "noticeUpdated": "Permission updated.",
+      "noticeDeleted": "Permission removed.",
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have access to that permission."
     },
+    "detail": {
+      "title": "Permission Details",
+      "idLabel": "Permission ID",
+      "tenantLabel": "Tenant",
+      "nameLabel": "Name",
+      "descriptionLabel": "Description",
+      "createdLabel": "Created",
+      "updatedLabel": "Updated",
+      "errorTitle": "Failed to load permission",
+      "notFoundTitle": "Permission not found",
+      "notFoundMessage": "This permission may have been removed.",
+      "backHint": "Return to permissions list",
+      "delete": "Delete permission",
+      "deleteHint": "Delete this permission",
+      "edit": "Edit permission",
+      "editHint": "Edit this permission"
+    },
+    "form": {
+      "createTitle": "Add Permission",
+      "editTitle": "Edit Permission",
+      "loadError": "Failed to load permission for editing",
+      "tenantLabel": "Tenant",
+      "tenantPlaceholder": "Select tenant",
+      "tenantHint": "Required for new permissions",
+      "tenantRequired": "Tenant is required.",
+      "tenantLockedHint": "Tenant is fixed after creation",
+      "tenantScopedHint": "Your tenant scope is applied automatically.",
+      "tenantLoadErrorTitle": "Unable to load tenants",
+      "tenantLoadErrorMessage": "We couldn't load tenants. Try again.",
+      "noTenantsMessage": "No tenants available yet.",
+      "createTenantFirst": "Create a tenant before adding permissions.",
+      "goToTenants": "Go to Tenants",
+      "goToTenantsHint": "Open tenant settings",
+      "nameLabel": "Permission name",
+      "namePlaceholder": "e.g. roles.read",
+      "nameHint": "Required",
+      "nameRequired": "Permission name is required.",
+      "nameTooLong": "Permission name must be {{max}} characters or less.",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional notes about the permission",
+      "descriptionHint": "Optional",
+      "descriptionTooLong": "Description must be {{max}} characters or less.",
+      "submitCreate": "Create Permission",
+      "submitEdit": "Save Changes",
+      "submitErrorTitle": "Unable to save permission",
+      "submitErrorMessage": "We couldn't save the permission. Try again.",
+      "cancel": "Cancel",
+      "cancelHint": "Return without saving",
+      "blockedMessage": "Create a tenant before adding permissions."
+    }
+  },
   "apiKey": {
     "list": {
       "title": "API Keys",
@@ -2914,93 +2914,93 @@
       "loadError": "Failed to load bed for editing"
     }
   },
-    "contact": {
-      "list": {
-        "title": "Contacts",
-        "accessibilityLabel": "Contacts list",
-        "emptyTitle": "No contacts",
-        "emptyMessage": "You have no contacts.",
-        "loadError": "Unable to load contacts. Check your connection and try again.",
-        "typeLabel": "Type",
-        "delete": "Delete contact",
-        "deleteHint": "Delete this contact",
-        "itemLabel": "Contact {{name}}",
-        "itemHint": "View details for {{name}}",
-        "addLabel": "Add contact",
-        "addHint": "Create a new contact",
-        "noticeCreated": "Contact created.",
-        "noticeUpdated": "Contact updated.",
-        "noticeDeleted": "Contact removed.",
-        "noticeQueued": "Changes queued. We'll sync when you're back online.",
-        "noticeAccessDenied": "You do not have access to contacts."
-      },
-      "detail": {
-        "title": "Contact Details",
-        "idLabel": "Contact ID",
-        "tenantLabel": "Tenant",
-        "facilityLabel": "Facility",
-        "branchLabel": "Branch",
-        "patientLabel": "Patient",
-        "userProfileLabel": "User profile",
-        "staffProfileLabel": "Staff profile",
-        "supplierLabel": "Supplier",
-        "valueLabel": "Value",
-        "typeLabel": "Type",
-        "primaryLabel": "Primary",
-        "createdLabel": "Created",
-        "updatedLabel": "Updated",
-        "errorTitle": "Failed to load contact",
-        "notFoundTitle": "Contact not found",
-        "notFoundMessage": "This contact may have been deleted.",
-        "backHint": "Return to contacts list",
-        "delete": "Delete contact",
-        "deleteHint": "Delete this contact",
-        "edit": "Edit contact",
-        "editHint": "Edit this contact"
-      },
-      "form": {
-        "createTitle": "Add Contact",
-        "editTitle": "Edit Contact",
-        "valueLabel": "Value",
-        "valuePlaceholder": "Email, phone, etc.",
-        "valueHint": "Contact value",
-        "valueRequired": "Contact value is required.",
-        "valueTooLong": "Contact value must be at most {{max}} characters.",
-        "typeLabel": "Type",
-        "typePlaceholder": "e.g. EMAIL, PHONE",
-        "typeHint": "Contact type",
-        "typeRequired": "Contact type is required.",
-        "typeInvalid": "Select a valid contact type.",
-        "primaryLabel": "Primary",
-        "primaryHint": "Primary contact",
-        "tenantLabel": "Tenant",
-        "tenantPlaceholder": "Select tenant",
-        "tenantHint": "Required for new contacts",
-        "tenantRequired": "Tenant is required when creating a contact.",
-        "tenantLockedHint": "Tenant cannot be changed after creation",
-        "tenantScopedHint": "Tenant is fixed to your assigned tenant.",
-        "tenantLoadErrorTitle": "Unable to load tenants",
-        "tenantLoadErrorMessage": "We couldn't load tenants. Try again.",
-        "noTenantsMessage": "No tenants are available yet.",
-        "createTenantFirst": "Create a tenant first to add contacts.",
-        "goToTenants": "Go to tenants",
-        "goToTenantsHint": "Open tenant settings",
-        "blockedMessage": "Create a tenant to continue.",
-        "submitCreate": "Create Contact",
-        "submitEdit": "Save Changes",
-        "submitErrorTitle": "Unable to save contact",
-        "submitErrorMessage": "We couldn't save this contact. Check your connection and try again.",
-        "cancel": "Cancel",
-        "cancelHint": "Return without saving",
-        "loadError": "Failed to load contact for editing"
-      },
-      "types": {
-        "PHONE": "Phone",
-        "EMAIL": "Email",
-        "FAX": "Fax",
-        "OTHER": "Other"
-      }
+  "contact": {
+    "list": {
+      "title": "Contacts",
+      "accessibilityLabel": "Contacts list",
+      "emptyTitle": "No contacts",
+      "emptyMessage": "You have no contacts.",
+      "loadError": "Unable to load contacts. Check your connection and try again.",
+      "typeLabel": "Type",
+      "delete": "Delete contact",
+      "deleteHint": "Delete this contact",
+      "itemLabel": "Contact {{name}}",
+      "itemHint": "View details for {{name}}",
+      "addLabel": "Add contact",
+      "addHint": "Create a new contact",
+      "noticeCreated": "Contact created.",
+      "noticeUpdated": "Contact updated.",
+      "noticeDeleted": "Contact removed.",
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have access to contacts."
     },
+    "detail": {
+      "title": "Contact Details",
+      "idLabel": "Contact ID",
+      "tenantLabel": "Tenant",
+      "facilityLabel": "Facility",
+      "branchLabel": "Branch",
+      "patientLabel": "Patient",
+      "userProfileLabel": "User profile",
+      "staffProfileLabel": "Staff profile",
+      "supplierLabel": "Supplier",
+      "valueLabel": "Value",
+      "typeLabel": "Type",
+      "primaryLabel": "Primary",
+      "createdLabel": "Created",
+      "updatedLabel": "Updated",
+      "errorTitle": "Failed to load contact",
+      "notFoundTitle": "Contact not found",
+      "notFoundMessage": "This contact may have been deleted.",
+      "backHint": "Return to contacts list",
+      "delete": "Delete contact",
+      "deleteHint": "Delete this contact",
+      "edit": "Edit contact",
+      "editHint": "Edit this contact"
+    },
+    "form": {
+      "createTitle": "Add Contact",
+      "editTitle": "Edit Contact",
+      "valueLabel": "Value",
+      "valuePlaceholder": "Email, phone, etc.",
+      "valueHint": "Contact value",
+      "valueRequired": "Contact value is required.",
+      "valueTooLong": "Contact value must be at most {{max}} characters.",
+      "typeLabel": "Type",
+      "typePlaceholder": "e.g. EMAIL, PHONE",
+      "typeHint": "Contact type",
+      "typeRequired": "Contact type is required.",
+      "typeInvalid": "Select a valid contact type.",
+      "primaryLabel": "Primary",
+      "primaryHint": "Primary contact",
+      "tenantLabel": "Tenant",
+      "tenantPlaceholder": "Select tenant",
+      "tenantHint": "Required for new contacts",
+      "tenantRequired": "Tenant is required when creating a contact.",
+      "tenantLockedHint": "Tenant cannot be changed after creation",
+      "tenantScopedHint": "Tenant is fixed to your assigned tenant.",
+      "tenantLoadErrorTitle": "Unable to load tenants",
+      "tenantLoadErrorMessage": "We couldn't load tenants. Try again.",
+      "noTenantsMessage": "No tenants are available yet.",
+      "createTenantFirst": "Create a tenant first to add contacts.",
+      "goToTenants": "Go to tenants",
+      "goToTenantsHint": "Open tenant settings",
+      "blockedMessage": "Create a tenant to continue.",
+      "submitCreate": "Create Contact",
+      "submitEdit": "Save Changes",
+      "submitErrorTitle": "Unable to save contact",
+      "submitErrorMessage": "We couldn't save this contact. Check your connection and try again.",
+      "cancel": "Cancel",
+      "cancelHint": "Return without saving",
+      "loadError": "Failed to load contact for editing"
+    },
+    "types": {
+      "PHONE": "Phone",
+      "EMAIL": "Email",
+      "FAX": "Fax",
+      "OTHER": "Other"
+    }
+  },
   "facility": {
     "list": {
       "title": "Facilities",
@@ -3153,6 +3153,495 @@
       "cancel": "Cancel",
       "cancelHint": "Return without saving",
       "loadError": "Failed to load tenant for editing"
+    }
+  },
+  "onboarding": {
+    "layout": {
+      "title": "Onboarding",
+      "subtitle": "Complete setup to activate your workspace."
+    },
+    "resumeLinkSent": {
+      "title": "Check your email",
+      "description": "We sent a secure resume link to continue onboarding.",
+      "emailLabel": "Email address",
+      "hint": "Use the same email and open the latest message to continue.",
+      "expiresIn": "Link expires in {{minutes}} minutes.",
+      "reason": {
+        "pendingVerification": "Your account still needs email verification before activation."
+      },
+      "feedback": {
+        "resent": "A new email has been sent. Check your inbox and spam folder."
+      },
+      "errors": {
+        "title": "Unable to continue",
+        "missingContext": "We could not find your onboarding context. Start again from landing.",
+        "loadFailed": "We could not load your resume details. Try again or restart."
+      },
+      "actions": {
+        "continue": "Continue",
+        "continueHint": "Open token verification and continue onboarding",
+        "continueBlocked": "Continue is unavailable while another action is in progress.",
+        "resend": "Resend email",
+        "resendHint": "Send another resume link to your email",
+        "restart": "Restart onboarding",
+        "restartHint": "Go back to landing and start a fresh onboarding flow"
+      }
+    },
+    "resume": {
+      "title": "Resume onboarding",
+      "description": "Enter your email and verification token to continue.",
+      "fields": {
+        "email": "Email address",
+        "token": "Verification token"
+      },
+      "placeholders": {
+        "email": "you@example.com",
+        "token": "Paste token from email"
+      },
+      "validation": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Enter a valid email address.",
+        "tokenRequired": "Verification token is required."
+      },
+      "feedback": {
+        "verified": "Email verified. Continuing to provisioning...",
+        "resent": "A new verification email has been sent."
+      },
+      "errors": {
+        "title": "Verification failed"
+      },
+      "actions": {
+        "verify": "Verify and continue",
+        "verifyHint": "Verify email token and continue onboarding",
+        "verifyDisabled": "Verification is currently unavailable while another action is running.",
+        "resend": "Resend token",
+        "resendHint": "Request a new verification token",
+        "back": "Back to email step",
+        "backHint": "Return to the email sent confirmation step"
+      }
+    },
+    "provisioning": {
+      "title": "Provisioning workspace",
+      "description": "Preparing {{facility}} with starter setup and sample data.",
+      "progressLabel": "Provisioning progress",
+      "inProgress": "Provisioning {{progress}}% complete.",
+      "complete": "Provisioning complete. Your workspace is ready.",
+      "errors": {
+        "title": "Provisioning unavailable",
+        "missingContext": "Provisioning context is missing. Restart onboarding.",
+        "loadFailed": "We could not load provisioning context. Try again."
+      },
+      "actions": {
+        "continue": "Go to activation summary",
+        "continueHint": "Continue to the welcome summary after provisioning",
+        "continueBlocked": "Continue unlocks once provisioning reaches 100%.",
+        "restart": "Restart onboarding",
+        "restartHint": "Return to landing and start setup again"
+      }
+    },
+    "welcome": {
+      "title": "Activation summary",
+      "description": "Review your setup details before first-run tasks.",
+      "summary": {
+        "email": "Account email",
+        "adminName": "Admin name",
+        "facilityName": "Facility name",
+        "facilityType": "Facility type",
+        "notProvided": "Not provided"
+      },
+      "errors": {
+        "title": "Unable to load summary",
+        "missingContext": "Activation summary is missing required onboarding details.",
+        "loadFailed": "We could not load activation summary. Try again."
+      },
+      "actions": {
+        "continue": "Continue to checklist",
+        "continueHint": "Open first-run checklist and continue onboarding",
+        "restart": "Restart onboarding",
+        "restartHint": "Return to landing and restart onboarding"
+      }
+    },
+    "checklist": {
+      "title": "First-run checklist",
+      "description": "Complete key starter tasks for your facility type.",
+      "readOnlyNote": "Checklist progress is local guidance and does not change backend records.",
+      "progress": "{{completed}} of {{total}} tasks completed",
+      "items": {
+        "register_patient": {
+          "title": "Register first patient",
+          "description": "Capture essential patient details to begin care operations."
+        },
+        "book_appointment": {
+          "title": "Book first appointment",
+          "description": "Create your first appointment and confirm scheduling flow."
+        },
+        "create_invoice": {
+          "title": "Create first invoice",
+          "description": "Generate a bill and verify billing setup works end-to-end."
+        },
+        "record_consultation": {
+          "title": "Record first consultation",
+          "description": "Document a consultation note to validate clinical workflows."
+        },
+        "add_branch": {
+          "title": "Add branch",
+          "description": "Create at least one branch to model multi-site operations."
+        },
+        "invite_staff": {
+          "title": "Invite staff",
+          "description": "Add core team members and assign roles."
+        },
+        "admit_patient": {
+          "title": "Admit patient",
+          "description": "Run one inpatient admission to test hospital flow."
+        },
+        "generate_bill": {
+          "title": "Generate bill",
+          "description": "Create a bill for inpatient or outpatient services."
+        },
+        "add_test": {
+          "title": "Add lab test",
+          "description": "Create your first test entry in diagnostics."
+        },
+        "receive_sample": {
+          "title": "Receive sample",
+          "description": "Record incoming sample details and processing status."
+        },
+        "enter_result": {
+          "title": "Enter result",
+          "description": "Capture a test result to validate reporting flow."
+        },
+        "generate_report": {
+          "title": "Generate report",
+          "description": "Generate a patient-facing result report."
+        },
+        "add_drug": {
+          "title": "Add drug",
+          "description": "Create your first pharmacy inventory item."
+        },
+        "sell_item": {
+          "title": "Sell item",
+          "description": "Process one sale to test POS and billing."
+        },
+        "view_stock_report": {
+          "title": "View stock report",
+          "description": "Check stock visibility and low-stock monitoring."
+        },
+        "add_ambulance": {
+          "title": "Add ambulance",
+          "description": "Register an ambulance unit in the system."
+        },
+        "receive_request": {
+          "title": "Receive request",
+          "description": "Capture an incoming emergency dispatch request."
+        },
+        "dispatch_unit": {
+          "title": "Dispatch unit",
+          "description": "Dispatch a unit to verify emergency workflow."
+        }
+      },
+      "errors": {
+        "title": "Unable to load checklist",
+        "loadFailed": "We could not load checklist data. Try again."
+      },
+      "actions": {
+        "toggleHint": "Toggle checklist completion for this item",
+        "markDone": "Mark as done",
+        "markIncomplete": "Mark as not done",
+        "continue": "Continue to modules",
+        "continueHint": "Save checklist progress and open modules step",
+        "back": "Back to summary",
+        "backHint": "Return to onboarding activation summary"
+      }
+    },
+    "modules": {
+      "title": "Module recommendations",
+      "description": "Pick modules that match your workflows. You can update this later.",
+      "readOnly": "You are viewing recommendations in read-only mode until you sign in.",
+      "loadingData": "Loading modules and subscription context...",
+      "recommendedBadge": "Recommended",
+      "subscriptionLinked": "A subscription is linked. You can save module activation now.",
+      "subscriptionMissing": "No subscription is linked yet. Continue to plan setup first.",
+      "recommendedFallback": {
+        "0": {
+          "title": "Core billing and appointments",
+          "description": "Starter tools for scheduling, registration, and invoicing."
+        },
+        "1": {
+          "title": "Clinical operations",
+          "description": "Clinical workflows for encounters, notes, and follow-up."
+        },
+        "2": {
+          "title": "Inventory and reporting",
+          "description": "Stock visibility and operational reporting for growth."
+        }
+      },
+      "feedback": {
+        "saved": "Module selections saved successfully."
+      },
+      "errors": {
+        "title": "Unable to update modules",
+        "authRequired": "Sign in to save module subscriptions.",
+        "subscriptionRequired": "A subscription is required before module activation."
+      },
+      "actions": {
+        "toggleHint": "Toggle module selection",
+        "add": "Add module",
+        "remove": "Remove module",
+        "save": "Save module choices",
+        "saveHint": "Persist selected module subscriptions",
+        "saveBlockedAuth": "Sign in to save module choices.",
+        "saveBlockedPlan": "Select a plan before saving modules.",
+        "login": "Sign in to continue",
+        "loginHint": "Open login to save module choices",
+        "continue": "Continue to trial",
+        "continueHint": "Proceed to trial status and limits",
+        "back": "Back to checklist",
+        "backHint": "Return to onboarding checklist"
+      }
+    },
+    "trial": {
+      "title": "Trial status",
+      "description": "Review current trial status and limit window.",
+      "readOnly": "Sign in to load live subscription trial status.",
+      "notAvailable": "Not available",
+      "daysLeft": "{{count}} days left",
+      "status": {
+        "trial": "Trial",
+        "active": "Active",
+        "past_due": "Past due",
+        "cancelled": "Cancelled",
+        "unknown": "Unknown"
+      },
+      "fields": {
+        "status": "Subscription status",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "daysLeft": "Remaining trial days"
+      },
+      "empty": {
+        "title": "No trial data found",
+        "description": "No active trial details were returned for this account."
+      },
+      "errors": {
+        "title": "Unable to load trial status"
+      },
+      "actions": {
+        "login": "Sign in for live status",
+        "loginHint": "Authenticate to load subscription trial details",
+        "continue": "Continue to upgrade",
+        "continueHint": "Proceed to upgrade value screen",
+        "back": "Back to modules",
+        "backHint": "Return to module recommendations"
+      }
+    },
+    "upgrade": {
+      "title": "Upgrade value",
+      "description": "See what you unlock when moving beyond trial limits.",
+      "daysLeft": "{{count}} days remaining in your trial window.",
+      "paywallNotice": "Existing data stays accessible. Upgrade unlocks new actions only.",
+      "status": {
+        "trial": "Trial in progress",
+        "active": "Plan active",
+        "past_due": "Payment overdue",
+        "cancelled": "Plan cancelled",
+        "unknown": "Status unavailable"
+      },
+      "value": {
+        "automation": {
+          "title": "Automate daily work",
+          "description": "Reduce manual steps across registration, billing, and operations."
+        },
+        "fasterBilling": {
+          "title": "Faster billing collections",
+          "description": "Improve collection speed with clearer invoicing and payment flow."
+        },
+        "expandedCare": {
+          "title": "Expand care modules safely",
+          "description": "Enable additional modules as your facility needs grow."
+        },
+        "retentionInsights": {
+          "title": "Operational insight visibility",
+          "description": "Track outcomes and usage trends for better decisions."
+        }
+      },
+      "errors": {
+        "title": "Unable to load upgrade context",
+        "loadFailed": "Upgrade context could not be loaded. Return to trial and retry."
+      },
+      "actions": {
+        "continue": "Continue to plans",
+        "continueHint": "Open plan and module selection",
+        "back": "Back to trial",
+        "backHint": "Return to trial status step"
+      }
+    },
+    "plan": {
+      "title": "Choose your plan",
+      "description": "Select a subscription plan and optional modules.",
+      "readOnly": "Sign in to create or update a subscription.",
+      "modulesTitle": "Optional module selection",
+      "moduleFallbackDescription": "No description available for this module.",
+      "planMeta": "{{cycle}} - {{price}}",
+      "fallback": {
+        "starter": {
+          "name": "Starter"
+        },
+        "growth": {
+          "name": "Growth"
+        },
+        "scale": {
+          "name": "Scale"
+        }
+      },
+      "feedback": {
+        "saved": "Plan selection saved. Continue to billing cycle."
+      },
+      "errors": {
+        "title": "Unable to save plan selection",
+        "authRequired": "Sign in to continue with plan selection.",
+        "planRequired": "Select a plan to continue.",
+        "tenantRequired": "Tenant context is required before creating a subscription."
+      },
+      "actions": {
+        "select": "Select plan",
+        "selected": "Selected",
+        "selectHint": "Select this subscription plan",
+        "moduleSelect": "Add module",
+        "moduleSelected": "Module selected",
+        "toggleModuleHint": "Toggle module selection for this subscription",
+        "login": "Sign in",
+        "loginHint": "Authenticate to save plan choices",
+        "continue": "Continue to billing cycle",
+        "continueHint": "Save plan and continue to billing cycle selection",
+        "back": "Back to upgrade",
+        "backHint": "Return to upgrade value screen"
+      },
+      "empty": {
+        "title": "No plans available",
+        "description": "No subscription plans were returned. Retry later or contact support."
+      }
+    },
+    "billingCycle": {
+      "title": "Select billing cycle",
+      "description": "Choose how often your plan will be billed.",
+      "readOnly": "Sign in to apply billing cycle changes.",
+      "options": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "yearly": "Yearly"
+      },
+      "meta": {
+        "monthly": "Billed every month",
+        "quarterly": "Billed every 3 months",
+        "yearly": "Billed every 12 months"
+      },
+      "errors": {
+        "title": "Unable to update billing cycle",
+        "authRequired": "Sign in to continue with billing cycle setup.",
+        "cycleRequired": "Choose a billing cycle to continue."
+      },
+      "actions": {
+        "select": "Select cycle",
+        "selected": "Selected",
+        "selectHint": "Select this billing cycle",
+        "login": "Sign in",
+        "loginHint": "Authenticate to save billing cycle",
+        "continue": "Continue to payment",
+        "continueHint": "Save billing cycle and proceed to payment",
+        "back": "Back to plans",
+        "backHint": "Return to plan selection"
+      }
+    },
+    "payment": {
+      "title": "Payment checkout",
+      "description": "Choose a payment method and complete activation.",
+      "readOnly": "Sign in to complete payment.",
+      "methods": {
+        "credit_card": {
+          "title": "Credit card",
+          "description": "Pay instantly with major credit cards."
+        },
+        "mobile_money": {
+          "title": "Mobile money",
+          "description": "Pay using your mobile wallet provider."
+        },
+        "bank_transfer": {
+          "title": "Bank transfer",
+          "description": "Pay by direct transfer from your bank account."
+        }
+      },
+      "summary": {
+        "amount": "Amount due",
+        "amountValue": "{{currency}} {{amount}}",
+        "cycle": "Billing cycle: {{cycle}}"
+      },
+      "feedback": {
+        "success": "Payment created successfully. Verifying activation..."
+      },
+      "errors": {
+        "title": "Unable to process payment",
+        "authRequired": "Sign in before creating payment records.",
+        "subscriptionRequired": "Subscription context is required to continue.",
+        "tenantRequired": "Tenant context is required to continue.",
+        "amountInvalid": "Payment amount must be greater than zero."
+      },
+      "actions": {
+        "selectMethod": "Select method",
+        "selectedMethod": "Selected",
+        "selectMethodHint": "Select this payment method",
+        "login": "Sign in",
+        "loginHint": "Authenticate before payment",
+        "pay": "Pay now",
+        "payHint": "Create invoice, payment, and activate subscription",
+        "payBlockedAuth": "Sign in to pay and activate your subscription.",
+        "payBlockedPending": "Payment is processing. Please wait.",
+        "back": "Back to billing cycle",
+        "backHint": "Return to billing cycle selection"
+      }
+    },
+    "paymentSuccess": {
+      "title": "Activation status",
+      "descriptionActivated": "Payment and subscription activation are confirmed.",
+      "descriptionPending": "Activation is still syncing. Retry to refresh status.",
+      "notAvailable": "Not available",
+      "status": {
+        "active": "Active",
+        "trial": "Trial",
+        "past_due": "Past due",
+        "cancelled": "Cancelled",
+        "unknown": "Unknown"
+      },
+      "paymentStatus": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "refunded": "Refunded",
+        "unknown": "Unknown"
+      },
+      "summary": {
+        "subscriptionStatus": "Subscription status",
+        "paymentStatus": "Payment status",
+        "amount": "Amount paid",
+        "amountValue": "{{currency}} {{amount}}",
+        "method": "Payment method"
+      },
+      "errors": {
+        "title": "Unable to verify activation",
+        "missingContext": "Payment context is missing. Return to payment and try again.",
+        "authRequiredTitle": "Sign in required",
+        "authRequiredDescription": "Sign in to verify payment activation from your account."
+      },
+      "actions": {
+        "login": "Sign in",
+        "loginHint": "Authenticate to verify activation status",
+        "continue": "Go to dashboard",
+        "continueHint": "Open dashboard after activation confirmation",
+        "retry": "Retry verification",
+        "retryHint": "Reload activation and payment status",
+        "back": "Back to payment",
+        "backHint": "Return to payment checkout"
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ export const REGISTRATION_CONTEXT_KEY = 'hms.onboarding.registration.context';
 
 const normalizeRecord = (record) => {
   if (!record || typeof record !== 'object') return null;
+  const expiryMinutes = Number(record.verification_expires_in_minutes);
   return {
     email: typeof record.email === 'string' ? record.email.trim().toLowerCase() : '',
     admin_name: typeof record.admin_name === 'string' ? record.admin_name.trim() : '',
@@ -19,6 +20,8 @@ const normalizeRecord = (record) => {
     facility_display_name:
       typeof record.facility_display_name === 'string' ? record.facility_display_name.trim() : '',
     created_at: typeof record.created_at === 'string' ? record.created_at : new Date().toISOString(),
+    verification_expires_in_minutes:
+      Number.isFinite(expiryMinutes) && expiryMinutes > 0 ? Math.round(expiryMinutes) : 15,
   };
 };
 
@@ -36,4 +39,3 @@ export const readRegistrationContext = async () => {
 export const clearRegistrationContext = async () => {
   return asyncStorage.removeItem(REGISTRATION_CONTEXT_KEY);
 };
-

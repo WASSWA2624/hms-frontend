@@ -13,6 +13,7 @@ import {
   saveOnboardingEntry,
 } from '@navigation/onboardingEntry';
 import { saveAuthResumeContext } from '@navigation/authResumeContext';
+import { saveOnboardingStep } from '@navigation/onboardingProgress';
 import { saveRegistrationContext } from '@navigation/registrationContext';
 import { FACILITY_OPTIONS, REGISTER_DRAFT_KEY } from './types';
 
@@ -240,14 +241,23 @@ const useRegisterScreen = () => {
         });
         await saveAuthResumeContext({
           identifier: payload.email,
-          next_path: '/verify-email',
+          next_path: '/resume-link-sent',
           params: { email: payload.email },
         });
+        await saveOnboardingStep('resume_link_sent', {
+          email: payload.email,
+          admin_name: resolvedAdminName,
+          facility_name: resolvedFacilityName,
+          facility_type: resolvedFacilityType,
+          tenant_id: responseUser?.tenant_id || '',
+          facility_id: responseUser?.facility_id || '',
+        });
         router.replace({
-          pathname: '/verify-email',
+          pathname: '/resume-link-sent',
           params: {
             email: payload.email,
             reason: emailAlreadyUsed ? 'pending_verification' : '',
+            expires_in_minutes: responseVerification?.expires_in_minutes || 15,
           },
         });
         return true;
