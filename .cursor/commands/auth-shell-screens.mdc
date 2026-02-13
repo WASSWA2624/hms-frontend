@@ -1,0 +1,192 @@
+**11.2.1** Login -- `(auth)/login`
+
+Review and implement all missing and non compliant aspects of the above dev step as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected auth/shell step
+- `write-up.md`
+
+Only implement what is required for this single Tier 2 screen to function correctly.
+
+---
+
+## Scope
+
+Implement full functionality required for the selected Tier 2 step (`11.2.1` to `11.2.8`):
+
+- Route + screen wiring under `(auth)/*` and `(main)/dashboard`
+- Backend-aligned API integration for the selected auth/shell flow
+- Loading, empty, error, and success states
+- Validation for all required inputs
+- Authentication/session state handling and route guarding
+- Login/forgot/reset/verify/token flows where backend supports them
+- Tenant and facility selection behavior where required by backend response/context
+- Navigation (Back / Cancel / Continue / Save) with no dead ends
+- Prefill known fields from safe route/query/session context where applicable
+- Role-feature access control for dashboard route and actions for logged-in user
+- Accessibility control for all route states and auth actions (enabled, disabled, blocked)
+
+Do NOT implement steps outside Tier 2.
+
+---
+
+## Access Control (Mandatory)
+
+- Enforce auth/session access using existing hooks/utilities/patterns already used in the app
+- Use a single access source of truth (existing auth/session + role-feature mapping) for rendering and route decisions
+- Apply access checks to both:
+  - UI actions (submit/retry/resend/continue/switch context/logout where applicable)
+  - Route navigation (including direct deep links to `(auth)` and `(main)/dashboard`)
+- Never rely on UI hiding alone; route-level protection must prevent unauthorized access
+- Block unauthorized data actions before API calls and handle backend `401/403` responses with clear feedback
+- For unauthorized routes:
+  - Redirect to the nearest valid route (login, tenant-selection, facility-selection, or dashboard)
+  - Preserve safe navigation and avoid dead ends
+- Dashboard must be inaccessible without a valid authenticated context
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers
+- Ensure current step/location is perceivable via visible and accessible state
+- For visible-but-blocked actions, use `aria-disabled="true"` on web, prevent execution, and provide an accessible reason
+- Ensure keyboard navigation order, focus visibility, and focus restoration after submit/redirect/error
+- Provide screen-reader friendly feedback for denied access, loading, errors, and successful actions
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing **Public/Auth Layout** and **Main Layout**
+- No layout redesign
+- No nested scroll containers
+- No nested sidebars
+- Use existing breadcrumb/route navigation patterns where applicable
+- Match current auth/dashboard screens visually and structurally
+
+---
+
+## UI / UX Rules
+
+- Clean, compact, modern UI
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android)
+- Clear action hierarchy
+- Human-friendly copy via i18n keys only
+- No duplicate UI
+- No oversized elements
+- No dead-end navigation
+
+Buttons:
+- Use existing auth/main button styles
+- Compact and consistent
+
+Forms:
+- Clear labels and helpful placeholders
+- Inline validation messages
+- Required fields clearly indicated
+- Logical field order
+- Disable invalid submit actions while preserving accessible reason text
+
+Auth UX:
+- Preserve safe user input state where possible (for example, identifier values across retries)
+- Handle token/query-param driven flows explicitly (reset/verify)
+- Do not leak sensitive account state outside backend-approved messaging behavior
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully
+- Human-readable, actionable error messages
+- Clear success/failure feedback for every supported action
+- Disable duplicate submissions while pending
+- Preserve user state where possible
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders)
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety
+
+---
+
+## Backend Linkage (Mandatory)
+
+Every implemented feature/action must call real backend endpoints for the selected Tier 2 step:
+
+- `11.2.1` Login (`(auth)/login`)
+  - `POST /api/v1/auth/login`
+  - Optional identify-first flow only if app already uses it: `POST /api/v1/auth/identify`
+- `11.2.2` Forgot password (`(auth)/forgot-password`)
+  - `POST /api/v1/auth/forgot-password`
+- `11.2.3` Reset password (`(auth)/reset-password`)
+  - `POST /api/v1/auth/reset-password`
+- `11.2.4` Verify email (`(auth)/verify-email`)
+  - `POST /api/v1/auth/verify-email`
+  - Optional resend action: `POST /api/v1/auth/resend-verification` with `type=email`
+- `11.2.5` Verify phone (`(auth)/verify-phone`)
+  - `POST /api/v1/auth/verify-phone`
+  - Optional resend action: `POST /api/v1/auth/resend-verification` with `type=phone`
+- `11.2.6` Tenant selection (`(auth)/tenant-selection`)
+  - `POST /api/v1/auth/identify` and/or `POST /api/v1/auth/login` with `tenant_id`
+- `11.2.7` Facility selection (`(auth)/facility-selection`)
+  - `POST /api/v1/auth/login` with `facility_id` when applicable
+  - Confirm selected context with `GET /api/v1/auth/me` as needed by existing flow
+- `11.2.8` Dashboard (`(main)/dashboard`)
+  - `GET /api/v1/auth/me` for authenticated context bootstrap
+  - Only existing backend endpoints may be used for dashboard data (no invented APIs)
+
+Keep request/response fields strictly aligned with backend schema/validation rules.
+Do not ship mock data, fake success states, or disconnected UI actions.
+If backend intentionally lacks support for an action, expose read-only/informational UX and block unsupported writes.
+
+All operations MUST match backend schema and endpoint behavior exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Modify onboarding flows
+- Modify settings flows
+- Change layout or routing architecture
+- Add global components or new patterns
+- Invent backend fields or behaviors
+- Implement screens outside Tier 2
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing auth/main layouts reused
+- Backend-aligned functionality for the selected Tier 2 step
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen works independently and integrates with current auth/main navigation
+- Access control is enforced for actions and routes (including deep links)
+- Accessibility is preserved for all states, including unauthorized/disabled states
+- All applicable features/actions are fully functional and backend-linked
+- Unauthorized users cannot execute actions via URL, keyboard, or direct API-triggering UI paths
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component(s) for the selected Tier 2 step
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
+4. Validation logic (if applicable)
+5. State handling logic
+6. Loading + empty + error UI
+7. Success/failure feedback implementation
+8. Navigation handlers
+9. Backend contract alignment confirmation
+10. Access control implementation confirmation (actions + routes)
+11. Accessibility control confirmation for all states
+12. Route-guard + navigation accessibility confirmation (keyboard/focus/blocked actions)
+13. Action-to-backend linkage confirmation for all enabled features in the selected screen
+
+Do NOT include files or logic outside the selected Tier 2 screen.

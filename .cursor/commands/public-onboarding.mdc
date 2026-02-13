@@ -1,0 +1,253 @@
+Selected step (choose one and replace this line before running):
+- `11.1.1` Landing + facility type selection -- `(public)/landing`
+- `11.1.2` Register (minimal signup) -- `(auth)/register`
+- `11.1.3` Resume link sent (check email) -- `(auth)/resume-link-sent`
+- `11.1.4` Resume onboarding (token handler) -- `(onboarding)/resume`
+- `11.1.5` Provisioning (tenant + modules + sample data) -- `(onboarding)/provisioning`
+- `11.1.6` Welcome / activation summary -- `(onboarding)/welcome`
+- `11.1.7` First-run checklist (facility-specific) -- `(onboarding)/checklist`
+- `11.1.8` Module recommendations + progressive unlocks -- `(onboarding)/modules`
+- `11.1.9` Trial status + limits -- `(onboarding)/trial`
+- `11.1.10` Upgrade value (paywall messaging) -- `(onboarding)/upgrade`
+- `11.1.11` Plan/modules selection -- `(onboarding)/plan`
+- `11.1.12` Billing cycle selection -- `(onboarding)/billing-cycle`
+- `11.1.13` Payment checkout -- `(onboarding)/payment`
+- `11.1.14` Payment success + activation -- `(onboarding)/payment-success`
+
+Review and implement all missing and non compliant aspects of the selected dev step as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected onboarding/public step
+- `hms-frontend/special-features/onboarding-journey.md`
+- `write-up.md`
+
+Only implement what is required for this single Tier 1 screen to function correctly.
+
+---
+
+## Scope
+
+Implement full functionality required for the selected Tier 1 step (`11.1.1` to `11.1.14`):
+
+- Route + screen wiring under `(public)/*`, `(auth)/*`, and `(onboarding)/*` as applicable to the selected step
+- Backend-aligned API integration for the selected public/onboarding flow
+- Loading, empty, error, and success states
+- Validation for all required inputs/actions
+- Onboarding state persistence after every completed step
+- Resume-onboarding behavior that restores the exact step/state when a valid resume link is used
+- Facility-type-aware behavior (checklist, recommendations, trial limits, and upgrade guidance) for the selected step
+- Trial/paywall behavior that never blocks viewing existing data and only limits new restricted actions
+- Navigation (Back / Cancel / Continue / Save / Retry) with no dead ends
+- Prefill known fields from safe route/query/session/onboarding context where applicable
+- Accessibility control for all route and action states (enabled, disabled, blocked, loading, error)
+
+Do NOT implement steps outside Tier 1.
+
+---
+
+## Access Control + Route Guarding (Mandatory)
+
+- Enforce auth/session/onboarding access using existing hooks/utilities/patterns already used in the app
+- Use a single source of truth (existing auth/session + onboarding progress state) for rendering and route decisions
+- Apply access checks to both:
+  - UI actions (submit/retry/resend/continue/pay/upgrade/activate where applicable)
+  - Route navigation (including direct deep links to `(onboarding)/*`)
+- Never rely on UI hiding alone; route-level protection must prevent invalid step access
+- Block unauthorized or invalid-state actions before API calls and handle backend `401/403/422` responses with clear feedback
+- For invalid onboarding routes:
+  - Redirect to the nearest valid onboarding/public route for the current progress
+  - Preserve safe navigation and avoid dead ends
+- Keep paywall behavior compliant: block only restricted new actions and always allow existing data visibility
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers
+- Ensure current onboarding step/location is perceivable via visible and accessible state
+- For visible-but-blocked actions, use `aria-disabled="true"` on web, prevent execution, and provide an accessible reason
+- Ensure keyboard navigation order, focus visibility, and focus restoration after submit/redirect/error
+- Provide screen-reader friendly feedback for loading, validation, denied actions, errors, and successful completion
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing **Public/Auth Layout** and **Onboarding Layout**
+- No layout redesign
+- No nested scroll containers
+- No nested sidebars
+- Use existing route navigation patterns
+- Match current public/auth/onboarding screens visually and structurally
+
+---
+
+## UI / UX Rules
+
+- Clean, compact, modern UI
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android)
+- Clear action hierarchy
+- Human-friendly copy via i18n keys only
+- No duplicate UI
+- No oversized elements
+- No dead-end navigation
+
+Buttons:
+- Use existing public/auth/onboarding button styles
+- Compact and consistent
+
+Forms:
+- Clear labels and helpful placeholders
+- Inline validation messages
+- Required fields clearly indicated
+- Logical field order
+- Disable invalid submit actions while preserving accessible reason text
+
+Onboarding UX:
+- Persist progress state after each completed action/step
+- Resume links must restore the exact saved step and context
+- Facility-type logic must only drive relevant copy, checklist items, limits, and recommendations
+- Do not expose fake payment/provider states; only show backend-supported options/actions
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully
+- Human-readable, actionable error messages
+- Clear success/failure feedback for every supported action
+- Disable duplicate submissions while pending
+- Preserve user input/progress state where safe
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders)
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety
+
+---
+
+## Backend Linkage (Mandatory)
+
+Every implemented feature/action must call real backend endpoints allowed by the selected Tier 1 step:
+
+- `11.1.1` Landing (`(public)/landing`)
+  - No mandatory write endpoint; persist selected facility type in app onboarding state
+  - Optional read endpoints only if this screen shows dynamic plan/module previews: `GET /api/v1/subscription-plans`, `GET /api/v1/modules`
+
+- `11.1.2` Register (`(auth)/register`)
+  - `POST /api/v1/auth/register`
+  - Optional follow-up context read: `GET /api/v1/auth/me` if existing flow requires it
+
+- `11.1.3` Resume link sent (`(auth)/resume-link-sent`)
+  - Informational state from prior registration response/context
+  - Optional resend action only if already supported in app/backend: `POST /api/v1/auth/resend-verification`
+
+- `11.1.4` Resume onboarding (`(onboarding)/resume`)
+  - Token validation/session bootstrap via existing auth flow used by app (for example `POST /api/v1/auth/verify-email` and/or `GET /api/v1/auth/me`)
+  - Restore progress from backend-supported onboarding/session data; no invented onboarding endpoints
+
+- `11.1.5` Provisioning (`(onboarding)/provisioning`)
+  - `POST /api/v1/tenants`
+  - `POST /api/v1/facilities`
+  - `GET /api/v1/modules`
+  - `POST /api/v1/module-subscriptions`
+  - Optional subscription bootstrap if required by backend flow: `POST /api/v1/subscriptions`
+
+- `11.1.6` Welcome (`(onboarding)/welcome`)
+  - `GET /api/v1/auth/me`
+  - `GET /api/v1/tenants/{id}` and/or `GET /api/v1/facilities/{id}`
+  - `GET /api/v1/module-subscriptions`
+
+- `11.1.7` Checklist (`(onboarding)/checklist`)
+  - Derive completion/progress from real backend data via existing module endpoints relevant to checklist items
+  - No mocked completion states
+
+- `11.1.8` Modules (`(onboarding)/modules`)
+  - `GET /api/v1/modules`
+  - `GET /api/v1/module-subscriptions`
+  - `POST /api/v1/module-subscriptions`
+  - `PUT /api/v1/module-subscriptions/{id}` (and `DELETE` where backend flow supports removal)
+
+- `11.1.9` Trial (`(onboarding)/trial`)
+  - `GET /api/v1/subscriptions`
+  - `GET /api/v1/subscription-usage`
+  - `GET /api/v1/subscription-plans`
+
+- `11.1.10` Upgrade (`(onboarding)/upgrade`)
+  - `GET /api/v1/subscription-plans`
+  - `GET /api/v1/modules`
+  - `GET /api/v1/subscription-usage`
+
+- `11.1.11` Plan (`(onboarding)/plan`)
+  - `GET /api/v1/subscription-plans`
+  - Optional plan feature read: `GET /api/v1/subscription-plans/{id}/features`
+  - Persist selected plan/modules via `POST /api/v1/subscriptions` or `PUT /api/v1/subscriptions/{id}` per existing flow
+
+- `11.1.12` Billing cycle (`(onboarding)/billing-cycle`)
+  - `PUT /api/v1/subscriptions/{id}` with backend-supported billing cycle fields
+  - Optional refresh reads: `GET /api/v1/subscriptions/{id}`, `GET /api/v1/subscription-plans`
+
+- `11.1.13` Payment (`(onboarding)/payment`)
+  - `GET /api/v1/subscription-invoices`
+  - `POST /api/v1/subscription-invoices/{id}/pay` where available
+  - Payment method flow (if supported): `GET/POST /api/v1/subscription-payment-methods`, `POST /api/v1/subscription-payment-methods/{id}/set-default`
+
+- `11.1.14` Payment success (`(onboarding)/payment-success`)
+  - `GET /api/v1/subscriptions/{id}`
+  - `GET /api/v1/subscription-invoices/{id}`
+  - `GET /api/v1/auth/me` before final activation redirect/context refresh
+
+Keep request/response fields strictly aligned with backend schema/validation rules.
+Do not ship mock data, fake success states, or disconnected UI actions.
+If backend intentionally lacks support for an action, expose informational/read-only UX and block unsupported writes.
+
+All operations MUST match backend schema and endpoint behavior exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Modify Tier 2, Tier 3, or other non-selected screens
+- Change layout or routing architecture
+- Add global components or new patterns
+- Invent backend fields or behaviors
+- Implement more than one Tier 1 step in a single run
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing public/auth/onboarding layouts reused
+- Backend-aligned functionality for the selected Tier 1 step
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen works independently and integrates with current public/auth/onboarding navigation
+- Access checks are enforced for actions and routes (including deep links)
+- Accessibility is preserved for all states, including disabled/blocked states
+- All applicable features/actions are fully functional and backend-linked
+- Onboarding state is saved and safely restorable for the selected flow
+- Paywall behavior never blocks existing data visibility
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component(s) for the selected Tier 1 step
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
+4. Validation logic (if applicable)
+5. State handling logic (including onboarding progress persistence where relevant)
+6. Loading + empty + error UI
+7. Success/failure feedback implementation
+8. Navigation handlers + route-guard behavior
+9. Backend contract alignment confirmation
+10. Access control implementation confirmation (actions + routes)
+11. Accessibility control confirmation for all states
+12. Resume-onboarding + step restoration confirmation (if applicable)
+13. Action-to-backend linkage confirmation for all enabled features in the selected screen
+
+Do NOT include files or logic outside the selected Tier 1 screen.
