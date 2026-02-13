@@ -979,6 +979,29 @@
     "welcome": {
       "title": "Get started",
       "description": "Choose the fastest path to continue.",
+      "reasons": {
+        "badge": "Continue with confidence",
+        "title": "Continue with confidence",
+        "description": "Secure access, faster setup, and verified identity checks in one flow.",
+        "items": {
+          "secureAccess": {
+            "title": "Secure sign-in",
+            "description": "Protected access for patient and billing workflows."
+          },
+          "quickSetup": {
+            "title": "Quick setup",
+            "description": "Create your workspace in minutes, not hours."
+          },
+          "verifiedIdentity": {
+            "title": "Verified identity",
+            "description": "Email verification reduces account misuse."
+          },
+          "resumeFlow": {
+            "title": "Resume anytime",
+            "description": "Continue exactly where you left off."
+          }
+        }
+      },
       "resume": {
         "title": "Continue where you left off",
         "description": "Resume with {{identifier}}",
@@ -995,11 +1018,11 @@
       },
       "actions": {
         "signIn": "Sign in",
-        "signInHint": "Continue to sign in",
+        "signInHint": "Continue to sign in if already have an account",
         "createAccount": "Create account",
-        "createAccountHint": "Create a new account",
+        "createAccountHint": "Create a new account if you are new",
         "verifyEmail": "Verify email",
-        "verifyEmailHint": "Open email verification flow"
+        "verifyEmailHint": "Open email verification flow to verify your email address."
       }
     },
     "login": {
@@ -2925,4 +2948,3 @@
     }
   }
 }
-
