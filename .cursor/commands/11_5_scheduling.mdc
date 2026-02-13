@@ -1,0 +1,282 @@
+Steps to review and implement:
+- **11.5.1** Scheduling (main) -- `(main)/scheduling`
+- **11.5.2** Appointment -- `(main)/scheduling/appointments`
+- **11.5.3** Provider schedule -- `(main)/scheduling/provider-schedules`
+- **11.5.4** Availability slot -- `(main)/scheduling/availability-slots`
+- **11.5.5** Visit queue -- `(main)/scheduling/visit-queues`
+
+Review and implement all missing and non-compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/dev-plan/P011_screens-routes.md`
+- `hms-frontend/write-up.md`
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for selected scheduling resources
+- Actual mounted backend routes in `hms-backend/src/app/router.js` and scheduling module route files:
+  - `hms-backend/src/modules/appointment/routes/appointment.routes.js`
+  - `hms-backend/src/modules/provider-schedule/routes/provider-schedule.routes.js`
+  - `hms-backend/src/modules/availability-slot/routes/availability-slot.routes.js`
+  - `hms-backend/src/modules/visit-queue/routes/visit-queue.routes.js`
+- If backend changes are required, full compliance with `hms-backend/.cursor/rules/*` is mandatory
+
+Only implement what is required for the selected Tier 5 screen(s) to function correctly.
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- The request can target one or more steps from `11.5.1` to `11.5.5`
+- Implement only the explicitly selected step(s)
+- If a selected step depends on shared scheduling wiring, implement only the minimal shared wiring required
+- Do NOT auto-implement unselected sibling steps
+
+---
+
+## Scope
+
+Implement full functionality required for the selected Tier 5 step(s):
+
+- Route + screen wiring under `(main)/scheduling/*`
+- Backend-aligned API integration for selected scheduling resources
+- Loading, empty, error, offline, and success states
+- Validation for required create/edit inputs
+- List, detail, create, edit, and delete flows where backend supports them
+- Appointment cancel flow where backend supports it
+- Navigation (Back / Cancel / Save / Continue) with no dead ends
+- Parent-child flow continuity from Scheduling main screen to selected sub-resources
+- Prefill and relationship handling from trusted context (`tenant_id`, `facility_id`, `patient_id`, `provider_user_id`, `schedule_id`, `appointment_id`)
+- Role-feature access control for logged-in users on all selected scheduling routes/actions
+- Accessibility control for all selected scheduling actions and route states
+
+The selected step(s) can be one or more of:
+- `11.5.1` Scheduling (main) -- `(main)/scheduling`
+- `11.5.2` Appointment -- `(main)/scheduling/appointments`
+- `11.5.3` Provider schedule -- `(main)/scheduling/provider-schedules`
+- `11.5.4` Availability slot -- `(main)/scheduling/availability-slots`
+- `11.5.5` Visit queue -- `(main)/scheduling/visit-queues`
+
+Do NOT implement steps outside the selected Tier 5 step(s).
+
+---
+
+## Backend Reality Check (Mandatory)
+
+- Treat `hms-backend/src/app/router.js` + scheduling module route files as source of truth
+- Use only mounted top-level resources:
+  - `/api/v1/appointments`
+  - `/api/v1/provider-schedules`
+  - `/api/v1/availability-slots`
+  - `/api/v1/visit-queues`
+- Respect actual filter support:
+  - Appointments: `tenant_id`, `facility_id`, `patient_id`, `provider_user_id`, `status`, `search`
+  - Provider schedules: `tenant_id`, `facility_id`, `provider_user_id`, `day_of_week`
+  - Availability slots: `schedule_id`, `is_available`
+  - Visit queues: `tenant_id`, `facility_id`, `patient_id`, `appointment_id`, `provider_user_id`, `status`, `search`
+- Do not call frontend endpoint constants that are not mounted by backend routes
+- Do not invent nested shortcut endpoints such as:
+  - `/api/v1/providers/:provider_user_id/schedules`
+  - `/api/v1/provider-schedules/:id/slots`
+  - `/api/v1/appointments/:id/visit-queue`
+  - `/api/v1/patients/:id/appointments`
+  - `/api/v1/appointments/:id/reminders`
+  - `/api/v1/appointments/:id/participants`
+- Do not expand scope into `appointment-participants` or `appointment-reminders` unless explicitly selected in a different task
+- If backend support does not exist for a selected write action, provide read-only/informational UX and block unsupported writes
+
+---
+
+## Backend Change Policy (Mandatory)
+
+- Modify backend only when strictly required for selected Tier 5 step(s)
+- Any backend modification must follow `hms-backend/.cursor/rules/*`
+- Preserve backend architecture and conventions (versioned routing, module structure, validation, response format, auth/security, tests)
+- Do not introduce ad-hoc backend behavior that bypasses established module patterns
+
+---
+
+## Access Control (Mandatory)
+
+- Enforce access using existing auth/session and role-feature hooks/utilities/patterns already used in the app
+- Use a single source of truth for auth/session + role-feature access
+- Apply access checks to both:
+  - UI actions (view/create/edit/delete/cancel/retry where applicable)
+  - Route navigation (including direct deep links to `(main)/scheduling/*`)
+- Never rely on UI hiding alone; route-level protection must prevent unauthorized access
+- Block unauthorized data actions before API calls and handle backend `401/403` responses with clear feedback
+- For unauthorized routes, redirect to nearest allowed main route and preserve safe navigation
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers
+- Ensure current location is perceivable via visible and accessible state
+- For visible-but-blocked actions, use `aria-disabled="true"` on web, prevent execution, and provide an accessible reason
+- Ensure keyboard navigation order, focus visibility, and focus restoration after submit/redirect/error
+- Provide screen-reader friendly feedback for loading, errors, denied actions, and successful actions
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing **Main Layout** and existing route-group layout patterns for `(main)/scheduling`
+- If scheduling route-group layout is missing, create it using existing composition patterns (no redesign)
+- No layout redesign
+- No nested scroll containers
+- No nested sidebars
+- Match current main/settings/dashboard screens visually and structurally
+
+---
+
+## UI / UX Rules
+
+- Clean, compact, modern UI
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android)
+- Clear action hierarchy
+- Human-friendly copy via i18n keys only
+- No duplicate UI
+- No oversized elements
+- No dead-end navigation
+
+Buttons:
+- Use existing main/scheduling button styles
+- Compact and consistent
+
+Forms:
+- Clear labels and helpful placeholders
+- Inline validation messages
+- Required fields clearly indicated
+- Logical field order
+- Disable invalid submit actions while preserving accessible reason text
+- Enforce safe date-time ordering (for example `start < end`) where required by backend contract
+
+Scheduling flow UX:
+- The selected Tier 5 flow must be self-directed for first-time staff users without a manual
+- Keep primary actions obvious and reduce cognitive load
+- Explain required relationship context (patient/provider/schedule linkage) in plain language
+- Minimize required data entry to backend-required fields only
+- Preserve selected scheduling context while navigating between related scheduling sub-resources
+
+---
+
+## Security by Design (Mandatory)
+
+- Apply secure-by-default behavior across selected scheduling screens/actions
+- Collect only data required for the selected step; do not request unnecessary sensitive data
+- Never expose secrets/tokens/PII in logs, analytics, or UI debug text
+- Prevent duplicate/replay-like submissions with pending/disabled action states
+- Validate and sanitize all route/query params before use (`id`, `tenant_id`, `facility_id`, `patient_id`, `provider_user_id`, `schedule_id`, `appointment_id`, pagination/filter values)
+- Use existing secure auth/session storage and request utilities
+- Enforce route/action guards before API calls, not only via UI visibility
+- For blocked/unauthorized states, show clear non-technical feedback without leaking sensitive details
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully
+- Human-readable, actionable error messages
+- Clear success/failure feedback for every supported action
+- Disable duplicate submissions while pending
+- Preserve user state where possible (filters, selected context, pagination)
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders)
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety
+
+---
+
+## Backend Linkage (Mandatory)
+
+Every implemented feature/action must call real backend endpoints for the selected Tier 5 step(s):
+
+- `11.5.1` Scheduling (main) (`(main)/scheduling`)
+  - Use mounted scheduling resource endpoints for primary list/context, at minimum: `GET /api/v1/appointments`
+  - If showing summary cards, use mounted list endpoints (`provider-schedules`, `availability-slots`, `visit-queues`) with valid filters
+  - Do not invent aggregate/dashboard endpoints for scheduling main
+
+- `11.5.2` Appointment (`(main)/scheduling/appointments`)
+  - `GET /api/v1/appointments`
+  - `GET /api/v1/appointments/:id`
+  - `POST /api/v1/appointments`
+  - `PUT /api/v1/appointments/:id`
+  - `DELETE /api/v1/appointments/:id`
+  - `POST /api/v1/appointments/:id/cancel` (only when implementing cancellation action)
+
+- `11.5.3` Provider schedule (`(main)/scheduling/provider-schedules`)
+  - `GET /api/v1/provider-schedules`
+  - `GET /api/v1/provider-schedules/:id`
+  - `POST /api/v1/provider-schedules`
+  - `PUT /api/v1/provider-schedules/:id`
+  - `DELETE /api/v1/provider-schedules/:id`
+
+- `11.5.4` Availability slot (`(main)/scheduling/availability-slots`)
+  - `GET /api/v1/availability-slots`
+  - `GET /api/v1/availability-slots/:id`
+  - `POST /api/v1/availability-slots`
+  - `PUT /api/v1/availability-slots/:id`
+  - `DELETE /api/v1/availability-slots/:id`
+
+- `11.5.5` Visit queue (`(main)/scheduling/visit-queues`)
+  - `GET /api/v1/visit-queues`
+  - `GET /api/v1/visit-queues/:id`
+  - `POST /api/v1/visit-queues`
+  - `PUT /api/v1/visit-queues/:id`
+  - `DELETE /api/v1/visit-queues/:id`
+
+Keep request/response fields strictly aligned with backend schema/validation rules.
+Do not ship mock data, fake success states, or disconnected UI actions.
+If backend intentionally lacks support for an action, expose read-only/informational UX and block unsupported writes.
+
+All operations MUST match backend schema and endpoint behavior exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Modify Tier 1/Tier 2/Tier 3/Tier 4 screens or flows unless required by selected Tier 5 step(s)
+- Change layout or routing architecture outside required Tier 5 route wiring
+- Add global components or new patterns
+- Invent backend fields, endpoints, or behaviors
+- Implement screens outside selected Tier 5 step(s)
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing layout patterns reused
+- Backend-aligned functionality for selected Tier 5 step(s)
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen(s) work independently and integrate with current main navigation
+- Access control is enforced for actions and routes (including deep links)
+- Accessibility is preserved for all states, including unauthorized/disabled states
+- The selected scheduling flow can be completed without a manual
+- The selected scheduling flow remains secure by default (no data leakage, no insecure shortcuts)
+- All applicable features/actions are fully functional and backend-linked
+- Unauthorized users cannot execute restricted actions via URL, keyboard, or direct API-triggering UI paths
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component(s) for selected Tier 5 step(s)
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
+4. Validation logic (if applicable)
+5. State handling logic
+6. Loading + empty + error + offline UI
+7. Success/failure feedback implementation
+8. Navigation handlers
+9. Backend contract alignment confirmation
+10. Access control implementation confirmation (actions + routes)
+11. Accessibility control confirmation for all states
+12. Route-guard + navigation accessibility confirmation (keyboard/focus/blocked actions)
+13. Action-to-backend linkage confirmation for all enabled features in selected screen(s)
+14. Explicit note for any selected action intentionally read-only due to missing backend support
+
+Do NOT include files or logic outside selected Tier 5 screen(s).
