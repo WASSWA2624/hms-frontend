@@ -1,19 +1,17 @@
-**11.2.1** Login -- `(auth)/login`
-
-Review and implement all missing and non compliant aspects of the above dev step as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+Review and implement all missing and non compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
 
 You must ensure 100% compliance with:
 - All rules in `hms-frontend/.cursor/rules/*`
-- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected auth/shell step
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for the selected auth/shell step(s)
 - `write-up.md`
 
-Only implement what is required for this single Tier 2 screen to function correctly.
+Only implement what is required for this/these Tier 2 screen(s) to function correctly.
 
 ---
 
 ## Scope
 
-Implement full functionality required for the selected Tier 2 step (`11.2.1` to `11.2.8`):
+Implement full functionality required for the selected Tier 2 step(s) (`11.2.1` to `11.2.8`):
 
 - Route + screen wiring under `(auth)/*` and `(main)/dashboard`
 - Backend-aligned API integration for the selected auth/shell flow
@@ -27,7 +25,17 @@ Implement full functionality required for the selected Tier 2 step (`11.2.1` to 
 - Role-feature access control for dashboard route and actions for logged-in user
 - Accessibility control for all route states and auth actions (enabled, disabled, blocked)
 
-Do NOT implement steps outside Tier 2.
+The selected step(s) can be one or more of:
+- `11.2.1` Login -- `(auth)/login`
+- `11.2.2` Forgot password -- `(auth)/forgot-password`
+- `11.2.3` Reset password -- `(auth)/reset-password`
+- `11.2.4` Verify email -- `(auth)/verify-email`
+- `11.2.5` Verify phone -- `(auth)/verify-phone`
+- `11.2.6` Tenant selection -- `(auth)/tenant-selection`
+- `11.2.7` Facility selection -- `(auth)/facility-selection`
+- `11.2.8` Dashboard -- `(main)/dashboard`
+
+Do NOT implement steps outside the selected Tier 2 step(s).
 
 ---
 
@@ -111,7 +119,7 @@ Auth UX:
 
 ## Backend Linkage (Mandatory)
 
-Every implemented feature/action must call real backend endpoints for the selected Tier 2 step:
+Every implemented feature/action must call real backend endpoints for the selected Tier 2 step(s):
 
 - `11.2.1` Login (`(auth)/login`)
   - `POST /api/v1/auth/login`
@@ -160,10 +168,10 @@ Do NOT:
 
 - 100% rules compliance
 - Existing auth/main layouts reused
-- Backend-aligned functionality for the selected Tier 2 step
+- Backend-aligned functionality for the selected Tier 2 step(s)
 - Responsive UI with clear validation and feedback
 - No nested scroll
-- Screen works independently and integrates with current auth/main navigation
+- Screen(s) work independently and integrate with current auth/main navigation
 - Access control is enforced for actions and routes (including deep links)
 - Accessibility is preserved for all states, including unauthorized/disabled states
 - All applicable features/actions are fully functional and backend-linked
@@ -175,7 +183,7 @@ Do NOT:
 
 Return ONLY:
 
-1. Screen/Page component(s) for the selected Tier 2 step
+1. Screen/Page component(s) for the selected Tier 2 step(s)
 2. Form component(s) (if applicable)
 3. API integration hook usage/updates (if applicable)
 4. Validation logic (if applicable)
@@ -187,6 +195,6 @@ Return ONLY:
 10. Access control implementation confirmation (actions + routes)
 11. Accessibility control confirmation for all states
 12. Route-guard + navigation accessibility confirmation (keyboard/focus/blocked actions)
-13. Action-to-backend linkage confirmation for all enabled features in the selected screen
+13. Action-to-backend linkage confirmation for all enabled features in the selected screen(s)
 
-Do NOT include files or logic outside the selected Tier 2 screen.
+Do NOT include files or logic outside the selected Tier 2 screen(s).
