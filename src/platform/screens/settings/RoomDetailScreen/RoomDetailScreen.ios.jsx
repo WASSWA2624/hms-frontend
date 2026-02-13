@@ -141,6 +141,7 @@ const RoomDetailScreenIOS = () => {
   const floor = room?.floor ?? '';
   const tenantId = room?.tenant_id ?? '';
   const facilityId = room?.facility_id ?? '';
+  const wardId = room?.ward_id ?? '';
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -200,6 +201,14 @@ const RoomDetailScreenIOS = () => {
                 <Text variant="label">{t('room.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="room-detail-facility">
                   {facilityId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {wardId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('room.detail.wardLabel')}</Text>
+                <Text variant="body" testID="room-detail-ward">
+                  {wardId}
                 </Text>
               </StyledDetailItem>
             ) : null}

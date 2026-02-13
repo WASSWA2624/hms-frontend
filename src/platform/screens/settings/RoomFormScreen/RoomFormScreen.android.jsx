@@ -40,6 +40,8 @@ const RoomFormScreenAndroid = () => {
     setTenantId,
     facilityId,
     setFacilityId,
+    wardId,
+    setWardId,
     tenantOptions,
     tenantListLoading,
     tenantListError,
@@ -48,8 +50,13 @@ const RoomFormScreenAndroid = () => {
     facilityListLoading,
     facilityListError,
     facilityErrorMessage,
+    wardOptions,
+    wardListLoading,
+    wardListError,
+    wardErrorMessage,
     hasTenants,
     hasFacilities,
+    hasWards,
     isCreateBlocked,
     isFacilityBlocked,
     isLoading,
@@ -67,8 +74,10 @@ const RoomFormScreenAndroid = () => {
     onCancel,
     onGoToTenants,
     onGoToFacilities,
+    onGoToWards,
     onRetryTenants,
     onRetryFacilities,
+    onRetryWards,
     isSubmitDisabled,
   } = useRoomFormScreen();
 
@@ -134,6 +143,19 @@ const RoomFormScreenAndroid = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const retryWardsAction = onRetryWards ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryWards}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="room-form-ward-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(room));
   const showTenantBlocked = !isEdit && isCreateBlocked;
   const showFacilityBlocked = !isEdit && isFacilityBlocked;
@@ -142,10 +164,12 @@ const RoomFormScreenAndroid = () => {
     ? t('room.form.facilityBlockedMessage')
     : t('room.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const showWardEmpty = Boolean(facilityId) && !wardListLoading && !wardListError && !hasWards;
   const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('room.form.nameHint'));
   const floorHelperText = floorError || (showCreateBlocked ? blockedMessage : t('room.form.floorHint'));
   const tenantHelperText = tenantError || t('room.form.tenantHint');
   const facilityHelperText = facilityError || t('room.form.facilityHint');
+  const wardHelperText = t('room.form.wardHint');
   const tenantLockedHint = t('room.form.tenantLockedHint');
 
   return (
@@ -327,6 +351,71 @@ const RoomFormScreenAndroid = () => {
                 </StyledFieldGroup>
               </StyledFullRow>
             )}
+
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {wardListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="room-form-ward-loading"
+                  />
+                ) : wardListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('room.form.wardLoadErrorTitle')}
+                    description={wardErrorMessage}
+                    action={retryWardsAction}
+                    testID="room-form-ward-error"
+                  />
+                ) : !facilityId ? (
+                  <Select
+                    label={t('room.form.wardLabel')}
+                    placeholder={t('room.form.wardPlaceholder')}
+                    options={[]}
+                    value=""
+                    onValueChange={() => {}}
+                    accessibilityLabel={t('room.form.wardLabel')}
+                    accessibilityHint={t('room.form.selectFacilityFirst')}
+                    helperText={t('room.form.selectFacilityFirst')}
+                    disabled
+                    testID="room-form-select-facility-ward"
+                  />
+                ) : showWardEmpty ? (
+                  <StyledHelperStack
+                    accessibilityLabel={t('room.form.wardLabel')}
+                    accessibilityRole="summary"
+                    testID="room-form-no-wards"
+                  >
+                    <Text variant="body">{t('room.form.noWardsMessage')}</Text>
+                    <Text variant="body">{t('room.form.createWardOptional')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToWards}
+                      accessibilityLabel={t('room.form.goToWards')}
+                      accessibilityHint={t('room.form.goToWardsHint')}
+                      icon={<Icon glyph="?" size="xs" decorative />}
+                      testID="room-form-go-to-wards"
+                    >
+                      {t('room.form.goToWards')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('room.form.wardLabel')}
+                    placeholder={t('room.form.wardPlaceholder')}
+                    options={wardOptions}
+                    value={wardId}
+                    onValueChange={setWardId}
+                    accessibilityLabel={t('room.form.wardLabel')}
+                    accessibilityHint={t('room.form.wardHint')}
+                    helperText={wardHelperText}
+                    disabled={isFormDisabled}
+                    testID="room-form-ward"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
 
             <StyledFieldGroup>
               <TextField

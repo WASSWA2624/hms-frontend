@@ -36,12 +36,15 @@ const BedFormScreenAndroid = () => {
     setLabel,
     status,
     setStatus,
+    statusOptions,
     tenantId,
     setTenantId,
     facilityId,
     setFacilityId,
     wardId,
     setWardId,
+    roomId,
+    setRoomId,
     tenantOptions,
     tenantListLoading,
     tenantListError,
@@ -54,9 +57,14 @@ const BedFormScreenAndroid = () => {
     wardListLoading,
     wardListError,
     wardErrorMessage,
+    roomOptions,
+    roomListLoading,
+    roomListError,
+    roomErrorMessage,
     hasTenants,
     hasFacilities,
     hasWards,
+    hasRooms,
     isCreateBlocked,
     isFacilityBlocked,
     isWardBlocked,
@@ -65,14 +73,23 @@ const BedFormScreenAndroid = () => {
     errorMessage,
     isOffline,
     bed,
+    labelError,
+    statusError,
+    tenantError,
+    facilityError,
+    wardError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
     onGoToFacilities,
     onGoToWards,
+    onGoToRooms,
     onRetryTenants,
     onRetryFacilities,
     onRetryWards,
+    onRetryRooms,
     isSubmitDisabled,
   } = useBedFormScreen();
 
@@ -151,6 +168,19 @@ const BedFormScreenAndroid = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const retryRoomsAction = onRetryRooms ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryRooms}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="bed-form-room-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
   const showInlineError = hasError && (!isEdit || Boolean(bed));
   const showTenantBlocked = !isEdit && isCreateBlocked;
   const showFacilityBlocked = !isEdit && isFacilityBlocked;
@@ -163,6 +193,13 @@ const BedFormScreenAndroid = () => {
       : t('bed.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
   const showWardEmpty = Boolean(facilityId) && !wardListLoading && !wardListError && !hasWards;
+  const showRoomEmpty = Boolean(wardId) && !roomListLoading && !roomListError && !hasRooms;
+  const labelHelperText = labelError || (showCreateBlocked ? blockedMessage : t('bed.form.labelHint'));
+  const statusHelperText = statusError || (showCreateBlocked ? blockedMessage : t('bed.form.statusHint'));
+  const tenantHelperText = tenantError || t('bed.form.tenantHint');
+  const facilityHelperText = facilityError || t('bed.form.facilityHint');
+  const wardHelperText = wardError || t('bed.form.wardHint');
+  const roomSelectOptions = [{ value: '', label: t('bed.form.roomNone') }, ...roomOptions];
 
   return (
     <StyledContainer>
@@ -170,6 +207,7 @@ const BedFormScreenAndroid = () => {
         <Text variant="h2" accessibilityRole="header" testID="bed-form-title">
           {isEdit ? t('bed.form.editTitle') : t('bed.form.createTitle')}
         </Text>
+
         <StyledInlineStates>
           {isOffline && (
             <OfflineState
@@ -191,7 +229,7 @@ const BedFormScreenAndroid = () => {
 
         <Card variant="outlined" accessibilityLabel={t('bed.form.labelLabel')} testID="bed-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -236,7 +274,8 @@ const BedFormScreenAndroid = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('bed.form.tenantLabel')}
                       accessibilityHint={t('bed.form.tenantHint')}
-                      helperText={t('bed.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="bed-form-tenant"
@@ -249,7 +288,7 @@ const BedFormScreenAndroid = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('bed.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('bed.form.tenantLabel')}
                     accessibilityHint={t('bed.form.tenantLockedHint')}
                     helperText={t('bed.form.tenantLockedHint')}
@@ -318,7 +357,8 @@ const BedFormScreenAndroid = () => {
                       onValueChange={setFacilityId}
                       accessibilityLabel={t('bed.form.facilityLabel')}
                       accessibilityHint={t('bed.form.facilityHint')}
-                      helperText={t('bed.form.facilityHint')}
+                      errorMessage={facilityError}
+                      helperText={facilityHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="bed-form-facility"
@@ -400,7 +440,8 @@ const BedFormScreenAndroid = () => {
                       onValueChange={setWardId}
                       accessibilityLabel={t('bed.form.wardLabel')}
                       accessibilityHint={t('bed.form.wardHint')}
-                      helperText={t('bed.form.wardHint')}
+                      errorMessage={wardError}
+                      helperText={wardHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="bed-form-ward"
@@ -424,6 +465,71 @@ const BedFormScreenAndroid = () => {
               </StyledFullRow>
             )}
 
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {roomListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="bed-form-room-loading"
+                  />
+                ) : roomListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('bed.form.roomLoadErrorTitle')}
+                    description={roomErrorMessage}
+                    action={retryRoomsAction}
+                    testID="bed-form-room-error"
+                  />
+                ) : !facilityId || !wardId ? (
+                  <Select
+                    label={t('bed.form.roomLabel')}
+                    placeholder={t('bed.form.roomPlaceholder')}
+                    options={[]}
+                    value=""
+                    onValueChange={() => {}}
+                    accessibilityLabel={t('bed.form.roomLabel')}
+                    accessibilityHint={t('bed.form.selectWardFirst')}
+                    helperText={t('bed.form.selectWardFirst')}
+                    disabled
+                    testID="bed-form-select-ward"
+                  />
+                ) : showRoomEmpty ? (
+                  <StyledHelperStack
+                    accessibilityLabel={t('bed.form.roomLabel')}
+                    accessibilityRole="summary"
+                    testID="bed-form-no-rooms"
+                  >
+                    <Text variant="body">{t('bed.form.noRoomsMessage')}</Text>
+                    <Text variant="body">{t('bed.form.createRoomOptional')}</Text>
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onGoToRooms}
+                      accessibilityLabel={t('bed.form.goToRooms')}
+                      accessibilityHint={t('bed.form.goToRoomsHint')}
+                      icon={<Icon glyph="?" size="xs" decorative />}
+                      testID="bed-form-go-to-rooms"
+                    >
+                      {t('bed.form.goToRooms')}
+                    </Button>
+                  </StyledHelperStack>
+                ) : (
+                  <Select
+                    label={t('bed.form.roomLabel')}
+                    placeholder={t('bed.form.roomPlaceholder')}
+                    options={roomSelectOptions}
+                    value={roomId}
+                    onValueChange={setRoomId}
+                    accessibilityLabel={t('bed.form.roomLabel')}
+                    accessibilityHint={t('bed.form.roomHint')}
+                    helperText={t('bed.form.roomHint')}
+                    disabled={isFormDisabled}
+                    testID="bed-form-room"
+                  />
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
+
             <StyledFieldGroup>
               <TextField
                 label={t('bed.form.labelLabel')}
@@ -432,8 +538,10 @@ const BedFormScreenAndroid = () => {
                 onChangeText={setLabel}
                 accessibilityLabel={t('bed.form.labelLabel')}
                 accessibilityHint={t('bed.form.labelHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('bed.form.labelHint')}
+                errorMessage={labelError}
+                helperText={labelHelperText}
                 required
+                maxLength={50}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="bed-form-label"
@@ -441,15 +549,17 @@ const BedFormScreenAndroid = () => {
             </StyledFieldGroup>
 
             <StyledFieldGroup>
-              <TextField
+              <Select
                 label={t('bed.form.statusLabel')}
                 placeholder={t('bed.form.statusPlaceholder')}
+                options={statusOptions}
                 value={status}
-                onChangeText={setStatus}
+                onValueChange={setStatus}
                 accessibilityLabel={t('bed.form.statusLabel')}
                 accessibilityHint={t('bed.form.statusHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('bed.form.statusHint')}
-                density="compact"
+                errorMessage={statusError}
+                helperText={statusHelperText}
+                required={!isEdit}
                 disabled={isFormDisabled}
                 testID="bed-form-status"
               />
@@ -490,3 +600,4 @@ const BedFormScreenAndroid = () => {
 };
 
 export default BedFormScreenAndroid;
+

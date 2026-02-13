@@ -27,6 +27,14 @@ import {
 } from './BedDetailScreen.web.styles';
 import useBedDetailScreen from './useBedDetailScreen';
 
+const resolveBedStatusLabel = (t, status) => {
+  const normalizedStatus = String(status ?? '').trim();
+  if (!normalizedStatus) return '';
+  const key = `bed.form.statusOptions.${normalizedStatus}`;
+  const resolved = t(key);
+  return resolved === key ? normalizedStatus : resolved;
+};
+
 const BedDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
@@ -138,10 +146,11 @@ const BedDetailScreenWeb = () => {
   const createdAt = formatDateTime(bed.created_at, locale);
   const updatedAt = formatDateTime(bed.updated_at, locale);
   const label = bed?.label ?? '';
-  const status = bed?.status ?? '';
+  const status = resolveBedStatusLabel(t, bed?.status);
   const tenantId = bed?.tenant_id ?? '';
   const facilityId = bed?.facility_id ?? '';
   const wardId = bed?.ward_id ?? '';
+  const roomId = bed?.room_id ?? '';
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -212,6 +221,14 @@ const BedDetailScreenWeb = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
+            {roomId ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('bed.detail.roomLabel')}</Text>
+                <Text variant="body" testID="bed-detail-room">
+                  {roomId}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
             {label ? (
               <StyledDetailItem>
                 <Text variant="label">{t('bed.detail.labelLabel')}</Text>
@@ -273,18 +290,20 @@ const BedDetailScreenWeb = () => {
               {t('bed.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('bed.detail.delete')}
-            accessibilityHint={t('bed.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="bed-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('bed.detail.delete')}
+              accessibilityHint={t('bed.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="bed-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

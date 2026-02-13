@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useBed } from '@hooks';
+import { useI18n, useNetwork, useBed, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'bed.list.noticeUpdated',
     deleted: 'bed.list.noticeDeleted',
     queued: 'bed.list.noticeQueued',
+    accessDenied: 'bed.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useBedListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -45,6 +52,10 @@ const useBedListScreen = () => {
 
   const [search, setSearch] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageBeds = canAccessTenantSettings;
+  const canCreateBed = canManageBeds;
+  const canDeleteBed = canManageBeds;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -59,14 +70,40 @@ const useBedListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageBeds) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [
+    isResolved,
+    canManageBeds,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageBeds) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageBeds, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageBeds) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
-  }, [fetchList, search]);
+  }, [isResolved, canManageBeds, canManageAllTenants, normalizedTenantId, fetchList, search]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -84,6 +121,15 @@ const useBedListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageBeds) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageBeds, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
@@ -95,13 +141,15 @@ const useBedListScreen = () => {
 
   const handleBedPress = useCallback(
     (id) => {
+      if (!canManageBeds) return;
       router.push(`/settings/beds/${id}`);
     },
-    [router]
+    [canManageBeds, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteBed) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -118,18 +166,19 @@ const useBedListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t, search]
+    [canDeleteBed, remove, fetchList, isOffline, t, search]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateBed) return;
     router.push('/settings/beds/create');
-  }, [router]);
+  }, [canCreateBed, router]);
 
   return {
     items,
     search,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
@@ -137,8 +186,8 @@ const useBedListScreen = () => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onBedPress: handleBedPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteBed ? handleDelete : undefined,
+    onAdd: canCreateBed ? handleAdd : undefined,
   };
 };
 

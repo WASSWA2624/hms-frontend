@@ -321,18 +321,20 @@ const AddressDetailScreenWeb = () => {
               {t('address.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('address.detail.delete')}
-            accessibilityHint={t('address.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="address-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('address.detail.delete')}
+              accessibilityHint={t('address.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="address-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

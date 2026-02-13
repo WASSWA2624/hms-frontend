@@ -58,10 +58,22 @@ export function getNavItemLabel(t, item, prefix = MAIN_NAV_I18N) {
 // ─── Settings children (same structure: id, icon, path, name; no children) ───
 /** @type {MainNavChild[]} */
 const SETTINGS_ITEMS = [
-  { id: 'settings-addresses', icon: 'map-outline', path: '/settings/addresses', name: `${MAIN_NAV_I18N}.settings-addresses` },
+  {
+    id: 'settings-addresses',
+    icon: 'map-outline',
+    path: '/settings/addresses',
+    name: `${MAIN_NAV_I18N}.settings-addresses`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   { id: 'settings-api-keys', icon: 'key-outline', path: '/settings/api-keys', name: `${MAIN_NAV_I18N}.settings-api-keys` },
   { id: 'settings-api-key-permissions', icon: 'shield-outline', path: '/settings/api-key-permissions', name: `${MAIN_NAV_I18N}.settings-api-key-permissions` },
-  { id: 'settings-beds', icon: 'bed-outline', path: '/settings/beds', name: `${MAIN_NAV_I18N}.settings-beds` },
+  {
+    id: 'settings-beds',
+    icon: 'bed-outline',
+    path: '/settings/beds',
+    name: `${MAIN_NAV_I18N}.settings-beds`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   {
     id: 'settings-branches',
     icon: 'git-branch-outline',

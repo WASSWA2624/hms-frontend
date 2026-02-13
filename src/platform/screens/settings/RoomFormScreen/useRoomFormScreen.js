@@ -10,6 +10,7 @@ import {
   useRoom,
   useTenant,
   useFacility,
+  useWard,
   useTenantAccess,
 } from '@hooks';
 
@@ -36,7 +37,12 @@ const useRoomFormScreen = () => {
     isResolved,
   } = useTenantAccess();
   const router = useRouter();
-  const { id, tenantId: tenantIdParam, facilityId: facilityIdParam } = useLocalSearchParams();
+  const {
+    id,
+    tenantId: tenantIdParam,
+    facilityId: facilityIdParam,
+    wardId: wardIdParam,
+  } = useLocalSearchParams();
   const routeRoomId = useMemo(() => {
     if (Array.isArray(id)) return id[0] || null;
     return id || null;
@@ -56,6 +62,13 @@ const useRoomFormScreen = () => {
     errorCode: facilityErrorCode,
     reset: resetFacilities,
   } = useFacility();
+  const {
+    list: listWards,
+    data: wardData,
+    isLoading: wardListLoading,
+    errorCode: wardErrorCode,
+    reset: resetWards,
+  } = useWard();
 
   const isEdit = Boolean(routeRoomId);
   const canManageRooms = canAccessTenantSettings;
@@ -70,9 +83,12 @@ const useRoomFormScreen = () => {
   const [floor, setFloor] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [facilityId, setFacilityId] = useState('');
+  const [wardId, setWardId] = useState('');
   const tenantPrefillRef = useRef(false);
   const facilityPrefillRef = useRef(false);
+  const wardPrefillRef = useRef(false);
   const previousTenantRef = useRef('');
+  const previousFacilityRef = useRef('');
 
   const room = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
@@ -84,6 +100,10 @@ const useRoomFormScreen = () => {
   const facilityItems = useMemo(
     () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
     [facilityData]
+  );
+  const wardItems = useMemo(
+    () => (Array.isArray(wardData) ? wardData : (wardData?.items ?? [])),
+    [wardData]
   );
   const tenantOptions = useMemo(() => {
     if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
@@ -104,6 +124,20 @@ const useRoomFormScreen = () => {
     }
     return options;
   }, [facilityItems, facilityId]);
+  const wardOptions = useMemo(() => {
+    const options = wardItems.map((ward) => ({
+      value: ward.id,
+      label: ward.name ?? ward.id ?? '',
+    }));
+    if (wardId && !options.some((option) => option.value === wardId)) {
+      return [{ value: wardId, label: wardId }, ...options];
+    }
+    return options;
+  }, [wardItems, wardId]);
+  const wardSelectOptions = useMemo(
+    () => [{ value: '', label: t('room.form.wardNoneOption') }, ...wardOptions],
+    [t, wardOptions]
+  );
 
   useEffect(() => {
     if (!isResolved) return;
@@ -166,6 +200,7 @@ const useRoomFormScreen = () => {
       setFloor(room.floor ?? '');
       setTenantId(String(room.tenant_id ?? normalizedScopedTenantId ?? ''));
       setFacilityId(room.facility_id ?? '');
+      setWardId(room.ward_id ?? '');
     }
   }, [room, normalizedScopedTenantId]);
 
@@ -194,7 +229,7 @@ const useRoomFormScreen = () => {
   }, [isResolved, canManageRooms, isEdit, room, errorCode, router]);
 
   useEffect(() => {
-    if (!isResolved || !canManageRooms || isEdit) return;
+    if (!isResolved || !canManageRooms) return;
     const trimmedTenant = String(tenantId ?? '').trim();
     if (!trimmedTenant) {
       resetFacilities();
@@ -202,17 +237,45 @@ const useRoomFormScreen = () => {
     }
     resetFacilities();
     listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
-  }, [isResolved, canManageRooms, tenantId, isEdit, listFacilities, resetFacilities]);
+  }, [isResolved, canManageRooms, tenantId, listFacilities, resetFacilities]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageRooms) return;
+    const trimmedFacility = String(facilityId ?? '').trim();
+    if (!trimmedFacility) {
+      resetWards();
+      return;
+    }
+    const params = { page: 1, limit: 200, facility_id: trimmedFacility };
+    const trimmedTenant = String(tenantId ?? '').trim();
+    if (trimmedTenant) {
+      params.tenant_id = trimmedTenant;
+    }
+    resetWards();
+    listWards(params);
+  }, [isResolved, canManageRooms, facilityId, tenantId, listWards, resetWards]);
 
   useEffect(() => {
     if (isEdit) return;
     const trimmedTenant = String(tenantId ?? '').trim();
     if (previousTenantRef.current && previousTenantRef.current !== trimmedTenant) {
       setFacilityId('');
+      setWardId('');
       facilityPrefillRef.current = false;
+      wardPrefillRef.current = false;
     }
     previousTenantRef.current = trimmedTenant;
   }, [tenantId, isEdit]);
+
+  useEffect(() => {
+    if (isEdit) return;
+    const trimmedFacility = String(facilityId ?? '').trim();
+    if (previousFacilityRef.current && previousFacilityRef.current !== trimmedFacility) {
+      setWardId('');
+      wardPrefillRef.current = false;
+    }
+    previousFacilityRef.current = trimmedFacility;
+  }, [facilityId, isEdit]);
 
   useEffect(() => {
     if (isEdit) return;
@@ -256,10 +319,26 @@ const useRoomFormScreen = () => {
     }
   }, [isEdit, facilityIdParam, facilityOptions, facilityId]);
 
+  useEffect(() => {
+    if (isEdit) return;
+    if (wardPrefillRef.current) return;
+    const paramValue = Array.isArray(wardIdParam) ? wardIdParam[0] : wardIdParam;
+    if (paramValue) {
+      setWardId(String(paramValue));
+      wardPrefillRef.current = true;
+      return;
+    }
+    if (wardOptions.length === 1 && !wardId) {
+      setWardId(wardOptions[0].value);
+      wardPrefillRef.current = true;
+    }
+  }, [isEdit, wardIdParam, wardOptions, wardId]);
+
   const trimmedName = name.trim();
   const trimmedFloor = floor.trim();
   const trimmedTenantId = String(tenantId ?? '').trim();
   const trimmedFacilityId = String(facilityId ?? '').trim();
+  const trimmedWardId = String(wardId ?? '').trim();
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'room.form.submitErrorMessage'),
     [t, errorCode]
@@ -272,10 +351,16 @@ const useRoomFormScreen = () => {
     () => resolveErrorMessage(t, facilityErrorCode, 'room.form.facilityLoadErrorMessage'),
     [t, facilityErrorCode]
   );
+  const wardErrorMessage = useMemo(
+    () => resolveErrorMessage(t, wardErrorCode, 'room.form.wardLoadErrorMessage'),
+    [t, wardErrorCode]
+  );
   const tenantListError = Boolean(tenantErrorCode);
   const facilityListError = Boolean(facilityErrorCode);
+  const wardListError = Boolean(wardErrorCode);
   const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const hasFacilities = facilityOptions.length > 0;
+  const hasWards = wardOptions.length > 0;
   const requiresTenant = !isEdit;
   const requiresFacility = !isEdit;
   const isCreateBlocked = requiresTenant && !hasTenants;
@@ -353,9 +438,15 @@ const useRoomFormScreen = () => {
       if (!isEdit) {
         payload.tenant_id = trimmedTenantId;
         payload.facility_id = trimmedFacilityId;
+        if (trimmedWardId) {
+          payload.ward_id = trimmedWardId;
+        }
       }
       if (isEdit && !trimmedFloor) {
         payload.floor = null;
+      }
+      if (isEdit) {
+        payload.ward_id = trimmedWardId || null;
       }
       if (isEdit && routeRoomId) {
         const result = await update(routeRoomId, payload);
@@ -382,6 +473,7 @@ const useRoomFormScreen = () => {
     trimmedFloor,
     trimmedTenantId,
     trimmedFacilityId,
+    trimmedWardId,
     create,
     update,
     router,
@@ -399,6 +491,10 @@ const useRoomFormScreen = () => {
     router.push('/settings/facilities');
   }, [router]);
 
+  const handleGoToWards = useCallback(() => {
+    router.push('/settings/wards');
+  }, [router]);
+
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
@@ -412,6 +508,18 @@ const useRoomFormScreen = () => {
     listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
   }, [listFacilities, resetFacilities, tenantId]);
 
+  const handleRetryWards = useCallback(() => {
+    const trimmedFacility = String(facilityId ?? '').trim();
+    resetWards();
+    if (!trimmedFacility) return;
+    const params = { page: 1, limit: 200, facility_id: trimmedFacility };
+    const trimmedTenant = String(tenantId ?? '').trim();
+    if (trimmedTenant) {
+      params.tenant_id = trimmedTenant;
+    }
+    listWards(params);
+  }, [facilityId, tenantId, listWards, resetWards]);
+
   return {
     isEdit,
     name,
@@ -422,6 +530,8 @@ const useRoomFormScreen = () => {
     setTenantId,
     facilityId,
     setFacilityId,
+    wardId,
+    setWardId,
     tenantOptions,
     tenantListLoading: isTenantScopedAdmin ? false : tenantListLoading,
     tenantListError: isTenantScopedAdmin ? false : tenantListError,
@@ -430,8 +540,13 @@ const useRoomFormScreen = () => {
     facilityListLoading,
     facilityListError,
     facilityErrorMessage,
+    wardOptions: wardSelectOptions,
+    wardListLoading,
+    wardListError,
+    wardErrorMessage,
     hasTenants,
     hasFacilities,
+    hasWards,
     isCreateBlocked,
     isFacilityBlocked,
     isLoading: !isResolved || isLoading,
@@ -449,8 +564,10 @@ const useRoomFormScreen = () => {
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,
     onGoToFacilities: handleGoToFacilities,
+    onGoToWards: handleGoToWards,
     onRetryTenants: handleRetryTenants,
     onRetryFacilities: handleRetryFacilities,
+    onRetryWards: handleRetryWards,
     isSubmitDisabled,
     testID: 'room-form-screen',
   };

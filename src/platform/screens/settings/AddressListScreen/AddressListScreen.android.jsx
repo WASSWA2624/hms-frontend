@@ -108,7 +108,7 @@ const AddressListScreenAndroid = () => {
         title={title}
         subtitle={subtitle}
         onPress={() => onAddressPress(address.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -120,7 +120,7 @@ const AddressListScreenAndroid = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : null}
         accessibilityLabel={t('address.list.itemLabel', { name: title })}
         accessibilityHint={t('address.list.itemHint', { name: title })}
         testID={`address-item-${address.id}`}

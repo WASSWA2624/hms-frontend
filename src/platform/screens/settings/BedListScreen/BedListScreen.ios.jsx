@@ -34,6 +34,14 @@ import {
 } from './BedListScreen.ios.styles';
 import useBedListScreen from './useBedListScreen';
 
+const resolveBedStatusLabel = (t, status) => {
+  const normalizedStatus = String(status ?? '').trim();
+  if (!normalizedStatus) return '';
+  const key = `bed.form.statusOptions.${normalizedStatus}`;
+  const resolved = t(key);
+  return resolved === key ? normalizedStatus : resolved;
+};
+
 const BedListScreenIOS = () => {
   const { t } = useI18n();
   const {
@@ -95,13 +103,14 @@ const BedListScreenIOS = () => {
 
   const renderItem = ({ item: bed }) => {
     const title = bed?.label ?? bed?.id ?? '';
-    const subtitle = bed?.status ? `${t('bed.list.statusLabel')}: ${bed.status}` : '';
+    const statusLabel = resolveBedStatusLabel(t, bed?.status);
+    const subtitle = statusLabel ? `${t('bed.list.statusLabel')}: ${statusLabel}` : '';
     return (
       <ListItem
         title={title}
         subtitle={subtitle}
         onPress={() => onBedPress(bed.id)}
-        actions={
+        actions={onDelete ? (
           <Button
             variant="surface"
             size="small"
@@ -113,7 +122,7 @@ const BedListScreenIOS = () => {
           >
             {t('common.remove')}
           </Button>
-        }
+        ) : undefined}
         accessibilityLabel={t('bed.list.itemLabel', { name: title })}
         accessibilityHint={t('bed.list.itemHint', { name: title })}
         testID={`bed-item-${bed.id}`}

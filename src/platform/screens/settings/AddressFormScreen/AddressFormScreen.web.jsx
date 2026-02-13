@@ -49,21 +49,49 @@ const AddressFormScreenWeb = () => {
     setCountry,
     tenantId,
     setTenantId,
+    facilityId,
+    setFacilityId,
+    branchId,
+    setBranchId,
     tenantOptions,
+    facilityOptions,
+    branchOptions,
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    facilityListLoading,
+    facilityListError,
+    facilityErrorMessage,
+    branchListLoading,
+    branchListError,
+    branchErrorMessage,
     hasTenants,
+    hasFacilities,
+    hasBranches,
     isCreateBlocked,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
     address,
+    addressTypeError,
+    line1Error,
+    line2Error,
+    cityError,
+    stateError,
+    postalCodeError,
+    countryError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     onSubmit,
     onCancel,
     onGoToTenants,
+    onGoToFacilities,
+    onGoToBranches,
     onRetryTenants,
+    onRetryFacilities,
+    onRetryBranches,
     isSubmitDisabled,
   } = useAddressFormScreen();
 
@@ -116,8 +144,49 @@ const AddressFormScreenWeb = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const retryFacilitiesAction = onRetryFacilities ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryFacilities}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="address-form-facility-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+  const retryBranchesAction = onRetryBranches ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetryBranches}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+      icon={<Icon glyph="?" size="xs" decorative />}
+      testID="address-form-branch-retry"
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+
   const showInlineError = hasError && (!isEdit || Boolean(address));
   const blockedMessage = t('address.form.blockedMessage');
+  const tenantHelperText = tenantError || t('address.form.tenantHint');
+  const typeHelperText = addressTypeError || (isCreateBlocked ? blockedMessage : t('address.form.typeHint'));
+  const line1HelperText = line1Error || (isCreateBlocked ? blockedMessage : t('address.form.line1Hint'));
+  const line2HelperText = line2Error || t('address.form.line2Hint');
+  const cityHelperText = cityError || t('address.form.cityHint');
+  const stateHelperText = stateError || t('address.form.stateHint');
+  const postalCodeHelperText = postalCodeError || t('address.form.postalCodeHint');
+  const countryHelperText = countryError || t('address.form.countryHint');
+  const facilityHelperText = !tenantId
+    ? t('address.form.selectTenantFirst')
+    : (hasFacilities ? t('address.form.facilityHint') : t('address.form.noFacilitiesMessage'));
+  const branchHelperText = !tenantId
+    ? t('address.form.selectTenantFirst')
+    : (hasBranches ? t('address.form.branchHint') : t('address.form.noBranchesMessage'));
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('address.form.editTitle') : t('address.form.createTitle')}>
@@ -147,7 +216,7 @@ const AddressFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('address.form.line1Label')} testID="address-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -192,7 +261,8 @@ const AddressFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('address.form.tenantLabel')}
                       accessibilityHint={t('address.form.tenantHint')}
-                      helperText={t('address.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -206,7 +276,7 @@ const AddressFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('address.form.tenantLabel')}
-                    value={tenantId}
+                    value={isEdit ? tenantId : lockedTenantDisplay}
                     accessibilityLabel={t('address.form.tenantLabel')}
                     accessibilityHint={t('address.form.tenantLockedHint')}
                     helperText={t('address.form.tenantLockedHint')}
@@ -217,6 +287,106 @@ const AddressFormScreenWeb = () => {
               </StyledFullRow>
             )}
 
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {facilityListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="address-form-facility-loading"
+                  />
+                ) : facilityListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('address.form.facilityLoadErrorTitle')}
+                    description={facilityErrorMessage}
+                    action={retryFacilitiesAction}
+                    testID="address-form-facility-error"
+                  />
+                ) : (
+                  <>
+                    <Select
+                      label={t('address.form.facilityLabel')}
+                      placeholder={t('address.form.facilityPlaceholder')}
+                      options={facilityOptions}
+                      value={facilityId}
+                      onValueChange={setFacilityId}
+                      accessibilityLabel={t('address.form.facilityLabel')}
+                      accessibilityHint={t('address.form.facilityHint')}
+                      helperText={facilityHelperText}
+                      compact
+                      disabled={isFormDisabled || !tenantId}
+                      testID="address-form-facility"
+                    />
+                    {tenantId && !hasFacilities && (
+                      <StyledHelperStack>
+                        <Button
+                          variant="surface"
+                          size="small"
+                          onPress={onGoToFacilities}
+                          accessibilityLabel={t('address.form.goToFacilities')}
+                          accessibilityHint={t('address.form.goToFacilitiesHint')}
+                          icon={<Icon glyph="?" size="xs" decorative />}
+                          testID="address-form-go-to-facilities"
+                        >
+                          {t('address.form.goToFacilities')}
+                        </Button>
+                      </StyledHelperStack>
+                    )}
+                  </>
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
+
+            <StyledFullRow>
+              <StyledFieldGroup>
+                {branchListLoading ? (
+                  <LoadingSpinner
+                    accessibilityLabel={t('common.loading')}
+                    testID="address-form-branch-loading"
+                  />
+                ) : branchListError ? (
+                  <ErrorState
+                    size={ErrorStateSizes.SMALL}
+                    title={t('address.form.branchLoadErrorTitle')}
+                    description={branchErrorMessage}
+                    action={retryBranchesAction}
+                    testID="address-form-branch-error"
+                  />
+                ) : (
+                  <>
+                    <Select
+                      label={t('address.form.branchLabel')}
+                      placeholder={t('address.form.branchPlaceholder')}
+                      options={branchOptions}
+                      value={branchId}
+                      onValueChange={setBranchId}
+                      accessibilityLabel={t('address.form.branchLabel')}
+                      accessibilityHint={t('address.form.branchHint')}
+                      helperText={branchHelperText}
+                      compact
+                      disabled={isFormDisabled || !tenantId}
+                      testID="address-form-branch"
+                    />
+                    {tenantId && !hasBranches && (
+                      <StyledHelperStack>
+                        <Button
+                          variant="surface"
+                          size="small"
+                          onPress={onGoToBranches}
+                          accessibilityLabel={t('address.form.goToBranches')}
+                          accessibilityHint={t('address.form.goToBranchesHint')}
+                          icon={<Icon glyph="?" size="xs" decorative />}
+                          testID="address-form-go-to-branches"
+                        >
+                          {t('address.form.goToBranches')}
+                        </Button>
+                      </StyledHelperStack>
+                    )}
+                  </>
+                )}
+              </StyledFieldGroup>
+            </StyledFullRow>
+
             <StyledFieldGroup>
               <Select
                 label={t('address.form.typeLabel')}
@@ -226,7 +396,8 @@ const AddressFormScreenWeb = () => {
                 placeholder={t('address.form.typePlaceholder')}
                 accessibilityLabel={t('address.form.typeLabel')}
                 accessibilityHint={t('address.form.typeHint')}
-                helperText={isCreateBlocked ? blockedMessage : t('address.form.typeHint')}
+                errorMessage={addressTypeError}
+                helperText={typeHelperText}
                 required
                 compact
                 disabled={isFormDisabled}
@@ -242,8 +413,10 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setLine1(e.target.value)}
                 accessibilityLabel={t('address.form.line1Label')}
                 accessibilityHint={t('address.form.line1Hint')}
-                helperText={isCreateBlocked ? blockedMessage : t('address.form.line1Hint')}
+                errorMessage={line1Error}
+                helperText={line1HelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-line1"
@@ -258,7 +431,9 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setLine2(e.target.value)}
                 accessibilityLabel={t('address.form.line2Label')}
                 accessibilityHint={t('address.form.line2Hint')}
-                helperText={t('address.form.line2Hint')}
+                errorMessage={line2Error}
+                helperText={line2HelperText}
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-line2"
@@ -273,7 +448,9 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setCity(e.target.value)}
                 accessibilityLabel={t('address.form.cityLabel')}
                 accessibilityHint={t('address.form.cityHint')}
-                helperText={t('address.form.cityHint')}
+                errorMessage={cityError}
+                helperText={cityHelperText}
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-city"
@@ -288,7 +465,9 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setStateValue(e.target.value)}
                 accessibilityLabel={t('address.form.stateLabel')}
                 accessibilityHint={t('address.form.stateHint')}
-                helperText={t('address.form.stateHint')}
+                errorMessage={stateError}
+                helperText={stateHelperText}
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-state"
@@ -303,7 +482,9 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setPostalCode(e.target.value)}
                 accessibilityLabel={t('address.form.postalCodeLabel')}
                 accessibilityHint={t('address.form.postalCodeHint')}
-                helperText={t('address.form.postalCodeHint')}
+                errorMessage={postalCodeError}
+                helperText={postalCodeHelperText}
+                maxLength={40}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-postal-code"
@@ -318,7 +499,9 @@ const AddressFormScreenWeb = () => {
                 onChange={(e) => setCountry(e.target.value)}
                 accessibilityLabel={t('address.form.countryLabel')}
                 accessibilityHint={t('address.form.countryHint')}
-                helperText={t('address.form.countryHint')}
+                errorMessage={countryError}
+                helperText={countryHelperText}
+                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-country"

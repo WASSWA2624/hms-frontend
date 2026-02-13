@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useAddress } from '@hooks';
+import { useI18n, useNetwork, useAddress, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
@@ -24,6 +24,7 @@ const resolveNoticeMessage = (t, notice) => {
     updated: 'address.list.noticeUpdated',
     deleted: 'address.list.noticeDeleted',
     queued: 'address.list.noticeQueued',
+    accessDenied: 'address.list.noticeAccessDenied',
   };
   const key = map[notice];
   return key ? t(key) : null;
@@ -35,6 +36,12 @@ const useAddressListScreen = () => {
   const { notice } = useLocalSearchParams();
   const { isOffline } = useNetwork();
   const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
+  const {
     list,
     remove,
     data,
@@ -45,6 +52,10 @@ const useAddressListScreen = () => {
 
   const [search, setSearch] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const canManageAddresses = canAccessTenantSettings;
+  const canCreateAddress = canManageAddresses;
+  const canDeleteAddress = canManageAddresses;
   const items = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
@@ -59,14 +70,40 @@ const useAddressListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
+    if (!isResolved || !canManageAddresses) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+    const nextParams = { page: 1, limit: 20, ...params };
+    if (!canManageAllTenants) {
+      nextParams.tenant_id = normalizedTenantId;
+    }
     reset();
-    list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+    list(nextParams);
+  }, [
+    isResolved,
+    canManageAddresses,
+    canManageAllTenants,
+    normalizedTenantId,
+    list,
+    reset,
+  ]);
 
   useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageAddresses) {
+      router.replace('/settings');
+      return;
+    }
+    if (!canManageAllTenants && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageAddresses, canManageAllTenants, normalizedTenantId, router]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageAddresses) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
-  }, [fetchList, search]);
+  }, [isResolved, canManageAddresses, canManageAllTenants, normalizedTenantId, fetchList, search]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -84,6 +121,15 @@ const useAddressListScreen = () => {
     return () => clearTimeout(timer);
   }, [noticeMessage]);
 
+  useEffect(() => {
+    if (!isResolved || !canManageAddresses) return;
+    if (errorCode !== 'FORBIDDEN' && errorCode !== 'UNAUTHORIZED') return;
+    const message = resolveNoticeMessage(t, 'accessDenied');
+    if (message) {
+      setNoticeMessage(message);
+    }
+  }, [isResolved, canManageAddresses, errorCode, t]);
+
   const handleRetry = useCallback(() => {
     const trimmed = search.trim();
     fetchList(trimmed ? { search: trimmed } : {});
@@ -95,13 +141,15 @@ const useAddressListScreen = () => {
 
   const handleAddressPress = useCallback(
     (id) => {
+      if (!canManageAddresses) return;
       router.push(`/settings/addresses/${id}`);
     },
-    [router]
+    [canManageAddresses, router]
   );
 
   const handleDelete = useCallback(
     async (id, e) => {
+      if (!canDeleteAddress) return;
       if (e?.stopPropagation) e.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       try {
@@ -118,18 +166,19 @@ const useAddressListScreen = () => {
         /* error handled by hook */
       }
     },
-    [remove, fetchList, isOffline, t, search]
+    [canDeleteAddress, remove, fetchList, isOffline, t, search]
   );
 
   const handleAdd = useCallback(() => {
+    if (!canCreateAddress) return;
     router.push('/settings/addresses/create');
-  }, [router]);
+  }, [canCreateAddress, router]);
 
   return {
     items,
     search,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     noticeMessage,
@@ -137,8 +186,8 @@ const useAddressListScreen = () => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onAddressPress: handleAddressPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
+    onDelete: canDeleteAddress ? handleDelete : undefined,
+    onAdd: canCreateAddress ? handleAdd : undefined,
   };
 };
 
