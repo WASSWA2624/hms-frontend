@@ -201,9 +201,18 @@ src/app/
 
 ### Tier 8: Diagnostics (Lab + Radiology)
 - **11.8.1** Lab (main) -- `(main)/diagnostics/lab`
-- **11.8.2** Lab tabs: test, panel, order, sample, result, QC -- `(main)/diagnostics/lab/*` (one step per tab)
+- **11.8.2.1** Lab Test -- `(main)/diagnostics/lab/lab-tests`
+- **11.8.2.2** Lab Panel -- `(main)/diagnostics/lab/lab-panels`
+- **11.8.2.3** Lab Order -- `(main)/diagnostics/lab/lab-orders`
+- **11.8.2.4** Lab Sample -- `(main)/diagnostics/lab/lab-samples`
+- **11.8.2.5** Lab Result -- `(main)/diagnostics/lab/lab-results`
+- **11.8.2.6** Lab QC Log -- `(main)/diagnostics/lab/lab-qc-logs`
 - **11.8.3** Radiology (main) -- `(main)/diagnostics/radiology`
-- **11.8.4** Radiology tabs: test, order, result, imaging, PACS -- `(main)/diagnostics/radiology/*` (one step per tab)
+- **11.8.4.1** Radiology Test -- `(main)/diagnostics/radiology/radiology-tests`
+- **11.8.4.2** Radiology Order -- `(main)/diagnostics/radiology/radiology-orders`
+- **11.8.4.3** Radiology Result -- `(main)/diagnostics/radiology/radiology-results`
+- **11.8.4.4** Imaging Study -- `(main)/diagnostics/radiology/imaging-studies`
+- **11.8.4.5** PACS Link -- `(main)/diagnostics/radiology/pacs-links`
 
 ### Tier 9: Pharmacy, Inventory
 - **11.9.1** Pharmacy (main) -- `(main)/pharmacy`
