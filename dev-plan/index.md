@@ -14,6 +14,19 @@ Chronological guide for building the React Native (Expo + App Router) HMS applic
 - **Rule-first**: Rules are authoritative; the dev-plan defines order and verification only.
 - **Clear verification**: Each step must include implementation and verification outcomes.
 
+## Atomic Execution Contract
+- Every `Step X.Y` is mandatory and executed in order.
+- A step may include ordered actions, but it must produce exactly one primary deliverable.
+- If a step would produce multiple independent deliverables, split it into additional numbered steps.
+- Do not mark roadmap steps as "optional"; defer non-required scope to a later phase file.
+
+## Backend Alignment Contract
+- Frontend Phase 10 module order must remain 1:1 with `hms-backend/dev-plan/P011_modules.mdc`.
+- Frontend routes/screens in Phase 11 must map to implemented backend modules/endpoints in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+- Advanced realtime-driven UX in Phase 12 must map to backend WS scope in `hms-backend/dev-plan/P013_ws_features.mdc`.
+- Locale rollout in Phase 14 must stay compatible with backend locale expansion in `hms-backend/dev-plan/P014_locales.mdc`.
+- Final readiness checks in Phase 13 must validate backend readiness assumptions from `hms-backend/dev-plan/P008_perf.mdc`.
+
 ## Development Order (Chronological)
 
 Phases 0-7 are generic building blocks. Phase 8 is debug resources. From Phase 9 onward, work is app-specific (layouts, features, screens, locales). Phase 14 (Locales) is the last phase.
@@ -34,7 +47,7 @@ Phases 0-7 are generic building blocks. Phase 8 is debug resources. From Phase 9
 14. **P013_finalization.md** - Finalization (onboarding, help, testing, polish).
 15. **P014_locales.md** - Locale files and translation completeness (last phase).
 
-## Current Implementation Snapshot (2026-02-12)
+## Current Implementation Snapshot (2026-02-14)
 
 - Foundations, infrastructure, app shell, and layouts (P000-P009) are in place.
 - P011 route progress:

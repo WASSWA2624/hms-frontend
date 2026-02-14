@@ -16,7 +16,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 
 **Actions**:
 1. From the **frontend app root** (e.g. `hms-frontend/`), run: `npx create-expo-app@latest . --template blank`
-2. Ensure Expo SDK ~54.0.0 (per `.cursor/rules/tech-stack.mdc`)
+2. Ensure Expo SDK ~54.0.32 (per `.cursor/rules/tech-stack.mdc`)
 3. Verify `app.config.js` exists
 
 **Verification**:
@@ -85,7 +85,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 **Actions**:
 1. Install testing:
    ```bash
-   npm install --save-dev jest@^29.7.0 jest-expo@^54.0.0 @testing-library/react-native@^13.3.3 @testing-library/jest-native@^5.4.3 react-test-renderer@19.1.0
+   npm install --save-dev jest@^29.7.0 jest-expo@^54.0.2 @testing-library/react-native@^13.3.3 @testing-library/jest-native@^5.4.3 react-test-renderer@19.1.0
    ```
 
 **Verification**:
@@ -153,11 +153,11 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 **Actions**:
 1. Install Expo modules:
    ```bash
-   npm install expo-constants@~18.0.12 expo-linking@~8.0.11 expo-status-bar@~3.0.9
+   npm install expo-router@~6.0.22 @remix-run/router@^1.23.0 expo-constants@~18.0.13 expo-linking@~8.0.11 expo-status-bar@~3.0.9 expo-local-authentication@^17.0.8
    ```
 
 **Verification**:
-- All Expo modules in `package.json` with correct versions
+- Expo App Router modules and Expo modules in `package.json` with correct versions (including `expo-router`, `@remix-run/router`, `expo-local-authentication`)
 - No peer dependency warnings
 
 **Rule Reference**: `.cursor/rules/tech-stack.mdc`, `.cursor/rules/dependency-policy.mdc`
@@ -222,7 +222,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 1. Verify `package.json` contains all required dependencies with correct versions
 2. Verify `package-lock.json` is committed
 3. Verify no TypeScript dependencies are installed
-4. Verify React 19.1.0, React Native 0.81.5, Expo SDK ~54.0.0
+4. Verify React 19.1.0, React Native 0.81.5, Expo SDK ~54.0.32
 5. Verify all dependencies match versions in `.cursor/rules/tech-stack.mdc`
 6. **Compatibility testing** (per `.cursor/rules/dependency-policy.mdc`):
    - No peer dependency warnings during installation
@@ -233,7 +233,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 - All packages in `package.json` with correct versions
 - `package-lock.json` committed
 - No TypeScript dependencies
-- React 19.1.0, React Native 0.81.5, Expo SDK ~54.0.0
+- React 19.1.0, React Native 0.81.5, Expo SDK ~54.0.32
 - All dependencies match versions in `.cursor/rules/tech-stack.mdc`
 - **Compatibility testing completed** (see `.cursor/rules/dependency-policy.mdc` for requirements)
   - No peer dependency warnings
@@ -380,7 +380,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 
 ---
 
-### Step 0.19: Configure ESLint & Prettier
+### Step 0.18: Configure ESLint & Prettier
 **Goal**: Set up linting and formatting
 
 **Actions**:
@@ -450,7 +450,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 
 ---
 
-### Step 0.20: Configure Jest
+### Step 0.19: Configure Jest
 **Goal**: Set up testing framework
 
 **Actions**:
@@ -490,7 +490,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 
 ---
 
-### Step 0.21: Create .gitignore
+### Step 0.20: Create .gitignore
 **Goal**: Exclude unnecessary files from version control
 
 **Actions**:
@@ -535,7 +535,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 
 ---
 
-### Step 0.22: Verify Setup
+### Step 0.21: Verify Setup
 **Goal**: Ensure project is ready for development
 
 **Actions**:

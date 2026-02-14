@@ -1,23 +1,37 @@
 # Phase 11: HMS Screens, Routes, and UI Wiring
 
 ## Purpose
-Implementation guide: one step = one screen, in chronological order below. Wire screens to Phase 10 hooks; routes per `app-router.mdc`, UI per `platform-ui.mdc`. This phase must fully incorporate `onboarding-journey.md` (self-serve onboarding, trial, payment, retention hooks).
+Implement HMS routes and screens in strict chronological order. One step equals one screen route. Each screen consumes Phase 10 hooks/features and maps to backend resources. Tier 1 onboarding steps must preserve self-serve onboarding, trial, payment, and resume-flow requirements.
 
 ## Rules
-- `.cursor/rules/index.mdc` / `app-router.mdc` / `platform-ui.mdc` / `component-structure.mdc` / `features-domain.mdc` / `security.mdc` / `accessibility.mdc` / `testing.mdc` / `theme-design.mdc` / `i18n.mdc`
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/app-router.mdc`
+- `.cursor/rules/platform-ui.mdc`
+- `.cursor/rules/component-structure.mdc`
+- `.cursor/rules/features-domain.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/accessibility.mdc`
+- `.cursor/rules/testing.mdc`
+- `.cursor/rules/theme-design.mdc`
+- `.cursor/rules/i18n.mdc`
 
 ## Prerequisites
-Phase 10 (hooks), Phase 9 (layouts/nav), Phase 7 (app shell), Phase 6 (components).
+- Phase 10 completed (feature modules and hooks)
+- Phase 9 completed (layouts and shell UI)
+- Phase 7 completed (router groups and guards)
+- Phase 6 completed (reusable platform components)
 
-## Guidelines
-- **Order**: Follow **Sequential Build Order** below; one screen per step.
-- Screens -> feature hooks only; i18n for all text; no hardcoded strings.
-- Routes: per `app-router.mdc`; omit group in links; guards in group layouts.
-- Nav: every route reachable from Phase 9 nav; add entry/icon/label per main screen.
-- **Pattern**: Main screens in sidebar; sub-screens as tabs (list/detail/create-edit per tab). Deep links: e.g. `/settings/users`, `/billing/invoice`.
-- Onboarding must implement: facility-type entry, minimal signup, resume-onboarding link handling, post-signup provisioning, facility-specific checklist, progressive module unlocks, trial status/limits, upgrade/paywall messaging, and self-serve payments.
-- Onboarding state is saved after every step; resume link must restore exact step.
-- Paywall never blocks existing data; only limits new actions and shows upgrade value.
+## Backend Alignment (Mandatory)
+- Module source of truth: `hms-backend/dev-plan/P011_modules.mdc`
+- Endpoint/path source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc`
+- Frontend module implementation source of truth: `P010_core-features.md`
+- Every module-backed screen below includes explicit backend module mapping.
+
+## Atomic Step Contract
+- One step equals one route file under `src/app/**` and one screen implementation under `src/platform/screens/**`.
+- Do not combine multiple module screens into one step.
+- Do not skip step order.
+- Complete tests and verification for the current step before moving to the next.
 
 ## Route Structure
 
@@ -94,182 +108,244 @@ src/app/
 
 ## Sequential Build Order
 
-**One step = one screen.** Complete each step before the next. Where multiple tabs are listed, implement one screen per tab in that order.
+### Tier 1: Public Entry and Onboarding
+- **11.1.1** Landing and facility type - `(public)/landing`
+- **11.1.2** Register (minimal signup) - `(auth)/register` - backend `auth`
+- **11.1.3** Resume link sent - `(auth)/resume-link-sent`
+- **11.1.4** Resume onboarding token handler - `(onboarding)/resume`
+- **11.1.5** Provisioning flow - `(onboarding)/provisioning`
+- **11.1.6** Welcome and activation summary - `(onboarding)/welcome`
+- **11.1.7** Facility checklist - `(onboarding)/checklist`
+- **11.1.8** Module recommendations and unlocks - `(onboarding)/modules`
+- **11.1.9** Trial status and limits - `(onboarding)/trial`
+- **11.1.10** Upgrade value and paywall messaging - `(onboarding)/upgrade`
+- **11.1.11** Plan and modules selection - `(onboarding)/plan`
+- **11.1.12** Billing cycle selection - `(onboarding)/billing-cycle`
+- **11.1.13** Payment checkout - `(onboarding)/payment`
+- **11.1.14** Payment success and activation - `(onboarding)/payment-success`
 
-### Tier 1: Public Entry + Onboarding (Self-Serve)
-- **11.1.1** Landing + facility type selection -- `(public)/landing`
-- **11.1.2** Register (minimal signup) -- `(auth)/register`
-- **11.1.3** Resume link sent (check email) -- `(auth)/resume-link-sent`
-- **11.1.4** Resume onboarding (token handler) -- `(onboarding)/resume`
-- **11.1.5** Provisioning (tenant + modules + sample data) -- `(onboarding)/provisioning`
-- **11.1.6** Welcome / activation summary -- `(onboarding)/welcome`
-- **11.1.7** First-run checklist (facility-specific) -- `(onboarding)/checklist`
-- **11.1.8** Module recommendations + progressive unlocks -- `(onboarding)/modules`
-- **11.1.9** Trial status + limits -- `(onboarding)/trial`
-- **11.1.10** Upgrade value (paywall messaging) -- `(onboarding)/upgrade`
-- **11.1.11** Plan/modules selection -- `(onboarding)/plan`
-- **11.1.12** Billing cycle selection -- `(onboarding)/billing-cycle`
-- **11.1.13** Payment checkout -- `(onboarding)/payment`
-- **11.1.14** Payment success + activation -- `(onboarding)/payment-success`
+### Tier 2: Auth and Entry Shell
+- **11.2.1** Login - `(auth)/login` - backend `auth`
+- **11.2.2** Forgot password - `(auth)/forgot-password` - backend `auth`
+- **11.2.3** Reset password - `(auth)/reset-password` - backend `auth`
+- **11.2.4** Verify email - `(auth)/verify-email` - backend `auth`
+- **11.2.5** Verify phone - `(auth)/verify-phone` - backend `auth`
+- **11.2.6** Tenant selection - `(auth)/tenant-selection` - backend `tenant`
+- **11.2.7** Facility selection - `(auth)/facility-selection` - backend `facility`
+- **11.2.8** Dashboard - `(main)/dashboard`
 
-### Tier 2: Auth & Shell
-- **11.2.1** Login -- `(auth)/login`
-- **11.2.2** Forgot password -- `(auth)/forgot-password`
-- **11.2.3** Reset password -- `(auth)/reset-password`
-- **11.2.4** Verify email -- `(auth)/verify-email`
-- **11.2.5** Verify phone -- `(auth)/verify-phone`
-- **11.2.6** Tenant selection -- `(auth)/tenant-selection`
-- **11.2.7** Facility selection -- `(auth)/facility-selection`
-- **11.2.8** Dashboard -- `(main)/dashboard`
+### Tier 3: Settings and Core Access Modules
+- **11.3.1** Settings home - `(main)/settings`
+- **11.3.2** Tenants - `(main)/settings/tenants` - backend `tenant`
+- **11.3.3** Facilities - `(main)/settings/facilities` - backend `facility`
+- **11.3.4** Branches - `(main)/settings/branches` - backend `branch`
+- **11.3.5** Departments - `(main)/settings/departments` - backend `department`
+- **11.3.6** Units - `(main)/settings/units` - backend `unit`
+- **11.3.7** Rooms - `(main)/settings/rooms` - backend `room`
+- **11.3.8** Wards - `(main)/settings/wards` - backend `ward`
+- **11.3.9** Beds - `(main)/settings/beds` - backend `bed`
+- **11.3.10** Addresses - `(main)/settings/addresses` - backend `address`
+- **11.3.11** Contacts - `(main)/settings/contacts` - backend `contact`
+- **11.3.12** Users - `(main)/settings/users` - backend `user`
+- **11.3.13** User profiles - `(main)/settings/user-profiles` - backend `user-profile`
+- **11.3.14** Roles - `(main)/settings/roles` - backend `role`
+- **11.3.15** Permissions - `(main)/settings/permissions` - backend `permission`
+- **11.3.16** Role permissions - `(main)/settings/role-permissions` - backend `role-permission`
+- **11.3.17** User roles - `(main)/settings/user-roles` - backend `user-role`
+- **11.3.18** API keys - `(main)/settings/api-keys` - backend `api-key`
+- **11.3.19** API key permissions - `(main)/settings/api-key-permissions` - backend `api-key-permission`
+- **11.3.20** User MFA - `(main)/settings/user-mfas` - backend `user-mfa`
+- **11.3.21** User sessions - `(main)/settings/user-sessions` - backend `user-session`
+- **11.3.22** OAuth accounts - `(main)/settings/oauth-accounts` - backend `oauth-account`
 
-### Tier 3: Settings (main)
-- **11.3.1** Settings (main) -- `(main)/settings`
-- **11.3.2** Tenant -- `(main)/settings/tenants`
-- **11.3.3** Facility -- `(main)/settings/facilities`
-- **11.3.4** Branch -- `(main)/settings/branches`
-- **11.3.5** Department -- `(main)/settings/departments`
-- **11.3.6** Unit -- `(main)/settings/units`
-- **11.3.7** Room -- `(main)/settings/rooms`
-- **11.3.8** Ward -- `(main)/settings/wards`
-- **11.3.9** Bed -- `(main)/settings/beds`
-- **11.3.10** Address -- `(main)/settings/addresses`
-- **11.3.11** Contact -- `(main)/settings/contacts`
-- **11.3.12** User -- `(main)/settings/users`
-- **11.3.13** User profile -- `(main)/settings/user-profiles`
-- **11.3.14** Role -- `(main)/settings/roles`
-- **11.3.15** Permission -- `(main)/settings/permissions`
-- **11.3.16** Role-permission -- `(main)/settings/role-permissions`
-- **11.3.17** User-role -- `(main)/settings/user-roles`
-- **11.3.18** API key -- `(main)/settings/api-keys`
-- **11.3.19** API key permission -- `(main)/settings/api-key-permissions`
-- **11.3.20** User MFA -- `(main)/settings/user-mfas`
-- **11.3.21** User session -- `(main)/settings/user-sessions`
-- **11.3.22** OAuth account -- `(main)/settings/oauth-accounts`
+### Tier 4: Patient Registry and Consent
+- **11.4.1** Patients home - `(main)/patients`
+- **11.4.2** Patients - `(main)/patients/patients` - backend `patient`
+- **11.4.3** Patient identifiers - `(main)/patients/patient-identifiers` - backend `patient-identifier`
+- **11.4.4** Patient contacts - `(main)/patients/patient-contacts` - backend `patient-contact`
+- **11.4.5** Patient guardians - `(main)/patients/patient-guardians` - backend `patient-guardian`
+- **11.4.6** Patient allergies - `(main)/patients/patient-allergies` - backend `patient-allergy`
+- **11.4.7** Patient medical histories - `(main)/patients/patient-medical-histories` - backend `patient-medical-history`
+- **11.4.8** Patient documents - `(main)/patients/patient-documents` - backend `patient-document`
+- **11.4.9** Consents - `(main)/patients/consents` - backend `consent`
+- **11.4.10** Terms acceptances - `(main)/patients/terms-acceptances` - backend `terms-acceptance`
 
-### Tier 4: Patients (main)
-- **11.4.1** Patients (main) -- `(main)/patients`
-- **11.4.2** Patient -- `(main)/patients/patients`
-- **11.4.3** Patient identifier -- `(main)/patients/patient-identifiers`
-- **11.4.4** Patient contact -- `(main)/patients/patient-contacts`
-- **11.4.5** Patient guardian -- `(main)/patients/patient-guardians`
-- **11.4.6** Patient allergy -- `(main)/patients/patient-allergies`
-- **11.4.7** Patient medical history -- `(main)/patients/patient-medical-histories`
-- **11.4.8** Patient document -- `(main)/patients/patient-documents`
+### Tier 5: Scheduling, Availability, and Queues
+- **11.5.1** Scheduling home - `(main)/scheduling`
+- **11.5.2** Appointments - `(main)/scheduling/appointments` - backend `appointment`
+- **11.5.3** Appointment participants - `(main)/scheduling/appointment-participants` - backend `appointment-participant`
+- **11.5.4** Appointment reminders - `(main)/scheduling/appointment-reminders` - backend `appointment-reminder`
+- **11.5.5** Provider schedules - `(main)/scheduling/provider-schedules` - backend `provider-schedule`
+- **11.5.6** Availability slots - `(main)/scheduling/availability-slots` - backend `availability-slot`
+- **11.5.7** Visit queues - `(main)/scheduling/visit-queues` - backend `visit-queue`
 
-### Tier 5: Scheduling (main)
-- **11.5.1** Scheduling (main) -- `(main)/scheduling`
-- **11.5.2** Appointment -- `(main)/scheduling/appointments`
-- **11.5.3** Provider schedule -- `(main)/scheduling/provider-schedules`
-- **11.5.4** Availability slot -- `(main)/scheduling/availability-slots`
-- **11.5.5** Visit queue -- `(main)/scheduling/visit-queues`
+### Tier 6: Encounters and Clinical Documentation
+- **11.6.1** Clinical home - `(main)/clinical`
+- **11.6.2** Encounters - `(main)/clinical/encounters` - backend `encounter`
+- **11.6.3** Clinical notes - `(main)/clinical/clinical-notes` - backend `clinical-note`
+- **11.6.4** Diagnoses - `(main)/clinical/diagnoses` - backend `diagnosis`
+- **11.6.5** Procedures - `(main)/clinical/procedures` - backend `procedure`
+- **11.6.6** Vital signs - `(main)/clinical/vital-signs` - backend `vital-sign`
+- **11.6.7** Care plans - `(main)/clinical/care-plans` - backend `care-plan`
+- **11.6.8** Clinical alerts - `(main)/clinical/clinical-alerts` - backend `clinical-alert`
+- **11.6.9** Referrals - `(main)/clinical/referrals` - backend `referral`
+- **11.6.10** Follow-ups - `(main)/clinical/follow-ups` - backend `follow-up`
 
-### Tier 6: Clinical (main)
-- **11.6.1** Clinical (main) -- `(main)/clinical`
-- **11.6.2** Encounter -- `(main)/clinical/encounters`
-- **11.6.3** Clinical note -- `(main)/clinical/clinical-notes`
-- **11.6.4** Diagnosis -- `(main)/clinical/diagnoses`
-- **11.6.5** Procedure -- `(main)/clinical/procedures`
-- **11.6.6** Vital sign -- `(main)/clinical/vital-signs`
-- **11.6.7** Care plan -- `(main)/clinical/care-plans`
-- **11.6.8** Referral -- `(main)/clinical/referrals`
-- **11.6.9** Follow-up -- `(main)/clinical/follow-ups`
+### Tier 7: IPD, ICU, Theatre, and Emergency
+- **11.7.1** IPD home - `(main)/ipd`
+- **11.7.2** Admissions - `(main)/ipd/admissions` - backend `admission`
+- **11.7.3** Bed assignments - `(main)/ipd/bed-assignments` - backend `bed-assignment`
+- **11.7.4** Ward rounds - `(main)/ipd/ward-rounds` - backend `ward-round`
+- **11.7.5** Nursing notes - `(main)/ipd/nursing-notes` - backend `nursing-note`
+- **11.7.6** Medication administrations - `(main)/ipd/medication-administrations` - backend `medication-administration`
+- **11.7.7** Discharge summaries - `(main)/ipd/discharge-summaries` - backend `discharge-summary`
+- **11.7.8** Transfer requests - `(main)/ipd/transfer-requests` - backend `transfer-request`
+- **11.7.9** ICU home - `(main)/icu`
+- **11.7.10** ICU stays - `(main)/icu/icu-stays` - backend `icu-stay`
+- **11.7.11** ICU observations - `(main)/icu/icu-observations` - backend `icu-observation`
+- **11.7.12** Critical alerts - `(main)/icu/critical-alerts` - backend `critical-alert`
+- **11.7.13** Theatre home - `(main)/theatre`
+- **11.7.14** Theatre cases - `(main)/theatre/theatre-cases` - backend `theatre-case`
+- **11.7.15** Anesthesia records - `(main)/theatre/anesthesia-records` - backend `anesthesia-record`
+- **11.7.16** Post-op notes - `(main)/theatre/post-op-notes` - backend `post-op-note`
+- **11.7.17** Emergency home - `(main)/emergency`
+- **11.7.18** Emergency cases - `(main)/emergency/emergency-cases` - backend `emergency-case`
+- **11.7.19** Triage assessments - `(main)/emergency/triage-assessments` - backend `triage-assessment`
+- **11.7.20** Emergency responses - `(main)/emergency/emergency-responses` - backend `emergency-response`
+- **11.7.21** Ambulances - `(main)/emergency/ambulances` - backend `ambulance`
+- **11.7.22** Ambulance dispatches - `(main)/emergency/ambulance-dispatches` - backend `ambulance-dispatch`
+- **11.7.23** Ambulance trips - `(main)/emergency/ambulance-trips` - backend `ambulance-trip`
 
-### Tier 7: IPD, ICU, Theatre, Emergency
-- **11.7.1** IPD (main) -- `(main)/ipd`
-- **11.7.2.1** IPD Admission -- `(main)/ipd/admissions`
-- **11.7.2.2** IPD Bed assignment -- `(main)/ipd/bed-assignments`
-- **11.7.2.3** IPD Ward round -- `(main)/ipd/ward-rounds`
-- **11.7.2.4** IPD Nursing note -- `(main)/ipd/nursing-notes`
-- **11.7.2.5** IPD Medication admin -- `(main)/ipd/medication-administrations`
-- **11.7.2.6** IPD Discharge -- `(main)/ipd/discharge-summaries`
-- **11.7.2.7** IPD Transfer -- `(main)/ipd/transfer-requests`
-- **11.7.3** ICU (main) -- `(main)/icu`
-- **11.7.4.1** ICU Stay -- `(main)/icu/icu-stays`
-- **11.7.4.2** ICU Observation -- `(main)/icu/icu-observations`
-- **11.7.4.3** ICU Critical alert -- `(main)/icu/critical-alerts`
-- **11.7.5** Theatre (main) -- `(main)/theatre`
-- **11.7.6.1** Theatre Case -- `(main)/theatre/theatre-cases`
-- **11.7.6.2** Theatre Anesthesia record -- `(main)/theatre/anesthesia-records`
-- **11.7.6.3** Theatre Post-op note -- `(main)/theatre/post-op-notes`
-- **11.7.7** Emergency (main) -- `(main)/emergency`
-- **11.7.8.1** Emergency Case -- `(main)/emergency/emergency-cases`
-- **11.7.8.2** Emergency Triage -- `(main)/emergency/triage-assessments`
-- **11.7.8.3** Emergency Response -- `(main)/emergency/emergency-responses`
-- **11.7.8.4** Emergency Ambulance -- `(main)/emergency/ambulances`
-- **11.7.8.5** Emergency Dispatch -- `(main)/emergency/ambulance-dispatches`
-- **11.7.8.6** Emergency Trip -- `(main)/emergency/ambulance-trips`
+### Tier 8: Diagnostics (Lab and Radiology)
+- **11.8.1** Lab home - `(main)/diagnostics/lab`
+- **11.8.2** Lab tests - `(main)/diagnostics/lab/lab-tests` - backend `lab-test`
+- **11.8.3** Lab panels - `(main)/diagnostics/lab/lab-panels` - backend `lab-panel`
+- **11.8.4** Lab orders - `(main)/diagnostics/lab/lab-orders` - backend `lab-order`
+- **11.8.5** Lab order items - `(main)/diagnostics/lab/lab-order-items` - backend `lab-order-item`
+- **11.8.6** Lab samples - `(main)/diagnostics/lab/lab-samples` - backend `lab-sample`
+- **11.8.7** Lab results - `(main)/diagnostics/lab/lab-results` - backend `lab-result`
+- **11.8.8** Lab QC logs - `(main)/diagnostics/lab/lab-qc-logs` - backend `lab-qc-log`
+- **11.8.9** Radiology home - `(main)/diagnostics/radiology`
+- **11.8.10** Radiology tests - `(main)/diagnostics/radiology/radiology-tests` - backend `radiology-test`
+- **11.8.11** Radiology orders - `(main)/diagnostics/radiology/radiology-orders` - backend `radiology-order`
+- **11.8.12** Radiology results - `(main)/diagnostics/radiology/radiology-results` - backend `radiology-result`
+- **11.8.13** Imaging studies - `(main)/diagnostics/radiology/imaging-studies` - backend `imaging-study`
+- **11.8.14** Imaging assets - `(main)/diagnostics/radiology/imaging-assets` - backend `imaging-asset`
+- **11.8.15** PACS links - `(main)/diagnostics/radiology/pacs-links` - backend `pacs-link`
 
-### Tier 8: Diagnostics (Lab + Radiology)
-- **11.8.1** Lab (main) -- `(main)/diagnostics/lab`
-- **11.8.2.1** Lab Test -- `(main)/diagnostics/lab/lab-tests`
-- **11.8.2.2** Lab Panel -- `(main)/diagnostics/lab/lab-panels`
-- **11.8.2.3** Lab Order -- `(main)/diagnostics/lab/lab-orders`
-- **11.8.2.4** Lab Sample -- `(main)/diagnostics/lab/lab-samples`
-- **11.8.2.5** Lab Result -- `(main)/diagnostics/lab/lab-results`
-- **11.8.2.6** Lab QC Log -- `(main)/diagnostics/lab/lab-qc-logs`
-- **11.8.3** Radiology (main) -- `(main)/diagnostics/radiology`
-- **11.8.4.1** Radiology Test -- `(main)/diagnostics/radiology/radiology-tests`
-- **11.8.4.2** Radiology Order -- `(main)/diagnostics/radiology/radiology-orders`
-- **11.8.4.3** Radiology Result -- `(main)/diagnostics/radiology/radiology-results`
-- **11.8.4.4** Imaging Study -- `(main)/diagnostics/radiology/imaging-studies`
-- **11.8.4.5** PACS Link -- `(main)/diagnostics/radiology/pacs-links`
+### Tier 9: Pharmacy and Inventory
+- **11.9.1** Pharmacy home - `(main)/pharmacy`
+- **11.9.2** Drugs - `(main)/pharmacy/drugs` - backend `drug`
+- **11.9.3** Drug batches - `(main)/pharmacy/drug-batches` - backend `drug-batch`
+- **11.9.4** Formulary items - `(main)/pharmacy/formulary-items` - backend `formulary-item`
+- **11.9.5** Pharmacy orders - `(main)/pharmacy/pharmacy-orders` - backend `pharmacy-order`
+- **11.9.6** Pharmacy order items - `(main)/pharmacy/pharmacy-order-items` - backend `pharmacy-order-item`
+- **11.9.7** Dispense logs - `(main)/pharmacy/dispense-logs` - backend `dispense-log`
+- **11.9.8** Adverse events - `(main)/pharmacy/adverse-events` - backend `adverse-event`
+- **11.9.9** Inventory home - `(main)/inventory`
+- **11.9.10** Inventory items - `(main)/inventory/inventory-items` - backend `inventory-item`
+- **11.9.11** Inventory stocks - `(main)/inventory/inventory-stocks` - backend `inventory-stock`
+- **11.9.12** Stock movements - `(main)/inventory/stock-movements` - backend `stock-movement`
+- **11.9.13** Suppliers - `(main)/inventory/suppliers` - backend `supplier`
+- **11.9.14** Purchase requests - `(main)/inventory/purchase-requests` - backend `purchase-request`
+- **11.9.15** Purchase orders - `(main)/inventory/purchase-orders` - backend `purchase-order`
+- **11.9.16** Goods receipts - `(main)/inventory/goods-receipts` - backend `goods-receipt`
+- **11.9.17** Stock adjustments - `(main)/inventory/stock-adjustments` - backend `stock-adjustment`
 
-### Tier 9: Pharmacy, Inventory
-- **11.9.1** Pharmacy (main) -- `(main)/pharmacy`
-- **11.9.2.1** Drug -- `(main)/pharmacy/drugs`
-- **11.9.2.2** Batch -- `(main)/pharmacy/drug-batches`
-- **11.9.2.3** Formulary -- `(main)/pharmacy/formulary-items`
-- **11.9.2.4** Order -- `(main)/pharmacy/pharmacy-orders`
-- **11.9.2.5** Dispense -- `(main)/pharmacy/dispense-logs`
-- **11.9.2.6** Adverse Event -- `(main)/pharmacy/adverse-events`
-- **11.9.3** Inventory (main) -- `(main)/inventory`
-- **11.9.4.1** Item -- `(main)/inventory/inventory-items`
-- **11.9.4.2** Stock -- `(main)/inventory/inventory-stocks`
-- **11.9.4.3** Movement -- `(main)/inventory/stock-movements`
-- **11.9.4.4** Supplier -- `(main)/inventory/suppliers`
-- **11.9.4.5** Purchase -- `(main)/inventory/purchase-orders`
-- **11.9.4.6** Receipt -- `(main)/inventory/goods-receipts`
-- **11.9.4.7** Adjustment -- `(main)/inventory/stock-adjustments`
+### Tier 10: Billing, HR, Facilities, Reporting, Communications, Subscriptions, Integrations, Compliance
+- **11.10.1** Billing home - `(main)/billing`
+- **11.10.2** Invoices - `(main)/billing/invoices` - backend `invoice`
+- **11.10.3** Invoice items - `(main)/billing/invoice-items` - backend `invoice-item`
+- **11.10.4** Payments - `(main)/billing/payments` - backend `payment`
+- **11.10.5** Refunds - `(main)/billing/refunds` - backend `refund`
+- **11.10.6** Pricing rules - `(main)/billing/pricing-rules` - backend `pricing-rule`
+- **11.10.7** Coverage plans - `(main)/billing/coverage-plans` - backend `coverage-plan`
+- **11.10.8** Insurance claims - `(main)/billing/insurance-claims` - backend `insurance-claim`
+- **11.10.9** Pre-authorizations - `(main)/billing/pre-authorizations` - backend `pre-authorization`
+- **11.10.10** Billing adjustments - `(main)/billing/billing-adjustments` - backend `billing-adjustment`
+- **11.10.11** HR home - `(main)/hr`
+- **11.10.12** Staff profiles - `(main)/hr/staff-profiles` - backend `staff-profile`
+- **11.10.13** Staff assignments - `(main)/hr/staff-assignments` - backend `staff-assignment`
+- **11.10.14** Staff leaves - `(main)/hr/staff-leaves` - backend `staff-leave`
+- **11.10.15** Shifts - `(main)/hr/shifts` - backend `shift`
+- **11.10.16** Shift assignments - `(main)/hr/shift-assignments` - backend `shift-assignment`
+- **11.10.17** Shift swap requests - `(main)/hr/shift-swap-requests` - backend `shift-swap-request`
+- **11.10.18** Nurse rosters - `(main)/hr/nurse-rosters` - backend `nurse-roster`
+- **11.10.19** Shift templates - `(main)/hr/shift-templates` - backend `shift-template`
+- **11.10.20** Roster day offs - `(main)/hr/roster-day-offs` - backend `roster-day-off`
+- **11.10.21** Staff availabilities - `(main)/hr/staff-availabilities` - backend `staff-availability`
+- **11.10.22** Payroll runs - `(main)/hr/payroll-runs` - backend `payroll-run`
+- **11.10.23** Payroll items - `(main)/hr/payroll-items` - backend `payroll-item`
+- **11.10.24** Housekeeping home - `(main)/housekeeping`
+- **11.10.25** Housekeeping tasks - `(main)/housekeeping/housekeeping-tasks` - backend `housekeeping-task`
+- **11.10.26** Housekeeping schedules - `(main)/housekeeping/housekeeping-schedules` - backend `housekeeping-schedule`
+- **11.10.27** Maintenance requests - `(main)/housekeeping/maintenance-requests` - backend `maintenance-request`
+- **11.10.28** Assets - `(main)/housekeeping/assets` - backend `asset`
+- **11.10.29** Asset service logs - `(main)/housekeeping/asset-service-logs` - backend `asset-service-log`
+- **11.10.30** Communications home - `(main)/communications`
+- **11.10.31** Notifications - `(main)/communications/notifications` - backend `notification`
+- **11.10.32** Notification deliveries - `(main)/communications/notification-deliveries` - backend `notification-delivery`
+- **11.10.33** Conversations - `(main)/communications/conversations` - backend `conversation`
+- **11.10.34** Messages - `(main)/communications/messages` - backend `message`
+- **11.10.35** Templates - `(main)/communications/templates` - backend `template`
+- **11.10.36** Template variables - `(main)/communications/template-variables` - backend `template-variable`
+- **11.10.37** Reports home - `(main)/reports`
+- **11.10.38** Report definitions - `(main)/reports/report-definitions` - backend `report-definition`
+- **11.10.39** Report runs - `(main)/reports/report-runs` - backend `report-run`
+- **11.10.40** Dashboard widgets - `(main)/reports/dashboard-widgets` - backend `dashboard-widget`
+- **11.10.41** KPI snapshots - `(main)/reports/kpi-snapshots` - backend `kpi-snapshot`
+- **11.10.42** Analytics events - `(main)/reports/analytics-events` - backend `analytics-event`
+- **11.10.43** Subscriptions home - `(main)/subscriptions`
+- **11.10.44** Subscription plans - `(main)/subscriptions/subscription-plans` - backend `subscription-plan`
+- **11.10.45** Subscriptions - `(main)/subscriptions/subscriptions` - backend `subscription`
+- **11.10.46** Subscription invoices - `(main)/subscriptions/subscription-invoices` - backend `subscription-invoice`
+- **11.10.47** Modules - `(main)/subscriptions/modules` - backend `module`
+- **11.10.48** Module subscriptions - `(main)/subscriptions/module-subscriptions` - backend `module-subscription`
+- **11.10.49** Licenses - `(main)/subscriptions/licenses` - backend `license`
+- **11.10.50** Compliance home - `(main)/compliance`
+- **11.10.51** Audit logs - `(main)/compliance/audit-logs` - backend `audit-log`
+- **11.10.52** PHI access logs - `(main)/compliance/phi-access-logs` - backend `phi-access-log`
+- **11.10.53** Data processing logs - `(main)/compliance/data-processing-logs` - backend `data-processing-log`
+- **11.10.54** Breach notifications - `(main)/compliance/breach-notifications` - backend `breach-notification`
+- **11.10.55** System change logs - `(main)/compliance/system-change-logs` - backend `system-change-log`
+- **11.10.56** Integrations home - `(main)/integrations`
+- **11.10.57** Integrations - `(main)/integrations/integrations` - backend `integration`
+- **11.10.58** Integration logs - `(main)/integrations/integration-logs` - backend `integration-log`
+- **11.10.59** Webhook subscriptions - `(main)/integrations/webhook-subscriptions` - backend `webhook-subscription`
 
-### Tier 10: Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance
-- **11.10.1** Billing (main) -- `(main)/billing`
-- **11.10.2** Billing tabs: invoice, payment, refund, pricing, coverage, claim, pre-auth, adjustment -- `(main)/billing/*` (one step per tab)
-- **11.10.3** HR (main) -- `(main)/hr`
-- **11.10.4** HR tabs: staff, assignment, leave, shift, nurse-timetable, payroll -- `(main)/hr/*` (one step per tab; nurse-timetable = Nurses Time-table Generator per write-up Sec 5.17)
-- **11.10.5** Housekeeping (main) -- `(main)/housekeeping`
-- **11.10.6** Housekeeping tabs: task, schedule, maintenance, asset, service-log -- `(main)/housekeeping/*` (one step per tab)
-- **11.10.7** Reports (main) -- `(main)/reports`
-- **11.10.8** Communications (main) -- `(main)/communications`
-- **11.10.9** Subscriptions (main) -- `(main)/subscriptions`
-- **11.10.10** Integrations (main) -- `(main)/integrations`
-- **11.10.11** Compliance (main) -- `(main)/compliance`
+### Tier 11: Patient Portal
+- **11.11.1** Patient portal home - `(patient)/portal`
+- **11.11.2** Patient appointments - `(patient)/appointments`
+- **11.11.3** Patient results - `(patient)/results`
+- **11.11.4** Patient prescriptions - `(patient)/prescriptions`
+- **11.11.5** Patient billing - `(patient)/billing`
 
-### Tier 11: Patient portal
-- **11.11.1** Patient portal (main) -- `(patient)/portal`
-- **11.11.2** Patient appointments -- `(patient)/appointments`
-- **11.11.3** Patient results -- `(patient)/results`
-- **11.11.4** Patient prescriptions -- `(patient)/prescriptions`
-- **11.11.5** Patient billing -- `(patient)/billing`
-
----
-
-## Per-step checklist
-Per screen: routes per `app-router.mdc`; screen per `platform-ui.mdc` + `component-structure.mdc`; wire to hooks; i18n; loading/error/empty/guarded states; nav entry for main screens. Tests per `testing.mdc`; a11y per `accessibility.mdc`.
+## Per-step Checklist
+- Route file created in `src/app/**` with default export.
+- Platform screen created in `src/platform/screens/**` following `component-structure.mdc`.
+- Screen wired only through hooks/features; no direct service/store internals.
+- All user-facing text uses i18n keys.
+- Loading, empty, error, and offline states implemented.
+- Guard and navigation behavior verified.
+- Tests added and passing per `testing.mdc` (including a11y coverage).
 
 ## Completeness
-- [ ] 11.1.1-11.1.14 (public entry + onboarding; done: 11.1.1, 11.1.2; pending: 11.1.3-11.1.14)
-- [ ] 11.2.1-11.2.8 (auth, home; done: 11.2.1, 11.2.4, 11.2.8; pending: 11.2.2, 11.2.3, 11.2.5, 11.2.6, 11.2.7)
-- [x] 11.3.1-11.3.22 (Settings main + tabs)
-- [ ] 11.4.1-11.6.9 (Patients, Scheduling, Clinical)
-- [ ] 11.7.1-11.7.8.6, 11.8.1-11.9.4.7 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
-- [ ] 11.10.1-11.11.5 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
-- [ ] Nav + deep links for all main screens
+- [ ] Tier 1 (`11.1.1-11.1.14`) public entry and onboarding (done: `11.1.1`, `11.1.2`)
+- [ ] Tier 2 (`11.2.1-11.2.8`) auth and shell (done: `11.2.1`, `11.2.4`, `11.2.8`)
+- [x] Tier 3 (`11.3.1-11.3.22`) settings and core access
+- [ ] Tier 4 (`11.4.1-11.4.10`) patient registry and consent
+- [ ] Tier 5 (`11.5.1-11.5.7`) scheduling and queues
+- [ ] Tier 6 (`11.6.1-11.6.10`) clinical documentation
+- [ ] Tier 7 (`11.7.1-11.7.23`) IPD, ICU, theatre, emergency
+- [ ] Tier 8 (`11.8.1-11.8.15`) diagnostics
+- [ ] Tier 9 (`11.9.1-11.9.17`) pharmacy and inventory
+- [ ] Tier 10 (`11.10.1-11.10.59`) billing, HR, facilities, reporting, communications, subscriptions, integrations, compliance
+- [ ] Tier 11 (`11.11.1-11.11.5`) patient portal
+- [ ] Navigation and deep links validated for all completed screens
 
-## Settings status (11.3.1-11.3.22)
-- **11.3.1-11.3.17** settings through user-role -- List OK, Detail OK, Create/Edit OK
-- **11.3.18** api-key -- List OK, Detail OK, Create/Edit N/A (current read-only flow)
-- **11.3.19-11.3.20** api-key-permission, user-mfa -- List OK, Detail OK, Create/Edit OK
-- **11.3.21** user-session -- List OK, Detail OK, Create/Edit N/A (current read-only flow)
-- **11.3.22** oauth-account -- List OK, Detail OK, Create/Edit OK
-
-Backend: facility/tenant usecases unwrap `response.data.data`; other CRUD same pattern when backend returns `{ data }`.
+## Settings Status (`11.3.1-11.3.22`)
+- `11.3.1-11.3.17`: list/detail/create-edit flows implemented.
+- `11.3.18`: API keys list/detail implemented; create-edit currently read-only by current policy.
+- `11.3.19-11.3.20`: list/detail/create-edit flows implemented.
+- `11.3.21`: user sessions list/detail implemented; create-edit not applicable.
+- `11.3.22`: list/detail/create-edit flows implemented.

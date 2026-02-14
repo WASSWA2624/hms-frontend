@@ -1,13 +1,13 @@
-# Phase 13: Finalization (Onboarding, Help, and Readiness)
+# Phase 13: Finalization and Release Readiness
 
 ## Purpose
-Finalize the HMS application after core and advanced features are complete. Each step is **atomic** and covers a single deliverable.
+Finalize onboarding/help UX, complete readiness audits, and confirm production release quality before locales expansion.
 
 ## Rule References
-- `.cursor/rules/features-domain.mdc` (Feature Template Structure - MANDATORY)
-- `.cursor/rules/component-structure.mdc` (Screen Structure - MANDATORY)
-- `.cursor/rules/platform-ui.mdc` (Screen Requirements - MANDATORY)
-- `.cursor/rules/testing.mdc` (Testing Requirements - MANDATORY)
+- `.cursor/rules/features-domain.mdc`
+- `.cursor/rules/component-structure.mdc`
+- `.cursor/rules/platform-ui.mdc`
+- `.cursor/rules/testing.mdc`
 - `.cursor/rules/performance.mdc`
 - `.cursor/rules/accessibility.mdc`
 - `.cursor/rules/security.mdc`
@@ -16,44 +16,57 @@ Finalize the HMS application after core and advanced features are complete. Each
 
 ## Prerequisites
 - Phase 12 completed
-- App Router and screens are in place
+- Core route/module parity confirmed
+- Backend readiness baselines available (`hms-backend/dev-plan/P008_perf.mdc`)
 
-## Steps (Fully Atomic)
+## Steps (Atomic, Chronological)
 
-### Onboarding
-- Step 13.1.1: Create onboarding feature skeleton (rules/model/api/usecase/events/index)
-- Step 13.1.2: Implement onboarding rules and validation
-- Step 13.1.3: Implement onboarding use cases
-- Step 13.1.4: Create `useOnboarding` hook (UI gateway)
-- Step 13.1.5: Build onboarding screens (role-aware flows)
-- Step 13.1.6: Add onboarding tests (feature + hook + screens + a11y)
+### Step 13.1: Onboarding feature hardening
+- Finalize onboarding feature contracts (rules/model/api/usecase/events/index).
+- Ensure onboarding resume/state restoration is deterministic.
+- Add/refresh onboarding feature and screen tests.
 
-### Help System
-- Step 13.2.1: Create help feature skeleton (rules/model/api/usecase/events/index)
-- Step 13.2.2: Implement help content models and rules
-- Step 13.2.3: Create `useHelp` hook (UI gateway)
-- Step 13.2.4: Build contextual help screens and search
-- Step 13.2.5: Add help tests (feature + hook + screens + a11y)
+### Step 13.2: Help system completion
+- Finalize help feature contracts and contextual search UX.
+- Ensure help text is fully i18n-backed.
+- Add/refresh help feature and screen tests.
 
-### Localization (preparation for Phase 14)
-- Step 13.3.1: Finalize list of i18n keys used across the app; ensure keys are stable and follow dot notation (per `i18n.mdc`).
-- Step 13.3.2: Validate that default locale (e.g. `en`) has all keys; document any placeholders. **Full implementation of all locale files and translations is Phase 14 (Locales — last phase).**
-- Step 13.3.3: Verify locale metadata is surfaced in UI (language selector, persistence).
+### Step 13.3: Localization readiness audit (pre-Phase 14)
+- Freeze and validate active translation key inventory.
+- Verify default locale (`en`) includes all keys and expected placeholders.
+- Verify locale selection and persistence work across all shell areas.
 
-### Compliance, Security, and Offline Audits
-- Step 13.4.1: Audit RBAC and route guard coverage
-- Step 13.4.2: Verify audit log visibility and access rules
-- Step 13.4.3: Validate offline flows for critical operations
-- Step 13.4.4: Run threat and privacy review per write-up requirements
-- Step 13.4.5: Verify accessibility per write-up Ch 14 (WCAG 2.1, high-contrast, font sizing, screen reader, keyboard navigation) per `.cursor/rules/accessibility.mdc`
+### Step 13.4: Security and compliance audit
+- Audit RBAC coverage for route groups and module screens.
+- Verify compliance/audit views enforce access restrictions.
+- Validate threat/privacy controls for client-visible flows.
+- Confirm no sensitive data leakage in UI, logs, or errors.
 
-### Performance and Release Readiness
-- Step 13.5.1: Performance profiling and UI responsiveness checks
-- Step 13.5.2: Load and stress checks for data-heavy screens
-- Step 13.5.3: Final regression test suite
-- Step 13.5.4: Final documentation updates
-- Step 13.5.5: Release readiness checklist sign-off
+### Step 13.5: Offline and resilience audit
+- Validate offline behavior for critical mutation paths.
+- Validate sync recovery and conflict UX paths.
+- Confirm loading/empty/error/offline states for high-impact screens.
 
-**Exit Criteria**: All tests pass, localization prep is complete, audits are clean, and readiness checklist is signed off.
+### Step 13.6: Accessibility completion
+- Validate WCAG-focused checks (screen reader, keyboard nav, focus order, 44x44 touch targets).
+- Validate dynamic type/font scaling and reduced-motion behavior.
+- Validate support for system accessibility preferences, including high-contrast environments, without introducing extra theme variants beyond light/dark.
 
-**Next Phase**: `P014_locales.md` (Locales — implementation of all locale files and translation completeness; **last phase**)
+### Step 13.7: Performance and readiness gates
+- Profile critical screens and address regressions.
+- Execute data-heavy scenario checks and route transition checks.
+- Run full regression suite and coverage gates.
+- Finalize documentation and release checklist sign-off.
+
+### Step 13.8: Backend/Frontend parity sign-off
+- Confirm frontend route coverage remains aligned with backend modules/endpoints.
+- Confirm realtime UX dependencies align with backend WS event coverage.
+- Record any approved temporary deltas with owner and target phase.
+
+## Exit Criteria
+- All tests pass with required coverage.
+- Critical security/offline/accessibility/performance checks are green.
+- Backend/frontend parity is signed off.
+- Locale phase can start without key drift.
+
+**Next Phase**: `P014_locales.md` (last phase)

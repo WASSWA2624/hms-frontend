@@ -21,7 +21,7 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - Errors layer exists (Phase 1)
 - Shared utilities exist (URL helpers, pagination, error normalization)
 
-## Review Snapshot (2026-02-12)
+## Review Snapshot (2026-02-14)
 - Reviewed against `hms-backend/dev-plan/P011_modules.mdc`.
 - Core module steps listed in this phase: **144**.
 - Missing modules: **None**.
@@ -57,6 +57,12 @@ For each module step, implement the full feature template:
 
 ## Steps
 Each step implements exactly **one** backend module from `hms-backend/dev-plan/P011_modules.mdc`.
+
+## Chronology Lock (Mandatory)
+- Execute module groups in order: **1 -> 20** exactly as listed below.
+- Do not skip ahead to a later group while an earlier group has pending modules.
+- Do not merge multiple modules into one implementation step.
+- For each module step, complete feature files, tests, and exports before starting the next module.
 
 ### Module Group 1: Auth, Sessions, Tenancy & Core Access
 - Step 10.1.1: `auth`
@@ -242,5 +248,5 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.20.2: `integration-log`
 - Step 10.20.3: `webhook-subscription`
 
-**Note**: Telemedicine and patient engagement flows reuse core modules and are implemented in Phase 12 as optional/advanced features.
+**Note**: Telemedicine and patient engagement flows reuse core modules and are implemented in Phase 12 advanced slices.
 

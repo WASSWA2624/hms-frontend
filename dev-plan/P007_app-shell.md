@@ -158,7 +158,7 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - Import `bootstrapApp` from `@bootstrap`
 - Call `bootstrapApp()` per `bootstrap-config.mdc` (before rendering providers)
 - Handle bootstrap errors gracefully per `bootstrap-config.mdc` (should not crash app)
-- Add loading state while bootstrap completes (optional, if bootstrap is async)
+- Add loading state while bootstrap completes if `bootstrapApp()` is async in this codebase
 
 **Expected Outcome**:
 - Bootstrap runs in correct order per `bootstrap-config.mdc` (security → store → theme → offline)
@@ -298,10 +298,10 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - Export `useAuthGuard` hook per `hooks-utils.mdc`:
   - Checks if user is authenticated (via Redux selector or hook per `hooks-utils.mdc`)
   - Redirects to login route if unauthenticated (using `router.replace()` from `expo-router`)
-  - Accepts optional redirect path parameter (defaults to `/login` as placeholder; actual route path will be determined in Phase 10/11)
+  - Accepts optional redirect path parameter (defaults to `/login`)
   - Returns auth state (authenticated boolean, user data if available)
 - Hook should be idempotent and safe to call multiple times
-- **Note**: Redirect paths should match the actual routes created in Phase 10/11
+- **Note**: Use `/login` as the canonical unauthenticated route.
 
 **Expected Outcome**:
 - Auth guard hook exists and can redirect unauthenticated users
@@ -334,11 +334,11 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - Export `useRoleGuard` hook per `hooks-utils.mdc`:
   - Accepts required role(s) as parameter
   - Checks if user has required role (via Redux selector or hook per `hooks-utils.mdc`)
-  - Accepts optional redirect path parameter for access denied (defaults to `/dashboard` as placeholder; actual route path will be determined in Phase 10/11)
+  - Accepts optional redirect path parameter for access denied (defaults to `/dashboard`)
   - Redirects to safe route if access denied per `security.mdc`
   - Exposes error code via state/return value
   - Returns access state (hasAccess boolean, error code if denied)
-- **Note**: Redirect paths should match the actual routes created in Phase 10/11
+- **Note**: Use `/dashboard` as the canonical authenticated safe route.
 
 **Expected Outcome**:
 - Role guard hook exists and can restrict access based on user roles
@@ -369,7 +369,7 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - In `src/app/(auth)/_layout.jsx`:
   - Import `useAuthGuard` from `@navigation/guards` per `coding-conventions.mdc`
   - Call the hook per `app-router.mdc`
-  - If authenticated, redirect to home route (redirect path should match the actual home route created in Phase 10/11)
+  - If authenticated, redirect to `/dashboard`
 
 **Expected Outcome**:
 - Authenticated users cannot access login/register routes (redirected to home)
@@ -416,22 +416,22 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 
 ---
 
-### Step 7.16: Wire role guards where needed (optional)
-**Goal**: Apply role guards to specific routes that require role-based protection. This is optional and routes can be protected later when needed.
+### Step 7.16: Wire role guards in protected route groups
+**Goal**: Apply role guards to all route groups that require role-based protection.
 
 **Rule References**:
 - Guard placement: `app-router.mdc` (guards in layouts, not screens)
 - Import aliases: `coding-conventions.mdc` (use `@navigation` alias)
 
 **Actions**:
-- Identify routes that need role protection (can be minimal for now; actual routes created in Phase 10 and Phase 11)
+- Identify protected route groups and required roles from the Phase 11 route map before wiring guards
 - In route group layouts per `app-router.mdc`:
   - Import `useRoleGuard` from `@navigation/guards` per `coding-conventions.mdc`
   - Call guard with required role parameters
   - Guard will handle redirects automatically
 
 **Expected Outcome**:
-- Routes with role requirements are protected (when routes exist in Phase 10 and Phase 11)
+- Routes with role requirements are protected
 
 **Tests (mandatory - per `testing.mdc`)**:
 - Create `src/__tests__/navigation/guards/integration.test.js` per `testing.mdc` (mirror source structure)
@@ -511,7 +511,7 @@ When navigating/linking (after routes are created in Phase 10 and Phase 11), **o
 - ✅ Bootstrap runs in correct order and failures are handled safely (per `bootstrap-config.mdc`: security → store → theme → offline)
 - ✅ Auth and main route groups exist with layouts (per `app-router.mdc`)
 - ✅ Guards implemented (auth, role) with configurable redirect paths (per `hooks-utils.mdc`, `security.mdc`)
-- ✅ Guards wired in route layouts (redirect paths are placeholders until routes exist in Phase 10/11) (per `app-router.mdc`)
+- ✅ Guards wired in route layouts with canonical paths (`/login`, `/dashboard`) (per `app-router.mdc`)
 - ✅ Navigation skeleton renders in main layout (per `platform-ui.mdc`, `accessibility.mdc`)
 - ✅ **All steps have passing tests with required coverage** (per `testing.mdc`: 100% coverage mandatory overall, all branches tested)
 - ✅ **All tests verify behavior, not implementation details** (per `testing.mdc`)

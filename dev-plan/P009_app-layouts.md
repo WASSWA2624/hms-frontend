@@ -27,7 +27,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ## Steps (Atomic, Chronological)
 
-### Step 9.0: App Identity and Icons (All Platforms)
+### Step 9.1: App Identity and Icons (All Platforms)
 **Goal**: Configure app name, logo, and all platform-specific icons (Android, iOS, Web favicon and web/tablet icon) so the app presents a consistent identity everywhere.
 
 **Actions**:
@@ -43,14 +43,14 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.0.5: Common layout utilities (root layout)
+### Step 9.2: Common layout utilities (root layout)
 **Goal**: Provide platform-aware layout helpers used by the root layout (theme wrapper, favicon, root styles).
 
 **Actions**:
 1. Create `src/platform/layouts/common/` per `component-structure.mdc`.
-2. **ThemeProviderWrapper/**: platform files (e.g. `.native.jsx`, `.web.jsx`) that wrap theme provider for platform-specific behavior; barrel `index.js`. Used by root layout to supply theme to the app.
-3. **FaviconHead/**: web-only or native no-op for favicon/meta (e.g. `.native.jsx`, `.web.jsx`); used in root layout on web.
-4. **RootLayoutStyles/**: platform-specific root layout styles (e.g. `index.android.js`, `index.ios.js`, `index.js` plus `.styles.jsx` per platform); export so root `_layout.jsx` can apply consistent shell styling.
+2. **ThemeProviderWrapper/**: shared `ThemeProviderWrapper.jsx` plus optional `.android/.ios/.web` overrides only when behavior differs; barrel `index.js`. Used by root layout to supply theme to the app.
+3. **FaviconHead/**: shared component with `.web.jsx` implementation and native no-op implementation (`.android/.ios` or shared fallback); used in root layout on web.
+4. **RootLayoutStyles/**: shared `RootLayoutStyles.styles.jsx` plus optional platform style overrides (`RootLayoutStyles.android.styles.jsx`, `RootLayoutStyles.ios.styles.jsx`, `RootLayoutStyles.web.styles.jsx`) per `component-structure.mdc`.
 5. Wire these into `src/app/_layout.jsx` where needed (per `bootstrap-config.mdc` and `app-router.mdc`).
 
 **Verification**: Root layout renders without errors; theme and favicon apply correctly on web and native.
@@ -59,7 +59,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.1: Base Layout Primitives (All Platforms, All Sizes)
+### Step 9.3: Base Layout Primitives (All Platforms, All Sizes)
 **Goal**: Create layout frame components (AppFrame, AuthLayout, MainFrame) with slot conventions (header, footer, content). One component per platform file; styles in platform `.styles.jsx`; Fluent look and feel.
 
 **Actions**:
@@ -74,7 +74,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.2: Global Header (All Platforms, All Sizes)
+### Step 9.4: Global Header (All Platforms, All Sizes)
 **Goal**: Header component(s) with title, actions, optional breadcrumbs. Platform-separated; responsive; Fluent styling; safe area and a11y.
 
 **Actions**:
@@ -88,7 +88,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.3: Global Footer (All Platforms, All Sizes)
+### Step 9.5: Global Footer (All Platforms, All Sizes)
 **Goal**: Footer component(s) for status, legal, quick actions. Platform-separated; responsive; Fluent styling.
 
 **Actions**:
@@ -101,15 +101,15 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.4: Primary Navigation Shell (All Platforms, All Sizes)
+### Step 9.6: Primary Navigation Shell (All Platforms, All Sizes)
 **Goal**: Navigation (drawer/tab/rail as appropriate) for main (and patient) route groups. Platform-appropriate patterns; Fluent look and feel; wired to real layouts.
 
 **Actions**:
 1. Implement route layouts under `src/platform/layouts/RouteLayouts/`:
    - **MainRouteLayout/** (main app shell): platform files `.android.jsx`, `.ios.jsx`, `.web.jsx` and matching `.styles.jsx`; `index.js`, `types.js`. Compose: header slot, content slot, and platform-appropriate nav (bottom tabs or drawer on mobile; sidebar/rail on desktop per breakpoints). Subcomponents per `component-structure.mdc`: e.g. **MobileSidebar/** (drawer/sheet for mobile), **HamburgerIcon/**, **Brand/** (logo/app name), **HeaderUtility/** (web: theme/language controls), **Breadcrumbs** (web), optional **OverflowMenu**, **NotificationsMenu**, **HeaderCustomizationList/Menu**. Use hooks (e.g. `useMainRouteLayoutWeb.js`, `useMainRouteLayoutNative.js`, `useBreadcrumbs.js`, `useKeyboardShortcuts.js`) for logic; styles only in `.styles.jsx`.
-   - **PatientRouteLayout/** (if needed): same platform pattern; wire for patient route group.
+   - **PatientRouteLayout/**: same platform pattern; wire for patient route group.
 2. Responsive behavior: bottom tabs or drawer on mobile, rail/sidebar on desktop; use theme breakpoints (mobile, tablet, desktop, large).
-3. Wire MainRouteLayout (and PatientRouteLayout) into `(main)/_layout.jsx` (and patient group if any); guards/roles from app state; all routes reachable, no runtime errors.
+3. Wire MainRouteLayout into `(main)/_layout.jsx` and PatientRouteLayout into `(patient)/_layout.jsx`; guards/roles from app state; all routes reachable, no runtime errors.
 
 **Verification**: Navigation works on all platforms and sizes; tests per `testing.mdc`.
 
@@ -117,11 +117,11 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.5: Theme Controls (Light/Dark Only)
+### Step 9.7: Theme Controls (Light/Dark Only)
 **Goal**: UI controls to switch between light and dark theme; wired to theme state; persist preference. No high-contrast or other theme variants.
 
 **Actions**:
-1. Create `src/platform/components/navigation/ThemeToggle/` (and optionally `ThemeControls/`) with full platform set; add to shell (e.g. header in MainRouteLayout/HeaderUtility).
+1. Create `src/platform/components/navigation/ThemeToggle/` with full platform set; add to shell (e.g. header in MainRouteLayout/HeaderUtility).
 2. Wire to Redux (`ui.theme`) and persistence; changing theme updates UI without errors.
 3. Per `theme-design.mdc`: only light and dark themes exist.
 
@@ -131,7 +131,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.6: Language Selection Controls
+### Step 9.8: Language Selection Controls
 **Goal**: Language selector in shell; wired to i18n; persist selection; all UI text via i18n.
 
 **Actions**:
@@ -145,7 +145,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.7: Global Banners and Utilities (All Platforms, All Sizes)
+### Step 9.9: Global Banners and Utilities (All Platforms, All Sizes)
 **Goal**: Offline/online banner, maintenance banner, loading overlay, toast/notice surface. Platform-separated where applicable; responsive; Fluent styling.
 
 **Actions**:
@@ -159,7 +159,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 
 ---
 
-### Step 9.8: Responsive and Fluent Verification
+### Step 9.10: Responsive and Fluent Verification
 **Goal**: Confirm all layouts and global UI work at every breakpoint and on every platform with Microsoft Fluent look and feel.
 
 **Actions**:
@@ -175,10 +175,10 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 ---
 
 ## Completion Criteria
-- **App identity and icons**: App name, logo, and all platform icons (Android, iOS, Web favicon, web/tablet icon) configured and verified per Step 9.0.
-- **Common layout utilities**: ThemeProviderWrapper, FaviconHead, RootLayoutStyles created and wired in root layout per Step 9.0.5.
+- **App identity and icons**: App name, logo, and all platform icons (Android, iOS, Web favicon, web/tablet icon) configured and verified per Step 9.1.
+- **Common layout utilities**: ThemeProviderWrapper, FaviconHead, RootLayoutStyles created and wired in root layout per Step 9.2.
 - All layout and global UI components implemented for **all platforms** (Android, iOS, Web) and **all screen sizes** (mobile, tablet, desktop, large).
-- **MainRouteLayout** (and PatientRouteLayout if needed) with subcomponents (MobileSidebar, HamburgerIcon, Brand, HeaderUtility, etc.) implemented and wired per Step 9.4.
+- **MainRouteLayout** and **PatientRouteLayout** with subcomponents (MobileSidebar, HamburgerIcon, Brand, HeaderUtility, etc.) implemented and wired per Step 9.6.
 - **Microsoft Fluent / Microsoft 365** look and feel applied (theme tokens, no hardcoded visuals).
 - Theme controls: **light and dark only**.
 - All steps executed in order; tests passing; rule compliance verified per `.cursor/rules/`.

@@ -11,6 +11,7 @@ Implement **all supported locale files** and ensure **translation completeness**
 ## Rule References
 - `.cursor/rules/i18n.mdc` (authoritative: no hardcoded UI text, keys in all locale files, dot notation, stable keys)
 - `.cursor/rules/coding-conventions.mdc` (no restating i18n rules here)
+- `hms-backend/dev-plan/P014_locales.mdc` (cross-system locale alignment)
 
 ## Steps (Atomic, Chronological)
 
@@ -58,10 +59,25 @@ Implement **all supported locale files** and ensure **translation completeness**
 
 ---
 
+### Step 14.4: Verify Backend-Frontend Locale Parity
+**Goal**: Ensure frontend locale coverage stays aligned with backend locale rollout and direction metadata expectations.
+
+**Actions**:
+1. Compare frontend locale file set in `src/i18n/locales/` with backend locale coverage documented in `hms-backend/dev-plan/P014_locales.mdc`.
+2. Validate RTL behavior consistency for shared RTL locales.
+3. Document and justify any frontend-only or backend-only locales.
+
+**Verification**: Locale parity check completed; no undocumented locale drift.
+
+**Rule Reference**: `.cursor/rules/i18n.mdc`
+
+---
+
 ## Completion Criteria
 - All supported locale files exist in `src/i18n/locales/`.
 - Every translation key used in the app exists in every locale file with a valid translation.
 - Locale switching works; no hardcoded UI strings; tests pass.
 - Supported locales documented in dev-plan.
+- Backend/frontend locale parity verified and documented.
 
 **This is the last phase.** No subsequent development phase follows.

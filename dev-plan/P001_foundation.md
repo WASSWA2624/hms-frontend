@@ -564,82 +564,11 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 **Goal**: Create generic error fallback UI component
 
 **Actions**:
-1. Create `src/errors/fallback.ui.jsx`:
-   **Note**: Uses `.jsx` extension because it's a React component that returns JSX
-   ```javascript
-   /**
-    * Fallback UI Component
-    * Generic error fallback (minimal, theme-driven; strings sourced from i18n)
-    */
-   import React from 'react';
-   import styled from 'styled-components/native';
-   import en from '@i18n/locales/en.json';
-   
-   const getNestedValue = (obj, path) => {
-     return String(path)
-       .split('.')
-       .reduce((current, key) => (current && current[key] !== undefined ? current[key] : undefined), obj);
-   };
-   
-   const getText = (key, fallback) => getNestedValue(en, key) || fallback;
-   
-   const Container = styled.View`
-     flex: 1;
-     align-items: center;
-     justify-content: center;
-     padding: ${({ theme }) => theme.spacing.lg}px;
-     background-color: ${({ theme }) => theme.colors.background.primary};
-   `;
-   
-   const Title = styled.Text`
-     font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
-     color: ${({ theme }) => theme.colors.textPrimary ?? theme.colors.text?.primary ?? theme.colors.textPrimary};
-     margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-     text-align: center;
-   `;
-   
-   const Message = styled.Text`
-     font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-     color: ${({ theme }) => theme.colors.textSecondary ?? theme.colors.text?.secondary ?? theme.colors.textSecondary};
-     margin-bottom: ${({ theme }) => theme.spacing.md}px;
-     text-align: center;
-   `;
-   
-   const RetryButton = styled.Pressable`
-     background-color: ${({ theme }) => theme.colors.primary};
-     padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.lg}px;
-     border-radius: ${({ theme }) => theme.radius.md}px;
-   `;
-   
-   const RetryText = styled.Text`
-     color: ${({ theme }) => theme.colors.onPrimary};
-   `;
-   
-   const FallbackUI = ({ error, onRetry }) => {
-     const title = getText('errors.fallback.title', 'Something went wrong');
-     const message = error?.safeMessage || getText('errors.fallback.message', 'An unexpected error occurred');
-     const retry = getText('errors.fallback.retry', 'Retry');
-     const retryHint = getText('errors.fallback.retryHint', 'Try again');
-     return (
-       <Container>
-         <Title accessibilityRole="header">{title}</Title>
-         <Message>{message}</Message>
-         {onRetry && (
-           <RetryButton
-             onPress={onRetry}
-             accessibilityRole="button"
-             accessibilityLabel={retry}
-             accessibilityHint={retryHint}
-           >
-             <RetryText>{retry}</RetryText>
-           </RetryButton>
-         )}
-       </Container>
-     );
-   };
-   
-   export default FallbackUI;
-   ```
+1. Create `src/errors/fallback.ui.jsx` as a render-only component.
+2. Create `src/errors/fallback.ui.styles.jsx` and place all styled-components there (no styled-component definitions in `fallback.ui.jsx`).
+3. Use i18n keys via `useI18n()` (`t`/`tSync`) for all user-facing text and accessibility labels; do not read locale JSON directly in UI.
+4. Use theme tokens only in the styles file.
+5. Keep fallback UI resilient: show safe message, optional retry action, and no raw error details.
 
 **Tests**: Create `src/__tests__/errors/fallback.ui.test.js`
 - Test component renders

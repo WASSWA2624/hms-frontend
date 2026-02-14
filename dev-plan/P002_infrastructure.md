@@ -325,7 +325,7 @@ Build the infrastructure layer: services (API, storage, analytics) and security.
 ---
 
 ### Step 2.4: Create Analytics Service
-**Goal**: Analytics tracking (optional, can be no-op)
+**Goal**: Analytics tracking service with deterministic feature-flag behavior (disabled path may no-op)
 
 **Actions**:
 1. Create `src/services/analytics/tracker.js`:
