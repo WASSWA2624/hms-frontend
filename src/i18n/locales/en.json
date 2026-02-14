@@ -304,7 +304,34 @@
         "inventory-suppliers": "Suppliers",
         "inventory-purchase-orders": "Purchase Orders",
         "inventory-goods-receipts": "Goods Receipts",
-        "inventory-stock-adjustments": "Stock Adjustments"
+        "inventory-stock-adjustments": "Stock Adjustments",
+        "billing": "Billing",
+        "billing-invoices": "Invoices",
+        "billing-payments": "Payments",
+        "billing-refunds": "Refunds",
+        "billing-pricing-rules": "Pricing Rules",
+        "billing-coverage-plans": "Coverage Plans",
+        "billing-insurance-claims": "Insurance Claims",
+        "billing-pre-authorizations": "Pre-authorizations",
+        "billing-billing-adjustments": "Billing Adjustments",
+        "hr": "HR",
+        "hr-staff-profiles": "Staff Profiles",
+        "hr-staff-assignments": "Staff Assignments",
+        "hr-staff-leaves": "Staff Leaves",
+        "hr-shifts": "Shifts",
+        "hr-nurse-rosters": "Nurse Rosters",
+        "hr-payroll-runs": "Payroll Runs",
+        "housekeeping": "Housekeeping",
+        "housekeeping-housekeeping-tasks": "Housekeeping Tasks",
+        "housekeeping-housekeeping-schedules": "Housekeeping Schedules",
+        "housekeeping-maintenance-requests": "Maintenance Requests",
+        "housekeeping-assets": "Assets",
+        "housekeeping-asset-service-logs": "Asset Service Logs",
+        "reports": "Reports",
+        "communications": "Communications",
+        "subscriptions": "Subscriptions",
+        "integrations": "Integrations",
+        "compliance": "Compliance"
       },
       "patient": {
         "home": "Home"
@@ -4802,6 +4829,91 @@
         "found": "Found",
         "correction": "Correction",
         "other": "Other"
+      },
+      "invoiceStatus": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "cancelled": "Cancelled"
+      },
+      "billingStatus": {
+        "draft": "Draft",
+        "issued": "Issued",
+        "paid": "Paid",
+        "partial": "Partial",
+        "cancelled": "Cancelled"
+      },
+      "paymentStatus": {
+        "pending": "Pending",
+        "completed": "Completed",
+        "failed": "Failed",
+        "refunded": "Refunded"
+      },
+      "paymentMethod": {
+        "cash": "Cash",
+        "creditCard": "Credit Card",
+        "debitCard": "Debit Card",
+        "prepaidCard": "Prepaid Card",
+        "giftCard": "Gift Card",
+        "voucher": "Voucher",
+        "bankCheck": "Bank Check",
+        "mobileMoney": "Mobile Money",
+        "bankTransfer": "Bank Transfer",
+        "insurance": "Insurance",
+        "other": "Other"
+      },
+      "insuranceClaimStatus": {
+        "submitted": "Submitted",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      },
+      "preAuthorizationStatus": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "denied": "Denied",
+        "expired": "Expired"
+      },
+      "staffLeaveStatus": {
+        "requested": "Requested",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled"
+      },
+      "shiftType": {
+        "day": "Day",
+        "night": "Night",
+        "swing": "Swing",
+        "onCall": "On Call"
+      },
+      "shiftStatus": {
+        "scheduled": "Scheduled",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "nurseRosterStatus": {
+        "draft": "Draft",
+        "published": "Published"
+      },
+      "payrollRunStatus": {
+        "draft": "Draft",
+        "processed": "Processed",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      },
+      "housekeepingTaskStatus": {
+        "pending": "Pending",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "maintenanceStatus": {
+        "open": "Open",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
       }
     },
     "resources": {
@@ -7901,6 +8013,537 @@
           "adjustedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
           "adjustedAtHint": "Optional ISO 8601 date-time."
         }
+      },
+      "assetServiceLogs": {
+        "detail": {
+          "assetLabel": "Asset",
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "notesLabel": "Notes",
+          "servicedAtLabel": "Serviced At",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "assetIdHint": "Optional",
+          "assetIdLabel": "Asset Id",
+          "assetIdPlaceholder": "Enter asset id",
+          "notesHint": "Optional",
+          "notesLabel": "Notes",
+          "notesPlaceholder": "Enter notes",
+          "servicedAtHint": "Use ISO 8601 date-time.",
+          "servicedAtLabel": "Serviced At",
+          "servicedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ"
+        }
+      },
+      "assets": {
+        "detail": {
+          "assetTagLabel": "Asset Tag",
+          "createdLabel": "Created",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "nameLabel": "Name",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "assetTagHint": "Optional",
+          "assetTagLabel": "Asset Tag",
+          "assetTagPlaceholder": "Enter asset tag",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "nameHint": "Optional",
+          "nameLabel": "Name",
+          "namePlaceholder": "Enter name",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "billingAdjustments": {
+        "detail": {
+          "adjustedAtLabel": "Adjusted At",
+          "amountLabel": "Amount",
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "invoiceLabel": "Invoice",
+          "reasonLabel": "Reason",
+          "statusLabel": "Status",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "adjustedAtHint": "Use ISO 8601 date-time.",
+          "adjustedAtLabel": "Adjusted At",
+          "adjustedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "amountHint": "Optional",
+          "amountLabel": "Amount",
+          "amountPlaceholder": "Enter amount",
+          "invoiceIdHint": "Optional",
+          "invoiceIdLabel": "Invoice Id",
+          "invoiceIdPlaceholder": "Enter invoice id",
+          "reasonHint": "Optional",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "Enter reason",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "housekeepingSchedules": {
+        "detail": {
+          "createdLabel": "Created",
+          "endDateLabel": "End Date",
+          "facilityLabel": "Facility",
+          "frequencyLabel": "Frequency",
+          "idLabel": "Id",
+          "roomLabel": "Room",
+          "startDateLabel": "Start Date",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "endDateHint": "Use ISO 8601 date-time.",
+          "endDateLabel": "End Date",
+          "endDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "frequencyHint": "Optional",
+          "frequencyLabel": "Frequency",
+          "frequencyPlaceholder": "Enter frequency",
+          "roomIdHint": "Optional",
+          "roomIdLabel": "Room Id",
+          "roomIdPlaceholder": "Enter room id",
+          "startDateHint": "Use ISO 8601 date-time.",
+          "startDateLabel": "Start Date",
+          "startDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ"
+        }
+      },
+      "housekeepingTasks": {
+        "detail": {
+          "assignedToStaffLabel": "Assigned To Staff",
+          "completedAtLabel": "Completed At",
+          "createdLabel": "Created",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "roomLabel": "Room",
+          "scheduledAtLabel": "Scheduled At",
+          "statusLabel": "Status",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "assignedToStaffIdHint": "Optional",
+          "assignedToStaffIdLabel": "Assigned To Staff Id",
+          "assignedToStaffIdPlaceholder": "Enter assigned to staff id",
+          "completedAtHint": "Use ISO 8601 date-time.",
+          "completedAtLabel": "Completed At",
+          "completedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "roomIdHint": "Optional",
+          "roomIdLabel": "Room Id",
+          "roomIdPlaceholder": "Enter room id",
+          "scheduledAtHint": "Use ISO 8601 date-time.",
+          "scheduledAtLabel": "Scheduled At",
+          "scheduledAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "insuranceClaims": {
+        "detail": {
+          "coveragePlanLabel": "Coverage Plan",
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "invoiceLabel": "Invoice",
+          "statusLabel": "Status",
+          "submittedAtLabel": "Submitted At",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "coveragePlanIdHint": "Optional",
+          "coveragePlanIdLabel": "Coverage Plan Id",
+          "coveragePlanIdPlaceholder": "Enter coverage plan id",
+          "invoiceIdHint": "Optional",
+          "invoiceIdLabel": "Invoice Id",
+          "invoiceIdPlaceholder": "Enter invoice id",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status",
+          "submittedAtHint": "Use ISO 8601 date-time.",
+          "submittedAtLabel": "Submitted At",
+          "submittedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ"
+        }
+      },
+      "invoices": {
+        "detail": {
+          "billingStatusLabel": "Billing Status",
+          "createdLabel": "Created",
+          "currencyLabel": "Currency",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "issuedAtLabel": "Issued At",
+          "patientLabel": "Patient",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "totalAmountLabel": "Total Amount",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "billingStatusHint": "Optional",
+          "billingStatusLabel": "Billing Status",
+          "billingStatusPlaceholder": "Enter billing status",
+          "currencyHint": "Optional",
+          "currencyLabel": "Currency",
+          "currencyPlaceholder": "Enter currency",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "issuedAtHint": "Use ISO 8601 date-time.",
+          "issuedAtLabel": "Issued At",
+          "issuedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "patientIdHint": "Optional",
+          "patientIdLabel": "Patient Id",
+          "patientIdPlaceholder": "Enter patient id",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status",
+          "totalAmountHint": "Optional",
+          "totalAmountLabel": "Total Amount",
+          "totalAmountPlaceholder": "Enter total amount"
+        }
+      },
+      "maintenanceRequests": {
+        "detail": {
+          "assetLabel": "Asset",
+          "createdLabel": "Created",
+          "descriptionLabel": "Description",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "reportedAtLabel": "Reported At",
+          "resolvedAtLabel": "Resolved At",
+          "statusLabel": "Status",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "assetIdHint": "Optional",
+          "assetIdLabel": "Asset Id",
+          "assetIdPlaceholder": "Enter asset id",
+          "descriptionHint": "Optional",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "Enter description",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "reportedAtHint": "Use ISO 8601 date-time.",
+          "reportedAtLabel": "Reported At",
+          "reportedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "resolvedAtHint": "Use ISO 8601 date-time.",
+          "resolvedAtLabel": "Resolved At",
+          "resolvedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "nurseRosters": {
+        "detail": {
+          "createdLabel": "Created",
+          "departmentLabel": "Department",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "periodEndLabel": "Period End",
+          "periodStartLabel": "Period Start",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "departmentIdHint": "Optional",
+          "departmentIdLabel": "Department Id",
+          "departmentIdPlaceholder": "Enter department id",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "periodEndHint": "Optional",
+          "periodEndLabel": "Period End",
+          "periodEndPlaceholder": "Enter period end",
+          "periodStartHint": "Optional",
+          "periodStartLabel": "Period Start",
+          "periodStartPlaceholder": "Enter period start",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "payments": {
+        "detail": {
+          "amountLabel": "Amount",
+          "createdLabel": "Created",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "invoiceLabel": "Invoice",
+          "methodLabel": "Method",
+          "paidAtLabel": "Paid At",
+          "patientLabel": "Patient",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "transactionRefLabel": "Transaction Ref",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "amountHint": "Optional",
+          "amountLabel": "Amount",
+          "amountPlaceholder": "Enter amount",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "invoiceIdHint": "Optional",
+          "invoiceIdLabel": "Invoice Id",
+          "invoiceIdPlaceholder": "Enter invoice id",
+          "methodHint": "Optional",
+          "methodLabel": "Method",
+          "methodPlaceholder": "Enter method",
+          "paidAtHint": "Use ISO 8601 date-time.",
+          "paidAtLabel": "Paid At",
+          "paidAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "patientIdHint": "Optional",
+          "patientIdLabel": "Patient Id",
+          "patientIdPlaceholder": "Enter patient id",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status",
+          "transactionRefHint": "Optional",
+          "transactionRefLabel": "Transaction Ref",
+          "transactionRefPlaceholder": "Enter transaction ref"
+        }
+      },
+      "payrollRuns": {
+        "detail": {
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "periodEndLabel": "Period End",
+          "periodStartLabel": "Period Start",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "periodEndHint": "Optional",
+          "periodEndLabel": "Period End",
+          "periodEndPlaceholder": "Enter period end",
+          "periodStartHint": "Optional",
+          "periodStartLabel": "Period Start",
+          "periodStartPlaceholder": "Enter period start",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "preAuthorizations": {
+        "detail": {
+          "approvedAtLabel": "Approved At",
+          "coveragePlanLabel": "Coverage Plan",
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "requestedAtLabel": "Requested At",
+          "statusLabel": "Status",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "approvedAtHint": "Use ISO 8601 date-time.",
+          "approvedAtLabel": "Approved At",
+          "approvedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "coveragePlanIdHint": "Optional",
+          "coveragePlanIdLabel": "Coverage Plan Id",
+          "coveragePlanIdPlaceholder": "Enter coverage plan id",
+          "requestedAtHint": "Use ISO 8601 date-time.",
+          "requestedAtLabel": "Requested At",
+          "requestedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "refunds": {
+        "detail": {
+          "amountLabel": "Amount",
+          "createdLabel": "Created",
+          "idLabel": "Id",
+          "paymentLabel": "Payment",
+          "reasonLabel": "Reason",
+          "refundedAtLabel": "Refunded At",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "amountHint": "Optional",
+          "amountLabel": "Amount",
+          "amountPlaceholder": "Enter amount",
+          "paymentIdHint": "Optional",
+          "paymentIdLabel": "Payment Id",
+          "paymentIdPlaceholder": "Enter payment id",
+          "reasonHint": "Optional",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "Enter reason",
+          "refundedAtHint": "Use ISO 8601 date-time.",
+          "refundedAtLabel": "Refunded At",
+          "refundedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ"
+        }
+      },
+      "shifts": {
+        "detail": {
+          "createdLabel": "Created",
+          "endTimeLabel": "End Time",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "shiftTypeLabel": "Shift Type",
+          "startTimeLabel": "Start Time",
+          "statusLabel": "Status",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "endTimeHint": "Use ISO 8601 date-time.",
+          "endTimeLabel": "End Time",
+          "endTimePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "shiftTypeHint": "Optional",
+          "shiftTypeLabel": "Shift Type",
+          "shiftTypePlaceholder": "Enter shift type",
+          "startTimeHint": "Use ISO 8601 date-time.",
+          "startTimeLabel": "Start Time",
+          "startTimePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "staffAssignments": {
+        "detail": {
+          "createdLabel": "Created",
+          "departmentLabel": "Department",
+          "endDateLabel": "End Date",
+          "idLabel": "Id",
+          "staffProfileLabel": "Staff Profile",
+          "startDateLabel": "Start Date",
+          "unitLabel": "Unit",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "departmentIdHint": "Optional",
+          "departmentIdLabel": "Department Id",
+          "departmentIdPlaceholder": "Enter department id",
+          "endDateHint": "Use ISO 8601 date-time.",
+          "endDateLabel": "End Date",
+          "endDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "staffProfileIdHint": "Optional",
+          "staffProfileIdLabel": "Staff Profile Id",
+          "staffProfileIdPlaceholder": "Enter staff profile id",
+          "startDateHint": "Use ISO 8601 date-time.",
+          "startDateLabel": "Start Date",
+          "startDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "unitIdHint": "Optional",
+          "unitIdLabel": "Unit Id",
+          "unitIdPlaceholder": "Enter unit id"
+        }
+      },
+      "staffLeaves": {
+        "detail": {
+          "createdLabel": "Created",
+          "endDateLabel": "End Date",
+          "idLabel": "Id",
+          "reasonLabel": "Reason",
+          "staffProfileLabel": "Staff Profile",
+          "startDateLabel": "Start Date",
+          "statusLabel": "Status",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "endDateHint": "Use ISO 8601 date-time.",
+          "endDateLabel": "End Date",
+          "endDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "reasonHint": "Optional",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "Enter reason",
+          "staffProfileIdHint": "Optional",
+          "staffProfileIdLabel": "Staff Profile Id",
+          "staffProfileIdPlaceholder": "Enter staff profile id",
+          "startDateHint": "Use ISO 8601 date-time.",
+          "startDateLabel": "Start Date",
+          "startDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "statusHint": "Optional",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Enter status"
+        }
+      },
+      "staffProfiles": {
+        "detail": {
+          "createdLabel": "Created",
+          "departmentLabel": "Department",
+          "hireDateLabel": "Hire Date",
+          "idLabel": "Id",
+          "positionLabel": "Position",
+          "staffNumberLabel": "Staff Number",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated",
+          "userLabel": "User"
+        },
+        "form": {
+          "departmentIdHint": "Optional",
+          "departmentIdLabel": "Department Id",
+          "departmentIdPlaceholder": "Enter department id",
+          "hireDateHint": "Use ISO 8601 date-time.",
+          "hireDateLabel": "Hire Date",
+          "hireDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "positionHint": "Optional",
+          "positionLabel": "Position",
+          "positionPlaceholder": "Enter position",
+          "staffNumberHint": "Optional",
+          "staffNumberLabel": "Staff Number",
+          "staffNumberPlaceholder": "Enter staff number",
+          "userIdHint": "Optional",
+          "userIdLabel": "User Id",
+          "userIdPlaceholder": "Enter user id"
+        }
+      },
+      "pricingRules": {
+        "label": "Pricing Rule",
+        "pluralLabel": "Pricing Rules",
+        "overviewDescription": "Pricing rule configuration status."
+      },
+      "coveragePlans": {
+        "label": "Coverage Plan",
+        "pluralLabel": "Coverage Plans",
+        "overviewDescription": "Coverage plan availability and status."
+      },
+      "dashboardWidgets": {
+        "label": "Dashboard Widget",
+        "pluralLabel": "Dashboard Widgets",
+        "overviewDescription": "Operational report widgets and dashboard cards."
+      },
+      "notifications": {
+        "label": "Notification",
+        "pluralLabel": "Notifications",
+        "overviewDescription": "System and user notifications."
+      },
+      "subscriptions": {
+        "label": "Subscription",
+        "pluralLabel": "Subscriptions",
+        "overviewDescription": "Subscription records and billing lifecycle status."
+      },
+      "integrations": {
+        "label": "Integration",
+        "pluralLabel": "Integrations",
+        "overviewDescription": "External integration configurations and status."
+      },
+      "auditLogs": {
+        "label": "Audit Log",
+        "pluralLabel": "Audit Logs",
+        "overviewDescription": "Read-only audit log records for compliance review."
       }
     }
   },
@@ -8062,6 +8705,172 @@
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
       "openPrimaryItem": "Open inventory item {{item}}"
+    }
+  },
+  "billing": {
+    "overview": {
+      "title": "Billing",
+      "description": "Manage invoices, payments, refunds, pricing, coverage, claims, pre-authorizations, and billing adjustments.",
+      "loadErrorTitle": "Unable to load billing overview",
+      "loadError": "Unable to load billing overview data. Check your connection and try again.",
+      "createPrimary": "Create Invoice",
+      "createPrimaryHint": "Open create invoice flow",
+      "resourcesTitle": "Billing Resources",
+      "recentPrimaryTitle": "Recent Billing",
+      "emptyTitle": "No billing records yet",
+      "emptyMessage": "No billing records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    },
+    "unavailable": {
+      "backToBilling": "Back to Billing",
+      "backToBillingHint": "Return to the billing workspace",
+      "backToPricingRules": "Back to Pricing Rules",
+      "backToPricingRulesHint": "Return to the pricing rules page",
+      "backToCoveragePlans": "Back to Coverage Plans",
+      "backToCoveragePlansHint": "Return to the coverage plans page",
+      "pricingRules": {
+        "title": "Pricing Rules Unavailable",
+        "description": "Pricing rules are read-only right now because the backend route is not mounted.",
+        "details": "No write actions are enabled for pricing rules in this environment.",
+        "createBlockedTitle": "Cannot Create Pricing Rule",
+        "createBlockedDescription": "Pricing rule creation is blocked until backend support is mounted.",
+        "detailBlockedTitle": "Pricing Rule Details Unavailable",
+        "detailBlockedDescription": "Pricing rule detail routes are blocked until backend support is mounted.",
+        "editBlockedTitle": "Cannot Edit Pricing Rule",
+        "editBlockedDescription": "Pricing rule updates are blocked until backend support is mounted."
+      },
+      "coveragePlans": {
+        "title": "Coverage Plans Unavailable",
+        "description": "Coverage plans are read-only right now because the backend route is not mounted.",
+        "details": "No write actions are enabled for coverage plans in this environment.",
+        "createBlockedTitle": "Cannot Create Coverage Plan",
+        "createBlockedDescription": "Coverage plan creation is blocked until backend support is mounted.",
+        "detailBlockedTitle": "Coverage Plan Details Unavailable",
+        "detailBlockedDescription": "Coverage plan detail routes are blocked until backend support is mounted.",
+        "editBlockedTitle": "Cannot Edit Coverage Plan",
+        "editBlockedDescription": "Coverage plan updates are blocked until backend support is mounted."
+      }
+    }
+  },
+  "hr": {
+    "overview": {
+      "title": "HR",
+      "description": "Manage staff profiles, assignments, leave, shifts, nurse rosters, and payroll runs.",
+      "loadErrorTitle": "Unable to load hr overview",
+      "loadError": "Unable to load hr overview data. Check your connection and try again.",
+      "createPrimary": "Create Staff Profile",
+      "createPrimaryHint": "Open create staff profile flow",
+      "resourcesTitle": "HR Resources",
+      "recentPrimaryTitle": "Recent HR",
+      "emptyTitle": "No hr records yet",
+      "emptyMessage": "No hr records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "housekeeping": {
+    "overview": {
+      "title": "Housekeeping",
+      "description": "Manage housekeeping tasks, schedules, maintenance requests, assets, and service logs.",
+      "loadErrorTitle": "Unable to load housekeeping overview",
+      "loadError": "Unable to load housekeeping overview data. Check your connection and try again.",
+      "createPrimary": "Create Housekeeping Task",
+      "createPrimaryHint": "Open create housekeeping task flow",
+      "resourcesTitle": "Housekeeping Resources",
+      "recentPrimaryTitle": "Recent Housekeeping",
+      "emptyTitle": "No housekeeping records yet",
+      "emptyMessage": "No housekeeping records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "reports": {
+    "overview": {
+      "title": "Reports",
+      "description": "Review dashboard widgets and reporting indicators from mounted analytics endpoints.",
+      "loadErrorTitle": "Unable to load reports overview",
+      "loadError": "Unable to load reports overview data. Check your connection and try again.",
+      "createPrimary": "Create Report Item",
+      "createPrimaryHint": "Open create report item flow",
+      "resourcesTitle": "Reports Resources",
+      "recentPrimaryTitle": "Recent Reports",
+      "emptyTitle": "No reports records yet",
+      "emptyMessage": "No reports records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "communications": {
+    "overview": {
+      "title": "Communications",
+      "description": "Review notification activity and communication status from mounted endpoints.",
+      "loadErrorTitle": "Unable to load communications overview",
+      "loadError": "Unable to load communications overview data. Check your connection and try again.",
+      "createPrimary": "Create Communication Item",
+      "createPrimaryHint": "Open create communication item flow",
+      "resourcesTitle": "Communications Resources",
+      "recentPrimaryTitle": "Recent Communications",
+      "emptyTitle": "No communications records yet",
+      "emptyMessage": "No communications records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "subscriptions": {
+    "overview": {
+      "title": "Subscriptions",
+      "description": "Review subscription status and plan activity from mounted subscription endpoints.",
+      "loadErrorTitle": "Unable to load subscriptions overview",
+      "loadError": "Unable to load subscriptions overview data. Check your connection and try again.",
+      "createPrimary": "Create Subscription",
+      "createPrimaryHint": "Open create subscription flow",
+      "resourcesTitle": "Subscriptions Resources",
+      "recentPrimaryTitle": "Recent Subscriptions",
+      "emptyTitle": "No subscriptions records yet",
+      "emptyMessage": "No subscriptions records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "integrations": {
+    "overview": {
+      "title": "Integrations",
+      "description": "Review configured integrations and connectivity status from mounted integration endpoints.",
+      "loadErrorTitle": "Unable to load integrations overview",
+      "loadError": "Unable to load integrations overview data. Check your connection and try again.",
+      "createPrimary": "Create Integration",
+      "createPrimaryHint": "Open create integration flow",
+      "resourcesTitle": "Integrations Resources",
+      "recentPrimaryTitle": "Recent Integrations",
+      "emptyTitle": "No integrations records yet",
+      "emptyMessage": "No integrations records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
+    }
+  },
+  "compliance": {
+    "overview": {
+      "title": "Compliance",
+      "description": "Review audit activity and compliance monitoring data from mounted compliance endpoints.",
+      "loadErrorTitle": "Unable to load compliance overview",
+      "loadError": "Unable to load compliance overview data. Check your connection and try again.",
+      "createPrimary": "Create Compliance Item",
+      "createPrimaryHint": "Open create compliance item flow",
+      "resourcesTitle": "Compliance Resources",
+      "recentPrimaryTitle": "Recent Compliance",
+      "emptyTitle": "No compliance records yet",
+      "emptyMessage": "No compliance records available yet.",
+      "openResource": "Open {{resource}}",
+      "openResourceButton": "Open",
+      "openPrimaryItem": "Open {{item}}"
     }
   }
 }

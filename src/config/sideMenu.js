@@ -64,6 +64,34 @@ const INVENTORY_ACCESS_ROLES = [
   'STORE_KEEPER',
   'PROCUREMENT_OFFICER',
 ];
+const BILLING_ACCESS_ROLES = [
+  ...CLINICAL_ACCESS_ROLES,
+  'FINANCE_MANAGER',
+  'ACCOUNTANT',
+  'BILLING_CLERK',
+  'INSURANCE_OFFICER',
+];
+const HR_ACCESS_ROLES = [
+  ...CLINICAL_ACCESS_ROLES,
+  'HR_MANAGER',
+  'PAYROLL_MANAGER',
+  'NURSE_MANAGER',
+];
+const HOUSEKEEPING_ACCESS_ROLES = [
+  ...CLINICAL_ACCESS_ROLES,
+  'HOUSEKEEPING_MANAGER',
+  'FACILITY_MANAGER',
+  'MAINTENANCE_MANAGER',
+];
+const REPORTS_ACCESS_ROLES = [
+  ...BILLING_ACCESS_ROLES,
+  ...HR_ACCESS_ROLES,
+  'REPORTING_ANALYST',
+];
+const COMMUNICATIONS_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const SUBSCRIPTIONS_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
+const INTEGRATIONS_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
+const COMPLIANCE_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -701,6 +729,151 @@ const INVENTORY_ITEMS = [
   },
 ];
 
+/** @type {MainNavChild[]} */
+const BILLING_ITEMS = [
+  {
+    id: 'billing-invoices',
+    icon: 'folder-outline',
+    path: '/billing/invoices',
+    name: `${MAIN_NAV_I18N}.billing-invoices`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-payments',
+    icon: 'time-outline',
+    path: '/billing/payments',
+    name: `${MAIN_NAV_I18N}.billing-payments`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-refunds',
+    icon: 'shield-outline',
+    path: '/billing/refunds',
+    name: `${MAIN_NAV_I18N}.billing-refunds`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-pricing-rules',
+    icon: 'layers-outline',
+    path: '/billing/pricing-rules',
+    name: `${MAIN_NAV_I18N}.billing-pricing-rules`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-coverage-plans',
+    icon: 'grid-outline',
+    path: '/billing/coverage-plans',
+    name: `${MAIN_NAV_I18N}.billing-coverage-plans`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-insurance-claims',
+    icon: 'shield-checkmark-outline',
+    path: '/billing/insurance-claims',
+    name: `${MAIN_NAV_I18N}.billing-insurance-claims`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-pre-authorizations',
+    icon: 'key-outline',
+    path: '/billing/pre-authorizations',
+    name: `${MAIN_NAV_I18N}.billing-pre-authorizations`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
+    id: 'billing-billing-adjustments',
+    icon: 'git-branch-outline',
+    path: '/billing/billing-adjustments',
+    name: `${MAIN_NAV_I18N}.billing-billing-adjustments`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const HR_ITEMS = [
+  {
+    id: 'hr-staff-profiles',
+    icon: 'people-outline',
+    path: '/hr/staff-profiles',
+    name: `${MAIN_NAV_I18N}.hr-staff-profiles`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-staff-assignments',
+    icon: 'git-branch-outline',
+    path: '/hr/staff-assignments',
+    name: `${MAIN_NAV_I18N}.hr-staff-assignments`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-staff-leaves',
+    icon: 'time-outline',
+    path: '/hr/staff-leaves',
+    name: `${MAIN_NAV_I18N}.hr-staff-leaves`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-shifts',
+    icon: 'grid-outline',
+    path: '/hr/shifts',
+    name: `${MAIN_NAV_I18N}.hr-shifts`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-nurse-rosters',
+    icon: 'layers-outline',
+    path: '/hr/nurse-rosters',
+    name: `${MAIN_NAV_I18N}.hr-nurse-rosters`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-payroll-runs',
+    icon: 'folder-outline',
+    path: '/hr/payroll-runs',
+    name: `${MAIN_NAV_I18N}.hr-payroll-runs`,
+    roles: HR_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const HOUSEKEEPING_ITEMS = [
+  {
+    id: 'housekeeping-housekeeping-tasks',
+    icon: 'grid-outline',
+    path: '/housekeeping/housekeeping-tasks',
+    name: `${MAIN_NAV_I18N}.housekeeping-housekeeping-tasks`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-housekeeping-schedules',
+    icon: 'time-outline',
+    path: '/housekeeping/housekeeping-schedules',
+    name: `${MAIN_NAV_I18N}.housekeeping-housekeeping-schedules`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-maintenance-requests',
+    icon: 'shield-outline',
+    path: '/housekeeping/maintenance-requests',
+    name: `${MAIN_NAV_I18N}.housekeeping-maintenance-requests`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-assets',
+    icon: 'business-outline',
+    path: '/housekeeping/assets',
+    name: `${MAIN_NAV_I18N}.housekeeping-assets`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-asset-service-logs',
+    icon: 'folder-outline',
+    path: '/housekeeping/asset-service-logs',
+    name: `${MAIN_NAV_I18N}.housekeeping-asset-service-logs`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+];
+
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
   { id: 'dashboard', icon: 'grid-outline', path: '/dashboard', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
@@ -784,6 +957,70 @@ export const MAIN_NAV_ITEMS = [
     roles: INVENTORY_ACCESS_ROLES,
     children: INVENTORY_ITEMS,
   },
+  {
+    id: 'billing',
+    icon: 'layers-outline',
+    path: '/billing',
+    name: `${MAIN_NAV_I18N}.billing`,
+    roles: BILLING_ACCESS_ROLES,
+    children: BILLING_ITEMS,
+  },
+  {
+    id: 'hr',
+    icon: 'people-outline',
+    path: '/hr',
+    name: `${MAIN_NAV_I18N}.hr`,
+    roles: HR_ACCESS_ROLES,
+    children: HR_ITEMS,
+  },
+  {
+    id: 'housekeeping',
+    icon: 'home-outline',
+    path: '/housekeeping',
+    name: `${MAIN_NAV_I18N}.housekeeping`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+    children: HOUSEKEEPING_ITEMS,
+  },
+  {
+    id: 'reports',
+    icon: 'grid-outline',
+    path: '/reports',
+    name: `${MAIN_NAV_I18N}.reports`,
+    roles: REPORTS_ACCESS_ROLES,
+    children: null,
+  },
+  {
+    id: 'communications',
+    icon: 'mail-outline',
+    path: '/communications',
+    name: `${MAIN_NAV_I18N}.communications`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+    children: null,
+  },
+  {
+    id: 'subscriptions',
+    icon: 'key-outline',
+    path: '/subscriptions',
+    name: `${MAIN_NAV_I18N}.subscriptions`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+    children: null,
+  },
+  {
+    id: 'integrations',
+    icon: 'git-branch-outline',
+    path: '/integrations',
+    name: `${MAIN_NAV_I18N}.integrations`,
+    roles: INTEGRATIONS_ACCESS_ROLES,
+    children: null,
+  },
+  {
+    id: 'compliance',
+    icon: 'shield-checkmark-outline',
+    path: '/compliance',
+    name: `${MAIN_NAV_I18N}.compliance`,
+    roles: COMPLIANCE_ACCESS_ROLES,
+    children: null,
+  },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 
@@ -817,4 +1054,7 @@ export {
   DIAGNOSTICS_ITEMS,
   PHARMACY_ITEMS,
   INVENTORY_ITEMS,
+  BILLING_ITEMS,
+  HR_ITEMS,
+  HOUSEKEEPING_ITEMS,
 };

@@ -29,6 +29,28 @@ import {
   useImagingStudy,
   useInventoryItem,
   useInventoryStock,
+  useInvoice,
+  usePayment,
+  useRefund,
+  useInsuranceClaim,
+  usePreAuthorization,
+  useBillingAdjustment,
+  useStaffProfile,
+  useStaffAssignment,
+  useStaffLeave,
+  useShift,
+  useNurseRoster,
+  usePayrollRun,
+  useHousekeepingTask,
+  useHousekeepingSchedule,
+  useMaintenanceRequest,
+  useAsset,
+  useAssetServiceLog,
+  useDashboardWidget,
+  useNotification,
+  useSubscription,
+  useIntegration,
+  useAuditLog,
   useLabOrder,
   useLabPanel,
   useLabQcLog,
@@ -79,6 +101,28 @@ const useClinicalResourceCrud = (resourceId) => {
   const adverseEvent = useAdverseEvent();
   const inventoryItem = useInventoryItem();
   const inventoryStock = useInventoryStock();
+  const invoice = useInvoice();
+  const payment = usePayment();
+  const refund = useRefund();
+  const insuranceClaim = useInsuranceClaim();
+  const preAuthorization = usePreAuthorization();
+  const billingAdjustment = useBillingAdjustment();
+  const staffProfile = useStaffProfile();
+  const staffAssignment = useStaffAssignment();
+  const staffLeave = useStaffLeave();
+  const shift = useShift();
+  const nurseRoster = useNurseRoster();
+  const payrollRun = usePayrollRun();
+  const housekeepingTask = useHousekeepingTask();
+  const housekeepingSchedule = useHousekeepingSchedule();
+  const maintenanceRequest = useMaintenanceRequest();
+  const asset = useAsset();
+  const assetServiceLog = useAssetServiceLog();
+  const dashboardWidget = useDashboardWidget();
+  const notification = useNotification();
+  const subscription = useSubscription();
+  const integration = useIntegration();
+  const auditLog = useAuditLog();
   const stockMovement = useStockMovement();
   const supplier = useSupplier();
   const purchaseOrder = usePurchaseOrder();
@@ -163,6 +207,28 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.CARE_PLANS]: carePlan,
       [CLINICAL_RESOURCE_IDS.REFERRALS]: referral,
       [CLINICAL_RESOURCE_IDS.FOLLOW_UPS]: followUp,
+      [CLINICAL_RESOURCE_IDS.INVOICES]: invoice,
+      [CLINICAL_RESOURCE_IDS.PAYMENTS]: payment,
+      [CLINICAL_RESOURCE_IDS.REFUNDS]: refund,
+      [CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS]: insuranceClaim,
+      [CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS]: preAuthorization,
+      [CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS]: billingAdjustment,
+      [CLINICAL_RESOURCE_IDS.STAFF_PROFILES]: staffProfile,
+      [CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS]: staffAssignment,
+      [CLINICAL_RESOURCE_IDS.STAFF_LEAVES]: staffLeave,
+      [CLINICAL_RESOURCE_IDS.SHIFTS]: shift,
+      [CLINICAL_RESOURCE_IDS.NURSE_ROSTERS]: nurseRoster,
+      [CLINICAL_RESOURCE_IDS.PAYROLL_RUNS]: payrollRun,
+      [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS]: housekeepingTask,
+      [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES]: housekeepingSchedule,
+      [CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS]: maintenanceRequest,
+      [CLINICAL_RESOURCE_IDS.ASSETS]: asset,
+      [CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS]: assetServiceLog,
+      [CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS]: dashboardWidget,
+      [CLINICAL_RESOURCE_IDS.NOTIFICATIONS]: notification,
+      [CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS]: subscription,
+      [CLINICAL_RESOURCE_IDS.INTEGRATIONS]: integration,
+      [CLINICAL_RESOURCE_IDS.AUDIT_LOGS]: auditLog,
     };
     return map[resourceId] || encounter;
   }, [
@@ -188,6 +254,28 @@ const useClinicalResourceCrud = (resourceId) => {
     adverseEvent,
     inventoryItem,
     inventoryStock,
+    invoice,
+    payment,
+    refund,
+    insuranceClaim,
+    preAuthorization,
+    billingAdjustment,
+    staffProfile,
+    staffAssignment,
+    staffLeave,
+    shift,
+    nurseRoster,
+    payrollRun,
+    housekeepingTask,
+    housekeepingSchedule,
+    maintenanceRequest,
+    asset,
+    assetServiceLog,
+    dashboardWidget,
+    notification,
+    subscription,
+    integration,
+    auditLog,
     stockMovement,
     supplier,
     purchaseOrder,

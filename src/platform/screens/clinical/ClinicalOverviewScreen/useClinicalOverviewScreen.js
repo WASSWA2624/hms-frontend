@@ -5,15 +5,23 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, useClinicalAccess } from '@hooks';
 import {
+  BILLING_RESOURCE_LIST_ORDER,
+  COMMUNICATIONS_RESOURCE_LIST_ORDER,
+  COMPLIANCE_RESOURCE_LIST_ORDER,
   CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
   EMERGENCY_RESOURCE_LIST_ORDER,
+  HOUSEKEEPING_RESOURCE_LIST_ORDER,
+  HR_RESOURCE_LIST_ORDER,
   INVENTORY_RESOURCE_LIST_ORDER,
+  INTEGRATIONS_RESOURCE_LIST_ORDER,
   ICU_RESOURCE_LIST_ORDER,
   IPD_RESOURCE_LIST_ORDER,
   LAB_RESOURCE_LIST_ORDER,
   PHARMACY_RESOURCE_LIST_ORDER,
   RADIOLOGY_RESOURCE_LIST_ORDER,
+  REPORTS_RESOURCE_LIST_ORDER,
+  SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   getClinicalResourceConfig,
   sanitizeString,
@@ -67,6 +75,56 @@ const OVERVIEW_CONFIGS = {
     i18nRoot: 'inventory',
     resourceIds: INVENTORY_RESOURCE_LIST_ORDER,
     primaryResourceId: CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS,
+  },
+  billing: {
+    i18nRoot: 'billing',
+    resourceIds: BILLING_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.INVOICES,
+  },
+  hr: {
+    i18nRoot: 'hr',
+    resourceIds: HR_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
+  },
+  housekeeping: {
+    i18nRoot: 'housekeeping',
+    resourceIds: HOUSEKEEPING_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS,
+  },
+  reports: {
+    i18nRoot: 'reports',
+    resourceIds: REPORTS_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+    enableCreatePrimary: false,
+    showRecentItems: false,
+  },
+  communications: {
+    i18nRoot: 'communications',
+    resourceIds: COMMUNICATIONS_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+    enableCreatePrimary: false,
+    showRecentItems: false,
+  },
+  subscriptions: {
+    i18nRoot: 'subscriptions',
+    resourceIds: SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+    enableCreatePrimary: false,
+    showRecentItems: false,
+  },
+  integrations: {
+    i18nRoot: 'integrations',
+    resourceIds: INTEGRATIONS_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+    enableCreatePrimary: false,
+    showRecentItems: false,
+  },
+  compliance: {
+    i18nRoot: 'compliance',
+    resourceIds: COMPLIANCE_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+    enableCreatePrimary: false,
+    showRecentItems: false,
   },
 };
 
@@ -167,6 +225,36 @@ const buildPrimaryContext = (resourceId, item) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVOICES) {
+    return {
+      tenantId: item.tenant_id,
+      facilityId: item.facility_id,
+      patientId: item.patient_id,
+      invoiceId: item.id,
+      status: item.status,
+      billingStatus: item.billing_status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_PROFILES) {
+    return {
+      tenantId: item.tenant_id,
+      userId: item.user_id,
+      staffProfileId: item.id,
+      departmentId: item.department_id,
+      staffNumber: item.staff_number,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS) {
+    return {
+      facilityId: item.facility_id,
+      roomId: item.room_id,
+      userId: item.assigned_to_staff_id,
+      status: item.status,
+    };
+  }
+
   return {};
 };
 
@@ -195,6 +283,9 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
+  const showRecentItems = overviewConfig.showRecentItems !== false;
+  const canCreatePrimary =
+    canCreateClinicalRecords && overviewConfig.enableCreatePrimary !== false;
 
   const primaryItems = useMemo(() => {
     if (Array.isArray(data)) return data;
@@ -202,7 +293,10 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
     return [];
   }, [data]);
 
-  const recentItems = useMemo(() => primaryItems.slice(0, 5), [primaryItems]);
+  const recentItems = useMemo(
+    () => (showRecentItems ? primaryItems.slice(0, 5) : []),
+    [primaryItems, showRecentItems]
+  );
 
   const cards = useMemo(
     () =>
@@ -282,19 +376,20 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
   );
 
   const handleCreatePrimary = useCallback(() => {
-    if (!canCreateClinicalRecords || !primaryConfig) return;
+    if (!canCreatePrimary || !primaryConfig) return;
     const context = {
       tenantId: normalizedTenantId || undefined,
       facilityId: normalizedFacilityId || undefined,
     };
     router.push(withClinicalContext(`${primaryConfig.routePath}/create`, context));
-  }, [canCreateClinicalRecords, primaryConfig, normalizedTenantId, normalizedFacilityId, router]);
+  }, [canCreatePrimary, primaryConfig, normalizedTenantId, normalizedFacilityId, router]);
 
   return {
     i18nRoot,
     cards,
     recentItems,
-    canCreateClinicalRecords,
+    canCreatePrimary,
+    showRecentItems,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && Boolean(errorCode),
     errorMessage,

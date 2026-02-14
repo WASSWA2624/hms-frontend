@@ -34,7 +34,8 @@ const ClinicalOverviewScreenWeb = ({ scope = 'clinical' }) => {
     i18nRoot,
     cards,
     recentItems,
-    canCreateClinicalRecords,
+    canCreatePrimary,
+    showRecentItems,
     isLoading,
     hasError,
     errorMessage,
@@ -68,9 +69,9 @@ const ClinicalOverviewScreenWeb = ({ scope = 'clinical' }) => {
             variant="surface"
             size="small"
             onPress={onCreatePrimary}
-            disabled={!canCreateClinicalRecords}
-            aria-disabled={!canCreateClinicalRecords}
-            title={!canCreateClinicalRecords ? t('clinical.access.createDenied') : undefined}
+            disabled={!canCreatePrimary}
+            aria-disabled={!canCreatePrimary}
+            title={!canCreatePrimary ? t('clinical.access.createDenied') : undefined}
             accessibilityLabel={t(createKey)}
             accessibilityHint={t(createHintKey)}
             icon={<Icon glyph="+" size="xs" decorative />}
@@ -147,42 +148,44 @@ const ClinicalOverviewScreenWeb = ({ scope = 'clinical' }) => {
           </StyledCardGrid>
         </StyledSection>
 
-        <StyledSection>
-          <StyledSectionHeader>
-            <StyledSectionTitle>{t(recentTitleKey)}</StyledSectionTitle>
-          </StyledSectionHeader>
-          <Card
-            variant="outlined"
-            accessibilityLabel={t(recentTitleKey)}
-            testID={`${scope}-overview-recent`}
-          >
-            {recentItems.length === 0 ? (
-              <EmptyState
-                title={t(emptyTitleKey)}
-                description={t(emptyMessageKey)}
-                testID={`${scope}-overview-empty`}
-              />
-            ) : (
-              <StyledRecentList role="list">
-                {recentItems.map((item) => {
-                  const title = item.patient_id || item.identifier || item.id;
-                  const subtitle = item.status || item.started_at || item.scheduled_at || '';
-                  return (
-                    <li key={item.id} role="listitem">
-                      <ListItem
-                        title={title}
-                        subtitle={subtitle}
-                        onPress={() => onOpenRecentItem(item)}
-                        accessibilityLabel={t(openItemKey, { item: title })}
-                        testID={`${scope}-overview-item-${item.id}`}
-                      />
-                    </li>
-                  );
-                })}
-              </StyledRecentList>
-            )}
-          </Card>
-        </StyledSection>
+        {showRecentItems ? (
+          <StyledSection>
+            <StyledSectionHeader>
+              <StyledSectionTitle>{t(recentTitleKey)}</StyledSectionTitle>
+            </StyledSectionHeader>
+            <Card
+              variant="outlined"
+              accessibilityLabel={t(recentTitleKey)}
+              testID={`${scope}-overview-recent`}
+            >
+              {recentItems.length === 0 ? (
+                <EmptyState
+                  title={t(emptyTitleKey)}
+                  description={t(emptyMessageKey)}
+                  testID={`${scope}-overview-empty`}
+                />
+              ) : (
+                <StyledRecentList role="list">
+                  {recentItems.map((item) => {
+                    const title = item.patient_id || item.identifier || item.id;
+                    const subtitle = item.status || item.started_at || item.scheduled_at || '';
+                    return (
+                      <li key={item.id} role="listitem">
+                        <ListItem
+                          title={title}
+                          subtitle={subtitle}
+                          onPress={() => onOpenRecentItem(item)}
+                          accessibilityLabel={t(openItemKey, { item: title })}
+                          testID={`${scope}-overview-item-${item.id}`}
+                        />
+                      </li>
+                    );
+                  })}
+                </StyledRecentList>
+              )}
+            </Card>
+          </StyledSection>
+        ) : null}
       </StyledContent>
     </StyledContainer>
   );

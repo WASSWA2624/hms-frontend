@@ -84,16 +84,34 @@ const normalizeClinicalContext = (params = {}) => {
   const purchaseRequestId = normalizeContextId(params.purchaseRequestId);
   const purchaseOrderId = normalizeContextId(params.purchaseOrderId);
   const requestedByUserId = normalizeContextId(params.requestedByUserId);
+  const invoiceId = normalizeContextId(params.invoiceId);
+  const paymentId = normalizeContextId(params.paymentId);
+  const coveragePlanId = normalizeContextId(params.coveragePlanId);
+  const staffProfileId = normalizeContextId(params.staffProfileId);
+  const departmentId = normalizeContextId(params.departmentId);
+  const unitId = normalizeContextId(params.unitId);
+  const roomId = normalizeContextId(params.roomId);
+  const assetId = normalizeContextId(params.assetId);
+  const userId = normalizeContextId(params.userId);
+  const integrationId = normalizeContextId(params.integrationId);
+  const notificationId = normalizeContextId(params.notificationId);
+  const templateId = normalizeContextId(params.templateId);
   const status = sanitizeString(firstValue(params.status)) || undefined;
+  const billingStatus = sanitizeString(firstValue(params.billingStatus)) || undefined;
   const encounterType = sanitizeString(firstValue(params.encounterType)) || undefined;
   const diagnosisType = sanitizeString(firstValue(params.diagnosisType)) || undefined;
   const code = sanitizeString(firstValue(params.code)) || undefined;
   const vitalType = sanitizeString(firstValue(params.vitalType)) || undefined;
+  const method = sanitizeString(firstValue(params.method)) || undefined;
+  const shiftType = sanitizeString(firstValue(params.shiftType)) || undefined;
+  const frequency = sanitizeString(firstValue(params.frequency)) || undefined;
   const form = sanitizeString(firstValue(params.form)) || undefined;
   const strength = sanitizeString(firstValue(params.strength)) || undefined;
   const batchNumber = sanitizeString(firstValue(params.batchNumber)) || undefined;
   const category = sanitizeString(firstValue(params.category)) || undefined;
   const sku = sanitizeString(firstValue(params.sku)) || undefined;
+  const assetTag = sanitizeString(firstValue(params.assetTag)) || undefined;
+  const staffNumber = sanitizeString(firstValue(params.staffNumber)) || undefined;
   const unit = sanitizeString(firstValue(params.unit)) || undefined;
   const contactEmail = sanitizeString(firstValue(params.contactEmail)) || undefined;
   const movementType = sanitizeString(firstValue(params.movementType)) || undefined;
@@ -129,6 +147,26 @@ const normalizeClinicalContext = (params = {}) => {
   const observedAtTo = sanitizeString(firstValue(params.observedAtTo)) || undefined;
   const scheduledFrom = sanitizeString(firstValue(params.scheduledFrom)) || undefined;
   const scheduledTo = sanitizeString(firstValue(params.scheduledTo)) || undefined;
+  const paidAtFrom = sanitizeString(firstValue(params.paidAtFrom)) || undefined;
+  const paidAtTo = sanitizeString(firstValue(params.paidAtTo)) || undefined;
+  const refundedAtFrom = sanitizeString(firstValue(params.refundedAtFrom)) || undefined;
+  const refundedAtTo = sanitizeString(firstValue(params.refundedAtTo)) || undefined;
+  const submittedAtFrom = sanitizeString(firstValue(params.submittedAtFrom)) || undefined;
+  const submittedAtTo = sanitizeString(firstValue(params.submittedAtTo)) || undefined;
+  const requestedAtFrom = sanitizeString(firstValue(params.requestedAtFrom)) || undefined;
+  const requestedAtTo = sanitizeString(firstValue(params.requestedAtTo)) || undefined;
+  const approvedAtFrom = sanitizeString(firstValue(params.approvedAtFrom)) || undefined;
+  const approvedAtTo = sanitizeString(firstValue(params.approvedAtTo)) || undefined;
+  const startTimeFrom = sanitizeString(firstValue(params.startTimeFrom)) || undefined;
+  const startTimeTo = sanitizeString(firstValue(params.startTimeTo)) || undefined;
+  const endTimeFrom = sanitizeString(firstValue(params.endTimeFrom)) || undefined;
+  const endTimeTo = sanitizeString(firstValue(params.endTimeTo)) || undefined;
+  const periodStartFrom = sanitizeString(firstValue(params.periodStartFrom)) || undefined;
+  const periodStartTo = sanitizeString(firstValue(params.periodStartTo)) || undefined;
+  const periodEndFrom = sanitizeString(firstValue(params.periodEndFrom)) || undefined;
+  const periodEndTo = sanitizeString(firstValue(params.periodEndTo)) || undefined;
+  const servicedAtFrom = sanitizeString(firstValue(params.servicedAtFrom)) || undefined;
+  const servicedAtTo = sanitizeString(firstValue(params.servicedAtTo)) || undefined;
   const isActiveRaw = sanitizeString(firstValue(params.isActive));
   const isActive = isActiveRaw === 'true' ? true : isActiveRaw === 'false' ? false : undefined;
 
@@ -167,16 +205,34 @@ const normalizeClinicalContext = (params = {}) => {
     purchaseRequestId,
     purchaseOrderId,
     requestedByUserId,
+    invoiceId,
+    paymentId,
+    coveragePlanId,
+    staffProfileId,
+    departmentId,
+    unitId,
+    roomId,
+    assetId,
+    userId,
+    integrationId,
+    notificationId,
+    templateId,
     status,
+    billingStatus,
     encounterType,
     diagnosisType,
     code,
     vitalType,
+    method,
+    shiftType,
+    frequency,
     form,
     strength,
     batchNumber,
     category,
     sku,
+    assetTag,
+    staffNumber,
     unit,
     contactEmail,
     movementType,
@@ -210,6 +266,26 @@ const normalizeClinicalContext = (params = {}) => {
     observedAtTo,
     scheduledFrom,
     scheduledTo,
+    paidAtFrom,
+    paidAtTo,
+    refundedAtFrom,
+    refundedAtTo,
+    submittedAtFrom,
+    submittedAtTo,
+    requestedAtFrom,
+    requestedAtTo,
+    approvedAtFrom,
+    approvedAtTo,
+    startTimeFrom,
+    startTimeTo,
+    endTimeFrom,
+    endTimeTo,
+    periodStartFrom,
+    periodStartTo,
+    periodEndFrom,
+    periodEndTo,
+    servicedAtFrom,
+    servicedAtTo,
     isActive,
   };
 };

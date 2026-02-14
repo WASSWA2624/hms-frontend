@@ -56,6 +56,49 @@ const CLINICAL_RESOURCE_IDS = {
   STOCK_ADJUSTMENTS: 'stock-adjustments',
 };
 
+Object.assign(CLINICAL_RESOURCE_IDS, {
+  INVOICES: 'invoices',
+  PAYMENTS: 'payments',
+  REFUNDS: 'refunds',
+  PRICING_RULES: 'pricing-rules',
+  COVERAGE_PLANS: 'coverage-plans',
+  INSURANCE_CLAIMS: 'insurance-claims',
+  PRE_AUTHORIZATIONS: 'pre-authorizations',
+  BILLING_ADJUSTMENTS: 'billing-adjustments',
+  STAFF_PROFILES: 'staff-profiles',
+  STAFF_ASSIGNMENTS: 'staff-assignments',
+  STAFF_LEAVES: 'staff-leaves',
+  SHIFTS: 'shifts',
+  NURSE_ROSTERS: 'nurse-rosters',
+  PAYROLL_RUNS: 'payroll-runs',
+  HOUSEKEEPING_TASKS: 'housekeeping-tasks',
+  HOUSEKEEPING_SCHEDULES: 'housekeeping-schedules',
+  MAINTENANCE_REQUESTS: 'maintenance-requests',
+  ASSETS: 'assets',
+  ASSET_SERVICE_LOGS: 'asset-service-logs',
+  DASHBOARD_WIDGETS: 'dashboard-widgets',
+  KPI_SNAPSHOTS: 'kpi-snapshots',
+  ANALYTICS_EVENTS: 'analytics-events',
+  NOTIFICATIONS: 'notifications',
+  NOTIFICATION_DELIVERIES: 'notification-deliveries',
+  TEMPLATES: 'templates',
+  TEMPLATE_VARIABLES: 'template-variables',
+  SUBSCRIPTION_PLANS: 'subscription-plans',
+  SUBSCRIPTIONS: 'subscriptions',
+  SUBSCRIPTION_INVOICES: 'subscription-invoices',
+  MODULES: 'modules',
+  MODULE_SUBSCRIPTIONS: 'module-subscriptions',
+  LICENSES: 'licenses',
+  INTEGRATIONS: 'integrations',
+  INTEGRATION_LOGS: 'integration-logs',
+  WEBHOOK_SUBSCRIPTIONS: 'webhook-subscriptions',
+  AUDIT_LOGS: 'audit-logs',
+  PHI_ACCESS_LOGS: 'phi-access-logs',
+  DATA_PROCESSING_LOGS: 'data-processing-logs',
+  BREACH_NOTIFICATIONS: 'breach-notifications',
+  SYSTEM_CHANGE_LOGS: 'system-change-logs',
+});
+
 const CLINICAL_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.ENCOUNTERS,
   CLINICAL_RESOURCE_IDS.CLINICAL_NOTES,
@@ -134,6 +177,54 @@ const INVENTORY_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS,
 ];
 
+const BILLING_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.INVOICES,
+  CLINICAL_RESOURCE_IDS.PAYMENTS,
+  CLINICAL_RESOURCE_IDS.REFUNDS,
+  CLINICAL_RESOURCE_IDS.PRICING_RULES,
+  CLINICAL_RESOURCE_IDS.COVERAGE_PLANS,
+  CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS,
+  CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS,
+  CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS,
+];
+
+const HR_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
+  CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
+  CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
+  CLINICAL_RESOURCE_IDS.SHIFTS,
+  CLINICAL_RESOURCE_IDS.NURSE_ROSTERS,
+  CLINICAL_RESOURCE_IDS.PAYROLL_RUNS,
+];
+
+const HOUSEKEEPING_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS,
+  CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES,
+  CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS,
+  CLINICAL_RESOURCE_IDS.ASSETS,
+  CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS,
+];
+
+const REPORTS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+];
+
+const COMMUNICATIONS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+];
+
+const SUBSCRIPTIONS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+];
+
+const INTEGRATIONS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+];
+
+const COMPLIANCE_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+];
+
 const CLINICAL_ROUTE_ROOT = '/clinical';
 const IPD_ROUTE_ROOT = '/ipd';
 const ICU_ROUTE_ROOT = '/icu';
@@ -143,6 +234,14 @@ const LAB_ROUTE_ROOT = '/diagnostics/lab';
 const RADIOLOGY_ROUTE_ROOT = '/diagnostics/radiology';
 const PHARMACY_ROUTE_ROOT = '/pharmacy';
 const INVENTORY_ROUTE_ROOT = '/inventory';
+const BILLING_ROUTE_ROOT = '/billing';
+const HR_ROUTE_ROOT = '/hr';
+const HOUSEKEEPING_ROUTE_ROOT = '/housekeeping';
+const REPORTS_ROUTE_ROOT = '/reports';
+const COMMUNICATIONS_ROUTE_ROOT = '/communications';
+const SUBSCRIPTIONS_ROUTE_ROOT = '/subscriptions';
+const INTEGRATIONS_ROUTE_ROOT = '/integrations';
+const COMPLIANCE_ROUTE_ROOT = '/compliance';
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
@@ -221,10 +320,26 @@ const withClinicalContext = (path, context = {}) => {
   const purchaseRequestId = normalizeContextId(context.purchaseRequestId);
   const purchaseOrderId = normalizeContextId(context.purchaseOrderId);
   const requestedByUserId = normalizeContextId(context.requestedByUserId);
+  const invoiceId = normalizeContextId(context.invoiceId);
+  const paymentId = normalizeContextId(context.paymentId);
+  const coveragePlanId = normalizeContextId(context.coveragePlanId);
+  const staffProfileId = normalizeContextId(context.staffProfileId);
+  const departmentId = normalizeContextId(context.departmentId);
+  const unitId = normalizeContextId(context.unitId);
+  const roomId = normalizeContextId(context.roomId);
+  const assetId = normalizeContextId(context.assetId);
+  const userId = normalizeContextId(context.userId);
+  const integrationId = normalizeContextId(context.integrationId);
+  const notificationId = normalizeContextId(context.notificationId);
+  const templateId = normalizeContextId(context.templateId);
   const severity = sanitizeString(context.severity);
   const triageLevel = sanitizeString(context.triageLevel);
   const modality = sanitizeString(context.modality);
   const route = sanitizeString(context.route);
+  const billingStatus = sanitizeString(context.billingStatus);
+  const method = sanitizeString(context.method);
+  const shiftType = sanitizeString(context.shiftType);
+  const frequency = sanitizeString(context.frequency);
   const form = sanitizeString(context.form);
   const strength = sanitizeString(context.strength);
   const batchNumber = sanitizeString(context.batchNumber);
@@ -257,6 +372,24 @@ const withClinicalContext = (path, context = {}) => {
   const observedAtTo = normalizeIsoDateValue(context.observedAtTo);
   const scheduledFrom = normalizeIsoDateValue(context.scheduledFrom);
   const scheduledTo = normalizeIsoDateValue(context.scheduledTo);
+  const paidAtFrom = normalizeIsoDateValue(context.paidAtFrom);
+  const paidAtTo = normalizeIsoDateValue(context.paidAtTo);
+  const refundedAtFrom = normalizeIsoDateValue(context.refundedAtFrom);
+  const refundedAtTo = normalizeIsoDateValue(context.refundedAtTo);
+  const submittedAtFrom = normalizeIsoDateValue(context.submittedAtFrom);
+  const submittedAtTo = normalizeIsoDateValue(context.submittedAtTo);
+  const requestedAtFrom = normalizeIsoDateValue(context.requestedAtFrom);
+  const requestedAtTo = normalizeIsoDateValue(context.requestedAtTo);
+  const approvedAtFrom = normalizeIsoDateValue(context.approvedAtFrom);
+  const approvedAtTo = normalizeIsoDateValue(context.approvedAtTo);
+  const startTimeFrom = normalizeIsoDateValue(context.startTimeFrom);
+  const startTimeTo = normalizeIsoDateValue(context.startTimeTo);
+  const endTimeFrom = normalizeIsoDateValue(context.endTimeFrom);
+  const endTimeTo = normalizeIsoDateValue(context.endTimeTo);
+  const periodStartFrom = normalizeIsoDateValue(context.periodStartFrom);
+  const periodStartTo = normalizeIsoDateValue(context.periodStartTo);
+  const periodEndFrom = normalizeIsoDateValue(context.periodEndFrom);
+  const periodEndTo = normalizeIsoDateValue(context.periodEndTo);
   const isActive = context.isActive;
 
   if (tenantId) searchParams.set('tenantId', tenantId);
@@ -300,10 +433,26 @@ const withClinicalContext = (path, context = {}) => {
   if (purchaseRequestId) searchParams.set('purchaseRequestId', purchaseRequestId);
   if (purchaseOrderId) searchParams.set('purchaseOrderId', purchaseOrderId);
   if (requestedByUserId) searchParams.set('requestedByUserId', requestedByUserId);
+  if (invoiceId) searchParams.set('invoiceId', invoiceId);
+  if (paymentId) searchParams.set('paymentId', paymentId);
+  if (coveragePlanId) searchParams.set('coveragePlanId', coveragePlanId);
+  if (staffProfileId) searchParams.set('staffProfileId', staffProfileId);
+  if (departmentId) searchParams.set('departmentId', departmentId);
+  if (unitId) searchParams.set('unitId', unitId);
+  if (roomId) searchParams.set('roomId', roomId);
+  if (assetId) searchParams.set('assetId', assetId);
+  if (userId) searchParams.set('userId', userId);
+  if (integrationId) searchParams.set('integrationId', integrationId);
+  if (notificationId) searchParams.set('notificationId', notificationId);
+  if (templateId) searchParams.set('templateId', templateId);
   if (severity) searchParams.set('severity', severity);
   if (triageLevel) searchParams.set('triageLevel', triageLevel);
   if (modality) searchParams.set('modality', modality);
   if (route) searchParams.set('route', route);
+  if (billingStatus) searchParams.set('billingStatus', billingStatus);
+  if (method) searchParams.set('method', method);
+  if (shiftType) searchParams.set('shiftType', shiftType);
+  if (frequency) searchParams.set('frequency', frequency);
   if (form) searchParams.set('form', form);
   if (strength) searchParams.set('strength', strength);
   if (batchNumber) searchParams.set('batchNumber', batchNumber);
@@ -346,6 +495,24 @@ const withClinicalContext = (path, context = {}) => {
   if (observedAtTo) searchParams.set('observedAtTo', observedAtTo);
   if (scheduledFrom) searchParams.set('scheduledFrom', scheduledFrom);
   if (scheduledTo) searchParams.set('scheduledTo', scheduledTo);
+  if (paidAtFrom) searchParams.set('paidAtFrom', paidAtFrom);
+  if (paidAtTo) searchParams.set('paidAtTo', paidAtTo);
+  if (refundedAtFrom) searchParams.set('refundedAtFrom', refundedAtFrom);
+  if (refundedAtTo) searchParams.set('refundedAtTo', refundedAtTo);
+  if (submittedAtFrom) searchParams.set('submittedAtFrom', submittedAtFrom);
+  if (submittedAtTo) searchParams.set('submittedAtTo', submittedAtTo);
+  if (requestedAtFrom) searchParams.set('requestedAtFrom', requestedAtFrom);
+  if (requestedAtTo) searchParams.set('requestedAtTo', requestedAtTo);
+  if (approvedAtFrom) searchParams.set('approvedAtFrom', approvedAtFrom);
+  if (approvedAtTo) searchParams.set('approvedAtTo', approvedAtTo);
+  if (startTimeFrom) searchParams.set('startTimeFrom', startTimeFrom);
+  if (startTimeTo) searchParams.set('startTimeTo', startTimeTo);
+  if (endTimeFrom) searchParams.set('endTimeFrom', endTimeFrom);
+  if (endTimeTo) searchParams.set('endTimeTo', endTimeTo);
+  if (periodStartFrom) searchParams.set('periodStartFrom', periodStartFrom);
+  if (periodStartTo) searchParams.set('periodStartTo', periodStartTo);
+  if (periodEndFrom) searchParams.set('periodEndFrom', periodEndFrom);
+  if (periodEndTo) searchParams.set('periodEndTo', periodEndTo);
   if (typeof isActive === 'boolean') {
     searchParams.set('isActive', isActive ? 'true' : 'false');
   }
@@ -577,6 +744,104 @@ const STOCK_ADJUSTMENT_REASON_OPTIONS = [
   { value: 'OTHER', labelKey: 'clinical.options.stockAdjustmentReason.other' },
 ];
 
+const INVOICE_STATUS_OPTIONS = [
+  { value: 'DRAFT', labelKey: 'clinical.options.invoiceStatus.draft' },
+  { value: 'SENT', labelKey: 'clinical.options.invoiceStatus.sent' },
+  { value: 'PAID', labelKey: 'clinical.options.invoiceStatus.paid' },
+  { value: 'OVERDUE', labelKey: 'clinical.options.invoiceStatus.overdue' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.invoiceStatus.cancelled' },
+];
+
+const BILLING_STATUS_OPTIONS = [
+  { value: 'DRAFT', labelKey: 'clinical.options.billingStatus.draft' },
+  { value: 'ISSUED', labelKey: 'clinical.options.billingStatus.issued' },
+  { value: 'PAID', labelKey: 'clinical.options.billingStatus.paid' },
+  { value: 'PARTIAL', labelKey: 'clinical.options.billingStatus.partial' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.billingStatus.cancelled' },
+];
+
+const PAYMENT_STATUS_OPTIONS = [
+  { value: 'PENDING', labelKey: 'clinical.options.paymentStatus.pending' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.paymentStatus.completed' },
+  { value: 'FAILED', labelKey: 'clinical.options.paymentStatus.failed' },
+  { value: 'REFUNDED', labelKey: 'clinical.options.paymentStatus.refunded' },
+];
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'CASH', labelKey: 'clinical.options.paymentMethod.cash' },
+  { value: 'CREDIT_CARD', labelKey: 'clinical.options.paymentMethod.creditCard' },
+  { value: 'DEBIT_CARD', labelKey: 'clinical.options.paymentMethod.debitCard' },
+  { value: 'PREPAID_CARD', labelKey: 'clinical.options.paymentMethod.prepaidCard' },
+  { value: 'GIFT_CARD', labelKey: 'clinical.options.paymentMethod.giftCard' },
+  { value: 'VOUCHER', labelKey: 'clinical.options.paymentMethod.voucher' },
+  { value: 'BANK_CHECK', labelKey: 'clinical.options.paymentMethod.bankCheck' },
+  { value: 'MOBILE_MONEY', labelKey: 'clinical.options.paymentMethod.mobileMoney' },
+  { value: 'BANK_TRANSFER', labelKey: 'clinical.options.paymentMethod.bankTransfer' },
+  { value: 'INSURANCE', labelKey: 'clinical.options.paymentMethod.insurance' },
+  { value: 'OTHER', labelKey: 'clinical.options.paymentMethod.other' },
+];
+
+const INSURANCE_CLAIM_STATUS_OPTIONS = [
+  { value: 'SUBMITTED', labelKey: 'clinical.options.insuranceClaimStatus.submitted' },
+  { value: 'APPROVED', labelKey: 'clinical.options.insuranceClaimStatus.approved' },
+  { value: 'REJECTED', labelKey: 'clinical.options.insuranceClaimStatus.rejected' },
+  { value: 'PAID', labelKey: 'clinical.options.insuranceClaimStatus.paid' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.insuranceClaimStatus.cancelled' },
+];
+
+const PRE_AUTHORIZATION_STATUS_OPTIONS = [
+  { value: 'PENDING', labelKey: 'clinical.options.preAuthorizationStatus.pending' },
+  { value: 'APPROVED', labelKey: 'clinical.options.preAuthorizationStatus.approved' },
+  { value: 'DENIED', labelKey: 'clinical.options.preAuthorizationStatus.denied' },
+  { value: 'EXPIRED', labelKey: 'clinical.options.preAuthorizationStatus.expired' },
+];
+
+const STAFF_LEAVE_STATUS_OPTIONS = [
+  { value: 'REQUESTED', labelKey: 'clinical.options.staffLeaveStatus.requested' },
+  { value: 'APPROVED', labelKey: 'clinical.options.staffLeaveStatus.approved' },
+  { value: 'REJECTED', labelKey: 'clinical.options.staffLeaveStatus.rejected' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.staffLeaveStatus.cancelled' },
+];
+
+const SHIFT_TYPE_OPTIONS = [
+  { value: 'DAY', labelKey: 'clinical.options.shiftType.day' },
+  { value: 'NIGHT', labelKey: 'clinical.options.shiftType.night' },
+  { value: 'SWING', labelKey: 'clinical.options.shiftType.swing' },
+  { value: 'ON_CALL', labelKey: 'clinical.options.shiftType.onCall' },
+];
+
+const SHIFT_STATUS_OPTIONS = [
+  { value: 'SCHEDULED', labelKey: 'clinical.options.shiftStatus.scheduled' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.shiftStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.shiftStatus.cancelled' },
+];
+
+const NURSE_ROSTER_STATUS_OPTIONS = [
+  { value: 'DRAFT', labelKey: 'clinical.options.nurseRosterStatus.draft' },
+  { value: 'PUBLISHED', labelKey: 'clinical.options.nurseRosterStatus.published' },
+];
+
+const PAYROLL_RUN_STATUS_OPTIONS = [
+  { value: 'DRAFT', labelKey: 'clinical.options.payrollRunStatus.draft' },
+  { value: 'PROCESSED', labelKey: 'clinical.options.payrollRunStatus.processed' },
+  { value: 'PAID', labelKey: 'clinical.options.payrollRunStatus.paid' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.payrollRunStatus.cancelled' },
+];
+
+const HOUSEKEEPING_TASK_STATUS_OPTIONS = [
+  { value: 'PENDING', labelKey: 'clinical.options.housekeepingTaskStatus.pending' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.housekeepingTaskStatus.inProgress' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.housekeepingTaskStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.housekeepingTaskStatus.cancelled' },
+];
+
+const MAINTENANCE_STATUS_OPTIONS = [
+  { value: 'OPEN', labelKey: 'clinical.options.maintenanceStatus.open' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.maintenanceStatus.inProgress' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.maintenanceStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.maintenanceStatus.cancelled' },
+];
+
 const parseOptionalInteger = (value) => {
   const normalized = sanitizeString(value);
   if (!normalized) return undefined;
@@ -605,6 +870,16 @@ const buildIntegerError = (value, t, { min = null, required = false } = {}) => {
   }
 
   return null;
+};
+
+const DECIMAL_PATTERN = /^-?\d+(\.\d+)?$/;
+
+const buildDecimalError = (value, t, { required = false } = {}) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) {
+    return required ? t('clinical.common.form.requiredField') : null;
+  }
+  return DECIMAL_PATTERN.test(normalized) ? null : t('forms.validation.invalidValue');
 };
 
 const buildEmailError = (value, t) => {
@@ -688,10 +963,23 @@ const getContextFilters = (resourceId, context) => {
   const supplierId = normalizeContextId(context?.supplierId);
   const purchaseRequestId = normalizeContextId(context?.purchaseRequestId);
   const purchaseOrderId = normalizeContextId(context?.purchaseOrderId);
+  const invoiceId = normalizeContextId(context?.invoiceId);
+  const paymentId = normalizeContextId(context?.paymentId);
+  const coveragePlanId = normalizeContextId(context?.coveragePlanId);
+  const staffProfileId = normalizeContextId(context?.staffProfileId);
+  const departmentId = normalizeContextId(context?.departmentId);
+  const unitId = normalizeContextId(context?.unitId);
+  const roomId = normalizeContextId(context?.roomId);
+  const assetId = normalizeContextId(context?.assetId);
+  const userId = normalizeContextId(context?.userId);
   const severity = sanitizeString(context?.severity);
   const triageLevel = sanitizeString(context?.triageLevel);
   const modality = sanitizeString(context?.modality);
   const route = sanitizeString(context?.route);
+  const billingStatus = sanitizeString(context?.billingStatus);
+  const method = sanitizeString(context?.method);
+  const shiftType = sanitizeString(context?.shiftType);
+  const frequency = sanitizeString(context?.frequency);
   const form = sanitizeString(context?.form);
   const strength = sanitizeString(context?.strength);
   const batchNumber = sanitizeString(context?.batchNumber);
@@ -719,6 +1007,24 @@ const getContextFilters = (resourceId, context) => {
   const observedAtTo = normalizeIsoDateValue(context?.observedAtTo);
   const scheduledFrom = normalizeIsoDateValue(context?.scheduledFrom);
   const scheduledTo = normalizeIsoDateValue(context?.scheduledTo);
+  const paidAtFrom = normalizeIsoDateValue(context?.paidAtFrom);
+  const paidAtTo = normalizeIsoDateValue(context?.paidAtTo);
+  const refundedAtFrom = normalizeIsoDateValue(context?.refundedAtFrom);
+  const refundedAtTo = normalizeIsoDateValue(context?.refundedAtTo);
+  const submittedAtFrom = normalizeIsoDateValue(context?.submittedAtFrom);
+  const submittedAtTo = normalizeIsoDateValue(context?.submittedAtTo);
+  const requestedAtFrom = normalizeIsoDateValue(context?.requestedAtFrom);
+  const requestedAtTo = normalizeIsoDateValue(context?.requestedAtTo);
+  const approvedAtFrom = normalizeIsoDateValue(context?.approvedAtFrom);
+  const approvedAtTo = normalizeIsoDateValue(context?.approvedAtTo);
+  const startTimeFrom = normalizeIsoDateValue(context?.startTimeFrom);
+  const startTimeTo = normalizeIsoDateValue(context?.startTimeTo);
+  const endTimeFrom = normalizeIsoDateValue(context?.endTimeFrom);
+  const endTimeTo = normalizeIsoDateValue(context?.endTimeTo);
+  const periodStartFrom = normalizeIsoDateValue(context?.periodStartFrom);
+  const periodStartTo = normalizeIsoDateValue(context?.periodStartTo);
+  const periodEndFrom = normalizeIsoDateValue(context?.periodEndFrom);
+  const periodEndTo = normalizeIsoDateValue(context?.periodEndTo);
   const isActiveRaw = context?.isActive;
   const isActive =
     typeof isActiveRaw === 'boolean'
@@ -1202,6 +1508,221 @@ const getContextFilters = (resourceId, context) => {
       inventory_item_id: inventoryItemId || undefined,
       facility_id: facilityId || undefined,
       reason: reason || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVOICES) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      patient_id: patientId || undefined,
+      status: status || undefined,
+      billing_status: billingStatus || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PAYMENTS) {
+    const hasValidPaidRange =
+      !paidAtFrom ||
+      !paidAtTo ||
+      new Date(paidAtFrom).getTime() <= new Date(paidAtTo).getTime();
+
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      patient_id: patientId || undefined,
+      invoice_id: invoiceId || undefined,
+      status: status || undefined,
+      method: method || undefined,
+      paid_at_from: paidAtFrom || undefined,
+      paid_at_to: hasValidPaidRange ? paidAtTo || undefined : undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.REFUNDS) {
+    const hasValidRefundedRange =
+      !refundedAtFrom ||
+      !refundedAtTo ||
+      new Date(refundedAtFrom).getTime() <= new Date(refundedAtTo).getTime();
+
+    return {
+      payment_id: paymentId || undefined,
+      refunded_at_from: refundedAtFrom || undefined,
+      refunded_at_to: hasValidRefundedRange ? refundedAtTo || undefined : undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS) {
+    const hasValidSubmittedRange =
+      !submittedAtFrom ||
+      !submittedAtTo ||
+      new Date(submittedAtFrom).getTime() <= new Date(submittedAtTo).getTime();
+
+    return {
+      coverage_plan_id: coveragePlanId || undefined,
+      invoice_id: invoiceId || undefined,
+      status: status || undefined,
+      submitted_at_from: submittedAtFrom || undefined,
+      submitted_at_to: hasValidSubmittedRange ? submittedAtTo || undefined : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS) {
+    const hasValidRequestedRange =
+      !requestedAtFrom ||
+      !requestedAtTo ||
+      new Date(requestedAtFrom).getTime() <= new Date(requestedAtTo).getTime();
+    const hasValidApprovedRange =
+      !approvedAtFrom ||
+      !approvedAtTo ||
+      new Date(approvedAtFrom).getTime() <= new Date(approvedAtTo).getTime();
+
+    return {
+      coverage_plan_id: coveragePlanId || undefined,
+      status: status || undefined,
+      requested_at_from: requestedAtFrom || undefined,
+      requested_at_to: hasValidRequestedRange ? requestedAtTo || undefined : undefined,
+      approved_at_from: approvedAtFrom || undefined,
+      approved_at_to: hasValidApprovedRange ? approvedAtTo || undefined : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS) {
+    return {
+      invoice_id: invoiceId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_PROFILES) {
+    return {
+      tenant_id: tenantId || undefined,
+      user_id: userId || undefined,
+      department_id: departmentId || undefined,
+      staff_number: sanitizeString(context?.staffNumber) || undefined,
+      position: sanitizeString(context?.position) || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS) {
+    return {
+      staff_profile_id: staffProfileId || undefined,
+      department_id: departmentId || undefined,
+      unit_id: unitId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_LEAVES) {
+    return {
+      staff_profile_id: staffProfileId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SHIFTS) {
+    const hasValidShiftStartRange =
+      !startTimeFrom ||
+      !startTimeTo ||
+      new Date(startTimeFrom).getTime() <= new Date(startTimeTo).getTime();
+    const hasValidShiftEndRange =
+      !endTimeFrom ||
+      !endTimeTo ||
+      new Date(endTimeFrom).getTime() <= new Date(endTimeTo).getTime();
+
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      shift_type: shiftType || undefined,
+      status: status || undefined,
+      start_time_from: startTimeFrom || undefined,
+      start_time_to: hasValidShiftStartRange ? startTimeTo || undefined : undefined,
+      end_time_from: endTimeFrom || undefined,
+      end_time_to: hasValidShiftEndRange ? endTimeTo || undefined : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NURSE_ROSTERS) {
+    const hasValidPeriodStartRange =
+      !periodStartFrom ||
+      !periodStartTo ||
+      new Date(periodStartFrom).getTime() <= new Date(periodStartTo).getTime();
+
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      department_id: departmentId || undefined,
+      status: status || undefined,
+      period_start_from: periodStartFrom || undefined,
+      period_start_to: hasValidPeriodStartRange ? periodStartTo || undefined : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PAYROLL_RUNS) {
+    const hasValidPayrollStartRange =
+      !periodStartFrom ||
+      !periodStartTo ||
+      new Date(periodStartFrom).getTime() <= new Date(periodStartTo).getTime();
+    const hasValidPayrollEndRange =
+      !periodEndFrom ||
+      !periodEndTo ||
+      new Date(periodEndFrom).getTime() <= new Date(periodEndTo).getTime();
+
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      period_start_from: periodStartFrom || undefined,
+      period_start_to: hasValidPayrollStartRange ? periodStartTo || undefined : undefined,
+      period_end_from: periodEndFrom || undefined,
+      period_end_to: hasValidPayrollEndRange ? periodEndTo || undefined : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS) {
+    return {
+      facility_id: facilityId || undefined,
+      room_id: roomId || undefined,
+      assigned_to_staff_id: userId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES) {
+    return {
+      facility_id: facilityId || undefined,
+      room_id: roomId || undefined,
+      frequency: frequency || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS) {
+    return {
+      facility_id: facilityId || undefined,
+      asset_id: assetId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ASSETS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      name: sanitizeString(context?.name) || undefined,
+      asset_tag: sanitizeString(context?.assetTag) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS) {
+    return {
+      asset_id: assetId || undefined,
       search: search || undefined,
     };
   }
@@ -5329,6 +5850,1730 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.stockAdjustments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
+  [CLINICAL_RESOURCE_IDS.PRICING_RULES]: {
+    id: CLINICAL_RESOURCE_IDS.PRICING_RULES,
+    routePath: `${BILLING_ROUTE_ROOT}/pricing-rules`,
+    i18nKey: 'clinical.resources.pricingRules',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.COVERAGE_PLANS]: {
+    id: CLINICAL_RESOURCE_IDS.COVERAGE_PLANS,
+    routePath: `${BILLING_ROUTE_ROOT}/coverage-plans`,
+    i18nKey: 'clinical.resources.coveragePlans',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.INVOICES]: {
+    id: CLINICAL_RESOURCE_IDS.INVOICES,
+    routePath: `${BILLING_ROUTE_ROOT}/invoices`,
+    i18nKey: 'clinical.resources.invoices',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.invoices.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.invoices.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.facilityIdHint',
+      },
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.invoices.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.invoices.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.patientIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.invoices.form.statusLabel',
+        placeholderKey: 'clinical.resources.invoices.form.statusPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.statusHint',
+        options: INVOICE_STATUS_OPTIONS,
+      },
+      {
+        name: 'billing_status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.invoices.form.billingStatusLabel',
+        placeholderKey: 'clinical.resources.invoices.form.billingStatusPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.billingStatusHint',
+        options: BILLING_STATUS_OPTIONS,
+      },
+      {
+        name: 'total_amount',
+        type: 'text',
+        required: true,
+        maxLength: 24,
+        labelKey: 'clinical.resources.invoices.form.totalAmountLabel',
+        placeholderKey: 'clinical.resources.invoices.form.totalAmountPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.totalAmountHint',
+      },
+      {
+        name: 'currency',
+        type: 'text',
+        required: true,
+        maxLength: 10,
+        labelKey: 'clinical.resources.invoices.form.currencyLabel',
+        placeholderKey: 'clinical.resources.invoices.form.currencyPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.currencyHint',
+      },
+      {
+        name: 'issued_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.invoices.form.issuedAtLabel',
+        placeholderKey: 'clinical.resources.invoices.form.issuedAtPlaceholder',
+        hintKey: 'clinical.resources.invoices.form.issuedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.id) || sanitizeString(item?.patient_id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.invoices.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      status: sanitizeString(record?.status || context?.status || 'DRAFT'),
+      billing_status: sanitizeString(record?.billing_status || context?.billingStatus || 'DRAFT'),
+      total_amount: sanitizeString(record?.total_amount),
+      currency: sanitizeString(record?.currency || 'USD'),
+      issued_at: sanitizeString(record?.issued_at),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      patient_id: sanitizeString(values.patient_id) || null,
+      status: sanitizeString(values.status),
+      billing_status: sanitizeString(values.billing_status),
+      total_amount: sanitizeString(values.total_amount),
+      currency: sanitizeString(values.currency),
+      issued_at: sanitizeString(values.issued_at) ? toIsoDateTime(values.issued_at) : undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const issuedAtError = buildDateTimeError(values.issued_at, t);
+      const totalAmountError = buildDecimalError(values.total_amount, t, { required: true });
+      if (issuedAtError) errors.issued_at = issuedAtError;
+      if (totalAmountError) errors.total_amount = totalAmountError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.invoices.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.invoices.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.invoices.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.invoices.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.invoices.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.invoices.detail.billingStatusLabel', valueKey: 'billing_status' },
+      { labelKey: 'clinical.resources.invoices.detail.totalAmountLabel', valueKey: 'total_amount' },
+      { labelKey: 'clinical.resources.invoices.detail.currencyLabel', valueKey: 'currency' },
+      { labelKey: 'clinical.resources.invoices.detail.issuedAtLabel', valueKey: 'issued_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.invoices.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.invoices.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.PAYMENTS]: {
+    id: CLINICAL_RESOURCE_IDS.PAYMENTS,
+    routePath: `${BILLING_ROUTE_ROOT}/payments`,
+    i18nKey: 'clinical.resources.payments',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.payments.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.payments.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.payments.form.facilityIdHint',
+      },
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.payments.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.payments.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.payments.form.patientIdHint',
+      },
+      {
+        name: 'invoice_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.payments.form.invoiceIdLabel',
+        placeholderKey: 'clinical.resources.payments.form.invoiceIdPlaceholder',
+        hintKey: 'clinical.resources.payments.form.invoiceIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.payments.form.statusLabel',
+        placeholderKey: 'clinical.resources.payments.form.statusPlaceholder',
+        hintKey: 'clinical.resources.payments.form.statusHint',
+        options: PAYMENT_STATUS_OPTIONS,
+      },
+      {
+        name: 'method',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.payments.form.methodLabel',
+        placeholderKey: 'clinical.resources.payments.form.methodPlaceholder',
+        hintKey: 'clinical.resources.payments.form.methodHint',
+        options: PAYMENT_METHOD_OPTIONS,
+      },
+      {
+        name: 'amount',
+        type: 'text',
+        required: true,
+        maxLength: 24,
+        labelKey: 'clinical.resources.payments.form.amountLabel',
+        placeholderKey: 'clinical.resources.payments.form.amountPlaceholder',
+        hintKey: 'clinical.resources.payments.form.amountHint',
+      },
+      {
+        name: 'paid_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.payments.form.paidAtLabel',
+        placeholderKey: 'clinical.resources.payments.form.paidAtPlaceholder',
+        hintKey: 'clinical.resources.payments.form.paidAtHint',
+      },
+      {
+        name: 'transaction_ref',
+        type: 'text',
+        required: false,
+        maxLength: 120,
+        labelKey: 'clinical.resources.payments.form.transactionRefLabel',
+        placeholderKey: 'clinical.resources.payments.form.transactionRefPlaceholder',
+        hintKey: 'clinical.resources.payments.form.transactionRefHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const methodValue = sanitizeString(item?.method);
+      if (!methodValue) return '';
+      return `${t('clinical.resources.payments.detail.methodLabel')}: ${methodValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      method: sanitizeString(record?.method || context?.method || 'CASH'),
+      amount: sanitizeString(record?.amount),
+      paid_at: sanitizeString(record?.paid_at),
+      transaction_ref: sanitizeString(record?.transaction_ref),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        facility_id: sanitizeString(values.facility_id) || null,
+        patient_id: sanitizeString(values.patient_id) || null,
+        status: sanitizeString(values.status),
+        method: sanitizeString(values.method),
+        amount: sanitizeString(values.amount),
+        paid_at: sanitizeString(values.paid_at) ? toIsoDateTime(values.paid_at) : null,
+        transaction_ref: sanitizeString(values.transaction_ref) || null,
+      };
+      if (!isEdit) {
+        payload.invoice_id = sanitizeString(values.invoice_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const paidAtError = buildDateTimeError(values.paid_at, t);
+      const amountError = buildDecimalError(values.amount, t, { required: true });
+      if (paidAtError) errors.paid_at = paidAtError;
+      if (amountError) errors.amount = amountError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.payments.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.payments.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.payments.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.payments.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.payments.detail.invoiceLabel', valueKey: 'invoice_id' },
+      { labelKey: 'clinical.resources.payments.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.payments.detail.methodLabel', valueKey: 'method' },
+      { labelKey: 'clinical.resources.payments.detail.amountLabel', valueKey: 'amount' },
+      { labelKey: 'clinical.resources.payments.detail.paidAtLabel', valueKey: 'paid_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.payments.detail.transactionRefLabel', valueKey: 'transaction_ref' },
+      { labelKey: 'clinical.resources.payments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.payments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.REFUNDS]: {
+    id: CLINICAL_RESOURCE_IDS.REFUNDS,
+    routePath: `${BILLING_ROUTE_ROOT}/refunds`,
+    i18nKey: 'clinical.resources.refunds',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'payment_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.refunds.form.paymentIdLabel',
+        placeholderKey: 'clinical.resources.refunds.form.paymentIdPlaceholder',
+        hintKey: 'clinical.resources.refunds.form.paymentIdHint',
+      },
+      {
+        name: 'amount',
+        type: 'text',
+        required: true,
+        maxLength: 24,
+        labelKey: 'clinical.resources.refunds.form.amountLabel',
+        placeholderKey: 'clinical.resources.refunds.form.amountPlaceholder',
+        hintKey: 'clinical.resources.refunds.form.amountHint',
+      },
+      {
+        name: 'refunded_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.refunds.form.refundedAtLabel',
+        placeholderKey: 'clinical.resources.refunds.form.refundedAtPlaceholder',
+        hintKey: 'clinical.resources.refunds.form.refundedAtHint',
+      },
+      {
+        name: 'reason',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.refunds.form.reasonLabel',
+        placeholderKey: 'clinical.resources.refunds.form.reasonPlaceholder',
+        hintKey: 'clinical.resources.refunds.form.reasonHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.payment_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const amountValue = sanitizeString(item?.amount);
+      if (!amountValue) return '';
+      return `${t('clinical.resources.refunds.detail.amountLabel')}: ${amountValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      payment_id: sanitizeString(record?.payment_id || context?.paymentId),
+      amount: sanitizeString(record?.amount),
+      refunded_at: sanitizeString(record?.refunded_at),
+      reason: sanitizeString(record?.reason),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        amount: sanitizeString(values.amount),
+        refunded_at: sanitizeString(values.refunded_at) ? toIsoDateTime(values.refunded_at) : undefined,
+        reason: sanitizeString(values.reason) || null,
+      };
+      if (!isEdit) {
+        payload.payment_id = sanitizeString(values.payment_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const refundedAtError = buildDateTimeError(values.refunded_at, t);
+      const amountError = buildDecimalError(values.amount, t, { required: true });
+      if (refundedAtError) errors.refunded_at = refundedAtError;
+      if (amountError) errors.amount = amountError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.refunds.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.refunds.detail.paymentLabel', valueKey: 'payment_id' },
+      { labelKey: 'clinical.resources.refunds.detail.amountLabel', valueKey: 'amount' },
+      { labelKey: 'clinical.resources.refunds.detail.refundedAtLabel', valueKey: 'refunded_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.refunds.detail.reasonLabel', valueKey: 'reason' },
+      { labelKey: 'clinical.resources.refunds.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.refunds.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS]: {
+    id: CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS,
+    routePath: `${BILLING_ROUTE_ROOT}/insurance-claims`,
+    i18nKey: 'clinical.resources.insuranceClaims',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'coverage_plan_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdLabel',
+        placeholderKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdPlaceholder',
+        hintKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdHint',
+      },
+      {
+        name: 'invoice_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.insuranceClaims.form.invoiceIdLabel',
+        placeholderKey: 'clinical.resources.insuranceClaims.form.invoiceIdPlaceholder',
+        hintKey: 'clinical.resources.insuranceClaims.form.invoiceIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.insuranceClaims.form.statusLabel',
+        placeholderKey: 'clinical.resources.insuranceClaims.form.statusPlaceholder',
+        hintKey: 'clinical.resources.insuranceClaims.form.statusHint',
+        options: INSURANCE_CLAIM_STATUS_OPTIONS,
+      },
+      {
+        name: 'submitted_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.insuranceClaims.form.submittedAtLabel',
+        placeholderKey: 'clinical.resources.insuranceClaims.form.submittedAtPlaceholder',
+        hintKey: 'clinical.resources.insuranceClaims.form.submittedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.insuranceClaims.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      coverage_plan_id: sanitizeString(record?.coverage_plan_id || context?.coveragePlanId),
+      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      status: sanitizeString(record?.status || context?.status || 'SUBMITTED'),
+      submitted_at: sanitizeString(record?.submitted_at),
+    }),
+    toPayload: (values) => ({
+      coverage_plan_id: sanitizeString(values.coverage_plan_id),
+      invoice_id: sanitizeString(values.invoice_id),
+      status: sanitizeString(values.status) || undefined,
+      submitted_at: sanitizeString(values.submitted_at) ? toIsoDateTime(values.submitted_at) : undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const submittedAtError = buildDateTimeError(values.submitted_at, t);
+      if (submittedAtError) errors.submitted_at = submittedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.insuranceClaims.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.coveragePlanLabel', valueKey: 'coverage_plan_id' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.invoiceLabel', valueKey: 'invoice_id' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.submittedAtLabel', valueKey: 'submitted_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.insuranceClaims.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS]: {
+    id: CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS,
+    routePath: `${BILLING_ROUTE_ROOT}/pre-authorizations`,
+    i18nKey: 'clinical.resources.preAuthorizations',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'coverage_plan_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdLabel',
+        placeholderKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdPlaceholder',
+        hintKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.preAuthorizations.form.statusLabel',
+        placeholderKey: 'clinical.resources.preAuthorizations.form.statusPlaceholder',
+        hintKey: 'clinical.resources.preAuthorizations.form.statusHint',
+        options: PRE_AUTHORIZATION_STATUS_OPTIONS,
+      },
+      {
+        name: 'requested_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.preAuthorizations.form.requestedAtLabel',
+        placeholderKey: 'clinical.resources.preAuthorizations.form.requestedAtPlaceholder',
+        hintKey: 'clinical.resources.preAuthorizations.form.requestedAtHint',
+      },
+      {
+        name: 'approved_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.preAuthorizations.form.approvedAtLabel',
+        placeholderKey: 'clinical.resources.preAuthorizations.form.approvedAtPlaceholder',
+        hintKey: 'clinical.resources.preAuthorizations.form.approvedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.coverage_plan_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.preAuthorizations.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      coverage_plan_id: sanitizeString(record?.coverage_plan_id || context?.coveragePlanId),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      requested_at: sanitizeString(record?.requested_at),
+      approved_at: sanitizeString(record?.approved_at),
+    }),
+    toPayload: (values) => ({
+      coverage_plan_id: sanitizeString(values.coverage_plan_id),
+      status: sanitizeString(values.status) || undefined,
+      requested_at: sanitizeString(values.requested_at) ? toIsoDateTime(values.requested_at) : undefined,
+      approved_at: sanitizeString(values.approved_at) ? toIsoDateTime(values.approved_at) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const requestedAtError = buildDateTimeError(values.requested_at, t);
+      const approvedAtError = buildDateTimeError(values.approved_at, t);
+      if (requestedAtError) errors.requested_at = requestedAtError;
+      if (approvedAtError) errors.approved_at = approvedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.preAuthorizations.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.coveragePlanLabel', valueKey: 'coverage_plan_id' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.requestedAtLabel', valueKey: 'requested_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.approvedAtLabel', valueKey: 'approved_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.preAuthorizations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS]: {
+    id: CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS,
+    routePath: `${BILLING_ROUTE_ROOT}/billing-adjustments`,
+    i18nKey: 'clinical.resources.billingAdjustments',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'invoice_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.billingAdjustments.form.invoiceIdLabel',
+        placeholderKey: 'clinical.resources.billingAdjustments.form.invoiceIdPlaceholder',
+        hintKey: 'clinical.resources.billingAdjustments.form.invoiceIdHint',
+      },
+      {
+        name: 'amount',
+        type: 'text',
+        required: true,
+        maxLength: 24,
+        labelKey: 'clinical.resources.billingAdjustments.form.amountLabel',
+        placeholderKey: 'clinical.resources.billingAdjustments.form.amountPlaceholder',
+        hintKey: 'clinical.resources.billingAdjustments.form.amountHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.billingAdjustments.form.statusLabel',
+        placeholderKey: 'clinical.resources.billingAdjustments.form.statusPlaceholder',
+        hintKey: 'clinical.resources.billingAdjustments.form.statusHint',
+        options: BILLING_STATUS_OPTIONS,
+      },
+      {
+        name: 'reason',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.billingAdjustments.form.reasonLabel',
+        placeholderKey: 'clinical.resources.billingAdjustments.form.reasonPlaceholder',
+        hintKey: 'clinical.resources.billingAdjustments.form.reasonHint',
+      },
+      {
+        name: 'adjusted_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.billingAdjustments.form.adjustedAtLabel',
+        placeholderKey: 'clinical.resources.billingAdjustments.form.adjustedAtPlaceholder',
+        hintKey: 'clinical.resources.billingAdjustments.form.adjustedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.billingAdjustments.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      amount: sanitizeString(record?.amount),
+      status: sanitizeString(record?.status || context?.status || 'DRAFT'),
+      reason: sanitizeString(record?.reason),
+      adjusted_at: sanitizeString(record?.adjusted_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        amount: Number.parseFloat(sanitizeString(values.amount)),
+        status: sanitizeString(values.status),
+        reason: sanitizeString(values.reason) || null,
+        adjusted_at: sanitizeString(values.adjusted_at) ? toIsoDateTime(values.adjusted_at) : undefined,
+      };
+      if (!isEdit) {
+        payload.invoice_id = sanitizeString(values.invoice_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const adjustedAtError = buildDateTimeError(values.adjusted_at, t);
+      const amountValue = Number.parseFloat(sanitizeString(values.amount));
+      if (!Number.isFinite(amountValue)) {
+        errors.amount = t('forms.validation.invalidValue');
+      }
+      if (adjustedAtError) errors.adjusted_at = adjustedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.billingAdjustments.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.invoiceLabel', valueKey: 'invoice_id' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.amountLabel', valueKey: 'amount' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.reasonLabel', valueKey: 'reason' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.adjustedAtLabel', valueKey: 'adjusted_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.billingAdjustments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.STAFF_PROFILES]: {
+    id: CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
+    routePath: `${HR_ROUTE_ROOT}/staff-profiles`,
+    i18nKey: 'clinical.resources.staffProfiles',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'user_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.staffProfiles.form.userIdLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.userIdPlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.userIdHint',
+      },
+      {
+        name: 'department_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffProfiles.form.departmentIdLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.departmentIdPlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.departmentIdHint',
+      },
+      {
+        name: 'staff_number',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.staffProfiles.form.staffNumberLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.staffNumberPlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.staffNumberHint',
+      },
+      {
+        name: 'position',
+        type: 'text',
+        required: false,
+        maxLength: 120,
+        labelKey: 'clinical.resources.staffProfiles.form.positionLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.positionPlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.positionHint',
+      },
+      {
+        name: 'hire_date',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffProfiles.form.hireDateLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.hireDatePlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.hireDateHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.staff_number) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const positionValue = sanitizeString(item?.position);
+      if (!positionValue) return '';
+      return `${t('clinical.resources.staffProfiles.detail.positionLabel')}: ${positionValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      user_id: sanitizeString(record?.user_id || context?.userId),
+      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      staff_number: sanitizeString(record?.staff_number || context?.staffNumber),
+      position: sanitizeString(record?.position || context?.position),
+      hire_date: sanitizeString(record?.hire_date),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        department_id: sanitizeString(values.department_id) || null,
+        staff_number: sanitizeString(values.staff_number) || null,
+        position: sanitizeString(values.position) || null,
+        hire_date: sanitizeString(values.hire_date) ? toIsoDateTime(values.hire_date) : null,
+      };
+      if (!isEdit) {
+        payload.user_id = sanitizeString(values.user_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const hireDateError = buildDateTimeError(values.hire_date, t);
+      if (hireDateError) errors.hire_date = hireDateError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.staffProfiles.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.userLabel', valueKey: 'user_id' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.departmentLabel', valueKey: 'department_id' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.staffNumberLabel', valueKey: 'staff_number' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.positionLabel', valueKey: 'position' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.hireDateLabel', valueKey: 'hire_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS]: {
+    id: CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
+    routePath: `${HR_ROUTE_ROOT}/staff-assignments`,
+    i18nKey: 'clinical.resources.staffAssignments',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'staff_profile_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.staffAssignments.form.staffProfileIdLabel',
+        placeholderKey: 'clinical.resources.staffAssignments.form.staffProfileIdPlaceholder',
+        hintKey: 'clinical.resources.staffAssignments.form.staffProfileIdHint',
+      },
+      {
+        name: 'department_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffAssignments.form.departmentIdLabel',
+        placeholderKey: 'clinical.resources.staffAssignments.form.departmentIdPlaceholder',
+        hintKey: 'clinical.resources.staffAssignments.form.departmentIdHint',
+      },
+      {
+        name: 'unit_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffAssignments.form.unitIdLabel',
+        placeholderKey: 'clinical.resources.staffAssignments.form.unitIdPlaceholder',
+        hintKey: 'clinical.resources.staffAssignments.form.unitIdHint',
+      },
+      {
+        name: 'start_date',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffAssignments.form.startDateLabel',
+        placeholderKey: 'clinical.resources.staffAssignments.form.startDatePlaceholder',
+        hintKey: 'clinical.resources.staffAssignments.form.startDateHint',
+      },
+      {
+        name: 'end_date',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffAssignments.form.endDateLabel',
+        placeholderKey: 'clinical.resources.staffAssignments.form.endDatePlaceholder',
+        hintKey: 'clinical.resources.staffAssignments.form.endDateHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const departmentValue = sanitizeString(item?.department_id);
+      if (!departmentValue) return '';
+      return `${t('clinical.resources.staffAssignments.detail.departmentLabel')}: ${departmentValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      staff_profile_id: sanitizeString(record?.staff_profile_id || context?.staffProfileId),
+      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      unit_id: sanitizeString(record?.unit_id || context?.unitId),
+      start_date: sanitizeString(record?.start_date),
+      end_date: sanitizeString(record?.end_date),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        department_id: sanitizeString(values.department_id) || null,
+        unit_id: sanitizeString(values.unit_id) || null,
+        start_date: toIsoDateTime(values.start_date),
+        end_date: sanitizeString(values.end_date) ? toIsoDateTime(values.end_date) : null,
+      };
+      if (!isEdit) {
+        payload.staff_profile_id = sanitizeString(values.staff_profile_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const startDateError = buildDateTimeError(values.start_date, t);
+      const endDateError = buildDateTimeError(values.end_date, t);
+      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      if (startDateError) errors.start_date = startDateError;
+      if (endDateError) errors.end_date = endDateError;
+      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.staffAssignments.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.staffProfileLabel', valueKey: 'staff_profile_id' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.departmentLabel', valueKey: 'department_id' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.unitLabel', valueKey: 'unit_id' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffAssignments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.STAFF_LEAVES]: {
+    id: CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
+    routePath: `${HR_ROUTE_ROOT}/staff-leaves`,
+    i18nKey: 'clinical.resources.staffLeaves',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'staff_profile_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.staffLeaves.form.staffProfileIdLabel',
+        placeholderKey: 'clinical.resources.staffLeaves.form.staffProfileIdPlaceholder',
+        hintKey: 'clinical.resources.staffLeaves.form.staffProfileIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.staffLeaves.form.statusLabel',
+        placeholderKey: 'clinical.resources.staffLeaves.form.statusPlaceholder',
+        hintKey: 'clinical.resources.staffLeaves.form.statusHint',
+        options: STAFF_LEAVE_STATUS_OPTIONS,
+      },
+      {
+        name: 'start_date',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffLeaves.form.startDateLabel',
+        placeholderKey: 'clinical.resources.staffLeaves.form.startDatePlaceholder',
+        hintKey: 'clinical.resources.staffLeaves.form.startDateHint',
+      },
+      {
+        name: 'end_date',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffLeaves.form.endDateLabel',
+        placeholderKey: 'clinical.resources.staffLeaves.form.endDatePlaceholder',
+        hintKey: 'clinical.resources.staffLeaves.form.endDateHint',
+      },
+      {
+        name: 'reason',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.staffLeaves.form.reasonLabel',
+        placeholderKey: 'clinical.resources.staffLeaves.form.reasonPlaceholder',
+        hintKey: 'clinical.resources.staffLeaves.form.reasonHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.staffLeaves.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      staff_profile_id: sanitizeString(record?.staff_profile_id || context?.staffProfileId),
+      status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
+      start_date: sanitizeString(record?.start_date),
+      end_date: sanitizeString(record?.end_date),
+      reason: sanitizeString(record?.reason),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        status: sanitizeString(values.status),
+        start_date: toIsoDateTime(values.start_date),
+        end_date: toIsoDateTime(values.end_date),
+        reason: sanitizeString(values.reason) || null,
+      };
+      if (!isEdit) {
+        payload.staff_profile_id = sanitizeString(values.staff_profile_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const startDateError = buildDateTimeError(values.start_date, t);
+      const endDateError = buildDateTimeError(values.end_date, t);
+      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      if (startDateError) errors.start_date = startDateError;
+      if (endDateError) errors.end_date = endDateError;
+      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.staffLeaves.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.staffProfileLabel', valueKey: 'staff_profile_id' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.reasonLabel', valueKey: 'reason' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffLeaves.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.SHIFTS]: {
+    id: CLINICAL_RESOURCE_IDS.SHIFTS,
+    routePath: `${HR_ROUTE_ROOT}/shifts`,
+    i18nKey: 'clinical.resources.shifts',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.shifts.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.shifts.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.shifts.form.facilityIdHint',
+      },
+      {
+        name: 'shift_type',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.shifts.form.shiftTypeLabel',
+        placeholderKey: 'clinical.resources.shifts.form.shiftTypePlaceholder',
+        hintKey: 'clinical.resources.shifts.form.shiftTypeHint',
+        options: SHIFT_TYPE_OPTIONS,
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.shifts.form.statusLabel',
+        placeholderKey: 'clinical.resources.shifts.form.statusPlaceholder',
+        hintKey: 'clinical.resources.shifts.form.statusHint',
+        options: SHIFT_STATUS_OPTIONS,
+      },
+      {
+        name: 'start_time',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.shifts.form.startTimeLabel',
+        placeholderKey: 'clinical.resources.shifts.form.startTimePlaceholder',
+        hintKey: 'clinical.resources.shifts.form.startTimeHint',
+      },
+      {
+        name: 'end_time',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.shifts.form.endTimeLabel',
+        placeholderKey: 'clinical.resources.shifts.form.endTimePlaceholder',
+        hintKey: 'clinical.resources.shifts.form.endTimeHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.shift_type) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.shifts.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      shift_type: sanitizeString(record?.shift_type || context?.shiftType || 'DAY'),
+      status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
+      start_time: sanitizeString(record?.start_time),
+      end_time: sanitizeString(record?.end_time),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      shift_type: sanitizeString(values.shift_type),
+      status: sanitizeString(values.status),
+      start_time: toIsoDateTime(values.start_time),
+      end_time: toIsoDateTime(values.end_time),
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const startTimeError = buildDateTimeError(values.start_time, t);
+      const endTimeError = buildDateTimeError(values.end_time, t);
+      const dateOrderError = validateDateOrder(values.start_time, values.end_time, t);
+      if (startTimeError) errors.start_time = startTimeError;
+      if (endTimeError) errors.end_time = endTimeError;
+      if (!startTimeError && !endTimeError && dateOrderError) errors.end_time = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.shifts.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.shifts.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.shifts.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.shifts.detail.shiftTypeLabel', valueKey: 'shift_type' },
+      { labelKey: 'clinical.resources.shifts.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.shifts.detail.startTimeLabel', valueKey: 'start_time', type: 'datetime' },
+      { labelKey: 'clinical.resources.shifts.detail.endTimeLabel', valueKey: 'end_time', type: 'datetime' },
+      { labelKey: 'clinical.resources.shifts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.shifts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.NURSE_ROSTERS]: {
+    id: CLINICAL_RESOURCE_IDS.NURSE_ROSTERS,
+    routePath: `${HR_ROUTE_ROOT}/nurse-rosters`,
+    i18nKey: 'clinical.resources.nurseRosters',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.nurseRosters.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.nurseRosters.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.nurseRosters.form.facilityIdHint',
+      },
+      {
+        name: 'department_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.nurseRosters.form.departmentIdLabel',
+        placeholderKey: 'clinical.resources.nurseRosters.form.departmentIdPlaceholder',
+        hintKey: 'clinical.resources.nurseRosters.form.departmentIdHint',
+      },
+      {
+        name: 'period_start',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.nurseRosters.form.periodStartLabel',
+        placeholderKey: 'clinical.resources.nurseRosters.form.periodStartPlaceholder',
+        hintKey: 'clinical.resources.nurseRosters.form.periodStartHint',
+      },
+      {
+        name: 'period_end',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.nurseRosters.form.periodEndLabel',
+        placeholderKey: 'clinical.resources.nurseRosters.form.periodEndPlaceholder',
+        hintKey: 'clinical.resources.nurseRosters.form.periodEndHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.nurseRosters.form.statusLabel',
+        placeholderKey: 'clinical.resources.nurseRosters.form.statusPlaceholder',
+        hintKey: 'clinical.resources.nurseRosters.form.statusHint',
+        options: NURSE_ROSTER_STATUS_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.nurseRosters.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      period_start: sanitizeString(record?.period_start),
+      period_end: sanitizeString(record?.period_end),
+      status: sanitizeString(record?.status || context?.status || 'DRAFT'),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      department_id: sanitizeString(values.department_id) || null,
+      period_start: toIsoDateTime(values.period_start),
+      period_end: toIsoDateTime(values.period_end),
+      status: sanitizeString(values.status),
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const periodStartError = buildDateTimeError(values.period_start, t);
+      const periodEndError = buildDateTimeError(values.period_end, t);
+      const dateOrderError = validateDateOrder(values.period_start, values.period_end, t);
+      if (periodStartError) errors.period_start = periodStartError;
+      if (periodEndError) errors.period_end = periodEndError;
+      if (!periodStartError && !periodEndError && dateOrderError) errors.period_end = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.nurseRosters.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.departmentLabel', valueKey: 'department_id' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.periodStartLabel', valueKey: 'period_start', type: 'datetime' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.periodEndLabel', valueKey: 'period_end', type: 'datetime' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.nurseRosters.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.PAYROLL_RUNS]: {
+    id: CLINICAL_RESOURCE_IDS.PAYROLL_RUNS,
+    routePath: `${HR_ROUTE_ROOT}/payroll-runs`,
+    i18nKey: 'clinical.resources.payrollRuns',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'period_start',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.payrollRuns.form.periodStartLabel',
+        placeholderKey: 'clinical.resources.payrollRuns.form.periodStartPlaceholder',
+        hintKey: 'clinical.resources.payrollRuns.form.periodStartHint',
+      },
+      {
+        name: 'period_end',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.payrollRuns.form.periodEndLabel',
+        placeholderKey: 'clinical.resources.payrollRuns.form.periodEndPlaceholder',
+        hintKey: 'clinical.resources.payrollRuns.form.periodEndHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.payrollRuns.form.statusLabel',
+        placeholderKey: 'clinical.resources.payrollRuns.form.statusPlaceholder',
+        hintKey: 'clinical.resources.payrollRuns.form.statusHint',
+        options: PAYROLL_RUN_STATUS_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.payrollRuns.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      period_start: sanitizeString(record?.period_start),
+      period_end: sanitizeString(record?.period_end),
+      status: sanitizeString(record?.status || context?.status || 'DRAFT'),
+    }),
+    toPayload: (values) => ({
+      period_start: toIsoDateTime(values.period_start),
+      period_end: toIsoDateTime(values.period_end),
+      status: sanitizeString(values.status),
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const periodStartError = buildDateTimeError(values.period_start, t);
+      const periodEndError = buildDateTimeError(values.period_end, t);
+      const dateOrderError = validateDateOrder(values.period_start, values.period_end, t);
+      if (periodStartError) errors.period_start = periodStartError;
+      if (periodEndError) errors.period_end = periodEndError;
+      if (!periodStartError && !periodEndError && dateOrderError) errors.period_end = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.payrollRuns.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.periodStartLabel', valueKey: 'period_start', type: 'datetime' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.periodEndLabel', valueKey: 'period_end', type: 'datetime' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.payrollRuns.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS]: {
+    id: CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS,
+    routePath: `${HOUSEKEEPING_ROUTE_ROOT}/housekeeping-tasks`,
+    i18nKey: 'clinical.resources.housekeepingTasks',
+    requiresTenant: false,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingTasks.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.facilityIdHint',
+      },
+      {
+        name: 'room_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingTasks.form.roomIdLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.roomIdPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.roomIdHint',
+      },
+      {
+        name: 'assigned_to_staff_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.housekeepingTasks.form.statusLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.statusPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.statusHint',
+        options: HOUSEKEEPING_TASK_STATUS_OPTIONS,
+      },
+      {
+        name: 'scheduled_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingTasks.form.scheduledAtLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.scheduledAtPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.scheduledAtHint',
+      },
+      {
+        name: 'completed_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingTasks.form.completedAtLabel',
+        placeholderKey: 'clinical.resources.housekeepingTasks.form.completedAtPlaceholder',
+        hintKey: 'clinical.resources.housekeepingTasks.form.completedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.housekeepingTasks.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      room_id: sanitizeString(record?.room_id || context?.roomId),
+      assigned_to_staff_id: sanitizeString(record?.assigned_to_staff_id || context?.userId),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      scheduled_at: sanitizeString(record?.scheduled_at),
+      completed_at: sanitizeString(record?.completed_at),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      room_id: sanitizeString(values.room_id) || null,
+      assigned_to_staff_id: sanitizeString(values.assigned_to_staff_id) || null,
+      status: sanitizeString(values.status),
+      scheduled_at: sanitizeString(values.scheduled_at) ? toIsoDateTime(values.scheduled_at) : null,
+      completed_at: sanitizeString(values.completed_at) ? toIsoDateTime(values.completed_at) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const scheduledAtError = buildDateTimeError(values.scheduled_at, t);
+      const completedAtError = buildDateTimeError(values.completed_at, t);
+      if (scheduledAtError) errors.scheduled_at = scheduledAtError;
+      if (completedAtError) errors.completed_at = completedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.roomLabel', valueKey: 'room_id' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.assignedToStaffLabel', valueKey: 'assigned_to_staff_id' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.completedAtLabel', valueKey: 'completed_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingTasks.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES]: {
+    id: CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES,
+    routePath: `${HOUSEKEEPING_ROUTE_ROOT}/housekeeping-schedules`,
+    i18nKey: 'clinical.resources.housekeepingSchedules',
+    requiresTenant: false,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingSchedules.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.housekeepingSchedules.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.housekeepingSchedules.form.facilityIdHint',
+      },
+      {
+        name: 'room_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingSchedules.form.roomIdLabel',
+        placeholderKey: 'clinical.resources.housekeepingSchedules.form.roomIdPlaceholder',
+        hintKey: 'clinical.resources.housekeepingSchedules.form.roomIdHint',
+      },
+      {
+        name: 'frequency',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.housekeepingSchedules.form.frequencyLabel',
+        placeholderKey: 'clinical.resources.housekeepingSchedules.form.frequencyPlaceholder',
+        hintKey: 'clinical.resources.housekeepingSchedules.form.frequencyHint',
+      },
+      {
+        name: 'start_date',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingSchedules.form.startDateLabel',
+        placeholderKey: 'clinical.resources.housekeepingSchedules.form.startDatePlaceholder',
+        hintKey: 'clinical.resources.housekeepingSchedules.form.startDateHint',
+      },
+      {
+        name: 'end_date',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.housekeepingSchedules.form.endDateLabel',
+        placeholderKey: 'clinical.resources.housekeepingSchedules.form.endDatePlaceholder',
+        hintKey: 'clinical.resources.housekeepingSchedules.form.endDateHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.frequency) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const roomValue = sanitizeString(item?.room_id);
+      if (!roomValue) return '';
+      return `${t('clinical.resources.housekeepingSchedules.detail.roomLabel')}: ${roomValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      room_id: sanitizeString(record?.room_id || context?.roomId),
+      frequency: sanitizeString(record?.frequency || context?.frequency),
+      start_date: sanitizeString(record?.start_date),
+      end_date: sanitizeString(record?.end_date),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      room_id: sanitizeString(values.room_id) || null,
+      frequency: sanitizeString(values.frequency) || null,
+      start_date: sanitizeString(values.start_date) ? toIsoDateTime(values.start_date) : null,
+      end_date: sanitizeString(values.end_date) ? toIsoDateTime(values.end_date) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const startDateError = buildDateTimeError(values.start_date, t);
+      const endDateError = buildDateTimeError(values.end_date, t);
+      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      if (startDateError) errors.start_date = startDateError;
+      if (endDateError) errors.end_date = endDateError;
+      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.roomLabel', valueKey: 'room_id' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.frequencyLabel', valueKey: 'frequency' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.housekeepingSchedules.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS]: {
+    id: CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS,
+    routePath: `${HOUSEKEEPING_ROUTE_ROOT}/maintenance-requests`,
+    i18nKey: 'clinical.resources.maintenanceRequests',
+    requiresTenant: false,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.maintenanceRequests.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.facilityIdHint',
+      },
+      {
+        name: 'asset_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.maintenanceRequests.form.assetIdLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.assetIdPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.assetIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.maintenanceRequests.form.statusLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.statusPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.statusHint',
+        options: MAINTENANCE_STATUS_OPTIONS,
+      },
+      {
+        name: 'description',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.maintenanceRequests.form.descriptionLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.descriptionPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.descriptionHint',
+      },
+      {
+        name: 'reported_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.maintenanceRequests.form.reportedAtLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.reportedAtPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.reportedAtHint',
+      },
+      {
+        name: 'resolved_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.maintenanceRequests.form.resolvedAtLabel',
+        placeholderKey: 'clinical.resources.maintenanceRequests.form.resolvedAtPlaceholder',
+        hintKey: 'clinical.resources.maintenanceRequests.form.resolvedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.maintenanceRequests.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      asset_id: sanitizeString(record?.asset_id || context?.assetId),
+      status: sanitizeString(record?.status || context?.status || 'OPEN'),
+      description: sanitizeString(record?.description),
+      reported_at: sanitizeString(record?.reported_at),
+      resolved_at: sanitizeString(record?.resolved_at),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      asset_id: sanitizeString(values.asset_id) || null,
+      status: sanitizeString(values.status),
+      description: sanitizeString(values.description) || null,
+      reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : undefined,
+      resolved_at: sanitizeString(values.resolved_at) ? toIsoDateTime(values.resolved_at) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const reportedAtError = buildDateTimeError(values.reported_at, t);
+      const resolvedAtError = buildDateTimeError(values.resolved_at, t);
+      if (reportedAtError) errors.reported_at = reportedAtError;
+      if (resolvedAtError) errors.resolved_at = resolvedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.assetLabel', valueKey: 'asset_id' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.descriptionLabel', valueKey: 'description' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.resolvedAtLabel', valueKey: 'resolved_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.maintenanceRequests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.ASSETS]: {
+    id: CLINICAL_RESOURCE_IDS.ASSETS,
+    routePath: `${HOUSEKEEPING_ROUTE_ROOT}/assets`,
+    i18nKey: 'clinical.resources.assets',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.assets.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.assets.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.assets.form.facilityIdHint',
+      },
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+        maxLength: 255,
+        labelKey: 'clinical.resources.assets.form.nameLabel',
+        placeholderKey: 'clinical.resources.assets.form.namePlaceholder',
+        hintKey: 'clinical.resources.assets.form.nameHint',
+      },
+      {
+        name: 'asset_tag',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.assets.form.assetTagLabel',
+        placeholderKey: 'clinical.resources.assets.form.assetTagPlaceholder',
+        hintKey: 'clinical.resources.assets.form.assetTagHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.assets.form.statusLabel',
+        placeholderKey: 'clinical.resources.assets.form.statusPlaceholder',
+        hintKey: 'clinical.resources.assets.form.statusHint',
+        options: MAINTENANCE_STATUS_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.assets.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      name: sanitizeString(record?.name || context?.name),
+      asset_tag: sanitizeString(record?.asset_tag || context?.assetTag),
+      status: sanitizeString(record?.status || context?.status || 'OPEN'),
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      name: sanitizeString(values.name),
+      asset_tag: sanitizeString(values.asset_tag) || null,
+      status: sanitizeString(values.status),
+    }),
+    validate: () => ({}),
+    detailRows: [
+      { labelKey: 'clinical.resources.assets.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.assets.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.assets.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.assets.detail.nameLabel', valueKey: 'name' },
+      { labelKey: 'clinical.resources.assets.detail.assetTagLabel', valueKey: 'asset_tag' },
+      { labelKey: 'clinical.resources.assets.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.assets.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.assets.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS]: {
+    id: CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS,
+    routePath: `${HOUSEKEEPING_ROUTE_ROOT}/asset-service-logs`,
+    i18nKey: 'clinical.resources.assetServiceLogs',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'asset_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.assetServiceLogs.form.assetIdLabel',
+        placeholderKey: 'clinical.resources.assetServiceLogs.form.assetIdPlaceholder',
+        hintKey: 'clinical.resources.assetServiceLogs.form.assetIdHint',
+      },
+      {
+        name: 'serviced_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.assetServiceLogs.form.servicedAtLabel',
+        placeholderKey: 'clinical.resources.assetServiceLogs.form.servicedAtPlaceholder',
+        hintKey: 'clinical.resources.assetServiceLogs.form.servicedAtHint',
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.assetServiceLogs.form.notesLabel',
+        placeholderKey: 'clinical.resources.assetServiceLogs.form.notesPlaceholder',
+        hintKey: 'clinical.resources.assetServiceLogs.form.notesHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.asset_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const servicedAtValue = sanitizeString(item?.serviced_at);
+      if (!servicedAtValue) return '';
+      return `${t('clinical.resources.assetServiceLogs.detail.servicedAtLabel')}: ${servicedAtValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      asset_id: sanitizeString(record?.asset_id || context?.assetId),
+      serviced_at: sanitizeString(record?.serviced_at),
+      notes: sanitizeString(record?.notes),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        serviced_at: sanitizeString(values.serviced_at) ? toIsoDateTime(values.serviced_at) : undefined,
+        notes: sanitizeString(values.notes) || null,
+      };
+      if (!isEdit) {
+        payload.asset_id = sanitizeString(values.asset_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const servicedAtError = buildDateTimeError(values.serviced_at, t);
+      if (servicedAtError) errors.serviced_at = servicedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.assetLabel', valueKey: 'asset_id' },
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.servicedAtLabel', valueKey: 'serviced_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.assetServiceLogs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS]: {
+    id: CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+    routePath: REPORTS_ROUTE_ROOT,
+    i18nKey: 'clinical.resources.dashboardWidgets',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.NOTIFICATIONS]: {
+    id: CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+    routePath: COMMUNICATIONS_ROUTE_ROOT,
+    i18nKey: 'clinical.resources.notifications',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.title) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS]: {
+    id: CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+    routePath: SUBSCRIPTIONS_ROUTE_ROOT,
+    i18nKey: 'clinical.resources.subscriptions',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.INTEGRATIONS]: {
+    id: CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+    routePath: INTEGRATIONS_ROUTE_ROOT,
+    i18nKey: 'clinical.resources.integrations',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
+  [CLINICAL_RESOURCE_IDS.AUDIT_LOGS]: {
+    id: CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+    routePath: COMPLIANCE_ROUTE_ROOT,
+    i18nKey: 'clinical.resources.auditLogs',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [],
+    getItemTitle: (item) => sanitizeString(item?.action) || sanitizeString(item?.id),
+    getItemSubtitle: () => '',
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  },
 };
 
 const getClinicalResourceConfig = (resourceId) => resourceConfigs[resourceId] || null;
@@ -5345,6 +7590,14 @@ export {
   RADIOLOGY_RESOURCE_LIST_ORDER,
   PHARMACY_RESOURCE_LIST_ORDER,
   INVENTORY_RESOURCE_LIST_ORDER,
+  BILLING_RESOURCE_LIST_ORDER,
+  HR_RESOURCE_LIST_ORDER,
+  HOUSEKEEPING_RESOURCE_LIST_ORDER,
+  REPORTS_RESOURCE_LIST_ORDER,
+  COMMUNICATIONS_RESOURCE_LIST_ORDER,
+  SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
+  INTEGRATIONS_RESOURCE_LIST_ORDER,
+  COMPLIANCE_RESOURCE_LIST_ORDER,
   IPD_ROUTE_ROOT,
   ICU_ROUTE_ROOT,
   THEATRE_ROUTE_ROOT,
@@ -5353,6 +7606,14 @@ export {
   RADIOLOGY_ROUTE_ROOT,
   PHARMACY_ROUTE_ROOT,
   INVENTORY_ROUTE_ROOT,
+  BILLING_ROUTE_ROOT,
+  HR_ROUTE_ROOT,
+  HOUSEKEEPING_ROUTE_ROOT,
+  REPORTS_ROUTE_ROOT,
+  COMMUNICATIONS_ROUTE_ROOT,
+  SUBSCRIPTIONS_ROUTE_ROOT,
+  INTEGRATIONS_ROUTE_ROOT,
+  COMPLIANCE_ROUTE_ROOT,
   getClinicalResourceConfig,
   getContextFilters,
   normalizeContextId,

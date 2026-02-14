@@ -494,6 +494,177 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVOICES) {
+    return {
+      ...baseContext,
+      invoiceId: sanitizeString(item.id) || baseContext.invoiceId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      status: sanitizeString(item.status) || baseContext.status,
+      billingStatus: sanitizeString(item.billing_status) || baseContext.billingStatus,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PAYMENTS) {
+    return {
+      ...baseContext,
+      paymentId: sanitizeString(item.id) || baseContext.paymentId,
+      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      status: sanitizeString(item.status) || baseContext.status,
+      method: sanitizeString(item.method) || baseContext.method,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.REFUNDS) {
+    return {
+      ...baseContext,
+      paymentId: sanitizeString(item.payment_id) || baseContext.paymentId,
+      refundedAtFrom: sanitizeString(item.refunded_at) || baseContext.refundedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS) {
+    return {
+      ...baseContext,
+      coveragePlanId: sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
+      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
+      status: sanitizeString(item.status) || baseContext.status,
+      submittedAtFrom: sanitizeString(item.submitted_at) || baseContext.submittedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS) {
+    return {
+      ...baseContext,
+      coveragePlanId: sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
+      status: sanitizeString(item.status) || baseContext.status,
+      requestedAtFrom: sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
+      approvedAtFrom: sanitizeString(item.approved_at) || baseContext.approvedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS) {
+    return {
+      ...baseContext,
+      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_PROFILES) {
+    return {
+      ...baseContext,
+      staffProfileId: sanitizeString(item.id) || baseContext.staffProfileId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      userId: sanitizeString(item.user_id) || baseContext.userId,
+      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      staffNumber: sanitizeString(item.staff_number) || baseContext.staffNumber,
+      position: sanitizeString(item.position) || baseContext.position,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS) {
+    return {
+      ...baseContext,
+      staffProfileId: sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
+      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      unitId: sanitizeString(item.unit_id) || baseContext.unitId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_LEAVES) {
+    return {
+      ...baseContext,
+      staffProfileId: sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SHIFTS) {
+    return {
+      ...baseContext,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      shiftType: sanitizeString(item.shift_type) || baseContext.shiftType,
+      status: sanitizeString(item.status) || baseContext.status,
+      startTimeFrom: sanitizeString(item.start_time) || baseContext.startTimeFrom,
+      endTimeFrom: sanitizeString(item.end_time) || baseContext.endTimeFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NURSE_ROSTERS) {
+    return {
+      ...baseContext,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      status: sanitizeString(item.status) || baseContext.status,
+      periodStartFrom: sanitizeString(item.period_start) || baseContext.periodStartFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PAYROLL_RUNS) {
+    return {
+      ...baseContext,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      status: sanitizeString(item.status) || baseContext.status,
+      periodStartFrom: sanitizeString(item.period_start) || baseContext.periodStartFrom,
+      periodEndFrom: sanitizeString(item.period_end) || baseContext.periodEndFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS) {
+    return {
+      ...baseContext,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      roomId: sanitizeString(item.room_id) || baseContext.roomId,
+      userId: sanitizeString(item.assigned_to_staff_id) || baseContext.userId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES) {
+    return {
+      ...baseContext,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      roomId: sanitizeString(item.room_id) || baseContext.roomId,
+      frequency: sanitizeString(item.frequency) || baseContext.frequency,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS) {
+    return {
+      ...baseContext,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      assetId: sanitizeString(item.asset_id) || baseContext.assetId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ASSETS) {
+    return {
+      ...baseContext,
+      assetId: sanitizeString(item.id) || baseContext.assetId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      name: sanitizeString(item.name) || baseContext.name,
+      assetTag: sanitizeString(item.asset_tag) || baseContext.assetTag,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS) {
+    return {
+      ...baseContext,
+      assetId: sanitizeString(item.asset_id) || baseContext.assetId,
+      servicedAtFrom: sanitizeString(item.serviced_at) || baseContext.servicedAtFrom,
+    };
+  }
+
   return baseContext;
 };
 
