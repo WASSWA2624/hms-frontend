@@ -1,128 +1,103 @@
----
+﻿---
 alwaysApply: true
 ---
 # UI Component Structure Standards
 
 ## Purpose
-Define the exact folder/file conventions for all UI components, screens, and layouts in the `src/platform` layer.
-For platform UI layer responsibilities, imports, and resilience rules, see `platform-ui.mdc`.
+Define folder and file conventions for UI components, screens, and layouts in `src/platform`.
+For layer boundaries and runtime behavior, see `platform-ui.mdc`.
 
-## Folder Structure per Component/Screen/Layout
+## Folder Structure (Authoritative)
 
-**MANDATORY**: Related UIs must be grouped in category folders. Structure:
+Related UIs must be grouped in category folders.
 
-```
-platform/
-├── components/
-│   └── <category>/                        # Group related components (MANDATORY), e.g., forms/, navigation/, feedback/
-│       └── <ComponentName>/
-│           ├── ComponentName.android.jsx
-│           ├── ComponentName.ios.jsx
-│           ├── ComponentName.web.jsx
-│           ├── ComponentName.jsx          # Optional bridge export only (no logic/styles)
-│           ├── ComponentName.android.styles.jsx
-│           ├── ComponentName.ios.styles.jsx
-│           ├── ComponentName.web.styles.jsx
-│           ├── useComponentName.js
-│           ├── types.js
-│           └── index.js                  # Barrel file (exports only)
-└── screens/
-    └── <category>/           # Group related screens (MANDATORY), e.g., auth/, products/, orders/
-        └── <ScreenName>/
-            ├── ScreenName.android.jsx
-            ├── ScreenName.ios.jsx
-            ├── ScreenName.web.jsx
-            ├── ScreenName.jsx            # Optional bridge export only (no logic/styles)
-            ├── ScreenName.android.styles.jsx
-            ├── ScreenName.ios.styles.jsx
-            ├── ScreenName.web.styles.jsx
-            ├── useScreenName.js
-            ├── types.js
-            └── index.js                  # Barrel file (exports only)
+```txt
+src/platform/
+  components/
+    <category>/
+      <ComponentName>/
+        ComponentName.jsx                     # required shared implementation (default)
+        ComponentName.android.jsx             # optional override
+        ComponentName.ios.jsx                 # optional override
+        ComponentName.web.jsx                 # optional override
+        ComponentName.styles.jsx              # required shared styles
+        ComponentName.android.styles.jsx      # optional override
+        ComponentName.ios.styles.jsx          # optional override
+        ComponentName.web.styles.jsx          # optional override
+        useComponentName.js                   # optional shared hook
+        types.js                              # optional constants/contracts
+        index.js                              # barrel (exports only)
+  screens/
+    <category>/
+      <ScreenName>/
+        ScreenName.jsx                        # required shared implementation (default)
+        ScreenName.android.jsx                # optional override
+        ScreenName.ios.jsx                    # optional override
+        ScreenName.web.jsx                    # optional override
+        ScreenName.styles.jsx                 # required shared styles
+        ScreenName.android.styles.jsx         # optional override
+        ScreenName.ios.styles.jsx             # optional override
+        ScreenName.web.styles.jsx             # optional override
+        useScreenName.js                      # optional shared hook
+        types.js                              # optional constants/contracts
+        index.js                              # barrel (exports only)
 ```
 
 ## Rules
 
-1. **Grouping**:  
-   - **MANDATORY**: ALL components/screens MUST be grouped in category folders (e.g., `forms/`, `auth/`, `navigation/`, etc).  
-   - Use regular folder names—no parentheses outside `src/app/` routes.  
-   - **STRICTLY FORBIDDEN**: Components or screens at root level (e.g., `components/ComponentName/` or `screens/ScreenName/`). All must be in category folders.
+1. Grouping
+- All components/screens must be inside category folders (`forms/`, `navigation/`, `auth/`, etc).
+- Parentheses folders are never used in `src/platform`.
+- Root-level `components/<Name>/` and `screens/<Name>/` are forbidden.
 
-2. **Platform Separation**:  
-   - Do not use `Platform.OS` checks.  
-   - Each component/screen/layout requires `.android.jsx`, `.ios.jsx`, and `.web.jsx` files.  
-   - `ComponentName.jsx` / `ScreenName.jsx` is allowed only as a bridge export file; it must not contain UI logic, styles, hooks, or side effects.
+2. Platform Strategy (Shared-First)
+- Do not use `Platform.OS` checks in platform UI render files.
+- Build shared implementation first in unsuffixed files (`ComponentName.jsx`, `ScreenName.jsx`).
+- Add `.android/.ios/.web` files only when behavior or markup truly differs by platform.
+- When overrides exist, keep external props/API identical and move shared logic to hooks/helpers.
 
-3. **Styles**:  
-   - Styles go in platform-specific `.styles.jsx` files.  
-   - Use only theme tokens; import matching platform styles in UI files.  
-   - `StyleSheet` may be used **only** inside `*.android.styles.jsx` / `*.ios.styles.jsx` for static, performance-critical styles; it must remain theme/token-driven and must not appear in component render files or web styles.  
-   - **Styled-components must:**  
-     - Be defined as module-level `const` in `.styles.jsx` files only (never inside components, hooks, or functions).  
-     - Always use `.withConfig({ displayName: 'StyledComponent', componentId: 'StyledComponent' })`, matching the constant name.  
-     - In `.web.styles.jsx`, use semantic HTML elements (e.g., `styled.div`, `styled.main`), not React Native components.  
-   - **Allowed imports in styles:**  
-     - Only `styled`, theme/token data, primitives (`div`, `View`, etc.);  
-     - Never import other `.styles.jsx`, `.jsx`, hooks, utilities, or runtime code.  
-     - No circular dependencies or extending/re-exporting styled-components across files.
+3. Styles
+- Default to shared styles in `*.styles.jsx`.
+- Add `*.android.styles.jsx`, `*.ios.styles.jsx`, `*.web.styles.jsx` only for platform-only visual differences.
+- Use theme tokens only. No hardcoded visual values.
+- `StyleSheet` is allowed only in native override style files for static, token-driven, performance-critical styles.
+- Styled-components must be module-level constants in `.styles.jsx` files only.
 
-4. **Logic**:  
-   - Share logic in `useComponentName.js` (hooks) and `types.js`.  
-   - Component files should handle rendering only.
+4. Style Imports
+- `*.android.jsx` imports only `*.android.styles.jsx` (or shared `*.styles.jsx` when no override exists).
+- `*.ios.jsx` imports only `*.ios.styles.jsx` (or shared `*.styles.jsx` when no override exists).
+- `*.web.jsx` imports only `*.web.styles.jsx` (or shared `*.styles.jsx` when no override exists).
+- Shared composition is allowed from `*.styles.jsx` into platform override style files.
+- Cross-importing one platform override style file into another is forbidden.
 
-5. **Barrel/Index Files**: See `coding-conventions.mdc`. Always `index.js` (never `index.jsx`) for barrel files.  
-   - For the main component export, default pattern:
-     ```js
-     export { default } from './ComponentName';
-     ```
-     This relies on Metro platform resolution.
-   - If a bridge file exists (`ComponentName.jsx` / `ScreenName.jsx`), it must be a pure re-export and may intentionally target a platform-specific file (for example, `*.web`) when web-first behavior is required.
-   - Additional exports (hooks, types/constants) follow:
-     ```js
-     export { default as useComponentName } from './useComponentName';
-     export { VARIANTS, SIZES, STATES } from './types';
-     ```
-   - Export order: Component → Hooks → Types/constants
+5. Logic Placement
+- Rendering stays in component/screen files.
+- Reusable logic belongs in `useComponentName.js` / `useScreenName.js`.
+- Constants/contracts belong in `types.js`.
 
-### Naming Conventions
-See `coding-conventions.mdc`. Platform UI: 
-- Components, Screens, Layouts: PascalCase  
-- Hooks: `use` + PascalCase (e.g., `useButton`)  
-- Styles: `[ComponentName].platform.styles.jsx`  
-- Types/constants: `types.js`
-
-### Exports (`index.js` pattern)
-
+6. Barrel and Export Pattern
+- Barrel files must be `index.js` (never `index.jsx`).
+- Primary export pattern:
 ```js
-export { default } from './ComponentName'; // Let Metro handle platform file selection
-export { default as useComponentName } from './useComponentName';
-export { VARIANTS, SIZES, STATES } from './types';
+export { default } from './ComponentName';
 ```
-- Order: Component → Hooks → Types/constants
+- Additional exports follow component first, then hook, then constants.
 
-### Imports
+## Naming
+- Components/Screens/Layouts: `PascalCase`
+- Hooks: `use` + `PascalCase`
+- Styles: `[Name].styles.jsx` and optional `[Name].<platform>.styles.jsx`
+- Constants/contracts: `types.js`
 
-- Outside platform layer:  
-  `import { Button } from '@platform/components';`  
-  `import TextField, { useTextField, VARIANTS } from '@platform/components/forms/TextField';`
-- Inside platform layer:  
-  `import { Button } from '@platform/components';`
-- Component files (`ComponentName.platform.jsx`):  
-  1. External deps (`react`, `react-native`)  
-  2. Platform components (from barrel)  
-  3. Hooks & utils  
-  4. Styles (platform-specific)  
-  5. Component hook  
-  6. Types/constants
+## Imports
+- Prefer alias imports (`@platform/...`) over deep relative paths.
+- Outside platform layer, consume through platform barrels whenever available.
 
-### Forbidden
-
-- `Platform.OS` usage in components
-- Missing required `.android.jsx`, `.ios.jsx`, or `.web.jsx` implementations
-- Using unsuffixed bridge files for anything other than pure re-exports
-- Creating styled-components outside `.styles.jsx` files or inside functions/components/hooks
-- Creating styled-components without both `displayName` and `componentId` in `.withConfig()`
-- Direct/relative imports from platform files outside barrel
-- Importing styles/components/hooks in style files
-- Components or screens at root level (must be in category folders)
-- Duplicated code; violating folder structure or naming rules
+## Forbidden
+- `Platform.OS` conditionals in platform UI render files
+- Unnecessary platform override files when shared implementation is sufficient
+- Styled-components outside `.styles.jsx`
+- Inline styles for production UI
+- Cross-imports between platform override style files
+- Duplicated logic/styles across platform files when shared code would work
+- Violating category-based folder structure

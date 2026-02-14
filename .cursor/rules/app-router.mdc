@@ -27,7 +27,8 @@ Establish clear, consistent, and maintainable conventions for routing and naviga
 
 3. **Pages**
    * Each page must reside in its respective route folder
-   * Pages can import platform UI components only
+   * Pages can import platform UI components, shared hooks, and feature entrypoints/use-cases
+   * Pages must not import services, store internals, or infrastructure modules directly
    * Pages should be lightweight and delegate logic to hooks or features
 4. **Navigation**
    - All navigation must use Expo App Router—do **not** use React Navigation stack outside it.

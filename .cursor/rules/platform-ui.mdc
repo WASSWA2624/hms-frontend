@@ -1,77 +1,60 @@
----
+﻿---
 alwaysApply: true
 ---
 # Platform UI Layer Standards
 
 ## Purpose
-Define rules and best practices for the `src/platform` layer, including components, screens, and layouts for Android, iOS, and Web. All UI must deliver a **Microsoft Fluent / Microsoft 365 look and feel** (see `theme-design.mdc`).
+Define rules for `src/platform` components, screens, and layouts across Android, iOS, and Web.
+All UI must follow the Microsoft Fluent / Microsoft 365 direction from `theme-design.mdc`.
 
 ## Layer Principles
-1. **Presentation-only**: Layer boundary rules are defined in `project-structure.mdc`.
-2. **Platform separation**: Components/screens/layouts must explicitly separate Android, iOS, and Web implementations.
-3. **100% Reusability**: Components must be composable and generic (see `core-principles.mdc`).
-4. **Consistency**: All files must follow naming conventions and folder structure.
-5. **Performance**: Structure enables lazy loading, code splitting, and optimal bundle sizes.
+1. Presentation-only: no business/domain logic in UI files.
+2. Shared-first platform strategy: default shared implementation, targeted platform overrides only when needed.
+3. Reusability without duplication: extract shared logic/styles instead of copying per platform.
+4. Consistency: naming, folders, imports, and state handling follow project standards.
+5. Performance: keep render paths small and avoid unnecessary per-platform duplication.
 
-## Folder Structure Rules
-**Note**: Complete folder structure, grouping rules, and file organization are defined in `component-structure.mdc` (**single source of truth**). This section provides platform-specific examples only.
+## Structure Authority
+- `component-structure.mdc` is the single source of truth for platform file/folder structure.
 
-**Key Platform UI Rules**:
-* **MANDATORY**: Related UIs must be grouped in category folders (see `component-structure.mdc` for details)
-* Platform separation via file-level separation (`.android.jsx`, `.ios.jsx`, `.web.jsx`)
-* Each platform has its own `.styles.jsx` file
+## Platform Strategy (Mandatory)
+- Start with shared `ComponentName.jsx` / `ScreenName.jsx` and shared `*.styles.jsx`.
+- Add `.android/.ios/.web` and platform style overrides only for real platform differences.
+- Avoid visual divergence that conflicts with Fluent direction unless required by accessibility or platform constraints.
 
-## Mobile parity: iOS/Android = mobile web (MANDATORY)
-iOS and Android UIs must be **identically styled** to the mobile web app:
-- `.android.styles.jsx` and `.ios.styles.jsx` must mirror `.web.styles.jsx` at mobile breakpoint
-- Same layout, spacing, typography, colors, radius, and elevation as web mobile
-- Use identical theme tokens and semantic values
-- Platform-specific overrides allowed **only** for native constraints (e.g. safe area insets, status bar)
-- Avoid platform-only visual divergences (e.g. Material on Android, HIG on iOS); Fluent/mobile web is the source of truth
+## Mobile Parity Policy
+- Android and iOS should align with mobile web behavior and design tokens.
+- Exact pixel parity is not required when native constraints apply (safe areas, OS controls, input behavior).
+- Any intentional platform divergence must be minimal and documented in the component/screen notes or PR.
 
-## Platform-correct style wiring (MANDATORY)
-To prevent accidental cross-platform styling and enforce correctness:
+## Style Wiring (Mandatory)
+- `*.android.jsx` imports Android styles (or shared styles if no override exists).
+- `*.ios.jsx` imports iOS styles (or shared styles if no override exists).
+- `*.web.jsx` imports web styles (or shared styles if no override exists).
+- Never import one platform override style file from another platform override style file.
 
-### UI → Styles import mapping (MANDATORY)
-- `*.android.jsx` must import styles **only** from the matching `*.android.styles.jsx`
-- `*.ios.jsx` must import styles **only** from the matching `*.ios.styles.jsx`
-- `*.web.jsx` must import styles **only** from the matching `*.web.styles.jsx`
+## Reusability Rules
+- Shared component/screen logic goes in hooks (`useComponentName.js`, `useScreenName.js`).
+- Shared constants/contracts go in `types.js`.
+- Shared visual primitives come from theme tokens and shared style files.
 
-Forbidden:
-- Importing `*.ios.styles.jsx` from Android files (and vice-versa)
-- Importing `*.web.styles.jsx` from native files (and vice-versa)
-- “Shared styles” implemented by importing another platform’s style file
-
-### styled-components entrypoint per platform (MANDATORY)
-See `theme-design.mdc`.
-
-## Maximum reusability without duplication (MANDATORY)
-- Reuse via **composition**, shared hooks, and shared tokens:
-  - Shared component/screen logic must live in `useComponentName.js` / `useScreenName.js`
-  - Shared constants/variants must live in `types.js`
-  - Shared visual primitives must come from `theme` tokens (see `theme-design.mdc`)
-- If multiple platforms need the same layout primitive (e.g., spacing rows/columns), create a reusable platform component/pattern and consume it, instead of duplicating style blocks across screens.
-
-## Naming Conventions
-See `coding-conventions.mdc`, `component-structure.mdc`.
-
-## Composition Rules
-* Prefer **hooks and composition** over class components.
-* Any state or side-effect must delegate to hooks, features, or Redux (see `coding-conventions.mdc`).
-* Screens should be lightweight and delegate logic to features/hooks.
+## Composition and Side Effects
+- Prefer hooks and composition over class components.
+- UI files do not perform irreversible side effects directly; delegate through hooks/features/store conventions.
+- Screens should remain lightweight and orchestrate via hooks/features.
 
 ## Import Rules
-* Absolute imports via aliases.
-* Components/screens/layouts **cannot import domain logic directly**.
-* UI components can import other UI components, hooks, and utilities.
+- Use alias imports.
+- UI components/screens/layouts cannot import domain modules directly.
+- UI can import platform UI, shared hooks, and pure utilities within boundary rules.
 
-## Responsiveness (Mandatory)
-* UI must be **responsive across mobile, tablet, and web**
-* Avoid fixed dimensions; prefer theme spacing + responsive helpers (see `theme-design.mdc`)
-* Lists must use virtualization (`FlatList` / `SectionList`) for large datasets
+## Responsiveness and Performance
+- Must be responsive on mobile, tablet, and web.
+- Prefer flexible layouts and theme breakpoints.
+- Use list virtualization (`FlatList` / `SectionList`) for large collections.
 
-## Resilience (Fail-safe UI)
-* Every screen must handle: **loading**, **empty**, **error**, and **offline** states without crashing
+## Resilience
+- Every screen must handle loading, empty, error, and offline states without crashing.
 
 ## Related
-`component-structure.mdc`, `app-router.mdc`, `features-domain.mdc`, `testing.mdc`, `theme-design.mdc`, `coding-conventions.mdc`.
+`component-structure.mdc`, `app-router.mdc`, `features-domain.mdc`, `testing.mdc`, `theme-design.mdc`, `coding-conventions.mdc`

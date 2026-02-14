@@ -1,184 +1,117 @@
----
+﻿---
 alwaysApply: true
 ---
 
 # Services & External Integrations Standards
 ## Purpose
-This document defines how **external systems and side effects** are integrated into the application.
-Services are responsible for:
-* Communicating with external APIs
-* Persisting data
-* Interacting with device capabilities
-* Sending analytics and logs
-They are **infrastructure**, not business logic.
----
+Define how external systems and irreversible side effects are integrated.
+Services are infrastructure, not business logic.
 
 ## What Is a Service?
-A **service** is any module that:
-* Talks to the network
-* Talks to device storage
-* Talks to third-party SDKs
-* Performs irreversible side effects
-Examples:
-* REST API clients
-* Secure storage
-* Analytics trackers
-* Third-party SDK wrappers (e.g., AWS, AI, payment processors)
-* Push notifications
-* File uploads
----
+A service module talks to external systems:
+- Network APIs
+- Device storage
+- Third-party SDKs
+- Other irreversible side effects
 
 ## Folder Ownership
 ```txt
 src/services/
-    ├── index.js
-    ├── api/
-    │   ├── client.js
-    │   ├── endpoints.js
-    │   ├── interceptors.js
-    │   └── index.js
-    ├── storage/
-    │   ├── async.js
-    │   ├── secure.js
-    │   └── index.js
-    ├── analytics/
-    │   ├── tracker.js
-    │   └── index.js
-    └── [third-party-service]/    # Optional: e.g., aws/, payment/, etc.
-        ├── client.js
-        └── index.js
-```
----
-
-## Service Responsibility Boundaries
-### A Service MAY:
-* Perform network calls
-* Access device APIs
-* Throw technical errors
-* Handle authentication headers
-* Retry requests
-* Call third-party SDKs (wrapped)
-
-### A Service MUST NOT:
-* Contain business rules
-* Know about UI components
-* Dispatch Redux actions
-* Perform navigation
-* Transform domain models
----
-
-## API Services (`services/api`)
-### API Client (`client.js`)
-Purpose:
-* Centralized fetch wrapper
-* Timeout handling
-* Header injection
-* Error normalization (technical)
-Rules:
-* No domain logic
-* No Redux imports
-```js
-const apiClient = async (config) => {};
-
-export { apiClient };
+  index.js
+  api/
+    client.js
+    endpoints.js
+    interceptors.js
+    index.js
+  storage/
+    async.js
+    secure.js
+    index.js
+  analytics/
+    tracker.js
+    index.js
+  [third-party-service]/
+    client.js
+    index.js
 ```
 
-### Endpoints (`endpoints.js`)
-* Central registry of API routes
-* Environment-aware
-```js
-const AUTH_ENDPOINTS = {};
+## Responsibilities
+A service may:
+- Perform network/storage/SDK calls
+- Handle auth headers and retries
+- Throw technical errors
+- Emit technical logs through the centralized logger
 
-export { AUTH_ENDPOINTS };
-```
+A service must not:
+- Contain business rules
+- Import UI modules
+- Dispatch Redux actions
+- Perform navigation
+- Own domain-model decisions
 
-### Interceptors (`interceptors.js`)
-* Attach tokens
-* Handle 401 / refresh
-* Log failures
+## API Services
+### `client.js`
+- Central fetch wrapper
+- Timeout handling
+- Header injection
+- Technical error normalization
+
+### `endpoints.js`
+- Central endpoint registry
+- Environment-aware values from config
+
+### `interceptors.js`
+- Attach credentials/tokens
+- Handle 401/refresh integration
+- Emit sanitized operational logs via `src/logging/`
+
 Rules:
-* No navigation logic
-* No UI feedback
----
+- No navigation logic
+- No UI feedback
+- No ad-hoc `console.*` logging
 
-## Third-Party SDK Services (Optional)
-### Pattern for External SDKs
-When integrating third-party SDKs (e.g., AWS, AI, payment processors, cloud storage):
-* Create a dedicated service folder: `services/[service-name]/`
-* Wrap all SDK functionality in `client.js`
-* Centralize configuration (credentials, API keys, retries)
-* Provide well-defined utility functions
-Rules:
-* All SDK calls must go through the wrapper
-* Do not call SDKs directly in features or UI
-* Errors must be normalized to technical error objects
-Example:
-```js
-// services/payment/client.js
-const processPayment = async (amount, method) => {};
-const getTransactionStatus = async (id) => {};
+## Storage Services
+- `async.js`: non-sensitive cached data
+- `secure.js`: credentials/tokens
+- Never mix secure and non-secure concerns
+- Encryption primitives belong to `src/security/`
 
-export {
-  processPayment,
-  getTransactionStatus,
-};
-```
----
+## Analytics Services
+- Track events/screens/errors
+- Fire-and-forget
+- Must not block UI
+- No business rule branching
 
-## Storage Services (`services/storage`)
-* Async Storage (`async.js`) → non-sensitive cached data
-* Secure Storage (`secure.js`) → tokens, credentials
-Rules:
-* Never mix secure & non-secure data
-* No encryption logic here (belongs to `security/`)
----
-
-## Analytics Services (`services/analytics`)
-* Event tracking
-* Screen tracking
-* Error reporting
-Rules:
-* Fire-and-forget
-* Never block UI
-* No conditional business logic
----
-
-## Dependency Rules (Strict)
-### Allowed Imports
+## Dependency Rules
+Allowed:
 ```txt
-services → utils
-services → config
-services → security
+services -> utils
+services -> config
+services -> security
+services -> logging
 ```
 
-### Forbidden Imports
+Forbidden:
 ```txt
-services → features
-services → platform
-services → store
-services → app
+services -> features
+services -> platform
+services -> store
+services -> app
 ```
----
 
 ## Offline Compatibility
-* Services must be **stateless**
-* Offline logic handled by:
-  * `offline/`
-  * `workers/`
-  * Feature orchestration
----
+- Services must be stateless.
+- Offline orchestration belongs to `offline/`, workers, and features.
 
 ## Forbidden Patterns
-❌ Direct API calls inside components
-❌ Redux inside services
-❌ Business logic in interceptors
-❌ Feature-specific logic in shared clients
-❌ Direct third-party SDK calls outside wrapper
+- Direct API calls in UI
+- Redux logic in services
+- Business logic in interceptors
+- Feature-specific logic in shared clients
+- Direct SDK calls outside service wrappers
 
-## Related `.mdc` files
-* `features-domain.mdc` - Business logic rules (features own business rules, not services)
-* `state-management.mdc` - Redux integration rules
-* `offline-sync.mdc` - Offline compatibility requirements
----
-All business decisions belong in **features**, not services.
----
+## Related
+- `features-domain.mdc`
+- `state-management.mdc`
+- `offline-sync.mdc`
+- `errors-logging.mdc`

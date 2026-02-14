@@ -42,7 +42,7 @@ Examples:
 - **All variants/states**: Default, disabled, loading, error, success, empty, selected, focused, hover (web)
 - **All interactions**: Click, press, long-press, swipe, drag, keyboard navigation (web), touch gestures
 - **Accessibility**: `accessibilityLabel`, `accessibilityHint`, `accessibilityRole`, `testID`, screen reader compatibility, keyboard navigation, focus management
-- **Platform-specific implementations**: Test `.android.jsx`, `.ios.jsx`, `.web.jsx` separately; verify platform-specific behavior and styling
+- **Platform-specific implementations**: Test shared implementation by default; when `.android/.ios/.web` overrides exist, test each override explicitly
 - **Props combinations**: All valid prop combinations, invalid prop handling, default props
 - **Event handlers**: All callbacks (onPress, onChange, onSubmit, etc.) with various inputs
 - **Error boundaries**: Component-level error handling and recovery
@@ -59,7 +59,7 @@ Examples:
 - **Navigation**: Route transitions, deep linking, back navigation, guard redirects
 - **Form interactions**: Input validation, submission, reset, field-level errors, form-level errors
 - **Data mutations**: Create, update, delete operations with success/error handling
-- **Platform-specific screens**: Test `.android.jsx`, `.ios.jsx`, `.web.jsx` implementations separately
+- **Platform-specific screens**: Test shared screen behavior by default; when `.android/.ios/.web` overrides exist, test each override explicitly
 
 ### Hooks (`src/hooks/**`, `src/platform/**/use*.js`)
 - **Returned API**: All return values, state properties, functions
@@ -145,11 +145,12 @@ Examples:
 - **Locale switching**: Locale changes, persistence, UI updates
 
 ## Platform-Specific Testing (MANDATORY)
-- **Android implementations** (`.android.jsx`): Test Android-specific behavior, styling, interactions
-- **iOS implementations** (`.ios.jsx`): Test iOS-specific behavior, styling, interactions
-- **Web implementations** (`.web.jsx`): Test web-specific behavior, keyboard navigation, mouse interactions, browser compatibility
-- **Platform selection**: Test `Platform.select()` logic, default platform handling
-- **Platform-specific styles**: Verify correct style file imports (`.android.styles.jsx`, `.ios.styles.jsx`, `.web.styles.jsx`)
+- **Shared-first baseline**: Every component/screen must have tests for the shared implementation.
+- **Android overrides** (`.android.jsx`): Test only when override files exist.
+- **iOS overrides** (`.ios.jsx`): Test only when override files exist.
+- **Web overrides** (`.web.jsx`): Test only when override files exist.
+- **Platform selection**: If `Platform.select()` is used in allowed non-UI wrappers, test selection logic and default fallback.
+- **Platform-specific styles**: Verify style import mapping for override files when those files exist.
 
 ## User Interaction Testing (MANDATORY)
 - **Touch interactions**: Tap, long-press, swipe, drag, pinch, multi-touch
@@ -161,7 +162,7 @@ Examples:
 - **Error recovery**: Retry actions, cancel actions, alternative flows, error dismissal
 
 ## Integration Testing (MANDATORY)
-- **Feature integration**: Multiple features working together, cross-feature dependencies
+- **Feature integration**: Multiple features working together through contracts/events/shared services (without direct feature-to-feature imports)
 - **Service integration**: Service orchestration, error propagation, state synchronization
 - **Navigation integration**: Complete navigation flows, guard interactions, deep linking
 - **State integration**: Redux state updates, selector dependencies, middleware chains

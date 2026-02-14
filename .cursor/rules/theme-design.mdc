@@ -159,16 +159,17 @@ Rules:
 
 ## Platform-Specific Styling
 ### File-Level Separation
-Platform differences must be handled via:
+Use shared-first styling with optional platform overrides:
 ```txt
-Component.android.styles.jsx
-Component.ios.styles.jsx
-Component.web.styles.jsx
+Component.styles.jsx                 # shared default
+Component.android.styles.jsx         # optional override
+Component.ios.styles.jsx             # optional override
+Component.web.styles.jsx             # optional override
 ```
 Rules:
 * No `Platform.OS` checks inside styles
 * No conditional theme branching per platform
-* Each platform style file consumes the same theme API
+* Any platform override file must consume the same theme API as shared styles
 ---
 
 ## Responsive Design

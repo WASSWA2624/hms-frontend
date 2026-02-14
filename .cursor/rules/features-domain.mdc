@@ -198,17 +198,7 @@ Features **may**:
 - If UI access is needed:
   - There is a semantic hook `src/hooks/use<Feature>.js` (the only gateway to UI)
   - Hook always normalizes and exposes error codes only
-- **Testing:** For every file (and for slices/hooks), there is a matching test file in `src/__tests__` with 100% coverage (including all error paths)
-
-**Testing structure:**
-```txt
-src/__tests__/features/<feature>/<feature>.rules.test.js
-src/__tests__/features/<feature>/<feature>.model.test.js
-src/__tests__/features/<feature>/<feature>.api.test.js
-src/__tests__/features/<feature>/<feature>.usecase.test.js
-src/__tests__/store/slices/<feature>.slice.test.js      # if slice exists
-src/__tests__/hooks/use<Feature>.test.js                # if hook exists
-```
+- **Testing:** Feature tests are mandatory and must follow `testing.mdc` (single source of truth for test scope, structure, and coverage).
 
 ---
 
@@ -219,7 +209,7 @@ src/__tests__/hooks/use<Feature>.test.js                # if hook exists
 ❌ Redux/store logic in services  
 ❌ Features depending on other features  
 ❌ "God" features (feature doing too much)  
-❌ Skipping standard file/test structure  
+❌ Skipping standard file structure  
 ❌ Missing test coverage for any feature file
 
 ---
