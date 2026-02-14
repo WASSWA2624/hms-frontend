@@ -1,0 +1,405 @@
+﻿Steps to review and implement:
+- **11.11.1** Patient portal (main) -- `(patient)/portal`
+- **11.11.2** Patient appointments -- `(patient)/appointments`
+- **11.11.3** Patient results -- `(patient)/results`
+- **11.11.4** Patient prescriptions -- `(patient)/prescriptions`
+- **11.11.5** Patient billing -- `(patient)/billing`
+
+Review and implement all missing and non-compliant aspects of the provided dev step(s) as per `hms-frontend/dev-plan/P011_screens-routes.md`.
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/dev-plan/P011_screens-routes.md`
+- `hms-frontend/write-up.md` (especially patient-facing behavior in sections `4.3`, `4.5`, `4.8`, `4.9`, `18.2`, `18.3`, `18.6`)
+- Backend contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` for selected Tier 11 resources
+- Actual mounted backend routes in `hms-backend/src/app/router.js` and these Tier 11 route files:
+  - `hms-backend/src/modules/patient/routes/patient.routes.js`
+  - `hms-backend/src/modules/appointment/routes/appointment.routes.js`
+  - `hms-backend/src/modules/appointment-reminder/routes/appointment-reminder.routes.js`
+  - `hms-backend/src/modules/lab-order/routes/lab-order.routes.js`
+  - `hms-backend/src/modules/lab-order-item/routes/lab-order-item.routes.js`
+  - `hms-backend/src/modules/lab-result/routes/lab-result.routes.js`
+  - `hms-backend/src/modules/radiology-order/routes/radiology-order.routes.js`
+  - `hms-backend/src/modules/radiology-result/routes/radiology-result.routes.js`
+  - `hms-backend/src/modules/imaging-study/routes/imaging-study.routes.js`
+  - `hms-backend/src/modules/pharmacy-order/routes/pharmacy-order.routes.js`
+  - `hms-backend/src/modules/pharmacy-order-item/routes/pharmacy-order-item.routes.js`
+  - `hms-backend/src/modules/invoice/routes/invoice.routes.js`
+  - `hms-backend/src/modules/payment/routes/payment.routes.js`
+  - `hms-backend/src/modules/insurance-claim/routes/insurance-claim.routes.js`
+- If backend changes are required, full compliance with `hms-backend/.cursor/rules/*` is mandatory
+
+Only implement what is required for the selected Tier 11 screen(s) to function correctly.
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- The request can target one or more steps from `11.11.1` to `11.11.5`.
+- Tier 11 has no grouped collection labels in this command.
+- If a request selects specific step IDs, implement only those selected step IDs.
+- If a selected step depends on shared `(patient)` shell wiring, implement only the minimal shared wiring required.
+- Do NOT auto-implement unselected sibling Tier 11 steps.
+
+---
+## Scope
+
+Implement full functionality required for the selected Tier 11 step(s):
+
+- Route + screen wiring under selected groups:
+  - `(patient)/portal`
+  - `(patient)/appointments`
+  - `(patient)/results`
+  - `(patient)/prescriptions`
+  - `(patient)/billing`
+- Backend-aligned API integration for selected resources
+- Loading, empty, error, offline, and success states
+- Validation for required create/edit inputs where selected patient actions allow writes
+- List/detail/create/edit/delete flows only where backend supports them and where patient-facing policy allows them
+- Action endpoints only where mounted (for example appointment cancel)
+- Navigation (Back / Cancel / Save / Continue) with no dead ends
+- Parent-child continuity from selected patient portal screens to selected detail screens
+- Prefill and relationship handling from trusted context:
+  - `patient_id`, `tenant_id`, `facility_id`, `appointment_id`, `lab_order_id`, `lab_order_item_id`, `radiology_order_id`, `pharmacy_order_id`, `invoice_id`, `payment_id`
+- Role-feature access control for logged-in users on all selected Tier 11 routes/actions
+- Accessibility control for all selected Tier 11 actions and route states
+
+Frontend integration requirements for alignment with the current codebase:
+- Reuse existing feature modules under `src/features/<resource>/*` for selected resources.
+- Existing Tier 11-aligned feature modules are available for:
+  - `patient`, `appointment`, `appointment-reminder`
+  - `lab-order`, `lab-order-item`, `lab-result`
+  - `radiology-order`, `radiology-result`, `imaging-study`
+  - `pharmacy-order`, `pharmacy-order-item`
+  - `invoice`, `payment`, `insurance-claim`
+- Existing hooks currently available in `src/hooks` include:
+  - `usePatient`, `usePatientAccess`
+  - `useAppointment`, `useAppointmentReminder`
+  - `useLabResult`, `useRadiologyResult`, `useImagingStudy`
+  - `usePharmacyOrder`
+  - `useInvoice`, `usePayment`, `useInsuranceClaim`
+- If a selected Tier 11 resource hook is missing, create a minimal `useCrud` wrapper hook for that selected resource and export it in `src/hooks/index.js`.
+- Reuse patient shell layout patterns from `src/platform/layouts/RouteLayouts/PatientRouteLayout/*`.
+- If selected patient routes or patient menu entries are missing, add only minimal wiring required and follow existing app patterns.
+- Do not create broad new abstractions unless inevitable; prefer existing route/list/detail/create/edit patterns already used in the app.
+- Avoid introducing a heavy custom tab system unless inevitable.
+- Avoid extra task/automation scaffolding ("tas") unless inevitable.
+
+Do NOT implement steps outside the selected Tier 11 step(s).
+
+---
+## Backend Reality Check (Mandatory)
+
+- Treat `hms-backend/src/app/router.js` + listed Tier 11 route files as source of truth.
+- Use only mounted top-level resources for selected Tier 11 routes:
+  - `/api/v1/patients`
+  - `/api/v1/appointments`
+  - `/api/v1/appointment-reminders`
+  - `/api/v1/lab-orders`
+  - `/api/v1/lab-order-items`
+  - `/api/v1/lab-results`
+  - `/api/v1/radiology-orders`
+  - `/api/v1/radiology-results`
+  - `/api/v1/imaging-studies`
+  - `/api/v1/pharmacy-orders`
+  - `/api/v1/pharmacy-order-items`
+  - `/api/v1/invoices`
+  - `/api/v1/payments`
+  - `/api/v1/insurance-claims`
+
+Mounted Tier 11 route caveats:
+- There are no dedicated mounted patient-portal endpoints such as:
+  - `/api/v1/patient/portal`
+  - `/api/v1/patient/appointments`
+  - `/api/v1/patient/results`
+  - `/api/v1/patient/prescriptions`
+  - `/api/v1/patient/billing`
+- `/api/v1/appointments` supports action endpoint `POST /:id/cancel`.
+- `lab-results`, `radiology-results`, and `imaging-studies` do not support direct `patient_id` filters; patient scoping must be derived via mounted dependency resources (`lab-orders`, `lab-order-items`, `radiology-orders`).
+
+Respect actual filter support:
+- Patients: `tenant_id`, `facility_id`, `first_name`, `last_name`, `gender`, `is_active`, `search`
+- Appointments: `tenant_id`, `facility_id`, `patient_id`, `provider_user_id`, `status`, `search`
+- Appointment reminders: `appointment_id`, `channel`
+- Lab orders: `encounter_id`, `patient_id`, `status`, `ordered_at_from`, `ordered_at_to`, `search`
+- Lab order items: `lab_order_id`, `lab_test_id`, `status`, `search`
+- Lab results: `lab_order_item_id`, `status`
+- Radiology orders: `encounter_id`, `patient_id`, `radiology_test_id`, `status`, `search`
+- Radiology results: `radiology_order_id`, `status`, `search`
+- Imaging studies: `radiology_order_id`, `modality`, `performed_at`
+- Pharmacy orders: `encounter_id`, `patient_id`, `status`, `ordered_at_from`, `ordered_at_to`
+- Invoices: `tenant_id`, `facility_id`, `patient_id`, `status`, `billing_status`, `search`
+- Payments: `tenant_id`, `facility_id`, `patient_id`, `invoice_id`, `status`, `method`, `paid_at_from`, `paid_at_to`, `search`
+- Insurance claims: `coverage_plan_id`, `invoice_id`, `status`, `submitted_at_from`, `submitted_at_to`
+
+Status/enum constraints that must match backend schema:
+- Patient `gender`: `MALE`, `FEMALE`, `OTHER`, `UNKNOWN`
+- Appointment `status`: `SCHEDULED`, `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`, `NO_SHOW`
+- Appointment reminder `channel`: `EMAIL`, `SMS`, `PUSH`, `WHATSAPP`, `IN_APP`
+- Lab order / lab order item `status`: `ORDERED`, `COLLECTED`, `IN_PROCESS`, `COMPLETED`, `CANCELLED`
+- Lab result `status`: `NORMAL`, `ABNORMAL`, `CRITICAL`, `PENDING`
+- Radiology order `status`: `ORDERED`, `IN_PROCESS`, `COMPLETED`, `CANCELLED`
+- Radiology result `status`: `DRAFT`, `FINAL`, `AMENDED`
+- Imaging study `modality`: `XRAY`, `CT`, `MRI`, `ULTRASOUND`, `PET`, `OTHER`
+- Pharmacy order `status`: `ORDERED`, `DISPENSED`, `PARTIALLY_DISPENSED`, `CANCELLED`
+- Invoice `status`: `DRAFT`, `SENT`, `PAID`, `OVERDUE`, `CANCELLED`
+- Invoice `billing_status`: `DRAFT`, `ISSUED`, `PAID`, `PARTIAL`, `CANCELLED`
+- Payment `status`: `PENDING`, `COMPLETED`, `FAILED`, `REFUNDED`
+- Payment `method`: `CASH`, `CREDIT_CARD`, `DEBIT_CARD`, `PREPAID_CARD`, `GIFT_CARD`, `VOUCHER`, `BANK_CHECK`, `MOBILE_MONEY`, `BANK_TRANSFER`, `INSURANCE`, `OTHER`
+- Insurance claim `status`: `SUBMITTED`, `APPROVED`, `REJECTED`, `PAID`, `CANCELLED`
+
+Non-enum notes:
+- `patients.is_active` filter is boolean-like (`'true'|'false'` transformed server-side).
+- Patient portal results and prescriptions are read-focused in write-up; block unsupported patient writes with informational UX.
+- Do not assume endpoint constants are valid unless mounted by `router.js`.
+
+Do not call frontend endpoint constants that are not mounted by backend routes.
+Do not invent nested shortcut endpoints such as:
+- `/api/v1/patient/appointments`
+- `/api/v1/patient/results`
+- `/api/v1/patient/prescriptions`
+- `/api/v1/patient/billing`
+- `/api/v1/appointments/:id/reschedule`
+- `/api/v1/lab-results/patient/:patientId`
+- `/api/v1/radiology-results/patient/:patientId`
+- `/api/v1/imaging-studies/patient/:patientId`
+- `/api/v1/pharmacy-orders/:id/items`
+- `/api/v1/invoices/:id/payments`
+
+Out-of-scope mounted dependency resources unless explicitly required by selected step context:
+- `/api/v1/patient-identifiers`
+- `/api/v1/patient-contacts`
+- `/api/v1/patient-guardians`
+- `/api/v1/patient-allergies`
+- `/api/v1/patient-medical-histories`
+- `/api/v1/patient-documents`
+- `/api/v1/dispense-logs`
+- `/api/v1/invoice-items`
+- `/api/v1/refunds`
+
+If backend support does not exist for a selected write action, provide read-only/informational UX and block unsupported writes.
+
+---
+
+## Backend Change Policy (Mandatory)
+
+- Modify backend only when strictly required for selected Tier 11 step(s).
+- Any backend modification must follow `hms-backend/.cursor/rules/*`.
+- Preserve backend architecture and conventions (versioned routing, module structure, validation, response format, auth/security, tests).
+- Do not introduce ad-hoc backend behavior that bypasses established module patterns.
+
+---
+
+## Access Control (Mandatory)
+
+- Enforce access using existing auth/session and patient-shell hooks/utilities/patterns already used in the app.
+- Use one source of truth per selected module for auth/session + role-feature access.
+- Apply access checks to both:
+  - UI actions (view/create/edit/delete/retry and action endpoints where applicable)
+  - Route navigation (including direct deep links to selected Tier 11 routes)
+- Never rely on UI hiding alone; route-level protection must prevent unauthorized access.
+- Enforce patient-scoped ownership before and after API calls:
+  - Route/query param tampering must not allow viewing another patient's records.
+  - If selected record context does not match authenticated patient scope, block action and redirect safely.
+- Block unauthorized data actions before API calls and handle backend `401/403` responses with clear feedback.
+- For unauthorized routes, redirect to nearest allowed patient route and preserve safe navigation.
+
+---
+
+## Navigation + Routing Accessibility (Mandatory)
+
+- Use semantic links for navigation and semantic buttons for actions; no clickable non-semantic containers.
+- Ensure current location is perceivable via visible and accessible state.
+- For visible-but-blocked actions, use `aria-disabled="true"` on web, prevent execution, and provide an accessible reason.
+- Ensure keyboard navigation order, focus visibility, and focus restoration after submit/redirect/error.
+- Provide screen-reader friendly feedback for loading, errors, denied actions, and successful actions.
+
+---
+
+## Layout Rules (Strict)
+
+- Reuse existing `(patient)/_layout.jsx` and `PatientRouteLayout` patterns.
+- If selected route groups are missing (`portal`, `appointments`, `results`, `prescriptions`, `billing`), create only minimal required group/layout wiring using existing composition patterns.
+- Keep patient navigation wired through existing `PATIENT_MENU_ITEMS` patterns.
+- No layout redesign.
+- No nested scroll containers.
+- No nested sidebars.
+- Match existing patient shell visuals and interaction patterns.
+
+---
+## UI / UX Rules
+
+- Clean, compact, modern UI.
+- Fully responsive (mobile, tablet, desktop, web, iOS, Android).
+- Patient-first clarity: plain language, obvious primary actions, clear statuses.
+- Human-friendly copy via i18n keys only.
+- No duplicate UI.
+- No oversized elements.
+- No dead-end navigation.
+
+Buttons:
+- Use existing module button styles.
+- Compact and consistent.
+
+Forms:
+- Clear labels and helpful placeholders.
+- Inline validation messages.
+- Required fields clearly indicated.
+- Logical field order.
+- Disable invalid submit actions while preserving accessible reason text.
+- Enforce safe date-time ordering where required by backend contract, including:
+  - `scheduled_start <= scheduled_end`
+  - `ordered_at_from <= ordered_at_to`
+  - `paid_at_from <= paid_at_to`
+  - `submitted_at_from <= submitted_at_to`
+
+Tier 11 flow UX:
+- Selected Tier 11 flow(s) must be self-directed for first-time patient users without a manual.
+- Preserve write-up alignment for appointments/results/prescriptions/billing patient views.
+- Results and prescriptions views are read-only unless explicit selected backend support exists for patient writes.
+- Minimize required data entry to backend-required fields only.
+- Preserve patient context while moving between portal sections.
+
+---
+
+## Security by Design (Mandatory)
+
+- Apply secure-by-default behavior across selected Tier 11 screens/actions.
+- Collect only data required for the selected step; do not request unnecessary sensitive data.
+- Never expose secrets/tokens/PII in logs, analytics, or UI debug text.
+- Prevent duplicate/replay-like submissions with pending/disabled action states.
+- Validate and sanitize all route/query params before use:
+  - `id`, `patient_id`, `tenant_id`, `facility_id`, `appointment_id`, `lab_order_id`, `lab_order_item_id`, `radiology_order_id`, `pharmacy_order_id`, `invoice_id`, `payment_id`, pagination/filter values
+- Use existing secure auth/session storage and request utilities.
+- Enforce route/action guards before API calls, not only via UI visibility.
+- For blocked/unauthorized states, show clear non-technical feedback without leaking sensitive details.
+
+---
+
+## Reliability
+
+- Handle API/network errors gracefully.
+- Human-readable, actionable error messages.
+- Clear success/failure feedback for every supported action.
+- Disable duplicate submissions while pending.
+- Preserve user state where possible (filters, selected context, pagination).
+- Ensure all enabled actions are fully wired to backend endpoints/contracts (no placeholders).
+- Keep behavior robust but simple: prefer existing hooks/components/patterns over new abstractions.
+- Use existing query/mutation patterns with proper loading, retry, cancellation, and stale-response safety.
+
+---
+## Backend Linkage (Mandatory)
+
+Every implemented feature/action must call real backend endpoints for the selected Tier 11 step(s):
+
+- `11.11.1` Patient portal (main) (`(patient)/portal`)
+  - At minimum: `GET /api/v1/appointments` (patient-scoped)
+  - For summary cards, use mounted endpoints with patient-scoped filters/context:
+    - appointments
+    - lab-orders and/or radiology-orders
+    - pharmacy-orders
+    - invoices, payments, insurance-claims
+  - Do not invent aggregate dashboard endpoints
+
+- `11.11.2` Patient appointments (`(patient)/appointments`)
+  - `GET /api/v1/appointments`
+  - `GET /api/v1/appointments/:id`
+  - `POST /api/v1/appointments` (booking, if selected)
+  - `PUT /api/v1/appointments/:id` (reschedule/update, if selected)
+  - `POST /api/v1/appointments/:id/cancel` (preferred patient cancel action)
+  - `DELETE /api/v1/appointments/:id` only if selected flow explicitly requires hard-delete behavior
+  - Optional reminder views:
+    - `GET /api/v1/appointment-reminders?appointment_id=:id`
+
+- `11.11.3` Patient results (`(patient)/results`)
+  - Primary patient-scoping chain:
+    - `GET /api/v1/lab-orders?patient_id=:patientId`
+    - `GET /api/v1/lab-order-items?lab_order_id=:labOrderId`
+    - `GET /api/v1/lab-results?lab_order_item_id=:labOrderItemId`
+    - `GET /api/v1/lab-results/:id`
+    - `GET /api/v1/radiology-orders?patient_id=:patientId`
+    - `GET /api/v1/radiology-results?radiology_order_id=:radiologyOrderId`
+    - `GET /api/v1/radiology-results/:id`
+    - Optional imaging:
+      - `GET /api/v1/imaging-studies?radiology_order_id=:radiologyOrderId`
+      - `GET /api/v1/imaging-studies/:id`
+  - Patient results flow should be read-only unless explicit selected backend policy says otherwise.
+
+- `11.11.4` Patient prescriptions (`(patient)/prescriptions`)
+  - `GET /api/v1/pharmacy-orders?patient_id=:patientId`
+  - `GET /api/v1/pharmacy-orders/:id`
+  - Optional line-item enrichment:
+    - `GET /api/v1/pharmacy-order-items?pharmacy_order_id=:pharmacyOrderId`
+  - Patient prescriptions flow should be read-only unless explicit selected backend policy says otherwise.
+
+- `11.11.5` Patient billing (`(patient)/billing`)
+  - `GET /api/v1/invoices?patient_id=:patientId`
+  - `GET /api/v1/invoices/:id`
+  - `GET /api/v1/payments?patient_id=:patientId`
+  - `GET /api/v1/payments/:id`
+  - `GET /api/v1/insurance-claims?invoice_id=:invoiceId`
+  - `GET /api/v1/insurance-claims/:id`
+  - Optional online payment write:
+    - `POST /api/v1/payments` (only when selected and backend policy allows)
+  - Invoices and insurance claims are read-focused in patient portal; block unsupported patient writes.
+
+Keep request/response fields strictly aligned with backend schema/validation rules.
+Do not ship mock data, fake success states, or disconnected UI actions.
+If backend intentionally lacks support for an action, expose read-only/informational UX and block unsupported writes.
+
+All operations MUST match backend schema and endpoint behavior exactly.
+
+---
+
+## Constraints
+
+Do NOT:
+
+- Modify Tier 1 through Tier 10 screens/flows unless required by selected Tier 11 step(s)
+- Change layout or routing architecture outside required `(patient)` route wiring
+- Add global components or new platform patterns
+- Invent backend fields, endpoints, or behaviors
+- Implement screens outside selected Tier 11 step(s)
+- Introduce extra task/automation scaffolding ("tas") unless inevitable
+
+---
+
+## Acceptance Criteria
+
+- 100% rules compliance
+- Existing patient shell/layout patterns reused
+- Backend-aligned functionality for selected Tier 11 step(s)
+- Responsive UI with clear validation and feedback
+- No nested scroll
+- Screen(s) work independently and integrate with current patient navigation
+- Access control is enforced for actions and routes (including deep links)
+- Patient data scoping is enforced; cross-patient access is blocked
+- Accessibility is preserved for all states, including unauthorized/disabled states
+- Selected Tier 11 flow can be completed without a manual
+- Selected Tier 11 flow remains secure by default (no data leakage, no insecure shortcuts)
+- All applicable features/actions are fully functional and backend-linked
+- Unauthorized users cannot execute restricted actions via URL, keyboard, or direct API-triggering UI paths
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Screen/Page component(s) for selected Tier 11 step(s)
+2. Form component(s) (if applicable)
+3. API integration hook usage/updates (if applicable)
+4. Validation logic (if applicable)
+5. State handling logic
+6. Loading + empty + error + offline UI
+7. Success/failure feedback implementation
+8. Navigation handlers
+9. Backend contract alignment confirmation
+10. Access control implementation confirmation (actions + routes)
+11. Patient-scope ownership enforcement confirmation
+12. Accessibility control confirmation for all states
+13. Route-guard + navigation accessibility confirmation (keyboard/focus/blocked actions)
+14. Action-to-backend linkage confirmation for all enabled features in selected screen(s)
+15. Explicit note for any selected action intentionally read-only due to missing backend support or patient-policy limits
+
+Do NOT include files or logic outside selected Tier 11 screen(s).
