@@ -11,6 +11,25 @@ const CLINICAL_RESOURCE_IDS = {
   CARE_PLANS: 'care-plans',
   REFERRALS: 'referrals',
   FOLLOW_UPS: 'follow-ups',
+  ADMISSIONS: 'admissions',
+  BED_ASSIGNMENTS: 'bed-assignments',
+  WARD_ROUNDS: 'ward-rounds',
+  NURSING_NOTES: 'nursing-notes',
+  MEDICATION_ADMINISTRATIONS: 'medication-administrations',
+  DISCHARGE_SUMMARIES: 'discharge-summaries',
+  TRANSFER_REQUESTS: 'transfer-requests',
+  ICU_STAYS: 'icu-stays',
+  ICU_OBSERVATIONS: 'icu-observations',
+  CRITICAL_ALERTS: 'critical-alerts',
+  THEATRE_CASES: 'theatre-cases',
+  ANESTHESIA_RECORDS: 'anesthesia-records',
+  POST_OP_NOTES: 'post-op-notes',
+  EMERGENCY_CASES: 'emergency-cases',
+  TRIAGE_ASSESSMENTS: 'triage-assessments',
+  EMERGENCY_RESPONSES: 'emergency-responses',
+  AMBULANCES: 'ambulances',
+  AMBULANCE_DISPATCHES: 'ambulance-dispatches',
+  AMBULANCE_TRIPS: 'ambulance-trips',
 };
 
 const CLINICAL_RESOURCE_LIST_ORDER = [
@@ -24,7 +43,42 @@ const CLINICAL_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.FOLLOW_UPS,
 ];
 
+const IPD_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.ADMISSIONS,
+  CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS,
+  CLINICAL_RESOURCE_IDS.WARD_ROUNDS,
+  CLINICAL_RESOURCE_IDS.NURSING_NOTES,
+  CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS,
+  CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES,
+  CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS,
+];
+
+const ICU_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.ICU_STAYS,
+  CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS,
+  CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS,
+];
+
+const THEATRE_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.THEATRE_CASES,
+  CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS,
+  CLINICAL_RESOURCE_IDS.POST_OP_NOTES,
+];
+
+const EMERGENCY_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.EMERGENCY_CASES,
+  CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS,
+  CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES,
+  CLINICAL_RESOURCE_IDS.AMBULANCES,
+  CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES,
+  CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS,
+];
+
 const CLINICAL_ROUTE_ROOT = '/clinical';
+const IPD_ROUTE_ROOT = '/ipd';
+const ICU_ROUTE_ROOT = '/icu';
+const THEATRE_ROUTE_ROOT = '/theatre';
+const EMERGENCY_ROUTE_ROOT = '/emergency';
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
@@ -77,6 +131,30 @@ const withClinicalContext = (path, context = {}) => {
   const vitalType = sanitizeString(context.vitalType);
   const startDate = normalizeIsoDateValue(context.startDate);
   const endDate = normalizeIsoDateValue(context.endDate);
+  const admissionId = normalizeContextId(context.admissionId);
+  const bedId = normalizeContextId(context.bedId);
+  const nurseUserId = normalizeContextId(context.nurseUserId);
+  const prescriptionId = normalizeContextId(context.prescriptionId);
+  const fromWardId = normalizeContextId(context.fromWardId);
+  const toWardId = normalizeContextId(context.toWardId);
+  const icuStayId = normalizeContextId(context.icuStayId);
+  const theatreCaseId = normalizeContextId(context.theatreCaseId);
+  const anesthetistUserId = normalizeContextId(context.anesthetistUserId);
+  const emergencyCaseId = normalizeContextId(context.emergencyCaseId);
+  const ambulanceId = normalizeContextId(context.ambulanceId);
+  const severity = sanitizeString(context.severity);
+  const triageLevel = sanitizeString(context.triageLevel);
+  const route = sanitizeString(context.route);
+  const search = sanitizeString(context.search);
+  const startedAtFrom = normalizeIsoDateValue(context.startedAtFrom);
+  const startedAtTo = normalizeIsoDateValue(context.startedAtTo);
+  const endedAtFrom = normalizeIsoDateValue(context.endedAtFrom);
+  const endedAtTo = normalizeIsoDateValue(context.endedAtTo);
+  const observedAtFrom = normalizeIsoDateValue(context.observedAtFrom);
+  const observedAtTo = normalizeIsoDateValue(context.observedAtTo);
+  const scheduledFrom = normalizeIsoDateValue(context.scheduledFrom);
+  const scheduledTo = normalizeIsoDateValue(context.scheduledTo);
+  const isActive = context.isActive;
 
   if (tenantId) searchParams.set('tenantId', tenantId);
   if (facilityId) searchParams.set('facilityId', facilityId);
@@ -93,6 +171,35 @@ const withClinicalContext = (path, context = {}) => {
   if (vitalType) searchParams.set('vitalType', vitalType);
   if (startDate) searchParams.set('startDate', startDate);
   if (endDate) searchParams.set('endDate', endDate);
+  if (admissionId) searchParams.set('admissionId', admissionId);
+  if (bedId) searchParams.set('bedId', bedId);
+  if (nurseUserId) searchParams.set('nurseUserId', nurseUserId);
+  if (prescriptionId) searchParams.set('prescriptionId', prescriptionId);
+  if (fromWardId) searchParams.set('fromWardId', fromWardId);
+  if (toWardId) searchParams.set('toWardId', toWardId);
+  if (icuStayId) searchParams.set('icuStayId', icuStayId);
+  if (theatreCaseId) searchParams.set('theatreCaseId', theatreCaseId);
+  if (anesthetistUserId) searchParams.set('anesthetistUserId', anesthetistUserId);
+  if (emergencyCaseId) searchParams.set('emergencyCaseId', emergencyCaseId);
+  if (ambulanceId) searchParams.set('ambulanceId', ambulanceId);
+  if (severity) searchParams.set('severity', severity);
+  if (triageLevel) searchParams.set('triageLevel', triageLevel);
+  if (route) searchParams.set('route', route);
+  if (search) searchParams.set('search', search);
+  if (startedAtFrom) searchParams.set('startedAtFrom', startedAtFrom);
+  if (startedAtTo) searchParams.set('startedAtTo', startedAtTo);
+  if (endedAtFrom) searchParams.set('endedAtFrom', endedAtFrom);
+  if (endedAtTo) searchParams.set('endedAtTo', endedAtTo);
+  if (observedAtFrom) searchParams.set('observedAtFrom', observedAtFrom);
+  if (observedAtTo) searchParams.set('observedAtTo', observedAtTo);
+  if (scheduledFrom) searchParams.set('scheduledFrom', scheduledFrom);
+  if (scheduledTo) searchParams.set('scheduledTo', scheduledTo);
+  if (typeof isActive === 'boolean') {
+    searchParams.set('isActive', isActive ? 'true' : 'false');
+  }
+  if (sanitizeString(isActive) === 'true' || sanitizeString(isActive) === 'false') {
+    searchParams.set('isActive', sanitizeString(isActive));
+  }
 
   const query = searchParams.toString();
   return query ? `${path}?${query}` : path;
@@ -146,6 +253,82 @@ const REFERRAL_UPDATE_STATUS_OPTIONS = [
   { value: 'CANCELLED', labelKey: 'clinical.options.referralStatus.cancelled' },
 ];
 
+const ADMISSION_STATUS_OPTIONS = [
+  { value: 'ADMITTED', labelKey: 'clinical.options.admissionStatus.admitted' },
+  { value: 'DISCHARGED', labelKey: 'clinical.options.admissionStatus.discharged' },
+  { value: 'TRANSFERRED', labelKey: 'clinical.options.admissionStatus.transferred' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.admissionStatus.cancelled' },
+];
+
+const DISCHARGE_STATUS_OPTIONS = [
+  { value: 'PLANNED', labelKey: 'clinical.options.dischargeStatus.planned' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.dischargeStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.dischargeStatus.cancelled' },
+];
+
+const TRANSFER_STATUS_OPTIONS = [
+  { value: 'REQUESTED', labelKey: 'clinical.options.transferStatus.requested' },
+  { value: 'APPROVED', labelKey: 'clinical.options.transferStatus.approved' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.transferStatus.inProgress' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.transferStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.transferStatus.cancelled' },
+];
+
+const MEDICATION_ROUTE_OPTIONS = [
+  { value: 'ORAL', labelKey: 'clinical.options.medicationRoute.oral' },
+  { value: 'IV', labelKey: 'clinical.options.medicationRoute.iv' },
+  { value: 'IM', labelKey: 'clinical.options.medicationRoute.im' },
+  { value: 'SC', labelKey: 'clinical.options.medicationRoute.sc' },
+  { value: 'TOPICAL', labelKey: 'clinical.options.medicationRoute.topical' },
+  { value: 'INHALATION', labelKey: 'clinical.options.medicationRoute.inhalation' },
+  { value: 'RECTAL', labelKey: 'clinical.options.medicationRoute.rectal' },
+  { value: 'OTHER', labelKey: 'clinical.options.medicationRoute.other' },
+];
+
+const CRITICAL_ALERT_SEVERITY_OPTIONS = [
+  { value: 'LOW', labelKey: 'clinical.options.criticalAlertSeverity.low' },
+  { value: 'MEDIUM', labelKey: 'clinical.options.criticalAlertSeverity.medium' },
+  { value: 'HIGH', labelKey: 'clinical.options.criticalAlertSeverity.high' },
+  { value: 'CRITICAL', labelKey: 'clinical.options.criticalAlertSeverity.critical' },
+];
+
+const THEATRE_CASE_STATUS_OPTIONS = [
+  { value: 'SCHEDULED', labelKey: 'clinical.options.theatreCaseStatus.scheduled' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.theatreCaseStatus.inProgress' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.theatreCaseStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.theatreCaseStatus.cancelled' },
+];
+
+const EMERGENCY_CASE_SEVERITY_OPTIONS = [
+  { value: 'LOW', labelKey: 'clinical.options.emergencySeverity.low' },
+  { value: 'MEDIUM', labelKey: 'clinical.options.emergencySeverity.medium' },
+  { value: 'HIGH', labelKey: 'clinical.options.emergencySeverity.high' },
+  { value: 'CRITICAL', labelKey: 'clinical.options.emergencySeverity.critical' },
+];
+
+const EMERGENCY_CASE_STATUS_OPTIONS = [
+  { value: 'PENDING', labelKey: 'clinical.options.emergencyStatus.pending' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.emergencyStatus.inProgress' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.emergencyStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.emergencyStatus.cancelled' },
+];
+
+const TRIAGE_LEVEL_OPTIONS = [
+  { value: 'IMMEDIATE', labelKey: 'clinical.options.triageLevel.immediate' },
+  { value: 'URGENT', labelKey: 'clinical.options.triageLevel.urgent' },
+  { value: 'LESS_URGENT', labelKey: 'clinical.options.triageLevel.lessUrgent' },
+  { value: 'NON_URGENT', labelKey: 'clinical.options.triageLevel.nonUrgent' },
+];
+
+const AMBULANCE_STATUS_OPTIONS = [
+  { value: 'AVAILABLE', labelKey: 'clinical.options.ambulanceStatus.available' },
+  { value: 'DISPATCHED', labelKey: 'clinical.options.ambulanceStatus.dispatched' },
+  { value: 'EN_ROUTE', labelKey: 'clinical.options.ambulanceStatus.enRoute' },
+  { value: 'ON_SCENE', labelKey: 'clinical.options.ambulanceStatus.onScene' },
+  { value: 'TRANSPORTING', labelKey: 'clinical.options.ambulanceStatus.transporting' },
+  { value: 'OUT_OF_SERVICE', labelKey: 'clinical.options.ambulanceStatus.outOfService' },
+];
+
 const buildDateTimeError = (value, t) => {
   if (!sanitizeString(value)) return null;
   if (toIsoDateTime(value)) return null;
@@ -180,6 +363,38 @@ const getContextFilters = (resourceId, context) => {
   const vitalType = sanitizeString(context?.vitalType);
   const startDate = normalizeIsoDateValue(context?.startDate);
   const endDate = normalizeIsoDateValue(context?.endDate);
+  const admissionId = normalizeContextId(context?.admissionId);
+  const bedId = normalizeContextId(context?.bedId);
+  const nurseUserId = normalizeContextId(context?.nurseUserId);
+  const prescriptionId = normalizeContextId(context?.prescriptionId);
+  const fromWardId = normalizeContextId(context?.fromWardId);
+  const toWardId = normalizeContextId(context?.toWardId);
+  const icuStayId = normalizeContextId(context?.icuStayId);
+  const theatreCaseId = normalizeContextId(context?.theatreCaseId);
+  const anesthetistUserId = normalizeContextId(context?.anesthetistUserId);
+  const emergencyCaseId = normalizeContextId(context?.emergencyCaseId);
+  const ambulanceId = normalizeContextId(context?.ambulanceId);
+  const severity = sanitizeString(context?.severity);
+  const triageLevel = sanitizeString(context?.triageLevel);
+  const route = sanitizeString(context?.route);
+  const search = sanitizeString(context?.search);
+  const startedAtFrom = normalizeIsoDateValue(context?.startedAtFrom);
+  const startedAtTo = normalizeIsoDateValue(context?.startedAtTo);
+  const endedAtFrom = normalizeIsoDateValue(context?.endedAtFrom);
+  const endedAtTo = normalizeIsoDateValue(context?.endedAtTo);
+  const observedAtFrom = normalizeIsoDateValue(context?.observedAtFrom);
+  const observedAtTo = normalizeIsoDateValue(context?.observedAtTo);
+  const scheduledFrom = normalizeIsoDateValue(context?.scheduledFrom);
+  const scheduledTo = normalizeIsoDateValue(context?.scheduledTo);
+  const isActiveRaw = context?.isActive;
+  const isActive =
+    typeof isActiveRaw === 'boolean'
+      ? isActiveRaw
+      : sanitizeString(isActiveRaw) === 'true'
+        ? true
+        : sanitizeString(isActiveRaw) === 'false'
+          ? false
+          : undefined;
 
   if (resourceId === CLINICAL_RESOURCE_IDS.ENCOUNTERS) {
     return {
@@ -241,6 +456,158 @@ const getContextFilters = (resourceId, context) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.FOLLOW_UPS) {
     return {
       encounter_id: encounterId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ADMISSIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      patient_id: patientId || undefined,
+      encounter_id: encounterId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS) {
+    return {
+      admission_id: admissionId || undefined,
+      bed_id: bedId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.WARD_ROUNDS) {
+    return {
+      admission_id: admissionId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NURSING_NOTES) {
+    return {
+      admission_id: admissionId || undefined,
+      nurse_user_id: nurseUserId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS) {
+    return {
+      admission_id: admissionId || undefined,
+      prescription_id: prescriptionId || undefined,
+      route: route || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES) {
+    return {
+      admission_id: admissionId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS) {
+    return {
+      admission_id: admissionId || undefined,
+      from_ward_id: fromWardId || undefined,
+      to_ward_id: toWardId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ICU_STAYS) {
+    return {
+      admission_id: admissionId || undefined,
+      started_at_from: startedAtFrom || undefined,
+      started_at_to: startedAtTo || undefined,
+      ended_at_from: endedAtFrom || undefined,
+      ended_at_to: endedAtTo || undefined,
+      is_active: typeof isActive === 'boolean' ? isActive : undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS) {
+    return {
+      icu_stay_id: icuStayId || undefined,
+      observed_at_from: observedAtFrom || undefined,
+      observed_at_to: observedAtTo || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS) {
+    return {
+      icu_stay_id: icuStayId || undefined,
+      severity: severity || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.THEATRE_CASES) {
+    return {
+      encounter_id: encounterId || undefined,
+      status: status || undefined,
+      scheduled_from: scheduledFrom || undefined,
+      scheduled_to: scheduledTo || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS) {
+    return {
+      theatre_case_id: theatreCaseId || undefined,
+      anesthetist_user_id: anesthetistUserId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.POST_OP_NOTES) {
+    return {
+      theatre_case_id: theatreCaseId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_CASES) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      patient_id: patientId || undefined,
+      severity: severity || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS) {
+    return {
+      emergency_case_id: emergencyCaseId || undefined,
+      triage_level: triageLevel || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES) {
+    return {
+      emergency_case_id: emergencyCaseId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCES) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES) {
+    return {
+      ambulance_id: ambulanceId || undefined,
+      emergency_case_id: emergencyCaseId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS) {
+    return {
+      ambulance_id: ambulanceId || undefined,
+      emergency_case_id: emergencyCaseId || undefined,
     };
   }
 
@@ -959,6 +1326,1468 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.followUps.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
+  [CLINICAL_RESOURCE_IDS.ADMISSIONS]: {
+    id: CLINICAL_RESOURCE_IDS.ADMISSIONS,
+    routePath: `${IPD_ROUTE_ROOT}/admissions`,
+    i18nKey: 'clinical.resources.admissions',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.admissions.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.admissions.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.patientIdHint',
+      },
+      {
+        name: 'encounter_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.admissions.form.encounterIdLabel',
+        placeholderKey: 'clinical.resources.admissions.form.encounterIdPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.encounterIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.admissions.form.statusLabel',
+        placeholderKey: 'clinical.resources.admissions.form.statusPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.statusHint',
+        options: ADMISSION_STATUS_OPTIONS,
+      },
+      {
+        name: 'admitted_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.admissions.form.admittedAtLabel',
+        placeholderKey: 'clinical.resources.admissions.form.admittedAtPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.admittedAtHint',
+      },
+      {
+        name: 'discharged_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.admissions.form.dischargedAtLabel',
+        placeholderKey: 'clinical.resources.admissions.form.dischargedAtPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.dischargedAtHint',
+      },
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.admissions.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.admissions.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.admissions.form.facilityIdHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.admissions.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      status: sanitizeString(record?.status || context?.status || 'ADMITTED'),
+      admitted_at: sanitizeString(record?.admitted_at),
+      discharged_at: sanitizeString(record?.discharged_at),
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        facility_id: sanitizeString(values.facility_id) || undefined,
+        encounter_id: sanitizeString(values.encounter_id) || undefined,
+        status: sanitizeString(values.status),
+        admitted_at: toIsoDateTime(values.admitted_at) || undefined,
+      };
+      if (isEdit) {
+        payload.discharged_at = sanitizeString(values.discharged_at)
+          ? toIsoDateTime(values.discharged_at)
+          : undefined;
+      } else {
+        payload.patient_id = sanitizeString(values.patient_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const admittedAtError = buildDateTimeError(values.admitted_at, t);
+      const dischargedAtError = buildDateTimeError(values.discharged_at, t);
+      if (admittedAtError) errors.admitted_at = admittedAtError;
+      if (dischargedAtError) errors.discharged_at = dischargedAtError;
+      if (!dischargedAtError) {
+        const orderError = validateDateOrder(values.admitted_at, values.discharged_at, t, { allowEqual: true });
+        if (orderError) errors.discharged_at = orderError;
+      }
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.admissions.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.admissions.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.admissions.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.admissions.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.admissions.detail.encounterLabel', valueKey: 'encounter_id' },
+      { labelKey: 'clinical.resources.admissions.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.admissions.detail.admittedAtLabel', valueKey: 'admitted_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.admissions.detail.dischargedAtLabel', valueKey: 'discharged_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.admissions.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.admissions.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS]: {
+    id: CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS,
+    routePath: `${IPD_ROUTE_ROOT}/bed-assignments`,
+    i18nKey: 'clinical.resources.bedAssignments',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.bedAssignments.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.bedAssignments.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.bedAssignments.form.admissionIdHint',
+      },
+      {
+        name: 'bed_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.bedAssignments.form.bedIdLabel',
+        placeholderKey: 'clinical.resources.bedAssignments.form.bedIdPlaceholder',
+        hintKey: 'clinical.resources.bedAssignments.form.bedIdHint',
+      },
+      {
+        name: 'assigned_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.bedAssignments.form.assignedAtLabel',
+        placeholderKey: 'clinical.resources.bedAssignments.form.assignedAtPlaceholder',
+        hintKey: 'clinical.resources.bedAssignments.form.assignedAtHint',
+      },
+      {
+        name: 'released_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.bedAssignments.form.releasedAtLabel',
+        placeholderKey: 'clinical.resources.bedAssignments.form.releasedAtPlaceholder',
+        hintKey: 'clinical.resources.bedAssignments.form.releasedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.bed_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const admissionId = sanitizeString(item?.admission_id);
+      if (!admissionId) return '';
+      return `${t('clinical.resources.bedAssignments.detail.admissionLabel')}: ${admissionId}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      bed_id: sanitizeString(record?.bed_id || context?.bedId),
+      assigned_at: sanitizeString(record?.assigned_at),
+      released_at: sanitizeString(record?.released_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        bed_id: sanitizeString(values.bed_id) || undefined,
+        assigned_at: toIsoDateTime(values.assigned_at) || undefined,
+      };
+      if (isEdit) {
+        payload.released_at = sanitizeString(values.released_at)
+          ? toIsoDateTime(values.released_at)
+          : null;
+      } else {
+        payload.admission_id = sanitizeString(values.admission_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const assignedAtError = buildDateTimeError(values.assigned_at, t);
+      const releasedAtError = buildDateTimeError(values.released_at, t);
+      if (assignedAtError) errors.assigned_at = assignedAtError;
+      if (releasedAtError) errors.released_at = releasedAtError;
+      if (!releasedAtError) {
+        const orderError = validateDateOrder(values.assigned_at, values.released_at, t, { allowEqual: true });
+        if (orderError) errors.released_at = orderError;
+      }
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.bedAssignments.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.bedLabel', valueKey: 'bed_id' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.assignedAtLabel', valueKey: 'assigned_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.releasedAtLabel', valueKey: 'released_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.bedAssignments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.WARD_ROUNDS]: {
+    id: CLINICAL_RESOURCE_IDS.WARD_ROUNDS,
+    routePath: `${IPD_ROUTE_ROOT}/ward-rounds`,
+    i18nKey: 'clinical.resources.wardRounds',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.wardRounds.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.wardRounds.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.wardRounds.form.admissionIdHint',
+      },
+      {
+        name: 'round_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.wardRounds.form.roundAtLabel',
+        placeholderKey: 'clinical.resources.wardRounds.form.roundAtPlaceholder',
+        hintKey: 'clinical.resources.wardRounds.form.roundAtHint',
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.wardRounds.form.notesLabel',
+        placeholderKey: 'clinical.resources.wardRounds.form.notesPlaceholder',
+        hintKey: 'clinical.resources.wardRounds.form.notesHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.round_at) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const admissionId = sanitizeString(item?.admission_id);
+      if (!admissionId) return '';
+      return `${t('clinical.resources.wardRounds.detail.admissionLabel')}: ${admissionId}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      round_at: sanitizeString(record?.round_at),
+      notes: sanitizeString(record?.notes),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        round_at: toIsoDateTime(values.round_at) || undefined,
+        notes: sanitizeString(values.notes) || null,
+      };
+      if (!isEdit) {
+        payload.admission_id = sanitizeString(values.admission_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const roundAtError = buildDateTimeError(values.round_at, t);
+      if (roundAtError) errors.round_at = roundAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.wardRounds.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.wardRounds.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.wardRounds.detail.roundAtLabel', valueKey: 'round_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.wardRounds.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.wardRounds.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.wardRounds.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.NURSING_NOTES]: {
+    id: CLINICAL_RESOURCE_IDS.NURSING_NOTES,
+    routePath: `${IPD_ROUTE_ROOT}/nursing-notes`,
+    i18nKey: 'clinical.resources.nursingNotes',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.nursingNotes.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.nursingNotes.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.nursingNotes.form.admissionIdHint',
+      },
+      {
+        name: 'nurse_user_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.nursingNotes.form.nurseUserIdLabel',
+        placeholderKey: 'clinical.resources.nursingNotes.form.nurseUserIdPlaceholder',
+        hintKey: 'clinical.resources.nursingNotes.form.nurseUserIdHint',
+      },
+      {
+        name: 'note',
+        type: 'text',
+        required: true,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.nursingNotes.form.noteLabel',
+        placeholderKey: 'clinical.resources.nursingNotes.form.notePlaceholder',
+        hintKey: 'clinical.resources.nursingNotes.form.noteHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.note) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const nurseUserId = sanitizeString(item?.nurse_user_id);
+      if (!nurseUserId) return '';
+      return `${t('clinical.resources.nursingNotes.detail.nurseLabel')}: ${nurseUserId}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      nurse_user_id: sanitizeString(record?.nurse_user_id || context?.nurseUserId),
+      note: sanitizeString(record?.note),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = { note: sanitizeString(values.note) };
+      if (!isEdit) {
+        payload.admission_id = sanitizeString(values.admission_id);
+        payload.nurse_user_id = sanitizeString(values.nurse_user_id);
+      }
+      return payload;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.nursingNotes.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.nursingNotes.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.nursingNotes.detail.nurseLabel', valueKey: 'nurse_user_id' },
+      { labelKey: 'clinical.resources.nursingNotes.detail.noteLabel', valueKey: 'note' },
+      { labelKey: 'clinical.resources.nursingNotes.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.nursingNotes.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS]: {
+    id: CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS,
+    routePath: `${IPD_ROUTE_ROOT}/medication-administrations`,
+    i18nKey: 'clinical.resources.medicationAdministrations',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.medicationAdministrations.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.admissionIdHint',
+      },
+      {
+        name: 'prescription_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdPlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdHint',
+      },
+      {
+        name: 'administered_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.medicationAdministrations.form.administeredAtLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.administeredAtPlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.administeredAtHint',
+      },
+      {
+        name: 'dose',
+        type: 'text',
+        required: true,
+        maxLength: 80,
+        labelKey: 'clinical.resources.medicationAdministrations.form.doseLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.dosePlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.doseHint',
+      },
+      {
+        name: 'unit',
+        type: 'text',
+        required: false,
+        maxLength: 40,
+        labelKey: 'clinical.resources.medicationAdministrations.form.unitLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.unitPlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.unitHint',
+      },
+      {
+        name: 'route',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.medicationAdministrations.form.routeLabel',
+        placeholderKey: 'clinical.resources.medicationAdministrations.form.routePlaceholder',
+        hintKey: 'clinical.resources.medicationAdministrations.form.routeHint',
+        options: MEDICATION_ROUTE_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.dose) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const routeValue = sanitizeString(item?.route);
+      if (!routeValue) return '';
+      return `${t('clinical.resources.medicationAdministrations.detail.routeLabel')}: ${routeValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      prescription_id: sanitizeString(record?.prescription_id || context?.prescriptionId),
+      administered_at: sanitizeString(record?.administered_at),
+      dose: sanitizeString(record?.dose),
+      unit: sanitizeString(record?.unit),
+      route: sanitizeString(record?.route || context?.route || 'ORAL'),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        administered_at: toIsoDateTime(values.administered_at) || undefined,
+        dose: sanitizeString(values.dose),
+        unit: sanitizeString(values.unit) || undefined,
+        route: sanitizeString(values.route),
+      };
+      if (!isEdit) {
+        payload.admission_id = sanitizeString(values.admission_id);
+        payload.prescription_id = sanitizeString(values.prescription_id) || undefined;
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const administeredAtError = buildDateTimeError(values.administered_at, t);
+      if (administeredAtError) errors.administered_at = administeredAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.prescriptionLabel', valueKey: 'prescription_id' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.doseLabel', valueKey: 'dose' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.unitLabel', valueKey: 'unit' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.routeLabel', valueKey: 'route' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.administeredAtLabel', valueKey: 'administered_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.medicationAdministrations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES]: {
+    id: CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES,
+    routePath: `${IPD_ROUTE_ROOT}/discharge-summaries`,
+    i18nKey: 'clinical.resources.dischargeSummaries',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.dischargeSummaries.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.dischargeSummaries.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.dischargeSummaries.form.admissionIdHint',
+      },
+      {
+        name: 'summary',
+        type: 'text',
+        required: true,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.dischargeSummaries.form.summaryLabel',
+        placeholderKey: 'clinical.resources.dischargeSummaries.form.summaryPlaceholder',
+        hintKey: 'clinical.resources.dischargeSummaries.form.summaryHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.dischargeSummaries.form.statusLabel',
+        placeholderKey: 'clinical.resources.dischargeSummaries.form.statusPlaceholder',
+        hintKey: 'clinical.resources.dischargeSummaries.form.statusHint',
+        options: DISCHARGE_STATUS_OPTIONS,
+      },
+      {
+        name: 'discharged_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.dischargeSummaries.form.dischargedAtLabel',
+        placeholderKey: 'clinical.resources.dischargeSummaries.form.dischargedAtPlaceholder',
+        hintKey: 'clinical.resources.dischargeSummaries.form.dischargedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.summary) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.dischargeSummaries.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      summary: sanitizeString(record?.summary),
+      status: sanitizeString(record?.status || context?.status || 'PLANNED'),
+      discharged_at: sanitizeString(record?.discharged_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        summary: sanitizeString(values.summary),
+        status: sanitizeString(values.status),
+        discharged_at: toIsoDateTime(values.discharged_at) || undefined,
+      };
+      if (!isEdit) {
+        payload.admission_id = sanitizeString(values.admission_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const dischargedAtError = buildDateTimeError(values.discharged_at, t);
+      if (dischargedAtError) errors.discharged_at = dischargedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.summaryLabel', valueKey: 'summary' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.dischargedAtLabel', valueKey: 'discharged_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.dischargeSummaries.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS]: {
+    id: CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS,
+    routePath: `${IPD_ROUTE_ROOT}/transfer-requests`,
+    i18nKey: 'clinical.resources.transferRequests',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.transferRequests.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.transferRequests.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.transferRequests.form.admissionIdHint',
+      },
+      {
+        name: 'from_ward_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.transferRequests.form.fromWardIdLabel',
+        placeholderKey: 'clinical.resources.transferRequests.form.fromWardIdPlaceholder',
+        hintKey: 'clinical.resources.transferRequests.form.fromWardIdHint',
+      },
+      {
+        name: 'to_ward_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.transferRequests.form.toWardIdLabel',
+        placeholderKey: 'clinical.resources.transferRequests.form.toWardIdPlaceholder',
+        hintKey: 'clinical.resources.transferRequests.form.toWardIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.transferRequests.form.statusLabel',
+        placeholderKey: 'clinical.resources.transferRequests.form.statusPlaceholder',
+        hintKey: 'clinical.resources.transferRequests.form.statusHint',
+        options: TRANSFER_STATUS_OPTIONS,
+      },
+      {
+        name: 'requested_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.transferRequests.form.requestedAtLabel',
+        placeholderKey: 'clinical.resources.transferRequests.form.requestedAtPlaceholder',
+        hintKey: 'clinical.resources.transferRequests.form.requestedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.to_ward_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.transferRequests.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      from_ward_id: sanitizeString(record?.from_ward_id || context?.fromWardId),
+      to_ward_id: sanitizeString(record?.to_ward_id || context?.toWardId),
+      status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
+      requested_at: sanitizeString(record?.requested_at),
+    }),
+    toPayload: (values) => ({
+      admission_id: sanitizeString(values.admission_id),
+      from_ward_id: sanitizeString(values.from_ward_id) || null,
+      to_ward_id: sanitizeString(values.to_ward_id) || null,
+      status: sanitizeString(values.status) || undefined,
+      requested_at: toIsoDateTime(values.requested_at) || undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const requestedAtError = buildDateTimeError(values.requested_at, t);
+      if (requestedAtError) errors.requested_at = requestedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.transferRequests.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.transferRequests.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.transferRequests.detail.fromWardLabel', valueKey: 'from_ward_id' },
+      { labelKey: 'clinical.resources.transferRequests.detail.toWardLabel', valueKey: 'to_ward_id' },
+      { labelKey: 'clinical.resources.transferRequests.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.transferRequests.detail.requestedAtLabel', valueKey: 'requested_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.transferRequests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.transferRequests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.ICU_STAYS]: {
+    id: CLINICAL_RESOURCE_IDS.ICU_STAYS,
+    routePath: `${ICU_ROUTE_ROOT}/icu-stays`,
+    i18nKey: 'clinical.resources.icuStays',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'admission_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.icuStays.form.admissionIdLabel',
+        placeholderKey: 'clinical.resources.icuStays.form.admissionIdPlaceholder',
+        hintKey: 'clinical.resources.icuStays.form.admissionIdHint',
+      },
+      {
+        name: 'started_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.icuStays.form.startedAtLabel',
+        placeholderKey: 'clinical.resources.icuStays.form.startedAtPlaceholder',
+        hintKey: 'clinical.resources.icuStays.form.startedAtHint',
+      },
+      {
+        name: 'ended_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.icuStays.form.endedAtLabel',
+        placeholderKey: 'clinical.resources.icuStays.form.endedAtPlaceholder',
+        hintKey: 'clinical.resources.icuStays.form.endedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.admission_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const startedAt = sanitizeString(item?.started_at);
+      if (!startedAt) return '';
+      return `${t('clinical.resources.icuStays.detail.startedAtLabel')}: ${startedAt}`;
+    },
+    getInitialValues: (record, context) => ({
+      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      started_at: sanitizeString(record?.started_at),
+      ended_at: sanitizeString(record?.ended_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        started_at: toIsoDateTime(values.started_at) || undefined,
+        ended_at: sanitizeString(values.ended_at) ? toIsoDateTime(values.ended_at) : null,
+      };
+      if (!isEdit) {
+        payload.admission_id = sanitizeString(values.admission_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const startedAtError = buildDateTimeError(values.started_at, t);
+      const endedAtError = buildDateTimeError(values.ended_at, t);
+      if (startedAtError) errors.started_at = startedAtError;
+      if (endedAtError) errors.ended_at = endedAtError;
+      if (!endedAtError) {
+        const orderError = validateDateOrder(values.started_at, values.ended_at, t, { allowEqual: true });
+        if (orderError) errors.ended_at = orderError;
+      }
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.icuStays.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.icuStays.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.icuStays.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.icuStays.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.icuStays.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.icuStays.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS]: {
+    id: CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS,
+    routePath: `${ICU_ROUTE_ROOT}/icu-observations`,
+    i18nKey: 'clinical.resources.icuObservations',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'icu_stay_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.icuObservations.form.icuStayIdLabel',
+        placeholderKey: 'clinical.resources.icuObservations.form.icuStayIdPlaceholder',
+        hintKey: 'clinical.resources.icuObservations.form.icuStayIdHint',
+      },
+      {
+        name: 'observed_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.icuObservations.form.observedAtLabel',
+        placeholderKey: 'clinical.resources.icuObservations.form.observedAtPlaceholder',
+        hintKey: 'clinical.resources.icuObservations.form.observedAtHint',
+      },
+      {
+        name: 'observation',
+        type: 'text',
+        required: true,
+        maxLength: 5000,
+        labelKey: 'clinical.resources.icuObservations.form.observationLabel',
+        placeholderKey: 'clinical.resources.icuObservations.form.observationPlaceholder',
+        hintKey: 'clinical.resources.icuObservations.form.observationHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.observation) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const observedAt = sanitizeString(item?.observed_at);
+      if (!observedAt) return '';
+      return `${t('clinical.resources.icuObservations.detail.observedAtLabel')}: ${observedAt}`;
+    },
+    getInitialValues: (record, context) => ({
+      icu_stay_id: sanitizeString(record?.icu_stay_id || context?.icuStayId),
+      observed_at: sanitizeString(record?.observed_at),
+      observation: sanitizeString(record?.observation),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        observed_at: toIsoDateTime(values.observed_at) || undefined,
+        observation: sanitizeString(values.observation),
+      };
+      if (!isEdit) {
+        payload.icu_stay_id = sanitizeString(values.icu_stay_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const observedAtError = buildDateTimeError(values.observed_at, t);
+      if (observedAtError) errors.observed_at = observedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.icuObservations.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.icuObservations.detail.icuStayLabel', valueKey: 'icu_stay_id' },
+      { labelKey: 'clinical.resources.icuObservations.detail.observedAtLabel', valueKey: 'observed_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.icuObservations.detail.observationLabel', valueKey: 'observation' },
+      { labelKey: 'clinical.resources.icuObservations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.icuObservations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS]: {
+    id: CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS,
+    routePath: `${ICU_ROUTE_ROOT}/critical-alerts`,
+    i18nKey: 'clinical.resources.criticalAlerts',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'icu_stay_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.criticalAlerts.form.icuStayIdLabel',
+        placeholderKey: 'clinical.resources.criticalAlerts.form.icuStayIdPlaceholder',
+        hintKey: 'clinical.resources.criticalAlerts.form.icuStayIdHint',
+      },
+      {
+        name: 'severity',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.criticalAlerts.form.severityLabel',
+        placeholderKey: 'clinical.resources.criticalAlerts.form.severityPlaceholder',
+        hintKey: 'clinical.resources.criticalAlerts.form.severityHint',
+        options: CRITICAL_ALERT_SEVERITY_OPTIONS,
+      },
+      {
+        name: 'message',
+        type: 'text',
+        required: true,
+        maxLength: 2000,
+        labelKey: 'clinical.resources.criticalAlerts.form.messageLabel',
+        placeholderKey: 'clinical.resources.criticalAlerts.form.messagePlaceholder',
+        hintKey: 'clinical.resources.criticalAlerts.form.messageHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.message) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const severityLabel = sanitizeString(item?.severity);
+      if (!severityLabel) return '';
+      return `${t('clinical.resources.criticalAlerts.detail.severityLabel')}: ${severityLabel}`;
+    },
+    getInitialValues: (record, context) => ({
+      icu_stay_id: sanitizeString(record?.icu_stay_id || context?.icuStayId),
+      severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      message: sanitizeString(record?.message),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        severity: sanitizeString(values.severity),
+        message: sanitizeString(values.message),
+      };
+      if (!isEdit) {
+        payload.icu_stay_id = sanitizeString(values.icu_stay_id);
+      }
+      return payload;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.criticalAlerts.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.icuStayLabel', valueKey: 'icu_stay_id' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.severityLabel', valueKey: 'severity' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.messageLabel', valueKey: 'message' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.THEATRE_CASES]: {
+    id: CLINICAL_RESOURCE_IDS.THEATRE_CASES,
+    routePath: `${THEATRE_ROUTE_ROOT}/theatre-cases`,
+    i18nKey: 'clinical.resources.theatreCases',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'encounter_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.theatreCases.form.encounterIdLabel',
+        placeholderKey: 'clinical.resources.theatreCases.form.encounterIdPlaceholder',
+        hintKey: 'clinical.resources.theatreCases.form.encounterIdHint',
+      },
+      {
+        name: 'scheduled_at',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.theatreCases.form.scheduledAtLabel',
+        placeholderKey: 'clinical.resources.theatreCases.form.scheduledAtPlaceholder',
+        hintKey: 'clinical.resources.theatreCases.form.scheduledAtHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.theatreCases.form.statusLabel',
+        placeholderKey: 'clinical.resources.theatreCases.form.statusPlaceholder',
+        hintKey: 'clinical.resources.theatreCases.form.statusHint',
+        options: THEATRE_CASE_STATUS_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.encounter_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.theatreCases.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      scheduled_at: sanitizeString(record?.scheduled_at),
+      status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
+    }),
+    toPayload: (values) => ({
+      encounter_id: sanitizeString(values.encounter_id),
+      scheduled_at: toIsoDateTime(values.scheduled_at),
+      status: sanitizeString(values.status),
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const scheduledAtError = buildDateTimeError(values.scheduled_at, t);
+      if (scheduledAtError) errors.scheduled_at = scheduledAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.theatreCases.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.theatreCases.detail.encounterLabel', valueKey: 'encounter_id' },
+      { labelKey: 'clinical.resources.theatreCases.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.theatreCases.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.theatreCases.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.theatreCases.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS]: {
+    id: CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS,
+    routePath: `${THEATRE_ROUTE_ROOT}/anesthesia-records`,
+    i18nKey: 'clinical.resources.anesthesiaRecords',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'theatre_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdLabel',
+        placeholderKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdPlaceholder',
+        hintKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdHint',
+      },
+      {
+        name: 'anesthetist_user_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdLabel',
+        placeholderKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdPlaceholder',
+        hintKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdHint',
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.anesthesiaRecords.form.notesLabel',
+        placeholderKey: 'clinical.resources.anesthesiaRecords.form.notesPlaceholder',
+        hintKey: 'clinical.resources.anesthesiaRecords.form.notesHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.theatre_case_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const anesthetistUserId = sanitizeString(item?.anesthetist_user_id);
+      if (!anesthetistUserId) return '';
+      return `${t('clinical.resources.anesthesiaRecords.detail.anesthetistLabel')}: ${anesthetistUserId}`;
+    },
+    getInitialValues: (record, context) => ({
+      theatre_case_id: sanitizeString(record?.theatre_case_id || context?.theatreCaseId),
+      anesthetist_user_id: sanitizeString(record?.anesthetist_user_id || context?.anesthetistUserId),
+      notes: sanitizeString(record?.notes),
+    }),
+    toPayload: (values) => ({
+      theatre_case_id: sanitizeString(values.theatre_case_id),
+      anesthetist_user_id: sanitizeString(values.anesthetist_user_id) || null,
+      notes: sanitizeString(values.notes) || null,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.theatreCaseLabel', valueKey: 'theatre_case_id' },
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.anesthetistLabel', valueKey: 'anesthetist_user_id' },
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.anesthesiaRecords.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.POST_OP_NOTES]: {
+    id: CLINICAL_RESOURCE_IDS.POST_OP_NOTES,
+    routePath: `${THEATRE_ROUTE_ROOT}/post-op-notes`,
+    i18nKey: 'clinical.resources.postOpNotes',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'theatre_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.postOpNotes.form.theatreCaseIdLabel',
+        placeholderKey: 'clinical.resources.postOpNotes.form.theatreCaseIdPlaceholder',
+        hintKey: 'clinical.resources.postOpNotes.form.theatreCaseIdHint',
+      },
+      {
+        name: 'note',
+        type: 'text',
+        required: true,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.postOpNotes.form.noteLabel',
+        placeholderKey: 'clinical.resources.postOpNotes.form.notePlaceholder',
+        hintKey: 'clinical.resources.postOpNotes.form.noteHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.note) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const theatreCaseId = sanitizeString(item?.theatre_case_id);
+      if (!theatreCaseId) return '';
+      return `${t('clinical.resources.postOpNotes.detail.theatreCaseLabel')}: ${theatreCaseId}`;
+    },
+    getInitialValues: (record, context) => ({
+      theatre_case_id: sanitizeString(record?.theatre_case_id || context?.theatreCaseId),
+      note: sanitizeString(record?.note),
+    }),
+    toPayload: (values) => ({
+      theatre_case_id: sanitizeString(values.theatre_case_id),
+      note: sanitizeString(values.note),
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.postOpNotes.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.postOpNotes.detail.theatreCaseLabel', valueKey: 'theatre_case_id' },
+      { labelKey: 'clinical.resources.postOpNotes.detail.noteLabel', valueKey: 'note' },
+      { labelKey: 'clinical.resources.postOpNotes.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.postOpNotes.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.EMERGENCY_CASES]: {
+    id: CLINICAL_RESOURCE_IDS.EMERGENCY_CASES,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/emergency-cases`,
+    i18nKey: 'clinical.resources.emergencyCases',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.emergencyCases.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.emergencyCases.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.emergencyCases.form.patientIdHint',
+      },
+      {
+        name: 'severity',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.emergencyCases.form.severityLabel',
+        placeholderKey: 'clinical.resources.emergencyCases.form.severityPlaceholder',
+        hintKey: 'clinical.resources.emergencyCases.form.severityHint',
+        options: EMERGENCY_CASE_SEVERITY_OPTIONS,
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.emergencyCases.form.statusLabel',
+        placeholderKey: 'clinical.resources.emergencyCases.form.statusPlaceholder',
+        hintKey: 'clinical.resources.emergencyCases.form.statusHint',
+        options: EMERGENCY_CASE_STATUS_OPTIONS,
+      },
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.emergencyCases.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.emergencyCases.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.emergencyCases.form.facilityIdHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const severityValue = sanitizeString(item?.severity);
+      if (!severityValue) return '';
+      return `${t('clinical.resources.emergencyCases.detail.severityLabel')}: ${severityValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+    }),
+    toPayload: (values) => ({
+      patient_id: sanitizeString(values.patient_id),
+      severity: sanitizeString(values.severity),
+      status: sanitizeString(values.status),
+      facility_id: sanitizeString(values.facility_id) || undefined,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.emergencyCases.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.severityLabel', valueKey: 'severity' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.emergencyCases.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS]: {
+    id: CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/triage-assessments`,
+    i18nKey: 'clinical.resources.triageAssessments',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'emergency_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdLabel',
+        placeholderKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdPlaceholder',
+        hintKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdHint',
+      },
+      {
+        name: 'triage_level',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.triageAssessments.form.triageLevelLabel',
+        placeholderKey: 'clinical.resources.triageAssessments.form.triageLevelPlaceholder',
+        hintKey: 'clinical.resources.triageAssessments.form.triageLevelHint',
+        options: TRIAGE_LEVEL_OPTIONS,
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 5000,
+        labelKey: 'clinical.resources.triageAssessments.form.notesLabel',
+        placeholderKey: 'clinical.resources.triageAssessments.form.notesPlaceholder',
+        hintKey: 'clinical.resources.triageAssessments.form.notesHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.triage_level) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const emergencyCaseId = sanitizeString(item?.emergency_case_id);
+      if (!emergencyCaseId) return '';
+      return `${t('clinical.resources.triageAssessments.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
+    },
+    getInitialValues: (record, context) => ({
+      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      triage_level: sanitizeString(record?.triage_level || context?.triageLevel || 'URGENT'),
+      notes: sanitizeString(record?.notes),
+    }),
+    toPayload: (values) => ({
+      emergency_case_id: sanitizeString(values.emergency_case_id),
+      triage_level: sanitizeString(values.triage_level),
+      notes: sanitizeString(values.notes) || null,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.triageAssessments.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.triageAssessments.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
+      { labelKey: 'clinical.resources.triageAssessments.detail.triageLevelLabel', valueKey: 'triage_level' },
+      { labelKey: 'clinical.resources.triageAssessments.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.triageAssessments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.triageAssessments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES]: {
+    id: CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/emergency-responses`,
+    i18nKey: 'clinical.resources.emergencyResponses',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'emergency_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdLabel',
+        placeholderKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdPlaceholder',
+        hintKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdHint',
+      },
+      {
+        name: 'response_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.emergencyResponses.form.responseAtLabel',
+        placeholderKey: 'clinical.resources.emergencyResponses.form.responseAtPlaceholder',
+        hintKey: 'clinical.resources.emergencyResponses.form.responseAtHint',
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 5000,
+        labelKey: 'clinical.resources.emergencyResponses.form.notesLabel',
+        placeholderKey: 'clinical.resources.emergencyResponses.form.notesPlaceholder',
+        hintKey: 'clinical.resources.emergencyResponses.form.notesHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.response_at) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const emergencyCaseId = sanitizeString(item?.emergency_case_id);
+      if (!emergencyCaseId) return '';
+      return `${t('clinical.resources.emergencyResponses.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
+    },
+    getInitialValues: (record, context) => ({
+      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      response_at: sanitizeString(record?.response_at),
+      notes: sanitizeString(record?.notes),
+    }),
+    toPayload: (values) => ({
+      emergency_case_id: sanitizeString(values.emergency_case_id),
+      response_at: toIsoDateTime(values.response_at) || undefined,
+      notes: sanitizeString(values.notes) || null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const responseAtError = buildDateTimeError(values.response_at, t);
+      if (responseAtError) errors.response_at = responseAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.emergencyResponses.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.emergencyResponses.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
+      { labelKey: 'clinical.resources.emergencyResponses.detail.responseAtLabel', valueKey: 'response_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.emergencyResponses.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.emergencyResponses.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.emergencyResponses.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.AMBULANCES]: {
+    id: CLINICAL_RESOURCE_IDS.AMBULANCES,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/ambulances`,
+    i18nKey: 'clinical.resources.ambulances',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'identifier',
+        type: 'text',
+        required: true,
+        maxLength: 120,
+        labelKey: 'clinical.resources.ambulances.form.identifierLabel',
+        placeholderKey: 'clinical.resources.ambulances.form.identifierPlaceholder',
+        hintKey: 'clinical.resources.ambulances.form.identifierHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.ambulances.form.statusLabel',
+        placeholderKey: 'clinical.resources.ambulances.form.statusPlaceholder',
+        hintKey: 'clinical.resources.ambulances.form.statusHint',
+        options: AMBULANCE_STATUS_OPTIONS,
+      },
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulances.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.ambulances.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.ambulances.form.facilityIdHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.identifier) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.ambulances.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      identifier: sanitizeString(record?.identifier),
+      status: sanitizeString(record?.status || context?.status || 'AVAILABLE'),
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+    }),
+    toPayload: (values) => ({
+      identifier: sanitizeString(values.identifier),
+      status: sanitizeString(values.status),
+      facility_id: sanitizeString(values.facility_id) || undefined,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.ambulances.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.ambulances.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.ambulances.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.ambulances.detail.identifierLabel', valueKey: 'identifier' },
+      { labelKey: 'clinical.resources.ambulances.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.ambulances.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulances.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES]: {
+    id: CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/ambulance-dispatches`,
+    i18nKey: 'clinical.resources.ambulanceDispatches',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'ambulance_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdLabel',
+        placeholderKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdPlaceholder',
+        hintKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdHint',
+      },
+      {
+        name: 'emergency_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdLabel',
+        placeholderKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdPlaceholder',
+        hintKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdHint',
+      },
+      {
+        name: 'dispatched_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtLabel',
+        placeholderKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtPlaceholder',
+        hintKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.ambulanceDispatches.form.statusLabel',
+        placeholderKey: 'clinical.resources.ambulanceDispatches.form.statusPlaceholder',
+        hintKey: 'clinical.resources.ambulanceDispatches.form.statusHint',
+        options: AMBULANCE_STATUS_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('clinical.resources.ambulanceDispatches.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record, context) => ({
+      ambulance_id: sanitizeString(record?.ambulance_id || context?.ambulanceId),
+      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      dispatched_at: sanitizeString(record?.dispatched_at),
+      status: sanitizeString(record?.status || context?.status || 'DISPATCHED'),
+    }),
+    toPayload: (values) => ({
+      ambulance_id: sanitizeString(values.ambulance_id),
+      emergency_case_id: sanitizeString(values.emergency_case_id),
+      dispatched_at: toIsoDateTime(values.dispatched_at) || undefined,
+      status: sanitizeString(values.status),
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const dispatchedAtError = buildDateTimeError(values.dispatched_at, t);
+      if (dispatchedAtError) errors.dispatched_at = dispatchedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.ambulanceLabel', valueKey: 'ambulance_id' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.dispatchedAtLabel', valueKey: 'dispatched_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulanceDispatches.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS]: {
+    id: CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS,
+    routePath: `${EMERGENCY_ROUTE_ROOT}/ambulance-trips`,
+    i18nKey: 'clinical.resources.ambulanceTrips',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'ambulance_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdLabel',
+        placeholderKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdPlaceholder',
+        hintKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdHint',
+      },
+      {
+        name: 'emergency_case_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdLabel',
+        placeholderKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdPlaceholder',
+        hintKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdHint',
+      },
+      {
+        name: 'started_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceTrips.form.startedAtLabel',
+        placeholderKey: 'clinical.resources.ambulanceTrips.form.startedAtPlaceholder',
+        hintKey: 'clinical.resources.ambulanceTrips.form.startedAtHint',
+      },
+      {
+        name: 'ended_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.ambulanceTrips.form.endedAtLabel',
+        placeholderKey: 'clinical.resources.ambulanceTrips.form.endedAtPlaceholder',
+        hintKey: 'clinical.resources.ambulanceTrips.form.endedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const emergencyCaseId = sanitizeString(item?.emergency_case_id);
+      if (!emergencyCaseId) return '';
+      return `${t('clinical.resources.ambulanceTrips.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
+    },
+    getInitialValues: (record, context) => ({
+      ambulance_id: sanitizeString(record?.ambulance_id || context?.ambulanceId),
+      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      started_at: sanitizeString(record?.started_at),
+      ended_at: sanitizeString(record?.ended_at),
+    }),
+    toPayload: (values) => ({
+      ambulance_id: sanitizeString(values.ambulance_id),
+      emergency_case_id: sanitizeString(values.emergency_case_id),
+      started_at: sanitizeString(values.started_at) ? toIsoDateTime(values.started_at) : null,
+      ended_at: sanitizeString(values.ended_at) ? toIsoDateTime(values.ended_at) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const startedAtError = buildDateTimeError(values.started_at, t);
+      const endedAtError = buildDateTimeError(values.ended_at, t);
+      if (startedAtError) errors.started_at = startedAtError;
+      if (endedAtError) errors.ended_at = endedAtError;
+      if (!endedAtError) {
+        const orderError = validateDateOrder(values.started_at, values.ended_at, t, { allowEqual: true });
+        if (orderError) errors.ended_at = orderError;
+      }
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.ambulanceLabel', valueKey: 'ambulance_id' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.ambulanceTrips.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
 };
 
 const getClinicalResourceConfig = (resourceId) => resourceConfigs[resourceId] || null;
@@ -967,6 +2796,14 @@ export {
   CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
   CLINICAL_ROUTE_ROOT,
+  IPD_RESOURCE_LIST_ORDER,
+  ICU_RESOURCE_LIST_ORDER,
+  THEATRE_RESOURCE_LIST_ORDER,
+  EMERGENCY_RESOURCE_LIST_ORDER,
+  IPD_ROUTE_ROOT,
+  ICU_ROUTE_ROOT,
+  THEATRE_ROUTE_ROOT,
+  EMERGENCY_ROUTE_ROOT,
   getClinicalResourceConfig,
   getContextFilters,
   normalizeContextId,

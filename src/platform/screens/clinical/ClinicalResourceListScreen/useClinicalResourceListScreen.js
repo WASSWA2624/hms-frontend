@@ -98,6 +98,175 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.ADMISSIONS) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.id) || baseContext.admissionId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      bedId: sanitizeString(item.bed_id) || baseContext.bedId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.WARD_ROUNDS) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NURSING_NOTES) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      nurseUserId: sanitizeString(item.nurse_user_id) || baseContext.nurseUserId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      prescriptionId: sanitizeString(item.prescription_id) || baseContext.prescriptionId,
+      route: sanitizeString(item.route) || baseContext.route,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS) {
+    return {
+      ...baseContext,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      fromWardId: sanitizeString(item.from_ward_id) || baseContext.fromWardId,
+      toWardId: sanitizeString(item.to_ward_id) || baseContext.toWardId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ICU_STAYS) {
+    return {
+      ...baseContext,
+      icuStayId: sanitizeString(item.id) || baseContext.icuStayId,
+      admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
+      startedAtFrom: sanitizeString(item.started_at) || baseContext.startedAtFrom,
+      endedAtTo: sanitizeString(item.ended_at) || baseContext.endedAtTo,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS) {
+    return {
+      ...baseContext,
+      icuStayId: sanitizeString(item.icu_stay_id) || baseContext.icuStayId,
+      observedAtFrom: sanitizeString(item.observed_at) || baseContext.observedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS) {
+    return {
+      ...baseContext,
+      icuStayId: sanitizeString(item.icu_stay_id) || baseContext.icuStayId,
+      severity: sanitizeString(item.severity) || baseContext.severity,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.THEATRE_CASES) {
+    return {
+      ...baseContext,
+      theatreCaseId: sanitizeString(item.id) || baseContext.theatreCaseId,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      status: sanitizeString(item.status) || baseContext.status,
+      scheduledFrom: sanitizeString(item.scheduled_at) || baseContext.scheduledFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS) {
+    return {
+      ...baseContext,
+      theatreCaseId: sanitizeString(item.theatre_case_id) || baseContext.theatreCaseId,
+      anesthetistUserId: sanitizeString(item.anesthetist_user_id) || baseContext.anesthetistUserId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.POST_OP_NOTES) {
+    return {
+      ...baseContext,
+      theatreCaseId: sanitizeString(item.theatre_case_id) || baseContext.theatreCaseId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_CASES) {
+    return {
+      ...baseContext,
+      emergencyCaseId: sanitizeString(item.id) || baseContext.emergencyCaseId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      severity: sanitizeString(item.severity) || baseContext.severity,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS) {
+    return {
+      ...baseContext,
+      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      triageLevel: sanitizeString(item.triage_level) || baseContext.triageLevel,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES) {
+    return {
+      ...baseContext,
+      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCES) {
+    return {
+      ...baseContext,
+      ambulanceId: sanitizeString(item.id) || baseContext.ambulanceId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES) {
+    return {
+      ...baseContext,
+      ambulanceId: sanitizeString(item.ambulance_id) || baseContext.ambulanceId,
+      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS) {
+    return {
+      ...baseContext,
+      ambulanceId: sanitizeString(item.ambulance_id) || baseContext.ambulanceId,
+      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      startedAtFrom: sanitizeString(item.started_at) || baseContext.startedAtFrom,
+      endedAtTo: sanitizeString(item.ended_at) || baseContext.endedAtTo,
+    };
+  }
+
   return baseContext;
 };
 

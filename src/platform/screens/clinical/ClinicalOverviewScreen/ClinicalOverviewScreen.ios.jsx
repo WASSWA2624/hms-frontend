@@ -29,11 +29,12 @@ import {
 } from './ClinicalOverviewScreen.ios.styles';
 import useClinicalOverviewScreen from './useClinicalOverviewScreen';
 
-const ClinicalOverviewScreenIOS = () => {
+const ClinicalOverviewScreenIOS = ({ scope = 'clinical' }) => {
   const { t } = useI18n();
   const {
+    i18nRoot,
     cards,
-    recentEncounters,
+    recentItems,
     canCreateClinicalRecords,
     isLoading,
     hasError,
@@ -41,42 +42,55 @@ const ClinicalOverviewScreenIOS = () => {
     isOffline,
     onRetry,
     onOpenResource,
-    onOpenEncounter,
-    onCreateEncounter,
-  } = useClinicalOverviewScreen();
+    onOpenRecentItem,
+    onCreatePrimary,
+  } = useClinicalOverviewScreen(scope);
+
+  const titleKey = `${i18nRoot}.overview.title`;
+  const descriptionKey = `${i18nRoot}.overview.description`;
+  const createKey = `${i18nRoot}.overview.createPrimary`;
+  const createHintKey = `${i18nRoot}.overview.createPrimaryHint`;
+  const loadErrorTitleKey = `${i18nRoot}.overview.loadErrorTitle`;
+  const resourcesTitleKey = `${i18nRoot}.overview.resourcesTitle`;
+  const openResourceKey = `${i18nRoot}.overview.openResource`;
+  const openResourceButtonKey = `${i18nRoot}.overview.openResourceButton`;
+  const recentTitleKey = `${i18nRoot}.overview.recentPrimaryTitle`;
+  const emptyTitleKey = `${i18nRoot}.overview.emptyTitle`;
+  const emptyMessageKey = `${i18nRoot}.overview.emptyMessage`;
+  const openItemKey = `${i18nRoot}.overview.openPrimaryItem`;
 
   return (
     <StyledContainer>
       <StyledContent>
         <StyledHeader>
-          <Text variant="h2" accessibilityRole="header">{t('clinical.overview.title')}</Text>
-          <Text variant="body">{t('clinical.overview.description')}</Text>
+          <Text variant="h2" accessibilityRole="header">{t(titleKey)}</Text>
+          <Text variant="body">{t(descriptionKey)}</Text>
           <Button
             variant="surface"
             size="small"
-            onPress={onCreateEncounter}
+            onPress={onCreatePrimary}
             disabled={!canCreateClinicalRecords}
-            accessibilityLabel={t('clinical.overview.createEncounter')}
+            accessibilityLabel={t(createKey)}
             accessibilityHint={
               canCreateClinicalRecords
-                ? t('clinical.overview.createEncounterHint')
+                ? t(createHintKey)
                 : t('clinical.access.createDenied')
             }
             icon={<Icon glyph="+" size="xs" decorative />}
-            testID="clinical-overview-create-encounter"
+            testID={`${scope}-overview-create-primary`}
           >
-            {t('clinical.overview.createEncounter')}
+            {t(createKey)}
           </Button>
         </StyledHeader>
 
         {isLoading ? (
-          <LoadingSpinner accessibilityLabel={t('common.loading')} testID="clinical-overview-loading" />
+          <LoadingSpinner accessibilityLabel={t('common.loading')} testID={`${scope}-overview-loading`} />
         ) : null}
 
         {!isLoading && hasError && !isOffline ? (
           <ErrorState
             size={ErrorStateSizes.SMALL}
-            title={t('clinical.overview.loadErrorTitle')}
+            title={t(loadErrorTitleKey)}
             description={errorMessage}
             action={(
               <Button
@@ -90,7 +104,7 @@ const ClinicalOverviewScreenIOS = () => {
                 {t('common.retry')}
               </Button>
             )}
-            testID="clinical-overview-error"
+            testID={`${scope}-overview-error`}
           />
         ) : null}
 
@@ -111,24 +125,24 @@ const ClinicalOverviewScreenIOS = () => {
                 {t('common.retry')}
               </Button>
             )}
-            testID="clinical-overview-offline"
+            testID={`${scope}-overview-offline`}
           />
         ) : null}
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('clinical.overview.resourcesTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>{t(resourcesTitleKey)}</StyledSectionTitle>
           </StyledSectionHeader>
           <StyledCardGrid>
             {cards.map((card) => (
-              <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`clinical-card-${card.id}`}>
+              <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`${scope}-card-${card.id}`}>
                 <StyledTileTitle>{card.label}</StyledTileTitle>
                 <StyledTileDescription>{card.description}</StyledTileDescription>
                 <StyledTileAction
                   onPress={() => onOpenResource(card.routePath)}
-                  accessibilityLabel={t('clinical.overview.openResource', { resource: card.label })}
+                  accessibilityLabel={t(openResourceKey, { resource: card.label })}
                 >
-                  <Text variant="body">{t('clinical.overview.openResourceButton')}</Text>
+                  <Text variant="body">{t(openResourceButtonKey)}</Text>
                 </StyledTileAction>
               </Card>
             ))}
@@ -137,34 +151,34 @@ const ClinicalOverviewScreenIOS = () => {
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('clinical.overview.recentEncountersTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>{t(recentTitleKey)}</StyledSectionTitle>
           </StyledSectionHeader>
           <Card
             variant="outlined"
-            accessibilityLabel={t('clinical.overview.recentEncountersTitle')}
-            testID="clinical-overview-recent"
+            accessibilityLabel={t(recentTitleKey)}
+            testID={`${scope}-overview-recent`}
           >
-            {recentEncounters.length === 0 ? (
+            {recentItems.length === 0 ? (
               <EmptyState
-                title={t('clinical.overview.emptyTitle')}
-                description={t('clinical.overview.emptyMessage')}
-                testID="clinical-overview-empty"
+                title={t(emptyTitleKey)}
+                description={t(emptyMessageKey)}
+                testID={`${scope}-overview-empty`}
               />
             ) : (
               <StyledRecentList>
-                {recentEncounters.map((encounter, index) => {
-                  const title = encounter.patient_id || encounter.id;
-                  const subtitle = encounter.status || encounter.started_at || '';
+                {recentItems.map((item, index) => {
+                  const title = item.patient_id || item.identifier || item.id;
+                  const subtitle = item.status || item.started_at || item.scheduled_at || '';
                   return (
-                    <React.Fragment key={encounter.id}>
+                    <React.Fragment key={item.id}>
                       <ListItem
                         title={title}
                         subtitle={subtitle}
-                        onPress={() => onOpenEncounter(encounter)}
-                        accessibilityLabel={t('clinical.overview.openEncounter', { encounter: title })}
-                        testID={`clinical-overview-item-${encounter.id}`}
+                        onPress={() => onOpenRecentItem(item)}
+                        accessibilityLabel={t(openItemKey, { item: title })}
+                        testID={`${scope}-overview-item-${item.id}`}
                       />
-                      {index < recentEncounters.length - 1 ? <StyledSeparator /> : null}
+                      {index < recentItems.length - 1 ? <StyledSeparator /> : null}
                     </React.Fragment>
                   );
                 })}

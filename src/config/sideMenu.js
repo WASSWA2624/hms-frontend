@@ -50,6 +50,10 @@ const PATIENT_ACCESS_ROLES = [
 ];
 const SCHEDULING_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
 const CLINICAL_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
+const IPD_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const ICU_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const THEATRE_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const EMERGENCY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -343,6 +347,155 @@ const CLINICAL_ITEMS = [
   },
 ];
 
+/** @type {MainNavChild[]} */
+const IPD_ITEMS = [
+  {
+    id: 'ipd-admissions',
+    icon: 'time-outline',
+    path: '/ipd/admissions',
+    name: `${MAIN_NAV_I18N}.ipd-admissions`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-bed-assignments',
+    icon: 'bed-outline',
+    path: '/ipd/bed-assignments',
+    name: `${MAIN_NAV_I18N}.ipd-bed-assignments`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-ward-rounds',
+    icon: 'layers-outline',
+    path: '/ipd/ward-rounds',
+    name: `${MAIN_NAV_I18N}.ipd-ward-rounds`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-nursing-notes',
+    icon: 'folder-outline',
+    path: '/ipd/nursing-notes',
+    name: `${MAIN_NAV_I18N}.ipd-nursing-notes`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-medication-administrations',
+    icon: 'medkit-outline',
+    path: '/ipd/medication-administrations',
+    name: `${MAIN_NAV_I18N}.ipd-medication-administrations`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-discharge-summaries',
+    icon: 'mail-outline',
+    path: '/ipd/discharge-summaries',
+    name: `${MAIN_NAV_I18N}.ipd-discharge-summaries`,
+    roles: IPD_ACCESS_ROLES,
+  },
+  {
+    id: 'ipd-transfer-requests',
+    icon: 'git-branch-outline',
+    path: '/ipd/transfer-requests',
+    name: `${MAIN_NAV_I18N}.ipd-transfer-requests`,
+    roles: IPD_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const ICU_ITEMS = [
+  {
+    id: 'icu-icu-stays',
+    icon: 'bed-outline',
+    path: '/icu/icu-stays',
+    name: `${MAIN_NAV_I18N}.icu-icu-stays`,
+    roles: ICU_ACCESS_ROLES,
+  },
+  {
+    id: 'icu-icu-observations',
+    icon: 'heart-outline',
+    path: '/icu/icu-observations',
+    name: `${MAIN_NAV_I18N}.icu-icu-observations`,
+    roles: ICU_ACCESS_ROLES,
+  },
+  {
+    id: 'icu-critical-alerts',
+    icon: 'shield-checkmark-outline',
+    path: '/icu/critical-alerts',
+    name: `${MAIN_NAV_I18N}.icu-critical-alerts`,
+    roles: ICU_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const THEATRE_ITEMS = [
+  {
+    id: 'theatre-theatre-cases',
+    icon: 'medkit-outline',
+    path: '/theatre/theatre-cases',
+    name: `${MAIN_NAV_I18N}.theatre-theatre-cases`,
+    roles: THEATRE_ACCESS_ROLES,
+  },
+  {
+    id: 'theatre-anesthesia-records',
+    icon: 'folder-outline',
+    path: '/theatre/anesthesia-records',
+    name: `${MAIN_NAV_I18N}.theatre-anesthesia-records`,
+    roles: THEATRE_ACCESS_ROLES,
+  },
+  {
+    id: 'theatre-post-op-notes',
+    icon: 'mail-outline',
+    path: '/theatre/post-op-notes',
+    name: `${MAIN_NAV_I18N}.theatre-post-op-notes`,
+    roles: THEATRE_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const EMERGENCY_ITEMS = [
+  {
+    id: 'emergency-emergency-cases',
+    icon: 'medkit-outline',
+    path: '/emergency/emergency-cases',
+    name: `${MAIN_NAV_I18N}.emergency-emergency-cases`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+  {
+    id: 'emergency-triage-assessments',
+    icon: 'time-outline',
+    path: '/emergency/triage-assessments',
+    name: `${MAIN_NAV_I18N}.emergency-triage-assessments`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+  {
+    id: 'emergency-emergency-responses',
+    icon: 'shield-outline',
+    path: '/emergency/emergency-responses',
+    name: `${MAIN_NAV_I18N}.emergency-emergency-responses`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+  {
+    id: 'emergency-ambulances',
+    icon: 'business-outline',
+    path: '/emergency/ambulances',
+    name: `${MAIN_NAV_I18N}.emergency-ambulances`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+  {
+    id: 'emergency-ambulance-dispatches',
+    icon: 'git-branch-outline',
+    path: '/emergency/ambulance-dispatches',
+    name: `${MAIN_NAV_I18N}.emergency-ambulance-dispatches`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+  {
+    id: 'emergency-ambulance-trips',
+    icon: 'time-outline',
+    path: '/emergency/ambulance-trips',
+    name: `${MAIN_NAV_I18N}.emergency-ambulance-trips`,
+    roles: EMERGENCY_ACCESS_ROLES,
+  },
+];
+
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
@@ -371,6 +524,38 @@ export const MAIN_NAV_ITEMS = [
     roles: CLINICAL_ACCESS_ROLES,
     children: CLINICAL_ITEMS,
   },
+  {
+    id: 'ipd',
+    icon: 'bed-outline',
+    path: '/ipd',
+    name: `${MAIN_NAV_I18N}.ipd`,
+    roles: IPD_ACCESS_ROLES,
+    children: IPD_ITEMS,
+  },
+  {
+    id: 'icu',
+    icon: 'heart-outline',
+    path: '/icu',
+    name: `${MAIN_NAV_I18N}.icu`,
+    roles: ICU_ACCESS_ROLES,
+    children: ICU_ITEMS,
+  },
+  {
+    id: 'theatre',
+    icon: 'medkit-outline',
+    path: '/theatre',
+    name: `${MAIN_NAV_I18N}.theatre`,
+    roles: THEATRE_ACCESS_ROLES,
+    children: THEATRE_ITEMS,
+  },
+  {
+    id: 'emergency',
+    icon: 'call-outline',
+    path: '/emergency',
+    name: `${MAIN_NAV_I18N}.emergency`,
+    roles: EMERGENCY_ACCESS_ROLES,
+    children: EMERGENCY_ITEMS,
+  },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 
@@ -392,4 +577,13 @@ export const PATIENT_MENU_ITEMS = [
 /** @deprecated Kept for export compatibility */
 export const AUTH_ITEMS = [];
 
-export { SETTINGS_ITEMS, PATIENTS_ITEMS, SCHEDULING_ITEMS, CLINICAL_ITEMS };
+export {
+  SETTINGS_ITEMS,
+  PATIENTS_ITEMS,
+  SCHEDULING_ITEMS,
+  CLINICAL_ITEMS,
+  IPD_ITEMS,
+  ICU_ITEMS,
+  THEATRE_ITEMS,
+  EMERGENCY_ITEMS,
+};

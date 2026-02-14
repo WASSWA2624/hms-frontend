@@ -1,18 +1,112 @@
 /**
- * Shared logic for ClinicalOverviewScreen.
+ * Shared logic for overview screens across Clinical + Tier 7 modules.
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useEncounter, useI18n, useNetwork, useClinicalAccess } from '@hooks';
+import { useI18n, useNetwork, useClinicalAccess } from '@hooks';
 import {
-  getClinicalResourceConfig,
+  CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
+  EMERGENCY_RESOURCE_LIST_ORDER,
+  ICU_RESOURCE_LIST_ORDER,
+  IPD_RESOURCE_LIST_ORDER,
+  THEATRE_RESOURCE_LIST_ORDER,
+  getClinicalResourceConfig,
   sanitizeString,
   withClinicalContext,
 } from '../ClinicalResourceConfigs';
 import { resolveErrorMessage } from '../ClinicalScreenUtils';
+import useClinicalResourceCrud from '../useClinicalResourceCrud';
 
-const useClinicalOverviewScreen = () => {
+const OVERVIEW_CONFIGS = {
+  clinical: {
+    i18nRoot: 'clinical',
+    resourceIds: CLINICAL_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.ENCOUNTERS,
+  },
+  ipd: {
+    i18nRoot: 'ipd',
+    resourceIds: IPD_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.ADMISSIONS,
+  },
+  icu: {
+    i18nRoot: 'icu',
+    resourceIds: ICU_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.ICU_STAYS,
+  },
+  theatre: {
+    i18nRoot: 'theatre',
+    resourceIds: THEATRE_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.THEATRE_CASES,
+  },
+  emergency: {
+    i18nRoot: 'emergency',
+    resourceIds: EMERGENCY_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.EMERGENCY_CASES,
+  },
+};
+
+const resolveOverviewConfig = (scope) => OVERVIEW_CONFIGS[scope] || OVERVIEW_CONFIGS.clinical;
+
+const buildPrimaryContext = (resourceId, item) => {
+  if (!item || typeof item !== 'object') return {};
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ENCOUNTERS) {
+    return {
+      tenantId: item.tenant_id,
+      facilityId: item.facility_id,
+      patientId: item.patient_id,
+      providerUserId: item.provider_user_id,
+      encounterId: item.id,
+      encounterType: item.encounter_type,
+      status: item.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ADMISSIONS) {
+    return {
+      tenantId: item.tenant_id,
+      facilityId: item.facility_id,
+      patientId: item.patient_id,
+      encounterId: item.encounter_id,
+      admissionId: item.id,
+      status: item.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ICU_STAYS) {
+    return {
+      admissionId: item.admission_id,
+      icuStayId: item.id,
+      startedAtFrom: item.started_at,
+      endedAtTo: item.ended_at,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.THEATRE_CASES) {
+    return {
+      encounterId: item.encounter_id,
+      theatreCaseId: item.id,
+      status: item.status,
+      scheduledFrom: item.scheduled_at,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_CASES) {
+    return {
+      tenantId: item.tenant_id,
+      facilityId: item.facility_id,
+      patientId: item.patient_id,
+      emergencyCaseId: item.id,
+      severity: item.severity,
+      status: item.status,
+    };
+  }
+
+  return {};
+};
+
+const useClinicalOverviewScreen = (scope = 'clinical') => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
@@ -25,23 +119,30 @@ const useClinicalOverviewScreen = () => {
     isResolved,
   } = useClinicalAccess();
 
-  const { list, data, isLoading, errorCode, reset } = useEncounter();
+  const overviewConfig = useMemo(() => resolveOverviewConfig(scope), [scope]);
+  const primaryConfig = useMemo(
+    () => getClinicalResourceConfig(overviewConfig.primaryResourceId),
+    [overviewConfig.primaryResourceId]
+  );
+  const { list, data, isLoading, errorCode, reset } = useClinicalResourceCrud(
+    overviewConfig.primaryResourceId
+  );
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
-  const encounterItems = useMemo(() => {
+  const primaryItems = useMemo(() => {
     if (Array.isArray(data)) return data;
     if (Array.isArray(data?.items)) return data.items;
     return [];
   }, [data]);
 
-  const recentEncounters = useMemo(() => encounterItems.slice(0, 5), [encounterItems]);
+  const recentItems = useMemo(() => primaryItems.slice(0, 5), [primaryItems]);
 
   const cards = useMemo(
     () =>
-      CLINICAL_RESOURCE_LIST_ORDER.map((resourceId) => {
+      overviewConfig.resourceIds.map((resourceId) => {
         const config = getClinicalResourceConfig(resourceId);
         return {
           id: resourceId,
@@ -50,29 +151,33 @@ const useClinicalOverviewScreen = () => {
           description: t(`${config?.i18nKey}.overviewDescription`),
         };
       }),
-    [t]
+    [overviewConfig.resourceIds, t]
   );
 
+  const i18nRoot = overviewConfig.i18nRoot;
   const errorMessage = useMemo(
-    () => resolveErrorMessage(t, errorCode, 'clinical.overview.loadError'),
-    [t, errorCode]
+    () => resolveErrorMessage(t, errorCode, `${i18nRoot}.overview.loadError`),
+    [t, errorCode, i18nRoot]
   );
 
-  const loadEncounters = useCallback(() => {
-    if (!isResolved || !canAccessClinical || !hasScope) return;
-    const params = { page: 1, limit: 20 };
-    if (!canManageAllTenants) {
+  const loadPrimary = useCallback(() => {
+    if (!isResolved || !canAccessClinical || !hasScope || !primaryConfig) return;
+    const params = { ...(primaryConfig.listParams || { page: 1, limit: 20 }) };
+
+    if (primaryConfig.requiresTenant && !canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
-      if (normalizedFacilityId) {
-        params.facility_id = normalizedFacilityId;
-      }
     }
+    if (primaryConfig.supportsFacility && !canManageAllTenants && normalizedFacilityId) {
+      params.facility_id = normalizedFacilityId;
+    }
+
     reset();
     list(params);
   }, [
     isResolved,
     canAccessClinical,
     hasScope,
+    primaryConfig,
     canManageAllTenants,
     normalizedTenantId,
     normalizedFacilityId,
@@ -88,12 +193,12 @@ const useClinicalOverviewScreen = () => {
   }, [isResolved, canAccessClinical, hasScope, router]);
 
   useEffect(() => {
-    loadEncounters();
-  }, [loadEncounters]);
+    loadPrimary();
+  }, [loadPrimary]);
 
   const handleRetry = useCallback(() => {
-    loadEncounters();
-  }, [loadEncounters]);
+    loadPrimary();
+  }, [loadPrimary]);
 
   const handleOpenResource = useCallback(
     (routePath) => {
@@ -102,35 +207,29 @@ const useClinicalOverviewScreen = () => {
     [router]
   );
 
-  const handleOpenEncounter = useCallback(
-    (encounter) => {
-      const encounterId = sanitizeString(encounter?.id);
-      if (!encounterId) return;
-      const path = withClinicalContext(
-        `/clinical/encounters/${encounterId}`,
-        {
-          tenantId: encounter?.tenant_id,
-          facilityId: encounter?.facility_id,
-          patientId: encounter?.patient_id,
-          providerUserId: encounter?.provider_user_id,
-          encounterId,
-          encounterType: encounter?.encounter_type,
-          status: encounter?.status,
-        }
-      );
-      router.push(path);
+  const handleOpenRecentItem = useCallback(
+    (item) => {
+      const id = sanitizeString(item?.id);
+      if (!id || !primaryConfig) return;
+      const context = buildPrimaryContext(overviewConfig.primaryResourceId, item);
+      router.push(withClinicalContext(`${primaryConfig.routePath}/${id}`, context));
     },
-    [router]
+    [router, primaryConfig, overviewConfig.primaryResourceId]
   );
 
-  const handleCreateEncounter = useCallback(() => {
-    if (!canCreateClinicalRecords) return;
-    router.push('/clinical/encounters/create');
-  }, [canCreateClinicalRecords, router]);
+  const handleCreatePrimary = useCallback(() => {
+    if (!canCreateClinicalRecords || !primaryConfig) return;
+    const context = {
+      tenantId: normalizedTenantId || undefined,
+      facilityId: normalizedFacilityId || undefined,
+    };
+    router.push(withClinicalContext(`${primaryConfig.routePath}/create`, context));
+  }, [canCreateClinicalRecords, primaryConfig, normalizedTenantId, normalizedFacilityId, router]);
 
   return {
+    i18nRoot,
     cards,
-    recentEncounters,
+    recentItems,
     canCreateClinicalRecords,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && Boolean(errorCode),
@@ -138,8 +237,8 @@ const useClinicalOverviewScreen = () => {
     isOffline,
     onRetry: handleRetry,
     onOpenResource: handleOpenResource,
-    onOpenEncounter: handleOpenEncounter,
-    onCreateEncounter: handleCreateEncounter,
+    onOpenRecentItem: handleOpenRecentItem,
+    onCreatePrimary: handleCreatePrimary,
   };
 };
 

@@ -47,6 +47,8 @@ const formatFieldValue = (value, type, locale, formatDateTime, t) => {
   return String(value);
 };
 
+const firstValue = (value) => (Array.isArray(value) ? value[0] : value);
+
 const normalizeClinicalContext = (params = {}) => {
   const tenantId = normalizeContextId(params.tenantId);
   const facilityId = normalizeContextId(params.facilityId);
@@ -56,21 +58,38 @@ const normalizeClinicalContext = (params = {}) => {
   const authorUserId = normalizeContextId(params.authorUserId);
   const fromDepartmentId = normalizeContextId(params.fromDepartmentId);
   const toDepartmentId = normalizeContextId(params.toDepartmentId);
-  const status = sanitizeString(Array.isArray(params.status) ? params.status[0] : params.status) || undefined;
-  const encounterType = sanitizeString(
-    Array.isArray(params.encounterType) ? params.encounterType[0] : params.encounterType
-  ) || undefined;
-  const diagnosisType = sanitizeString(
-    Array.isArray(params.diagnosisType) ? params.diagnosisType[0] : params.diagnosisType
-  ) || undefined;
-  const code = sanitizeString(Array.isArray(params.code) ? params.code[0] : params.code) || undefined;
-  const vitalType = sanitizeString(
-    Array.isArray(params.vitalType) ? params.vitalType[0] : params.vitalType
-  ) || undefined;
-  const startDate = sanitizeString(
-    Array.isArray(params.startDate) ? params.startDate[0] : params.startDate
-  ) || undefined;
-  const endDate = sanitizeString(Array.isArray(params.endDate) ? params.endDate[0] : params.endDate) || undefined;
+  const admissionId = normalizeContextId(params.admissionId);
+  const bedId = normalizeContextId(params.bedId);
+  const nurseUserId = normalizeContextId(params.nurseUserId);
+  const prescriptionId = normalizeContextId(params.prescriptionId);
+  const fromWardId = normalizeContextId(params.fromWardId);
+  const toWardId = normalizeContextId(params.toWardId);
+  const icuStayId = normalizeContextId(params.icuStayId);
+  const theatreCaseId = normalizeContextId(params.theatreCaseId);
+  const anesthetistUserId = normalizeContextId(params.anesthetistUserId);
+  const emergencyCaseId = normalizeContextId(params.emergencyCaseId);
+  const ambulanceId = normalizeContextId(params.ambulanceId);
+  const status = sanitizeString(firstValue(params.status)) || undefined;
+  const encounterType = sanitizeString(firstValue(params.encounterType)) || undefined;
+  const diagnosisType = sanitizeString(firstValue(params.diagnosisType)) || undefined;
+  const code = sanitizeString(firstValue(params.code)) || undefined;
+  const vitalType = sanitizeString(firstValue(params.vitalType)) || undefined;
+  const startDate = sanitizeString(firstValue(params.startDate)) || undefined;
+  const endDate = sanitizeString(firstValue(params.endDate)) || undefined;
+  const severity = sanitizeString(firstValue(params.severity)) || undefined;
+  const triageLevel = sanitizeString(firstValue(params.triageLevel)) || undefined;
+  const route = sanitizeString(firstValue(params.route)) || undefined;
+  const search = sanitizeString(firstValue(params.search)) || undefined;
+  const startedAtFrom = sanitizeString(firstValue(params.startedAtFrom)) || undefined;
+  const startedAtTo = sanitizeString(firstValue(params.startedAtTo)) || undefined;
+  const endedAtFrom = sanitizeString(firstValue(params.endedAtFrom)) || undefined;
+  const endedAtTo = sanitizeString(firstValue(params.endedAtTo)) || undefined;
+  const observedAtFrom = sanitizeString(firstValue(params.observedAtFrom)) || undefined;
+  const observedAtTo = sanitizeString(firstValue(params.observedAtTo)) || undefined;
+  const scheduledFrom = sanitizeString(firstValue(params.scheduledFrom)) || undefined;
+  const scheduledTo = sanitizeString(firstValue(params.scheduledTo)) || undefined;
+  const isActiveRaw = sanitizeString(firstValue(params.isActive));
+  const isActive = isActiveRaw === 'true' ? true : isActiveRaw === 'false' ? false : undefined;
 
   return {
     tenantId,
@@ -81,6 +100,17 @@ const normalizeClinicalContext = (params = {}) => {
     authorUserId,
     fromDepartmentId,
     toDepartmentId,
+    admissionId,
+    bedId,
+    nurseUserId,
+    prescriptionId,
+    fromWardId,
+    toWardId,
+    icuStayId,
+    theatreCaseId,
+    anesthetistUserId,
+    emergencyCaseId,
+    ambulanceId,
     status,
     encounterType,
     diagnosisType,
@@ -88,6 +118,19 @@ const normalizeClinicalContext = (params = {}) => {
     vitalType,
     startDate,
     endDate,
+    severity,
+    triageLevel,
+    route,
+    search,
+    startedAtFrom,
+    startedAtTo,
+    endedAtFrom,
+    endedAtTo,
+    observedAtFrom,
+    observedAtTo,
+    scheduledFrom,
+    scheduledTo,
+    isActive,
   };
 };
 
