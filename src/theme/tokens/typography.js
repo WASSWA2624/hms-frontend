@@ -5,10 +5,18 @@
  */
 import { Platform } from 'react-native';
 
+const platformOS = Platform?.OS || 'web';
+const selectPlatform = (values) => {
+  if (typeof Platform?.select === 'function') {
+    return Platform.select(values);
+  }
+  return values.default;
+};
+
 const fontStack =
-  Platform.OS === 'web'
+  platformOS === 'web'
     ? "'Segoe UI', System, -apple-system, sans-serif"
-    : Platform.select({ android: 'Roboto', default: 'System' });
+    : selectPlatform({ android: 'Roboto', default: 'System' });
 
 export default {
   fontFamily: {

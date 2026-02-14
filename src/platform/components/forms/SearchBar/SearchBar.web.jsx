@@ -68,35 +68,35 @@ const SearchBarWeb = ({
       <StyledInput
         value={localValue}
         onChange={handleChange}
+        onChangeText={handleChange}
         onKeyPress={handleKeyPress}
         placeholder={placeholderText}
         type="search"
         aria-label={inputLabel}
+        testID={testID ? `${testID}-input` : undefined}
         data-testid={testID ? `${testID}-input` : undefined}
       />
       {showClearButton && hasValue && (
         <StyledClearButton
           type="button"
           onClick={handleClear}
+          onPress={handleClear}
           aria-label={clearButtonLabel}
+          testID={testID ? `${testID}-clear` : undefined}
           data-testid={testID ? `${testID}-clear` : undefined}
         >
-          <StyledClearIcon viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <line x1="7" y1="7" x2="17" y2="17" />
-            <line x1="17" y1="7" x2="7" y2="17" />
-          </StyledClearIcon>
+          <StyledClearIcon aria-hidden="true">x</StyledClearIcon>
         </StyledClearButton>
       )}
       <StyledSearchButton
         type="button"
         onClick={() => handleSubmit()}
+        onPress={() => handleSubmit()}
         aria-label={searchIconLabel}
+        testID={testID ? `${testID}-submit` : undefined}
         data-testid={testID ? `${testID}-submit` : undefined}
       >
-        <StyledSearchIcon viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="11" cy="11" r="6.5" />
-          <line x1="16" y1="16" x2="21" y2="21" />
-        </StyledSearchIcon>
+        <StyledSearchIcon aria-hidden="true">/</StyledSearchIcon>
       </StyledSearchButton>
     </StyledContainer>
   );

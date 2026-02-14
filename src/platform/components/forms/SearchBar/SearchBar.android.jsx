@@ -13,6 +13,7 @@ import { StyledContainer, StyledSearchIcon, StyledClearButtonWrapper, StyledText
 
 const SearchBarAndroid = ({
   value = '',
+  onChange,
   onChangeText,
   onSearch,
   placeholder,
@@ -32,6 +33,7 @@ const SearchBarAndroid = ({
     handleSubmit,
   } = useSearchBar({
     value,
+    onChange,
     onChangeText,
     onSearch,
     debounceMs,

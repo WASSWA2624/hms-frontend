@@ -50,50 +50,42 @@ const renderWithWebTheme = (component) => {
 describe('Skeleton Component', () => {
   describe('Platform-agnostic tests (via index)', () => {
     it('should render default (text) variant', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(<Skeleton testID="skeleton-default" />);
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      // Default variant is TEXT (undefined defaults to TEXT)
-      expect(component.props.variant || VARIANTS.TEXT).toBe(VARIANTS.TEXT);
-      expect(component.props.lines || 1).toBe(1);
+      const { getByTestId } = renderWithWebTheme(<Skeleton testID="skeleton-default" />);
+      expect(getByTestId('skeleton-default-line-0')).toBeTruthy();
     });
 
     it('should render text variant with multiple lines and testIDs', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={3} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.TEXT);
-      expect(component.props.lines).toBe(3);
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
+      expect(getByTestId('skeleton-line-1')).toBeTruthy();
+      expect(getByTestId('skeleton-line-2')).toBeTruthy();
     });
 
     it('should render circular variant', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.CIRCULAR} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.CIRCULAR);
+      expect(getByTestId('skeleton')).toBeTruthy();
     });
 
     it('should render rectangular variant', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.RECTANGULAR} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.RECTANGULAR);
+      expect(getByTestId('skeleton')).toBeTruthy();
     });
 
     it('should accept custom accessibility label', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
-        <Skeleton accessibilityLabel="Loading content" />
+      const { getByLabelText } = renderWithWebTheme(
+        <Skeleton
+          variant={VARIANTS.CIRCULAR}
+          accessibilityLabel="Loading content"
+          testID="skeleton-accessible"
+        />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      // Component accepts accessibilityLabel prop (even though aria-hidden hides it from screen readers)
-      expect(component.props.accessibilityLabel).toBe('Loading content');
+      expect(getByLabelText('Loading content')).toBeTruthy();
     });
 
     it('should export VARIANTS constant', () => {
@@ -326,52 +318,38 @@ describe('Skeleton Component', () => {
 
   describe('Edge cases', () => {
     it('should handle single line text variant', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={1} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.lines).toBe(1);
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
     });
 
     it('should handle zero lines (should default to 1)', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={0} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.TEXT);
-      // Component normalizes lines to at least 1, so it renders
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
     });
 
     it('should handle negative lines (should default to 1)', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={-1} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.TEXT);
-      // Component normalizes lines to at least 1, so it renders
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
     });
 
     it('should handle null lines (should default to 1)', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={null} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.TEXT);
-      // Component normalizes lines to at least 1, so it renders
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
     });
 
     it('should handle undefined lines (should default to 1)', () => {
-      const { UNSAFE_getByType } = renderWithWebTheme(
+      const { getByTestId } = renderWithWebTheme(
         <Skeleton variant={VARIANTS.TEXT} lines={undefined} testID="skeleton" />
       );
-      const component = UNSAFE_getByType(SkeletonWeb);
-      expect(component).toBeTruthy();
-      expect(component.props.variant).toBe(VARIANTS.TEXT);
-      // Component normalizes lines to at least 1, so it renders
+      expect(getByTestId('skeleton-line-0')).toBeTruthy();
     });
 
     it('should handle custom width as string on Web', () => {

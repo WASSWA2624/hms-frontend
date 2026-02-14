@@ -4,7 +4,7 @@
  * File: AuthLayout.web.jsx
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 import { AppLogo, AppLogoSizes, Text } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -75,4 +75,4 @@ const AuthLayoutWeb = ({
   );
 };
 
-export default memo(AuthLayoutWeb);
+export default AuthLayoutWeb;

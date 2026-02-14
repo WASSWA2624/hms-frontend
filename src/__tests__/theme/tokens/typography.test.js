@@ -42,5 +42,68 @@ describe('Typography Tokens (Step 3.3)', () => {
       })
     );
   });
+
+  it('should fallback to default font when Platform.select is unavailable', () => {
+    jest.resetModules();
+
+    try {
+      jest.doMock('react-native', () => ({
+        Platform: { OS: 'android' },
+      }));
+
+      let typography;
+      jest.isolateModules(() => {
+        typography = getCjsOrEsmDefault(require('@theme/tokens/typography'));
+      });
+
+      expect(typography.fontFamily.regular).toBe('System');
+      expect(typography.fontFamily.medium).toBe('System');
+      expect(typography.fontFamily.bold).toBe('System');
+    } finally {
+      jest.dontMock('react-native');
+      jest.resetModules();
+    }
+  });
+
+  it('should use web font stack when Platform.OS is web', () => {
+    jest.resetModules();
+
+    try {
+      jest.doMock('react-native', () => ({
+        Platform: {
+          OS: 'web',
+          select: (values) => values.web ?? values.default,
+        },
+      }));
+
+      let typography;
+      jest.isolateModules(() => {
+        typography = getCjsOrEsmDefault(require('@theme/tokens/typography'));
+      });
+
+      expect(typography.fontFamily.regular).toContain('Segoe UI');
+    } finally {
+      jest.dontMock('react-native');
+      jest.resetModules();
+    }
+  });
+
+  it('should fallback to web stack when Platform is missing', () => {
+    jest.resetModules();
+
+    try {
+      jest.doMock('react-native', () => ({}));
+
+      let typography;
+      jest.isolateModules(() => {
+        typography = getCjsOrEsmDefault(require('@theme/tokens/typography'));
+      });
+
+      expect(typography.fontFamily.regular).toContain('Segoe UI');
+    } finally {
+      jest.dontMock('react-native');
+      jest.resetModules();
+    }
+  });
 });
 

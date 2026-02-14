@@ -12,7 +12,7 @@ const StyledBackdrop = styled.View.withConfig({
   componentId: 'StyledBackdrop',
 })`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.overlay?.backdrop || 'rgba(0, 0, 0, 0.5)'};
+  background-color: ${({ theme }) => theme.colors.overlay.backdrop};
   justify-content: center;
   align-items: center;
 `;

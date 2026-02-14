@@ -14,15 +14,19 @@ const tokenize = (value) => normalizeText(value).split(/\s+/).filter(Boolean);
 const buildSearchEntries = (items, t, itemsI18nPrefix) => {
   const entries = [];
   const list = Array.isArray(items) ? items : [];
+  const seen = new Set();
 
   const addEntry = (item, parent) => {
-    if (!item) return;
+    if (!item) return false;
     const href = item.href ?? item.path;
-    if (!href) return;
+    if (!href) return false;
     const label = item.label ?? getNavItemLabel(t, item, itemsI18nPrefix);
-    if (!label) return;
+    if (!label) return false;
     const parentLabel = parent ? parent.label ?? getNavItemLabel(t, parent, itemsI18nPrefix) : '';
     const id = item.id || href;
+    const entryKey = `${id}:${href}`;
+    if (seen.has(entryKey)) return false;
+    seen.add(entryKey);
     const labelNormalized = normalizeText(label);
     const parentNormalized = normalizeText(parentLabel);
     const hrefNormalized = normalizeText(href);
@@ -41,13 +45,27 @@ const buildSearchEntries = (items, t, itemsI18nPrefix) => {
       idNormalized,
       searchText: [labelNormalized, parentNormalized, hrefNormalized, idNormalized].filter(Boolean).join(' '),
     });
+
+    return true;
   };
 
   list.forEach((item) => {
-    addEntry(item, null);
-    if (Array.isArray(item.children)) {
-      item.children.forEach((child) => addEntry(child, item));
+    const children = Array.isArray(item.children) ? item.children : [];
+
+    if (children.length > 0) {
+      let addedChild = false;
+      children.forEach((child) => {
+        if (addEntry(child, item)) addedChild = true;
+      });
+
+      // Fallback to the parent route only when none of its children produced entries.
+      if (!addedChild) {
+        addEntry(item, null);
+      }
+      return;
     }
+
+    addEntry(item, null);
   });
 
   return entries;

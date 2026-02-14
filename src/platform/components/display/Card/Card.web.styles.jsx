@@ -6,6 +6,26 @@
 
 import styled from 'styled-components';
 
+const hexToRgba = (hexColor, alpha) => {
+  if (typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
+    return hexColor;
+  }
+
+  const normalized = hexColor.slice(1);
+  const safeHex = normalized.length === 3
+    ? normalized.split('').map((char) => `${char}${char}`).join('')
+    : normalized;
+
+  if (safeHex.length !== 6) {
+    return hexColor;
+  }
+
+  const red = Number.parseInt(safeHex.slice(0, 2), 16);
+  const green = Number.parseInt(safeHex.slice(2, 4), 16);
+  const blue = Number.parseInt(safeHex.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
 const StyledCard = styled.article.withConfig({
   displayName: 'StyledCard',
   componentId: 'StyledCard',
@@ -17,7 +37,7 @@ const StyledCard = styled.article.withConfig({
   ${({ variant, theme }) => {
     if (variant === 'elevated') {
       return `
-        box-shadow: ${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height}px ${theme.shadows.md.shadowRadius}px rgba(0, 0, 0, ${theme.shadows.md.shadowOpacity});
+        box-shadow: ${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height}px ${theme.shadows.md.shadowRadius}px ${hexToRgba(theme.shadows.md.shadowColor, theme.shadows.md.shadowOpacity)};
       `;
     }
     if (variant === 'outlined') {

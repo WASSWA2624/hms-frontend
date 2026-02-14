@@ -97,7 +97,7 @@ const StyledOverlay = styled.Pressable.withConfig({
   componentId: 'StyledOverlay',
 })`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.overlay?.backdrop || 'rgba(0, 0, 0, 0.45)'};
+  background-color: ${({ theme }) => theme.colors.overlay.backdrop};
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;

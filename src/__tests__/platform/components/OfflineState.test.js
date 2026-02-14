@@ -439,9 +439,12 @@ describe('OfflineState Component', () => {
   });
 
   describe('Web Platform specific', () => {
+    // eslint-disable-next-line import/no-unresolved
+    const OfflineStateWeb = require('@platform/components/states/OfflineState/OfflineState.web').default;
+
     it('should have role="status" on web', () => {
       const { getByTestId } = renderWithTheme(
-        <OfflineState title="Web Offline State" testID="offline-state-web" />
+        <OfflineStateWeb title="Web Offline State" testID="offline-state-web" />
       );
       const offlineState = getByTestId('offline-state-web');
       const role = offlineState.props.role ?? offlineState.props.accessibilityRole;
@@ -450,14 +453,14 @@ describe('OfflineState Component', () => {
 
     it('should use aria-label on web', () => {
       const { getByLabelText } = renderWithTheme(
-        <OfflineState title="Web Offline State" testID="offline-state-web" />
+        <OfflineStateWeb title="Web Offline State" testID="offline-state-web" />
       );
       expect(getByLabelText('Web Offline State')).toBeTruthy();
     });
 
     it('should accept className prop on web', () => {
       const { getByTestId } = renderWithTheme(
-        <OfflineState title="Web Offline State" className="custom-class" testID="offline-state-web" />
+        <OfflineStateWeb title="Web Offline State" className="custom-class" testID="offline-state-web" />
       );
       const offlineState = getByTestId('offline-state-web');
       expect(offlineState.props.className).toBe('custom-class');

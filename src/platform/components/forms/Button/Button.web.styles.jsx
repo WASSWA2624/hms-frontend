@@ -5,6 +5,26 @@
  */
 import styled from 'styled-components';
 
+const hexToRgba = (hexColor, alpha) => {
+  if (typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
+    return hexColor;
+  }
+
+  const normalized = hexColor.slice(1);
+  const safeHex = normalized.length === 3
+    ? normalized.split('').map((char) => `${char}${char}`).join('')
+    : normalized;
+
+  if (safeHex.length !== 6) {
+    return hexColor;
+  }
+
+  const red = Number.parseInt(safeHex.slice(0, 2), 16);
+  const green = Number.parseInt(safeHex.slice(2, 4), 16);
+  const blue = Number.parseInt(safeHex.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
 const BUTTON_STYLE_PROPS = ['variant', 'state', 'hasIcon', 'size'];
 const StyledButton = styled.button.withConfig({
   displayName: 'StyledButton',
@@ -142,9 +162,13 @@ const StyledButton = styled.button.withConfig({
   box-shadow: ${({ variant, state, theme }) => {
     if (state === 'disabled') return 'none';
     if (variant === 'text') return 'none';
-    if (variant === 'outline') return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 16px rgba(10, 30, 70, 0.1)`;
-    if (variant === 'surface') return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 18px rgba(10, 30, 70, 0.12)`;
-    return '0 3px 0 rgba(8, 34, 74, 0.28), 0 12px 22px rgba(8, 34, 74, 0.22)';
+    if (variant === 'outline') {
+      return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 16px ${hexToRgba(theme.shadows.md.shadowColor, 0.1)}`;
+    }
+    if (variant === 'surface') {
+      return `0 2px 0 ${theme.colors.background.tertiary}, 0 8px 18px ${hexToRgba(theme.shadows.md.shadowColor, 0.12)}`;
+    }
+    return `0 3px 0 ${hexToRgba(theme.shadows.md.shadowColor, 0.28)}, 0 12px 22px ${hexToRgba(theme.shadows.md.shadowColor, 0.22)}`;
   }};
 
   &::before {
@@ -160,23 +184,23 @@ const StyledButton = styled.button.withConfig({
       if (state === 'disabled' || variant === 'text') return 0;
       return 0.28;
     }};
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+    background: ${({ theme }) => `linear-gradient(180deg, ${hexToRgba(theme.colors.onPrimary, 0.45)}, ${hexToRgba(theme.colors.onPrimary, 0)})`};
   }
 
   &:hover {
     ${({ variant, state, theme }) => {
       if (state === 'disabled' || state === 'loading') return '';
       if (variant === 'primary') {
-        return `background-color: ${theme.colors.primary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 rgba(8, 34, 74, 0.32), 0 16px 28px rgba(8, 34, 74, 0.24);`;
+        return `background-color: ${theme.colors.primary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 ${hexToRgba(theme.shadows.md.shadowColor, 0.32)}, 0 16px 28px ${hexToRgba(theme.shadows.md.shadowColor, 0.24)};`;
       }
       if (variant === 'secondary') {
-        return `background-color: ${theme.colors.secondary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 rgba(8, 34, 74, 0.32), 0 16px 28px rgba(8, 34, 74, 0.24);`;
+        return `background-color: ${theme.colors.secondary}; opacity: 0.98; transform: translateY(-1px); box-shadow: 0 4px 0 ${hexToRgba(theme.shadows.md.shadowColor, 0.32)}, 0 16px 28px ${hexToRgba(theme.shadows.md.shadowColor, 0.24)};`;
       }
       if (variant === 'outline') {
-        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.secondary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px rgba(10, 30, 70, 0.14);`;
+        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.secondary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px ${hexToRgba(theme.shadows.md.shadowColor, 0.14)};`;
       }
       if (variant === 'surface') {
-        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px rgba(10, 30, 70, 0.14);`;
+        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(-1px); box-shadow: 0 3px 0 ${theme.colors.background.tertiary}, 0 10px 18px ${hexToRgba(theme.shadows.md.shadowColor, 0.14)};`;
       }
       if (variant === 'text') {
         return `background-color: ${theme.colors.background.secondary};`;
@@ -189,16 +213,16 @@ const StyledButton = styled.button.withConfig({
     ${({ variant, state, theme }) => {
       if (state === 'disabled' || state === 'loading') return '';
       if (variant === 'primary') {
-        return `background-color: ${theme.colors.primary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 rgba(8, 34, 74, 0.24), 0 4px 10px rgba(8, 34, 74, 0.18);`;
+        return `background-color: ${theme.colors.primary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 ${hexToRgba(theme.shadows.md.shadowColor, 0.24)}, 0 4px 10px ${hexToRgba(theme.shadows.md.shadowColor, 0.18)};`;
       }
       if (variant === 'secondary') {
-        return `background-color: ${theme.colors.secondary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 rgba(8, 34, 74, 0.24), 0 4px 10px rgba(8, 34, 74, 0.18);`;
+        return `background-color: ${theme.colors.secondary}; opacity: 1; transform: translateY(2px); box-shadow: 0 1px 0 ${hexToRgba(theme.shadows.md.shadowColor, 0.24)}, 0 4px 10px ${hexToRgba(theme.shadows.md.shadowColor, 0.18)};`;
       }
       if (variant === 'outline') {
-        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px rgba(10, 30, 70, 0.1);`;
+        return `border-color: ${theme.colors.primary}; background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px ${hexToRgba(theme.shadows.md.shadowColor, 0.1)};`;
       }
       if (variant === 'surface') {
-        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px rgba(10, 30, 70, 0.1);`;
+        return `background-color: ${theme.colors.background.tertiary}; transform: translateY(1px); box-shadow: 0 1px 0 ${theme.colors.background.tertiary}, 0 4px 10px ${hexToRgba(theme.shadows.md.shadowColor, 0.1)};`;
       }
       if (variant === 'text') {
         return `background-color: ${theme.colors.background.tertiary};`;

@@ -110,17 +110,18 @@ const StyledSearchButton = styled.button.withConfig({
   }
 `;
 
-const StyledSearchIcon = styled.svg.withConfig({
+const StyledSearchIcon = styled.span.withConfig({
   displayName: 'StyledSearchIcon',
   componentId: 'StyledSearchIcon',
 })`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 18px;
   height: 18px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  line-height: 1;
+  font-size: 14px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
 const StyledClearButton = styled.button.withConfig({
@@ -152,17 +153,18 @@ const StyledClearButton = styled.button.withConfig({
   }
 `;
 
-const StyledClearIcon = styled.svg.withConfig({
+const StyledClearIcon = styled.span.withConfig({
   displayName: 'StyledClearIcon',
   componentId: 'StyledClearIcon',
 })`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 14px;
   height: 14px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  line-height: 1;
+  font-size: 14px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
 export {

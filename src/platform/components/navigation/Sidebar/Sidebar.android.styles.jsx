@@ -9,12 +9,15 @@ import { View, Pressable, Text, SectionList } from 'react-native';
 const StyledSectionList = styled(SectionList).withConfig({
   displayName: 'StyledSectionList',
   componentId: 'StyledSectionList',
-}).attrs(({ theme }) => ({
-  contentContainerStyle: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingBottom: theme.spacing.xs,
-  },
-}))`
+}).attrs(({ theme }) => {
+  const spacing = theme?.spacing || {};
+  return {
+    contentContainerStyle: {
+      paddingHorizontal: spacing.sm ?? 8,
+      paddingBottom: spacing.xs ?? 4,
+    },
+  };
+})`
   flex: 1;
 `;
 

@@ -131,7 +131,6 @@ const SidebarWeb = ({
 
   return (
     <StyledSidebar
-      collapsed={collapsed}
       role="navigation"
       aria-label={accessibilityLabel || t('navigation.sidebar.title')}
       data-testid={testID}
@@ -183,7 +182,7 @@ const SidebarWeb = ({
           )}
         </StyledSidebarSearch>
       )}
-      <StyledSidebarContent $collapsed={collapsed}>
+      <StyledSidebarContent>
         {tree.map((item) => {
           const href = item.href ?? item.path;
           const label = item.label ?? getNavItemLabel(t, item, itemsI18nPrefix);

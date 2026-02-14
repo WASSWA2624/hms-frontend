@@ -6,6 +6,26 @@
 
 import styled from 'styled-components';
 
+const hexToRgba = (hexColor, alpha) => {
+  if (typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
+    return hexColor;
+  }
+
+  const normalized = hexColor.slice(1);
+  const safeHex = normalized.length === 3
+    ? normalized.split('').map((char) => `${char}${char}`).join('')
+    : normalized;
+
+  if (safeHex.length !== 6) {
+    return hexColor;
+  }
+
+  const red = Number.parseInt(safeHex.slice(0, 2), 16);
+  const green = Number.parseInt(safeHex.slice(2, 4), 16);
+  const blue = Number.parseInt(safeHex.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
 const StyledBackdrop = styled.div.withConfig({
   displayName: 'StyledBackdrop',
   componentId: 'StyledBackdrop',
@@ -18,7 +38,7 @@ const StyledBackdrop = styled.div.withConfig({
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${({ theme }) => theme.colors.overlay?.backdrop || 'rgba(0, 0, 0, 0.5)'};
+  background-color: ${({ theme }) => theme.colors.overlay.backdrop};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,7 +79,7 @@ const StyledModalContainer = styled.div.withConfig({
   max-height: ${({ size }) => (size === 'fullscreen' ? '100%' : '90vh')};
   ${({ size }) => (size === 'fullscreen' ? 'height: 100%;' : '')}
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.shadows?.md ? `${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height * 5}px ${theme.shadows.md.shadowRadius * 5}px rgba(0, 0, 0, ${theme.shadows.md.shadowOpacity})` : '0 4px 20px rgba(0, 0, 0, 0.15)'};
+  box-shadow: ${({ theme }) => `${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height * 5}px ${theme.shadows.md.shadowRadius * 5}px ${hexToRgba(theme.shadows.md.shadowColor, theme.shadows.md.shadowOpacity)}`};
   animation: slideUp 0.3s ease;
   position: relative;
   

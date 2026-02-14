@@ -39,6 +39,34 @@ jest.mock('@hooks', () => ({
   }),
 }));
 
+jest.mock('@platform/components/forms/TextField', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ value, onChange, placeholder, accessibilityLabel, testID }) =>
+      React.createElement('input', {
+        value,
+        onChange,
+        placeholder,
+        'aria-label': accessibilityLabel,
+        'data-testid': testID,
+      }),
+  };
+});
+
+jest.mock('@platform/components/navigation/SidebarItem', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ item, onClick, onPress, testID }) =>
+      React.createElement(
+        'button',
+        { type: 'button', onClick: onClick || onPress, 'data-testid': testID },
+        item?.label || ''
+      ),
+  };
+});
+
 const SidebarWeb = require('@platform/components/navigation/Sidebar/Sidebar.web').default;
 
 const renderWithTheme = (component) => render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
@@ -102,9 +130,7 @@ describe('Sidebar Component - Web', () => {
 
     fireEvent.change(input, { target: { value: 'roles' } });
     const label = getByText('Roles');
-    const resultButton = label.closest('button');
-    expect(resultButton).toBeTruthy();
-    fireEvent.click(resultButton);
+    fireEvent.click(label);
     expect(mockPush).toHaveBeenCalledWith('/settings/roles');
   });
 

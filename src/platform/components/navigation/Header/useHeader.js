@@ -16,9 +16,13 @@ import { useI18n } from '@hooks';
 const useHeader = ({ accessibilityLabel, title } = {}) => {
   const { t } = useI18n();
   const defaultKey = 'navigation.header.title';
-  const resolvedLabel =
-    accessibilityLabel ||
-    (typeof title === 'string' && title.length > 0 ? title : t(defaultKey) || '');
+  const hasExplicitLabel = typeof accessibilityLabel === 'string' && accessibilityLabel.length > 0;
+  const hasStringTitle = typeof title === 'string';
+  const resolvedLabel = hasExplicitLabel
+    ? accessibilityLabel
+    : hasStringTitle
+      ? title
+      : (t(defaultKey) || '');
   return { resolvedLabel };
 };
 

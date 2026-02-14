@@ -360,7 +360,9 @@ describe('SearchBar', () => {
       const { getByTestId } = renderWithTheme(
         <SearchBarWeb value="test" testID="search-bar-web" />
       );
-      expect(getByTestId('search-bar-web-input-value')).toBeTruthy();
+      const input = getByTestId('search-bar-web-input');
+      expect(input).toBeTruthy();
+      expect(input.props.value).toBe('test');
     });
 
     it('should test Web implementation with Enter key', () => {

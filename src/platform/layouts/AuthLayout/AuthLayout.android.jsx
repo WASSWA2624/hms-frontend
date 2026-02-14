@@ -4,7 +4,7 @@
  * File: AuthLayout.android.jsx
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 import {
   StyledContainer,
   StyledKeyboardAvoidingView,
@@ -66,5 +66,5 @@ const AuthLayoutAndroid = ({
   );
 };
 
-export default memo(AuthLayoutAndroid);
+export default AuthLayoutAndroid;
 

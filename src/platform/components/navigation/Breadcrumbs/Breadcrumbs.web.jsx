@@ -172,7 +172,7 @@ const BreadcrumbsWeb = ({
           const isAnchor = hasLink && item.href;
 
           const handleClick = (e) => {
-            e.preventDefault();
+            e?.preventDefault?.();
             handleItemPress(item, index);
           };
 
@@ -187,6 +187,7 @@ const BreadcrumbsWeb = ({
                 <StyledBreadcrumbLink
                   href={item.href}
                   onClick={handleClick}
+                  onPress={handleClick}
                   onKeyDown={(event) => handleItemKeyDown(event, item, index)}
                   aria-label={item.label}
                   testID={testID ? `${testID}-item-${index}` : undefined}
@@ -205,6 +206,7 @@ const BreadcrumbsWeb = ({
                 <StyledBreadcrumbButton
                   type="button"
                   onClick={handleClick}
+                  onPress={handleClick}
                   onKeyDown={(event) => handleItemKeyDown(event, item, index)}
                   aria-label={item.label}
                   testID={testID ? `${testID}-item-${index}` : undefined}

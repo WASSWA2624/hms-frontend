@@ -4,7 +4,7 @@
  * File: AuthLayout.ios.jsx
  */
 
-import React, { memo } from 'react';
+import React from 'react';
 import {
   StyledContainer,
   StyledKeyboardAvoidingView,
@@ -66,5 +66,5 @@ const AuthLayoutIOS = ({
   );
 };
 
-export default memo(AuthLayoutIOS);
+export default AuthLayoutIOS;
 

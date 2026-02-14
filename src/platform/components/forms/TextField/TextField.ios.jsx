@@ -106,6 +106,11 @@ const TextFieldIOS = ({
   const finalValidationState = validationState || (disabled ? VALIDATION_STATES.DISABLED : internalValidationState);
   const finalErrorMessage = errorMessage || internalErrorMessage;
   const displayHelperText = finalErrorMessage || helperText;
+  const computedAccessibilityLabel =
+    accessibilityLabel ||
+    label ||
+    (typeof placeholder === 'string' && placeholder.length > 0 ? placeholder : undefined) ||
+    (typeof testID === 'string' ? testID : undefined);
 
   return (
     <StyledContainer style={style} $density={density}>
@@ -137,9 +142,10 @@ const TextFieldIOS = ({
           autoCapitalize={type === INPUT_TYPES.EMAIL ? 'none' : 'sentences'}
           autoCorrect={type === INPUT_TYPES.EMAIL || type === INPUT_TYPES.PASSWORD ? false : true}
           maxLength={maxLength}
-          accessibilityLabel={accessibilityLabel || label}
+          accessibilityLabel={computedAccessibilityLabel}
           accessibilityHint={accessibilityHint || displayHelperText}
           accessibilityState={{ disabled }}
+          aria-required={required}
           testID={testID}
           {...rest}
         />

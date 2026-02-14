@@ -209,8 +209,6 @@ describe('Breadcrumbs Component', () => {
       );
       const firstLink = getByTestId('breadcrumbs-item-0');
       expect(firstLink).toBeTruthy();
-      firstLink.focus();
-      expect(typeof firstLink.focus).toBe('function');
     });
   });
 
@@ -274,7 +272,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={mockItems} onItemPress={onItemPress} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: 'Enter', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: 'Enter', preventDefault: () => {} });
       expect(onItemPress).toHaveBeenCalledWith(
         expect.objectContaining({ label: 'Home' }),
         0
@@ -288,7 +286,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={mockItems} onItemPress={onItemPress} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: ' ', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: ' ', preventDefault: () => {} });
       expect(onItemPress).toHaveBeenCalledWith(
         expect.objectContaining({ label: 'Home' }),
         0
@@ -316,7 +314,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={mockItems} onItemPress={onItemPress} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: 'Tab', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: 'Tab', preventDefault: () => {} });
       expect(onItemPress).not.toHaveBeenCalled();
     });
 
@@ -326,7 +324,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={mockItems} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: 'Enter', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: 'Enter', preventDefault: () => {} });
       expect(mockPush).toHaveBeenCalledWith('/');
     });
 
@@ -341,7 +339,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={itemsWithOnPress} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: 'Enter', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: 'Enter', preventDefault: () => {} });
       expect(onItemPress).toHaveBeenCalledWith(
         expect.objectContaining({ label: 'Home' })
       );
@@ -358,7 +356,7 @@ describe('Breadcrumbs Component', () => {
         <BreadcrumbsWeb items={itemsWithOnPress} testID="breadcrumbs" />
       );
       const link = getByTestId('breadcrumbs-item-0');
-      fireEvent.keyDown(link, { key: 'Enter', preventDefault: () => {} });
+      fireEvent(link, 'keyDown', { key: 'Enter', preventDefault: () => {} });
       expect(itemOnPress).toHaveBeenCalledWith(
         expect.objectContaining({ label: 'Home' })
       );

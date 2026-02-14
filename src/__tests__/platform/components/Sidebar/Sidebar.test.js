@@ -158,7 +158,8 @@ describe('Sidebar Component', () => {
       );
       fireEvent.press(getByTestId('sidebar-item-home'));
       expect(onItemPress).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'home' })
+        expect.objectContaining({ id: 'home' }),
+        '/'
       );
     });
 
