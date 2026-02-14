@@ -216,9 +216,20 @@ src/app/
 
 ### Tier 9: Pharmacy, Inventory
 - **11.9.1** Pharmacy (main) -- `(main)/pharmacy`
-- **11.9.2** Pharmacy tabs: drug, batch, formulary, order, dispense, adverse-event -- `(main)/pharmacy/*` (one step per tab)
+- **11.9.2.1** Drug -- `(main)/pharmacy/drugs`
+- **11.9.2.2** Batch -- `(main)/pharmacy/drug-batches`
+- **11.9.2.3** Formulary -- `(main)/pharmacy/formulary-items`
+- **11.9.2.4** Order -- `(main)/pharmacy/pharmacy-orders`
+- **11.9.2.5** Dispense -- `(main)/pharmacy/dispense-logs`
+- **11.9.2.6** Adverse Event -- `(main)/pharmacy/adverse-events`
 - **11.9.3** Inventory (main) -- `(main)/inventory`
-- **11.9.4** Inventory tabs: item, stock, movement, supplier, purchase, receipt, adjustment -- `(main)/inventory/*` (one step per tab)
+- **11.9.4.1** Item -- `(main)/inventory/inventory-items`
+- **11.9.4.2** Stock -- `(main)/inventory/inventory-stocks`
+- **11.9.4.3** Movement -- `(main)/inventory/stock-movements`
+- **11.9.4.4** Supplier -- `(main)/inventory/suppliers`
+- **11.9.4.5** Purchase -- `(main)/inventory/purchase-orders`
+- **11.9.4.6** Receipt -- `(main)/inventory/goods-receipts`
+- **11.9.4.7** Adjustment -- `(main)/inventory/stock-adjustments`
 
 ### Tier 10: Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance
 - **11.10.1** Billing (main) -- `(main)/billing`
@@ -250,7 +261,7 @@ Per screen: routes per `app-router.mdc`; screen per `platform-ui.mdc` + `compone
 - [ ] 11.2.1-11.2.8 (auth, home; done: 11.2.1, 11.2.4, 11.2.8; pending: 11.2.2, 11.2.3, 11.2.5, 11.2.6, 11.2.7)
 - [x] 11.3.1-11.3.22 (Settings main + tabs)
 - [ ] 11.4.1-11.6.9 (Patients, Scheduling, Clinical)
-- [ ] 11.7.1-11.7.8.6, 11.8.1-11.9.4 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
+- [ ] 11.7.1-11.7.8.6, 11.8.1-11.9.4.7 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
 - [ ] 11.10.1-11.11.5 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
 - [ ] Nav + deep links for all main screens
 
