@@ -69,6 +69,13 @@ const normalizeClinicalContext = (params = {}) => {
   const anesthetistUserId = normalizeContextId(params.anesthetistUserId);
   const emergencyCaseId = normalizeContextId(params.emergencyCaseId);
   const ambulanceId = normalizeContextId(params.ambulanceId);
+  const labTestId = normalizeContextId(params.labTestId);
+  const labPanelId = normalizeContextId(params.labPanelId);
+  const labOrderId = normalizeContextId(params.labOrderId);
+  const labOrderItemId = normalizeContextId(params.labOrderItemId);
+  const radiologyTestId = normalizeContextId(params.radiologyTestId);
+  const radiologyOrderId = normalizeContextId(params.radiologyOrderId);
+  const imagingStudyId = normalizeContextId(params.imagingStudyId);
   const status = sanitizeString(firstValue(params.status)) || undefined;
   const encounterType = sanitizeString(firstValue(params.encounterType)) || undefined;
   const diagnosisType = sanitizeString(firstValue(params.diagnosisType)) || undefined;
@@ -78,8 +85,13 @@ const normalizeClinicalContext = (params = {}) => {
   const endDate = sanitizeString(firstValue(params.endDate)) || undefined;
   const severity = sanitizeString(firstValue(params.severity)) || undefined;
   const triageLevel = sanitizeString(firstValue(params.triageLevel)) || undefined;
+  const modality = sanitizeString(firstValue(params.modality)) || undefined;
   const route = sanitizeString(firstValue(params.route)) || undefined;
   const search = sanitizeString(firstValue(params.search)) || undefined;
+  const orderedAtFrom = sanitizeString(firstValue(params.orderedAtFrom)) || undefined;
+  const orderedAtTo = sanitizeString(firstValue(params.orderedAtTo)) || undefined;
+  const performedAt = sanitizeString(firstValue(params.performedAt)) || undefined;
+  const expiresAt = sanitizeString(firstValue(params.expiresAt)) || undefined;
   const startedAtFrom = sanitizeString(firstValue(params.startedAtFrom)) || undefined;
   const startedAtTo = sanitizeString(firstValue(params.startedAtTo)) || undefined;
   const endedAtFrom = sanitizeString(firstValue(params.endedAtFrom)) || undefined;
@@ -111,6 +123,13 @@ const normalizeClinicalContext = (params = {}) => {
     anesthetistUserId,
     emergencyCaseId,
     ambulanceId,
+    labTestId,
+    labPanelId,
+    labOrderId,
+    labOrderItemId,
+    radiologyTestId,
+    radiologyOrderId,
+    imagingStudyId,
     status,
     encounterType,
     diagnosisType,
@@ -120,8 +139,13 @@ const normalizeClinicalContext = (params = {}) => {
     endDate,
     severity,
     triageLevel,
+    modality,
     route,
     search,
+    orderedAtFrom,
+    orderedAtTo,
+    performedAt,
+    expiresAt,
     startedAtFrom,
     startedAtTo,
     endedAtFrom,

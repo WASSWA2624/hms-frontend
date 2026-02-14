@@ -20,10 +20,21 @@ import {
   useFollowUp,
   useIcuObservation,
   useIcuStay,
+  useImagingStudy,
+  useLabOrder,
+  useLabPanel,
+  useLabQcLog,
+  useLabResult,
+  useLabSample,
+  useLabTest,
   useMedicationAdministration,
   useNursingNote,
+  usePacsLink,
   usePostOpNote,
   useProcedure,
+  useRadiologyOrder,
+  useRadiologyResult,
+  useRadiologyTest,
   useReferral,
   useTheatreCase,
   useTransferRequest,
@@ -47,6 +58,17 @@ const useClinicalResourceCrud = (resourceId) => {
   const theatreCase = useTheatreCase();
   const anesthesiaRecord = useAnesthesiaRecord();
   const postOpNote = usePostOpNote();
+  const labTest = useLabTest();
+  const labPanel = useLabPanel();
+  const labOrder = useLabOrder();
+  const labSample = useLabSample();
+  const labResult = useLabResult();
+  const labQcLog = useLabQcLog();
+  const radiologyTest = useRadiologyTest();
+  const radiologyOrder = useRadiologyOrder();
+  const radiologyResult = useRadiologyResult();
+  const imagingStudy = useImagingStudy();
+  const pacsLink = usePacsLink();
   const emergencyCase = useEmergencyCase();
   const triageAssessment = useTriageAssessment();
   const emergencyResponse = useEmergencyResponse();
@@ -77,6 +99,17 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.THEATRE_CASES]: theatreCase,
       [CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS]: anesthesiaRecord,
       [CLINICAL_RESOURCE_IDS.POST_OP_NOTES]: postOpNote,
+      [CLINICAL_RESOURCE_IDS.LAB_TESTS]: labTest,
+      [CLINICAL_RESOURCE_IDS.LAB_PANELS]: labPanel,
+      [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: labOrder,
+      [CLINICAL_RESOURCE_IDS.LAB_SAMPLES]: labSample,
+      [CLINICAL_RESOURCE_IDS.LAB_RESULTS]: labResult,
+      [CLINICAL_RESOURCE_IDS.LAB_QC_LOGS]: labQcLog,
+      [CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS]: radiologyTest,
+      [CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS]: radiologyOrder,
+      [CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS]: radiologyResult,
+      [CLINICAL_RESOURCE_IDS.IMAGING_STUDIES]: imagingStudy,
+      [CLINICAL_RESOURCE_IDS.PACS_LINKS]: pacsLink,
       [CLINICAL_RESOURCE_IDS.EMERGENCY_CASES]: emergencyCase,
       [CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS]: triageAssessment,
       [CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES]: emergencyResponse,
@@ -108,6 +141,17 @@ const useClinicalResourceCrud = (resourceId) => {
     theatreCase,
     anesthesiaRecord,
     postOpNote,
+    labTest,
+    labPanel,
+    labOrder,
+    labSample,
+    labResult,
+    labQcLog,
+    radiologyTest,
+    radiologyOrder,
+    radiologyResult,
+    imagingStudy,
+    pacsLink,
     emergencyCase,
     triageAssessment,
     emergencyResponse,

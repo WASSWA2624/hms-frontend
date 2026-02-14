@@ -54,6 +54,7 @@ const IPD_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const ICU_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const THEATRE_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const EMERGENCY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const DIAGNOSTICS_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -496,6 +497,101 @@ const EMERGENCY_ITEMS = [
   },
 ];
 
+/** @type {MainNavChild[]} */
+const DIAGNOSTICS_ITEMS = [
+  {
+    id: 'diagnostics-lab',
+    icon: 'medkit-outline',
+    path: '/diagnostics/lab',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-tests',
+    icon: 'folder-outline',
+    path: '/diagnostics/lab/lab-tests',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-tests`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-panels',
+    icon: 'layers-outline',
+    path: '/diagnostics/lab/lab-panels',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-panels`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-orders',
+    icon: 'time-outline',
+    path: '/diagnostics/lab/lab-orders',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-orders`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-samples',
+    icon: 'grid-outline',
+    path: '/diagnostics/lab/lab-samples',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-samples`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-results',
+    icon: 'mail-outline',
+    path: '/diagnostics/lab/lab-results',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-results`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-lab-qc-logs',
+    icon: 'shield-outline',
+    path: '/diagnostics/lab/lab-qc-logs',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-qc-logs`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-radiology',
+    icon: 'medkit-outline',
+    path: '/diagnostics/radiology',
+    name: `${MAIN_NAV_I18N}.diagnostics-radiology`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-radiology-tests',
+    icon: 'folder-outline',
+    path: '/diagnostics/radiology/radiology-tests',
+    name: `${MAIN_NAV_I18N}.diagnostics-radiology-tests`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-radiology-orders',
+    icon: 'time-outline',
+    path: '/diagnostics/radiology/radiology-orders',
+    name: `${MAIN_NAV_I18N}.diagnostics-radiology-orders`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-radiology-results',
+    icon: 'mail-outline',
+    path: '/diagnostics/radiology/radiology-results',
+    name: `${MAIN_NAV_I18N}.diagnostics-radiology-results`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-imaging-studies',
+    icon: 'grid-outline',
+    path: '/diagnostics/radiology/imaging-studies',
+    name: `${MAIN_NAV_I18N}.diagnostics-imaging-studies`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
+    id: 'diagnostics-pacs-links',
+    icon: 'key-outline',
+    path: '/diagnostics/radiology/pacs-links',
+    name: `${MAIN_NAV_I18N}.diagnostics-pacs-links`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+];
+
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
@@ -556,6 +652,14 @@ export const MAIN_NAV_ITEMS = [
     roles: EMERGENCY_ACCESS_ROLES,
     children: EMERGENCY_ITEMS,
   },
+  {
+    id: 'diagnostics',
+    icon: 'medkit-outline',
+    path: '/diagnostics/lab',
+    name: `${MAIN_NAV_I18N}.diagnostics`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+    children: DIAGNOSTICS_ITEMS,
+  },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 
@@ -586,4 +690,5 @@ export {
   ICU_ITEMS,
   THEATRE_ITEMS,
   EMERGENCY_ITEMS,
+  DIAGNOSTICS_ITEMS,
 };

@@ -267,6 +267,106 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_TESTS) {
+    return {
+      ...baseContext,
+      labTestId: sanitizeString(item.id) || baseContext.labTestId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      code: sanitizeString(item.code) || baseContext.code,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_PANELS) {
+    return {
+      ...baseContext,
+      labPanelId: sanitizeString(item.id) || baseContext.labPanelId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      code: sanitizeString(item.code) || baseContext.code,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_ORDERS) {
+    return {
+      ...baseContext,
+      labOrderId: sanitizeString(item.id) || baseContext.labOrderId,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      status: sanitizeString(item.status) || baseContext.status,
+      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_SAMPLES) {
+    return {
+      ...baseContext,
+      labOrderId: sanitizeString(item.lab_order_id) || baseContext.labOrderId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_RESULTS) {
+    return {
+      ...baseContext,
+      labOrderItemId: sanitizeString(item.lab_order_item_id) || baseContext.labOrderItemId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_QC_LOGS) {
+    return {
+      ...baseContext,
+      labTestId: sanitizeString(item.lab_test_id) || baseContext.labTestId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS) {
+    return {
+      ...baseContext,
+      radiologyTestId: sanitizeString(item.id) || baseContext.radiologyTestId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      code: sanitizeString(item.code) || baseContext.code,
+      modality: sanitizeString(item.modality) || baseContext.modality,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS) {
+    return {
+      ...baseContext,
+      radiologyOrderId: sanitizeString(item.id) || baseContext.radiologyOrderId,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      radiologyTestId: sanitizeString(item.radiology_test_id) || baseContext.radiologyTestId,
+      status: sanitizeString(item.status) || baseContext.status,
+      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS) {
+    return {
+      ...baseContext,
+      radiologyOrderId: sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.IMAGING_STUDIES) {
+    return {
+      ...baseContext,
+      imagingStudyId: sanitizeString(item.id) || baseContext.imagingStudyId,
+      radiologyOrderId: sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
+      modality: sanitizeString(item.modality) || baseContext.modality,
+      performedAt: sanitizeString(item.performed_at) || baseContext.performedAt,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PACS_LINKS) {
+    return {
+      ...baseContext,
+      imagingStudyId: sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
+      expiresAt: sanitizeString(item.expires_at) || baseContext.expiresAt,
+    };
+  }
+
   return baseContext;
 };
 

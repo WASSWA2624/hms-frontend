@@ -10,6 +10,8 @@ import {
   EMERGENCY_RESOURCE_LIST_ORDER,
   ICU_RESOURCE_LIST_ORDER,
   IPD_RESOURCE_LIST_ORDER,
+  LAB_RESOURCE_LIST_ORDER,
+  RADIOLOGY_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   getClinicalResourceConfig,
   sanitizeString,
@@ -43,6 +45,16 @@ const OVERVIEW_CONFIGS = {
     i18nRoot: 'emergency',
     resourceIds: EMERGENCY_RESOURCE_LIST_ORDER,
     primaryResourceId: CLINICAL_RESOURCE_IDS.EMERGENCY_CASES,
+  },
+  lab: {
+    i18nRoot: 'lab',
+    resourceIds: LAB_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.LAB_ORDERS,
+  },
+  radiology: {
+    i18nRoot: 'radiology',
+    resourceIds: RADIOLOGY_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS,
   },
 };
 
@@ -100,6 +112,27 @@ const buildPrimaryContext = (resourceId, item) => {
       emergencyCaseId: item.id,
       severity: item.severity,
       status: item.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_ORDERS) {
+    return {
+      encounterId: item.encounter_id,
+      patientId: item.patient_id,
+      labOrderId: item.id,
+      status: item.status,
+      orderedAtFrom: item.ordered_at,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS) {
+    return {
+      encounterId: item.encounter_id,
+      patientId: item.patient_id,
+      radiologyOrderId: item.id,
+      radiologyTestId: item.radiology_test_id,
+      status: item.status,
+      orderedAtFrom: item.ordered_at,
     };
   }
 

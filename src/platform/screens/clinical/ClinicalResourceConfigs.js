@@ -30,6 +30,17 @@ const CLINICAL_RESOURCE_IDS = {
   AMBULANCES: 'ambulances',
   AMBULANCE_DISPATCHES: 'ambulance-dispatches',
   AMBULANCE_TRIPS: 'ambulance-trips',
+  LAB_TESTS: 'lab-tests',
+  LAB_PANELS: 'lab-panels',
+  LAB_ORDERS: 'lab-orders',
+  LAB_SAMPLES: 'lab-samples',
+  LAB_RESULTS: 'lab-results',
+  LAB_QC_LOGS: 'lab-qc-logs',
+  RADIOLOGY_TESTS: 'radiology-tests',
+  RADIOLOGY_ORDERS: 'radiology-orders',
+  RADIOLOGY_RESULTS: 'radiology-results',
+  IMAGING_STUDIES: 'imaging-studies',
+  PACS_LINKS: 'pacs-links',
 };
 
 const CLINICAL_RESOURCE_LIST_ORDER = [
@@ -74,11 +85,30 @@ const EMERGENCY_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS,
 ];
 
+const LAB_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.LAB_TESTS,
+  CLINICAL_RESOURCE_IDS.LAB_PANELS,
+  CLINICAL_RESOURCE_IDS.LAB_ORDERS,
+  CLINICAL_RESOURCE_IDS.LAB_SAMPLES,
+  CLINICAL_RESOURCE_IDS.LAB_RESULTS,
+  CLINICAL_RESOURCE_IDS.LAB_QC_LOGS,
+];
+
+const RADIOLOGY_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS,
+  CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS,
+  CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS,
+  CLINICAL_RESOURCE_IDS.IMAGING_STUDIES,
+  CLINICAL_RESOURCE_IDS.PACS_LINKS,
+];
+
 const CLINICAL_ROUTE_ROOT = '/clinical';
 const IPD_ROUTE_ROOT = '/ipd';
 const ICU_ROUTE_ROOT = '/icu';
 const THEATRE_ROUTE_ROOT = '/theatre';
 const EMERGENCY_ROUTE_ROOT = '/emergency';
+const LAB_ROUTE_ROOT = '/diagnostics/lab';
+const RADIOLOGY_ROUTE_ROOT = '/diagnostics/radiology';
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
@@ -142,10 +172,22 @@ const withClinicalContext = (path, context = {}) => {
   const anesthetistUserId = normalizeContextId(context.anesthetistUserId);
   const emergencyCaseId = normalizeContextId(context.emergencyCaseId);
   const ambulanceId = normalizeContextId(context.ambulanceId);
+  const labTestId = normalizeContextId(context.labTestId);
+  const labPanelId = normalizeContextId(context.labPanelId);
+  const labOrderId = normalizeContextId(context.labOrderId);
+  const labOrderItemId = normalizeContextId(context.labOrderItemId);
+  const radiologyTestId = normalizeContextId(context.radiologyTestId);
+  const radiologyOrderId = normalizeContextId(context.radiologyOrderId);
+  const imagingStudyId = normalizeContextId(context.imagingStudyId);
   const severity = sanitizeString(context.severity);
   const triageLevel = sanitizeString(context.triageLevel);
+  const modality = sanitizeString(context.modality);
   const route = sanitizeString(context.route);
   const search = sanitizeString(context.search);
+  const orderedAtFrom = normalizeIsoDateValue(context.orderedAtFrom);
+  const orderedAtTo = normalizeIsoDateValue(context.orderedAtTo);
+  const performedAt = normalizeIsoDateValue(context.performedAt);
+  const expiresAt = normalizeIsoDateValue(context.expiresAt);
   const startedAtFrom = normalizeIsoDateValue(context.startedAtFrom);
   const startedAtTo = normalizeIsoDateValue(context.startedAtTo);
   const endedAtFrom = normalizeIsoDateValue(context.endedAtFrom);
@@ -182,10 +224,22 @@ const withClinicalContext = (path, context = {}) => {
   if (anesthetistUserId) searchParams.set('anesthetistUserId', anesthetistUserId);
   if (emergencyCaseId) searchParams.set('emergencyCaseId', emergencyCaseId);
   if (ambulanceId) searchParams.set('ambulanceId', ambulanceId);
+  if (labTestId) searchParams.set('labTestId', labTestId);
+  if (labPanelId) searchParams.set('labPanelId', labPanelId);
+  if (labOrderId) searchParams.set('labOrderId', labOrderId);
+  if (labOrderItemId) searchParams.set('labOrderItemId', labOrderItemId);
+  if (radiologyTestId) searchParams.set('radiologyTestId', radiologyTestId);
+  if (radiologyOrderId) searchParams.set('radiologyOrderId', radiologyOrderId);
+  if (imagingStudyId) searchParams.set('imagingStudyId', imagingStudyId);
   if (severity) searchParams.set('severity', severity);
   if (triageLevel) searchParams.set('triageLevel', triageLevel);
+  if (modality) searchParams.set('modality', modality);
   if (route) searchParams.set('route', route);
   if (search) searchParams.set('search', search);
+  if (orderedAtFrom) searchParams.set('orderedAtFrom', orderedAtFrom);
+  if (orderedAtTo) searchParams.set('orderedAtTo', orderedAtTo);
+  if (performedAt) searchParams.set('performedAt', performedAt);
+  if (expiresAt) searchParams.set('expiresAt', expiresAt);
   if (startedAtFrom) searchParams.set('startedAtFrom', startedAtFrom);
   if (startedAtTo) searchParams.set('startedAtTo', startedAtTo);
   if (endedAtFrom) searchParams.set('endedAtFrom', endedAtFrom);
@@ -329,10 +383,70 @@ const AMBULANCE_STATUS_OPTIONS = [
   { value: 'OUT_OF_SERVICE', labelKey: 'clinical.options.ambulanceStatus.outOfService' },
 ];
 
+const LAB_ORDER_STATUS_OPTIONS = [
+  { value: 'ORDERED', labelKey: 'clinical.options.labOrderStatus.ordered' },
+  { value: 'COLLECTED', labelKey: 'clinical.options.labOrderStatus.collected' },
+  { value: 'IN_PROCESS', labelKey: 'clinical.options.labOrderStatus.inProcess' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.labOrderStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.labOrderStatus.cancelled' },
+];
+
+const LAB_SAMPLE_STATUS_OPTIONS = [
+  { value: 'PENDING', labelKey: 'clinical.options.labSampleStatus.pending' },
+  { value: 'COLLECTED', labelKey: 'clinical.options.labSampleStatus.collected' },
+  { value: 'REJECTED', labelKey: 'clinical.options.labSampleStatus.rejected' },
+  { value: 'RECEIVED', labelKey: 'clinical.options.labSampleStatus.received' },
+];
+
+const LAB_RESULT_STATUS_OPTIONS = [
+  { value: 'NORMAL', labelKey: 'clinical.options.labResultStatus.normal' },
+  { value: 'ABNORMAL', labelKey: 'clinical.options.labResultStatus.abnormal' },
+  { value: 'CRITICAL', labelKey: 'clinical.options.labResultStatus.critical' },
+  { value: 'PENDING', labelKey: 'clinical.options.labResultStatus.pending' },
+];
+
+const RADIOLOGY_MODALITY_OPTIONS = [
+  { value: 'XRAY', labelKey: 'clinical.options.radiologyModality.xray' },
+  { value: 'CT', labelKey: 'clinical.options.radiologyModality.ct' },
+  { value: 'MRI', labelKey: 'clinical.options.radiologyModality.mri' },
+  { value: 'ULTRASOUND', labelKey: 'clinical.options.radiologyModality.ultrasound' },
+  { value: 'PET', labelKey: 'clinical.options.radiologyModality.pet' },
+  { value: 'OTHER', labelKey: 'clinical.options.radiologyModality.other' },
+];
+
+const RADIOLOGY_ORDER_STATUS_OPTIONS = [
+  { value: 'ORDERED', labelKey: 'clinical.options.radiologyOrderStatus.ordered' },
+  { value: 'IN_PROCESS', labelKey: 'clinical.options.radiologyOrderStatus.inProcess' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.radiologyOrderStatus.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.radiologyOrderStatus.cancelled' },
+];
+
+const RADIOLOGY_RESULT_STATUS_OPTIONS = [
+  { value: 'DRAFT', labelKey: 'clinical.options.radiologyResultStatus.draft' },
+  { value: 'FINAL', labelKey: 'clinical.options.radiologyResultStatus.final' },
+  { value: 'AMENDED', labelKey: 'clinical.options.radiologyResultStatus.amended' },
+];
+
 const buildDateTimeError = (value, t) => {
   if (!sanitizeString(value)) return null;
   if (toIsoDateTime(value)) return null;
   return t('clinical.common.form.dateTimeFormat');
+};
+
+const buildUrlError = (value, t) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return null;
+  if (typeof URL === 'function') {
+    try {
+      const parsed = new URL(normalized);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+        ? null
+        : t('forms.validation.invalidUrl');
+    } catch {
+      return t('forms.validation.invalidUrl');
+    }
+  }
+  return /^https?:\/\/\S+$/i.test(normalized) ? null : t('forms.validation.invalidUrl');
 };
 
 const validateDateOrder = (startValue, endValue, t, { allowEqual = false } = {}) => {
@@ -374,10 +488,21 @@ const getContextFilters = (resourceId, context) => {
   const anesthetistUserId = normalizeContextId(context?.anesthetistUserId);
   const emergencyCaseId = normalizeContextId(context?.emergencyCaseId);
   const ambulanceId = normalizeContextId(context?.ambulanceId);
+  const labTestId = normalizeContextId(context?.labTestId);
+  const labOrderId = normalizeContextId(context?.labOrderId);
+  const labOrderItemId = normalizeContextId(context?.labOrderItemId);
+  const radiologyTestId = normalizeContextId(context?.radiologyTestId);
+  const radiologyOrderId = normalizeContextId(context?.radiologyOrderId);
+  const imagingStudyId = normalizeContextId(context?.imagingStudyId);
   const severity = sanitizeString(context?.severity);
   const triageLevel = sanitizeString(context?.triageLevel);
+  const modality = sanitizeString(context?.modality);
   const route = sanitizeString(context?.route);
   const search = sanitizeString(context?.search);
+  const orderedAtFrom = normalizeIsoDateValue(context?.orderedAtFrom);
+  const orderedAtTo = normalizeIsoDateValue(context?.orderedAtTo);
+  const performedAt = normalizeIsoDateValue(context?.performedAt);
+  const expiresAt = normalizeIsoDateValue(context?.expiresAt);
   const startedAtFrom = normalizeIsoDateValue(context?.startedAtFrom);
   const startedAtTo = normalizeIsoDateValue(context?.startedAtTo);
   const endedAtFrom = normalizeIsoDateValue(context?.endedAtFrom);
@@ -608,6 +733,103 @@ const getContextFilters = (resourceId, context) => {
     return {
       ambulance_id: ambulanceId || undefined,
       emergency_case_id: emergencyCaseId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_TESTS) {
+    return {
+      tenant_id: tenantId || undefined,
+      name: sanitizeString(context?.name) || undefined,
+      code: code || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_PANELS) {
+    return {
+      tenant_id: tenantId || undefined,
+      name: sanitizeString(context?.name) || undefined,
+      code: code || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_ORDERS) {
+    const hasValidOrderedRange =
+      !orderedAtFrom ||
+      !orderedAtTo ||
+      new Date(orderedAtFrom).getTime() <= new Date(orderedAtTo).getTime();
+
+    return {
+      encounter_id: encounterId || undefined,
+      patient_id: patientId || undefined,
+      status: status || undefined,
+      ordered_at_from: orderedAtFrom || undefined,
+      ordered_at_to: hasValidOrderedRange ? orderedAtTo || undefined : undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_SAMPLES) {
+    return {
+      lab_order_id: labOrderId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_RESULTS) {
+    return {
+      lab_order_item_id: labOrderItemId || undefined,
+      status: status || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_QC_LOGS) {
+    return {
+      lab_test_id: labTestId || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS) {
+    return {
+      tenant_id: tenantId || undefined,
+      name: sanitizeString(context?.name) || undefined,
+      code: code || undefined,
+      modality: modality || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS) {
+    return {
+      encounter_id: encounterId || undefined,
+      patient_id: patientId || undefined,
+      radiology_test_id: radiologyTestId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS) {
+    return {
+      radiology_order_id: radiologyOrderId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.IMAGING_STUDIES) {
+    return {
+      radiology_order_id: radiologyOrderId || undefined,
+      modality: modality || undefined,
+      performed_at: performedAt || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PACS_LINKS) {
+    return {
+      imaging_study_id: imagingStudyId || undefined,
+      expires_at: expiresAt || undefined,
     };
   }
 
@@ -2788,6 +3010,878 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.ambulanceTrips.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
+  [CLINICAL_RESOURCE_IDS.LAB_TESTS]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_TESTS,
+    routePath: `${LAB_ROUTE_ROOT}/lab-tests`,
+    i18nKey: 'clinical.resources.labTests',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+        maxLength: 255,
+        labelKey: 'clinical.resources.labTests.form.nameLabel',
+        placeholderKey: 'clinical.resources.labTests.form.namePlaceholder',
+        hintKey: 'clinical.resources.labTests.form.nameHint',
+      },
+      {
+        name: 'code',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.labTests.form.codeLabel',
+        placeholderKey: 'clinical.resources.labTests.form.codePlaceholder',
+        hintKey: 'clinical.resources.labTests.form.codeHint',
+      },
+      {
+        name: 'unit',
+        type: 'text',
+        required: false,
+        maxLength: 40,
+        labelKey: 'clinical.resources.labTests.form.unitLabel',
+        placeholderKey: 'clinical.resources.labTests.form.unitPlaceholder',
+        hintKey: 'clinical.resources.labTests.form.unitHint',
+      },
+      {
+        name: 'reference_range',
+        type: 'text',
+        required: false,
+        maxLength: 120,
+        labelKey: 'clinical.resources.labTests.form.referenceRangeLabel',
+        placeholderKey: 'clinical.resources.labTests.form.referenceRangePlaceholder',
+        hintKey: 'clinical.resources.labTests.form.referenceRangeHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const codeValue = sanitizeString(item?.code);
+      if (!codeValue) return '';
+      return `${t('clinical.resources.labTests.detail.codeLabel')}: ${codeValue}`;
+    },
+    getInitialValues: (record) => ({
+      name: sanitizeString(record?.name),
+      code: sanitizeString(record?.code),
+      unit: sanitizeString(record?.unit),
+      reference_range: sanitizeString(record?.reference_range),
+    }),
+    toPayload: (values) => ({
+      name: sanitizeString(values.name),
+      code: sanitizeString(values.code) || null,
+      unit: sanitizeString(values.unit) || null,
+      reference_range: sanitizeString(values.reference_range) || null,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.labTests.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labTests.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.labTests.detail.nameLabel', valueKey: 'name' },
+      { labelKey: 'clinical.resources.labTests.detail.codeLabel', valueKey: 'code' },
+      { labelKey: 'clinical.resources.labTests.detail.unitLabel', valueKey: 'unit' },
+      { labelKey: 'clinical.resources.labTests.detail.referenceRangeLabel', valueKey: 'reference_range' },
+      { labelKey: 'clinical.resources.labTests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labTests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.LAB_PANELS]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_PANELS,
+    routePath: `${LAB_ROUTE_ROOT}/lab-panels`,
+    i18nKey: 'clinical.resources.labPanels',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+        maxLength: 255,
+        labelKey: 'clinical.resources.labPanels.form.nameLabel',
+        placeholderKey: 'clinical.resources.labPanels.form.namePlaceholder',
+        hintKey: 'clinical.resources.labPanels.form.nameHint',
+      },
+      {
+        name: 'code',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.labPanels.form.codeLabel',
+        placeholderKey: 'clinical.resources.labPanels.form.codePlaceholder',
+        hintKey: 'clinical.resources.labPanels.form.codeHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const codeValue = sanitizeString(item?.code);
+      if (!codeValue) return '';
+      return `${t('clinical.resources.labPanels.detail.codeLabel')}: ${codeValue}`;
+    },
+    getInitialValues: (record) => ({
+      name: sanitizeString(record?.name),
+      code: sanitizeString(record?.code),
+    }),
+    toPayload: (values) => ({
+      name: sanitizeString(values.name),
+      code: sanitizeString(values.code) || null,
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.labPanels.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labPanels.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.labPanels.detail.nameLabel', valueKey: 'name' },
+      { labelKey: 'clinical.resources.labPanels.detail.codeLabel', valueKey: 'code' },
+      { labelKey: 'clinical.resources.labPanels.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labPanels.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_ORDERS,
+    routePath: `${LAB_ROUTE_ROOT}/lab-orders`,
+    i18nKey: 'clinical.resources.labOrders',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'encounter_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labOrders.form.encounterIdLabel',
+        placeholderKey: 'clinical.resources.labOrders.form.encounterIdPlaceholder',
+        hintKey: 'clinical.resources.labOrders.form.encounterIdHint',
+      },
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labOrders.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.labOrders.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.labOrders.form.patientIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.labOrders.form.statusLabel',
+        placeholderKey: 'clinical.resources.labOrders.form.statusPlaceholder',
+        hintKey: 'clinical.resources.labOrders.form.statusHint',
+        options: LAB_ORDER_STATUS_OPTIONS,
+      },
+      {
+        name: 'ordered_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labOrders.form.orderedAtLabel',
+        placeholderKey: 'clinical.resources.labOrders.form.orderedAtPlaceholder',
+        hintKey: 'clinical.resources.labOrders.form.orderedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.labOrders.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      status: sanitizeString(record?.status || context?.status || 'ORDERED'),
+      ordered_at: sanitizeString(record?.ordered_at || context?.orderedAtFrom),
+    }),
+    toPayload: (values) => ({
+      encounter_id: sanitizeString(values.encounter_id) || null,
+      patient_id: sanitizeString(values.patient_id),
+      status: sanitizeString(values.status),
+      ordered_at: toIsoDateTime(values.ordered_at) || undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const orderedAtError = buildDateTimeError(values.ordered_at, t);
+      if (orderedAtError) errors.ordered_at = orderedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.labOrders.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labOrders.detail.encounterLabel', valueKey: 'encounter_id' },
+      { labelKey: 'clinical.resources.labOrders.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.labOrders.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.labOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.LAB_SAMPLES]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_SAMPLES,
+    routePath: `${LAB_ROUTE_ROOT}/lab-samples`,
+    i18nKey: 'clinical.resources.labSamples',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'lab_order_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.labSamples.form.labOrderIdLabel',
+        placeholderKey: 'clinical.resources.labSamples.form.labOrderIdPlaceholder',
+        hintKey: 'clinical.resources.labSamples.form.labOrderIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.labSamples.form.statusLabel',
+        placeholderKey: 'clinical.resources.labSamples.form.statusPlaceholder',
+        hintKey: 'clinical.resources.labSamples.form.statusHint',
+        options: LAB_SAMPLE_STATUS_OPTIONS,
+      },
+      {
+        name: 'collected_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labSamples.form.collectedAtLabel',
+        placeholderKey: 'clinical.resources.labSamples.form.collectedAtPlaceholder',
+        hintKey: 'clinical.resources.labSamples.form.collectedAtHint',
+      },
+      {
+        name: 'received_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labSamples.form.receivedAtLabel',
+        placeholderKey: 'clinical.resources.labSamples.form.receivedAtPlaceholder',
+        hintKey: 'clinical.resources.labSamples.form.receivedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.lab_order_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.labSamples.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      lab_order_id: sanitizeString(record?.lab_order_id || context?.labOrderId),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      collected_at: sanitizeString(record?.collected_at),
+      received_at: sanitizeString(record?.received_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        status: sanitizeString(values.status),
+        collected_at: sanitizeString(values.collected_at)
+          ? toIsoDateTime(values.collected_at)
+          : null,
+        received_at: sanitizeString(values.received_at)
+          ? toIsoDateTime(values.received_at)
+          : null,
+      };
+      if (!isEdit) {
+        payload.lab_order_id = sanitizeString(values.lab_order_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const collectedAtError = buildDateTimeError(values.collected_at, t);
+      const receivedAtError = buildDateTimeError(values.received_at, t);
+      if (collectedAtError) errors.collected_at = collectedAtError;
+      if (receivedAtError) errors.received_at = receivedAtError;
+      if (!receivedAtError) {
+        const orderError = validateDateOrder(values.collected_at, values.received_at, t, { allowEqual: true });
+        if (orderError) errors.received_at = orderError;
+      }
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.labSamples.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labSamples.detail.labOrderLabel', valueKey: 'lab_order_id' },
+      { labelKey: 'clinical.resources.labSamples.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.labSamples.detail.collectedAtLabel', valueKey: 'collected_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labSamples.detail.receivedAtLabel', valueKey: 'received_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labSamples.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labSamples.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.LAB_RESULTS]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_RESULTS,
+    routePath: `${LAB_ROUTE_ROOT}/lab-results`,
+    i18nKey: 'clinical.resources.labResults',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'lab_order_item_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.labResults.form.labOrderItemIdLabel',
+        placeholderKey: 'clinical.resources.labResults.form.labOrderItemIdPlaceholder',
+        hintKey: 'clinical.resources.labResults.form.labOrderItemIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.labResults.form.statusLabel',
+        placeholderKey: 'clinical.resources.labResults.form.statusPlaceholder',
+        hintKey: 'clinical.resources.labResults.form.statusHint',
+        options: LAB_RESULT_STATUS_OPTIONS,
+      },
+      {
+        name: 'result_value',
+        type: 'text',
+        required: false,
+        maxLength: 120,
+        labelKey: 'clinical.resources.labResults.form.resultValueLabel',
+        placeholderKey: 'clinical.resources.labResults.form.resultValuePlaceholder',
+        hintKey: 'clinical.resources.labResults.form.resultValueHint',
+      },
+      {
+        name: 'result_unit',
+        type: 'text',
+        required: false,
+        maxLength: 40,
+        labelKey: 'clinical.resources.labResults.form.resultUnitLabel',
+        placeholderKey: 'clinical.resources.labResults.form.resultUnitPlaceholder',
+        hintKey: 'clinical.resources.labResults.form.resultUnitHint',
+      },
+      {
+        name: 'result_text',
+        type: 'text',
+        required: false,
+        maxLength: 5000,
+        labelKey: 'clinical.resources.labResults.form.resultTextLabel',
+        placeholderKey: 'clinical.resources.labResults.form.resultTextPlaceholder',
+        hintKey: 'clinical.resources.labResults.form.resultTextHint',
+      },
+      {
+        name: 'reported_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labResults.form.reportedAtLabel',
+        placeholderKey: 'clinical.resources.labResults.form.reportedAtPlaceholder',
+        hintKey: 'clinical.resources.labResults.form.reportedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.lab_order_item_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.labResults.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      lab_order_item_id: sanitizeString(record?.lab_order_item_id || context?.labOrderItemId),
+      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      result_value: sanitizeString(record?.result_value),
+      result_unit: sanitizeString(record?.result_unit),
+      result_text: sanitizeString(record?.result_text),
+      reported_at: sanitizeString(record?.reported_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        status: sanitizeString(values.status),
+        result_value: sanitizeString(values.result_value) || null,
+        result_unit: sanitizeString(values.result_unit) || null,
+        result_text: sanitizeString(values.result_text) || null,
+        reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : null,
+      };
+      if (!isEdit) {
+        payload.lab_order_item_id = sanitizeString(values.lab_order_item_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const reportedAtError = buildDateTimeError(values.reported_at, t);
+      if (reportedAtError) errors.reported_at = reportedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.labResults.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labResults.detail.labOrderItemLabel', valueKey: 'lab_order_item_id' },
+      { labelKey: 'clinical.resources.labResults.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.labResults.detail.resultValueLabel', valueKey: 'result_value' },
+      { labelKey: 'clinical.resources.labResults.detail.resultUnitLabel', valueKey: 'result_unit' },
+      { labelKey: 'clinical.resources.labResults.detail.resultTextLabel', valueKey: 'result_text' },
+      { labelKey: 'clinical.resources.labResults.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labResults.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labResults.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.LAB_QC_LOGS]: {
+    id: CLINICAL_RESOURCE_IDS.LAB_QC_LOGS,
+    routePath: `${LAB_ROUTE_ROOT}/lab-qc-logs`,
+    i18nKey: 'clinical.resources.labQcLogs',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'lab_test_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.labQcLogs.form.labTestIdLabel',
+        placeholderKey: 'clinical.resources.labQcLogs.form.labTestIdPlaceholder',
+        hintKey: 'clinical.resources.labQcLogs.form.labTestIdHint',
+      },
+      {
+        name: 'status',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.labQcLogs.form.statusLabel',
+        placeholderKey: 'clinical.resources.labQcLogs.form.statusPlaceholder',
+        hintKey: 'clinical.resources.labQcLogs.form.statusHint',
+      },
+      {
+        name: 'notes',
+        type: 'text',
+        required: false,
+        maxLength: 5000,
+        labelKey: 'clinical.resources.labQcLogs.form.notesLabel',
+        placeholderKey: 'clinical.resources.labQcLogs.form.notesPlaceholder',
+        hintKey: 'clinical.resources.labQcLogs.form.notesHint',
+      },
+      {
+        name: 'logged_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.labQcLogs.form.loggedAtLabel',
+        placeholderKey: 'clinical.resources.labQcLogs.form.loggedAtPlaceholder',
+        hintKey: 'clinical.resources.labQcLogs.form.loggedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.status) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const labTestId = sanitizeString(item?.lab_test_id);
+      if (!labTestId) return '';
+      return `${t('clinical.resources.labQcLogs.detail.labTestLabel')}: ${labTestId}`;
+    },
+    getInitialValues: (record, context) => ({
+      lab_test_id: sanitizeString(record?.lab_test_id || context?.labTestId),
+      status: sanitizeString(record?.status),
+      notes: sanitizeString(record?.notes),
+      logged_at: sanitizeString(record?.logged_at),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        status: sanitizeString(values.status) || null,
+        notes: sanitizeString(values.notes) || null,
+        logged_at: toIsoDateTime(values.logged_at) || undefined,
+      };
+      if (!isEdit) {
+        payload.lab_test_id = sanitizeString(values.lab_test_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const loggedAtError = buildDateTimeError(values.logged_at, t);
+      if (loggedAtError) errors.logged_at = loggedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.labQcLogs.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.labTestLabel', valueKey: 'lab_test_id' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.notesLabel', valueKey: 'notes' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.loggedAtLabel', valueKey: 'logged_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.labQcLogs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS]: {
+    id: CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS,
+    routePath: `${RADIOLOGY_ROUTE_ROOT}/radiology-tests`,
+    i18nKey: 'clinical.resources.radiologyTests',
+    requiresTenant: true,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+        maxLength: 255,
+        labelKey: 'clinical.resources.radiologyTests.form.nameLabel',
+        placeholderKey: 'clinical.resources.radiologyTests.form.namePlaceholder',
+        hintKey: 'clinical.resources.radiologyTests.form.nameHint',
+      },
+      {
+        name: 'code',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'clinical.resources.radiologyTests.form.codeLabel',
+        placeholderKey: 'clinical.resources.radiologyTests.form.codePlaceholder',
+        hintKey: 'clinical.resources.radiologyTests.form.codeHint',
+      },
+      {
+        name: 'modality',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.radiologyTests.form.modalityLabel',
+        placeholderKey: 'clinical.resources.radiologyTests.form.modalityPlaceholder',
+        hintKey: 'clinical.resources.radiologyTests.form.modalityHint',
+        options: RADIOLOGY_MODALITY_OPTIONS,
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const modalityValue = sanitizeString(item?.modality);
+      if (!modalityValue) return '';
+      return `${t('clinical.resources.radiologyTests.detail.modalityLabel')}: ${modalityValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      name: sanitizeString(record?.name),
+      code: sanitizeString(record?.code),
+      modality: sanitizeString(record?.modality || context?.modality || 'XRAY'),
+    }),
+    toPayload: (values) => ({
+      name: sanitizeString(values.name),
+      code: sanitizeString(values.code) || null,
+      modality: sanitizeString(values.modality),
+    }),
+    detailRows: [
+      { labelKey: 'clinical.resources.radiologyTests.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.nameLabel', valueKey: 'name' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.codeLabel', valueKey: 'code' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.modalityLabel', valueKey: 'modality' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.radiologyTests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS]: {
+    id: CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS,
+    routePath: `${RADIOLOGY_ROUTE_ROOT}/radiology-orders`,
+    i18nKey: 'clinical.resources.radiologyOrders',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'encounter_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyOrders.form.encounterIdLabel',
+        placeholderKey: 'clinical.resources.radiologyOrders.form.encounterIdPlaceholder',
+        hintKey: 'clinical.resources.radiologyOrders.form.encounterIdHint',
+      },
+      {
+        name: 'patient_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyOrders.form.patientIdLabel',
+        placeholderKey: 'clinical.resources.radiologyOrders.form.patientIdPlaceholder',
+        hintKey: 'clinical.resources.radiologyOrders.form.patientIdHint',
+      },
+      {
+        name: 'radiology_test_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdLabel',
+        placeholderKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdPlaceholder',
+        hintKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.radiologyOrders.form.statusLabel',
+        placeholderKey: 'clinical.resources.radiologyOrders.form.statusPlaceholder',
+        hintKey: 'clinical.resources.radiologyOrders.form.statusHint',
+        options: RADIOLOGY_ORDER_STATUS_OPTIONS,
+      },
+      {
+        name: 'ordered_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyOrders.form.orderedAtLabel',
+        placeholderKey: 'clinical.resources.radiologyOrders.form.orderedAtPlaceholder',
+        hintKey: 'clinical.resources.radiologyOrders.form.orderedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.radiologyOrders.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      radiology_test_id: sanitizeString(record?.radiology_test_id || context?.radiologyTestId),
+      status: sanitizeString(record?.status || context?.status || 'ORDERED'),
+      ordered_at: sanitizeString(record?.ordered_at || context?.orderedAtFrom),
+    }),
+    toPayload: (values) => ({
+      encounter_id: sanitizeString(values.encounter_id) || null,
+      patient_id: sanitizeString(values.patient_id),
+      radiology_test_id: sanitizeString(values.radiology_test_id) || null,
+      status: sanitizeString(values.status),
+      ordered_at: toIsoDateTime(values.ordered_at) || undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const orderedAtError = buildDateTimeError(values.ordered_at, t);
+      if (orderedAtError) errors.ordered_at = orderedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.radiologyOrders.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.encounterLabel', valueKey: 'encounter_id' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.radiologyTestLabel', valueKey: 'radiology_test_id' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.radiologyOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS]: {
+    id: CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS,
+    routePath: `${RADIOLOGY_ROUTE_ROOT}/radiology-results`,
+    i18nKey: 'clinical.resources.radiologyResults',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'radiology_order_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdLabel',
+        placeholderKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdPlaceholder',
+        hintKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdHint',
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.radiologyResults.form.statusLabel',
+        placeholderKey: 'clinical.resources.radiologyResults.form.statusPlaceholder',
+        hintKey: 'clinical.resources.radiologyResults.form.statusHint',
+        options: RADIOLOGY_RESULT_STATUS_OPTIONS,
+      },
+      {
+        name: 'report_text',
+        type: 'text',
+        required: false,
+        maxLength: 65535,
+        labelKey: 'clinical.resources.radiologyResults.form.reportTextLabel',
+        placeholderKey: 'clinical.resources.radiologyResults.form.reportTextPlaceholder',
+        hintKey: 'clinical.resources.radiologyResults.form.reportTextHint',
+      },
+      {
+        name: 'reported_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.radiologyResults.form.reportedAtLabel',
+        placeholderKey: 'clinical.resources.radiologyResults.form.reportedAtPlaceholder',
+        hintKey: 'clinical.resources.radiologyResults.form.reportedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const statusValue = sanitizeString(item?.status);
+      if (!statusValue) return '';
+      return `${t('clinical.resources.radiologyResults.detail.statusLabel')}: ${statusValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      radiology_order_id: sanitizeString(record?.radiology_order_id || context?.radiologyOrderId),
+      status: sanitizeString(record?.status || context?.status || 'DRAFT'),
+      report_text: sanitizeString(record?.report_text),
+      reported_at: sanitizeString(record?.reported_at),
+    }),
+    toPayload: (values) => ({
+      radiology_order_id: sanitizeString(values.radiology_order_id),
+      status: sanitizeString(values.status),
+      report_text: sanitizeString(values.report_text) || null,
+      reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : null,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const reportedAtError = buildDateTimeError(values.reported_at, t);
+      if (reportedAtError) errors.reported_at = reportedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.radiologyResults.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.radiologyOrderLabel', valueKey: 'radiology_order_id' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.reportTextLabel', valueKey: 'report_text' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.radiologyResults.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.IMAGING_STUDIES]: {
+    id: CLINICAL_RESOURCE_IDS.IMAGING_STUDIES,
+    routePath: `${RADIOLOGY_ROUTE_ROOT}/imaging-studies`,
+    i18nKey: 'clinical.resources.imagingStudies',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'radiology_order_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdLabel',
+        placeholderKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdPlaceholder',
+        hintKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdHint',
+      },
+      {
+        name: 'modality',
+        type: 'select',
+        required: true,
+        labelKey: 'clinical.resources.imagingStudies.form.modalityLabel',
+        placeholderKey: 'clinical.resources.imagingStudies.form.modalityPlaceholder',
+        hintKey: 'clinical.resources.imagingStudies.form.modalityHint',
+        options: RADIOLOGY_MODALITY_OPTIONS,
+      },
+      {
+        name: 'performed_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.imagingStudies.form.performedAtLabel',
+        placeholderKey: 'clinical.resources.imagingStudies.form.performedAtPlaceholder',
+        hintKey: 'clinical.resources.imagingStudies.form.performedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const modalityValue = sanitizeString(item?.modality);
+      if (!modalityValue) return '';
+      return `${t('clinical.resources.imagingStudies.detail.modalityLabel')}: ${modalityValue}`;
+    },
+    getInitialValues: (record, context) => ({
+      radiology_order_id: sanitizeString(record?.radiology_order_id || context?.radiologyOrderId),
+      modality: sanitizeString(record?.modality || context?.modality || 'XRAY'),
+      performed_at: sanitizeString(record?.performed_at || context?.performedAt),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        modality: sanitizeString(values.modality),
+        performed_at: sanitizeString(values.performed_at) ? toIsoDateTime(values.performed_at) : null,
+      };
+      if (!isEdit) {
+        payload.radiology_order_id = sanitizeString(values.radiology_order_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const performedAtError = buildDateTimeError(values.performed_at, t);
+      if (performedAtError) errors.performed_at = performedAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.imagingStudies.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.imagingStudies.detail.radiologyOrderLabel', valueKey: 'radiology_order_id' },
+      { labelKey: 'clinical.resources.imagingStudies.detail.modalityLabel', valueKey: 'modality' },
+      { labelKey: 'clinical.resources.imagingStudies.detail.performedAtLabel', valueKey: 'performed_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.imagingStudies.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.imagingStudies.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.PACS_LINKS]: {
+    id: CLINICAL_RESOURCE_IDS.PACS_LINKS,
+    routePath: `${RADIOLOGY_ROUTE_ROOT}/pacs-links`,
+    i18nKey: 'clinical.resources.pacsLinks',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'imaging_study_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        disableOnEdit: true,
+        labelKey: 'clinical.resources.pacsLinks.form.imagingStudyIdLabel',
+        placeholderKey: 'clinical.resources.pacsLinks.form.imagingStudyIdPlaceholder',
+        hintKey: 'clinical.resources.pacsLinks.form.imagingStudyIdHint',
+      },
+      {
+        name: 'url',
+        type: 'text',
+        required: true,
+        maxLength: 2048,
+        labelKey: 'clinical.resources.pacsLinks.form.urlLabel',
+        placeholderKey: 'clinical.resources.pacsLinks.form.urlPlaceholder',
+        hintKey: 'clinical.resources.pacsLinks.form.urlHint',
+      },
+      {
+        name: 'expires_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.pacsLinks.form.expiresAtLabel',
+        placeholderKey: 'clinical.resources.pacsLinks.form.expiresAtPlaceholder',
+        hintKey: 'clinical.resources.pacsLinks.form.expiresAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.url) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const imagingStudyId = sanitizeString(item?.imaging_study_id);
+      if (!imagingStudyId) return '';
+      return `${t('clinical.resources.pacsLinks.detail.imagingStudyLabel')}: ${imagingStudyId}`;
+    },
+    getInitialValues: (record, context) => ({
+      imaging_study_id: sanitizeString(record?.imaging_study_id || context?.imagingStudyId),
+      url: sanitizeString(record?.url),
+      expires_at: sanitizeString(record?.expires_at || context?.expiresAt),
+    }),
+    toPayload: (values, { isEdit = false } = {}) => {
+      const payload = {
+        url: sanitizeString(values.url),
+        expires_at: sanitizeString(values.expires_at) ? toIsoDateTime(values.expires_at) : null,
+      };
+      if (!isEdit) {
+        payload.imaging_study_id = sanitizeString(values.imaging_study_id);
+      }
+      return payload;
+    },
+    validate: (values, t) => {
+      const errors = {};
+      const urlError = buildUrlError(values.url, t);
+      const expiresAtError = buildDateTimeError(values.expires_at, t);
+      if (urlError) errors.url = urlError;
+      if (expiresAtError) errors.expires_at = expiresAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'clinical.resources.pacsLinks.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.pacsLinks.detail.imagingStudyLabel', valueKey: 'imaging_study_id' },
+      { labelKey: 'clinical.resources.pacsLinks.detail.urlLabel', valueKey: 'url' },
+      { labelKey: 'clinical.resources.pacsLinks.detail.expiresAtLabel', valueKey: 'expires_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.pacsLinks.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.pacsLinks.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
 };
 
 const getClinicalResourceConfig = (resourceId) => resourceConfigs[resourceId] || null;
@@ -2800,10 +3894,14 @@ export {
   ICU_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   EMERGENCY_RESOURCE_LIST_ORDER,
+  LAB_RESOURCE_LIST_ORDER,
+  RADIOLOGY_RESOURCE_LIST_ORDER,
   IPD_ROUTE_ROOT,
   ICU_ROUTE_ROOT,
   THEATRE_ROUTE_ROOT,
   EMERGENCY_ROUTE_ROOT,
+  LAB_ROUTE_ROOT,
+  RADIOLOGY_ROUTE_ROOT,
   getClinicalResourceConfig,
   getContextFilters,
   normalizeContextId,
