@@ -12,10 +12,11 @@ const StyledContainer = styled.View.withConfig({
   componentId: 'StyledContainer',
 })`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  justify-content: center;
+  background-color: #e7f3ff;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing.lg}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.md}px;
+  padding-top: ${({ theme, topInset = 0 }) => theme.spacing.sm + topInset}px;
+  padding-bottom: ${({ theme, bottomInset = 0 }) => theme.spacing.sm + bottomInset}px;
 `;
 
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
@@ -24,52 +25,90 @@ const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
 })`
   flex: 1;
   width: 100%;
-  justify-content: center;
-`;
-
-const StyledScrollView = styled(ScrollView).withConfig({
-  displayName: 'StyledScrollView',
-  componentId: 'StyledScrollView',
-}).attrs({
-  contentContainerStyle: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-})`
-  flex: 1;
-  width: 100%;
+  align-items: center;
 `;
 
 const StyledCard = styled.View.withConfig({
   displayName: 'StyledCard',
   componentId: 'StyledCard',
 })`
+  flex: 1;
   width: 100%;
-  max-width: ${({ theme }) => theme.spacing.md * 25}px;
+  max-width: ${({ theme }) => theme.spacing.xxl * 20}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-radius: ${({ theme }) => theme.radius.md}px;
-  padding: ${({ theme }) => theme.spacing.xl}px;
+  padding: ${({ theme }) => theme.spacing.md}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.background.tertiary};
-  shadow-color: ${({ theme }) => theme.shadows?.sm?.shadowColor || theme.colors.text.primary};
-  shadow-offset: ${({ theme }) => theme.shadows?.sm?.shadowOffset?.width || 0}px ${({ theme }) => theme.shadows?.sm?.shadowOffset?.height || 0}px;
-  shadow-opacity: ${({ theme }) => theme.shadows?.sm?.shadowOpacity || 0};
-  shadow-radius: ${({ theme }) => theme.shadows?.sm?.shadowRadius || 0}px;
-  elevation: ${({ theme }) => theme.shadows?.sm?.elevation || 0};
+  shadow-color: #08224a;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.15;
+  shadow-radius: 8px;
+  elevation: 6;
+  overflow: hidden;
 `;
 
 const StyledBranding = styled.View.withConfig({
   displayName: 'StyledBranding',
   componentId: 'StyledBranding',
 })`
+  width: 100%;
   align-items: center;
+  margin-top: -${({ theme }) => theme.spacing.md}px;
+  margin-left: -${({ theme }) => theme.spacing.md}px;
+  margin-right: -${({ theme }) => theme.spacing.md}px;
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding-vertical: ${({ theme }) => theme.spacing.sm}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.md}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-bottom-width: 1px;
+  border-bottom-color: ${({ theme }) => `${theme.colors.primary}33`};
 `;
 
-const StyledContent = styled.View.withConfig({
-  displayName: 'StyledContent',
-  componentId: 'StyledContent',
+const StyledBrandHeader = styled.View.withConfig({
+  displayName: 'StyledBrandHeader',
+  componentId: 'StyledBrandHeader',
 })`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledBrandLogoShell = styled.View.withConfig({
+  displayName: 'StyledBrandLogoShell',
+  componentId: 'StyledBrandLogoShell',
+})`
+  width: ${({ theme }) => theme.spacing.xxl + theme.spacing.xs}px;
+  height: ${({ theme }) => theme.spacing.xxl + theme.spacing.xs}px;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => `${theme.colors.primary}66`};
+  background-color: ${({ theme }) => `${theme.colors.primary}14`};
+`;
+
+const StyledBrandName = styled.View.withConfig({
+  displayName: 'StyledBrandName',
+  componentId: 'StyledBrandName',
+})`
+  margin-left: ${({ theme }) => theme.spacing.xs}px;
+  flex-shrink: 1;
+  max-width: 78%;
+`;
+
+const StyledContent = styled(ScrollView)
+  .withConfig({
+    displayName: 'StyledContent',
+    componentId: 'StyledContent',
+  })
+  .attrs({
+    contentContainerStyle: {
+      paddingBottom: 8,
+    },
+  })`
+  flex: 1;
   width: 100%;
 `;
 
@@ -84,10 +123,11 @@ const StyledHelpLinks = styled.View.withConfig({
 export {
   StyledContainer,
   StyledKeyboardAvoidingView,
-  StyledScrollView,
   StyledCard,
   StyledBranding,
+  StyledBrandHeader,
+  StyledBrandLogoShell,
+  StyledBrandName,
   StyledContent,
   StyledHelpLinks,
 };
-

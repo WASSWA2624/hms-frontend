@@ -13,6 +13,7 @@ import {
   StyledContainer,
   StyledCard,
   StyledBrandHeader,
+  StyledBrandLogoShell,
   StyledBrandName,
   StyledBranding,
   StyledContent,
@@ -41,6 +42,7 @@ const AuthLayoutWeb = ({
 }) => {
   const { t } = useI18n();
   const appName = t('app.name');
+  const hasSupplementalBranding = Boolean(branding);
 
   return (
     <StyledContainer
@@ -51,12 +53,14 @@ const AuthLayoutWeb = ({
     >
       {banner ? <StyledBanner role="region">{banner}</StyledBanner> : null}
       <StyledCard>
-        <StyledBranding>
-          <StyledBrandHeader>
-            <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
+        <StyledBranding $hasSupplementalBranding={hasSupplementalBranding}>
+          <StyledBrandHeader $centered={!hasSupplementalBranding}>
+            <StyledBrandLogoShell>
+              <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
+            </StyledBrandLogoShell>
             <StyledBrandCopy>
-              <StyledBrandName>
-                <Text variant="h3">{appName}</Text>
+              <StyledBrandName $centered={!hasSupplementalBranding}>
+                <Text variant="h2" align={hasSupplementalBranding ? undefined : 'center'}>{appName}</Text>
               </StyledBrandName>
             </StyledBrandCopy>
           </StyledBrandHeader>

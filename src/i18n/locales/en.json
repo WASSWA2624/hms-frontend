@@ -1392,25 +1392,30 @@
       "title": "Get started",
       "description": "Choose the fastest path to continue.",
       "reasons": {
-        "badge": "Continue with confidence",
-        "title": "Continue with confidence",
-        "description": "Secure access, faster setup, and verified identity checks in one flow.",
+        "badge": "Built for care delivery and growth",
+        "title": "Why hospitals keep choosing HMS",
+        "description": "Designed for clinicians, facility leaders, and investors who need outcomes, control, and scalable operations.",
+        "audiences": {
+          "clinicians": "For clinical teams",
+          "admins": "For facility administrators",
+          "investors": "For investors and boards"
+        },
         "items": {
           "secureAccess": {
-            "title": "Secure sign-in",
-            "description": "Protected access for patient and billing workflows."
+            "title": "Secure, compliant access",
+            "description": "RBAC and audits protect patient and billing data."
           },
           "quickSetup": {
-            "title": "Quick setup",
-            "description": "Create your workspace in minutes, not hours."
+            "title": "Unified clinical record",
+            "description": "One patient timeline from triage to follow-up."
           },
           "verifiedIdentity": {
-            "title": "Verified identity",
-            "description": "Email verification reduces account misuse."
+            "title": "Operations in one view",
+            "description": "Run beds, staff, inventory, and billing in one workspace."
           },
           "resumeFlow": {
-            "title": "Resume anytime",
-            "description": "Continue exactly where you left off."
+            "title": "Investor-ready insight",
+            "description": "See utilization, revenue, and module performance across all platforms."
           }
         }
       },

@@ -5,12 +5,17 @@
  */
 
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppLogo, AppLogoSizes, Text } from '@platform/components';
+import { useI18n } from '@hooks';
 import {
   StyledContainer,
   StyledKeyboardAvoidingView,
-  StyledScrollView,
   StyledCard,
   StyledBranding,
+  StyledBrandHeader,
+  StyledBrandLogoShell,
+  StyledBrandName,
   StyledContent,
   StyledHelpLinks,
 } from './AuthLayout.android.styles';
@@ -33,38 +38,44 @@ const AuthLayoutAndroid = ({
   accessibilityLabel,
   testID,
 }) => {
+  const { t } = useI18n();
+  const appName = t('app.name');
+  const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
+
+  const resolvedBranding = branding ?? (
+    <StyledBrandHeader>
+      <StyledBrandLogoShell>
+        <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
+      </StyledBrandLogoShell>
+      <StyledBrandName>
+        <Text variant="h2" align="center">{appName}</Text>
+      </StyledBrandName>
+    </StyledBrandHeader>
+  );
+
   return (
     <StyledContainer
+      topInset={topInset}
+      bottomInset={bottomInset}
       accessibilityLabel={accessibilityLabel}
       testID={testID}
       accessibilityRole="none"
     >
       {banner}
       <StyledKeyboardAvoidingView behavior="height">
-        <StyledScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <StyledCard>
-            {branding && (
-              <StyledBranding>
-                {branding}
-              </StyledBranding>
-            )}
-            <StyledContent>
-              {children}
-            </StyledContent>
-            {helpLinks && (
-              <StyledHelpLinks>
-                {helpLinks}
-              </StyledHelpLinks>
-            )}
-          </StyledCard>
-        </StyledScrollView>
+        <StyledCard>
+          <StyledBranding>{resolvedBranding}</StyledBranding>
+          <StyledContent
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </StyledContent>
+          {helpLinks && <StyledHelpLinks>{helpLinks}</StyledHelpLinks>}
+        </StyledCard>
       </StyledKeyboardAvoidingView>
     </StyledContainer>
   );
 };
 
 export default AuthLayoutAndroid;
-
