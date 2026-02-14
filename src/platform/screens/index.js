@@ -108,3 +108,10 @@ export { default as ClinicalOverviewScreen } from './clinical/ClinicalOverviewSc
 export { default as ClinicalResourceListScreen } from './clinical/ClinicalResourceListScreen';
 export { default as ClinicalResourceDetailScreen } from './clinical/ClinicalResourceDetailScreen';
 export { default as ClinicalResourceFormScreen } from './clinical/ClinicalResourceFormScreen';
+
+// Patient portal screens
+export { default as PatientPortalMainScreen } from './patientPortal/PatientPortalMainScreen';
+export { default as PatientAppointmentsScreen } from './patientPortal/PatientAppointmentsScreen';
+export { default as PatientResultsScreen } from './patientPortal/PatientResultsScreen';
+export { default as PatientPrescriptionsScreen } from './patientPortal/PatientPrescriptionsScreen';
+export { default as PatientBillingScreen } from './patientPortal/PatientBillingScreen';

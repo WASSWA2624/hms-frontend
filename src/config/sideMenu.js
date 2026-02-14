@@ -48,6 +48,25 @@ const PATIENT_ACCESS_ROLES = [
   'RECEPTIONIST',
   'EMERGENCY_OFFICER',
 ];
+const PATIENT_PORTAL_ACCESS_ROLES = [
+  'APP_ADMIN',
+  'SUPER_ADMIN',
+  'PATIENT',
+  'PATIENT_USER',
+  'PATIENT_PORTAL_USER',
+  'TENANT_ADMIN',
+  'ADMIN',
+  'DOCTOR',
+  'NURSE',
+  'CLINICAL_OFFICER',
+  'FRONT_DESK',
+  'RECEPTIONIST',
+  'EMERGENCY_OFFICER',
+  'FINANCE_MANAGER',
+  'ACCOUNTANT',
+  'BILLING_CLERK',
+  'INSURANCE_OFFICER',
+];
 const SCHEDULING_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
 const CLINICAL_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
 const IPD_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
@@ -1036,7 +1055,41 @@ export const SIDE_MENU_ITEMS = (() => {
 
 /** Patient shell nav. Labels via t('navigation.items.patient.<id>'). */
 export const PATIENT_MENU_ITEMS = [
-  { id: 'home', icon: 'home-outline', path: '/', name: 'navigation.items.patient.home' },
+  {
+    id: 'home',
+    icon: 'home-outline',
+    path: '/portal',
+    name: 'navigation.items.patient.home',
+    roles: PATIENT_PORTAL_ACCESS_ROLES,
+  },
+  {
+    id: 'appointments',
+    icon: 'time-outline',
+    path: '/appointments',
+    name: 'navigation.items.patient.appointments',
+    roles: PATIENT_PORTAL_ACCESS_ROLES,
+  },
+  {
+    id: 'results',
+    icon: 'heart-outline',
+    path: '/results',
+    name: 'navigation.items.patient.results',
+    roles: PATIENT_PORTAL_ACCESS_ROLES,
+  },
+  {
+    id: 'prescriptions',
+    icon: 'medkit-outline',
+    path: '/prescriptions',
+    name: 'navigation.items.patient.prescriptions',
+    roles: PATIENT_PORTAL_ACCESS_ROLES,
+  },
+  {
+    id: 'billing',
+    icon: 'business-outline',
+    path: '/billing',
+    name: 'navigation.items.patient.billing',
+    roles: PATIENT_PORTAL_ACCESS_ROLES,
+  },
 ];
 
 /** @deprecated Kept for export compatibility */
