@@ -1,0 +1,159 @@
+﻿Steps to review and implement (Phase 001: Foundation Layer):
+- **1.1** Create Environment Configuration
+- **1.2** Create Application Constants
+- **1.3** Create API Endpoints Registry
+- **1.4** Create Feature Flags
+- **1.5** Create Config Barrel Export
+- **1.6** Create Formatting Utilities
+- **1.7** Create Validation Utilities
+- **1.8** Create Helper Utilities
+- **1.9** Create Utils Barrel Export
+- **1.10** Create Log Levels
+- **1.11** Create Logger Implementation
+- **1.12** Create Logging Barrel Export
+- **1.13** Create i18n System (do before Error Handler)
+- **1.14** Create Error Handler
+- **1.15** Create Fallback UI Component
+- **1.16** Create Error Boundary Component
+- **1.17** Create Errors Barrel Export
+
+Review and implement all missing and non-compliant aspects of the selected Phase 001 step(s) per:
+- `hms-frontend/dev-plan/P001_foundation.md`
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/write-up.md`
+- When selected steps touch endpoint registries, align entries with `hms-backend/dev-plan/P010_api_endpoints.mdc` and mounted routes in `hms-backend/src/app/router.js`.
+- Actual repository architecture and conventions already in `hms-frontend/src/**`
+
+Only implement what is required for the selected Phase 001 step(s).
+
+---
+
+## Rule Loading Contract (Mandatory)
+
+Before coding, read and apply:
+- `hms-frontend/.cursor/rules/index.mdc` (entry point)
+- `hms-frontend/.cursor/rules/core-principles.mdc`
+- `hms-frontend/.cursor/rules/tech-stack.mdc`
+- `hms-frontend/.cursor/rules/dependency-policy.mdc`
+- `hms-frontend/.cursor/rules/project-structure.mdc`
+- `hms-frontend/.cursor/rules/app-router.mdc`
+- `hms-frontend/.cursor/rules/platform-ui.mdc`
+- `hms-frontend/.cursor/rules/component-structure.mdc`
+- `hms-frontend/.cursor/rules/theme-design.mdc`
+- `hms-frontend/.cursor/rules/state-management.mdc`
+- `hms-frontend/.cursor/rules/features-domain.mdc`
+- `hms-frontend/.cursor/rules/services-integration.mdc`
+- `hms-frontend/.cursor/rules/hooks-utils.mdc`
+- `hms-frontend/.cursor/rules/offline-sync.mdc`
+- `hms-frontend/.cursor/rules/security.mdc`
+- `hms-frontend/.cursor/rules/i18n.mdc`
+- `hms-frontend/.cursor/rules/accessibility.mdc`
+- `hms-frontend/.cursor/rules/performance.mdc`
+- `hms-frontend/.cursor/rules/errors-logging.mdc`
+- `hms-frontend/.cursor/rules/debug.mdc`
+- `hms-frontend/.cursor/rules/bootstrap-config.mdc`
+- `hms-frontend/.cursor/rules/coding-conventions.mdc`
+- `hms-frontend/.cursor/rules/testing.mdc`
+
+Conflict resolution order:
+- Follow each rule file's declared single source of truth.
+- If still unclear, prioritize: `index.mdc` references -> specific single-source files -> phase plan.
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- The request can target one or more step IDs from `1.1 to 1.17`.
+- If specific step IDs are selected, implement only those selected IDs.
+- If selected steps need minimal shared prerequisite wiring, implement only the minimum prerequisite changes required.
+- Do NOT auto-implement unselected sibling steps.
+- Apply strict gate execution from `P001_foundation.md`: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
+
+---
+
+## Scope
+
+- Implement selected foundation steps for config, utils, logging, i18n bootstrap, and error handling.
+- Keep all foundation utilities framework-agnostic and reusable across features.
+- Maintain strict layering between config/utils/errors and higher app layers.
+
+Primary areas for this phase:
+- `src/config/**` (env/constants/endpoints/flags and barrel exports)
+- `src/utils/**` and related barrel exports
+- `src/logging/**`, `src/errors/**`, and `src/i18n/**` bootstrap files
+
+---
+
+## Implementation Rules (Mandatory)
+
+### Architecture and Boundaries
+- Keep layer boundaries from `project-structure.mdc` and `core-principles.mdc`.
+- Reuse existing modules/hooks/utilities before creating new abstractions.
+- Keep code JavaScript-only (`.js`/`.jsx`) per `coding-conventions.mdc`.
+- Follow alias/import/export conventions exactly.
+
+### Styling, UX, and Accessibility
+- UI files must use i18n keys for all user-facing copy.
+- Enforce accessibility semantics, focus handling, and touch target requirements.
+- Use theme tokens only; avoid hardcoded design values.
+
+### Data, Security, and Reliability
+- When APIs are involved, use only mounted backend routes and valid DTO/enum shapes.
+- Handle loading, empty, error, success, and offline states where applicable.
+- Avoid ad-hoc `console.*` and sensitive data exposure in logs/UI.
+- Prevent duplicate submissions and race-condition regressions.
+
+### Testing and Verification
+- Add/update tests for all changed behavior and required edge paths.
+- Respect coverage requirements defined by phase plan and `testing.mdc`.
+- Run targeted tests/checks for selected step(s) and report results.
+
+---
+
+## Phase Constraints (Mandatory)
+
+- Do NOT implement feature-domain modules/screens during Phase 1.
+- Do NOT add service orchestration/business workflows outside selected foundation steps.
+- Do NOT hardcode user-facing strings; i18n bootstrap must stay compliant.
+
+---
+
+## Step Gate Checklist (Mandatory per selected step)
+
+1. Implement/fix only the selected step module/files with compliant structure.
+2. Enforce i18n, accessibility, and token/rule compliance.
+3. Add/update tests for the selected step behavior and edge cases.
+4. Run relevant checks/tests and confirm pass/fail status.
+5. Verify no architecture boundary violations.
+6. Verify no unselected-step scope creep.
+
+---
+
+## Acceptance Criteria
+
+- 100% compliance with all files in `hms-frontend/.cursor/rules/*`.
+- Selected step(s) from `hms-frontend/dev-plan/P001_foundation.md` are complete and production-ready.
+- Backend integration (if applicable) matches mounted routes and contracts.
+- `hms-frontend/write-up.md` alignment is preserved for selected scope.
+- Tests and verification gates are satisfied for selected scope.
+- No out-of-scope phase/step work was introduced.
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Implementation files changed for selected Phase 001 step(s).
+2. Related export/config/wiring updates required by selected step(s) only.
+3. i18n locale key updates required by selected step(s).
+4. Tests/verification artifacts for selected step(s), including commands run and result summary.
+5. A concise compliance report confirming:
+   - selected step IDs implemented
+   - rule compliance checks performed
+   - backend/write-up alignment checks performed
+   - any intentionally deferred work (must be out-of-scope and justified)
+
+Do NOT include files or logic outside selected Phase 001 step(s).

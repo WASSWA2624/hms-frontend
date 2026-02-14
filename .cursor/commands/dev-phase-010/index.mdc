@@ -1,0 +1,23 @@
+﻿Phase folder: dev-phase-010
+
+Tier prompt files:
+- `10_1_auth-sessions-tenancy-core-access.mdc`
+- `10_10_pharmacy.mdc`
+- `10_11_inventory-procurement.mdc`
+- `10_12_emergency-ambulance.mdc`
+- `10_13_billing-payments-insurance.mdc`
+- `10_14_hr-payroll-staffing.mdc`
+- `10_15_housekeeping-facilities.mdc`
+- `10_16_notifications-communications.mdc`
+- `10_17_reporting-analytics.mdc`
+- `10_18_subscriptions-licensing-modules.mdc`
+- `10_19_compliance-audit-security.mdc`
+- `10_2_patient-registry-consent.mdc`
+- `10_20_integrations-webhooks.mdc`
+- `10_3_scheduling-availability-queues.mdc`
+- `10_4_encounters-clinical-documentation.mdc`
+- `10_5_inpatient-ipd-bed-management.mdc`
+- `10_6_icu-critical-care.mdc`
+- `10_7_theatre-anesthesia.mdc`
+- `10_8_laboratory-lis.mdc`
+- `10_9_radiology-ris-pacs.mdc`

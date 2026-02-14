@@ -1,0 +1,159 @@
+﻿Steps to review and implement (Phase 007: App Shell (App Router, Guards, Navigation Skeleton)):
+- **7.1** Create root layout file structure
+- **7.2** Add ErrorBoundary to root layout
+- **7.3** Add Redux Provider to root layout
+- **7.4** Add ThemeProvider to root layout
+- **7.5** Add Localization Provider to root layout
+- **7.6** Integrate bootstrap initialization
+- **7.7** Create auth route group folder
+- **7.8** Create main route group folder
+- **7.9** Create auth group layout
+- **7.10** Create main group layout
+- **7.11** Create guard infrastructure folder
+- **7.12** Implement auth guard hook
+- **7.13** Implement role guard hook
+- **7.14** Wire auth guard in auth layout
+- **7.15** Wire auth guard in main layout
+- **7.16** Wire role guards in protected route groups
+- **7.17** Integrate navigation skeleton in main layout
+
+Review and implement all missing and non-compliant aspects of the selected Phase 007 step(s) per:
+- `hms-frontend/dev-plan/P007_app-shell.md`
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/write-up.md`
+- Auth/session guard behavior must align with backend auth contracts in `hms-backend/dev-plan/P010_api_endpoints.mdc` and mounted routes in `hms-backend/src/app/router.js`.
+- Actual repository architecture and conventions already in `hms-frontend/src/**`
+
+Only implement what is required for the selected Phase 007 step(s).
+
+---
+
+## Rule Loading Contract (Mandatory)
+
+Before coding, read and apply:
+- `hms-frontend/.cursor/rules/index.mdc` (entry point)
+- `hms-frontend/.cursor/rules/core-principles.mdc`
+- `hms-frontend/.cursor/rules/tech-stack.mdc`
+- `hms-frontend/.cursor/rules/dependency-policy.mdc`
+- `hms-frontend/.cursor/rules/project-structure.mdc`
+- `hms-frontend/.cursor/rules/app-router.mdc`
+- `hms-frontend/.cursor/rules/platform-ui.mdc`
+- `hms-frontend/.cursor/rules/component-structure.mdc`
+- `hms-frontend/.cursor/rules/theme-design.mdc`
+- `hms-frontend/.cursor/rules/state-management.mdc`
+- `hms-frontend/.cursor/rules/features-domain.mdc`
+- `hms-frontend/.cursor/rules/services-integration.mdc`
+- `hms-frontend/.cursor/rules/hooks-utils.mdc`
+- `hms-frontend/.cursor/rules/offline-sync.mdc`
+- `hms-frontend/.cursor/rules/security.mdc`
+- `hms-frontend/.cursor/rules/i18n.mdc`
+- `hms-frontend/.cursor/rules/accessibility.mdc`
+- `hms-frontend/.cursor/rules/performance.mdc`
+- `hms-frontend/.cursor/rules/errors-logging.mdc`
+- `hms-frontend/.cursor/rules/debug.mdc`
+- `hms-frontend/.cursor/rules/bootstrap-config.mdc`
+- `hms-frontend/.cursor/rules/coding-conventions.mdc`
+- `hms-frontend/.cursor/rules/testing.mdc`
+
+Conflict resolution order:
+- Follow each rule file's declared single source of truth.
+- If still unclear, prioritize: `index.mdc` references -> specific single-source files -> phase plan.
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- The request can target one or more step IDs from `7.1 to 7.17`.
+- If specific step IDs are selected, implement only those selected IDs.
+- If selected steps need minimal shared prerequisite wiring, implement only the minimum prerequisite changes required.
+- Do NOT auto-implement unselected sibling steps.
+- Apply strict gate execution from `P007_app-shell.md`: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
+
+---
+
+## Scope
+
+- Implement selected app-shell steps for root layout, providers, route groups, guards, and navigation skeleton.
+- Preserve routing architecture and guard behavior required by rules and phase plan.
+- Ensure auth/role gating is accessible and deterministic.
+
+Primary areas for this phase:
+- `src/app/**` route groups, root/group layouts, and guard wiring
+- `src/platform/layouts/**` and navigation shell composition required by selected step(s)
+- `src/hooks/**` or guard utilities required for selected guard steps
+
+---
+
+## Implementation Rules (Mandatory)
+
+### Architecture and Boundaries
+- Keep layer boundaries from `project-structure.mdc` and `core-principles.mdc`.
+- Reuse existing modules/hooks/utilities before creating new abstractions.
+- Keep code JavaScript-only (`.js`/`.jsx`) per `coding-conventions.mdc`.
+- Follow alias/import/export conventions exactly.
+
+### Styling, UX, and Accessibility
+- UI files must use i18n keys for all user-facing copy.
+- Enforce accessibility semantics, focus handling, and touch target requirements.
+- Use theme tokens only; avoid hardcoded design values.
+
+### Data, Security, and Reliability
+- When APIs are involved, use only mounted backend routes and valid DTO/enum shapes.
+- Handle loading, empty, error, success, and offline states where applicable.
+- Avoid ad-hoc `console.*` and sensitive data exposure in logs/UI.
+- Prevent duplicate submissions and race-condition regressions.
+
+### Testing and Verification
+- Add/update tests for all changed behavior and required edge paths.
+- Respect coverage requirements defined by phase plan and `testing.mdc`.
+- Run targeted tests/checks for selected step(s) and report results.
+
+---
+
+## Phase Constraints (Mandatory)
+
+- Do NOT implement full feature screens/business workflows in Phase 7.
+- Do NOT bypass route-level access control with UI-only checks.
+- Do NOT redesign layout/navigation patterns outside selected app-shell steps.
+
+---
+
+## Step Gate Checklist (Mandatory per selected step)
+
+1. Implement/fix only the selected step module/files with compliant structure.
+2. Enforce i18n, accessibility, and token/rule compliance.
+3. Add/update tests for the selected step behavior and edge cases.
+4. Run relevant checks/tests and confirm pass/fail status.
+5. Verify no architecture boundary violations.
+6. Verify no unselected-step scope creep.
+
+---
+
+## Acceptance Criteria
+
+- 100% compliance with all files in `hms-frontend/.cursor/rules/*`.
+- Selected step(s) from `hms-frontend/dev-plan/P007_app-shell.md` are complete and production-ready.
+- Backend integration (if applicable) matches mounted routes and contracts.
+- `hms-frontend/write-up.md` alignment is preserved for selected scope.
+- Tests and verification gates are satisfied for selected scope.
+- No out-of-scope phase/step work was introduced.
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Implementation files changed for selected Phase 007 step(s).
+2. Related export/config/wiring updates required by selected step(s) only.
+3. i18n locale key updates required by selected step(s).
+4. Tests/verification artifacts for selected step(s), including commands run and result summary.
+5. A concise compliance report confirming:
+   - selected step IDs implemented
+   - rule compliance checks performed
+   - backend/write-up alignment checks performed
+   - any intentionally deferred work (must be out-of-scope and justified)
+
+Do NOT include files or logic outside selected Phase 007 step(s).

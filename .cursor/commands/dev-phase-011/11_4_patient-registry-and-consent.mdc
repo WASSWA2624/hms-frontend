@@ -1,0 +1,111 @@
+﻿Steps to review and implement (Phase 011 - Tier 4: Patient Registry and Consent):
+- **11.4.1** Patients home - `(main)/patients`
+- **11.4.2** Patients - `(main)/patients/patients` - backend `patient`
+- **11.4.3** Patient identifiers - `(main)/patients/patient-identifiers` - backend `patient-identifier`
+- **11.4.4** Patient contacts - `(main)/patients/patient-contacts` - backend `patient-contact`
+- **11.4.5** Patient guardians - `(main)/patients/patient-guardians` - backend `patient-guardian`
+- **11.4.6** Patient allergies - `(main)/patients/patient-allergies` - backend `patient-allergy`
+- **11.4.7** Patient medical histories - `(main)/patients/patient-medical-histories` - backend `patient-medical-history`
+- **11.4.8** Patient documents - `(main)/patients/patient-documents` - backend `patient-document`
+- **11.4.9** Consents - `(main)/patients/consents` - backend `consent`
+- **11.4.10** Terms acceptances - `(main)/patients/terms-acceptances` - backend `terms-acceptance`
+
+Specific implementation scope for this tier:
+- Implement selected screen/route wiring and interactions for this tier only.
+- Ensure end-to-end backend linkage for enabled actions and read-only fallbacks for unsupported actions.
+- Apply route/action access control, accessibility semantics, and resilient loading/error/offline states.
+
+Review and implement all missing and non-compliant aspects of this selected tier per:
+- hms-frontend/dev-plan/P011_screens-routes.md
+
+You must ensure 100% compliance with:
+- All rules in hms-frontend/.cursor/rules/*
+- hms-frontend/write-up.md
+- Contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+- Mounted routes in `hms-backend/src/app/router.js` and selected module route files are source of truth.
+- Treat unmounted resources/actions as unavailable and keep read-only/informational UX unless selected backend scope mounts them.
+- If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
+- Actual repository architecture and conventions already in hms-frontend/src/**
+
+Only implement what is required for this tier's selected step(s).
+
+---
+
+## Rule Loading Contract (Mandatory)
+
+Before coding, read and apply:
+- `hms-frontend/.cursor/rules/index.mdc` (entry point)
+- `hms-frontend/.cursor/rules/core-principles.mdc`
+- `hms-frontend/.cursor/rules/tech-stack.mdc`
+- `hms-frontend/.cursor/rules/dependency-policy.mdc`
+- `hms-frontend/.cursor/rules/project-structure.mdc`
+- `hms-frontend/.cursor/rules/app-router.mdc`
+- `hms-frontend/.cursor/rules/platform-ui.mdc`
+- `hms-frontend/.cursor/rules/component-structure.mdc`
+- `hms-frontend/.cursor/rules/theme-design.mdc`
+- `hms-frontend/.cursor/rules/state-management.mdc`
+- `hms-frontend/.cursor/rules/features-domain.mdc`
+- `hms-frontend/.cursor/rules/services-integration.mdc`
+- `hms-frontend/.cursor/rules/hooks-utils.mdc`
+- `hms-frontend/.cursor/rules/offline-sync.mdc`
+- `hms-frontend/.cursor/rules/security.mdc`
+- `hms-frontend/.cursor/rules/i18n.mdc`
+- `hms-frontend/.cursor/rules/accessibility.mdc`
+- `hms-frontend/.cursor/rules/performance.mdc`
+- `hms-frontend/.cursor/rules/errors-logging.mdc`
+- `hms-frontend/.cursor/rules/debug.mdc`
+- `hms-frontend/.cursor/rules/bootstrap-config.mdc`
+- `hms-frontend/.cursor/rules/coding-conventions.mdc`
+- `hms-frontend/.cursor/rules/testing.mdc`
+
+---
+
+## Tier Step Selection Contract (Mandatory)
+
+- This file covers only the listed step IDs for Phase 011 Tier 4.
+- If specific step IDs from this tier are selected, implement only those IDs.
+- If the tier is selected as a whole, implement all listed step IDs in order.
+- If shared prerequisite wiring is required, implement only the minimum required for this tier.
+- Do NOT implement unselected sibling tiers or out-of-tier steps.
+
+---
+
+## Implementation Areas
+
+Primary areas for this tier:
+- `src/app/**` route files and group layouts for selected tier step(s)
+- Selected `src/features/**`, `src/hooks/**`, and form components required by tier screens
+- Tests under `src/__tests__/**` covering selected tier routes, actions, and edge states
+
+---
+
+## Tier Constraints (Mandatory)
+
+- Do NOT implement steps from other tiers unless minimal prerequisite wiring is required.
+- Do NOT call non-mounted backend endpoints or invent shortcut routes.
+- Do NOT bypass route-level auth/role guards.
+
+---
+
+## Tier Gate Checklist
+
+1. Implement/fix only selected step(s) within this tier.
+2. Enforce i18n/accessibility/rules compliance.
+3. Add/update tests and edge-path coverage for selected step(s).
+4. Run relevant checks/tests and report results.
+5. Verify no architecture boundary violations.
+6. Verify no out-of-tier scope creep.
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Implementation files changed for selected step(s) in this tier.
+2. Related exports/wiring updates required by selected step(s) only.
+3. i18n locale key updates required by selected step(s).
+4. Tests/check commands run and result summary.
+5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
+
+Do NOT include files or logic outside this tier's selected step(s).

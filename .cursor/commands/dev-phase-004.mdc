@@ -1,0 +1,149 @@
+﻿Steps to review and implement (Phase 004: Offline-First Architecture):
+- **4.1** Create Network Listener
+- **4.2** Create Offline Queue
+- **4.3** Create Sync Manager
+- **4.4** Create Hydration Logic
+- **4.5** Create Network Slice
+- **4.6** Create Offline Barrel
+- **4.7** Create Bootstrap Layer
+
+Review and implement all missing and non-compliant aspects of the selected Phase 004 step(s) per:
+- `hms-frontend/dev-plan/P004_offline.md`
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/write-up.md`
+- Offline replay/sync behavior must target only mounted backend endpoints and valid request contracts from `hms-backend/src/app/router.js`.
+- Actual repository architecture and conventions already in `hms-frontend/src/**`
+
+Only implement what is required for the selected Phase 004 step(s).
+
+---
+
+## Rule Loading Contract (Mandatory)
+
+Before coding, read and apply:
+- `hms-frontend/.cursor/rules/index.mdc` (entry point)
+- `hms-frontend/.cursor/rules/core-principles.mdc`
+- `hms-frontend/.cursor/rules/tech-stack.mdc`
+- `hms-frontend/.cursor/rules/dependency-policy.mdc`
+- `hms-frontend/.cursor/rules/project-structure.mdc`
+- `hms-frontend/.cursor/rules/app-router.mdc`
+- `hms-frontend/.cursor/rules/platform-ui.mdc`
+- `hms-frontend/.cursor/rules/component-structure.mdc`
+- `hms-frontend/.cursor/rules/theme-design.mdc`
+- `hms-frontend/.cursor/rules/state-management.mdc`
+- `hms-frontend/.cursor/rules/features-domain.mdc`
+- `hms-frontend/.cursor/rules/services-integration.mdc`
+- `hms-frontend/.cursor/rules/hooks-utils.mdc`
+- `hms-frontend/.cursor/rules/offline-sync.mdc`
+- `hms-frontend/.cursor/rules/security.mdc`
+- `hms-frontend/.cursor/rules/i18n.mdc`
+- `hms-frontend/.cursor/rules/accessibility.mdc`
+- `hms-frontend/.cursor/rules/performance.mdc`
+- `hms-frontend/.cursor/rules/errors-logging.mdc`
+- `hms-frontend/.cursor/rules/debug.mdc`
+- `hms-frontend/.cursor/rules/bootstrap-config.mdc`
+- `hms-frontend/.cursor/rules/coding-conventions.mdc`
+- `hms-frontend/.cursor/rules/testing.mdc`
+
+Conflict resolution order:
+- Follow each rule file's declared single source of truth.
+- If still unclear, prioritize: `index.mdc` references -> specific single-source files -> phase plan.
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- The request can target one or more step IDs from `4.1 to 4.7`.
+- If specific step IDs are selected, implement only those selected IDs.
+- If selected steps need minimal shared prerequisite wiring, implement only the minimum prerequisite changes required.
+- Do NOT auto-implement unselected sibling steps.
+- Apply strict gate execution from `P004_offline.md`: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
+
+---
+
+## Scope
+
+- Implement selected offline-first steps for network listener, queueing, sync manager, hydration, and bootstrap integration.
+- Preserve deterministic queue/sync behavior and recovery flows.
+- Keep offline logic reusable and decoupled from feature-specific business rules.
+
+Primary areas for this phase:
+- `src/offline/**` listener, queue, sync, hydration, and barrel files
+- `src/store/slices/**` network/offline-related slices selected in phase steps
+- Bootstrap integration points required by selected offline steps
+
+---
+
+## Implementation Rules (Mandatory)
+
+### Architecture and Boundaries
+- Keep layer boundaries from `project-structure.mdc` and `core-principles.mdc`.
+- Reuse existing modules/hooks/utilities before creating new abstractions.
+- Keep code JavaScript-only (`.js`/`.jsx`) per `coding-conventions.mdc`.
+- Follow alias/import/export conventions exactly.
+
+### Styling, UX, and Accessibility
+- UI files must use i18n keys for all user-facing copy.
+- Enforce accessibility semantics, focus handling, and touch target requirements.
+- Use theme tokens only; avoid hardcoded design values.
+
+### Data, Security, and Reliability
+- When APIs are involved, use only mounted backend routes and valid DTO/enum shapes.
+- Handle loading, empty, error, success, and offline states where applicable.
+- Avoid ad-hoc `console.*` and sensitive data exposure in logs/UI.
+- Prevent duplicate submissions and race-condition regressions.
+
+### Testing and Verification
+- Add/update tests for all changed behavior and required edge paths.
+- Respect coverage requirements defined by phase plan and `testing.mdc`.
+- Run targeted tests/checks for selected step(s) and report results.
+
+---
+
+## Phase Constraints (Mandatory)
+
+- Do NOT implement unselected feature-domain offline behavior in this phase.
+- Do NOT break online-first happy paths while adding offline support.
+- Do NOT bypass security/privacy controls when persisting offline data.
+
+---
+
+## Step Gate Checklist (Mandatory per selected step)
+
+1. Implement/fix only the selected step module/files with compliant structure.
+2. Enforce i18n, accessibility, and token/rule compliance.
+3. Add/update tests for the selected step behavior and edge cases.
+4. Run relevant checks/tests and confirm pass/fail status.
+5. Verify no architecture boundary violations.
+6. Verify no unselected-step scope creep.
+
+---
+
+## Acceptance Criteria
+
+- 100% compliance with all files in `hms-frontend/.cursor/rules/*`.
+- Selected step(s) from `hms-frontend/dev-plan/P004_offline.md` are complete and production-ready.
+- Backend integration (if applicable) matches mounted routes and contracts.
+- `hms-frontend/write-up.md` alignment is preserved for selected scope.
+- Tests and verification gates are satisfied for selected scope.
+- No out-of-scope phase/step work was introduced.
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Implementation files changed for selected Phase 004 step(s).
+2. Related export/config/wiring updates required by selected step(s) only.
+3. i18n locale key updates required by selected step(s).
+4. Tests/verification artifacts for selected step(s), including commands run and result summary.
+5. A concise compliance report confirming:
+   - selected step IDs implemented
+   - rule compliance checks performed
+   - backend/write-up alignment checks performed
+   - any intentionally deferred work (must be out-of-scope and justified)
+
+Do NOT include files or logic outside selected Phase 004 step(s).
