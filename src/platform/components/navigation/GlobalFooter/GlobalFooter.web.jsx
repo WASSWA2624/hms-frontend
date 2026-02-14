@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { useI18n } from '@hooks';
-import { AppLogo, AppLogoSizes } from '@platform/components';
+import AppLogo, { SIZES as AppLogoSizes } from '@platform/components/branding/AppLogo';
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@config/env';
 import {
   StyledFooter,

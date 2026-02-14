@@ -8,7 +8,7 @@ import { Linking, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '@platform/components/display/Text';
 import { useI18n } from '@hooks';
-import { AppLogo, AppLogoSizes } from '@platform/components';
+import AppLogo, { SIZES as AppLogoSizes } from '@platform/components/branding/AppLogo';
 import { APP_ENVIRONMENT, APP_VERSION, BUILD_NUMBER, SUPPORT_EMAIL, SUPPORT_PHONE } from '@config/env';
 import useGlobalFooter from './useGlobalFooter';
 import { ACTION_VARIANTS, FOOTER_VARIANTS, STATUS_TONES } from './types';

@@ -5,7 +5,8 @@
  */
 import React, { useMemo, useCallback, useState } from 'react';
 import { usePathname, useRouter } from 'expo-router';
-import { Icon, TextField } from '@platform/components';
+import Icon from '@platform/components/display/Icon';
+import TextField from '@platform/components/forms/TextField';
 import SidebarItem from '@platform/components/navigation/SidebarItem';
 import { useI18n } from '@hooks';
 import {

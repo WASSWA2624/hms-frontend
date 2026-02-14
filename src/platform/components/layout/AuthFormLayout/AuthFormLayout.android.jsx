@@ -4,8 +4,11 @@
  * File: AuthFormLayout.android.jsx
  */
 import React from 'react';
-import { Card, Screen, Stack, Text } from '@platform/components';
+import Card from '@platform/components/display/Card';
 import { VARIANTS as CardVariants } from '@platform/components/display/Card/types';
+import Screen from '@platform/components/layout/Screen';
+import Stack from '@platform/components/layout/Stack';
+import Text from '@platform/components/display/Text';
 import {
   StyledAuthFormActions,
   StyledAuthFormCardWrapper,

@@ -82,6 +82,14 @@ src/platform/
 export { default } from './ComponentName';
 ```
 - Additional exports follow component first, then hook, then constants.
+- `src/platform/components/index.js` is a public aggregator for consumers outside `src/platform/components`.
+
+7. Dependency Direction (No Cycles)
+- Dependency flow must stay one-way: implementation/hooks/types -> local `index.js` -> optional parent aggregators.
+- Files inside `src/platform/components/**` must never import `@platform/components`.
+- Internal component-to-component usage must import leaf component barrels only (`@platform/components/<category>/<ComponentName>`), never the root aggregator.
+- Do not import ancestor barrels (`../index`, `../../index`, or alias equivalents) from files that are re-exported by those barrels.
+- Mutual imports between component folders are forbidden. If two components need shared behavior, extract it to `use*.js`, `types.js`, or a lower-level helper module.
 
 ## Naming
 - Components/Screens/Layouts: `PascalCase`
@@ -91,6 +99,8 @@ export { default } from './ComponentName';
 
 ## Imports
 - Prefer alias imports (`@platform/...`) over deep relative paths.
+- Inside `src/platform/components/**`, import other components via leaf aliases (`@platform/components/<category>/<ComponentName>`).
+- Use `@platform/components` only outside `src/platform/components/**` (screens, layouts, patterns, app consumers).
 - Outside platform layer, consume through platform barrels whenever available.
 
 ## Forbidden
@@ -101,3 +111,6 @@ export { default } from './ComponentName';
 - Cross-imports between platform override style files
 - Duplicated logic/styles across platform files when shared code would work
 - Violating category-based folder structure
+- Importing `@platform/components` from files inside `src/platform/components/**`
+- Importing ancestor barrels from component implementation/hook/style/type files
+- Circular imports between component folders
