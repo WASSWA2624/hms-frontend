@@ -176,13 +176,28 @@ src/app/
 
 ### Tier 7: IPD, ICU, Theatre, Emergency
 - **11.7.1** IPD (main) -- `(main)/ipd`
-- **11.7.2** IPD tabs: admission, bed-assignment, ward-round, nursing-note, medication-admin, discharge, transfer -- `(main)/ipd/*` (one step per tab)
+- **11.7.2.1** IPD Admission -- `(main)/ipd/admissions`
+- **11.7.2.2** IPD Bed assignment -- `(main)/ipd/bed-assignments`
+- **11.7.2.3** IPD Ward round -- `(main)/ipd/ward-rounds`
+- **11.7.2.4** IPD Nursing note -- `(main)/ipd/nursing-notes`
+- **11.7.2.5** IPD Medication admin -- `(main)/ipd/medication-administrations`
+- **11.7.2.6** IPD Discharge -- `(main)/ipd/discharge-summaries`
+- **11.7.2.7** IPD Transfer -- `(main)/ipd/transfer-requests`
 - **11.7.3** ICU (main) -- `(main)/icu`
-- **11.7.4** ICU tabs: stay, observation, critical-alert -- `(main)/icu/*` (one step per tab)
+- **11.7.4.1** ICU Stay -- `(main)/icu/icu-stays`
+- **11.7.4.2** ICU Observation -- `(main)/icu/icu-observations`
+- **11.7.4.3** ICU Critical alert -- `(main)/icu/critical-alerts`
 - **11.7.5** Theatre (main) -- `(main)/theatre`
-- **11.7.6** Theatre tabs: case, anesthesia-record, post-op-note -- `(main)/theatre/*` (one step per tab)
+- **11.7.6.1** Theatre Case -- `(main)/theatre/theatre-cases`
+- **11.7.6.2** Theatre Anesthesia record -- `(main)/theatre/anesthesia-records`
+- **11.7.6.3** Theatre Post-op note -- `(main)/theatre/post-op-notes`
 - **11.7.7** Emergency (main) -- `(main)/emergency`
-- **11.7.8** Emergency tabs: case, triage, response, ambulance, dispatch, trip -- `(main)/emergency/*` (one step per tab)
+- **11.7.8.1** Emergency Case -- `(main)/emergency/emergency-cases`
+- **11.7.8.2** Emergency Triage -- `(main)/emergency/triage-assessments`
+- **11.7.8.3** Emergency Response -- `(main)/emergency/emergency-responses`
+- **11.7.8.4** Emergency Ambulance -- `(main)/emergency/ambulances`
+- **11.7.8.5** Emergency Dispatch -- `(main)/emergency/ambulance-dispatches`
+- **11.7.8.6** Emergency Trip -- `(main)/emergency/ambulance-trips`
 
 ### Tier 8: Diagnostics (Lab + Radiology)
 - **11.8.1** Lab (main) -- `(main)/diagnostics/lab`
@@ -226,7 +241,7 @@ Per screen: routes per `app-router.mdc`; screen per `platform-ui.mdc` + `compone
 - [ ] 11.2.1-11.2.8 (auth, home; done: 11.2.1, 11.2.4, 11.2.8; pending: 11.2.2, 11.2.3, 11.2.5, 11.2.6, 11.2.7)
 - [x] 11.3.1-11.3.22 (Settings main + tabs)
 - [ ] 11.4.1-11.6.9 (Patients, Scheduling, Clinical)
-- [ ] 11.7.1-11.9.4 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
+- [ ] 11.7.1-11.7.8.6, 11.8.1-11.9.4 (IPD, ICU, Theatre, Emergency, Lab, Radiology, Pharmacy, Inventory)
 - [ ] 11.10.1-11.11.5 (Billing, HR, Housekeeping, Reports, Comms, Subscriptions, Integrations, Compliance, Patient portal)
 - [ ] Nav + deep links for all main screens
 
