@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import {
   useAdmission,
   useAnesthesiaRecord,
+  useAdverseEvent,
   useAmbulance,
   useAmbulanceDispatch,
   useAmbulanceTrip,
@@ -12,15 +13,22 @@ import {
   useCarePlan,
   useCriticalAlert,
   useClinicalNote,
+  useDispenseLog,
   useDischargeSummary,
   useDiagnosis,
+  useDrug,
+  useDrugBatch,
   useEmergencyCase,
   useEmergencyResponse,
   useEncounter,
   useFollowUp,
+  useFormularyItem,
+  useGoodsReceipt,
   useIcuObservation,
   useIcuStay,
   useImagingStudy,
+  useInventoryItem,
+  useInventoryStock,
   useLabOrder,
   useLabPanel,
   useLabQcLog,
@@ -30,12 +38,17 @@ import {
   useMedicationAdministration,
   useNursingNote,
   usePacsLink,
+  usePharmacyOrder,
   usePostOpNote,
+  usePurchaseOrder,
   useProcedure,
   useRadiologyOrder,
   useRadiologyResult,
   useRadiologyTest,
   useReferral,
+  useStockAdjustment,
+  useStockMovement,
+  useSupplier,
   useTheatreCase,
   useTransferRequest,
   useTriageAssessment,
@@ -58,6 +71,19 @@ const useClinicalResourceCrud = (resourceId) => {
   const theatreCase = useTheatreCase();
   const anesthesiaRecord = useAnesthesiaRecord();
   const postOpNote = usePostOpNote();
+  const drug = useDrug();
+  const drugBatch = useDrugBatch();
+  const formularyItem = useFormularyItem();
+  const pharmacyOrder = usePharmacyOrder();
+  const dispenseLog = useDispenseLog();
+  const adverseEvent = useAdverseEvent();
+  const inventoryItem = useInventoryItem();
+  const inventoryStock = useInventoryStock();
+  const stockMovement = useStockMovement();
+  const supplier = useSupplier();
+  const purchaseOrder = usePurchaseOrder();
+  const goodsReceipt = useGoodsReceipt();
+  const stockAdjustment = useStockAdjustment();
   const labTest = useLabTest();
   const labPanel = useLabPanel();
   const labOrder = useLabOrder();
@@ -99,6 +125,19 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.THEATRE_CASES]: theatreCase,
       [CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS]: anesthesiaRecord,
       [CLINICAL_RESOURCE_IDS.POST_OP_NOTES]: postOpNote,
+      [CLINICAL_RESOURCE_IDS.DRUGS]: drug,
+      [CLINICAL_RESOURCE_IDS.DRUG_BATCHES]: drugBatch,
+      [CLINICAL_RESOURCE_IDS.FORMULARY_ITEMS]: formularyItem,
+      [CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS]: pharmacyOrder,
+      [CLINICAL_RESOURCE_IDS.DISPENSE_LOGS]: dispenseLog,
+      [CLINICAL_RESOURCE_IDS.ADVERSE_EVENTS]: adverseEvent,
+      [CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS]: inventoryItem,
+      [CLINICAL_RESOURCE_IDS.INVENTORY_STOCKS]: inventoryStock,
+      [CLINICAL_RESOURCE_IDS.STOCK_MOVEMENTS]: stockMovement,
+      [CLINICAL_RESOURCE_IDS.SUPPLIERS]: supplier,
+      [CLINICAL_RESOURCE_IDS.PURCHASE_ORDERS]: purchaseOrder,
+      [CLINICAL_RESOURCE_IDS.GOODS_RECEIPTS]: goodsReceipt,
+      [CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS]: stockAdjustment,
       [CLINICAL_RESOURCE_IDS.LAB_TESTS]: labTest,
       [CLINICAL_RESOURCE_IDS.LAB_PANELS]: labPanel,
       [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: labOrder,
@@ -141,6 +180,19 @@ const useClinicalResourceCrud = (resourceId) => {
     theatreCase,
     anesthesiaRecord,
     postOpNote,
+    drug,
+    drugBatch,
+    formularyItem,
+    pharmacyOrder,
+    dispenseLog,
+    adverseEvent,
+    inventoryItem,
+    inventoryStock,
+    stockMovement,
+    supplier,
+    purchaseOrder,
+    goodsReceipt,
+    stockAdjustment,
     labTest,
     labPanel,
     labOrder,

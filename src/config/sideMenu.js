@@ -55,6 +55,15 @@ const ICU_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const THEATRE_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const EMERGENCY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
 const DIAGNOSTICS_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
+const PHARMACY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES, 'PHARMACIST', 'PHARMACY_TECHNICIAN'];
+const INVENTORY_ACCESS_ROLES = [
+  ...CLINICAL_ACCESS_ROLES,
+  'PHARMACIST',
+  'PHARMACY_TECHNICIAN',
+  'INVENTORY_MANAGER',
+  'STORE_KEEPER',
+  'PROCUREMENT_OFFICER',
+];
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -593,6 +602,105 @@ const DIAGNOSTICS_ITEMS = [
 ];
 
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
+/** @type {MainNavChild[]} */
+const PHARMACY_ITEMS = [
+  {
+    id: 'pharmacy-drugs',
+    icon: 'medkit-outline',
+    path: '/pharmacy/drugs',
+    name: `${MAIN_NAV_I18N}.pharmacy-drugs`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-drug-batches',
+    icon: 'layers-outline',
+    path: '/pharmacy/drug-batches',
+    name: `${MAIN_NAV_I18N}.pharmacy-drug-batches`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-formulary-items',
+    icon: 'grid-outline',
+    path: '/pharmacy/formulary-items',
+    name: `${MAIN_NAV_I18N}.pharmacy-formulary-items`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-pharmacy-orders',
+    icon: 'time-outline',
+    path: '/pharmacy/pharmacy-orders',
+    name: `${MAIN_NAV_I18N}.pharmacy-pharmacy-orders`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-dispense-logs',
+    icon: 'folder-outline',
+    path: '/pharmacy/dispense-logs',
+    name: `${MAIN_NAV_I18N}.pharmacy-dispense-logs`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-adverse-events',
+    icon: 'shield-outline',
+    path: '/pharmacy/adverse-events',
+    name: `${MAIN_NAV_I18N}.pharmacy-adverse-events`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const INVENTORY_ITEMS = [
+  {
+    id: 'inventory-inventory-items',
+    icon: 'layers-outline',
+    path: '/inventory/inventory-items',
+    name: `${MAIN_NAV_I18N}.inventory-inventory-items`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-inventory-stocks',
+    icon: 'grid-outline',
+    path: '/inventory/inventory-stocks',
+    name: `${MAIN_NAV_I18N}.inventory-inventory-stocks`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-stock-movements',
+    icon: 'git-branch-outline',
+    path: '/inventory/stock-movements',
+    name: `${MAIN_NAV_I18N}.inventory-stock-movements`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-suppliers',
+    icon: 'business-outline',
+    path: '/inventory/suppliers',
+    name: `${MAIN_NAV_I18N}.inventory-suppliers`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-purchase-orders',
+    icon: 'time-outline',
+    path: '/inventory/purchase-orders',
+    name: `${MAIN_NAV_I18N}.inventory-purchase-orders`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-goods-receipts',
+    icon: 'folder-outline',
+    path: '/inventory/goods-receipts',
+    name: `${MAIN_NAV_I18N}.inventory-goods-receipts`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-stock-adjustments',
+    icon: 'shield-checkmark-outline',
+    path: '/inventory/stock-adjustments',
+    name: `${MAIN_NAV_I18N}.inventory-stock-adjustments`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+];
+
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
   { id: 'dashboard', icon: 'grid-outline', path: '/dashboard', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
@@ -660,6 +768,22 @@ export const MAIN_NAV_ITEMS = [
     roles: DIAGNOSTICS_ACCESS_ROLES,
     children: DIAGNOSTICS_ITEMS,
   },
+  {
+    id: 'pharmacy',
+    icon: 'medkit-outline',
+    path: '/pharmacy',
+    name: `${MAIN_NAV_I18N}.pharmacy`,
+    roles: PHARMACY_ACCESS_ROLES,
+    children: PHARMACY_ITEMS,
+  },
+  {
+    id: 'inventory',
+    icon: 'layers-outline',
+    path: '/inventory',
+    name: `${MAIN_NAV_I18N}.inventory`,
+    roles: INVENTORY_ACCESS_ROLES,
+    children: INVENTORY_ITEMS,
+  },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
 
@@ -691,4 +815,6 @@ export {
   THEATRE_ITEMS,
   EMERGENCY_ITEMS,
   DIAGNOSTICS_ITEMS,
+  PHARMACY_ITEMS,
+  INVENTORY_ITEMS,
 };

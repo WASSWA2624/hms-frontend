@@ -76,11 +76,30 @@ const normalizeClinicalContext = (params = {}) => {
   const radiologyTestId = normalizeContextId(params.radiologyTestId);
   const radiologyOrderId = normalizeContextId(params.radiologyOrderId);
   const imagingStudyId = normalizeContextId(params.imagingStudyId);
+  const drugId = normalizeContextId(params.drugId);
+  const pharmacyOrderId = normalizeContextId(params.pharmacyOrderId);
+  const pharmacyOrderItemId = normalizeContextId(params.pharmacyOrderItemId);
+  const inventoryItemId = normalizeContextId(params.inventoryItemId);
+  const supplierId = normalizeContextId(params.supplierId);
+  const purchaseRequestId = normalizeContextId(params.purchaseRequestId);
+  const purchaseOrderId = normalizeContextId(params.purchaseOrderId);
+  const requestedByUserId = normalizeContextId(params.requestedByUserId);
   const status = sanitizeString(firstValue(params.status)) || undefined;
   const encounterType = sanitizeString(firstValue(params.encounterType)) || undefined;
   const diagnosisType = sanitizeString(firstValue(params.diagnosisType)) || undefined;
   const code = sanitizeString(firstValue(params.code)) || undefined;
   const vitalType = sanitizeString(firstValue(params.vitalType)) || undefined;
+  const form = sanitizeString(firstValue(params.form)) || undefined;
+  const strength = sanitizeString(firstValue(params.strength)) || undefined;
+  const batchNumber = sanitizeString(firstValue(params.batchNumber)) || undefined;
+  const category = sanitizeString(firstValue(params.category)) || undefined;
+  const sku = sanitizeString(firstValue(params.sku)) || undefined;
+  const unit = sanitizeString(firstValue(params.unit)) || undefined;
+  const contactEmail = sanitizeString(firstValue(params.contactEmail)) || undefined;
+  const movementType = sanitizeString(firstValue(params.movementType)) || undefined;
+  const reason = sanitizeString(firstValue(params.reason)) || undefined;
+  const minQuantity = sanitizeString(firstValue(params.minQuantity)) || undefined;
+  const maxQuantity = sanitizeString(firstValue(params.maxQuantity)) || undefined;
   const startDate = sanitizeString(firstValue(params.startDate)) || undefined;
   const endDate = sanitizeString(firstValue(params.endDate)) || undefined;
   const severity = sanitizeString(firstValue(params.severity)) || undefined;
@@ -88,8 +107,18 @@ const normalizeClinicalContext = (params = {}) => {
   const modality = sanitizeString(firstValue(params.modality)) || undefined;
   const route = sanitizeString(firstValue(params.route)) || undefined;
   const search = sanitizeString(firstValue(params.search)) || undefined;
+  const expiredRaw = sanitizeString(firstValue(params.expired));
+  const expired = expiredRaw === 'true' ? true : expiredRaw === 'false' ? false : undefined;
+  const belowReorderRaw = sanitizeString(firstValue(params.belowReorder));
+  const belowReorder = belowReorderRaw === 'true' ? true : belowReorderRaw === 'false' ? false : undefined;
   const orderedAtFrom = sanitizeString(firstValue(params.orderedAtFrom)) || undefined;
   const orderedAtTo = sanitizeString(firstValue(params.orderedAtTo)) || undefined;
+  const dispensedAtFrom = sanitizeString(firstValue(params.dispensedAtFrom)) || undefined;
+  const dispensedAtTo = sanitizeString(firstValue(params.dispensedAtTo)) || undefined;
+  const reportedAtFrom = sanitizeString(firstValue(params.reportedAtFrom)) || undefined;
+  const reportedAtTo = sanitizeString(firstValue(params.reportedAtTo)) || undefined;
+  const fromDate = sanitizeString(firstValue(params.fromDate)) || undefined;
+  const toDate = sanitizeString(firstValue(params.toDate)) || undefined;
   const performedAt = sanitizeString(firstValue(params.performedAt)) || undefined;
   const expiresAt = sanitizeString(firstValue(params.expiresAt)) || undefined;
   const startedAtFrom = sanitizeString(firstValue(params.startedAtFrom)) || undefined;
@@ -130,11 +159,30 @@ const normalizeClinicalContext = (params = {}) => {
     radiologyTestId,
     radiologyOrderId,
     imagingStudyId,
+    drugId,
+    pharmacyOrderId,
+    pharmacyOrderItemId,
+    inventoryItemId,
+    supplierId,
+    purchaseRequestId,
+    purchaseOrderId,
+    requestedByUserId,
     status,
     encounterType,
     diagnosisType,
     code,
     vitalType,
+    form,
+    strength,
+    batchNumber,
+    category,
+    sku,
+    unit,
+    contactEmail,
+    movementType,
+    reason,
+    minQuantity,
+    maxQuantity,
     startDate,
     endDate,
     severity,
@@ -142,8 +190,16 @@ const normalizeClinicalContext = (params = {}) => {
     modality,
     route,
     search,
+    expired,
+    belowReorder,
     orderedAtFrom,
     orderedAtTo,
+    dispensedAtFrom,
+    dispensedAtTo,
+    reportedAtFrom,
+    reportedAtTo,
+    fromDate,
+    toDate,
     performedAt,
     expiresAt,
     startedAtFrom,

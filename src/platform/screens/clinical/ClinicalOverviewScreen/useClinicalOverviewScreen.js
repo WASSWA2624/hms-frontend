@@ -8,9 +8,11 @@ import {
   CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
   EMERGENCY_RESOURCE_LIST_ORDER,
+  INVENTORY_RESOURCE_LIST_ORDER,
   ICU_RESOURCE_LIST_ORDER,
   IPD_RESOURCE_LIST_ORDER,
   LAB_RESOURCE_LIST_ORDER,
+  PHARMACY_RESOURCE_LIST_ORDER,
   RADIOLOGY_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   getClinicalResourceConfig,
@@ -55,6 +57,16 @@ const OVERVIEW_CONFIGS = {
     i18nRoot: 'radiology',
     resourceIds: RADIOLOGY_RESOURCE_LIST_ORDER,
     primaryResourceId: CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS,
+  },
+  pharmacy: {
+    i18nRoot: 'pharmacy',
+    resourceIds: PHARMACY_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS,
+  },
+  inventory: {
+    i18nRoot: 'inventory',
+    resourceIds: INVENTORY_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS,
   },
 };
 
@@ -133,6 +145,25 @@ const buildPrimaryContext = (resourceId, item) => {
       radiologyTestId: item.radiology_test_id,
       status: item.status,
       orderedAtFrom: item.ordered_at,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS) {
+    return {
+      encounterId: item.encounter_id,
+      patientId: item.patient_id,
+      pharmacyOrderId: item.id,
+      status: item.status,
+      orderedAtFrom: item.ordered_at,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS) {
+    return {
+      tenantId: item.tenant_id,
+      inventoryItemId: item.id,
+      category: item.category,
+      unit: item.unit,
     };
   }
 

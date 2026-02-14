@@ -367,6 +367,133 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.DRUGS) {
+    return {
+      ...baseContext,
+      drugId: sanitizeString(item.id) || baseContext.drugId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      name: sanitizeString(item.name) || baseContext.name,
+      code: sanitizeString(item.code) || baseContext.code,
+      form: sanitizeString(item.form) || baseContext.form,
+      strength: sanitizeString(item.strength) || baseContext.strength,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DRUG_BATCHES) {
+    return {
+      ...baseContext,
+      drugId: sanitizeString(item.drug_id) || baseContext.drugId,
+      batchNumber: sanitizeString(item.batch_number) || baseContext.batchNumber,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.FORMULARY_ITEMS) {
+    return {
+      ...baseContext,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      drugId: sanitizeString(item.drug_id) || baseContext.drugId,
+      isActive: typeof item.is_active === 'boolean' ? item.is_active : baseContext.isActive,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS) {
+    return {
+      ...baseContext,
+      pharmacyOrderId: sanitizeString(item.id) || baseContext.pharmacyOrderId,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      status: sanitizeString(item.status) || baseContext.status,
+      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DISPENSE_LOGS) {
+    return {
+      ...baseContext,
+      pharmacyOrderItemId: sanitizeString(item.pharmacy_order_item_id) || baseContext.pharmacyOrderItemId,
+      status: sanitizeString(item.status) || baseContext.status,
+      dispensedAtFrom: sanitizeString(item.dispensed_at) || baseContext.dispensedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ADVERSE_EVENTS) {
+    return {
+      ...baseContext,
+      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      drugId: sanitizeString(item.drug_id) || baseContext.drugId,
+      severity: sanitizeString(item.severity) || baseContext.severity,
+      reportedAtFrom: sanitizeString(item.reported_at) || baseContext.reportedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS) {
+    return {
+      ...baseContext,
+      inventoryItemId: sanitizeString(item.id) || baseContext.inventoryItemId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      name: sanitizeString(item.name) || baseContext.name,
+      category: sanitizeString(item.category) || baseContext.category,
+      sku: sanitizeString(item.sku) || baseContext.sku,
+      unit: sanitizeString(item.unit) || baseContext.unit,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVENTORY_STOCKS) {
+    return {
+      ...baseContext,
+      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STOCK_MOVEMENTS) {
+    return {
+      ...baseContext,
+      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      movementType: sanitizeString(item.movement_type) || baseContext.movementType,
+      reason: sanitizeString(item.reason) || baseContext.reason,
+      fromDate: sanitizeString(item.occurred_at) || baseContext.fromDate,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SUPPLIERS) {
+    return {
+      ...baseContext,
+      supplierId: sanitizeString(item.id) || baseContext.supplierId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      name: sanitizeString(item.name) || baseContext.name,
+      contactEmail: sanitizeString(item.contact_email) || baseContext.contactEmail,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PURCHASE_ORDERS) {
+    return {
+      ...baseContext,
+      purchaseOrderId: sanitizeString(item.id) || baseContext.purchaseOrderId,
+      purchaseRequestId: sanitizeString(item.purchase_request_id) || baseContext.purchaseRequestId,
+      supplierId: sanitizeString(item.supplier_id) || baseContext.supplierId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.GOODS_RECEIPTS) {
+    return {
+      ...baseContext,
+      purchaseOrderId: sanitizeString(item.purchase_order_id) || baseContext.purchaseOrderId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS) {
+    return {
+      ...baseContext,
+      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      reason: sanitizeString(item.reason) || baseContext.reason,
+    };
+  }
+
   return baseContext;
 };
 
