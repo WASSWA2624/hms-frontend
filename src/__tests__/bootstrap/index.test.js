@@ -2,32 +2,16 @@
  * Bootstrap Tests
  * File: index.test.js
  */
-import { bootstrapApp } from '@bootstrap';
+import { __unsafeResetForTests, bootstrapApp } from '@bootstrap';
 import { initSecurity } from '@bootstrap/init.security';
 import { initStore } from '@bootstrap/init.store';
 import { initTheme } from '@bootstrap/init.theme';
-import { initLocale } from '@bootstrap/init.locale';
 import { initOffline } from '@bootstrap/init.offline';
 import { logger } from '@logging';
-
-jest.mock('@react-native-community/netinfo', () => ({
-  fetch: jest.fn(),
-  addEventListener: jest.fn(),
-}));
-
-jest.mock('@i18n', () => ({
-  getDeviceLocale: jest.fn(() => 'en'),
-}));
-
-jest.mock('@store', () => ({
-  getState: jest.fn(() => ({})),
-  dispatch: jest.fn(),
-}));
 
 jest.mock('@bootstrap/init.security');
 jest.mock('@bootstrap/init.store');
 jest.mock('@bootstrap/init.theme');
-jest.mock('@bootstrap/init.locale');
 jest.mock('@bootstrap/init.offline');
 jest.mock('@logging', () => ({
   logger: {
@@ -41,45 +25,60 @@ jest.mock('@logging', () => ({
 describe('Bootstrap', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    __unsafeResetForTests();
     initSecurity.mockResolvedValue(undefined);
     initStore.mockResolvedValue(undefined);
     initTheme.mockResolvedValue(undefined);
-    initLocale.mockResolvedValue(undefined);
     initOffline.mockResolvedValue(undefined);
   });
 
   describe('bootstrapApp', () => {
-    it('calls init modules in correct order: security -> store -> theme -> locale -> offline', async () => {
+    it('calls init modules in mandatory order: security -> store -> theme -> offline', async () => {
       await bootstrapApp();
 
       expect(initSecurity).toHaveBeenCalledTimes(1);
       expect(initStore).toHaveBeenCalledTimes(1);
       expect(initTheme).toHaveBeenCalledTimes(1);
-      expect(initLocale).toHaveBeenCalledTimes(1);
       expect(initOffline).toHaveBeenCalledTimes(1);
 
       const securityCallOrder = initSecurity.mock.invocationCallOrder[0];
       const storeCallOrder = initStore.mock.invocationCallOrder[0];
       const themeCallOrder = initTheme.mock.invocationCallOrder[0];
-      const localeCallOrder = initLocale.mock.invocationCallOrder[0];
       const offlineCallOrder = initOffline.mock.invocationCallOrder[0];
 
       expect(securityCallOrder).toBeLessThan(storeCallOrder);
       expect(storeCallOrder).toBeLessThan(themeCallOrder);
-      expect(themeCallOrder).toBeLessThan(localeCallOrder);
-      expect(localeCallOrder).toBeLessThan(offlineCallOrder);
+      expect(themeCallOrder).toBeLessThan(offlineCallOrder);
     });
 
-    it('is idempotent (can be called multiple times)', async () => {
+    it('is idempotent when called multiple times after success', async () => {
       await bootstrapApp();
       await bootstrapApp();
       await bootstrapApp();
 
-      expect(initSecurity).toHaveBeenCalledTimes(3);
-      expect(initStore).toHaveBeenCalledTimes(3);
-      expect(initTheme).toHaveBeenCalledTimes(3);
-      expect(initLocale).toHaveBeenCalledTimes(3);
-      expect(initOffline).toHaveBeenCalledTimes(3);
+      expect(initSecurity).toHaveBeenCalledTimes(1);
+      expect(initStore).toHaveBeenCalledTimes(1);
+      expect(initTheme).toHaveBeenCalledTimes(1);
+      expect(initOffline).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the same in-flight promise across concurrent calls', async () => {
+      let resolveSecurity;
+      const securityPromise = new Promise((resolve) => {
+        resolveSecurity = resolve;
+      });
+      initSecurity.mockReturnValue(securityPromise);
+
+      const first = bootstrapApp();
+      const second = bootstrapApp();
+
+      expect(initSecurity).toHaveBeenCalledTimes(1);
+
+      resolveSecurity();
+      await expect(Promise.all([first, second])).resolves.toEqual([
+        undefined,
+        undefined,
+      ]);
     });
 
     it('logs success when all init modules succeed', async () => {
@@ -89,7 +88,7 @@ describe('Bootstrap', () => {
       expect(logger.info).toHaveBeenCalledWith('Application bootstrap completed successfully');
     });
 
-    it('handles fatal errors (store initialization failure)', async () => {
+    it('logs and rethrows fatal bootstrap errors', async () => {
       const storeError = new Error('Store initialization failed');
       initStore.mockRejectedValue(storeError);
 
@@ -98,7 +97,6 @@ describe('Bootstrap', () => {
       expect(initSecurity).toHaveBeenCalled();
       expect(initStore).toHaveBeenCalled();
       expect(initTheme).not.toHaveBeenCalled();
-      expect(initLocale).not.toHaveBeenCalled();
       expect(initOffline).not.toHaveBeenCalled();
 
       expect(logger.error).toHaveBeenCalledWith(
@@ -109,79 +107,24 @@ describe('Bootstrap', () => {
       );
     });
 
-    it('handles non-fatal errors (security initialization failure)', async () => {
-      const securityError = new Error('Security initialization failed');
-      initSecurity.mockRejectedValue(securityError);
+    it('allows retry after a failed bootstrap attempt', async () => {
+      initSecurity
+        .mockRejectedValueOnce(new Error('Temporary failure'))
+        .mockResolvedValueOnce(undefined);
 
-      initSecurity.mockImplementation(() => {
-        throw securityError;
-      });
+      await expect(bootstrapApp()).rejects.toThrow('Temporary failure');
+      await expect(bootstrapApp()).resolves.toBeUndefined();
 
-      await expect(bootstrapApp()).rejects.toThrow('Security initialization failed');
-
-      expect(initSecurity).toHaveBeenCalled();
-      expect(initStore).not.toHaveBeenCalled();
-      expect(initTheme).not.toHaveBeenCalled();
-      expect(initLocale).not.toHaveBeenCalled();
-      expect(initOffline).not.toHaveBeenCalled();
+      expect(initSecurity).toHaveBeenCalledTimes(2);
+      expect(initStore).toHaveBeenCalledTimes(1);
+      expect(initTheme).toHaveBeenCalledTimes(1);
+      expect(initOffline).toHaveBeenCalledTimes(1);
     });
 
-    it('handles non-fatal errors (theme initialization failure)', async () => {
-      const themeError = new Error('Theme initialization failed');
-      initTheme.mockRejectedValue(themeError);
-
-      initTheme.mockImplementation(() => {
-        throw themeError;
-      });
-
-      await expect(bootstrapApp()).rejects.toThrow('Theme initialization failed');
-
-      expect(initSecurity).toHaveBeenCalled();
-      expect(initStore).toHaveBeenCalled();
-      expect(initTheme).toHaveBeenCalled();
-      expect(initLocale).not.toHaveBeenCalled();
-      expect(initOffline).not.toHaveBeenCalled();
-    });
-
-    it('handles non-fatal errors (locale initialization failure)', async () => {
-      const localeError = new Error('Locale initialization failed');
-      initLocale.mockRejectedValue(localeError);
-
-      initLocale.mockImplementation(() => {
-        throw localeError;
-      });
-
-      await expect(bootstrapApp()).rejects.toThrow('Locale initialization failed');
-
-      expect(initSecurity).toHaveBeenCalled();
-      expect(initStore).toHaveBeenCalled();
-      expect(initTheme).toHaveBeenCalled();
-      expect(initLocale).toHaveBeenCalled();
-      expect(initOffline).not.toHaveBeenCalled();
-    });
-
-    it('handles non-fatal errors (offline initialization failure)', async () => {
-      const offlineError = new Error('Offline initialization failed');
-      initOffline.mockRejectedValue(offlineError);
-
-      initOffline.mockImplementation(() => {
-        throw offlineError;
-      });
-
-      await expect(bootstrapApp()).rejects.toThrow('Offline initialization failed');
-
-      expect(initSecurity).toHaveBeenCalled();
-      expect(initStore).toHaveBeenCalled();
-      expect(initTheme).toHaveBeenCalled();
-      expect(initLocale).toHaveBeenCalled();
-      expect(initOffline).toHaveBeenCalled();
-    });
-
-    it('awaits all async init modules', async () => {
+    it('awaits all async init modules in sequence', async () => {
       let resolveSecurity;
       let resolveStore;
       let resolveTheme;
-      let resolveLocale;
       let resolveOffline;
 
       const securityPromise = new Promise((resolve) => {
@@ -193,9 +136,6 @@ describe('Bootstrap', () => {
       const themePromise = new Promise((resolve) => {
         resolveTheme = resolve;
       });
-      const localePromise = new Promise((resolve) => {
-        resolveLocale = resolve;
-      });
       const offlinePromise = new Promise((resolve) => {
         resolveOffline = resolve;
       });
@@ -203,32 +143,25 @@ describe('Bootstrap', () => {
       initSecurity.mockReturnValue(securityPromise);
       initStore.mockReturnValue(storePromise);
       initTheme.mockReturnValue(themePromise);
-      initLocale.mockReturnValue(localePromise);
       initOffline.mockReturnValue(offlinePromise);
 
       const bootstrapPromise = bootstrapApp();
 
-      expect(initSecurity).toHaveBeenCalled();
+      expect(initSecurity).toHaveBeenCalledTimes(1);
 
       resolveSecurity();
-      await new Promise((r) => setTimeout(r, 10));
-      expect(initStore).toHaveBeenCalled();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(initStore).toHaveBeenCalledTimes(1);
 
       resolveStore();
-      await new Promise((r) => setTimeout(r, 10));
-      expect(initTheme).toHaveBeenCalled();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(initTheme).toHaveBeenCalledTimes(1);
 
       resolveTheme();
-      await new Promise((r) => setTimeout(r, 10));
-      expect(initLocale).toHaveBeenCalled();
-
-      resolveLocale();
-      await new Promise((r) => setTimeout(r, 10));
-      expect(initOffline).toHaveBeenCalled();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(initOffline).toHaveBeenCalledTimes(1);
 
       resolveOffline();
-      await new Promise((r) => setTimeout(r, 10));
-
       await bootstrapPromise;
 
       expect(logger.info).toHaveBeenCalledWith('Application bootstrap completed successfully');

@@ -5,29 +5,75 @@
  */
 import { handleError } from '@errors';
 import { apiClient } from '@services/api';
+import store from '@store';
+import { actions as networkActions } from '@store/slices/network.slice';
 import { getQueue, removeFromQueue } from '@offline/queue';
 import { getIsOnline, subscribe } from '@offline/network.listener';
+import { isQueueableRequest, sanitizeQueueRequest } from '@offline/request.contract';
 
 let unsubscribeSync = null;
 
+const setSyncing = (value) => {
+  store.dispatch(networkActions.setSyncing(Boolean(value)));
+};
+
 export const processQueue = async () => {
-  if (!getIsOnline()) return;
+  const result = {
+    processed: 0,
+    failed: 0,
+    discarded: 0,
+  };
 
-  const queue = await getQueue();
-  if (queue.length === 0) return;
+  if (!getIsOnline()) {
+    setSyncing(false);
+    return result;
+  }
 
-  for (const item of queue) {
-    try {
-      await apiClient(item);
-      await removeFromQueue(item.id);
-    } catch (error) {
-      handleError(error, {
-        scope: 'offline.sync.manager',
-        op: 'processQueueItem',
-        id: item?.id,
-      });
-      // Keep in queue for retry
+  setSyncing(true);
+
+  try {
+    const queue = await getQueue();
+    if (!Array.isArray(queue) || queue.length === 0) {
+      return result;
     }
+
+    for (const item of queue) {
+      if (!isQueueableRequest(item)) {
+        result.discarded += 1;
+        await removeFromQueue(item?.id);
+        handleError(new Error('OFFLINE_REQUEST_NOT_ALLOWED'), {
+          scope: 'offline.sync.manager',
+          op: 'discardInvalidQueueItem',
+          id: item?.id || null,
+        });
+        continue;
+      }
+
+      try {
+        await apiClient(sanitizeQueueRequest(item));
+        await removeFromQueue(item.id);
+        result.processed += 1;
+      } catch (error) {
+        result.failed += 1;
+        handleError(error, {
+          scope: 'offline.sync.manager',
+          op: 'processQueueItem',
+          id: item?.id,
+        });
+        // Keep in queue for retry
+      }
+    }
+
+    return result;
+  } catch (error) {
+    result.failed += 1;
+    handleError(error, {
+      scope: 'offline.sync.manager',
+      op: 'processQueue',
+    });
+    return result;
+  } finally {
+    setSyncing(false);
   }
 };
 
@@ -41,7 +87,12 @@ export const startSync = () => {
   unsubscribeSync = subscribe((snapshot) => {
     if (snapshot?.isOnline) {
       // Fire-and-forget; offline sync must not block UI thread.
-      processQueue();
+      processQueue().catch((error) => {
+        handleError(error, {
+          scope: 'offline.sync.manager',
+          op: 'startSync',
+        });
+      });
     }
   });
 
