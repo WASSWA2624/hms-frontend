@@ -7,7 +7,6 @@ import {
   deleteTermsAcceptance,
   getTermsAcceptance,
   listTermsAcceptances,
-  updateTermsAcceptance,
 } from '@features/terms-acceptance';
 import { termsAcceptanceApi } from '@features/terms-acceptance/terms-acceptance.api';
 import { queueRequestIfOffline } from '@offline/request';
@@ -18,7 +17,6 @@ jest.mock('@features/terms-acceptance/terms-acceptance.api', () => ({
     list: jest.fn(),
     get: jest.fn(),
     create: jest.fn(),
-    update: jest.fn(),
     remove: jest.fn(),
   },
 }));
@@ -32,7 +30,6 @@ describe('terms-acceptance.usecase', () => {
     termsAcceptanceApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     termsAcceptanceApi.get.mockResolvedValue({ data: { id: '1' } });
     termsAcceptanceApi.create.mockResolvedValue({ data: { id: '1' } });
-    termsAcceptanceApi.update.mockResolvedValue({ data: { id: '1' } });
     termsAcceptanceApi.remove.mockResolvedValue({ data: { id: '1' } });
   });
 
@@ -41,7 +38,6 @@ describe('terms-acceptance.usecase', () => {
       list: listTermsAcceptances,
       get: getTermsAcceptance,
       create: createTermsAcceptance,
-      update: updateTermsAcceptance,
       remove: deleteTermsAcceptance,
     },
     { queueRequestIfOffline }

@@ -5,6 +5,7 @@
 import useCrud from '@hooks/useCrud';
 import {
   createAdmission,
+  dischargeAdmission,
   deleteAdmission,
   getAdmission,
   listAdmissions,
@@ -18,6 +19,7 @@ const useAdmission = () =>
     create: createAdmission,
     update: updateAdmission,
     remove: deleteAdmission,
+    discharge: dischargeAdmission,
   });
 
 export default useAdmission;

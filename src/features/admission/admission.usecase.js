@@ -76,4 +76,27 @@ const deleteAdmission = async (id) =>
     return normalizeAdmission(response.data);
   });
 
-export { listAdmissions, getAdmission, createAdmission, updateAdmission, deleteAdmission };
+const dischargeAdmission = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseAdmissionId(id);
+    const parsed = parseAdmissionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.ADMISSIONS.DISCHARGE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeAdmission({ id: parsedId, status: 'DISCHARGED', ...parsed });
+    }
+    const response = await admissionApi.discharge(parsedId, parsed);
+    return normalizeAdmission(response.data);
+  });
+
+export {
+  listAdmissions,
+  getAdmission,
+  createAdmission,
+  updateAdmission,
+  deleteAdmission,
+  dischargeAdmission,
+};

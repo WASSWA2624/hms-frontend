@@ -224,7 +224,6 @@ export const endpoints = {
     LIST: `${baseUrl}/terms-acceptances`,
     CREATE: `${baseUrl}/terms-acceptances`,
     GET: (id) => `${baseUrl}/terms-acceptances/${id}`,
-    UPDATE: (id) => `${baseUrl}/terms-acceptances/${id}`,
     DELETE: (id) => `${baseUrl}/terms-acceptances/${id}`,
   },
   APPOINTMENTS: {
@@ -339,6 +338,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/admissions/${id}`,
     UPDATE: (id) => `${baseUrl}/admissions/${id}`,
     DELETE: (id) => `${baseUrl}/admissions/${id}`,
+    DISCHARGE: (id) => `${baseUrl}/admissions/${id}/discharge`,
   },
   BED_ASSIGNMENTS: {
     LIST: `${baseUrl}/bed-assignments`,

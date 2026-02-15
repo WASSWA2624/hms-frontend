@@ -3,10 +3,11 @@
  * File: admission.api.test.js
  */
 import { endpoints } from '@config/endpoints';
-import { createCrudApi } from '@services/api';
+import { apiClient, createCrudApi } from '@services/api';
 import { admissionApi } from '@features/admission/admission.api';
 
 jest.mock('@services/api', () => ({
+  apiClient: jest.fn(),
   createCrudApi: jest.fn(() => ({
     list: jest.fn(),
     get: jest.fn(),
@@ -20,5 +21,17 @@ describe('admission.api', () => {
   it('creates crud api with admission endpoints', () => {
     expect(createCrudApi).toHaveBeenCalledWith(endpoints.ADMISSIONS);
     expect(admissionApi).toBeDefined();
+  });
+
+  it('posts admission discharge action', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'DISCHARGED' } });
+
+    await admissionApi.discharge('1', { discharged_at: '2026-02-15T12:00:00.000Z' });
+
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.ADMISSIONS.DISCHARGE('1'),
+      method: 'POST',
+      body: { discharged_at: '2026-02-15T12:00:00.000Z' },
+    });
   });
 });

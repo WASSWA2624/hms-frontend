@@ -53,22 +53,6 @@ const createTermsAcceptance = async (payload) =>
     return normalizeTermsAcceptance(response.data);
   });
 
-const updateTermsAcceptance = async (id, payload) =>
-  execute(async () => {
-    const parsedId = parseTermsAcceptanceId(id);
-    const parsed = parseTermsAcceptancePayload(payload);
-    const queued = await queueRequestIfOffline({
-      url: endpoints.TERMS_ACCEPTANCES.UPDATE(parsedId),
-      method: 'PUT',
-      body: parsed,
-    });
-    if (queued) {
-      return normalizeTermsAcceptance({ id: parsedId, ...parsed });
-    }
-    const response = await termsAcceptanceApi.update(parsedId, parsed);
-    return normalizeTermsAcceptance(response.data);
-  });
-
 const deleteTermsAcceptance = async (id) =>
   execute(async () => {
     const parsedId = parseTermsAcceptanceId(id);
@@ -87,6 +71,5 @@ export {
   listTermsAcceptances,
   getTermsAcceptance,
   createTermsAcceptance,
-  updateTermsAcceptance,
   deleteTermsAcceptance,
 };
