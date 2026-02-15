@@ -3,18 +3,26 @@
  * For sensitive offline data
  * File: encryption.js
  */
-// Placeholder - implement with expo-crypto or similar (dependency-policy.mdc).
-// For now, identity functions per P002; do not use for real secrets until implemented.
+const ENCRYPTION_NOT_IMPLEMENTED = 'ENCRYPTION_NOT_IMPLEMENTED';
 
 const encrypt = async (data) => {
-  // TODO: Implement encryption
-  return data;
+  const error = new Error(ENCRYPTION_NOT_IMPLEMENTED);
+  error.code = ENCRYPTION_NOT_IMPLEMENTED;
+  error.context = {
+    op: 'encrypt',
+    hasData: data !== undefined && data !== null,
+  };
+  throw error;
 };
 
 const decrypt = async (encryptedData) => {
-  // TODO: Implement decryption
-  return encryptedData;
+  const error = new Error(ENCRYPTION_NOT_IMPLEMENTED);
+  error.code = ENCRYPTION_NOT_IMPLEMENTED;
+  error.context = {
+    op: 'decrypt',
+    hasData: encryptedData !== undefined && encryptedData !== null,
+  };
+  throw error;
 };
 
-export { encrypt, decrypt };
-
+export { ENCRYPTION_NOT_IMPLEMENTED, encrypt, decrypt };

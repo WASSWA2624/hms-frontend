@@ -35,6 +35,7 @@ const { handleError } = require('@errors');
 describe('Storage Services', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSecureStore.isAvailableAsync.mockResolvedValue(true);
   });
 
   describe('AsyncStorage Service', () => {
@@ -171,15 +172,18 @@ describe('Storage Services', () => {
 
         const result = await secure.setItem('test-key', testValue);
         expect(result).toBe(true);
-        expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith('test-key', testValue);
+        expect(mockSecureStore.setItemAsync).toHaveBeenCalledWith(
+          'test-key',
+          testValue
+        );
       });
 
-      it('should return false and report error on failure', async () => {
+      it('should fallback to volatile storage and report error on secure write failure', async () => {
         const error = new Error('Storage error');
         mockSecureStore.setItemAsync.mockRejectedValue(error);
 
         const result = await secure.setItem('test-key', 'value');
-        expect(result).toBe(false);
+        expect(result).toBe(true);
         expect(handleError).toHaveBeenCalledWith(
           error,
           expect.objectContaining({
@@ -189,6 +193,17 @@ describe('Storage Services', () => {
           })
         );
       });
+
+      it('stores values in volatile memory when SecureStore is unavailable', async () => {
+        mockSecureStore.isAvailableAsync.mockResolvedValue(false);
+
+        const setOk = await secure.setItem('volatile-key', 'volatile-value');
+        const value = await secure.getItem('volatile-key');
+
+        expect(setOk).toBe(true);
+        expect(value).toBe('volatile-value');
+        expect(mockSecureStore.setItemAsync).not.toHaveBeenCalled();
+      });
     });
 
     describe('removeItem', () => {
@@ -197,15 +212,17 @@ describe('Storage Services', () => {
 
         const result = await secure.removeItem('test-key');
         expect(result).toBe(true);
-        expect(mockSecureStore.deleteItemAsync).toHaveBeenCalledWith('test-key');
+        expect(mockSecureStore.deleteItemAsync).toHaveBeenCalledWith(
+          'test-key'
+        );
       });
 
-      it('should return false and report error on failure', async () => {
+      it('should fallback to volatile storage and report error on secure remove failure', async () => {
         const error = new Error('Storage error');
         mockSecureStore.deleteItemAsync.mockRejectedValue(error);
 
         const result = await secure.removeItem('test-key');
-        expect(result).toBe(false);
+        expect(result).toBe(true);
         expect(handleError).toHaveBeenCalledWith(
           error,
           expect.objectContaining({
@@ -215,7 +232,18 @@ describe('Storage Services', () => {
           })
         );
       });
+
+      it('removes volatile value when SecureStore is unavailable', async () => {
+        mockSecureStore.isAvailableAsync.mockResolvedValue(false);
+        await secure.setItem('volatile-remove', 'value');
+
+        const removed = await secure.removeItem('volatile-remove');
+        const value = await secure.getItem('volatile-remove');
+
+        expect(removed).toBe(true);
+        expect(value).toBeNull();
+        expect(mockSecureStore.deleteItemAsync).not.toHaveBeenCalled();
+      });
     });
   });
 });
-

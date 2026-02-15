@@ -79,7 +79,10 @@ const normalizeApiPayload = (payload) => {
 };
 
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
-const CSRF_ERROR_MESSAGES = new Set(['errors.csrf.missing', 'errors.csrf.invalid']);
+const CSRF_ERROR_MESSAGES = new Set([
+  'errors.csrf.missing',
+  'errors.csrf.invalid',
+]);
 
 const isCsrfFailure = (status, errorData) => {
   if (status !== 403) return false;
@@ -89,7 +92,11 @@ const isCsrfFailure = (status, errorData) => {
     errorData?.code,
     errorData?.error,
   ]
-    .map((value) => String(value || '').trim().toLowerCase())
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
     .filter(Boolean);
   return candidates.some((value) => CSRF_ERROR_MESSAGES.has(value));
 };
@@ -102,17 +109,27 @@ const apiClient = async (config) => {
     headers = {},
     timeout = TIMEOUTS.API_REQUEST,
   } = config;
+  const normalizedMethod = String(method || 'GET').toUpperCase();
 
   const execute = async (csrfRetried = false) => {
     // Attach auth header
-    const authConfig = await attachAuthHeader({ url, method, body, headers });
+    const authConfig = await attachAuthHeader({
+      url,
+      method: normalizedMethod,
+      body,
+      headers,
+    });
+    const requestMethod = String(
+      authConfig.method || normalizedMethod
+    ).toUpperCase();
+    const isMutationRequest = MUTATION_METHODS.has(requestMethod);
 
     // Get CSRF headers for state-changing requests
     let csrfHeaders = {};
-    if (MUTATION_METHODS.has(method)) {
+    if (isMutationRequest) {
       try {
         csrfHeaders = await getCsrfHeaders();
-      } catch (csrfError) {
+      } catch (_csrfError) {
         // Continue without CSRF headers; token may be stale/unavailable.
         clearCsrfToken();
         csrfHeaders = {};
@@ -129,14 +146,18 @@ const apiClient = async (config) => {
       const platform = resolvePlatform();
       const attachCustomHeaders = canAttachCustomContextHeaders(authConfig.url);
       const response = await fetch(authConfig.url, {
-        method: authConfig.method,
+        method: requestMethod,
         credentials: 'include', // Include cookies for session
         headers: {
           'Content-Type': 'application/json',
           ...(locale ? { 'Accept-Language': locale } : {}),
           ...(attachCustomHeaders && locale ? { 'x-locale': locale } : {}),
-          ...(attachCustomHeaders && timezone ? { 'x-timezone': timezone } : {}),
-          ...(attachCustomHeaders && platform ? { 'x-platform': platform } : {}),
+          ...(attachCustomHeaders && timezone
+            ? { 'x-timezone': timezone }
+            : {}),
+          ...(attachCustomHeaders && platform
+            ? { 'x-platform': platform }
+            : {}),
           ...authConfig.headers,
           ...csrfHeaders,
         },
@@ -155,12 +176,16 @@ const apiClient = async (config) => {
         if (hasJson) {
           try {
             errorData = await response.json();
-          } catch (e) {
+          } catch (_parseError) {
             // If JSON parsing fails, continue with null
           }
         }
 
-        if (!csrfRetried && MUTATION_METHODS.has(method) && isCsrfFailure(response.status, errorData)) {
+        if (
+          !csrfRetried &&
+          isMutationRequest &&
+          isCsrfFailure(response.status, errorData)
+        ) {
           clearCsrfToken();
           return execute(true);
         }
@@ -169,7 +194,8 @@ const apiClient = async (config) => {
           status: response.status,
           statusText: response.statusText,
           code: errorData?.code || null,
-          message: errorData?.message || `API request failed: ${response.statusText}`,
+          message:
+            errorData?.message || `API request failed: ${response.statusText}`,
           errors: errorData?.errors || [],
         };
         throw await handleAuthError(error);
@@ -191,4 +217,3 @@ const apiClient = async (config) => {
 };
 
 export { apiClient };
-

@@ -2,12 +2,16 @@
  * Biometric Security Tests
  * File: biometric.test.js
  */
-import { authenticateBiometric, isBiometricEnrolled, isBiometricSupported } from '@security';
+import {
+  authenticateBiometric,
+  isBiometricEnrolled,
+  isBiometricSupported,
+} from '@security';
 
-const handleError = jest.fn((error) => error);
+const mockHandleError = jest.fn((error) => error);
 
 jest.mock('@errors', () => ({
-  handleError,
+  handleError: (...args) => mockHandleError(...args),
 }));
 
 jest.mock('expo-local-authentication', () => ({
@@ -31,7 +35,7 @@ describe('biometric security helpers', () => {
   it('returns false when hardware check fails', async () => {
     LocalAuthentication.hasHardwareAsync.mockRejectedValue(new Error('fail'));
     await expect(isBiometricSupported()).resolves.toBe(false);
-    expect(handleError).toHaveBeenCalled();
+    expect(mockHandleError).toHaveBeenCalled();
   });
 
   it('checks biometric enrollment', async () => {
@@ -42,7 +46,7 @@ describe('biometric security helpers', () => {
   it('returns false when enrollment check fails', async () => {
     LocalAuthentication.isEnrolledAsync.mockRejectedValue(new Error('fail'));
     await expect(isBiometricEnrolled()).resolves.toBe(false);
-    expect(handleError).toHaveBeenCalled();
+    expect(mockHandleError).toHaveBeenCalled();
   });
 
   it('authenticates with provided options', async () => {
@@ -53,16 +57,21 @@ describe('biometric security helpers', () => {
       fallbackLabel: 'Fallback',
     });
     expect(result).toEqual({ success: true });
-    expect(LocalAuthentication.authenticateAsync).toHaveBeenCalledWith(expect.objectContaining({
-      promptMessage: 'Prompt',
-      cancelLabel: 'Cancel',
-      fallbackLabel: 'Fallback',
-    }));
+    expect(LocalAuthentication.authenticateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        promptMessage: 'Prompt',
+        cancelLabel: 'Cancel',
+        fallbackLabel: 'Fallback',
+      })
+    );
   });
 
   it('returns failure when authentication throws', async () => {
     LocalAuthentication.authenticateAsync.mockRejectedValue(new Error('fail'));
-    await expect(authenticateBiometric()).resolves.toEqual({ success: false, error: 'UNKNOWN_ERROR' });
-    expect(handleError).toHaveBeenCalled();
+    await expect(authenticateBiometric()).resolves.toEqual({
+      success: false,
+      error: 'UNKNOWN_ERROR',
+    });
+    expect(mockHandleError).toHaveBeenCalled();
   });
 });

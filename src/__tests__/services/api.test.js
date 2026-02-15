@@ -55,7 +55,10 @@ describe('API Client', () => {
     jest.useFakeTimers();
     asyncStorage.getItem.mockResolvedValue(null);
 
-    if (!global.AbortSignal || typeof global.AbortSignal.timeout !== 'function') {
+    if (
+      !global.AbortSignal ||
+      typeof global.AbortSignal.timeout !== 'function'
+    ) {
       global.AbortSignal = { timeout: () => undefined };
     }
   });
@@ -166,6 +169,31 @@ describe('API Client', () => {
           method: 'POST',
           headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf' }),
           body: JSON.stringify(requestBody),
+        })
+      );
+    });
+
+    it('normalizes lowercase mutation methods before CSRF checks', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      });
+      tokenManager.getAccessToken.mockResolvedValue(null);
+      getCsrfHeaders.mockResolvedValue({ 'X-CSRF-Token': 'csrf-lower' });
+
+      await apiClient({
+        url: 'https://api.example.com/test',
+        method: 'post',
+        body: { ok: true },
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://api.example.com/test',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf-lower' }),
         })
       );
     });
@@ -286,7 +314,11 @@ describe('API Client', () => {
           ok: true,
           status: 201,
           headers: { get: () => 'application/json' },
-          json: async () => ({ status: 201, message: 'ok', data: { id: 'tenant-1' } }),
+          json: async () => ({
+            status: 201,
+            message: 'ok',
+            data: { id: 'tenant-1' },
+          }),
         });
 
       const result = await apiClient({
@@ -308,4 +340,3 @@ describe('API Client', () => {
     });
   });
 });
-

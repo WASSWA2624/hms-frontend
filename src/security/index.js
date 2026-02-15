@@ -2,16 +2,9 @@
  * Security Barrel Export
  * File: index.js
  */
-import * as tokenManagerModule from './token.manager';
-
-export const tokenManager = {
-  getAccessToken: tokenManagerModule.getAccessToken,
-  getRefreshToken: tokenManagerModule.getRefreshToken,
-  setTokens: tokenManagerModule.setTokens,
-  clearTokens: tokenManagerModule.clearTokens,
-  shouldPersistTokens: tokenManagerModule.shouldPersistTokens,
-  isTokenExpired: tokenManagerModule.isTokenExpired,
-};
+export * as tokenManager from './token.manager';
+export * as encryption from './encryption';
+export * as biometric from './biometric';
 
 export {
   getAccessToken,
@@ -24,4 +17,3 @@ export {
 
 export * from './encryption';
 export * from './biometric';
-

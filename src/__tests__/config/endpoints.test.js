@@ -33,5 +33,16 @@ describe('endpoints.js', () => {
     expect(endpoints.AUTH.LOGIN).toMatch(/\/auth\/login$/);
     expect(endpoints.AUTH.REGISTER).toMatch(/\/auth\/register$/);
   });
-});
 
+  test('should keep health endpoint unversioned', () => {
+    expect(endpoints.HEALTH).toMatch(/\/health$/);
+    expect(endpoints.HEALTH).not.toContain('/api/');
+  });
+
+  test('should expose equipment module endpoint groups', () => {
+    expect(endpoints.EQUIPMENT_CATEGORIES).toBeDefined();
+    expect(endpoints.EQUIPMENT_REGISTRIES).toBeDefined();
+    expect(endpoints.EQUIPMENT_WORK_ORDERS).toBeDefined();
+    expect(endpoints.EQUIPMENT_DISPOSAL_TRANSFERS).toBeDefined();
+  });
+});
