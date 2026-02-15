@@ -1,4 +1,4 @@
-﻿Steps to review and implement (Phase 010 - Tier 4: Encounters & Clinical Documentation):
+Steps to review and implement (Phase 010 - Tier 4: Encounters & Clinical Documentation):
 - **10.4.1** `encounter`
 - **10.4.2** `clinical-note`
 - **10.4.3** `diagnosis`
@@ -28,6 +28,17 @@ You must ensure 100% compliance with:
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
 Only implement what is required for this tier's selected step(s).
+
+## Mobile UI Parity and Compact UX Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Android and iOS must match mobile web UI for layout, spacing density, typography scale, component sizing, and interaction patterns.
+- Use shared-first implementations by default. Only create .android or .ios overrides when required by hard platform constraints or accessibility requirements.
+- When overrides are required, keep visual and interaction parity with mobile web.
+- Prioritize simplicity and space economy: compact layouts, short labels, short helper text, and minimal non-essential copy.
+- Add inline/in-app guidance for critical user actions using concise contextual hints and progressive disclosure.
+- Avoid long instructional paragraphs in screens; guidance must be brief, actionable, and local to the current step.
+- Keep full compliance with i18n, accessibility, and theme-token rules while applying this parity and compactness contract.
 
 ---
 

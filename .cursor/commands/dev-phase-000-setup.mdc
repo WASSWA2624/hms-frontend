@@ -1,4 +1,4 @@
-﻿Steps to review and implement (Phase 000: Project Setup and Initialization):
+Steps to review and implement (Phase 000: Project Setup and Initialization):
 - **0.1** Initialize Expo Project
 - **0.2** Install Redux Toolkit Stack
 - **0.3** Install Styled Components
@@ -31,6 +31,17 @@ You must ensure 100% compliance with:
 - Actual repository architecture and conventions already in `hms-frontend/src/**`
 
 Only implement what is required for the selected Phase 000 step(s).
+
+## Mobile UI Parity and Compact UX Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Android and iOS must match mobile web UI for layout, spacing density, typography scale, component sizing, and interaction patterns.
+- Use shared-first implementations by default. Only create .android or .ios overrides when required by hard platform constraints or accessibility requirements.
+- When overrides are required, keep visual and interaction parity with mobile web.
+- Prioritize simplicity and space economy: compact layouts, short labels, short helper text, and minimal non-essential copy.
+- Add inline/in-app guidance for critical user actions using concise contextual hints and progressive disclosure.
+- Avoid long instructional paragraphs in screens; guidance must be brief, actionable, and local to the current step.
+- Keep full compliance with i18n, accessibility, and theme-token rules while applying this parity and compactness contract.
 
 ---
 
