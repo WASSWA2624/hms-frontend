@@ -4,7 +4,7 @@
  */
 const React = require('react');
 const { Text } = require('react-native');
-const { render, fireEvent } = require('@testing-library/react-native');
+const { render, fireEvent, act } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
 const TextFieldModule = require('@platform/components/forms/TextField');
 const TextField = TextFieldModule.default || TextFieldModule;
@@ -14,6 +14,12 @@ const lightTheme = lightThemeModule.default || lightThemeModule;
 
 const renderWithTheme = (component) => {
   return render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
+};
+
+const advanceTimers = (ms) => {
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
 };
 
 describe('TextField Component', () => {
@@ -167,7 +173,7 @@ describe('TextField Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Component renders successfully and triggers validation
       // Validation logic is thoroughly tested in useTextField.test.js
@@ -192,7 +198,7 @@ describe('TextField Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Component renders successfully and triggers email validation
       // Validation logic is thoroughly tested in useTextField.test.js
@@ -215,7 +221,7 @@ describe('TextField Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Should not show error - component renders successfully
       expect(input).toBeTruthy();
@@ -237,7 +243,7 @@ describe('TextField Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Component renders successfully and triggers maxLength validation
       // Validation logic is thoroughly tested in useTextField.test.js
@@ -344,7 +350,7 @@ describe('TextField Component', () => {
       fireEvent.changeText(input, 'new value');
       
       // Advance timers to trigger debounced onChangeText
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       expect(mockOnChangeText).toHaveBeenCalledWith('new value');
       jest.useRealTimers();
@@ -663,7 +669,7 @@ describe('TextField Component', () => {
       const input = getByLabelText('Input');
       fireEvent(input, 'blur');
       // Advance timers to trigger validation after blur
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       // Component handles blur event and triggers validation
       expect(input).toBeTruthy();
       jest.useRealTimers();
@@ -722,7 +728,7 @@ describe('TextField Component', () => {
       fireEvent.changeText(input, 'new value');
       
       // Advance timers to trigger debounced onChange/onChangeText
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Web onChange or onChangeText should be called after debounce
       expect(mockOnChangeText).toHaveBeenCalledWith('new value');

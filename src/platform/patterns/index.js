@@ -8,7 +8,7 @@
 
 // Composition Patterns (Step 6.5)
 export { default as FormField } from './FormField';
-export { default as SearchBar, useSearchBar } from '../components/forms/SearchBar';
+export { default as SearchBar, useSearchBar } from './SearchBar';
 export { default as FilterBar } from './FilterBar';
 export { default as ListScaffold } from './ListScaffold';
 

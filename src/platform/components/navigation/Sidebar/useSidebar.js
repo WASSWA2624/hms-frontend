@@ -29,8 +29,6 @@ const useSidebar = ({
     return activePathname === href || activePathname.startsWith(href + '/');
   };
 
-  const defaultIsItemVisible = (item) => (isItemVisible ? isItemVisible(item) : true);
-
   const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
   };
@@ -41,7 +39,10 @@ const useSidebar = ({
   };
 
   const filteredItems = useMemo(
-    () => (Array.isArray(items) ? items.filter(defaultIsItemVisible) : []),
+    () =>
+      Array.isArray(items)
+        ? items.filter((item) => (isItemVisible ? isItemVisible(item) : true))
+        : [],
     [items, isItemVisible]
   );
 

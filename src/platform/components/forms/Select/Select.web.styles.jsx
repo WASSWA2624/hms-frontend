@@ -12,8 +12,9 @@ const StyledContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== '$compact',
 })`
   position: relative;
-  width: ${({ $compact }) => ($compact ? 'auto' : '100%')};
-  margin-bottom: ${({ $compact, theme }) => ($compact ? 0 : theme.spacing.md)}px;
+  width: ${({ 'data-compact': compact }) => (compact === 'true' ? 'auto' : '100%')};
+  margin-bottom: ${({ 'data-compact': compact, theme }) =>
+    compact === 'true' ? 0 : theme.spacing.md}px;
 `;
 
 const StyledLabelRow = styled.div.withConfig({
@@ -24,7 +25,7 @@ const StyledLabelRow = styled.div.withConfig({
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: ${({ $compact, theme }) => ($compact ? theme.spacing.xs : theme.spacing.xs)}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledLabel = styled.label.withConfig({
@@ -55,20 +56,21 @@ const StyledTrigger = styled.button.withConfig({
   shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   width: 100%;
-  min-height: ${({ $compact }) => ($compact ? 36 : 44)}px;
+  min-height: ${({ 'data-compact': compact }) => (compact === 'true' ? 36 : 44)}px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid ${({ $validationState, $isFocused, theme }) => {
-    if ($validationState === 'error') return theme.colors.error;
-    if ($validationState === 'success') return theme.colors.success;
-    if ($isFocused) return theme.colors.primary;
+  border: 1px solid ${({ 'data-validation-state': validationState, 'data-focused': focused, theme }) => {
+    if (validationState === 'error') return theme.colors.error;
+    if (validationState === 'success') return theme.colors.success;
+    if (focused === 'true') return theme.colors.primary;
     return theme.colors.background.tertiary;
   }};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ $compact, theme }) => ($compact ? theme.spacing.xs : theme.spacing.md)}px;
+  padding: ${({ 'data-compact': compact, theme }) =>
+    compact === 'true' ? theme.spacing.xs : theme.spacing.md}px;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   text-align: left;
 
@@ -89,10 +91,11 @@ const StyledTriggerText = styled.span.withConfig({
 })`
   flex: 1;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
-  color: ${({ disabled, $isPlaceholder, theme }) => {
-    if (disabled) return theme.colors.text.tertiary;
-    if ($isPlaceholder) return theme.colors.text.tertiary;
+  font-size: ${({ theme, 'data-compact': compact }) =>
+    compact === 'true' ? theme.typography.fontSize.sm : theme.typography.fontSize.md}px;
+  color: ${({ 'data-disabled': disabled, 'data-placeholder': isPlaceholder, theme }) => {
+    if (disabled === 'true') return theme.colors.text.tertiary;
+    if (isPlaceholder === 'true') return theme.colors.text.tertiary;
     return theme.colors.text.primary;
   }};
   display: block;
@@ -104,7 +107,8 @@ const StyledChevron = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$compact',
 })`
   margin-left: ${({ theme }) => theme.spacing.sm}px;
-  font-size: ${({ theme, $compact }) => ($compact ? theme.typography.fontSize.sm : theme.typography.fontSize.md)}px;
+  font-size: ${({ theme, 'data-compact': compact }) =>
+    compact === 'true' ? theme.typography.fontSize.sm : theme.typography.fontSize.md}px;
   color: ${({ theme }) => theme.colors.text.secondary};
   display: inline-block;
 `;
@@ -115,10 +119,10 @@ const StyledMenu = styled.div.withConfig({
   shouldForwardProp: (prop) => !prop.startsWith('$'),
 })`
   position: fixed;
-  top: ${({ $top }) => ($top != null ? `${$top}px` : 'auto')};
-  left: ${({ $left }) => ($left != null ? `${$left}px` : 'auto')};
-  right: ${({ $right }) => ($right != null ? `${$right}px` : 'auto')};
-  width: ${({ $width }) => ($width ? `${$width}px` : 'auto')};
+  top: ${({ 'data-top': top }) => (top ? `${top}px` : 'auto')};
+  left: ${({ 'data-left': left }) => (left ? `${left}px` : 'auto')};
+  right: ${({ 'data-right': right }) => (right ? `${right}px` : 'auto')};
+  width: ${({ 'data-width': width }) => (width ? `${width}px` : 'auto')};
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-width: 1px;
   border-style: solid;
@@ -126,7 +130,7 @@ const StyledMenu = styled.div.withConfig({
   border-radius: ${({ theme }) => theme.radius.md}px;
   z-index: 2000;
   overflow: hidden;
-  max-height: ${({ $maxHeight }) => ($maxHeight ? `${$maxHeight}px` : '240px')};
+  max-height: ${({ 'data-max-height': maxHeight }) => (maxHeight ? `${maxHeight}px` : '240px')};
   overflow-y: auto;
   overscroll-behavior: contain;
 `;
@@ -174,9 +178,9 @@ const StyledHelperText = styled.span.withConfig({
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  color: ${({ $validationState, theme }) => {
-    if ($validationState === 'error') return theme.colors.error;
-    if ($validationState === 'success') return theme.colors.success;
+  color: ${({ 'data-validation-state': validationState, theme }) => {
+    if (validationState === 'error') return theme.colors.error;
+    if (validationState === 'success') return theme.colors.success;
     return theme.colors.text.secondary;
   }};
   margin-top: ${({ theme }) => theme.spacing.xs}px;

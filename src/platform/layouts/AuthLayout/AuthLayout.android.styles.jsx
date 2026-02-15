@@ -12,7 +12,7 @@ const StyledContainer = styled.View.withConfig({
   componentId: 'StyledContainer',
 })`
   flex: 1;
-  background-color: #e7f3ff;
+  background-color: ${({ theme }) => `${theme.colors.primary}14`};
   align-items: center;
   padding-horizontal: ${({ theme }) => theme.spacing.md}px;
   padding-top: ${({ theme, topInset = 0 }) => theme.spacing.sm + topInset}px;
@@ -40,11 +40,11 @@ const StyledCard = styled.View.withConfig({
   padding: ${({ theme }) => theme.spacing.md}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.background.tertiary};
-  shadow-color: #08224a;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.15;
-  shadow-radius: 8px;
-  elevation: 6;
+  shadow-color: ${({ theme }) => theme.shadows.md.shadowColor};
+  shadow-offset: ${({ theme }) => `${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height}px`};
+  shadow-opacity: ${({ theme }) => theme.shadows.md.shadowOpacity};
+  shadow-radius: ${({ theme }) => theme.shadows.md.shadowRadius * 2}px;
+  elevation: ${({ theme }) => theme.shadows.md.elevation + 2};
   overflow: hidden;
 `;
 
@@ -98,19 +98,21 @@ const StyledBrandName = styled.View.withConfig({
   max-width: 78%;
 `;
 
-const StyledContent = styled(ScrollView)
+const StyledScrollView = styled(ScrollView)
   .withConfig({
-    displayName: 'StyledContent',
-    componentId: 'StyledContent',
+    displayName: 'StyledScrollView',
+    componentId: 'StyledScrollView',
   })
-  .attrs({
+  .attrs(({ theme }) => ({
     contentContainerStyle: {
-      paddingBottom: 8,
+      paddingBottom: theme?.spacing?.sm ?? 8,
     },
-  })`
+  }))`
   flex: 1;
   width: 100%;
 `;
+
+const StyledContent = StyledScrollView;
 
 const StyledHelpLinks = styled.View.withConfig({
   displayName: 'StyledHelpLinks',
@@ -123,6 +125,7 @@ const StyledHelpLinks = styled.View.withConfig({
 export {
   StyledContainer,
   StyledKeyboardAvoidingView,
+  StyledScrollView,
   StyledCard,
   StyledBranding,
   StyledBrandHeader,

@@ -3,7 +3,7 @@
  * File: useTabBar.test.js
  */
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, renderHook } from '@testing-library/react-native';
 import useTabBar from '@platform/components/navigation/TabBar/useTabBar';
 
 const mockPathname = '/dashboard';
@@ -188,6 +188,13 @@ describe('useTabBar Hook', () => {
     expect(result.filteredItems).toHaveLength(0);
     expect(result.pathname).toBeDefined();
     expect(typeof result.pathname).toBe('string');
+  });
+
+  it('should handle undefined options when hook is invoked directly', () => {
+    const { result } = renderHook(() => useTabBar());
+
+    expect(result.current.filteredItems).toEqual([]);
+    expect(typeof result.current.pathname).toBe('string');
   });
 });
 

@@ -4,13 +4,19 @@
  */
 
 import React from 'react';
-import { render, fireEvent, within } from '@testing-library/react-native';
+import { render, fireEvent, act } from '@testing-library/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import TextArea, { VALIDATION_STATES } from '@platform/components/forms/TextArea';
 import lightTheme from '@theme/light.theme';
 
 const renderWithTheme = (component) => {
   return render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
+};
+
+const advanceTimers = (ms) => {
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
 };
 
 describe('TextArea Component', () => {
@@ -127,7 +133,7 @@ describe('TextArea Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Check for error message (i18n key: forms.validation.required)
       const errorMessage = await findByText(/required/i);
@@ -149,7 +155,7 @@ describe('TextArea Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       // Check for maxLength error message
       const errorMessage = await findByText(/max/i);
@@ -172,7 +178,7 @@ describe('TextArea Component', () => {
       fireEvent(input, 'blur');
       
       // Advance timers to trigger validation
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       expect(validate).toHaveBeenCalled();
       jest.useRealTimers();
@@ -250,7 +256,7 @@ describe('TextArea Component', () => {
       fireEvent.changeText(input, 'new value');
       
       // Advance timers to trigger debounced onChangeText
-      jest.advanceTimersByTime(300);
+      advanceTimers(300);
       
       expect(mockOnChangeText).toHaveBeenCalledWith('new value');
       jest.useRealTimers();
@@ -408,7 +414,7 @@ describe('TextArea Component', () => {
       fireEvent.changeText(input, 'new value');
       
       // Advance timers to trigger debounced onChangeText
-      jest.advanceTimersByTime(500);
+      advanceTimers(500);
       
       expect(mockOnChangeTextDebounced).toHaveBeenCalledWith('new value');
       jest.useRealTimers();

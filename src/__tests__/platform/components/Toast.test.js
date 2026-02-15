@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
-import { render, waitFor, act, fireEvent } from '@testing-library/react-native';
+import { Text } from 'react-native';
+import { render, waitFor, act } from '@testing-library/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import Toast, { VARIANTS, POSITIONS, useToast } from '@platform/components/feedback/Toast';
 import ToastWeb from '@platform/components/feedback/Toast/Toast.web';
@@ -43,10 +43,8 @@ describe('Toast Component', () => {
     jest.useFakeTimers();
   });
 
-  afterEach(async () => {
-    await act(async () => {
-      jest.runOnlyPendingTimers();
-    });
+  afterEach(() => {
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -817,7 +815,7 @@ describe('Toast Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="toast-web-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -835,7 +833,7 @@ describe('Toast Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="toast-android-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -853,7 +851,7 @@ describe('Toast Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="toast-ios-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -890,10 +888,8 @@ describe('useToast Hook', () => {
     jest.useFakeTimers();
   });
 
-  afterEach(async () => {
-    await act(async () => {
-      jest.runOnlyPendingTimers();
-    });
+  afterEach(() => {
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -1073,27 +1069,23 @@ describe('useToast Hook', () => {
     expect(() => render(<TestComponent />)).not.toThrow();
   });
 
-  it('should cleanup timeout on unmount', () => {
+  it('should cleanup timeout on unmount', async () => {
     const onDismiss = jest.fn();
     const TestComponent = () => {
       const { show } = useToast({ duration: 3000, onDismiss });
       React.useEffect(() => {
-        act(() => {
-          show();
-        });
+        show();
       }, [show]);
       return <Text>Test</Text>;
     };
     const { unmount } = render(<TestComponent />);
     
     // Unmount before timeout completes
-    act(() => {
-      unmount();
-    });
+    unmount();
     
     // Advance time - onDismiss should not be called after unmount
-    act(() => {
-      jest.advanceTimersByTime(3000);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(3000);
     });
     
     expect(onDismiss).not.toHaveBeenCalled();

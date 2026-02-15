@@ -81,6 +81,7 @@ const SelectWeb = ({
 }) => {
   const { t } = useI18n();
   const defaultPlaceholder = placeholder || t('common.selectPlaceholder');
+  const compactAttr = compact ? 'true' : 'false';
   
   const {
     open,
@@ -275,9 +276,14 @@ const SelectWeb = ({
   };
 
   return (
-    <StyledContainer ref={rootRef} style={style} className={className} $compact={compact}>
+    <StyledContainer
+      ref={rootRef}
+      style={style}
+      className={className}
+      data-compact={compactAttr}
+    >
       {label ? (
-        <StyledLabelRow $compact={compact}>
+        <StyledLabelRow data-compact={compactAttr}>
           <StyledLabel>{label}</StyledLabel>
           {required ? <StyledRequired> *</StyledRequired> : null}
         </StyledLabelRow>
@@ -290,9 +296,9 @@ const SelectWeb = ({
         onBlur={handleBlur}
         onKeyDown={handleTriggerKeyDown}
         disabled={disabled}
-        $validationState={finalValidationState}
-        $isFocused={isFocused}
-        $compact={compact}
+        data-validation-state={finalValidationState}
+        data-focused={isFocused ? 'true' : 'false'}
+        data-compact={compactAttr}
         role="combobox"
         aria-label={accessibilityLabel || label || defaultPlaceholder}
         aria-describedby={displayHelperText ? resolvedHelperId : undefined}
@@ -302,10 +308,14 @@ const SelectWeb = ({
         aria-required={required}
         data-testid={testID}
       >
-        <StyledTriggerText disabled={disabled} $isPlaceholder={!selectedOption} $compact={compact}>
+        <StyledTriggerText
+          data-disabled={disabled ? 'true' : 'false'}
+          data-placeholder={!selectedOption ? 'true' : 'false'}
+          data-compact={compactAttr}
+        >
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden="true" $compact={compact}>▾</StyledChevron>
+        <StyledChevron aria-hidden="true" data-compact={compactAttr}>▾</StyledChevron>
       </StyledTrigger>
 
       {open
@@ -315,13 +325,11 @@ const SelectWeb = ({
             role="listbox"
             onKeyDown={handleMenuKeyDown}
             data-testid={testID ? `${testID}-menu` : undefined}
-            $placement={menuPosition.placement}
-            $align={menuPosition.align}
-            $top={menuPosition.top}
-            $left={menuPosition.left}
-            $right={menuPosition.right}
-            $width={menuPosition.width}
-            $maxHeight={menuPosition.maxHeight}
+            data-top={String(menuPosition.top)}
+            data-left={menuPosition.left != null ? String(menuPosition.left) : undefined}
+            data-right={menuPosition.right != null ? String(menuPosition.right) : undefined}
+            data-width={String(menuPosition.width)}
+            data-max-height={String(menuPosition.maxHeight)}
           >
             {options.map((opt, index) => (
               <StyledOption
@@ -349,7 +357,7 @@ const SelectWeb = ({
 
       {displayHelperText ? (
         <StyledHelperText
-          $validationState={finalValidationState}
+          data-validation-state={finalValidationState}
           id={resolvedHelperId}
         >
           {displayHelperText}

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
 import { render, waitFor, act, fireEvent } from '@testing-library/react-native';
 import { ThemeProvider } from 'styled-components/native';
 import Snackbar, { VARIANTS, POSITIONS, useSnackbar } from '@platform/components/feedback/Snackbar';
@@ -40,17 +40,14 @@ const renderWithTheme = (component) => {
 
 describe('Snackbar Component', () => {
   const mockOnAction = jest.fn();
-  const mockOnDismiss = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
   });
 
-  afterEach(async () => {
-    await act(async () => {
-      jest.runOnlyPendingTimers();
-    });
+  afterEach(() => {
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -905,7 +902,7 @@ describe('Snackbar Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="snackbar-web-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -922,7 +919,7 @@ describe('Snackbar Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="snackbar-android-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -939,7 +936,7 @@ describe('Snackbar Component', () => {
       const messages = [
         'String message',
         123,
-        <Text>React Node</Text>,
+        <Text key="snackbar-ios-node">React Node</Text>,
         null,
         undefined,
       ];
@@ -973,10 +970,8 @@ describe('useSnackbar Hook', () => {
     jest.useFakeTimers();
   });
 
-  afterEach(async () => {
-    await act(async () => {
-      jest.runOnlyPendingTimers();
-    });
+  afterEach(() => {
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -1147,25 +1142,21 @@ describe('useSnackbar Hook', () => {
     expect(() => render(<TestComponent />)).not.toThrow();
   });
 
-  it('should cleanup timeout on unmount', () => {
+  it('should cleanup timeout on unmount', async () => {
     const onDismiss = jest.fn();
     const TestComponent = () => {
       const { show } = useSnackbar({ duration: 4000, onDismiss });
       React.useEffect(() => {
-        act(() => {
-          show();
-        });
+        show();
       }, [show]);
       return <Text>Test</Text>;
     };
     const { unmount } = render(<TestComponent />);
     
-    act(() => {
-      unmount();
-    });
+    unmount();
     
-    act(() => {
-      jest.advanceTimersByTime(4000);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(4000);
     });
     
     expect(onDismiss).not.toHaveBeenCalled();

@@ -29,15 +29,6 @@ const useTabBar = ({
     return activePathname === item.href || activePathname.startsWith(item.href + '/');
   };
 
-  const defaultIsTabVisible = (item) => {
-    // If custom visibility function provided, use it
-    if (isTabVisible) {
-      return isTabVisible(item);
-    }
-    // Default: all tabs visible
-    return true;
-  };
-
   const handleTabPress = (item) => {
     if (onTabPress) {
       onTabPress(item);
@@ -47,7 +38,7 @@ const useTabBar = ({
   };
 
   const filteredItems = useMemo(() => {
-    return items.filter(defaultIsTabVisible);
+    return items.filter((item) => (isTabVisible ? isTabVisible(item) : true));
   }, [items, isTabVisible]);
 
   return {
