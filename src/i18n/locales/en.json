@@ -897,6 +897,7 @@
     "title": "Dashboard",
     "welcome": {
       "title": "Welcome back, {{name}}",
+      "message": "You have {{count}} tasks requiring attention.",
       "subtitle": "{{role}} at {{facility}}",
       "facilityMeta": "{{facility}} - {{branch}}",
       "roles": {

@@ -77,20 +77,24 @@ const extractErrorCode = (message) => {
   return 'UNKNOWN_ERROR';
 };
 
+const createNormalizedError = (code, message, severity = 'error') => {
+  const safeMessage = getSafeMessageForCode(code);
+  const resolvedMessage =
+    typeof message === 'string' && message.trim()
+      ? message.trim()
+      : safeMessage;
+
+  return {
+    code,
+    message: resolvedMessage,
+    safeMessage,
+    severity,
+  };
+};
+
 const normalizeError = (error) => {
   if (!error) {
-    const safeMessage = getSafeMessageForCode('UNKNOWN_ERROR');
-    return {
-      code: 'UNKNOWN_ERROR',
-      message: safeMessage,
-      safeMessage,
-      severity: 'error',
-    };
-  }
-
-  // If error is already normalized (has code property), return as-is
-  if (error.code && typeof error.code === 'string' && error.code !== 'UNKNOWN_ERROR') {
-    return error;
+    return createNormalizedError('UNKNOWN_ERROR');
   }
 
   // Network errors (browser often throws TypeError with "Failed to fetch")
@@ -99,85 +103,58 @@ const normalizeError = (error) => {
     error.message?.includes('network') ||
     (typeof error.message === 'string' && error.message.toLowerCase().includes('failed to fetch'))
   ) {
-    const safeMessage = getSafeMessageForCode('NETWORK_ERROR');
-    return {
-      code: 'NETWORK_ERROR',
-      message: safeMessage,
-      safeMessage,
-      severity: 'warning',
-    };
+    return createNormalizedError(
+      'NETWORK_ERROR',
+      getSafeMessageForCode('NETWORK_ERROR'),
+      'warning'
+    );
   }
 
   // API errors
   if (error.status || error.statusCode) {
     const status = error.status || error.statusCode;
-    
+
     // Extract error code from backend message if available
     const extractedCode = error.message ? extractErrorCode(error.message) : null;
-    
+
     if (status === 401) {
-      // Prefer INVALID_CREDENTIALS for login errors, UNAUTHORIZED for general auth errors
-      const code = extractedCode || 'UNAUTHORIZED';
-      const safeMessage = getSafeMessageForCode(code);
-      const rawMessage = error.message || safeMessage;
-      return {
-        code,
-        message: rawMessage,
-        safeMessage,
-        severity: 'error',
-      };
+      const code =
+        extractedCode && extractedCode !== 'UNKNOWN_ERROR'
+          ? extractedCode
+          : 'UNAUTHORIZED';
+      return createNormalizedError(code, getSafeMessageForCode(code));
     }
+
     if (status === 403) {
-      const code = extractedCode || 'FORBIDDEN';
-      const safeMessage = getSafeMessageForCode(code);
-      const rawMessage = error.message || safeMessage;
-      return {
-        code,
-        message: rawMessage,
-        safeMessage,
-        severity: 'error',
-      };
+      const code =
+        extractedCode && extractedCode !== 'UNKNOWN_ERROR'
+          ? extractedCode
+          : 'FORBIDDEN';
+      return createNormalizedError(code, getSafeMessageForCode(code));
     }
+
     if (status >= 500) {
-      const code = extractedCode || 'SERVER_ERROR';
-      const safeMessage = getSafeMessageForCode(code);
-      const rawMessage = error.message || safeMessage;
-      return {
-        code,
-        message: rawMessage,
-        safeMessage,
-        severity: 'error',
-      };
+      const code =
+        extractedCode && extractedCode !== 'UNKNOWN_ERROR'
+          ? extractedCode
+          : 'SERVER_ERROR';
+      return createNormalizedError(code, getSafeMessageForCode(code));
     }
-    
+
     // For other status codes, use extracted code or default
     if (extractedCode && extractedCode !== 'UNKNOWN_ERROR') {
-      const safeMessage = getSafeMessageForCode(extractedCode);
-      const rawMessage = error.message || safeMessage;
-      return {
-        code: extractedCode,
-        message: rawMessage,
-        safeMessage,
-        severity: 'error',
-      };
+      return createNormalizedError(extractedCode, error.message);
     }
   }
 
-  // Extract code from message if no explicit code provided
-  const code = error.code || (error.message ? extractErrorCode(error.message) : 'UNKNOWN_ERROR');
-  const safeMessage = getSafeMessageForCode(code);
-  const rawMessage =
-    typeof error.message === 'string' && error.message.trim()
-      ? error.message.trim()
-      : safeMessage;
+  const candidateCode =
+    typeof error.code === 'string' && error.code.trim()
+      ? error.code.trim()
+      : extractErrorCode(error.message);
+  const code = candidateCode || 'UNKNOWN_ERROR';
 
   // Default
-  return {
-    code,
-    message: rawMessage,
-    safeMessage,
-    severity: error.severity || 'error',
-  };
+  return createNormalizedError(code, error.message, error.severity || 'error');
 };
 
 const handleError = (error, context = {}) => {

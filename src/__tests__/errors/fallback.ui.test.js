@@ -8,6 +8,22 @@ import FallbackUI from '@errors/fallback.ui';
 import { ThemeProvider } from 'styled-components/native';
 import { getTheme } from '@theme';
 
+jest.mock('@hooks/useI18n', () => ({
+  __esModule: true,
+  default: () => ({
+    t: (key) =>
+      (
+        {
+          'errors.fallback.title': 'Something went wrong',
+          'errors.fallback.message': 'An unexpected error occurred',
+          'errors.fallback.retry': 'Retry',
+          'errors.fallback.retryHint': 'Try again',
+        }[key] || key
+      ),
+    locale: 'en',
+  }),
+}));
+
 describe('errors/fallback.ui.jsx', () => {
   const theme = getTheme('light');
 

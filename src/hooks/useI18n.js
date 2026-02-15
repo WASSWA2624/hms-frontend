@@ -9,10 +9,19 @@ import { createI18n } from '@i18n';
 import { selectLocale } from '@store/selectors';
 
 const useI18n = () => {
-  const locale = useSelector(selectLocale);
+  const locale = useSelector(
+    typeof selectLocale === 'function'
+      ? selectLocale
+      : (state) => state?.ui?.locale || 'en'
+  );
 
   const i18n = useMemo(
-    () => createI18n({ initialLocale: locale }),
+    () =>
+      (typeof createI18n === 'function'
+        ? createI18n({ initialLocale: locale })
+        : {
+            tSync: (key) => key,
+          }),
     [locale]
   );
 

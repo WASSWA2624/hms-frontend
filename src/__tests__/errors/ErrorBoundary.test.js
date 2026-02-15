@@ -9,6 +9,22 @@ import ErrorBoundary from '@errors/ErrorBoundary';
 import { logger } from '@logging';
 import { handleError } from '@errors/error.handler';
 
+jest.mock('@hooks/useI18n', () => ({
+  __esModule: true,
+  default: () => ({
+    t: (key) =>
+      (
+        {
+          'errors.fallback.title': 'Something went wrong',
+          'errors.fallback.message': 'An unexpected error occurred',
+          'errors.fallback.retry': 'Retry',
+          'errors.fallback.retryHint': 'Try again',
+        }[key] || key
+      ),
+    locale: 'en',
+  }),
+}));
+
 jest.mock('@logging', () => ({
   logger: {
     error: jest.fn(),

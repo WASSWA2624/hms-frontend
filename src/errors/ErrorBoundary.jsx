@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { logger } from '@logging';
-import { handleError, normalizeError } from './error.handler';
+import { handleError } from './error.handler';
 import FallbackUI from './fallback.ui';
 
 class ErrorBoundary extends React.Component {
@@ -15,26 +15,15 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    const normalized = normalizeError(error);
-    if (typeof __DEV__ !== 'undefined' && __DEV__) {
-      normalized.devMessage = error?.message ?? String(error);
-    }
-    return { hasError: true, error: normalized };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
-    if (typeof __DEV__ !== 'undefined' && __DEV__ && typeof console !== 'undefined') {
-      console.error('[ErrorBoundary] Caught error:', error?.message ?? error, error?.stack, errorInfo?.componentStack);
-    }
     const normalized = handleError(error, { errorInfo });
     logger.error('ErrorBoundary caught error', {
       error: normalized,
       errorInfo,
     });
-    if (typeof __DEV__ !== 'undefined' && __DEV__) {
-      normalized.devMessage = error?.message ?? normalized.devMessage ?? String(error);
-    }
-    this.setState((s) => (s.error?.code ? null : { error: normalized }));
   }
 
   render() {

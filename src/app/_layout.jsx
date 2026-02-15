@@ -15,8 +15,15 @@ import {
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
 import FaviconHead from '@platform/layouts/common/FaviconHead';
 
-const APP_NAME = tSync('app.name');
-const ROOT_PAGE_NAME = tSync('home.title');
+const translateSync = (key, fallback) => {
+  if (typeof tSync !== 'function') return fallback;
+  const value = tSync(key);
+  if (typeof value !== 'string' || !value.trim() || value === key) return fallback;
+  return value;
+};
+
+const APP_NAME = translateSync('app.name', 'HMS');
+const ROOT_PAGE_NAME = translateSync('home.title', 'Home');
 
 const toTitleCase = (value) =>
   value
@@ -32,8 +39,8 @@ const resolvePageName = (pathname) => {
   const pageSegment = segments[segments.length - 1] || '';
   if (!pageSegment) return ROOT_PAGE_NAME;
 
-  if (pageSegment === 'landing') return tSync('landing.pageTitle');
-  if (pageSegment === 'settings') return tSync('navigation.header.settings');
+  if (pageSegment === 'landing') return translateSync('landing.pageTitle', 'Landing');
+  if (pageSegment === 'settings') return translateSync('navigation.header.settings', 'Settings');
 
   return toTitleCase(pageSegment.replace(/[-_]+/g, ' '));
 };
@@ -69,18 +76,20 @@ const RootLayout = () => {
   }, [pathname]);
 
   return (
-    <ErrorBoundary>
+    <>
       <FaviconHead />
       <Provider store={store}>
         <ThemeProviderWrapper>
           <I18nProvider>
+            <ErrorBoundary>
             <StyledSlotContainer>
               <Slot />
             </StyledSlotContainer>
+            </ErrorBoundary>
           </I18nProvider>
         </ThemeProviderWrapper>
       </Provider>
-    </ErrorBoundary>
+    </>
   );
 };
 
