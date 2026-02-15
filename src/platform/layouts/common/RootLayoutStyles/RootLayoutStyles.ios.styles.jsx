@@ -21,12 +21,12 @@ const StyledLoadingContainer = styled(View).withConfig({
   background-color: ${({ theme }) => theme.colors?.background?.primary ?? '#FFFFFF'};
 `;
 
-const StyledActivityIndicator = styled(ActivityIndicator).attrs(({ theme }) => ({
-  color: theme?.colors?.primary ?? '#0078D4',
-})).withConfig({
+const StyledActivityIndicator = styled(ActivityIndicator).withConfig({
   displayName: 'StyledActivityIndicator',
   componentId: 'StyledActivityIndicator',
-})`
+}).attrs(({ theme }) => ({
+  color: theme?.colors?.primary ?? '#0078D4',
+}))`
   /* Fluent primary color applied via attrs */
 `;
 
@@ -44,4 +44,3 @@ export {
   StyledActivityIndicator,
   StyledSlotContainer,
 };
-

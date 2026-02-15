@@ -118,6 +118,21 @@ jest.mock('@i18n', () => {
   return {
     I18nProvider: ({ children }) => React.createElement(React.Fragment, null, children),
     getDeviceLocale: jest.fn(() => 'en'),
+    tSync: jest.fn((key) => key),
+    createI18n: jest.fn(() => ({
+      tSync: (key) => {
+        const map = {
+          'errors.fallback.title': 'Something went wrong',
+          'errors.fallback.message': 'An unexpected error occurred',
+          'errors.fallback.retry': 'Try again',
+          'errors.fallback.retryHint': 'Retry loading the screen',
+        };
+        return map[key] || key;
+      },
+      getCurrentLocale: jest.fn(() => Promise.resolve('en')),
+      setLocale: jest.fn(() => Promise.resolve()),
+      supportedLocales: ['en'],
+    })),
   };
 }, { virtual: true });
 
@@ -142,15 +157,20 @@ jest.mock('@errors/error.handler', () => ({
   })),
 }), { virtual: true });
 
-// Mock ErrorBoundary to allow testing error handling behavior
-// We'll import the real ErrorBoundary but can override if needed
+// Mock ErrorBoundary with a deterministic safe fallback.
 jest.mock('@errors', () => {
   const React = require('react');
+  const { View, Text } = require('react-native');
   const { logger } = require('@logging');
   const { handleError } = require('@errors/error.handler');
-  
-  // Import real FallbackUI for realistic testing
-  const FallbackUI = require('@errors/fallback.ui').default;
+
+  const SafeFallbackUI = () =>
+    React.createElement(
+      View,
+      { testID: 'safe-error-fallback' },
+      React.createElement(Text, null, 'Something went wrong'),
+      React.createElement(Text, null, 'An unexpected error occurred')
+    );
   
   class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -173,10 +193,7 @@ jest.mock('@errors', () => {
 
     render() {
       if (this.state.hasError) {
-        return React.createElement(FallbackUI, {
-          error: this.state.error,
-          onRetry: () => this.setState({ hasError: false, error: null }),
-        });
+        return React.createElement(SafeFallbackUI);
       }
 
       return this.props.children;

@@ -33,11 +33,11 @@ export const ASSET_SPLASH = ASSET_ICON;
 /** Web/PWA: favicon (browser tab); must exist in public/ */
 export const PUBLIC_FAVICON = '/favicon.png';
 /** Web/PWA: 192×192 add-to-home-screen icon; must exist in public/ */
-export const PUBLIC_ICON_192 = '/icon-192.png';
+export const PUBLIC_ICON_192 = '/logo-192.png';
 /** Web/PWA: 512×512 add-to-home-screen icon; must exist in public/ */
-export const PUBLIC_ICON_512 = '/icon-512.png';
-/** Web: Apple touch icon (180×180 preferred; fallback to icon-192); must exist in public/ */
-export const PUBLIC_APPLE_TOUCH_ICON = '/icon-192.png';
+export const PUBLIC_ICON_512 = '/logo-512.png';
+/** Web: Apple touch icon (180×180 preferred; fallback to logo-192); must exist in public/ */
+export const PUBLIC_APPLE_TOUCH_ICON = '/logo-192.png';
 
 /** Shared logo (assets for native bundle; public for web) */
 export const ASSET_LOGO = './assets/logo.png';

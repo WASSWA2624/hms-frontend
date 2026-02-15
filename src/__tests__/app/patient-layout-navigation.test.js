@@ -11,9 +11,15 @@ import { render } from '@testing-library/react-native';
 import PatientRouteLayoutWeb from '@platform/layouts/RouteLayouts/PatientRouteLayout/PatientRouteLayout.web';
 import PatientRouteLayoutAndroid from '@platform/layouts/RouteLayouts/PatientRouteLayout/PatientRouteLayout.android';
 import PatientRouteLayoutIOS from '@platform/layouts/RouteLayouts/PatientRouteLayout/PatientRouteLayout.ios';
-import { useAuth } from '@hooks';
+import { useAuth, useShellBanners, useUiState } from '@hooks';
 import { useAuthGuard } from '@navigation/guards';
-import { GlobalHeader, TabBar, Sidebar } from '@platform/components';
+import {
+  GlobalHeader,
+  LoadingOverlay,
+  ShellBanners,
+  Sidebar,
+  TabBar,
+} from '@platform/components';
 
 const mockEnTranslations = require('@i18n/locales/en.json');
 
@@ -34,8 +40,8 @@ jest.mock('@hooks', () => ({
   useNavigationVisibility: () => ({
     isItemVisible: jest.fn(() => true),
   }),
-  useShellBanners: () => [],
-  useUiState: () => ({ isLoading: false }),
+  useShellBanners: jest.fn(() => []),
+  useUiState: jest.fn(() => ({ isLoading: false })),
 }));
 
 jest.mock('@navigation/guards', () => ({
@@ -115,6 +121,8 @@ describe('PatientLayout with Navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useAuth.mockReturnValue({ isAuthenticated: true, logout: jest.fn() });
+    useShellBanners.mockReturnValue([]);
+    useUiState.mockReturnValue({ isLoading: false });
     useAuthGuard.mockReturnValue({
       authenticated: true,
       user: { id: 'patient-1', role: 'patient' },
@@ -200,5 +208,53 @@ describe('PatientLayout with Navigation', () => {
   it('calls useAuthGuard for patient routes', () => {
     render(<PatientRouteLayoutIOS />);
     expect(useAuthGuard).toHaveBeenCalled();
+  });
+
+  it('wires language and theme controls in patient shell headers', () => {
+    render(<PatientRouteLayoutWeb />);
+    render(<PatientRouteLayoutAndroid />);
+    render(<PatientRouteLayoutIOS />);
+
+    const utilityChildren = GlobalHeader.mock.calls.flatMap(([props]) =>
+      React.Children.toArray(props.utilitySlot?.props?.children ?? [])
+    );
+    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-language-controls')).toBe(true);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-theme-controls')).toBe(true);
+  });
+
+  it('renders shell banners when banner payload exists on web', () => {
+    useShellBanners.mockReturnValue([
+      { id: 'offline', variant: 'offline', title: 'Offline', message: 'Network unavailable' },
+    ]);
+    render(<PatientRouteLayoutWeb />);
+
+    expect(ShellBanners).toHaveBeenCalledWith(
+      expect.objectContaining({
+        testID: 'patient-shell-banners',
+      }),
+      undefined
+    );
+  });
+
+  it('passes notice surface to PatientFrame', () => {
+    render(<PatientRouteLayoutWeb />);
+    const { NoticeSurface } = require('@platform/components');
+    expect(NoticeSurface).toHaveBeenCalledWith(
+      expect.objectContaining({ testID: 'patient-notice-surface' }),
+      undefined
+    );
+  });
+
+  it('injects loading overlay while patient shell is loading', () => {
+    useUiState.mockReturnValue({ isLoading: true });
+    render(<PatientRouteLayoutIOS />);
+
+    expect(LoadingOverlay).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visible: true,
+        testID: 'patient-loading-overlay',
+      }),
+      undefined
+    );
   });
 });

@@ -17,30 +17,68 @@ const logPath = path.join(logDir, 'web-debug.log');
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
 
 const logStream = fs.createWriteStream(logPath, { flags: 'w' });
+const timestamp = () => new Date().toISOString();
+
+function normalizeMessage(message) {
+  if (typeof message === 'string') return message;
+  if (message instanceof Error) return `${message.message}\n${message.stack || ''}`;
+
+  if (typeof message === 'object' && message !== null) {
+    try {
+      return JSON.stringify(message);
+    } catch {
+      return '[Unserializable Object]';
+    }
+  }
+
+  return String(message);
+}
 
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/log') {
     let body = '';
-    req.on('data', (chunk) => { body += chunk; });
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
     req.on('end', () => {
       try {
         const payload = JSON.parse(body);
-        const ts = new Date().toISOString();
         const level = payload.level || 'log';
-        logStream.write(`[${ts}] [${level.toUpperCase()}] ${payload.message}\n`);
+        const message = normalizeMessage(payload.message);
+
+        logStream.write(`[${timestamp()}] [${String(level).toUpperCase()}] ${message}\n`);
         res.writeHead(204);
         res.end();
-      } catch (e) {
+      } catch {
         res.writeHead(400, { 'Content-Type': 'text/plain' });
         res.end('Bad request');
       }
     });
     return;
   }
+
   res.writeHead(404);
   res.end();
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`Web log receiver: http://127.0.0.1:${PORT}/log → ${logPath}`);
+  console.log(`Web log receiver: http://127.0.0.1:${PORT}/log -> ${logPath}`);
 });
+
+let isShuttingDown = false;
+function shutdown(signal) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  logStream.write(`--- web log receiver stopping ${timestamp()} signal=${signal} ---\n`);
+  server.close(() => {
+    logStream.end(() => process.exit(0));
+  });
+
+  setTimeout(() => {
+    logStream.end(() => process.exit(0));
+  }, 1000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

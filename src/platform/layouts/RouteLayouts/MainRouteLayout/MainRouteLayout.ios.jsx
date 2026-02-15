@@ -7,6 +7,7 @@
 import React, { useMemo } from 'react';
 import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
+import { getMenuIconGlyph } from '@config/sideMenu';
 import { AppFrame } from '@platform/layouts';
 import {
   Breadcrumbs,
@@ -14,6 +15,7 @@ import {
   LanguageControls,
   NoticeSurface,
   ShellBanners,
+  TabBar,
   ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
@@ -43,6 +45,16 @@ const MainRouteLayoutIOS = () => {
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
   ) : null;
+  const tabBarItems = useMemo(
+    () =>
+      mainItems.map((item) => ({
+        ...item,
+        href: item.path,
+        label: item.label || item.name || item.id,
+        icon: getMenuIconGlyph(item.icon),
+      })),
+    [mainItems]
+  );
 
   const hamburgerIcon = useMemo(() => <HamburgerIcon />, []);
   const headerActions = useHeaderActions(
@@ -90,6 +102,14 @@ const MainRouteLayoutIOS = () => {
             variant={FOOTER_VARIANTS.MINIMAL}
             accessibilityLabel={t('navigation.footer.title')}
             testID="main-footer"
+            quickActionsSlot={(
+              <TabBar
+                accessibilityLabel={t('navigation.tabBar.title')}
+                items={tabBarItems}
+                isTabVisible={isItemVisible}
+                testID="main-tabbar"
+              />
+            )}
           />
         }
         banner={bannerSlot}

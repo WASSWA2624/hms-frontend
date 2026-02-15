@@ -2,6 +2,7 @@ import '@debug/web-console-logger';
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { Slot, usePathname } from 'expo-router';
+import { PersistGate } from 'redux-persist/integration/react';
 import { ErrorBoundary } from '@errors';
 import { I18nProvider } from '@i18n';
 import { tSync } from '@i18n';
@@ -10,6 +11,8 @@ import { logger } from '@logging';
 import store from '@store';
 import { persistLastRoute } from '@navigation/routePersistence';
 import {
+  StyledActivityIndicator,
+  StyledLoadingContainer,
   StyledSlotContainer,
 } from '@platform/layouts/common/RootLayoutStyles';
 import ThemeProviderWrapper from '@platform/layouts/common/ThemeProviderWrapper';
@@ -50,6 +53,12 @@ const resolveDocumentTitle = (pathname) => {
   return `${pageName} | ${APP_NAME}`;
 };
 
+const BootstrapLoadingFallback = () => (
+  <StyledLoadingContainer testID="root-layout-bootstrap-loading">
+    <StyledActivityIndicator size="large" />
+  </StyledLoadingContainer>
+);
+
 /**
  * Root Layout Component
  *
@@ -59,11 +68,30 @@ const resolveDocumentTitle = (pathname) => {
  */
 const RootLayout = () => {
   const pathname = usePathname();
+  const [bootstrapStatus, setBootstrapStatus] = React.useState('loading');
 
   useEffect(() => {
-    bootstrapApp().catch((error) => {
-      logger.error('Bootstrap failed (non-blocking)', { error: error?.message });
-    });
+    let isMounted = true;
+
+    bootstrapApp()
+      .then(() => {
+        if (isMounted) {
+          setBootstrapStatus('ready');
+        }
+      })
+      .catch((error) => {
+        logger.error('Bootstrap initialization failed', {
+          error: error?.message,
+          stack: error?.stack,
+        });
+        if (isMounted) {
+          setBootstrapStatus('failed');
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -75,20 +103,34 @@ const RootLayout = () => {
     document.title = resolveDocumentTitle(pathname);
   }, [pathname]);
 
+  if (bootstrapStatus !== 'ready') {
+    return (
+      <>
+        <FaviconHead />
+        <BootstrapLoadingFallback />
+      </>
+    );
+  }
+
   return (
     <>
       <FaviconHead />
-      <Provider store={store}>
-        <ThemeProviderWrapper>
-          <I18nProvider>
-            <ErrorBoundary>
-            <StyledSlotContainer>
-              <Slot />
-            </StyledSlotContainer>
-            </ErrorBoundary>
-          </I18nProvider>
-        </ThemeProviderWrapper>
-      </Provider>
+      <ErrorBoundary>
+        <Provider store={store}>
+          <PersistGate
+            loading={<BootstrapLoadingFallback />}
+            persistor={store.persistor}
+          >
+            <ThemeProviderWrapper>
+              <I18nProvider>
+                <StyledSlotContainer>
+                  <Slot />
+                </StyledSlotContainer>
+              </I18nProvider>
+            </ThemeProviderWrapper>
+          </PersistGate>
+        </Provider>
+      </ErrorBoundary>
     </>
   );
 };

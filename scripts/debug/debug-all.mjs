@@ -11,59 +11,66 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..', '..');
 const scriptsDebugDir = __dirname;
 
-const expo = spawn('node', [path.join(scriptsDebugDir, 'expo-with-logging.mjs')], {
-  cwd: projectRoot,
-  stdio: 'inherit',
-  shell: true,
-  env: { ...process.env },
-});
+const scriptEntries = [
+  { name: 'Expo', script: 'expo-with-logging.mjs' },
+  { name: 'Android', script: 'android-debug-logcat.mjs' },
+];
 
-const android = spawn('node', [path.join(scriptsDebugDir, 'android-debug-logcat.mjs')], {
-  cwd: projectRoot,
-  stdio: 'inherit',
-  shell: true,
-  env: { ...process.env },
-});
-
-let ios;
 if (process.platform === 'darwin') {
-  ios = spawn('node', [path.join(scriptsDebugDir, 'ios-debug-logcat.mjs')], {
+  scriptEntries.push({ name: 'iOS', script: 'ios-debug-logcat.mjs' });
+}
+
+const children = new Map();
+let shutdownStarted = false;
+let exitCode = 0;
+
+function shutdown(signal = 'SIGINT') {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+
+  for (const child of children.values()) {
+    if (!child.killed) child.kill(signal);
+  }
+
+  if (children.size === 0) {
+    process.exit(exitCode);
+  }
+}
+
+function spawnLogger(name, scriptFile) {
+  const child = spawn('node', [path.join(scriptsDebugDir, scriptFile)], {
     cwd: projectRoot,
     stdio: 'inherit',
-    shell: true,
+    shell: false,
     env: { ...process.env },
   });
-  ios.on('error', (err) => {
-    console.error('iOS debug process error:', err);
+
+  children.set(name, child);
+
+  child.on('error', (error) => {
+    console.error(`${name} debug process error: ${error.message}`);
+    exitCode = 1;
+    shutdown('SIGINT');
+  });
+
+  child.on('exit', (code) => {
+    children.delete(name);
+
+    if (!shutdownStarted && code && code !== 0) {
+      exitCode = code;
+      shutdown('SIGINT');
+      return;
+    }
+
+    if (children.size === 0) {
+      process.exit(exitCode);
+    }
   });
 }
 
-function killAll() {
-  expo.kill('SIGINT');
-  android.kill('SIGINT');
-  if (ios) ios.kill('SIGINT');
-}
-
-expo.on('error', (err) => {
-  console.error('Expo debug process error:', err);
-  killAll();
-  process.exit(1);
-});
-android.on('error', (err) => {
-  console.error('Android debug process error:', err);
-  killAll();
-  process.exit(1);
+scriptEntries.forEach(({ name, script }) => {
+  spawnLogger(name, script);
 });
 
-expo.on('exit', (code) => {
-  if (code !== 0 && code !== null) { android.kill('SIGINT'); if (ios) ios.kill('SIGINT'); }
-});
-android.on('exit', (code) => {
-  if (code !== 0 && code !== null) { expo.kill('SIGINT'); if (ios) ios.kill('SIGINT'); }
-});
-if (ios) ios.on('exit', (code) => {
-  if (code !== 0 && code !== null) { expo.kill('SIGINT'); android.kill('SIGINT'); }
-});
-
-process.on('SIGINT', killAll);
-process.on('SIGTERM', killAll);
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

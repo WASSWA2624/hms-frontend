@@ -18,12 +18,14 @@
  */
 
 import React from 'react';
+import { useAuthGuard } from '@navigation/guards';
 import { MainRouteLayout } from '@platform/layouts';
 
 /**
  * Main group layout wrapper.
  */
 function MainGroupLayout() {
+  useAuthGuard();
   return <MainRouteLayout />;
 }
 

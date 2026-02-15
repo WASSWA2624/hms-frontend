@@ -8,7 +8,6 @@ import styled from 'styled-components';
 const StyledFooter = styled.footer.withConfig({
   displayName: 'StyledFooter',
   componentId: 'StyledFooter',
-  shouldForwardProp: (prop) => prop !== 'testID',
 })`
   background-color: ${({ theme }) => theme.colors.background.secondary};
   border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};

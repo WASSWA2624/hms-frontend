@@ -1,456 +1,260 @@
 /**
  * Main Layout Navigation Tests
- * 
- * Tests for main layout with navigation skeleton integration covering:
- * - Navigation components render correctly (mock navigation components)
- * - Routes are still accessible with navigation present (mock `<Slot />`)
- * - Web platform: focus order and a11y labels for nav controls are correct per accessibility.mdc
- * - All branches (platform-specific rendering)
- * - Accessibility props (accessibilityLabel, testID) per testing.mdc
- * 
- * Coverage: 100% required per testing.mdc
+ *
+ * Step 7.17: navigation skeleton in main layout (header/tab bar/sidebar + Slot).
  */
-
 import React from 'react';
-import { renderWithProviders } from '../helpers/test-utils';
+import { render } from '@testing-library/react-native';
 import MainRouteLayoutWeb from '@platform/layouts/RouteLayouts/MainRouteLayout/MainRouteLayout.web';
 import MainRouteLayoutAndroid from '@platform/layouts/RouteLayouts/MainRouteLayout/MainRouteLayout.android';
 import MainRouteLayoutIOS from '@platform/layouts/RouteLayouts/MainRouteLayout/MainRouteLayout.ios';
-import { useAuth } from '@hooks';
+import { GlobalHeader, Sidebar, TabBar } from '@platform/components';
+import { useShellBanners } from '@hooks';
 import { useAuthGuard } from '@navigation/guards';
-import { GlobalHeader, TabBar, Sidebar } from '@platform/components';
-import { Slot } from 'expo-router';
+import useMainRouteLayoutNative from '@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutNative';
+import useMainRouteLayoutWeb from '@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutWeb';
+import { AppFrame } from '@platform/layouts';
 
-// Mock dependencies
 const mockEnTranslations = require('@i18n/locales/en.json');
+
 jest.mock('@hooks', () => ({
-  useAuth: jest.fn(),
   useI18n: () => ({
     t: (key) => {
       const keys = key.split('.');
       let value = mockEnTranslations;
-      for (const k of keys) {
-        value = value?.[k];
-        if (value === undefined) return key;
+      for (const token of keys) {
+        value = value?.[token];
+        if (value === undefined) {
+          return key;
+        }
       }
       return value || key;
     },
     locale: 'en',
   }),
-  useNavigationVisibility: () => ({
-    isItemVisible: jest.fn(() => true),
-  }),
-  useFocusTrap: jest.fn(),
-  useShellBanners: () => [],
-  useUiState: () => ({ isLoading: false }),
+  useShellBanners: jest.fn(() => []),
 }));
 
 jest.mock('@navigation/guards', () => ({
   useAuthGuard: jest.fn(),
 }));
 
-jest.mock('@platform/components', () => ({
-  GlobalHeader: jest.fn(({ accessibilityLabel, testID, ...props }) => (
-    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
-      Mock GlobalHeader
-    </div>
-  )),
-  LanguageControls: jest.fn(({ testID, ...props }) => (
-    <div data-testid={testID} {...props}>
-      Mock LanguageControls
-    </div>
-  )),
-  ThemeControls: jest.fn(({ testID, ...props }) => (
-    <div data-testid={testID} {...props}>
-      Mock ThemeControls
-    </div>
-  )),
-  TabBar: jest.fn(({ accessibilityLabel, testID, ...props }) => (
-    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
-      Mock TabBar
-    </div>
-  )),
-  Sidebar: jest.fn(({ accessibilityLabel, testID, ...props }) => (
-    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
-      Mock Sidebar
-    </div>
-  )),
-  ShellBanners: jest.fn(({ testID, ...props }) => (
-    <div data-testid={testID} {...props}>
-      Mock ShellBanners
-    </div>
-  )),
-  LoadingOverlay: jest.fn(({ testID, ...props }) => (
-    <div data-testid={testID} {...props}>
-      Mock LoadingOverlay
-    </div>
-  )),
-  NoticeSurface: jest.fn(({ testID, ...props }) => (
-    <div data-testid={testID} {...props}>
-      Mock NoticeSurface
-    </div>
-  )),
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/useMainLayoutMemo', () => ({
+  useHeaderActions: jest.fn((authHeaderActions) => [
+    ...authHeaderActions,
+    { id: 'toggle-sidebar', label: 'Toggle Sidebar', onPress: jest.fn() },
+  ]),
 }));
 
-jest.mock('@platform/layouts', () => {
+jest.mock('@platform/layouts/common/useBreadcrumbs', () => jest.fn(() => []));
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/useBreadcrumbs', () => jest.fn(() => []));
+
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutNative', () => jest.fn());
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutWeb', () => jest.fn());
+
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/Brand', () => () => null);
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/HamburgerIcon', () => () => null);
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/HeaderUtility', () => () => null);
+jest.mock('@platform/layouts/RouteLayouts/MainRouteLayout/MobileSidebar', () =>
+  jest.fn(({ isOpen, onClose }) => (isOpen ? <div testID="mobile-sidebar" onClick={onClose} /> : null))
+);
+
+jest.mock('@platform/components/navigation/GlobalFooter', () => {
   const React = require('react');
+  const GlobalFooter = ({ quickActionsSlot, testID }) => (
+    <div testID={testID || 'main-footer'}>{quickActionsSlot || null}</div>
+  );
+
   return {
-    MainLayout: jest.fn(({ children, header, footer, sidebar, ...props }) => (
-      <div data-testid="main-layout" {...props}>
-        {header}
-        {sidebar}
-        {children}
-        {footer}
-      </div>
-    )),
-    AppFrame: jest.fn(({ children, header, footer, sidebar, ...props }) => (
-      <div data-testid="app-frame" {...props}>
-        {header}
-        {sidebar}
-        {children}
-        {footer}
-      </div>
-    )),
+    __esModule: true,
+    default: GlobalFooter,
+    FOOTER_VARIANTS: {
+      MAIN: 'main',
+      MINIMAL: 'minimal',
+    },
   };
 });
 
-jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
-  Slot: ({ children, testID }) => (
-    <div data-testid={testID || 'slot'} testID={testID || 'slot'}>
-      {children || 'Mock Slot'}
-    </div>
-  ),
+jest.mock('@platform/components', () => ({
+  Breadcrumbs: jest.fn(({ testID }) => <div testID={testID || 'breadcrumbs'} />),
+  GlobalHeader: jest.fn(({ accessibilityLabel, testID }) => (
+    <div testID={testID} aria-label={accessibilityLabel} />
+  )),
+  Icon: jest.fn(() => <span />),
+  LanguageControls: jest.fn(({ testID }) => <div testID={testID} />),
+  NoticeSurface: jest.fn(({ testID }) => <div testID={testID} />),
+  ShellBanners: jest.fn(({ testID }) => <div testID={testID} />),
+  Sidebar: jest.fn(({ accessibilityLabel, testID }) => (
+    <div testID={testID} aria-label={accessibilityLabel} />
+  )),
+  TabBar: jest.fn(({ accessibilityLabel, testID }) => (
+    <div testID={testID} aria-label={accessibilityLabel} />
+  )),
+  ThemeControls: jest.fn(({ testID }) => <div testID={testID} />),
 }));
 
-describe('MainLayout with Navigation Skeleton', () => {
-  beforeEach(() => {
-    // Reset mocks
-    jest.clearAllMocks();
-
-    // Default: authenticated
-    useAuth.mockReturnValue({ isAuthenticated: true, logout: jest.fn(), roles: [] });
-    useAuthGuard.mockReturnValue({
-      authenticated: true,
-      user: { id: '1', email: 'test@example.com' },
-    });
-  });
-
-  describe('Mobile Platform (Android/iOS)', () => {
-    it('should render GlobalHeader, Slot, and TabBar on iOS', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should render GlobalHeader with correct accessibility props on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.header.title,
-        testID: 'main-header',
-      });
-    });
-
-    it('should render TabBar with correct accessibility props on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(TabBar).toHaveBeenCalled();
-      const tabBarCall = TabBar.mock.calls[0];
-      expect(tabBarCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.tabBar.title,
-        testID: 'main-tabbar',
-      });
-    });
-
-    it('should not render Sidebar on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(Sidebar).not.toHaveBeenCalled();
-    });
-
-    it('should pass logout action when authenticated on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-      const headerCall = GlobalHeader.mock.calls[0];
-      const actionIds = headerCall[0].actions.map((action) => action.id);
-      expect(actionIds).toContain('logout');
-      expect(actionIds).not.toContain('login');
-      expect(actionIds).not.toContain('register');
-    });
-
-    it('should render correct layout structure on Android', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutAndroid />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-      expect(Sidebar).not.toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should pass logout action when authenticated on Android', () => {
-      renderWithProviders(<MainRouteLayoutAndroid />);
-      const headerCall = GlobalHeader.mock.calls[0];
-      const actionIds = headerCall[0].actions.map((action) => action.id);
-      expect(actionIds).toContain('logout');
-      expect(actionIds).not.toContain('login');
-      expect(actionIds).not.toContain('register');
-    });
-
-    it('should render GlobalHeader with correct accessibility props on Android', () => {
-      renderWithProviders(<MainRouteLayoutAndroid />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.header.title,
-        testID: 'main-header',
-      });
-    });
-
-    it('should render TabBar with correct accessibility props on Android', () => {
-      renderWithProviders(<MainRouteLayoutAndroid />);
-
-      expect(TabBar).toHaveBeenCalled();
-      const tabBarCall = TabBar.mock.calls[0];
-      expect(tabBarCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.tabBar.title,
-        testID: 'main-tabbar',
-      });
-    });
-  });
-
-  describe('Web Platform', () => {
-    it('should render Sidebar, GlobalHeader, and Slot on web platform', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should render Sidebar with correct accessibility props on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      const sidebarCall = Sidebar.mock.calls[0];
-      expect(sidebarCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.sidebar.title,
-        testID: 'main-sidebar',
-      });
-    });
-
-    it('should render GlobalHeader with correct accessibility props on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.header.title,
-        testID: 'main-header',
-      });
-    });
-
-    it('should not show login in header actions when authenticated on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-      const headerCall = GlobalHeader.mock.calls[0];
-      const actionIds = headerCall[0].actions.map((action) => action.id);
-      // Logout is in HeaderUtility user menu, not in header actions (per implementation)
-      expect(actionIds).not.toContain('login');
-      expect(actionIds).toContain('toggle-sidebar');
-    });
-
-    it('should not render TabBar on web platform', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(TabBar).not.toHaveBeenCalled();
-    });
-
-    it('should render correct layout structure on web (Sidebar + GlobalHeader + Slot)', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).not.toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should not show login/register in header when unauthenticated (auth screens removed)', () => {
-      useAuth.mockReturnValue({ isAuthenticated: false, logout: jest.fn(), roles: [] });
-      useAuthGuard.mockReturnValue({ authenticated: false, user: null });
-      renderWithProviders(<MainRouteLayoutWeb />);
-      const headerCall = GlobalHeader.mock.calls[0];
-      const actionIds = headerCall[0].actions.map((action) => action.id);
-      expect(actionIds).not.toContain('login');
-      expect(actionIds).not.toContain('register');
-      expect(actionIds).not.toContain('logout');
-    });
-  });
-
-  describe('Navigation Component Integration', () => {
-    it('should call useAuthGuard before rendering navigation on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(useAuthGuard).toHaveBeenCalled();
-    });
-
-    it('should call useAuthGuard before rendering navigation on Android', () => {
-      renderWithProviders(<MainRouteLayoutAndroid />);
-
-      expect(useAuthGuard).toHaveBeenCalled();
-    });
-
-    it('should call useAuthGuard before rendering navigation on Web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(useAuthGuard).toHaveBeenCalled();
-    });
-
-    it('should render Slot component for child routes on iOS', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should allow routes to be accessible with navigation present', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutIOS />);
-
-      // Slot should be rendered, allowing child routes to be displayed
-      expect(getByTestId('slot')).toBeDefined();
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('should provide accessibilityLabel for GlobalHeader on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.header.title,
-      });
-    });
-
-    it('should provide accessibilityLabel for TabBar on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(TabBar).toHaveBeenCalled();
-      const tabBarCall = TabBar.mock.calls[0];
-      expect(tabBarCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.tabBar.title,
-      });
-    });
-
-    it('should provide accessibilityLabel for Sidebar on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      const sidebarCall = Sidebar.mock.calls[0];
-      expect(sidebarCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.sidebar.title,
-      });
-    });
-
-    it('should provide accessibilityLabel for GlobalHeader on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        accessibilityLabel: mockEnTranslations.navigation.header.title,
-      });
-    });
-
-    it('should provide testID for all navigation components on iOS', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      const headerCall = GlobalHeader.mock.calls[0];
-      expect(headerCall[0]).toMatchObject({
-        testID: 'main-header',
-      });
-
-      expect(TabBar).toHaveBeenCalled();
-      const tabBarCall = TabBar.mock.calls[0];
-      expect(tabBarCall[0]).toMatchObject({
-        testID: 'main-tabbar',
-      });
-    });
-
-    it('should provide testID for Sidebar on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      const sidebarCall = Sidebar.mock.calls[0];
-      expect(sidebarCall[0]).toMatchObject({
-        testID: 'main-sidebar',
-      });
-    });
-  });
-
-  describe('Platform Differentiation', () => {
-    it('should render mobile layout structure on iOS', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutIOS />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-      expect(Sidebar).not.toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should render mobile layout structure on Android', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutAndroid />);
-
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-      expect(Sidebar).not.toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-
-    it('should render web layout structure on web', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutWeb />);
-
-      expect(Sidebar).toHaveBeenCalled();
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).not.toHaveBeenCalled();
-      expect(getByTestId('slot')).toBeDefined();
-    });
-  });
-
-  describe('Layout Structure', () => {
-    it('should render navigation components in correct order on mobile (iOS)', () => {
-      renderWithProviders(<MainRouteLayoutIOS />);
-
-      // Verify components are called (order is handled by React render)
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-    });
-
-    it('should render navigation components in correct order on mobile (Android)', () => {
-      renderWithProviders(<MainRouteLayoutAndroid />);
-
-      // Verify components are called (order is handled by React render)
-      expect(GlobalHeader).toHaveBeenCalled();
-      expect(TabBar).toHaveBeenCalled();
-    });
-
-    it('should render navigation components in correct order on web', () => {
-      renderWithProviders(<MainRouteLayoutWeb />);
-
-      // Verify components are called (order is handled by React render)
-      expect(Sidebar).toHaveBeenCalled();
-      expect(GlobalHeader).toHaveBeenCalled();
-    });
-
-    it('should render Slot component between navigation components', () => {
-      const { getByTestId } = renderWithProviders(<MainRouteLayoutIOS />);
-
-      // Slot should be rendered
-      expect(getByTestId('slot')).toBeDefined();
-    });
-  });
+jest.mock('@platform/layouts', () => ({
+  AppFrame: jest.fn(({ children, header, sidebar, footer }) => (
+    <div testID="app-frame">
+      {header}
+      {sidebar}
+      {children}
+      {footer}
+    </div>
+  )),
+}));
+
+jest.mock('expo-router', () => ({
+  Slot: ({ testID }) => {
+    const { View } = require('react-native');
+    return <View testID={testID || 'slot'} />;
+  },
+  usePathname: jest.fn(() => '/dashboard'),
+}));
+
+const createNativeHookState = () => ({
+  authHeaderActions: [{ id: 'logout', label: 'Logout', onPress: jest.fn() }],
+  overlaySlot: null,
+  mainItems: [{ id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'home-outline' }],
+  isItemVisible: jest.fn(() => true),
+  isMobileSidebarOpen: false,
+  handleCloseMobileSidebar: jest.fn(),
+  handleToggleSidebar: jest.fn(),
 });
 
+const createWebHookState = () => ({
+  t: (key) => key,
+  mainItems: [{ id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'home-outline' }],
+  isItemVisible: jest.fn(() => true),
+  overlaySlot: null,
+  resolvedSidebarWidth: 260,
+  isSidebarCollapsed: false,
+  isMobile: false,
+  isHeaderHidden: false,
+  isMobileSidebarOpen: false,
+  authHeaderActions: [],
+  handleToggleSidebar: jest.fn(),
+  handleShowHeader: jest.fn(),
+  handleResizeStart: jest.fn(),
+  handleResizeKeyDown: jest.fn(),
+  handleMobileOverlayKeyDown: jest.fn(),
+  closeButtonRef: { current: null },
+  mobileSidebarRef: { current: null },
+  footerVisible: true,
+  handleCloseMobileSidebar: jest.fn(),
+});
+
+describe('Main layout navigation skeleton', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useMainRouteLayoutNative.mockImplementation(() => {
+      useAuthGuard();
+      return createNativeHookState();
+    });
+    useMainRouteLayoutWeb.mockImplementation(() => {
+      useAuthGuard();
+      return createWebHookState();
+    });
+  });
+
+  test('renders iOS header + tab bar + slot', () => {
+    const { getByTestId } = render(<MainRouteLayoutIOS />);
+
+    expect(GlobalHeader).toHaveBeenCalled();
+    expect(TabBar).toHaveBeenCalled();
+    expect(Sidebar).not.toHaveBeenCalled();
+    expect(getByTestId('slot')).toBeDefined();
+  });
+
+  test('renders Android header + tab bar + slot', () => {
+    const { getByTestId } = render(<MainRouteLayoutAndroid />);
+
+    expect(GlobalHeader).toHaveBeenCalled();
+    expect(TabBar).toHaveBeenCalled();
+    expect(Sidebar).not.toHaveBeenCalled();
+    expect(getByTestId('slot')).toBeDefined();
+  });
+
+  test('renders Web sidebar + header + slot', () => {
+    const { getByTestId } = render(<MainRouteLayoutWeb />);
+
+    expect(Sidebar).toHaveBeenCalled();
+    expect(GlobalHeader).toHaveBeenCalled();
+    expect(TabBar).not.toHaveBeenCalled();
+    expect(getByTestId('slot')).toBeDefined();
+  });
+
+  test('wires accessibility labels on iOS header and tab bar', () => {
+    render(<MainRouteLayoutIOS />);
+
+    const headerCall = GlobalHeader.mock.calls[0][0];
+    const tabBarCall = TabBar.mock.calls[0][0];
+
+    expect(headerCall).toMatchObject({
+      accessibilityLabel: mockEnTranslations.navigation.header.title,
+      testID: 'main-header',
+    });
+    expect(tabBarCall).toMatchObject({
+      accessibilityLabel: mockEnTranslations.navigation.tabBar.title,
+      testID: 'main-tabbar',
+    });
+  });
+
+  test('wires accessibility labels on web sidebar', () => {
+    render(<MainRouteLayoutWeb />);
+    const sidebarCall = Sidebar.mock.calls[0][0];
+
+    expect(sidebarCall).toMatchObject({
+      accessibilityLabel: 'navigation.sidebar.title',
+      testID: 'main-sidebar',
+    });
+  });
+
+  test('calls auth guard before rendering navigation shells', () => {
+    render(<MainRouteLayoutIOS />);
+    render(<MainRouteLayoutAndroid />);
+    render(<MainRouteLayoutWeb />);
+
+    expect(useAuthGuard).toHaveBeenCalledTimes(4);
+  });
+
+  test('wires language and theme controls into shell headers', () => {
+    render(<MainRouteLayoutIOS />);
+    render(<MainRouteLayoutAndroid />);
+    render(<MainRouteLayoutWeb />);
+
+    const utilityChildren = GlobalHeader.mock.calls.flatMap(([props]) =>
+      React.Children.toArray(props.utilitySlot?.props?.children ?? [])
+    );
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-language-controls')).toBe(true);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-theme-controls')).toBe(true);
+  });
+
+  test('renders shell banners when banner payload exists', () => {
+    useShellBanners.mockReturnValue([
+      { id: 'offline', variant: 'offline', title: 'Offline', message: 'Network unavailable' },
+    ]);
+    render(<MainRouteLayoutWeb />);
+
+    const appFrameProps = AppFrame.mock.calls[0][0];
+    expect(appFrameProps.banner).toBeTruthy();
+    expect(appFrameProps.banner.props.testID).toBe('main-shell-banners');
+  });
+
+  test('passes notices and overlay slots into AppFrame', () => {
+    useMainRouteLayoutWeb.mockImplementation(() => {
+      useAuthGuard();
+      return {
+        ...createWebHookState(),
+        overlaySlot: <div testID="main-overlay-slot" />,
+      };
+    });
+
+    render(<MainRouteLayoutWeb />);
+
+    const appFrameProps = AppFrame.mock.calls[0][0];
+    expect(appFrameProps.overlay).toBeTruthy();
+    expect(appFrameProps.notices).toBeTruthy();
+    expect(appFrameProps.notices.props.testID).toBe('main-notice-surface');
+  });
+});

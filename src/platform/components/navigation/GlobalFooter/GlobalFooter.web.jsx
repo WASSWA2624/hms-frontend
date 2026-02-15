@@ -33,6 +33,7 @@ const GlobalFooterWeb = ({
     <StyledFooter
       role="contentinfo"
       aria-label={accessibilityLabel || t('navigation.footer.title')}
+      testID={testID}
       data-testid={testID}
       className={className}
       {...rest}

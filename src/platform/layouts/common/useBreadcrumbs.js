@@ -71,7 +71,8 @@ const formatSegmentLabel = (segment, t) => {
  * @returns {Array} Breadcrumb items
  */
 const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.items.main') => {
-  const pathname = usePathname();
+  // Some tests mock expo-router without usePathname; keep breadcrumb generation resilient.
+  const pathname = typeof usePathname === 'function' ? usePathname() : '';
   const { t } = useI18n();
 
   const breadcrumbItems = useMemo(() => {

@@ -4,23 +4,32 @@
  */
 import React, { useEffect } from 'react';
 import { Slot, useRouter } from 'expo-router';
-import { useI18n, useAuth } from '@hooks';
+import { useI18n } from '@hooks';
+import { useAuthGuard } from '@navigation/guards';
 import { AuthLayout } from '@platform/layouts';
+import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 
 function AuthGroupLayout() {
   const { t } = useI18n();
-  const { isAuthenticated } = useAuth();
+  const { authenticated } = useAuthGuard({ skipRedirect: true });
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!authenticated) return;
     router.replace('/dashboard');
-  }, [isAuthenticated, router]);
+  }, [authenticated, router]);
 
   return (
     <AuthLayout
       accessibilityLabel={t('auth.layout.title')}
       testID="auth-group-layout"
+      footer={(
+        <GlobalFooter
+          variant={FOOTER_VARIANTS.AUTH}
+          accessibilityLabel={t('navigation.footer.title')}
+          testID="auth-footer"
+        />
+      )}
     >
       <Slot />
     </AuthLayout>

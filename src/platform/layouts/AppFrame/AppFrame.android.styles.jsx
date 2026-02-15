@@ -55,7 +55,8 @@ const StyledScrollView = styled(ScrollView).withConfig({
   contentContainerStyle: {
     flexGrow: 1,
     flexDirection: 'column',
-    paddingBottom: $footerInset ? theme.spacing.xxl * 2 : 0,
+    // Guard against test/mocked render paths where theme can be temporarily undefined.
+    paddingBottom: $footerInset && theme?.spacing?.xxl ? theme.spacing.xxl * 2 : 0,
   },
 }))`
   flex: 1;

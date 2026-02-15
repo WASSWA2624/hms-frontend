@@ -122,6 +122,16 @@ describe('AuthLayout Component', () => {
       );
       expect(getByText('Form')).toBeTruthy();
     });
+
+    it('should render footer when provided', () => {
+      const { getByText } = renderWithTheme(
+        <AuthLayout footer={<Text>Auth Footer</Text>}>
+          <Text>Form</Text>
+        </AuthLayout>
+      );
+      expect(getByText('Form')).toBeTruthy();
+      expect(getByText('Auth Footer')).toBeTruthy();
+    });
   });
 
   describe('All Sections Together', () => {

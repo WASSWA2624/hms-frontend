@@ -27,6 +27,7 @@ import {
  * @param {React.ReactNode} props.branding - Branding/logo area
  * @param {React.ReactNode} props.helpLinks - Help/forgot password links
  * @param {React.ReactNode} props.banner - Optional banner slot (e.g. ShellBanners)
+ * @param {React.ReactNode} props.footer - Optional footer slot (e.g. GlobalFooter)
  * @param {string} props.accessibilityLabel - Accessibility label
  * @param {string} props.testID - Test identifier
  * @param {string} props.className - Additional CSS class
@@ -36,6 +37,7 @@ const AuthLayoutWeb = ({
   branding,
   helpLinks,
   banner,
+  footer,
   accessibilityLabel,
   testID,
   className,
@@ -74,6 +76,7 @@ const AuthLayoutWeb = ({
             {helpLinks}
           </StyledHelpLinks>
         )}
+        {footer}
       </StyledCard>
     </StyledContainer>
   );

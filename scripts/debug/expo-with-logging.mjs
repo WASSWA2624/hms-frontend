@@ -5,6 +5,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import net from 'net';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,14 +19,41 @@ const logStream = fs.createWriteStream(logPath, { flags: 'w' });
 const timestamp = () => new Date().toISOString();
 
 function tee(data, isStderr) {
-  const line = data.toString();
-  const prefixed = `[${timestamp()}] ${isStderr ? 'STDERR: ' : ''}${line}`;
-  logStream.write(prefixed);
-  if (!logStream.write(line)) logStream.once('drain', () => {});
+  const chunk = data.toString();
+  const lines = chunk.split(/\r?\n/);
+
+  lines.forEach((line, index) => {
+    const isLastLine = index === lines.length - 1;
+    const hasTrailingNewline = chunk.endsWith('\n') || chunk.endsWith('\r');
+    if (isLastLine && !line && hasTrailingNewline) return;
+
+    const suffix = !isLastLine || hasTrailingNewline ? '\n' : '';
+    logStream.write(`[${timestamp()}] ${isStderr ? 'STDERR: ' : ''}${line}${suffix}`);
+  });
 }
 
-// Use fixed port so Expo never prompts in non-interactive mode when 8081 is in use
-const child = spawn('npx', ['expo', 'start', '--clear', '--port', '8082'], {
+async function isPortAvailable(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port);
+  });
+}
+
+async function findAvailablePort(startPort, maxAttempts = 20) {
+  for (let offset = 0; offset < maxAttempts; offset += 1) {
+    const port = startPort + offset;
+    // eslint-disable-next-line no-await-in-loop
+    if (await isPortAvailable(port)) return port;
+  }
+  return startPort;
+}
+
+const expoPort = await findAvailablePort(8082);
+const child = spawn('npx', ['expo', 'start', '--clear', '--port', String(expoPort)], {
   cwd: projectRoot,
   stdio: ['inherit', 'pipe', 'pipe'],
   shell: process.platform === 'win32',

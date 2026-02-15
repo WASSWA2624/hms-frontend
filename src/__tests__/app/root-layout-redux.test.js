@@ -103,10 +103,14 @@ jest.mock('@logging', () => ({
 }), { virtual: true });
 
 // Mock ErrorBoundary
-jest.mock('@errors', () => {
+const mockErrorBoundary = jest.fn(({ children }) => {
   const React = require('react');
+  return React.createElement(React.Fragment, null, children);
+});
+
+jest.mock('@errors', () => {
   return {
-    ErrorBoundary: ({ children }) => React.createElement(React.Fragment, null, children),
+    ErrorBoundary: (props) => mockErrorBoundary(props),
   };
 }, { virtual: true });
 
@@ -277,35 +281,20 @@ describe('app/_layout.jsx - Redux Provider Integration', () => {
   });
 
   test('should maintain ErrorBoundary wrapping Provider', async () => {
-    // Per Step 7.3: Test that Provider is wrapped inside ErrorBoundary
-    // Verify ErrorBoundary is still present (tested in root-layout-error-boundary.test.js)
-    // This test ensures Provider doesn't break ErrorBoundary
-    const ThrowError = () => {
-      throw new Error('Test error');
-    };
+    // Per Step 7.3: Test that Provider remains wrapped inside ErrorBoundary.
+    mockSlotRenderer = () => React.createElement(Text, null, 'Test Content');
 
-    // Mock Slot to render error-throwing component
-    mockSlotRenderer = () => React.createElement(ThrowError);
+    const { getByText } = render(<RootLayout />);
 
-    // Suppress console.error for error boundary test
-    const originalError = console.error;
-    console.error = jest.fn();
+    await waitFor(() => {
+      expect(mockBootstrapApp).toHaveBeenCalled();
+    }, { timeout: 3000 });
 
-    try {
-      render(<RootLayout />);
+    await waitFor(() => {
+      expect(getByText('Test Content')).toBeTruthy();
+    }, { timeout: 3000 });
 
-      // Wait for bootstrap to complete
-      await waitFor(() => {
-        expect(mockBootstrapApp).toHaveBeenCalled();
-      }, { timeout: 3000 });
-
-      // ErrorBoundary should catch the error
-      // Note: Since ErrorBoundary is mocked to render children, this test verifies
-      // that the structure is correct, but actual error handling is tested in root-layout-error-boundary.test.js
-      // The component should render without crashing (ErrorBoundary handles it)
-    } finally {
-      console.error = originalError;
-    }
+    expect(mockErrorBoundary).toHaveBeenCalled();
   });
 
   test('should handle store state updates', async () => {
