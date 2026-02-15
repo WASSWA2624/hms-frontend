@@ -1,28 +1,21 @@
-﻿Steps to review and implement (Phase 010 - Tier 10: Pharmacy):
-- **10.10.1** `drug`
-- **10.10.2** `drug-batch`
-- **10.10.3** `formulary-item`
-- **10.10.4** `pharmacy-order`
-- **10.10.5** `pharmacy-order-item`
-- **10.10.6** `dispense-log`
-- **10.10.7** `adverse-event`
+﻿Steps to review and implement (Phase 012 - Tier 8: Biomedical Engineering Suite):
+- **12.25** Biomedical fault reporting entry points
+- **12.26** Biomedical engineering workbench core flows
+- **12.27** Biomedical calibration, safety, and downtime insights
 
 Specific implementation scope for this tier:
-- Implement full feature-template files per selected module step(s): rules, model, api, usecase, optional events, and exports.
-- Add/update optional store slice and `use<Feature>` hook only when required by selected module scope.
-- Complete tests with required coverage gates for rules/models/api/usecase/slice/hook branches.
+- Implement advanced UX for selected steps while preserving core-phase stability.
+- Reuse existing modules/services/hooks before introducing new abstractions.
+- Maintain first-class i18n/accessibility/security behavior for advanced states.
 
 Review and implement all missing and non-compliant aspects of this selected tier per:
-- hms-frontend/dev-plan/P010_core-features.md
+- hms-frontend/dev-plan/P012_advanced-features.md
 
 You must ensure 100% compliance with:
 - All rules in hms-frontend/.cursor/rules/*
 - hms-frontend/write-up.md
-- Module order must align with `hms-backend/dev-plan/P011_modules.mdc`.
-- Endpoint contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
-- Mounted routes in `hms-backend/src/app/router.js` and module route files are source of truth.
-- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-15`; implement full CRUD-capable UX where the API contract and RBAC allow it.
-- If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
+- Advanced realtime scope must align with `hms-backend/dev-plan/P013_ws_features.mdc`.
+- HTTP/API behavior must align with mounted routes in `hms-backend/src/app/router.js` and selected module route files.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
 Only implement what is required for this tier's selected step(s).
@@ -60,7 +53,7 @@ Before coding, read and apply:
 
 ## Tier Step Selection Contract (Mandatory)
 
-- This file covers only the listed step IDs for Phase 010 Tier 10.
+- This file covers only the listed step IDs for Phase 012 Tier 8.
 - If specific step IDs from this tier are selected, implement only those IDs.
 - If the tier is selected as a whole, implement all listed step IDs in order.
 - If shared prerequisite wiring is required, implement only the minimum required for this tier.
@@ -71,17 +64,17 @@ Before coding, read and apply:
 ## Implementation Areas
 
 Primary areas for this tier:
-- `src/features/<module>/**` for selected module step(s)
-- `src/store/slices/<module>.slice.js` only when selected step requires global state
-- `src/hooks/use<Feature>.js`, `src/features/index.js`, and tests for selected module step(s)
+- Selected advanced route surfaces under `src/app/**`
+- Selected feature-domain extensions under `src/features/**` and `src/hooks/**`
+- Targeted tests for selected advanced workflows and failure paths
 
 ---
 
 ## Tier Constraints (Mandatory)
 
-- Do NOT merge multiple module child steps into one implementation unit.
-- Do NOT implement screen/route UI scope except minimal wiring strictly required by selected module step(s).
-- Do NOT use endpoints that are not mounted in `hms-backend/src/app/router.js`.
+- Do NOT expand beyond selected advanced tier steps.
+- Do NOT assume unsupported realtime/backend capabilities.
+- Do NOT regress baseline core feature behavior from phases 10/11.
 
 ---
 
@@ -107,4 +100,3 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
-

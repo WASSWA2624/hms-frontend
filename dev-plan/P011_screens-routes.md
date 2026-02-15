@@ -90,6 +90,7 @@ src/app/
 |   |-- billing/
 |   |-- hr/
 |   |-- housekeeping/
+|   |   |-- biomedical/
 |   |-- reports/
 |   |-- communications/
 |   |-- subscriptions/
@@ -252,7 +253,7 @@ src/app/
 - **11.9.16** Goods receipts - `(main)/inventory/goods-receipts` - backend `goods-receipt`
 - **11.9.17** Stock adjustments - `(main)/inventory/stock-adjustments` - backend `stock-adjustment`
 
-### Tier 10: Billing, HR, Facilities, Reporting, Communications, Subscriptions, Integrations, Compliance
+### Tier 10: Billing, HR, Facilities, Biomedical Engineering, Reporting, Communications, Subscriptions, Integrations, Compliance
 - **11.10.1** Billing home - `(main)/billing`
 - **11.10.2** Invoices - `(main)/billing/invoices` - backend `invoice`
 - **11.10.3** Invoice items - `(main)/billing/invoice-items` - backend `invoice-item`
@@ -312,6 +313,22 @@ src/app/
 - **11.10.57** Integrations - `(main)/integrations/integrations` - backend `integration`
 - **11.10.58** Integration logs - `(main)/integrations/integration-logs` - backend `integration-log`
 - **11.10.59** Webhook subscriptions - `(main)/integrations/webhook-subscriptions` - backend `webhook-subscription`
+- **11.10.60** Biomedical home - `(main)/housekeeping/biomedical`
+- **11.10.61** Equipment categories - `(main)/housekeeping/biomedical/equipment-categories` - backend `equipment-category`
+- **11.10.62** Equipment registries - `(main)/housekeeping/biomedical/equipment-registries` - backend `equipment-registry`
+- **11.10.63** Equipment location histories - `(main)/housekeeping/biomedical/equipment-location-histories` - backend `equipment-location-history`
+- **11.10.64** Equipment disposal transfers - `(main)/housekeeping/biomedical/equipment-disposal-transfers` - backend `equipment-disposal-transfer`
+- **11.10.65** Equipment maintenance plans - `(main)/housekeeping/biomedical/equipment-maintenance-plans` - backend `equipment-maintenance-plan`
+- **11.10.66** Equipment work orders - `(main)/housekeeping/biomedical/equipment-work-orders` - backend `equipment-work-order`
+- **11.10.67** Equipment calibration logs - `(main)/housekeeping/biomedical/equipment-calibration-logs` - backend `equipment-calibration-log`
+- **11.10.68** Equipment safety test logs - `(main)/housekeeping/biomedical/equipment-safety-test-logs` - backend `equipment-safety-test-log`
+- **11.10.69** Equipment downtime logs - `(main)/housekeeping/biomedical/equipment-downtime-logs` - backend `equipment-downtime-log`
+- **11.10.70** Equipment incident reports - `(main)/housekeeping/biomedical/equipment-incident-reports` - backend `equipment-incident-report`
+- **11.10.71** Equipment recall notices - `(main)/housekeeping/biomedical/equipment-recall-notices` - backend `equipment-recall-notice`
+- **11.10.72** Equipment spare parts - `(main)/housekeeping/biomedical/equipment-spare-parts` - backend `equipment-spare-part`
+- **11.10.73** Equipment warranty contracts - `(main)/housekeeping/biomedical/equipment-warranty-contracts` - backend `equipment-warranty-contract`
+- **11.10.74** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
+- **11.10.75** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
 
 ### Tier 11: Patient Portal
 - **11.11.1** Patient portal home - `(patient)/portal`
@@ -339,7 +356,7 @@ src/app/
 - [ ] Tier 7 (`11.7.1-11.7.23`) IPD, ICU, theatre, emergency
 - [ ] Tier 8 (`11.8.1-11.8.15`) diagnostics
 - [ ] Tier 9 (`11.9.1-11.9.17`) pharmacy and inventory
-- [ ] Tier 10 (`11.10.1-11.10.59`) billing, HR, facilities, reporting, communications, subscriptions, integrations, compliance
+- [ ] Tier 10 (`11.10.1-11.10.75`) billing, HR, facilities, biomedical engineering, reporting, communications, subscriptions, integrations, compliance
 - [ ] Tier 11 (`11.11.1-11.11.5`) patient portal
 - [ ] Navigation and deep links validated for all completed screens
 

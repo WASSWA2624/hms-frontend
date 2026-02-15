@@ -19,7 +19,7 @@ You must ensure 100% compliance with:
 - Module order must align with `hms-backend/dev-plan/P011_modules.mdc`.
 - Endpoint contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and module route files are source of truth.
-- If selected steps target modules currently not mounted (`pricing-rule`, `coverage-plan`, `report-definition`, `report-run`, `conversation`, `message`), keep read-only/informational behavior unless selected backend work mounts them.
+- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-15`; implement full CRUD-capable UX where the API contract and RBAC allow it.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
@@ -79,7 +79,7 @@ Primary areas for this tier:
 
 - Do NOT merge multiple module child steps into one implementation unit.
 - Do NOT implement screen/route UI scope except minimal wiring strictly required by selected module step(s).
-- Do NOT use non-mounted backend resources for writable flows.
+- Do NOT use endpoints that are not mounted in `hms-backend/src/app/router.js`.
 
 ---
 
@@ -105,3 +105,4 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
+

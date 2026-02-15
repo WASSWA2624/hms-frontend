@@ -21,9 +21,9 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - Errors layer exists (Phase 1)
 - Shared utilities exist (URL helpers, pagination, error normalization)
 
-## Review Snapshot (2026-02-14)
+## Review Snapshot (2026-02-15)
 - Reviewed against `hms-backend/dev-plan/P011_modules.mdc`.
-- Core module steps listed in this phase: **144**.
+- Core module steps listed in this phase: **159**.
 - Missing modules: **None**.
 - Modules present but not required: **None**.
 - Read-only backend modules are still required in frontend scope (list/detail access):
@@ -201,7 +201,7 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.14.6: `shift-swap-request`
 - Step 10.14.7: `payroll-run`
 - Step 10.14.8: `payroll-item`
-- Step 10.14.9: `nurse-roster` (Nurses Time-table Generator: roster config, constraints, generated schedules — write-up §5.17, §12.2.2, §20.3)
+- Step 10.14.9: `nurse-roster` (Nurses Time-table Generator: roster config, constraints, generated schedules - write-up sections 6.14, 7.9, and 20.3)
 - Step 10.14.10: `shift-template`
 - Step 10.14.11: `roster-day-off`
 - Step 10.14.12: `staff-availability`
@@ -212,6 +212,21 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.15.3: `maintenance-request`
 - Step 10.15.4: `asset`
 - Step 10.15.5: `asset-service-log`
+- Step 10.15.6: `equipment-category` (backend Module Group 15A)
+- Step 10.15.7: `equipment-registry` (backend Module Group 15A)
+- Step 10.15.8: `equipment-location-history` (backend Module Group 15A)
+- Step 10.15.9: `equipment-disposal-transfer` (backend Module Group 15A)
+- Step 10.15.10: `equipment-maintenance-plan` (backend Module Group 15A)
+- Step 10.15.11: `equipment-work-order` (backend Module Group 15A)
+- Step 10.15.12: `equipment-calibration-log` (backend Module Group 15A)
+- Step 10.15.13: `equipment-safety-test-log` (backend Module Group 15A)
+- Step 10.15.14: `equipment-downtime-log` (backend Module Group 15A)
+- Step 10.15.15: `equipment-incident-report` (backend Module Group 15A)
+- Step 10.15.16: `equipment-recall-notice` (backend Module Group 15A)
+- Step 10.15.17: `equipment-spare-part` (backend Module Group 15A)
+- Step 10.15.18: `equipment-warranty-contract` (backend Module Group 15A)
+- Step 10.15.19: `equipment-service-provider` (backend Module Group 15A)
+- Step 10.15.20: `equipment-utilization-snapshot` (backend Module Group 15A)
 
 ### Module Group 16: Notifications & Communications
 - Step 10.16.1: `notification`
@@ -249,4 +264,3 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.20.3: `webhook-subscription`
 
 **Note**: Telemedicine and patient engagement flows reuse core modules and are implemented in Phase 12 advanced slices.
-

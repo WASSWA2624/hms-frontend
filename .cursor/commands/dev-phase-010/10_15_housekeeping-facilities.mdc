@@ -1,9 +1,24 @@
-﻿Steps to review and implement (Phase 010 - Tier 15: Housekeeping & Facilities):
+﻿Steps to review and implement (Phase 010 - Tier 15: Housekeeping, Facilities, and Biomedical Engineering):
 - **10.15.1** `housekeeping-task`
 - **10.15.2** `housekeeping-schedule`
 - **10.15.3** `maintenance-request`
 - **10.15.4** `asset`
 - **10.15.5** `asset-service-log`
+- **10.15.6** `equipment-category`
+- **10.15.7** `equipment-registry`
+- **10.15.8** `equipment-location-history`
+- **10.15.9** `equipment-disposal-transfer`
+- **10.15.10** `equipment-maintenance-plan`
+- **10.15.11** `equipment-work-order`
+- **10.15.12** `equipment-calibration-log`
+- **10.15.13** `equipment-safety-test-log`
+- **10.15.14** `equipment-downtime-log`
+- **10.15.15** `equipment-incident-report`
+- **10.15.16** `equipment-recall-notice`
+- **10.15.17** `equipment-spare-part`
+- **10.15.18** `equipment-warranty-contract`
+- **10.15.19** `equipment-service-provider`
+- **10.15.20** `equipment-utilization-snapshot`
 
 Specific implementation scope for this tier:
 - Implement full feature-template files per selected module step(s): rules, model, api, usecase, optional events, and exports.
@@ -19,7 +34,7 @@ You must ensure 100% compliance with:
 - Module order must align with `hms-backend/dev-plan/P011_modules.mdc`.
 - Endpoint contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and module route files are source of truth.
-- If selected steps target modules currently not mounted (`pricing-rule`, `coverage-plan`, `report-definition`, `report-run`, `conversation`, `message`), keep read-only/informational behavior unless selected backend work mounts them.
+- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-15`; implement full CRUD-capable UX where the API contract and RBAC allow it.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
@@ -79,7 +94,7 @@ Primary areas for this tier:
 
 - Do NOT merge multiple module child steps into one implementation unit.
 - Do NOT implement screen/route UI scope except minimal wiring strictly required by selected module step(s).
-- Do NOT use non-mounted backend resources for writable flows.
+- Do NOT use endpoints that are not mounted in `hms-backend/src/app/router.js`.
 
 ---
 

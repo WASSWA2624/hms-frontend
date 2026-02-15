@@ -20,7 +20,7 @@ You must ensure 100% compliance with:
 - hms-frontend/write-up.md
 - Contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and selected module route files are source of truth.
-- Treat unmounted resources/actions as unavailable and keep read-only/informational UX unless selected backend scope mounts them.
+- Use only mounted backend resources/actions from `hms-backend/src/app/router.js`; if an action is absent in contract, keep role-aware read-only/informational UX.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
@@ -106,3 +106,4 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
+

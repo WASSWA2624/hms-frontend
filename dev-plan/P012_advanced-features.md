@@ -122,6 +122,18 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Build override/swap handling with audit visibility.
 - Backend dependencies: `shift-swap-request`, `shift-assignment`, `audit-log`, `system-change-log`.
 
+### Step 12.25: Biomedical fault reporting entry points
+- Build fast fault-report actions from nurse/clinical/ops contexts with prefilled location/context.
+- Backend dependencies: `equipment-incident-report`, `equipment-registry`, `equipment-location-history`.
+
+### Step 12.26: Biomedical engineering workbench core flows
+- Build registry, preventive maintenance, corrective work order, and service-provider management workflows.
+- Backend dependencies: `equipment-registry`, `equipment-maintenance-plan`, `equipment-work-order`, `equipment-service-provider`, `equipment-spare-part`.
+
+### Step 12.27: Biomedical calibration, safety, and downtime insights
+- Build calibration/safety logs and downtime/utilization dashboards for operations and compliance reviews.
+- Backend dependencies: `equipment-calibration-log`, `equipment-safety-test-log`, `equipment-downtime-log`, `equipment-utilization-snapshot`, `equipment-recall-notice`.
+
 ## Testing Gate (Applies to Every Step)
 - Add tests for normal flow, edge cases, permission failures, and offline behavior.
 - Maintain 100% coverage for changed modules per `testing.mdc`.
