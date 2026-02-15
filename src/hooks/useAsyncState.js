@@ -52,5 +52,6 @@ const useAsyncState = () => {
   };
 };
 
+export { toErrorCode, initialState as asyncStateInitialState, reducer as asyncStateReducer };
 export default useAsyncState;
 

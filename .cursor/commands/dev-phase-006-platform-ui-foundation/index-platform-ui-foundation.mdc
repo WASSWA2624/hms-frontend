@@ -1,0 +1,8 @@
+Phase folder: dev-phase-006-platform-ui-foundation
+
+Step prompt files:
+- `06_01_ui-primitives.mdc`
+- `06_02_feedback-and-status-ui.mdc`
+- `06_03_navigation-ui-building-blocks.mdc`
+- `06_04_app-agnostic-layouts.mdc`
+- `06_05_composition-patterns.mdc`

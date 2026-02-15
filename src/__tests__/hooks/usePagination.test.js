@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
-import usePagination from '@hooks/usePagination';
+import usePagination, { toPositiveInt } from '@hooks/usePagination';
 
 const TestComponent = ({ initialPage, initialLimit, onResult }) => {
   const api = usePagination({ initialPage, initialLimit });
@@ -15,7 +15,32 @@ const TestComponent = ({ initialPage, initialLimit, onResult }) => {
   return null;
 };
 
+const TestDefaultComponent = ({ onResult }) => {
+  const api = usePagination();
+  React.useEffect(() => {
+    onResult(api);
+  });
+  return null;
+};
+
 describe('usePagination', () => {
+  it('sanitizes values with toPositiveInt utility', () => {
+    expect(toPositiveInt('9.9', 1)).toBe(9);
+    expect(toPositiveInt('not-a-number', 2)).toBe(2);
+    expect(toPositiveInt(Infinity, 3)).toBe(3);
+    expect(toPositiveInt(0, 4)).toBe(4);
+  });
+
+  it('uses default initial values when no arguments are provided', async () => {
+    let api;
+    render(<TestDefaultComponent onResult={(value) => (api = value)} />);
+
+    await waitFor(() => {
+      expect(api.page).toBe(1);
+      expect(api.limit).toBe(20);
+    });
+  });
+
   it('respects initial values', async () => {
     let api;
     render(

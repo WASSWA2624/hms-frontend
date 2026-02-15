@@ -9,28 +9,27 @@ import { createI18n } from '@i18n';
 import { selectLocale } from '@store/selectors';
 
 const useI18n = () => {
-  const locale = useSelector(
-    typeof selectLocale === 'function'
-      ? selectLocale
-      : (state) => state?.ui?.locale || 'en'
-  );
+  const locale = useSelector(selectLocale);
 
-  const i18n = useMemo(
-    () =>
-      (typeof createI18n === 'function'
-        ? createI18n({ initialLocale: locale })
-        : {
-            tSync: (key) => key,
-          }),
-    [locale]
-  );
+  const i18n = useMemo(() => createI18n({ initialLocale: locale }), [locale]);
 
-  const t = useCallback(
-    (key, params) => i18n.tSync(key, params, locale),
+  const tSync = useCallback(
+    (key, params) => {
+      const normalizedKey = typeof key === 'string' ? key : '';
+      if (!normalizedKey) return '';
+
+      try {
+        return i18n.tSync(normalizedKey, params, locale);
+      } catch {
+        return normalizedKey;
+      }
+    },
     [i18n, locale]
   );
 
-  return { t, locale };
+  const t = useCallback((key, params) => tSync(key, params), [tSync]);
+
+  return { t, tSync, locale };
 };
 
 export default useI18n;

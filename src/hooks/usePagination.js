@@ -60,5 +60,6 @@ const usePagination = ({ initialPage = 1, initialLimit = 20 } = {}) => {
   };
 };
 
+export { toPositiveInt };
 export default usePagination;
 

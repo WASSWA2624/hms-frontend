@@ -29,6 +29,22 @@ const TestComponent = ({ onResult }) => {
 };
 
 describe('useTheme', () => {
+  it('returns the same selector object when theme selector provides an object', async () => {
+    const customTheme = { colors: { brand: '#123456' } };
+    const store = createMockStore({
+      ui: { theme: customTheme, locale: 'en', isLoading: false },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => expect(result).toBe(customTheme));
+  });
+
   it('returns light theme by default', async () => {
     const store = createMockStore({
       ui: { theme: 'light', locale: 'en', isLoading: false },
@@ -62,6 +78,21 @@ describe('useTheme', () => {
   it('does not crash and falls back to light theme when theme mode is undefined', async () => {
     const store = createMockStore({
       ui: { theme: undefined, locale: 'en', isLoading: false },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => expect(result).toBe(lightTheme));
+  });
+
+  it('falls back to light theme when selector value is not a string/object', async () => {
+    const store = createMockStore({
+      ui: { theme: 123, locale: 'en', isLoading: false },
     });
 
     let result;

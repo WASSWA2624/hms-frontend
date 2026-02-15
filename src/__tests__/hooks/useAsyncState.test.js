@@ -5,7 +5,11 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
-import useAsyncState from '@hooks/useAsyncState';
+import useAsyncState, {
+  asyncStateInitialState,
+  asyncStateReducer,
+  toErrorCode,
+} from '@hooks/useAsyncState';
 
 const TestComponent = ({ onResult }) => {
   const api = useAsyncState();
@@ -16,7 +20,20 @@ const TestComponent = ({ onResult }) => {
 };
 
 describe('useAsyncState', () => {
-  it('initial → start → succeed', async () => {
+  it('normalizes error codes deterministically', () => {
+    expect(toErrorCode('  NETWORK_ERROR ')).toBe('NETWORK_ERROR');
+    expect(toErrorCode('')).toBe('UNKNOWN_ERROR');
+    expect(toErrorCode(null)).toBe('UNKNOWN_ERROR');
+    expect(toErrorCode({ message: 'oops' })).toBe('UNKNOWN_ERROR');
+  });
+
+  it('returns previous state for unknown reducer actions', () => {
+    const previous = { ...asyncStateInitialState, isLoading: true, errorCode: 'X' };
+    const next = asyncStateReducer(previous, { type: 'UNKNOWN' });
+    expect(next).toBe(previous);
+  });
+
+  it('initial -> start -> succeed', async () => {
     let api;
     render(<TestComponent onResult={(v) => (api = v)} />);
 
@@ -41,7 +58,7 @@ describe('useAsyncState', () => {
     });
   });
 
-  it('initial → start → fail (stores error codes only)', async () => {
+  it('initial -> start -> fail (stores error codes only)', async () => {
     let api;
     render(<TestComponent onResult={(v) => (api = v)} />);
 
@@ -64,7 +81,23 @@ describe('useAsyncState', () => {
     });
   });
 
-  it('fail → reset', async () => {
+  it('succeed() normalizes undefined data to null', async () => {
+    let api;
+    render(<TestComponent onResult={(v) => (api = v)} />);
+
+    act(() => {
+      api.start();
+      api.succeed(undefined);
+    });
+
+    await waitFor(() => {
+      expect(api.isLoading).toBe(false);
+      expect(api.errorCode).toBeNull();
+      expect(api.data).toBeNull();
+    });
+  });
+
+  it('fail -> reset', async () => {
     let api;
     render(<TestComponent onResult={(v) => (api = v)} />);
 
@@ -101,4 +134,3 @@ describe('useAsyncState', () => {
     });
   });
 });
-

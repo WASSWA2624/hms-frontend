@@ -40,6 +40,7 @@ describe('useI18n', () => {
     await waitFor(() => {
       expect(result.locale).toBe('en');
       expect(result.t('common.save')).toBe('Save');
+      expect(result.tSync('common.save')).toBe('Save');
     });
   });
 
@@ -82,6 +83,59 @@ describe('useI18n', () => {
     });
 
     spy.mockRestore();
+  });
+
+  it('falls back to key when translation implementation throws', async () => {
+    const spy = jest.spyOn(i18n, 'createI18n').mockImplementation(() => ({
+      tSync: () => {
+        throw new Error('translation failure');
+      },
+    }));
+
+    const store = createMockStore({
+      ui: { theme: 'light', locale: 'en', isLoading: false },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(result.t('any.key')).toBe('any.key');
+      expect(result.tSync('any.key')).toBe('any.key');
+      expect(result.tSync(null)).toBe('');
+    });
+
+    spy.mockRestore();
+  });
+
+  it('does not log during production translation paths', async () => {
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const store = createMockStore({
+      ui: { theme: 'light', locale: 'en', isLoading: false },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(result.t('common.save')).toBe('Save');
+      expect(result.t('missing.key.path')).toBe('missing.key.path');
+    });
+
+    expect(consoleLogSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 });
 

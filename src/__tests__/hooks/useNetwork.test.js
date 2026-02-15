@@ -60,6 +60,7 @@ describe('useNetwork', () => {
     await waitFor(() => {
       expect(result.isOnline).toBe(false);
       expect(result.isOffline).toBe(true);
+      expect(result.errorCode).toBeUndefined();
     });
   });
 
@@ -76,5 +77,23 @@ describe('useNetwork', () => {
     );
 
     await waitFor(() => expect(result.isSyncing).toBe(true));
+  });
+
+  it('includes errorCode only when network state provides one', async () => {
+    const store = createMockStore({
+      network: { isOnline: true, isSyncing: false, errorCode: 'NETWORK_TIMEOUT' },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(result.isOffline).toBe(false);
+      expect(result.errorCode).toBe('NETWORK_TIMEOUT');
+    });
   });
 });

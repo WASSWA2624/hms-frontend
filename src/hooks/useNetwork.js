@@ -7,7 +7,6 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import {
   selectIsLowQuality,
-  selectIsOffline,
   selectIsOnline,
   selectIsSyncing,
   selectNetworkQuality,
@@ -15,21 +14,26 @@ import {
 
 const useNetwork = () => {
   const isOnline = useSelector(selectIsOnline);
-  const isOffline = useSelector(selectIsOffline);
   const isSyncing = useSelector(selectIsSyncing);
   const networkQuality = useSelector(selectNetworkQuality);
   const isLowQuality = useSelector(selectIsLowQuality);
+  const errorCode = useSelector((state) => state?.network?.errorCode ?? null);
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const result = {
       isOnline,
-      isOffline,
+      isOffline: !isOnline,
       isSyncing,
       networkQuality,
       isLowQuality,
-    }),
-    [isOnline, isOffline, isSyncing, networkQuality, isLowQuality]
-  );
+    };
+
+    if (typeof errorCode === 'string' && errorCode.trim()) {
+      result.errorCode = errorCode.trim();
+    }
+
+    return result;
+  }, [isOnline, isSyncing, networkQuality, isLowQuality, errorCode]);
 };
 
 export default useNetwork;

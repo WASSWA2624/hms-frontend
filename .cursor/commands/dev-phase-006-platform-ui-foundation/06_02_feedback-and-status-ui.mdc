@@ -1,0 +1,194 @@
+Steps to review and implement (Phase 6: Platform UI Foundation - Step 6.2 Feedback and Status UI):
+
+- **6.2.1** `Badge` -- `src/platform/components/display/Badge`
+- **6.2.2** `Chip` -- `src/platform/components/display/Chip`
+- **6.2.3** `ProgressBar` -- `src/platform/components/feedback/ProgressBar`
+- **6.2.4** `Toast` -- `src/platform/components/feedback/Toast`
+- **6.2.5** `Snackbar` -- `src/platform/components/feedback/Snackbar`
+- **6.2.6** `Tooltip` -- `src/platform/components/feedback/Tooltip`
+- **6.2.7** `EmptyState` -- `src/platform/components/states/EmptyState`
+- **6.2.8** `ErrorState` -- `src/platform/components/states/ErrorState`
+- **6.2.9** `OfflineState` -- `src/platform/components/states/OfflineState`
+
+Review and implement all missing and non-compliant aspects of the selected Phase 6 step(s) per:
+- `hms-frontend/dev-plan/P006_platform-ui-foundation.md`
+
+You must ensure 100% compliance with:
+- All rules in `hms-frontend/.cursor/rules/*`
+- `hms-frontend/dev-plan/P006_platform-ui-foundation.md`
+- Existing architecture and implementation patterns already present in `hms-frontend/src/platform/**`
+
+Only implement what is required for the selected Phase 6 step(s).
+
+## Mobile UI Parity and Compact UX Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Android and iOS must match mobile web UI for layout, spacing density, typography scale, component sizing, and interaction patterns.
+- Use shared-first implementations by default. Only create .android or .ios overrides when required by hard platform constraints or accessibility requirements.
+- When overrides are required, keep visual and interaction parity with mobile web.
+- Prioritize simplicity and space economy: compact layouts, short labels, short helper text, and minimal non-essential copy.
+- Add inline/in-app guidance for critical user actions using concise contextual hints and progressive disclosure.
+- Avoid long instructional paragraphs in screens; guidance must be brief, actionable, and local to the current step.
+- Keep full compliance with i18n, accessibility, and theme-token rules while applying this parity and compactness contract.
+
+---
+
+## Rule Loading Contract (Mandatory)
+
+Before coding, read and apply:
+- `hms-frontend/.cursor/rules/index.mdc` (entry point)
+- `hms-frontend/.cursor/rules/core-principles.mdc`
+- `hms-frontend/.cursor/rules/tech-stack.mdc`
+- `hms-frontend/.cursor/rules/dependency-policy.mdc`
+- `hms-frontend/.cursor/rules/project-structure.mdc`
+- `hms-frontend/.cursor/rules/app-router.mdc`
+- `hms-frontend/.cursor/rules/platform-ui.mdc`
+- `hms-frontend/.cursor/rules/component-structure.mdc`
+- `hms-frontend/.cursor/rules/theme-design.mdc`
+- `hms-frontend/.cursor/rules/state-management.mdc`
+- `hms-frontend/.cursor/rules/features-domain.mdc`
+- `hms-frontend/.cursor/rules/services-integration.mdc`
+- `hms-frontend/.cursor/rules/hooks-utils.mdc`
+- `hms-frontend/.cursor/rules/offline-sync.mdc`
+- `hms-frontend/.cursor/rules/security.mdc`
+- `hms-frontend/.cursor/rules/i18n.mdc`
+- `hms-frontend/.cursor/rules/accessibility.mdc`
+- `hms-frontend/.cursor/rules/performance.mdc`
+- `hms-frontend/.cursor/rules/errors-logging.mdc`
+- `hms-frontend/.cursor/rules/debug.mdc`
+- `hms-frontend/.cursor/rules/bootstrap-config.mdc`
+- `hms-frontend/.cursor/rules/coding-conventions.mdc`
+- `hms-frontend/.cursor/rules/testing.mdc`
+
+Conflict resolution order:
+- Follow each rule file's declared single source of truth.
+- If still unclear, prioritize: `index.mdc` references -> specific single-source files -> phase plan (`P006_platform-ui-foundation.md`).
+
+---
+
+## Step Selection Contract (Mandatory)
+
+- This file covers Step 6.2 only.
+- The request can target one or more step IDs from `6.2.1` to `6.2.9`.
+- Group ID `6.2` means all `6.2.1` to `6.2.9`.
+- If specific step IDs are selected, implement only those selected IDs.
+- If a selected step needs shared prerequisite wiring, implement only minimal prerequisite changes required for that selected step.
+- Do NOT auto-implement unselected sibling steps.
+- Apply strict gate execution from P006: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
+
+---
+
+## Scope
+
+Implement full functionality required for the selected Phase 6 step(s):
+
+- Build or fix the selected platform UI modules under:
+  - `src/platform/components/**`
+  - `src/platform/layouts/**`
+  - `src/platform/patterns/**`
+- Ensure strict file/folder compliance with `component-structure.mdc` and `platform-ui.mdc`.
+- Implement shared-first behavior, with platform overrides only where truly needed.
+- Ensure Fluent-style design compliance using theme tokens only (`theme-design.mdc`).
+- Add or update tests in `src/__tests__/platform/**` mirroring source structure.
+- Ensure 100% test coverage for changed code and all required states/interactions/a11y for selected steps.
+- Ensure full i18n compliance for all user-facing text and accessibility labels.
+- Ensure responsive behavior on Android, iOS, and Web for selected steps.
+- Ensure selected steps include loading/empty/error/offline states when applicable.
+- Keep UI presentation-only; do not leak domain/business logic into platform UI files.
+
+---
+
+## Implementation Rules (Mandatory)
+
+### Architecture and Boundaries
+- UI layer must remain presentation-only (no feature business rules, no service orchestration in components).
+- Do not import UI from features/services/store; respect layer direction from `project-structure.mdc`.
+- Reuse existing hooks/utilities/components instead of duplicating logic.
+
+### Component Structure and Platform Separation
+- Use category grouping folders in `src/platform/components` (no root-level component folders).
+- No parentheses folder names in `src/platform/**`.
+- Avoid `Platform.OS` branching inside render files; use file-level overrides.
+- Keep API parity across platform overrides for the same component/screen/layout/pattern.
+
+### Styling and Fluent Design
+- Styled-components only (default). No inline styles.
+- Styled-components must be declared in `*.styles.jsx` files only.
+- Use `StyleSheet` only in native `*.android.styles.jsx` / `*.ios.styles.jsx`, theme/token-driven only.
+- Use theme tokens only; no hardcoded colors, spacing, typography, radius, shadows.
+- Preserve Fluent visual direction consistently across platforms.
+
+### i18n and Accessibility
+- No hardcoded user-facing strings.
+- Use i18n keys for labels, placeholders, errors, helper text, and accessibility labels/hints.
+- Add new keys to all existing locale files under `src/i18n/locales/`.
+- Enforce accessible semantics, keyboard support (web), visible focus, screen-reader feedback, and minimum 44x44 touch targets.
+
+### Performance, Error Handling, and Security
+- Avoid avoidable re-renders; memoize expensive logic where needed.
+- Provide deterministic loading/error/empty/offline handling.
+- Keep logging and error handling aligned with `errors-logging.mdc`; no ad-hoc `console.*` in production code.
+- Do not expose sensitive data in logs, errors, or UI text.
+
+### Dependency and Stack Compliance
+- JavaScript only (`.js` / `.jsx`), no TypeScript.
+- ESM rules and alias import rules must follow `coding-conventions.mdc`.
+- No new dependency unless required and compliant with `dependency-policy.mdc` and `tech-stack.mdc` updates.
+
+---
+
+## Phase 6 Constraints (Mandatory)
+
+Do NOT:
+- Implement unselected Phase 6 steps.
+- Modify non-Phase-6 feature flows/routes unless minimally required for selected step wiring.
+- Add new backend APIs, backend modules, or backend route dependencies for P006 work.
+- Introduce app-specific business logic into foundation UI components/layouts/patterns.
+- Create alternate component structures that violate `component-structure.mdc`.
+- Ship placeholder or dead UI actions for selected steps.
+
+---
+
+## Step Gate Checklist (Mandatory per selected step)
+
+For each selected step, complete all of the following before moving to the next:
+
+1. Implement/fix selected module files with correct structure and exports.
+2. Implement/fix styles with token-only Fluent compliance.
+3. Implement/fix accessibility and i18n compliance.
+4. Add/update tests for all required variants/states/interactions/error paths/a11y.
+5. Run tests for selected modules and confirm coverage compliance.
+6. Verify no architecture boundary violations.
+7. Verify no unselected-step scope creep.
+
+---
+
+## Acceptance Criteria
+
+- 100% compliance with all files in `hms-frontend/.cursor/rules/*`.
+- Selected step(s) from `P006_platform-ui-foundation.md` are complete and production-ready.
+- Shared-first platform implementation with minimal, justified overrides.
+- File/folder/export/import conventions are fully compliant.
+- Fluent design and theme-token usage are fully compliant.
+- i18n and accessibility are fully compliant.
+- Tests are complete and coverage requirements are satisfied.
+- No backend dependency was introduced for Phase 6 foundation work.
+- No unselected Phase 6 steps were implemented.
+
+---
+
+## Deliverables
+
+Return ONLY:
+
+1. Selected Phase 6 component/layout/pattern implementation files.
+2. Related styles/hooks/types/barrel export updates for selected steps only.
+3. i18n locale key updates required by selected steps.
+4. Tests for selected steps with coverage confirmation.
+5. A concise compliance report confirming:
+   - selected step IDs implemented
+   - rule compliance checks performed
+   - commands/tests run and result summary
+   - any intentionally deferred work (must be out-of-scope and justified)
+
+Do NOT include files or logic outside selected Phase 6 step(s).
