@@ -887,6 +887,7 @@
     },
     "selectionHelper": "You can change this later from app settings.",
     "cta": {
+      "backHint": "Return to the previous page",
       "primary": "Proceed",
       "primaryHint": "Continue with your selected facility type",
       "helper": "Continue to create your account."

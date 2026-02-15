@@ -21,8 +21,8 @@ const StyledScroll = styled(ScrollView).withConfig({
   contentContainerStyle: {
     flexGrow: 1,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.xl,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.lg,
   },
 }))`
   flex: 1;
@@ -32,7 +32,9 @@ const StyledContent = styled(View).withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
 })`
-  flex: 1;
+  width: 100%;
+  max-width: 980px;
+  align-self: center;
 `;
 
 const StyledEmbeddedContent = styled(View).withConfig({
@@ -41,20 +43,25 @@ const StyledEmbeddedContent = styled(View).withConfig({
 })`
   width: 100%;
   padding-horizontal: ${({ theme }) => theme.spacing.lg}px;
-  padding-top: ${({ theme }) => theme.spacing.sm}px;
-  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding-top: ${({ theme }) => theme.spacing.xs}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledHero = styled(View).withConfig({
   displayName: 'StyledHero',
   componentId: 'StyledHero',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
   padding: ${({ theme }) => theme.spacing.md}px;
-  border-radius: ${({ theme }) => theme.radius?.md ?? 8}px;
+  border-radius: ${({ theme }) => theme.radius?.lg ?? 12}px;
   border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  border-color: ${({ theme }) => `${theme.colors.primary}4a`};
   background-color: ${({ theme }) => theme.colors.background.secondary};
+  shadow-color: #08224a;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.12;
+  shadow-radius: 8px;
+  elevation: 4;
 `;
 
 const StyledHeroBadge = styled(View).withConfig({
@@ -64,8 +71,9 @@ const StyledHeroBadge = styled(View).withConfig({
   align-self: flex-start;
   border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  border-width: 0;
-  background-color: transparent;
+  border-width: 1px;
+  border-color: ${({ theme }) => `${theme.colors.primary}66`};
+  background-color: ${({ theme }) => `${theme.colors.primary}14`};
   margin-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
@@ -73,14 +81,19 @@ const StyledSection = styled(View).withConfig({
   displayName: 'StyledSection',
   componentId: 'StyledSection',
 })`
-  margin-bottom: ${({ theme }) => theme.spacing.lg}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius?.md ?? 10}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledOptionsList = styled(View).withConfig({
   displayName: 'StyledOptionsList',
   componentId: 'StyledOptionsList',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledOptionButton = styled(Pressable).withConfig({
@@ -88,9 +101,9 @@ const StyledOptionButton = styled(Pressable).withConfig({
   componentId: 'StyledOptionButton',
   shouldForwardProp: (prop) => prop !== '$selected',
 })`
-  min-height: 54px;
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
-  border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
+  min-height: 52px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.md}px;
+  border-radius: ${({ theme }) => theme.radius?.sm ?? 8}px;
   border-width: 1px;
   border-color: ${({ theme, $selected }) =>
     ($selected ? theme.colors.primary : theme.colors.background.tertiary)};
@@ -98,7 +111,12 @@ const StyledOptionButton = styled(Pressable).withConfig({
     ($selected ? theme.colors.background.secondary : theme.colors.background.primary)};
   flex-direction: row;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+  shadow-color: #08224a;
+  shadow-offset: 0px 1px;
+  shadow-opacity: ${({ $selected }) => ($selected ? 0.14 : 0.08)};
+  shadow-radius: ${({ $selected }) => ($selected ? 6 : 4)}px;
+  elevation: ${({ $selected }) => ($selected ? 4 : 2)};
 `;
 
 const StyledOptionIcon = styled(View).withConfig({
@@ -111,7 +129,9 @@ const StyledOptionIcon = styled(View).withConfig({
   align-items: center;
   justify-content: center;
   margin-right: ${({ theme }) => theme.spacing.xs}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-width: 1px;
+  border-color: ${({ theme }) => `${theme.colors.primary}4a`};
+  background-color: ${({ theme }) => `${theme.colors.primary}14`};
 `;
 
 const StyledOptionIndicator = styled(View).withConfig({
@@ -141,16 +161,42 @@ const StyledCTA = styled(View).withConfig({
   displayName: 'StyledCTA',
   componentId: 'StyledCTA',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+  border-top-width: 1px;
+  border-top-color: ${({ theme }) => theme.colors.background.tertiary};
 `;
 
-const StyledCtaHelper = styled(View).withConfig({
-  displayName: 'StyledCtaHelper',
-  componentId: 'StyledCtaHelper',
+const StyledCTAButtons = styled(View).withConfig({
+  displayName: 'StyledCTAButtons',
+  componentId: 'StyledCTAButtons',
+  shouldForwardProp: (prop) => prop !== '$stacked',
 })`
-  align-items: center;
-  margin-top: ${({ theme }) => theme.spacing.xs}px;
+  flex-direction: ${({ $stacked }) => ($stacked ? 'column' : 'row')};
+  align-items: ${({ $stacked }) => ($stacked ? 'stretch' : 'center')};
+`;
+
+const StyledCTABackAction = styled(View).withConfig({
+  displayName: 'StyledCTABackAction',
+  componentId: 'StyledCTABackAction',
+  shouldForwardProp: (prop) => prop !== '$stacked',
+})`
+  ${({ theme, $stacked }) =>
+    ($stacked
+      ? `margin-bottom: ${theme.spacing.xs}px;`
+      : `flex: 1; padding-right: ${theme.spacing.xs}px;`)};
+`;
+
+const StyledCTAProceedAction = styled(View).withConfig({
+  displayName: 'StyledCTAProceedAction',
+  componentId: 'StyledCTAProceedAction',
+  shouldForwardProp: (prop) => prop !== '$stacked',
+})`
+  ${({ theme, $stacked }) =>
+    ($stacked
+      ? ''
+      : `flex: 1; padding-left: ${theme.spacing.xs}px;`)};
 `;
 
 export {
@@ -167,7 +213,7 @@ export {
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledCtaHelper,
+  StyledCTAButtons,
+  StyledCTABackAction,
+  StyledCTAProceedAction,
 };
-
-

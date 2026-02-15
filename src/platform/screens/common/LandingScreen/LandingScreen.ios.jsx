@@ -5,8 +5,11 @@
  */
 
 import React, { useCallback } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useI18n } from '@hooks';
 import { Button, Text } from '@platform/components';
+import breakpoints from '@theme/breakpoints';
 import useLandingScreen from './useLandingScreen';
 import {
   StyledContainer,
@@ -20,13 +23,25 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledCTA,} from './LandingScreen.ios.styles';
+  StyledHelperText,
+  StyledCTA,
+  StyledCTAButtons,
+  StyledCTABackAction,
+  StyledCTAProceedAction,
+} from './LandingScreen.ios.styles';
 
 const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
+  const router = useRouter();
+  const { width } = useWindowDimensions();
   const { t } = useI18n();
+  const isCompact = width < breakpoints.tablet;
   const { options, selectedId, selectOption } = useLandingScreen({
     initialSelection: initialFacilityId,
   });
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   const handleStart = useCallback(() => {
     if (onStart) onStart(selectedId);
@@ -36,7 +51,7 @@ const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false
     <>
       <StyledHero>
         <StyledHeroBadge>
-          <Text variant="caption">{t('landing.badge')}</Text>
+          <Text variant="caption" color="primary">{t('landing.badge')}</Text>
         </StyledHeroBadge>
       </StyledHero>
 
@@ -62,20 +77,43 @@ const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false
             );
           })}
         </StyledOptionsList>
+        <StyledHelperText>
+          <Text variant="caption" color="text.secondary">{t('landing.selectionHelper')}</Text>
+        </StyledHelperText>
       </StyledSection>
 
       <StyledCTA>
-        <Button
-          size="medium"
-          variant="primary"
-          accessibilityLabel={t('landing.cta.primary')}
-          accessibilityHint={t('landing.cta.primaryHint')}
-          onPress={handleStart}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {t('landing.cta.primary')}
-        </Button>
+        <StyledCTAButtons $stacked={isCompact}>
+          <StyledCTABackAction $stacked={isCompact}>
+            <Button
+              size="small"
+              variant="outline"
+              accessibilityLabel={t('common.back')}
+              accessibilityHint={t('landing.cta.backHint')}
+              onPress={handleBack}
+              disabled={isSubmitting}
+              testID="landing-back-button"
+              style={{ width: '100%' }}
+            >
+              {t('common.back')}
+            </Button>
+          </StyledCTABackAction>
+          <StyledCTAProceedAction $stacked={isCompact}>
+            <Button
+              size="small"
+              variant="primary"
+              accessibilityLabel={t('landing.cta.primary')}
+              accessibilityHint={t('landing.cta.primaryHint')}
+              onPress={handleStart}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              testID="landing-proceed-button"
+              style={{ width: '100%' }}
+            >
+              {t('landing.cta.primary')}
+            </Button>
+          </StyledCTAProceedAction>
+        </StyledCTAButtons>
       </StyledCTA>
     </>
   );
@@ -85,7 +123,7 @@ const LandingScreenIOS = ({ onStart, initialFacilityId, testID, embedded = false
   }
 
   return (
-    <StyledContainer testID={testID || 'landing-screen'} accessibilityLabel={t('landing.cta.primary')}>
+    <StyledContainer testID={testID || 'landing-screen'} accessibilityLabel={t('landing.pageTitle')}>
       <StyledScroll>
         <StyledContent>{content}</StyledContent>
       </StyledScroll>

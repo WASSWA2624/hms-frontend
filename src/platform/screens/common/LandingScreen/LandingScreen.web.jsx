@@ -5,6 +5,7 @@
  */
 
 import React, { useCallback } from 'react';
+import { useRouter } from 'expo-router';
 import { Button, Text } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -18,14 +19,24 @@ import {
   StyledOptionButton,
   StyledOptionIcon,
   StyledOptionIndicator,
-  StyledCTA,} from './LandingScreen.web.styles';
+  StyledHelperText,
+  StyledCTA,
+  StyledCTAButtons,
+  StyledCTABackAction,
+  StyledCTAProceedAction,
+} from './LandingScreen.web.styles';
 import useLandingScreen from './useLandingScreen';
 
 const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false, isSubmitting = false }) => {
+  const router = useRouter();
   const { t } = useI18n();
   const { options, selectedId, selectOption } = useLandingScreen({
     initialSelection: initialFacilityId,
   });
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   const handleStart = useCallback(() => {
     if (onStart) onStart(selectedId);
@@ -35,7 +46,7 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
     <>
       <StyledHero>
         <StyledHeroBadge>
-          <Text variant="caption">{t('landing.badge')}</Text>
+          <Text variant="caption" color="primary">{t('landing.badge')}</Text>
         </StyledHeroBadge>
       </StyledHero>
 
@@ -59,20 +70,41 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
             );
           })}
         </StyledOptionsGrid>
+        <StyledHelperText>
+          <Text variant="caption" color="text.secondary">{t('landing.selectionHelper')}</Text>
+        </StyledHelperText>
       </StyledSection>
 
       <StyledCTA>
-        <Button
-          size="medium"
-          variant="primary"
-          accessibilityLabel={t('landing.cta.primary')}
-          accessibilityHint={t('landing.cta.primaryHint')}
-          onPress={handleStart}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {t('landing.cta.primary')}
-        </Button>
+        <StyledCTAButtons>
+          <StyledCTABackAction>
+            <Button
+              size="small"
+              variant="outline"
+              accessibilityLabel={t('common.back')}
+              accessibilityHint={t('landing.cta.backHint')}
+              onPress={handleBack}
+              disabled={isSubmitting}
+              testID="landing-back-button"
+            >
+              {t('common.back')}
+            </Button>
+          </StyledCTABackAction>
+          <StyledCTAProceedAction>
+            <Button
+              size="small"
+              variant="primary"
+              accessibilityLabel={t('landing.cta.primary')}
+              accessibilityHint={t('landing.cta.primaryHint')}
+              onPress={handleStart}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              testID="landing-proceed-button"
+            >
+              {t('landing.cta.primary')}
+            </Button>
+          </StyledCTAProceedAction>
+        </StyledCTAButtons>
       </StyledCTA>
     </>
   );
@@ -82,7 +114,7 @@ const LandingScreenWeb = ({ onStart, initialFacilityId, testID, embedded = false
   }
 
   return (
-    <StyledContainer role="main" aria-label={t('landing.cta.primary')} data-testid={testID || 'landing-screen'}>
+    <StyledContainer role="main" aria-label={t('landing.pageTitle')} data-testid={testID || 'landing-screen'}>
       <StyledContent>{content}</StyledContent>
     </StyledContainer>
   );

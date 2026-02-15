@@ -9,6 +9,7 @@ import {
   ErrorStateSizes,
   LoadingSpinner,
   Select,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -17,8 +18,12 @@ import {
   StyledActions,
   StyledContainer,
   StyledField,
+  StyledFormGuidance,
+  StyledFormPanel,
   StyledForm,
+  StyledLinkItem,
   StyledLinks,
+  StyledPrimaryAction,
   StyledRemember,
   StyledStatus,
 } from './LoginScreen.ios.styles';
@@ -55,139 +60,158 @@ const LoginScreenIOS = () => {
   return (
     <StyledContainer>
       <StyledForm>
-        <StyledField>
-          <TextField
-            label={t('auth.login.fields.email.label')}
-            placeholder={t('auth.login.fields.email.placeholder')}
-            value={form.identifier}
-            onChangeText={(value) => setFieldValue('identifier', value)}
-            errorMessage={errors.identifier}
-            validationState={getValidationState('identifier')}
-            helperText={t('auth.login.fields.email.hint')}
-            maxLength={320}
-            density="compact"
-            disabled={isPasswordStep}
-            required
-            testID="login-identifier"
-          />
-        </StyledField>
+        <StyledFormGuidance>
+          <Text variant="h3" accessibilityRole="header">
+            {t('auth.login.title')}
+          </Text>
+          <Text variant="caption" color="text.secondary">
+            {t('auth.login.description')}
+          </Text>
+        </StyledFormGuidance>
 
-        {isPasswordStep ? (
-          <>
-            {tenantOptions.length > 1 ? (
+        <StyledFormPanel>
+          <StyledField>
+            <TextField
+              label={t('auth.login.fields.email.label')}
+              placeholder={t('auth.login.fields.email.placeholder')}
+              value={form.identifier}
+              onChangeText={(value) => setFieldValue('identifier', value)}
+              errorMessage={errors.identifier}
+              validationState={getValidationState('identifier')}
+              helperText={t('auth.login.fields.email.hint')}
+              maxLength={320}
+              density="compact"
+              disabled={isPasswordStep}
+              required
+              testID="login-identifier"
+            />
+          </StyledField>
+
+          {isPasswordStep ? (
+            <>
+              {tenantOptions.length > 1 ? (
+                <StyledField>
+                  <Select
+                    label={t('auth.login.fields.tenant.label')}
+                    options={tenantOptions}
+                    value={form.tenant_id}
+                    onValueChange={(value) => setFieldValue('tenant_id', value)}
+                    placeholder={t('auth.login.fields.tenant.placeholder')}
+                    errorMessage={errors.tenant_id}
+                    validationState={getValidationState('tenant_id')}
+                    helperText={t('auth.login.fields.tenant.hint')}
+                    compact
+                    required
+                    testID="login-tenant"
+                  />
+                </StyledField>
+              ) : null}
+
               <StyledField>
-                <Select
-                  label={t('auth.login.fields.tenant.label')}
-                  options={tenantOptions}
-                  value={form.tenant_id}
-                  onValueChange={(value) => setFieldValue('tenant_id', value)}
-                  placeholder={t('auth.login.fields.tenant.placeholder')}
-                  errorMessage={errors.tenant_id}
-                  validationState={getValidationState('tenant_id')}
-                  helperText={t('auth.login.fields.tenant.hint')}
-                  compact
+                <TextField
+                  label={t('auth.login.fields.password.label')}
+                  placeholder={t('auth.login.fields.password.placeholder')}
+                  value={form.password}
+                  onChangeText={(value) => setFieldValue('password', value)}
+                  errorMessage={errors.password}
+                  validationState={getValidationState('password')}
+                  helperText={t('auth.login.fields.password.hint')}
+                  type="password"
+                  secureTextEntry={!isPasswordVisible}
+                  maxLength={128}
+                  density="compact"
+                  suffix={
+                    <Button
+                      variant="text"
+                      size="small"
+                      onPress={() => setIsPasswordVisible((prev) => !prev)}
+                      accessibilityLabel={togglePasswordLabel}
+                      testID="login-password-toggle"
+                    >
+                      {togglePasswordLabel}
+                    </Button>
+                  }
                   required
-                  testID="login-tenant"
+                  testID="login-password"
                 />
               </StyledField>
-            ) : null}
+            </>
+          ) : null}
 
-            <StyledField>
-              <TextField
-                label={t('auth.login.fields.password.label')}
-                placeholder={t('auth.login.fields.password.placeholder')}
-                value={form.password}
-                onChangeText={(value) => setFieldValue('password', value)}
-                errorMessage={errors.password}
-                validationState={getValidationState('password')}
-                helperText={t('auth.login.fields.password.hint')}
-                type="password"
-                secureTextEntry={!isPasswordVisible}
-                maxLength={128}
-                density="compact"
-                suffix={
-                  <Button
-                    variant="text"
-                    size="small"
-                    onPress={() => setIsPasswordVisible((prev) => !prev)}
-                    accessibilityLabel={togglePasswordLabel}
-                    testID="login-password-toggle"
-                  >
-                    {togglePasswordLabel}
-                  </Button>
-                }
-                required
-                testID="login-password"
-              />
-            </StyledField>
-          </>
-        ) : null}
-
-        {isPasswordStep ? (
-          <StyledRemember>
-            <Checkbox
-              checked={form.rememberSession}
-              onChange={toggleRememberSession}
-              label={t('auth.login.fields.remember.label')}
-              accessibilityHint={t('auth.login.fields.remember.hint')}
-              testID="login-remember-session"
-            />
-          </StyledRemember>
-        ) : null}
-
-        <StyledActions>
-          <Button
-            variant="primary"
-            size="small"
-            onPress={handleSubmit}
-            loading={isSubmitting}
-            disabled={isSubmitting}
-            accessibilityLabel={t('auth.login.buttonHint')}
-            testID="login-submit"
-          >
-            {isPasswordStep ? t('auth.login.button') : t('common.continue')}
-          </Button>
           {isPasswordStep ? (
+            <StyledRemember>
+              <Checkbox
+                checked={form.rememberSession}
+                onChange={toggleRememberSession}
+                label={t('auth.login.fields.remember.label')}
+                accessibilityHint={t('auth.login.fields.remember.hint')}
+                testID="login-remember-session"
+              />
+            </StyledRemember>
+          ) : null}
+
+          <StyledActions>
+            <StyledPrimaryAction $withSecondary={isPasswordStep}>
+              <Button
+                variant="primary"
+                size="small"
+                onPress={handleSubmit}
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                accessibilityLabel={t('auth.login.buttonHint')}
+                testID="login-submit"
+              >
+                {isPasswordStep ? t('auth.login.button') : t('common.continue')}
+              </Button>
+            </StyledPrimaryAction>
+            {isPasswordStep ? (
+              <Button
+                variant="text"
+                size="small"
+                onPress={goBackToIdentifier}
+                accessibilityLabel={t('auth.login.actions.useDifferentIdentifierHint')}
+                testID="login-change-identifier"
+              >
+                {t('auth.login.actions.useDifferentIdentifier')}
+              </Button>
+            ) : null}
+          </StyledActions>
+        </StyledFormPanel>
+
+        <StyledLinks>
+          <StyledLinkItem>
             <Button
               variant="text"
               size="small"
-              onPress={goBackToIdentifier}
-              accessibilityLabel={t('auth.login.actions.useDifferentIdentifierHint')}
-              testID="login-change-identifier"
+              onPress={goToForgotPassword}
+              accessibilityLabel={t('auth.login.actions.forgotPasswordHint')}
+              testID="login-forgot-password-link"
             >
-              {t('auth.login.actions.useDifferentIdentifier')}
+              {t('auth.login.actions.forgotPassword')}
             </Button>
-          ) : null}
-        </StyledActions>
-
-        <StyledLinks>
-          <Button
-            variant="text"
-            size="small"
-            onPress={goToForgotPassword}
-            accessibilityLabel={t('auth.login.actions.forgotPasswordHint')}
-            testID="login-forgot-password-link"
-          >
-            {t('auth.login.actions.forgotPassword')}
-          </Button>
-          <Button
-            variant="text"
-            size="small"
-            onPress={goToRegister}
-            accessibilityLabel={t('auth.login.actions.registerHint')}
-            testID="login-register-link"
-          >
-            {t('auth.login.actions.register')}
-          </Button>
-          <Button
-            variant="text"
-            size="small"
-            onPress={goToVerifyEmail}
-            accessibilityLabel={t('auth.login.actions.verifyEmailHint')}
-            testID="login-verify-email-link"
-          >
-            {t('auth.login.actions.verifyEmail')}
-          </Button>
+          </StyledLinkItem>
+          <StyledLinkItem>
+            <Button
+              variant="text"
+              size="small"
+              onPress={goToRegister}
+              accessibilityLabel={t('auth.login.actions.registerHint')}
+              testID="login-register-link"
+            >
+              {t('auth.login.actions.register')}
+            </Button>
+          </StyledLinkItem>
+          <StyledLinkItem $last>
+            <Button
+              variant="text"
+              size="small"
+              onPress={goToVerifyEmail}
+              accessibilityLabel={t('auth.login.actions.verifyEmailHint')}
+              testID="login-verify-email-link"
+            >
+              {t('auth.login.actions.verifyEmail')}
+            </Button>
+          </StyledLinkItem>
         </StyledLinks>
       </StyledForm>
 
