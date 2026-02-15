@@ -1,14 +1,13 @@
 /**
  * AppLogo Component - Web
- * Theme-aware logo (light/dark) from public.
+ * Shared logo from public.
  * File: AppLogo.web.jsx
  */
 import React from 'react';
-import { useTheme } from 'styled-components';
 import { StyledLogoImage } from './AppLogo.web.styles';
 import useAppLogo from './useAppLogo';
 import { SIZES } from './types';
-import { PUBLIC_LOGO_LIGHT, PUBLIC_LOGO_DARK } from '@config/app-identity';
+import { PUBLIC_LOGO } from '@config/app-identity';
 
 /**
  * @param {Object} props
@@ -23,12 +22,10 @@ const AppLogoWeb = ({
   testID,
   className,
 }) => {
-  const theme = useTheme();
   const { width, height } = useAppLogo({ size });
-  const src = theme?.mode === 'dark' ? PUBLIC_LOGO_DARK : PUBLIC_LOGO_LIGHT;
   return (
     <StyledLogoImage
-      src={src}
+      src={PUBLIC_LOGO}
       alt={accessibilityLabel ?? ''}
       $width={width}
       $height={height}

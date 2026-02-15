@@ -5,6 +5,7 @@
  * Note: Avoids native-module locale dependencies so Jest runs reliably.
  */
 import React from 'react';
+import { APP_DISPLAY_NAME, APP_SHORT_NAME } from '@config/app-identity';
 import en from './locales/en.json';
 
 // NOTE: During development, only 'en' locale is created.
@@ -17,6 +18,10 @@ const LOCALE_STORAGE_KEY = LOCALE_KEY;
 const DEFAULT_LOCALE = 'en';
 
 const translations = { en };
+const GLOBAL_TRANSLATION_PARAMS = Object.freeze({
+  app_display_name: APP_DISPLAY_NAME,
+  app_short_name: APP_SHORT_NAME,
+});
 
 const getNestedValue = (obj, path) => {
   if (!obj || typeof obj !== 'object') return undefined;
@@ -28,11 +33,14 @@ const getNestedValue = (obj, path) => {
 
 const interpolate = (value, params) => {
   if (typeof value !== 'string') return '';
-  if (!params || typeof params !== 'object') return value;
+  const mergedParams = {
+    ...GLOBAL_TRANSLATION_PARAMS,
+    ...(params && typeof params === 'object' ? params : {}),
+  };
 
   let text = value;
-  Object.keys(params).forEach((param) => {
-    text = text.replaceAll(`{{${param}}}`, String(params[param]));
+  Object.keys(mergedParams).forEach((param) => {
+    text = text.replaceAll(`{{${param}}}`, String(mergedParams[param]));
   });
   return text;
 };

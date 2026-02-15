@@ -7,8 +7,7 @@ Single source of truth for app name and asset paths: `src/config/app-identity.js
 | Asset | Location | Usage |
 |-------|----------|-------|
 | favicon.png | assets/ + public/ | App icon, splash, Android/iOS, web favicon (browser tab) |
-| logo-light.png | assets/ + public/ | In-app branding (light theme) |
-| logo-dark.png | assets/ + public/ | In-app branding (dark theme) |
+| logo.png | assets/ + public/ | In-app branding (shared for light/dark themes) |
 | icon-192.png | public/ | PWA add-to-home-screen (192×192) |
 | icon-512.png | public/ | PWA add-to-home-screen (512×512) |
 
@@ -29,7 +28,7 @@ Run `node scripts/sync-assets.cjs` to copy favicon and logos from `assets/` to `
 
 - **favicon.png** – 1024×1024 recommended (used for native icon generation)
 - **icon-192.png**, **icon-512.png** – Generate from 1024×1024 source; place in `public/`
-- **logo-light.png**, **logo-dark.png** – Theme-aware in-app logos
+- **logo.png** – In-app logo used for light and dark themes
 
 ## Verification
 

@@ -11,7 +11,7 @@ const ROOT = path.join(__dirname, '..');
 const ASSETS = path.join(ROOT, 'assets');
 const PUBLIC = path.join(ROOT, 'public');
 
-const FILES = ['favicon.png', 'logo-light.png', 'logo-dark.png'];
+const FILES = ['favicon.png', 'logo.png'];
 
 FILES.forEach((file) => {
   const src = path.join(ASSETS, file);

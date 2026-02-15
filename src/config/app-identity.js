@@ -4,11 +4,22 @@
  * File: app-identity.js
  */
 
+const resolvePublicEnvValue = (rawValue, fallbackValue) => {
+  const normalized = typeof rawValue === 'string' ? rawValue.trim() : '';
+  return normalized || fallbackValue;
+};
+
 /** Display name (Expo name, web.name, launcher) */
-export const APP_DISPLAY_NAME = 'Hospital Management System';
+export const APP_DISPLAY_NAME = resolvePublicEnvValue(
+  process.env.EXPO_PUBLIC_APP_DISPLAY_NAME,
+  'Hospital Management System'
+);
 
 /** Short name (web.shortName, PWA, home screen) */
-export const APP_SHORT_NAME = 'HMS';
+export const APP_SHORT_NAME = resolvePublicEnvValue(
+  process.env.EXPO_PUBLIC_APP_SHORT_NAME,
+  'HMS'
+);
 
 /** Fluent primary for Android adaptiveIcon backgroundColor and web themeColor (theme-design.mdc) */
 export const FLUENT_PRIMARY = '#0078D4';
@@ -28,11 +39,8 @@ export const PUBLIC_ICON_512 = '/icon-512.png';
 /** Web: Apple touch icon (180×180 preferred; fallback to icon-192); must exist in public/ */
 export const PUBLIC_APPLE_TOUCH_ICON = '/icon-192.png';
 
-/** Light-theme logo (assets for native bundle; public for web) */
-export const ASSET_LOGO_LIGHT = './assets/logo-light.png';
-/** Dark-theme logo */
-export const ASSET_LOGO_DARK = './assets/logo-dark.png';
+/** Shared logo (assets for native bundle; public for web) */
+export const ASSET_LOGO = './assets/logo.png';
 
-/** Web: absolute paths to logos in public (used by AppLogo on web) */
-export const PUBLIC_LOGO_LIGHT = '/logo-light.png';
-export const PUBLIC_LOGO_DARK = '/logo-dark.png';
+/** Web: absolute path to logo in public (used by AppLogo on web) */
+export const PUBLIC_LOGO = '/logo.png';

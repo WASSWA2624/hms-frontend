@@ -48,8 +48,8 @@
     "hello": "Hello, {{name}}"
   },
   "app": {
-    "name": "Hospital Management System",
-    "shortName": "HMS"
+    "name": "{{app_display_name}}",
+    "shortName": "{{app_short_name}}"
   },
   "errors": {
     "fallback": {
@@ -1393,7 +1393,7 @@
       "description": "Choose the fastest path to continue.",
       "reasons": {
         "badge": "Built for care delivery and growth",
-        "title": "Why hospitals keep choosing HMS",
+        "title": "Why hospitals keep choosing {{app_short_name}}",
         "description": "Designed for clinicians, facility leaders, and investors who need outcomes, control, and scalable operations.",
         "audiences": {
           "clinicians": "For clinical teams",
@@ -1508,7 +1508,7 @@
     },
     "register": {
       "title": "Create account",
-      "description": "Register a new account to access HMS",
+      "description": "Register a new account to access {{app_short_name}}",
       "onboarding": {
         "title": "Create your workspace",
         "subtitle": "Complete the quick signup to continue onboarding.",

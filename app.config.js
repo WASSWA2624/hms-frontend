@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const {
   APP_DISPLAY_NAME,
   APP_SHORT_NAME,
@@ -5,6 +8,34 @@ const {
   ASSET_ICON,
   ASSET_SPLASH,
 } = require('./src/config/app-identity');
+
+const syncWebManifest = () => {
+  const manifestPath = path.resolve(__dirname, 'public/manifest.json');
+  if (!fs.existsSync(manifestPath)) return;
+
+  try {
+    const current = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const isAlreadySynced =
+      current?.name === APP_DISPLAY_NAME &&
+      current?.short_name === APP_SHORT_NAME &&
+      current?.description === APP_DISPLAY_NAME &&
+      current?.theme_color === FLUENT_PRIMARY;
+    if (isAlreadySynced) return;
+
+    const next = {
+      ...current,
+      name: APP_DISPLAY_NAME,
+      short_name: APP_SHORT_NAME,
+      description: APP_DISPLAY_NAME,
+      theme_color: FLUENT_PRIMARY,
+    };
+    fs.writeFileSync(manifestPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  } catch (error) {
+    console.warn('[app.config] Failed to sync public/manifest.json', error?.message || error);
+  }
+};
+
+syncWebManifest();
 
 export default {
   expo: {
