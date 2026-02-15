@@ -1,0 +1,8 @@
+Phase folder: dev-phase-009-app-layouts
+
+Tier prompt files:
+- `09_01_identity-core-layout.mdc`
+- `09_02_global-shell-navigation.mdc`
+- `09_03_controls-and-global-utilities.mdc`
+- `09_04_responsive-fluent-verification.mdc`
+

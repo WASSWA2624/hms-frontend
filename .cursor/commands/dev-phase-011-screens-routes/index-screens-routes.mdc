@@ -1,0 +1,15 @@
+Phase folder: dev-phase-011-screens-routes
+
+Canonical tier prompt files:
+- `11_01_public-entry-and-onboarding.mdc`
+- `11_02_auth-and-entry-shell.mdc`
+- `11_03_settings-and-core-access-modules.mdc`
+- `11_04_patient-registry-and-consent.mdc`
+- `11_05_scheduling-availability-and-queues.mdc`
+- `11_06_encounters-and-clinical-documentation.mdc`
+- `11_07_ipd-icu-theatre-and-emergency.mdc`
+- `11_08_diagnostics-lab-and-radiology.mdc`
+- `11_09_pharmacy-and-inventory.mdc`
+- `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance.mdc`
+- `11_11_patient-portal.mdc`
+
