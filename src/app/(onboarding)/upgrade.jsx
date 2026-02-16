@@ -103,8 +103,6 @@ export default function OnboardingUpgradeRoute() {
     <Container size="medium" testID="onboarding-upgrade-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.upgrade.title')}</Text>
-          <Text variant="body">{t('onboarding.upgrade.description')}</Text>
           <Text variant="caption">
             {t(`onboarding.upgrade.status.${String(trialStatus || 'TRIAL').toLowerCase()}`)}
           </Text>
@@ -150,4 +148,3 @@ export default function OnboardingUpgradeRoute() {
     </Container>
   );
 }
-

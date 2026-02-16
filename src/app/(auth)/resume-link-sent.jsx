@@ -175,8 +175,6 @@ export default function ResumeLinkSentRoute() {
     <Container size="medium" testID="resume-link-sent-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.resumeLinkSent.title')}</Text>
-          <Text variant="body">{t('onboarding.resumeLinkSent.description')}</Text>
           {reason === 'pending_verification' ? (
             <Text variant="caption">{t('onboarding.resumeLinkSent.reason.pendingVerification')}</Text>
           ) : null}
@@ -253,4 +251,3 @@ export default function ResumeLinkSentRoute() {
     </Container>
   );
 }
-

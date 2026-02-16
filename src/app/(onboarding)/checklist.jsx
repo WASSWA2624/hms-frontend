@@ -147,8 +147,6 @@ export default function OnboardingChecklistRoute() {
     <Container size="medium" testID="onboarding-checklist-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.checklist.title')}</Text>
-          <Text variant="body">{t('onboarding.checklist.description')}</Text>
           <Text variant="caption">
             {t('onboarding.checklist.progress', { completed: completedCount, total: totalCount })}
           </Text>

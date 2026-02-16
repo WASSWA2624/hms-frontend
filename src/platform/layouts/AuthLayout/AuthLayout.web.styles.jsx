@@ -269,7 +269,8 @@ const StyledBranding = styled.div.withConfig({
       ${({ theme }) => `${theme.colors.background.primary}E6`} 50%,
       ${({ theme }) => `${theme.colors.background.secondary}E6`} 100%
     );
-  margin-bottom: ${({ theme }) => theme.spacing.md}px;
+  margin-bottom: ${({ theme, $withScreenHeader }) =>
+    ($withScreenHeader ? theme.spacing.xs / 2 : theme.spacing.md)}px;
   border-bottom: 1px solid ${({ theme }) => `${theme.colors.primary}33`};
 
   &::after {
@@ -290,7 +291,81 @@ const StyledBranding = styled.div.withConfig({
   @media (max-width: ${({ theme }) =>
       (theme.breakpoints?.tablet ?? 768) - 1}px) {
     padding: ${({ theme }) => theme.spacing.sm}px var(--auth-card-pad);
-    margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+    margin-bottom: ${({ theme, $withScreenHeader }) =>
+      ($withScreenHeader ? theme.spacing.xs / 2 : theme.spacing.sm)}px;
+  }
+`;
+
+const StyledScreenHeader = styled.section.withConfig({
+  displayName: 'StyledScreenHeader',
+  componentId: 'StyledScreenHeader',
+})`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+  border-top-left-radius: ${({ theme }) => theme.radius.md}px;
+  border-top-right-radius: ${({ theme }) => theme.radius.md}px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border: 1px solid ${({ theme }) => `${theme.colors.primary}33`};
+  background: linear-gradient(
+    180deg,
+    ${({ theme }) => theme.colors.background.primary} 0%,
+    ${({ theme }) => theme.colors.background.secondary} 100%
+  );
+  box-shadow: 0 1px 0 rgba(8, 34, 74, 0.1), 0 8px 12px rgba(8, 34, 74, 0.08);
+`;
+
+const StyledScreenHeaderRow = styled.div.withConfig({
+  displayName: 'StyledScreenHeaderRow',
+  componentId: 'StyledScreenHeaderRow',
+})`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledScreenHeaderCopy = styled.div.withConfig({
+  displayName: 'StyledScreenHeaderCopy',
+  componentId: 'StyledScreenHeaderCopy',
+})`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+`;
+
+const StyledScreenHeaderTitle = styled.div.withConfig({
+  displayName: 'StyledScreenHeaderTitle',
+  componentId: 'StyledScreenHeaderTitle',
+})`
+  span,
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    color: ${({ theme }) => theme.colors.primary};
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+    white-space: nowrap;
+  }
+`;
+
+const StyledScreenHeaderSubtitle = styled.div.withConfig({
+  displayName: 'StyledScreenHeaderSubtitle',
+  componentId: 'StyledScreenHeaderSubtitle',
+})`
+  span,
+  h1,
+  h2,
+  h3 {
+    margin: 0;
   }
 `;
 
@@ -337,4 +412,9 @@ export {
   StyledBranding,
   StyledContent,
   StyledHelpLinks,
+  StyledScreenHeader,
+  StyledScreenHeaderRow,
+  StyledScreenHeaderCopy,
+  StyledScreenHeaderTitle,
+  StyledScreenHeaderSubtitle,
 };

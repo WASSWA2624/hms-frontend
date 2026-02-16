@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { AppLogo, AppLogoSizes, Text } from '@platform/components';
+import { AppLogo, AppLogoSizes, Button, Icon, Text } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
   StyledBanner,
@@ -18,6 +18,11 @@ import {
   StyledBranding,
   StyledContent,
   StyledHelpLinks,
+  StyledScreenHeader,
+  StyledScreenHeaderRow,
+  StyledScreenHeaderCopy,
+  StyledScreenHeaderTitle,
+  StyledScreenHeaderSubtitle,
 } from './AuthLayout.web.styles';
 
 /**
@@ -28,6 +33,16 @@ import {
  * @param {React.ReactNode} props.helpLinks - Help/forgot password links
  * @param {React.ReactNode} props.banner - Optional banner slot (e.g. ShellBanners)
  * @param {React.ReactNode} props.footer - Optional footer slot (e.g. GlobalFooter)
+ * @param {string} props.screenTitle - Optional auth screen heading (e.g. Onboarding)
+ * @param {string} props.screenSubtitle - Optional auth screen helper copy
+ * @param {boolean} props.showScreenHeader - Toggle screen header visibility
+ * @param {Object} props.screenBackAction - Optional back action config for screen header
+ * @param {string} props.screenBackAction.label - Back button label
+ * @param {string} props.screenBackAction.hint - Back button accessibility hint
+ * @param {string} props.screenBackAction.disabledHint - Disabled-state hint/reason
+ * @param {boolean} props.screenBackAction.disabled - Back button disabled flag
+ * @param {Function} props.screenBackAction.onPress - Back button press handler
+ * @param {string} props.screenBackAction.testID - Back button test id
  * @param {string} props.accessibilityLabel - Accessibility label
  * @param {string} props.testID - Test identifier
  * @param {string} props.className - Additional CSS class
@@ -38,6 +53,10 @@ const AuthLayoutWeb = ({
   helpLinks,
   banner,
   footer,
+  screenTitle,
+  screenSubtitle,
+  showScreenHeader = false,
+  screenBackAction,
   accessibilityLabel,
   testID,
   className,
@@ -45,6 +64,16 @@ const AuthLayoutWeb = ({
   const { t } = useI18n();
   const appName = t('app.name');
   const hasSupplementalBranding = Boolean(branding);
+  const hasScreenHeader = Boolean(showScreenHeader && (screenTitle || screenSubtitle || screenBackAction));
+  const hasBackAction = Boolean(screenBackAction);
+  const isBackDisabled =
+    !hasBackAction ||
+    Boolean(screenBackAction?.disabled) ||
+    typeof screenBackAction?.onPress !== 'function';
+  const resolvedBackLabel = screenBackAction?.label || t('common.back');
+  const resolvedBackHint = isBackDisabled
+    ? screenBackAction?.disabledHint || t('auth.layout.backUnavailableHint')
+    : screenBackAction?.hint || t('common.backHint');
 
   return (
     <StyledContainer
@@ -55,7 +84,10 @@ const AuthLayoutWeb = ({
     >
       {banner ? <StyledBanner role="region">{banner}</StyledBanner> : null}
       <StyledCard>
-        <StyledBranding $hasSupplementalBranding={hasSupplementalBranding}>
+        <StyledBranding
+          $hasSupplementalBranding={hasSupplementalBranding}
+          $withScreenHeader={hasScreenHeader}
+        >
           <StyledBrandHeader $centered={!hasSupplementalBranding}>
             <StyledBrandLogoShell>
               <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
@@ -68,6 +100,42 @@ const AuthLayoutWeb = ({
           </StyledBrandHeader>
           {branding}
         </StyledBranding>
+        {hasScreenHeader ? (
+          <StyledScreenHeader role="region" aria-label={screenTitle || t('auth.layout.title')}>
+            <StyledScreenHeaderRow>
+              <StyledScreenHeaderCopy>
+                {screenTitle ? (
+                  <StyledScreenHeaderTitle>
+                    <Text variant="label">{screenTitle}</Text>
+                  </StyledScreenHeaderTitle>
+                ) : null}
+              </StyledScreenHeaderCopy>
+              {hasBackAction ? (
+                <Button
+                  variant="surface"
+                  size="small"
+                  type="button"
+                  onPress={screenBackAction?.onPress}
+                  disabled={isBackDisabled}
+                  accessibilityLabel={resolvedBackLabel}
+                  accessibilityHint={resolvedBackHint}
+                  title={resolvedBackHint}
+                  testID={screenBackAction?.testID || 'auth-layout-back'}
+                  icon={<Icon glyph={'\u2190'} size="xs" decorative />}
+                >
+                  {resolvedBackLabel}
+                </Button>
+              ) : null}
+            </StyledScreenHeaderRow>
+            {screenSubtitle ? (
+              <StyledScreenHeaderSubtitle>
+                <Text variant="body" color="text.secondary">
+                  {screenSubtitle}
+                </Text>
+              </StyledScreenHeaderSubtitle>
+            ) : null}
+          </StyledScreenHeader>
+        ) : null}
         <StyledContent>
           {children}
         </StyledContent>

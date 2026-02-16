@@ -211,8 +211,6 @@ export default function OnboardingBillingCycleRoute() {
     <Container size="medium" testID="onboarding-billing-cycle-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.billingCycle.title')}</Text>
-          <Text variant="body">{t('onboarding.billingCycle.description')}</Text>
           {!isAuthenticated ? (
             <Text variant="caption">{t('onboarding.billingCycle.readOnly')}</Text>
           ) : null}

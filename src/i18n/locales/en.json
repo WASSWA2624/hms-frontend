@@ -11,6 +11,7 @@
     "retry": "Retry",
     "retryHint": "Try again",
     "back": "Back",
+    "backHint": "Return to the previous page",
     "next": "Next",
     "continue": "Continue",
     "close": "Close",
@@ -960,6 +961,7 @@
     "pageTitle": "Get Started",
     "title": "Welcome",
     "description": "Start by selecting your facility type to continue onboarding.",
+    "backUnavailableHint": "Back is unavailable because there is no previous public entry screen in this flow.",
     "badge": "Start at no cost: Quick setup. Centralized management. Available on Mobile and Web. Manage your facility on your phone or computer.",
     "errors": {
       "loadTitle": "Could not restore your selection",
@@ -1482,11 +1484,12 @@
   "auth": {
     "layout": {
       "title": "Welcome",
-      "subtitle": "Set up your account to start managing care, billing, and operations."
+      "subtitle": "Set up your account to start managing care, billing, and operations.",
+      "backUnavailableHint": "Back is unavailable because there is no previous screen in this flow."
     },
     "welcome": {
-      "title": "Get started",
-      "description": "Choose the fastest path to continue.",
+      "title": "Welcome",
+      "description": "Sign in to continue or create a new account. If your email is already registered but not verified, we will detect it automatically and guide you.",
       "reasons": {
         "badge": "Built for care delivery and growth",
         "title": "Why hospitals keep choosing {{app_short_name}}",
@@ -1557,7 +1560,10 @@
         "error": "Biometric authentication failed"
       },
       "error": {
-        "title": "Unable to sign in"
+        "title": "Unable to sign in",
+        "invalidCredentials": "The password is incorrect. Try again or reset your password.",
+        "identifierNotFound": "No account was found for this email or phone number. Create an account to continue.",
+        "pendingVerification": "This account exists but is not yet verified. Verify your email to continue."
       },
       "fields": {
         "email": {
@@ -3666,7 +3672,8 @@
   "onboarding": {
     "layout": {
       "title": "Onboarding",
-      "subtitle": "Complete setup to activate your workspace."
+      "subtitle": "Complete setup to activate your workspace.",
+      "backUnavailableHint": "Back is unavailable because there is no previous onboarding step in this flow."
     },
     "resumeLinkSent": {
       "title": "Check your email",
@@ -3730,6 +3737,7 @@
     },
     "provisioning": {
       "title": "Provisioning workspace",
+      "subtitle": "Preparing your workspace with starter setup and sample data.",
       "description": "Preparing {{facility}} with starter setup and sample data.",
       "progressLabel": "Provisioning progress",
       "inProgress": "Provisioning {{progress}}% complete.",
@@ -3748,7 +3756,7 @@
       }
     },
     "welcome": {
-      "title": "Activation summary",
+      "title": "Welcome",
       "description": "Review your setup details before first-run tasks.",
       "summary": {
         "email": "Account email",
@@ -4110,6 +4118,7 @@
     },
     "paymentSuccess": {
       "title": "Activation status",
+      "subtitle": "Review activation and payment status for your setup.",
       "descriptionActivated": "Payment and subscription activation are confirmed.",
       "descriptionPending": "Activation is still syncing. Retry to refresh status.",
       "notAvailable": "Not available",

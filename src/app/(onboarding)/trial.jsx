@@ -185,8 +185,6 @@ export default function OnboardingTrialRoute() {
     <Container size="medium" testID="onboarding-trial-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.trial.title')}</Text>
-          <Text variant="body">{t('onboarding.trial.description')}</Text>
           {!isAuthenticated ? (
             <Text variant="caption">{t('onboarding.trial.readOnly')}</Text>
           ) : null}

@@ -287,8 +287,6 @@ export default function OnboardingPlanRoute() {
     <Container size="medium" testID="onboarding-plan-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.plan.title')}</Text>
-          <Text variant="body">{t('onboarding.plan.description')}</Text>
           {!isAuthenticated ? (
             <Text variant="caption">{t('onboarding.plan.readOnly')}</Text>
           ) : null}

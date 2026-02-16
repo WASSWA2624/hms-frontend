@@ -108,11 +108,11 @@ const StyledLinks = styled.div.withConfig({
   }
 `;
 
-const StyledStatus = styled.div.withConfig({
-  displayName: 'StyledStatus',
-  componentId: 'StyledStatus',
+const StyledInlineError = styled.div.withConfig({
+  displayName: 'StyledInlineError',
+  componentId: 'StyledInlineError',
 })`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 export {
@@ -122,7 +122,7 @@ export {
   StyledFormGuidance,
   StyledFormPanel,
   StyledForm,
+  StyledInlineError,
   StyledLinks,
   StyledRemember,
-  StyledStatus,
 };

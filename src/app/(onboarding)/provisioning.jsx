@@ -117,7 +117,6 @@ export default function OnboardingProvisioningRoute() {
     return (
       <Container size="medium" testID="onboarding-provisioning-hydrating">
         <Stack spacing="sm">
-          <Text variant="h3">{t('onboarding.provisioning.title')}</Text>
           <Text variant="body">{t('common.loading')}</Text>
         </Stack>
       </Container>
@@ -149,11 +148,6 @@ export default function OnboardingProvisioningRoute() {
   return (
     <Container size="medium" testID="onboarding-provisioning-screen">
       <Stack spacing="md">
-        <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.provisioning.title')}</Text>
-          <Text variant="body">{t('onboarding.provisioning.description', { facility: context.facility_name })}</Text>
-        </Stack>
-
         <ProgressBar
           value={progress}
           accessibilityLabel={t('onboarding.provisioning.progressLabel')}

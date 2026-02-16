@@ -57,7 +57,8 @@ const StyledBranding = styled.View.withConfig({
   margin-top: -${({ theme }) => theme.spacing.md}px;
   margin-left: -${({ theme }) => theme.spacing.md}px;
   margin-right: -${({ theme }) => theme.spacing.md}px;
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme, $withScreenHeader }) =>
+    ($withScreenHeader ? theme.spacing.xs / 2 : theme.spacing.sm)}px;
   padding-vertical: ${({ theme }) => theme.spacing.sm}px;
   padding-horizontal: ${({ theme }) => theme.spacing.md}px;
   background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -98,6 +99,49 @@ const StyledBrandName = styled.View.withConfig({
   max-width: 78%;
 `;
 
+const StyledScreenHeader = styled.View.withConfig({
+  displayName: 'StyledScreenHeader',
+  componentId: 'StyledScreenHeader',
+})`
+  width: 100%;
+  flex-shrink: 0;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => `${theme.colors.primary}33`};
+  border-top-left-radius: ${({ theme }) => theme.radius.md}px;
+  border-top-right-radius: ${({ theme }) => theme.radius.md}px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  shadow-color: #08224a;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.08;
+  shadow-radius: 6px;
+  elevation: 2;
+`;
+
+const StyledScreenHeaderRow = styled.View.withConfig({
+  displayName: 'StyledScreenHeaderRow',
+  componentId: 'StyledScreenHeaderRow',
+})`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledScreenHeaderCopy = styled.View.withConfig({
+  displayName: 'StyledScreenHeaderCopy',
+  componentId: 'StyledScreenHeaderCopy',
+})`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+`;
+
 const StyledScrollView = styled(ScrollView)
   .withConfig({
     displayName: 'StyledScrollView',
@@ -131,6 +175,9 @@ export {
   StyledBrandHeader,
   StyledBrandLogoShell,
   StyledBrandName,
+  StyledScreenHeader,
+  StyledScreenHeaderRow,
+  StyledScreenHeaderCopy,
   StyledContent,
   StyledHelpLinks,
 };

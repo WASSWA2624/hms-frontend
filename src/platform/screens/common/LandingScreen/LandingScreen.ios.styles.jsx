@@ -47,36 +47,6 @@ const StyledEmbeddedContent = styled(View).withConfig({
   padding-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
-const StyledHero = styled(View).withConfig({
-  displayName: 'StyledHero',
-  componentId: 'StyledHero',
-})`
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-  padding: ${({ theme }) => theme.spacing.md}px;
-  border-radius: ${({ theme }) => theme.radius?.lg ?? 12}px;
-  border-width: 1px;
-  border-color: ${({ theme }) => `${theme.colors.primary}4a`};
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  shadow-color: #08224a;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.12;
-  shadow-radius: 8px;
-  elevation: 4;
-`;
-
-const StyledHeroBadge = styled(View).withConfig({
-  displayName: 'StyledHeroBadge',
-  componentId: 'StyledHeroBadge',
-})`
-  align-self: flex-start;
-  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  border-width: 1px;
-  border-color: ${({ theme }) => `${theme.colors.primary}66`};
-  background-color: ${({ theme }) => `${theme.colors.primary}14`};
-  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
-`;
-
 const StyledSection = styled(View).withConfig({
   displayName: 'StyledSection',
   componentId: 'StyledSection',
@@ -168,35 +138,11 @@ const StyledCTA = styled(View).withConfig({
   border-top-color: ${({ theme }) => theme.colors.background.tertiary};
 `;
 
-const StyledCTAButtons = styled(View).withConfig({
-  displayName: 'StyledCTAButtons',
-  componentId: 'StyledCTAButtons',
-  shouldForwardProp: (prop) => prop !== '$stacked',
-})`
-  flex-direction: ${({ $stacked }) => ($stacked ? 'column' : 'row')};
-  align-items: ${({ $stacked }) => ($stacked ? 'stretch' : 'center')};
-`;
-
-const StyledCTABackAction = styled(View).withConfig({
-  displayName: 'StyledCTABackAction',
-  componentId: 'StyledCTABackAction',
-  shouldForwardProp: (prop) => prop !== '$stacked',
-})`
-  ${({ theme, $stacked }) =>
-    ($stacked
-      ? `margin-bottom: ${theme.spacing.xs}px;`
-      : `flex: 1; padding-right: ${theme.spacing.xs}px;`)};
-`;
-
 const StyledCTAProceedAction = styled(View).withConfig({
   displayName: 'StyledCTAProceedAction',
   componentId: 'StyledCTAProceedAction',
-  shouldForwardProp: (prop) => prop !== '$stacked',
 })`
-  ${({ theme, $stacked }) =>
-    ($stacked
-      ? ''
-      : `flex: 1; padding-left: ${theme.spacing.xs}px;`)};
+  width: 100%;
 `;
 
 export {
@@ -204,8 +150,6 @@ export {
   StyledScroll,
   StyledContent,
   StyledEmbeddedContent,
-  StyledHero,
-  StyledHeroBadge,
   StyledSection,
   StyledOptionsList,
   StyledOptionButton,
@@ -213,7 +157,5 @@ export {
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledCTAButtons,
-  StyledCTABackAction,
   StyledCTAProceedAction,
 };

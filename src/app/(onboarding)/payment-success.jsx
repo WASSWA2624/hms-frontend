@@ -243,15 +243,6 @@ export default function OnboardingPaymentSuccessRoute() {
   return (
     <Container size="medium" testID="onboarding-payment-success-screen">
       <Stack spacing="md">
-        <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.paymentSuccess.title')}</Text>
-          <Text variant="body">
-            {summary.activated
-              ? t('onboarding.paymentSuccess.descriptionActivated')
-              : t('onboarding.paymentSuccess.descriptionPending')}
-          </Text>
-        </Stack>
-
         <Card>
           <Stack spacing="sm">
             <Stack spacing="xs">

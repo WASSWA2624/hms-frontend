@@ -291,8 +291,6 @@ export default function OnboardingPaymentRoute() {
     <Container size="medium" testID="onboarding-payment-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.payment.title')}</Text>
-          <Text variant="body">{t('onboarding.payment.description')}</Text>
           {!isAuthenticated ? (
             <Text variant="caption">{t('onboarding.payment.readOnly')}</Text>
           ) : null}

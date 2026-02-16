@@ -50,52 +50,6 @@ const StyledEmbeddedContent = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledHero = styled.section.withConfig({
-  displayName: 'StyledHero',
-  componentId: 'StyledHero',
-})`
-  display: flex;
-  flex-direction: column;
-  padding: ${({ theme }) => theme.spacing.md}px;
-  border-radius: ${({ theme }) => theme.radius?.lg ?? 12}px;
-  border: 1px solid ${({ theme }) => `${theme.colors.primary}36`};
-  background: linear-gradient(
-    145deg,
-    ${({ theme }) => theme.colors.background.primary} 0%,
-    ${({ theme }) => theme.colors.background.secondary} 70%,
-    ${({ theme }) => `${theme.colors.primary}10`} 100%
-  );
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
-  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-  color: ${({ theme }) => theme.colors.text.primary};
-  box-shadow: 0 2px 0 rgba(8, 34, 74, 0.12), 0 14px 24px rgba(8, 34, 74, 0.12);
-  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
-
-  h1,
-  h2,
-  h3,
-  p {
-    margin: 0;
-  }
-`;
-
-const StyledHeroBadge = styled.span.withConfig({
-  displayName: 'StyledHeroBadge',
-  componentId: 'StyledHeroBadge',
-})`
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  border: 1px solid ${({ theme }) => `${theme.colors.primary}58`};
-  background: ${({ theme }) => `${theme.colors.primary}10`};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
 const StyledSection = styled.section.withConfig({
   displayName: 'StyledSection',
   componentId: 'StyledSection',
@@ -233,59 +187,16 @@ const StyledCTA = styled.div.withConfig({
   border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};
 `;
 
-const StyledCTAButtons = styled.div.withConfig({
-  displayName: 'StyledCTAButtons',
-  componentId: 'StyledCTAButtons',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  align-items: stretch;
-
-  > * {
-    width: 100%;
-  }
-
-  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
-
-const StyledCTABackAction = styled.div.withConfig({
-  displayName: 'StyledCTABackAction',
-  componentId: 'StyledCTABackAction',
-})`
-  width: 100%;
-
-  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-
-    > * {
-      min-width: 120px;
-      width: auto;
-    }
-  }
-`;
-
 const StyledCTAProceedAction = styled.div.withConfig({
   displayName: 'StyledCTAProceedAction',
   componentId: 'StyledCTAProceedAction',
 })`
   width: 100%;
+  display: flex;
+  align-items: stretch;
 
-  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-
-    > * {
-      min-width: 150px;
-      width: auto;
-    }
+  > * {
+    width: 100%;
   }
 `;
 
@@ -293,8 +204,6 @@ export {
   StyledContainer,
   StyledContent,
   StyledEmbeddedContent,
-  StyledHero,
-  StyledHeroBadge,
   StyledSection,
   StyledOptionsGrid,
   StyledOptionButton,
@@ -302,7 +211,5 @@ export {
   StyledOptionIndicator,
   StyledHelperText,
   StyledCTA,
-  StyledCTAButtons,
-  StyledCTABackAction,
   StyledCTAProceedAction,
 };

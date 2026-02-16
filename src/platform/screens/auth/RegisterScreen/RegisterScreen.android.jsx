@@ -20,7 +20,6 @@ import {
   StyledActionSlot,
   StyledContainer,
   StyledField,
-  StyledFormGuidance,
   StyledForm,
   StyledStatus,
 } from './RegisterScreen.android.styles';
@@ -69,7 +68,6 @@ const RegisterScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledForm>
-        <StyledFormGuidance />
         <StyledField>
           <TextField
             label={t('auth.register.onboarding.fields.facilityName')}

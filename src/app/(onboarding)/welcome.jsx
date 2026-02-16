@@ -45,6 +45,7 @@ export default function OnboardingWelcomeRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user, loadCurrentUser } = useAuth();
+  const canGoBack = typeof router?.canGoBack === 'function' && router.canGoBack();
 
   const [isHydrating, setIsHydrating] = useState(true);
   const [summary, setSummary] = useState(null);
@@ -166,11 +167,6 @@ export default function OnboardingWelcomeRoute() {
   return (
     <Container size="medium" testID="onboarding-welcome-screen">
       <Stack spacing="md">
-        <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.welcome.title')}</Text>
-          <Text variant="body">{t('onboarding.welcome.description')}</Text>
-        </Stack>
-
         <Card>
           <Stack spacing="sm">
             {summaryRows.map((row) => (
@@ -192,15 +188,17 @@ export default function OnboardingWelcomeRoute() {
           >
             {t('onboarding.welcome.actions.continue')}
           </Button>
-          <Button
-            size="small"
-            variant="text"
-            onPress={handleRestart}
-            accessibilityLabel={t('onboarding.welcome.actions.restartHint')}
-            testID="onboarding-welcome-restart"
-          >
-            {t('onboarding.welcome.actions.restart')}
-          </Button>
+          {!canGoBack ? (
+            <Button
+              size="small"
+              variant="text"
+              onPress={handleRestart}
+              accessibilityLabel={t('onboarding.welcome.actions.restartHint')}
+              testID="onboarding-welcome-restart"
+            >
+              {t('onboarding.welcome.actions.restart')}
+            </Button>
+          ) : null}
         </Stack>
       </Stack>
     </Container>

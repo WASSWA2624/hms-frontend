@@ -345,8 +345,6 @@ export default function OnboardingModulesRoute() {
     <Container size="medium" testID="onboarding-modules-screen">
       <Stack spacing="md">
         <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.modules.title')}</Text>
-          <Text variant="body">{t('onboarding.modules.description')}</Text>
           {authBlocked ? (
             <Text variant="caption">{t('onboarding.modules.readOnly')}</Text>
           ) : null}

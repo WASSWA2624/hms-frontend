@@ -71,6 +71,13 @@ const StyledPrimaryAction = styled.View.withConfig({
   margin-bottom: ${({ theme, $withSecondary }) => ($withSecondary ? theme.spacing.xs : 0)}px;
 `;
 
+const StyledInlineError = styled.View.withConfig({
+  displayName: 'StyledInlineError',
+  componentId: 'LoginScreen_StyledInlineError',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledLinks = styled.View.withConfig({
   displayName: 'StyledLinks',
   componentId: 'LoginScreen_StyledLinks',
@@ -89,13 +96,6 @@ const StyledLinkItem = styled.View.withConfig({
   margin-bottom: ${({ theme, $last }) => ($last ? 0 : theme.spacing.xs)}px;
 `;
 
-const StyledStatus = styled.View.withConfig({
-  displayName: 'StyledStatus',
-  componentId: 'LoginScreen_StyledStatus',
-})`
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 export {
   StyledActions,
   StyledContainer,
@@ -103,9 +103,9 @@ export {
   StyledFormGuidance,
   StyledFormPanel,
   StyledForm,
+  StyledInlineError,
   StyledLinkItem,
   StyledLinks,
   StyledPrimaryAction,
   StyledRemember,
-  StyledStatus,
 };

@@ -247,11 +247,6 @@ export default function OnboardingResumeRoute() {
   return (
     <Container size="medium" testID="onboarding-resume-screen">
       <Stack spacing="md">
-        <Stack spacing="xs">
-          <Text variant="h3">{t('onboarding.resume.title')}</Text>
-          <Text variant="body">{t('onboarding.resume.description')}</Text>
-        </Stack>
-
         <Stack spacing="sm">
           <TextField
             label={t('onboarding.resume.fields.email')}
@@ -338,4 +333,3 @@ export default function OnboardingResumeRoute() {
     </Container>
   );
 }
-

@@ -33,6 +33,7 @@ jest.mock('@platform/components/navigation/GlobalFooter', () => ({
 
 jest.mock('expo-router', () => ({
   Slot: () => <div data-testid="auth-slot" />,
+  usePathname: jest.fn(() => '/login'),
   useRouter: jest.fn(),
 }));
 

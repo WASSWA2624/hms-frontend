@@ -16,19 +16,6 @@ const StyledContainer = styled.section.withConfig({
   gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
-const StyledFormGuidance = styled.div.withConfig({
-  displayName: 'StyledFormGuidance',
-  componentId: 'StyledFormGuidance',
-})`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 const StyledForm = styled.form.withConfig({
   displayName: 'StyledForm',
   componentId: 'StyledForm',
@@ -79,7 +66,6 @@ export {
   StyledActions,
   StyledContainer,
   StyledFieldGrid,
-  StyledFormGuidance,
   StyledForm,
   StyledStatus,
 };

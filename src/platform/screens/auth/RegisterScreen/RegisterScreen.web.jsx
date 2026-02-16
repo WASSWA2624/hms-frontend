@@ -19,7 +19,6 @@ import {
   StyledActions,
   StyledContainer,
   StyledFieldGrid,
-  StyledFormGuidance,
   StyledForm,
   StyledStatus,
 } from './RegisterScreen.web.styles';
@@ -73,7 +72,6 @@ const RegisterScreenWeb = () => {
           handleSubmit();
         }}
       >
-        <StyledFormGuidance />
         <StyledFieldGrid>
           <TextField
             label={t('auth.register.onboarding.fields.facilityName')}

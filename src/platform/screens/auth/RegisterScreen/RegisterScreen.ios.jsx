@@ -20,7 +20,6 @@ import {
   StyledActionSlot,
   StyledContainer,
   StyledField,
-  StyledFormGuidance,
   StyledForm,
   StyledStatus,
 } from './RegisterScreen.ios.styles';
@@ -69,7 +68,6 @@ const RegisterScreenIOS = () => {
   return (
     <StyledContainer>
       <StyledForm>
-        <StyledFormGuidance />
         <StyledField>
           <TextField
             label={t('auth.register.onboarding.fields.facilityName')}

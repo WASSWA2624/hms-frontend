@@ -58,7 +58,12 @@ describe('app/(onboarding)/_layout guard behavior', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRouter = { replace: jest.fn(), push: jest.fn() };
+    mockRouter = {
+      replace: jest.fn(),
+      push: jest.fn(),
+      back: jest.fn(),
+      canGoBack: jest.fn(() => false),
+    };
     useRouter.mockReturnValue(mockRouter);
     usePathname.mockReturnValue('/plan');
     readOnboardingProgress.mockResolvedValue({ context: {} });
@@ -98,5 +103,28 @@ describe('app/(onboarding)/_layout guard behavior', () => {
     });
     expect(saveAuthResumeContext).not.toHaveBeenCalled();
     expect(mockRouter.replace).not.toHaveBeenCalled();
+  });
+
+  test('passes onboarding header props with disabled back reason when history is unavailable', async () => {
+    const { AuthLayout } = require('@platform/layouts');
+    usePathname.mockReturnValue('/welcome');
+    mockRouter.canGoBack.mockReturnValue(false);
+    setStoreState({
+      auth: { isAuthenticated: false },
+      _persist: { rehydrated: true },
+    });
+
+    render(<OnboardingLayoutRoute />);
+
+    await waitFor(() => {
+      expect(AuthLayout).toHaveBeenCalled();
+    });
+
+    const props = AuthLayout.mock.calls[0][0];
+    expect(props.showScreenHeader).toBe(true);
+    expect(props.screenTitle).toBe('onboarding.welcome.title');
+    expect(props.screenSubtitle).toBe('onboarding.welcome.description');
+    expect(props.screenBackAction.disabled).toBe(true);
+    expect(props.screenBackAction.disabledHint).toBe('onboarding.layout.backUnavailableHint');
   });
 });

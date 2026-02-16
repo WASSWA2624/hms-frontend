@@ -13,14 +13,6 @@ const StyledContainer = styled.View.withConfig({
   align-self: center;
 `;
 
-const StyledFormGuidance = styled.View.withConfig({
-  displayName: 'StyledFormGuidance',
-  componentId: 'StyledFormGuidance',
-})`
-  width: 100%;
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 const StyledForm = styled.View.withConfig({
   displayName: 'StyledForm',
   componentId: 'StyledForm',
@@ -63,7 +55,6 @@ export {
   StyledActionSlot,
   StyledContainer,
   StyledField,
-  StyledFormGuidance,
   StyledForm,
   StyledStatus,
 };
