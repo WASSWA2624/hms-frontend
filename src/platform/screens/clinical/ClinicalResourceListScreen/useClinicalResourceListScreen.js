@@ -749,7 +749,15 @@ const useClinicalResourceListScreen = (resourceId) => {
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canList = Boolean(config && canAccessClinical && hasScope);
-  const resourceLabel = useMemo(() => t(`${config?.i18nKey}.label`), [config?.i18nKey, t]);
+  const canCreateResource = Boolean(canCreateClinicalRecords && config?.allowCreate !== false);
+  const canDeleteResource = Boolean(canDeleteClinicalRecords && config?.allowDelete !== false);
+  const resourceLabel = useMemo(() => {
+    if (!config) return '';
+    const labelKey = `${config.i18nKey}.label`;
+    const translated = t(labelKey);
+    if (translated !== labelKey) return translated;
+    return config.labelFallback || sanitizeString(config.id);
+  }, [config, t]);
 
   const items = useMemo(() => {
     if (Array.isArray(data)) return data;
@@ -846,13 +854,13 @@ const useClinicalResourceListScreen = (resourceId) => {
   );
 
   const handleAdd = useCallback(() => {
-    if (!canCreateClinicalRecords || !config) return;
+    if (!canCreateResource || !config) return;
     router.push(withClinicalContext(`${config.routePath}/create`, context));
-  }, [canCreateClinicalRecords, config, context, router]);
+  }, [canCreateResource, config, context, router]);
 
   const handleDelete = useCallback(
     async (id, event) => {
-      if (!canDeleteClinicalRecords || !config) return;
+      if (!canDeleteResource || !config) return;
       if (event?.stopPropagation) event.stopPropagation();
       if (!confirmAction(t('common.confirmDelete'))) return;
       const normalizedId = normalizeSearchParam(id);
@@ -868,7 +876,7 @@ const useClinicalResourceListScreen = (resourceId) => {
         // Hook-level error handling already updates state.
       }
     },
-    [canDeleteClinicalRecords, config, t, remove, fetchList, isOffline, resourceLabel]
+    [canDeleteResource, config, t, remove, fetchList, isOffline, resourceLabel]
   );
 
   return {
@@ -885,10 +893,10 @@ const useClinicalResourceListScreen = (resourceId) => {
     onItemPress: handleItemPress,
     onDelete: handleDelete,
     onAdd: handleAdd,
-    canCreate: canCreateClinicalRecords,
-    canDelete: canDeleteClinicalRecords,
-    createBlockedReason: canCreateClinicalRecords ? '' : t('clinical.access.createDenied'),
-    deleteBlockedReason: canDeleteClinicalRecords ? '' : t('clinical.access.deleteDenied'),
+    canCreate: canCreateResource,
+    canDelete: canDeleteResource,
+    createBlockedReason: canCreateResource ? '' : t('clinical.access.createDenied'),
+    deleteBlockedReason: canDeleteResource ? '' : t('clinical.access.deleteDenied'),
     listPath,
   };
 };

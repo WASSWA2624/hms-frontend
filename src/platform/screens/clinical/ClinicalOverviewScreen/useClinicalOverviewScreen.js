@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, useClinicalAccess } from '@hooks';
 import {
   BILLING_RESOURCE_LIST_ORDER,
+  BIOMEDICAL_RESOURCE_LIST_ORDER,
   COMMUNICATIONS_RESOURCE_LIST_ORDER,
   COMPLIANCE_RESOURCE_LIST_ORDER,
   CLINICAL_RESOURCE_IDS,
@@ -90,6 +91,11 @@ const OVERVIEW_CONFIGS = {
     i18nRoot: 'housekeeping',
     resourceIds: HOUSEKEEPING_RESOURCE_LIST_ORDER,
     primaryResourceId: CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS,
+  },
+  biomedical: {
+    i18nRoot: 'biomedical',
+    resourceIds: BIOMEDICAL_RESOURCE_LIST_ORDER,
+    primaryResourceId: CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES,
   },
   reports: {
     i18nRoot: 'reports',
@@ -285,7 +291,9 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const showRecentItems = overviewConfig.showRecentItems !== false;
   const canCreatePrimary =
-    canCreateClinicalRecords && overviewConfig.enableCreatePrimary !== false;
+    canCreateClinicalRecords &&
+    overviewConfig.enableCreatePrimary !== false &&
+    primaryConfig?.allowCreate !== false;
 
   const primaryItems = useMemo(() => {
     if (Array.isArray(data)) return data;
@@ -302,11 +310,19 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
     () =>
       overviewConfig.resourceIds.map((resourceId) => {
         const config = getClinicalResourceConfig(resourceId);
+        const pluralLabelKey = `${config?.i18nKey}.pluralLabel`;
+        const descriptionKey = `${config?.i18nKey}.overviewDescription`;
+        const translatedLabel = t(pluralLabelKey);
+        const translatedDescription = t(descriptionKey);
+        const fallbackLabel = config?.pluralLabelFallback || config?.labelFallback || resourceId;
         return {
           id: resourceId,
           routePath: config?.routePath || '/clinical',
-          label: t(`${config?.i18nKey}.pluralLabel`),
-          description: t(`${config?.i18nKey}.overviewDescription`),
+          label: translatedLabel === pluralLabelKey ? fallbackLabel : translatedLabel,
+          description:
+            translatedDescription === descriptionKey
+              ? fallbackLabel
+              : translatedDescription,
         };
       }),
     [overviewConfig.resourceIds, t]

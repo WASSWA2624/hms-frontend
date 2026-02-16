@@ -42,6 +42,8 @@ const useClinicalResourceFormScreen = (resourceId) => {
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
+  const canCreateResource = Boolean(canCreateClinicalRecords && config?.allowCreate !== false);
+  const canEditResource = Boolean(canEditClinicalRecords && config?.allowEdit !== false);
 
   const listPath = useMemo(
     () => withClinicalContext(config?.routePath || CLINICAL_ROUTE_ROOT, context),
@@ -94,12 +96,12 @@ const useClinicalResourceFormScreen = (resourceId) => {
       return;
     }
 
-    if (!isEdit && !canCreateClinicalRecords) {
+    if (!isEdit && !canCreateResource) {
       router.replace(`${listPath}${listPath.includes('?') ? '&' : '?'}notice=accessDenied`);
       return;
     }
 
-    if (isEdit && !canEditClinicalRecords) {
+    if (isEdit && !canEditResource) {
       router.replace(`${listPath}${listPath.includes('?') ? '&' : '?'}notice=accessDenied`);
       return;
     }
@@ -113,25 +115,25 @@ const useClinicalResourceFormScreen = (resourceId) => {
     canAccessClinical,
     hasScope,
     isEdit,
-    canCreateClinicalRecords,
-    canEditClinicalRecords,
+    canCreateResource,
+    canEditResource,
     routeRecordId,
     router,
     listPath,
   ]);
 
   useEffect(() => {
-    if (!config || !isEdit || !routeRecordId || !isResolved || !canEditClinicalRecords) return;
+    if (!config || !isEdit || !routeRecordId || !isResolved || !canEditResource) return;
     reset();
     get(routeRecordId);
-  }, [config, isEdit, routeRecordId, isResolved, canEditClinicalRecords, reset, get]);
+  }, [config, isEdit, routeRecordId, isResolved, canEditResource, reset, get]);
 
   useEffect(() => {
-    if (!config || isEdit || !isResolved || !canCreateClinicalRecords) return;
+    if (!config || isEdit || !isResolved || !canCreateResource) return;
     if (createInitializedRef.current) return;
     initializeValues(null);
     createInitializedRef.current = true;
-  }, [config, isEdit, isResolved, canCreateClinicalRecords, initializeValues]);
+  }, [config, isEdit, isResolved, canCreateResource, initializeValues]);
 
   useEffect(() => {
     if (!record || !config) return;
@@ -218,7 +220,7 @@ const useClinicalResourceFormScreen = (resourceId) => {
     !isResolved ||
     isLoading ||
     Object.keys(errors).length > 0 ||
-    (isEdit ? !canEditClinicalRecords : !canCreateClinicalRecords);
+    (isEdit ? !canEditResource : !canCreateResource);
 
   const handleSubmit = useCallback(async () => {
     if (!config || isSubmitDisabled) return;
@@ -291,8 +293,8 @@ const useClinicalResourceFormScreen = (resourceId) => {
     tenantHint: tenantLocked
       ? t('clinical.common.form.tenantLockedHint')
       : t('clinical.common.form.tenantHint'),
-    canCreateClinicalRecords,
-    canEditClinicalRecords,
+    canCreateClinicalRecords: canCreateResource,
+    canEditClinicalRecords: canEditResource,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     isSubmitDisabled,

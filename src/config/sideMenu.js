@@ -793,6 +793,13 @@ const BILLING_ITEMS = [
     roles: BILLING_ACCESS_ROLES,
   },
   {
+    id: 'billing-invoice-items',
+    icon: 'grid-outline',
+    path: '/billing/invoice-items',
+    name: `${MAIN_NAV_I18N}.billing-invoice-items`,
+    roles: BILLING_ACCESS_ROLES,
+  },
+  {
     id: 'billing-payments',
     icon: 'time-outline',
     path: '/billing/payments',
@@ -874,6 +881,20 @@ const HR_ITEMS = [
     roles: HR_ACCESS_ROLES,
   },
   {
+    id: 'hr-shift-assignments',
+    icon: 'git-branch-outline',
+    path: '/hr/shift-assignments',
+    name: `${MAIN_NAV_I18N}.hr-shift-assignments`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-shift-swap-requests',
+    icon: 'time-outline',
+    path: '/hr/shift-swap-requests',
+    name: `${MAIN_NAV_I18N}.hr-shift-swap-requests`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
     id: 'hr-nurse-rosters',
     icon: 'layers-outline',
     path: '/hr/nurse-rosters',
@@ -881,10 +902,38 @@ const HR_ITEMS = [
     roles: HR_ACCESS_ROLES,
   },
   {
+    id: 'hr-shift-templates',
+    icon: 'layers-outline',
+    path: '/hr/shift-templates',
+    name: `${MAIN_NAV_I18N}.hr-shift-templates`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-roster-day-offs',
+    icon: 'time-outline',
+    path: '/hr/roster-day-offs',
+    name: `${MAIN_NAV_I18N}.hr-roster-day-offs`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-staff-availabilities',
+    icon: 'grid-outline',
+    path: '/hr/staff-availabilities',
+    name: `${MAIN_NAV_I18N}.hr-staff-availabilities`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
     id: 'hr-payroll-runs',
     icon: 'folder-outline',
     path: '/hr/payroll-runs',
     name: `${MAIN_NAV_I18N}.hr-payroll-runs`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
+    id: 'hr-payroll-items',
+    icon: 'folder-outline',
+    path: '/hr/payroll-items',
+    name: `${MAIN_NAV_I18N}.hr-payroll-items`,
     roles: HR_ACCESS_ROLES,
   },
 ];
@@ -925,6 +974,313 @@ const HOUSEKEEPING_ITEMS = [
     path: '/housekeeping/asset-service-logs',
     name: `${MAIN_NAV_I18N}.housekeeping-asset-service-logs`,
     roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical',
+    icon: 'medkit-outline',
+    path: '/housekeeping/biomedical',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-categories',
+    icon: 'layers-outline',
+    path: '/housekeeping/biomedical/equipment-categories',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-categories`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-registries',
+    icon: 'grid-outline',
+    path: '/housekeeping/biomedical/equipment-registries',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-registries`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-location-histories',
+    icon: 'time-outline',
+    path: '/housekeeping/biomedical/equipment-location-histories',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-location-histories`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-disposal-transfers',
+    icon: 'git-branch-outline',
+    path: '/housekeeping/biomedical/equipment-disposal-transfers',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-disposal-transfers`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-maintenance-plans',
+    icon: 'folder-outline',
+    path: '/housekeeping/biomedical/equipment-maintenance-plans',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-maintenance-plans`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-work-orders',
+    icon: 'time-outline',
+    path: '/housekeeping/biomedical/equipment-work-orders',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-work-orders`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-calibration-logs',
+    icon: 'shield-outline',
+    path: '/housekeeping/biomedical/equipment-calibration-logs',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-calibration-logs`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-safety-test-logs',
+    icon: 'shield-checkmark-outline',
+    path: '/housekeeping/biomedical/equipment-safety-test-logs',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-safety-test-logs`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-downtime-logs',
+    icon: 'time-outline',
+    path: '/housekeeping/biomedical/equipment-downtime-logs',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-downtime-logs`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-incident-reports',
+    icon: 'folder-outline',
+    path: '/housekeeping/biomedical/equipment-incident-reports',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-incident-reports`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-recall-notices',
+    icon: 'mail-outline',
+    path: '/housekeeping/biomedical/equipment-recall-notices',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-recall-notices`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-spare-parts',
+    icon: 'grid-outline',
+    path: '/housekeeping/biomedical/equipment-spare-parts',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-spare-parts`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-warranty-contracts',
+    icon: 'folder-outline',
+    path: '/housekeeping/biomedical/equipment-warranty-contracts',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-warranty-contracts`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-service-providers',
+    icon: 'business-outline',
+    path: '/housekeeping/biomedical/equipment-service-providers',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-service-providers`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+  {
+    id: 'housekeeping-biomedical-equipment-utilization-snapshots',
+    icon: 'heart-outline',
+    path: '/housekeeping/biomedical/equipment-utilization-snapshots',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical-equipment-utilization-snapshots`,
+    roles: HOUSEKEEPING_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const REPORTS_ITEMS = [
+  {
+    id: 'reports-report-definitions',
+    icon: 'folder-outline',
+    path: '/reports/report-definitions',
+    name: `${MAIN_NAV_I18N}.reports-report-definitions`,
+    roles: REPORTS_ACCESS_ROLES,
+  },
+  {
+    id: 'reports-report-runs',
+    icon: 'time-outline',
+    path: '/reports/report-runs',
+    name: `${MAIN_NAV_I18N}.reports-report-runs`,
+    roles: REPORTS_ACCESS_ROLES,
+  },
+  {
+    id: 'reports-dashboard-widgets',
+    icon: 'grid-outline',
+    path: '/reports/dashboard-widgets',
+    name: `${MAIN_NAV_I18N}.reports-dashboard-widgets`,
+    roles: REPORTS_ACCESS_ROLES,
+  },
+  {
+    id: 'reports-kpi-snapshots',
+    icon: 'heart-outline',
+    path: '/reports/kpi-snapshots',
+    name: `${MAIN_NAV_I18N}.reports-kpi-snapshots`,
+    roles: REPORTS_ACCESS_ROLES,
+  },
+  {
+    id: 'reports-analytics-events',
+    icon: 'git-branch-outline',
+    path: '/reports/analytics-events',
+    name: `${MAIN_NAV_I18N}.reports-analytics-events`,
+    roles: REPORTS_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const COMMUNICATIONS_ITEMS = [
+  {
+    id: 'communications-notifications',
+    icon: 'mail-outline',
+    path: '/communications/notifications',
+    name: `${MAIN_NAV_I18N}.communications-notifications`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'communications-notification-deliveries',
+    icon: 'time-outline',
+    path: '/communications/notification-deliveries',
+    name: `${MAIN_NAV_I18N}.communications-notification-deliveries`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'communications-conversations',
+    icon: 'people-outline',
+    path: '/communications/conversations',
+    name: `${MAIN_NAV_I18N}.communications-conversations`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'communications-messages',
+    icon: 'mail-outline',
+    path: '/communications/messages',
+    name: `${MAIN_NAV_I18N}.communications-messages`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'communications-templates',
+    icon: 'folder-outline',
+    path: '/communications/templates',
+    name: `${MAIN_NAV_I18N}.communications-templates`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'communications-template-variables',
+    icon: 'grid-outline',
+    path: '/communications/template-variables',
+    name: `${MAIN_NAV_I18N}.communications-template-variables`,
+    roles: COMMUNICATIONS_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const SUBSCRIPTIONS_ITEMS = [
+  {
+    id: 'subscriptions-subscription-plans',
+    icon: 'layers-outline',
+    path: '/subscriptions/subscription-plans',
+    name: `${MAIN_NAV_I18N}.subscriptions-subscription-plans`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'subscriptions-subscriptions',
+    icon: 'key-outline',
+    path: '/subscriptions/subscriptions',
+    name: `${MAIN_NAV_I18N}.subscriptions-subscriptions`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'subscriptions-subscription-invoices',
+    icon: 'folder-outline',
+    path: '/subscriptions/subscription-invoices',
+    name: `${MAIN_NAV_I18N}.subscriptions-subscription-invoices`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'subscriptions-modules',
+    icon: 'grid-outline',
+    path: '/subscriptions/modules',
+    name: `${MAIN_NAV_I18N}.subscriptions-modules`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'subscriptions-module-subscriptions',
+    icon: 'git-branch-outline',
+    path: '/subscriptions/module-subscriptions',
+    name: `${MAIN_NAV_I18N}.subscriptions-module-subscriptions`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'subscriptions-licenses',
+    icon: 'shield-checkmark-outline',
+    path: '/subscriptions/licenses',
+    name: `${MAIN_NAV_I18N}.subscriptions-licenses`,
+    roles: SUBSCRIPTIONS_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const INTEGRATIONS_ITEMS = [
+  {
+    id: 'integrations-integrations',
+    icon: 'git-branch-outline',
+    path: '/integrations/integrations',
+    name: `${MAIN_NAV_I18N}.integrations-integrations`,
+    roles: INTEGRATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'integrations-integration-logs',
+    icon: 'folder-outline',
+    path: '/integrations/integration-logs',
+    name: `${MAIN_NAV_I18N}.integrations-integration-logs`,
+    roles: INTEGRATIONS_ACCESS_ROLES,
+  },
+  {
+    id: 'integrations-webhook-subscriptions',
+    icon: 'key-outline',
+    path: '/integrations/webhook-subscriptions',
+    name: `${MAIN_NAV_I18N}.integrations-webhook-subscriptions`,
+    roles: INTEGRATIONS_ACCESS_ROLES,
+  },
+];
+
+/** @type {MainNavChild[]} */
+const COMPLIANCE_ITEMS = [
+  {
+    id: 'compliance-audit-logs',
+    icon: 'shield-checkmark-outline',
+    path: '/compliance/audit-logs',
+    name: `${MAIN_NAV_I18N}.compliance-audit-logs`,
+    roles: COMPLIANCE_ACCESS_ROLES,
+  },
+  {
+    id: 'compliance-phi-access-logs',
+    icon: 'shield-outline',
+    path: '/compliance/phi-access-logs',
+    name: `${MAIN_NAV_I18N}.compliance-phi-access-logs`,
+    roles: COMPLIANCE_ACCESS_ROLES,
+  },
+  {
+    id: 'compliance-data-processing-logs',
+    icon: 'grid-outline',
+    path: '/compliance/data-processing-logs',
+    name: `${MAIN_NAV_I18N}.compliance-data-processing-logs`,
+    roles: COMPLIANCE_ACCESS_ROLES,
+  },
+  {
+    id: 'compliance-breach-notifications',
+    icon: 'mail-outline',
+    path: '/compliance/breach-notifications',
+    name: `${MAIN_NAV_I18N}.compliance-breach-notifications`,
+    roles: COMPLIANCE_ACCESS_ROLES,
+  },
+  {
+    id: 'compliance-system-change-logs',
+    icon: 'time-outline',
+    path: '/compliance/system-change-logs',
+    name: `${MAIN_NAV_I18N}.compliance-system-change-logs`,
+    roles: COMPLIANCE_ACCESS_ROLES,
   },
 ];
 
@@ -1041,7 +1397,7 @@ export const MAIN_NAV_ITEMS = [
     path: '/reports',
     name: `${MAIN_NAV_I18N}.reports`,
     roles: REPORTS_ACCESS_ROLES,
-    children: null,
+    children: REPORTS_ITEMS,
   },
   {
     id: 'communications',
@@ -1049,7 +1405,7 @@ export const MAIN_NAV_ITEMS = [
     path: '/communications',
     name: `${MAIN_NAV_I18N}.communications`,
     roles: COMMUNICATIONS_ACCESS_ROLES,
-    children: null,
+    children: COMMUNICATIONS_ITEMS,
   },
   {
     id: 'subscriptions',
@@ -1057,7 +1413,7 @@ export const MAIN_NAV_ITEMS = [
     path: '/subscriptions',
     name: `${MAIN_NAV_I18N}.subscriptions`,
     roles: SUBSCRIPTIONS_ACCESS_ROLES,
-    children: null,
+    children: SUBSCRIPTIONS_ITEMS,
   },
   {
     id: 'integrations',
@@ -1065,7 +1421,7 @@ export const MAIN_NAV_ITEMS = [
     path: '/integrations',
     name: `${MAIN_NAV_I18N}.integrations`,
     roles: INTEGRATIONS_ACCESS_ROLES,
-    children: null,
+    children: INTEGRATIONS_ITEMS,
   },
   {
     id: 'compliance',
@@ -1073,7 +1429,7 @@ export const MAIN_NAV_ITEMS = [
     path: '/compliance',
     name: `${MAIN_NAV_I18N}.compliance`,
     roles: COMPLIANCE_ACCESS_ROLES,
-    children: null,
+    children: COMPLIANCE_ITEMS,
   },
   { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
 ];
@@ -1145,4 +1501,9 @@ export {
   BILLING_ITEMS,
   HR_ITEMS,
   HOUSEKEEPING_ITEMS,
+  REPORTS_ITEMS,
+  COMMUNICATIONS_ITEMS,
+  SUBSCRIPTIONS_ITEMS,
+  INTEGRATIONS_ITEMS,
+  COMPLIANCE_ITEMS,
 };

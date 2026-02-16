@@ -40,6 +40,8 @@ const useClinicalResourceDetailScreen = (resourceId) => {
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
+  const canEditResource = Boolean(canEditClinicalRecords && config?.allowEdit !== false);
+  const canDeleteResource = Boolean(canDeleteClinicalRecords && config?.allowDelete !== false);
   const listPath = useMemo(
     () => withClinicalContext(config?.routePath || CLINICAL_ROUTE_ROOT, context),
     [config?.routePath, context]
@@ -97,12 +99,12 @@ const useClinicalResourceDetailScreen = (resourceId) => {
   }, [router, listPath]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditClinicalRecords || !config || !routeRecordId) return;
+    if (!canEditResource || !config || !routeRecordId) return;
     router.push(withClinicalContext(`${config.routePath}/${routeRecordId}/edit`, context));
-  }, [canEditClinicalRecords, config, routeRecordId, context, router]);
+  }, [canEditResource, config, routeRecordId, context, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteClinicalRecords || !routeRecordId || !config) return;
+    if (!canDeleteResource || !routeRecordId || !config) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(routeRecordId);
@@ -113,7 +115,7 @@ const useClinicalResourceDetailScreen = (resourceId) => {
     } catch {
       // Hook-level error handling already updates state.
     }
-  }, [canDeleteClinicalRecords, routeRecordId, config, t, remove, isOffline, router, listPath]);
+  }, [canDeleteResource, routeRecordId, config, t, remove, isOffline, router, listPath]);
 
   return {
     config,
@@ -128,10 +130,10 @@ const useClinicalResourceDetailScreen = (resourceId) => {
     onBack: handleBack,
     onEdit: handleEdit,
     onDelete: handleDelete,
-    canEdit: canEditClinicalRecords,
-    canDelete: canDeleteClinicalRecords,
-    editBlockedReason: canEditClinicalRecords ? '' : t('clinical.access.editDenied'),
-    deleteBlockedReason: canDeleteClinicalRecords ? '' : t('clinical.access.deleteDenied'),
+    canEdit: canEditResource,
+    canDelete: canDeleteResource,
+    editBlockedReason: canEditResource ? '' : t('clinical.access.editDenied'),
+    deleteBlockedReason: canDeleteResource ? '' : t('clinical.access.deleteDenied'),
     listPath,
   };
 };

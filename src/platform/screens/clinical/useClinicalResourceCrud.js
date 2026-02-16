@@ -9,50 +9,61 @@ import {
   useAmbulance,
   useAmbulanceDispatch,
   useAmbulanceTrip,
+  useAnalyticsEvent,
+  useAsset,
+  useAssetServiceLog,
+  useAuditLog,
   useBedAssignment,
+  useBillingAdjustment,
+  useBreachNotification,
   useCarePlan,
   useClinicalAlert,
-  useCriticalAlert,
   useClinicalNote,
-  useDispenseLog,
-  useDischargeSummary,
+  useConversation,
+  useCoveragePlan,
+  useCriticalAlert,
+  useDashboardWidget,
+  useDataProcessingLog,
   useDiagnosis,
+  useDischargeSummary,
+  useDispenseLog,
   useDrug,
   useDrugBatch,
   useEmergencyCase,
   useEmergencyResponse,
   useEncounter,
+  useEquipmentCalibrationLog,
+  useEquipmentCategory,
+  useEquipmentDisposalTransfer,
+  useEquipmentDowntimeLog,
+  useEquipmentIncidentReport,
+  useEquipmentLocationHistory,
+  useEquipmentMaintenancePlan,
+  useEquipmentRecallNotice,
+  useEquipmentRegistry,
+  useEquipmentSafetyTestLog,
+  useEquipmentServiceProvider,
+  useEquipmentSparePart,
+  useEquipmentUtilizationSnapshot,
+  useEquipmentWarrantyContract,
+  useEquipmentWorkOrder,
   useFollowUp,
   useFormularyItem,
   useGoodsReceipt,
+  useHousekeepingSchedule,
+  useHousekeepingTask,
   useIcuObservation,
   useIcuStay,
+  useImagingAsset,
   useImagingStudy,
+  useInsuranceClaim,
+  useIntegration,
+  useIntegrationLog,
   useInventoryItem,
   useInventoryStock,
   useInvoice,
-  useImagingAsset,
-  usePayment,
-  useRefund,
-  useInsuranceClaim,
-  usePreAuthorization,
-  useBillingAdjustment,
-  useStaffProfile,
-  useStaffAssignment,
-  useStaffLeave,
-  useShift,
-  useNurseRoster,
-  usePayrollRun,
-  useHousekeepingTask,
-  useHousekeepingSchedule,
-  useMaintenanceRequest,
-  useAsset,
-  useAssetServiceLog,
-  useDashboardWidget,
-  useNotification,
-  useSubscription,
-  useIntegration,
-  useAuditLog,
+  useInvoiceItem,
+  useKpiSnapshot,
   useLabOrder,
   useLabOrderItem,
   useLabPanel,
@@ -60,27 +71,60 @@ import {
   useLabResult,
   useLabSample,
   useLabTest,
+  useLicense,
+  useMaintenanceRequest,
   useMedicationAdministration,
+  useMessage,
+  useModule,
+  useModuleSubscription,
+  useNotification,
+  useNotificationDelivery,
+  useNurseRoster,
   useNursingNote,
   usePacsLink,
+  usePayrollItem,
+  usePayrollRun,
+  usePayment,
   usePharmacyOrder,
   usePharmacyOrderItem,
+  usePhiAccessLog,
   usePostOpNote,
-  usePurchaseRequest,
-  usePurchaseOrder,
+  usePreAuthorization,
+  usePricingRule,
   useProcedure,
+  usePurchaseOrder,
+  usePurchaseRequest,
   useRadiologyOrder,
   useRadiologyResult,
   useRadiologyTest,
   useReferral,
+  useRefund,
+  useReportDefinition,
+  useReportRun,
+  useRosterDayOff,
+  useShift,
+  useShiftAssignment,
+  useShiftSwapRequest,
+  useShiftTemplate,
+  useStaffAssignment,
+  useStaffAvailability,
+  useStaffLeave,
+  useStaffProfile,
   useStockAdjustment,
   useStockMovement,
+  useSubscription,
+  useSubscriptionInvoice,
+  useSubscriptionPlan,
   useSupplier,
+  useSystemChangeLog,
+  useTemplate,
+  useTemplateVariable,
   useTheatreCase,
   useTransferRequest,
   useTriageAssessment,
   useVitalSign,
   useWardRound,
+  useWebhookSubscription,
 } from '@hooks';
 import { CLINICAL_RESOURCE_IDS } from './ClinicalResourceConfigs';
 
@@ -107,28 +151,6 @@ const useClinicalResourceCrud = (resourceId) => {
   const adverseEvent = useAdverseEvent();
   const inventoryItem = useInventoryItem();
   const inventoryStock = useInventoryStock();
-  const invoice = useInvoice();
-  const payment = usePayment();
-  const refund = useRefund();
-  const insuranceClaim = useInsuranceClaim();
-  const preAuthorization = usePreAuthorization();
-  const billingAdjustment = useBillingAdjustment();
-  const staffProfile = useStaffProfile();
-  const staffAssignment = useStaffAssignment();
-  const staffLeave = useStaffLeave();
-  const shift = useShift();
-  const nurseRoster = useNurseRoster();
-  const payrollRun = usePayrollRun();
-  const housekeepingTask = useHousekeepingTask();
-  const housekeepingSchedule = useHousekeepingSchedule();
-  const maintenanceRequest = useMaintenanceRequest();
-  const asset = useAsset();
-  const assetServiceLog = useAssetServiceLog();
-  const dashboardWidget = useDashboardWidget();
-  const notification = useNotification();
-  const subscription = useSubscription();
-  const integration = useIntegration();
-  const auditLog = useAuditLog();
   const stockMovement = useStockMovement();
   const supplier = useSupplier();
   const purchaseRequest = usePurchaseRequest();
@@ -163,6 +185,72 @@ const useClinicalResourceCrud = (resourceId) => {
   const clinicalAlert = useClinicalAlert();
   const referral = useReferral();
   const followUp = useFollowUp();
+  const invoice = useInvoice();
+  const invoiceItem = useInvoiceItem();
+  const payment = usePayment();
+  const refund = useRefund();
+  const pricingRule = usePricingRule();
+  const coveragePlan = useCoveragePlan();
+  const insuranceClaim = useInsuranceClaim();
+  const preAuthorization = usePreAuthorization();
+  const billingAdjustment = useBillingAdjustment();
+  const staffProfile = useStaffProfile();
+  const staffAssignment = useStaffAssignment();
+  const staffLeave = useStaffLeave();
+  const shift = useShift();
+  const shiftAssignment = useShiftAssignment();
+  const shiftSwapRequest = useShiftSwapRequest();
+  const nurseRoster = useNurseRoster();
+  const shiftTemplate = useShiftTemplate();
+  const rosterDayOff = useRosterDayOff();
+  const staffAvailability = useStaffAvailability();
+  const payrollRun = usePayrollRun();
+  const payrollItem = usePayrollItem();
+  const housekeepingTask = useHousekeepingTask();
+  const housekeepingSchedule = useHousekeepingSchedule();
+  const maintenanceRequest = useMaintenanceRequest();
+  const asset = useAsset();
+  const assetServiceLog = useAssetServiceLog();
+  const equipmentCategory = useEquipmentCategory();
+  const equipmentRegistry = useEquipmentRegistry();
+  const equipmentLocationHistory = useEquipmentLocationHistory();
+  const equipmentDisposalTransfer = useEquipmentDisposalTransfer();
+  const equipmentMaintenancePlan = useEquipmentMaintenancePlan();
+  const equipmentWorkOrder = useEquipmentWorkOrder();
+  const equipmentCalibrationLog = useEquipmentCalibrationLog();
+  const equipmentSafetyTestLog = useEquipmentSafetyTestLog();
+  const equipmentDowntimeLog = useEquipmentDowntimeLog();
+  const equipmentIncidentReport = useEquipmentIncidentReport();
+  const equipmentRecallNotice = useEquipmentRecallNotice();
+  const equipmentSparePart = useEquipmentSparePart();
+  const equipmentWarrantyContract = useEquipmentWarrantyContract();
+  const equipmentServiceProvider = useEquipmentServiceProvider();
+  const equipmentUtilizationSnapshot = useEquipmentUtilizationSnapshot();
+  const reportDefinition = useReportDefinition();
+  const reportRun = useReportRun();
+  const dashboardWidget = useDashboardWidget();
+  const kpiSnapshot = useKpiSnapshot();
+  const analyticsEvent = useAnalyticsEvent();
+  const notification = useNotification();
+  const notificationDelivery = useNotificationDelivery();
+  const conversation = useConversation();
+  const message = useMessage();
+  const template = useTemplate();
+  const templateVariable = useTemplateVariable();
+  const subscriptionPlan = useSubscriptionPlan();
+  const subscription = useSubscription();
+  const subscriptionInvoice = useSubscriptionInvoice();
+  const module = useModule();
+  const moduleSubscription = useModuleSubscription();
+  const license = useLicense();
+  const integration = useIntegration();
+  const integrationLog = useIntegrationLog();
+  const webhookSubscription = useWebhookSubscription();
+  const auditLog = useAuditLog();
+  const phiAccessLog = usePhiAccessLog();
+  const dataProcessingLog = useDataProcessingLog();
+  const breachNotification = useBreachNotification();
+  const systemChangeLog = useSystemChangeLog();
 
   return useMemo(() => {
     const map = {
@@ -223,8 +311,11 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.REFERRALS]: referral,
       [CLINICAL_RESOURCE_IDS.FOLLOW_UPS]: followUp,
       [CLINICAL_RESOURCE_IDS.INVOICES]: invoice,
+      [CLINICAL_RESOURCE_IDS.INVOICE_ITEMS]: invoiceItem,
       [CLINICAL_RESOURCE_IDS.PAYMENTS]: payment,
       [CLINICAL_RESOURCE_IDS.REFUNDS]: refund,
+      [CLINICAL_RESOURCE_IDS.PRICING_RULES]: pricingRule,
+      [CLINICAL_RESOURCE_IDS.COVERAGE_PLANS]: coveragePlan,
       [CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS]: insuranceClaim,
       [CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS]: preAuthorization,
       [CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS]: billingAdjustment,
@@ -232,18 +323,59 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS]: staffAssignment,
       [CLINICAL_RESOURCE_IDS.STAFF_LEAVES]: staffLeave,
       [CLINICAL_RESOURCE_IDS.SHIFTS]: shift,
+      [CLINICAL_RESOURCE_IDS.SHIFT_ASSIGNMENTS]: shiftAssignment,
+      [CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS]: shiftSwapRequest,
       [CLINICAL_RESOURCE_IDS.NURSE_ROSTERS]: nurseRoster,
+      [CLINICAL_RESOURCE_IDS.SHIFT_TEMPLATES]: shiftTemplate,
+      [CLINICAL_RESOURCE_IDS.ROSTER_DAY_OFFS]: rosterDayOff,
+      [CLINICAL_RESOURCE_IDS.STAFF_AVAILABILITIES]: staffAvailability,
       [CLINICAL_RESOURCE_IDS.PAYROLL_RUNS]: payrollRun,
+      [CLINICAL_RESOURCE_IDS.PAYROLL_ITEMS]: payrollItem,
       [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS]: housekeepingTask,
       [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES]: housekeepingSchedule,
       [CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS]: maintenanceRequest,
       [CLINICAL_RESOURCE_IDS.ASSETS]: asset,
       [CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS]: assetServiceLog,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES]: equipmentCategory,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES]: equipmentRegistry,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES]: equipmentLocationHistory,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS]: equipmentDisposalTransfer,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS]: equipmentMaintenancePlan,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS]: equipmentWorkOrder,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS]: equipmentCalibrationLog,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS]: equipmentSafetyTestLog,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS]: equipmentDowntimeLog,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS]: equipmentIncidentReport,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES]: equipmentRecallNotice,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS]: equipmentSparePart,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS]: equipmentWarrantyContract,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS]: equipmentServiceProvider,
+      [CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS]: equipmentUtilizationSnapshot,
+      [CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS]: reportDefinition,
+      [CLINICAL_RESOURCE_IDS.REPORT_RUNS]: reportRun,
       [CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS]: dashboardWidget,
+      [CLINICAL_RESOURCE_IDS.KPI_SNAPSHOTS]: kpiSnapshot,
+      [CLINICAL_RESOURCE_IDS.ANALYTICS_EVENTS]: analyticsEvent,
       [CLINICAL_RESOURCE_IDS.NOTIFICATIONS]: notification,
+      [CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES]: notificationDelivery,
+      [CLINICAL_RESOURCE_IDS.CONVERSATIONS]: conversation,
+      [CLINICAL_RESOURCE_IDS.MESSAGES]: message,
+      [CLINICAL_RESOURCE_IDS.TEMPLATES]: template,
+      [CLINICAL_RESOURCE_IDS.TEMPLATE_VARIABLES]: templateVariable,
+      [CLINICAL_RESOURCE_IDS.SUBSCRIPTION_PLANS]: subscriptionPlan,
       [CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS]: subscription,
+      [CLINICAL_RESOURCE_IDS.SUBSCRIPTION_INVOICES]: subscriptionInvoice,
+      [CLINICAL_RESOURCE_IDS.MODULES]: module,
+      [CLINICAL_RESOURCE_IDS.MODULE_SUBSCRIPTIONS]: moduleSubscription,
+      [CLINICAL_RESOURCE_IDS.LICENSES]: license,
       [CLINICAL_RESOURCE_IDS.INTEGRATIONS]: integration,
+      [CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS]: integrationLog,
+      [CLINICAL_RESOURCE_IDS.WEBHOOK_SUBSCRIPTIONS]: webhookSubscription,
       [CLINICAL_RESOURCE_IDS.AUDIT_LOGS]: auditLog,
+      [CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS]: phiAccessLog,
+      [CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS]: dataProcessingLog,
+      [CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS]: breachNotification,
+      [CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS]: systemChangeLog,
     };
     return map[resourceId] || encounter;
   }, [
@@ -270,28 +402,6 @@ const useClinicalResourceCrud = (resourceId) => {
     adverseEvent,
     inventoryItem,
     inventoryStock,
-    invoice,
-    payment,
-    refund,
-    insuranceClaim,
-    preAuthorization,
-    billingAdjustment,
-    staffProfile,
-    staffAssignment,
-    staffLeave,
-    shift,
-    nurseRoster,
-    payrollRun,
-    housekeepingTask,
-    housekeepingSchedule,
-    maintenanceRequest,
-    asset,
-    assetServiceLog,
-    dashboardWidget,
-    notification,
-    subscription,
-    integration,
-    auditLog,
     stockMovement,
     supplier,
     purchaseRequest,
@@ -326,6 +436,72 @@ const useClinicalResourceCrud = (resourceId) => {
     clinicalAlert,
     referral,
     followUp,
+    invoice,
+    invoiceItem,
+    payment,
+    refund,
+    pricingRule,
+    coveragePlan,
+    insuranceClaim,
+    preAuthorization,
+    billingAdjustment,
+    staffProfile,
+    staffAssignment,
+    staffLeave,
+    shift,
+    shiftAssignment,
+    shiftSwapRequest,
+    nurseRoster,
+    shiftTemplate,
+    rosterDayOff,
+    staffAvailability,
+    payrollRun,
+    payrollItem,
+    housekeepingTask,
+    housekeepingSchedule,
+    maintenanceRequest,
+    asset,
+    assetServiceLog,
+    equipmentCategory,
+    equipmentRegistry,
+    equipmentLocationHistory,
+    equipmentDisposalTransfer,
+    equipmentMaintenancePlan,
+    equipmentWorkOrder,
+    equipmentCalibrationLog,
+    equipmentSafetyTestLog,
+    equipmentDowntimeLog,
+    equipmentIncidentReport,
+    equipmentRecallNotice,
+    equipmentSparePart,
+    equipmentWarrantyContract,
+    equipmentServiceProvider,
+    equipmentUtilizationSnapshot,
+    reportDefinition,
+    reportRun,
+    dashboardWidget,
+    kpiSnapshot,
+    analyticsEvent,
+    notification,
+    notificationDelivery,
+    conversation,
+    message,
+    template,
+    templateVariable,
+    subscriptionPlan,
+    subscription,
+    subscriptionInvoice,
+    module,
+    moduleSubscription,
+    license,
+    integration,
+    integrationLog,
+    webhookSubscription,
+    auditLog,
+    phiAccessLog,
+    dataProcessingLog,
+    breachNotification,
+    systemChangeLog,
   ]);
 };
 

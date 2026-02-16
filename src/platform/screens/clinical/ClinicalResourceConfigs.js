@@ -63,6 +63,7 @@ const CLINICAL_RESOURCE_IDS = {
 
 Object.assign(CLINICAL_RESOURCE_IDS, {
   INVOICES: 'invoices',
+  INVOICE_ITEMS: 'invoice-items',
   PAYMENTS: 'payments',
   REFUNDS: 'refunds',
   PRICING_RULES: 'pricing-rules',
@@ -74,18 +75,43 @@ Object.assign(CLINICAL_RESOURCE_IDS, {
   STAFF_ASSIGNMENTS: 'staff-assignments',
   STAFF_LEAVES: 'staff-leaves',
   SHIFTS: 'shifts',
+  SHIFT_ASSIGNMENTS: 'shift-assignments',
+  SHIFT_SWAP_REQUESTS: 'shift-swap-requests',
   NURSE_ROSTERS: 'nurse-rosters',
+  SHIFT_TEMPLATES: 'shift-templates',
+  ROSTER_DAY_OFFS: 'roster-day-offs',
+  STAFF_AVAILABILITIES: 'staff-availabilities',
   PAYROLL_RUNS: 'payroll-runs',
+  PAYROLL_ITEMS: 'payroll-items',
   HOUSEKEEPING_TASKS: 'housekeeping-tasks',
   HOUSEKEEPING_SCHEDULES: 'housekeeping-schedules',
   MAINTENANCE_REQUESTS: 'maintenance-requests',
   ASSETS: 'assets',
   ASSET_SERVICE_LOGS: 'asset-service-logs',
+  EQUIPMENT_CATEGORIES: 'equipment-categories',
+  EQUIPMENT_REGISTRIES: 'equipment-registries',
+  EQUIPMENT_LOCATION_HISTORIES: 'equipment-location-histories',
+  EQUIPMENT_DISPOSAL_TRANSFERS: 'equipment-disposal-transfers',
+  EQUIPMENT_MAINTENANCE_PLANS: 'equipment-maintenance-plans',
+  EQUIPMENT_WORK_ORDERS: 'equipment-work-orders',
+  EQUIPMENT_CALIBRATION_LOGS: 'equipment-calibration-logs',
+  EQUIPMENT_SAFETY_TEST_LOGS: 'equipment-safety-test-logs',
+  EQUIPMENT_DOWNTIME_LOGS: 'equipment-downtime-logs',
+  EQUIPMENT_INCIDENT_REPORTS: 'equipment-incident-reports',
+  EQUIPMENT_RECALL_NOTICES: 'equipment-recall-notices',
+  EQUIPMENT_SPARE_PARTS: 'equipment-spare-parts',
+  EQUIPMENT_WARRANTY_CONTRACTS: 'equipment-warranty-contracts',
+  EQUIPMENT_SERVICE_PROVIDERS: 'equipment-service-providers',
+  EQUIPMENT_UTILIZATION_SNAPSHOTS: 'equipment-utilization-snapshots',
   DASHBOARD_WIDGETS: 'dashboard-widgets',
+  REPORT_DEFINITIONS: 'report-definitions',
+  REPORT_RUNS: 'report-runs',
   KPI_SNAPSHOTS: 'kpi-snapshots',
   ANALYTICS_EVENTS: 'analytics-events',
   NOTIFICATIONS: 'notifications',
   NOTIFICATION_DELIVERIES: 'notification-deliveries',
+  CONVERSATIONS: 'conversations',
+  MESSAGES: 'messages',
   TEMPLATES: 'templates',
   TEMPLATE_VARIABLES: 'template-variables',
   SUBSCRIPTION_PLANS: 'subscription-plans',
@@ -189,6 +215,7 @@ const INVENTORY_RESOURCE_LIST_ORDER = [
 
 const BILLING_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.INVOICES,
+  CLINICAL_RESOURCE_IDS.INVOICE_ITEMS,
   CLINICAL_RESOURCE_IDS.PAYMENTS,
   CLINICAL_RESOURCE_IDS.REFUNDS,
   CLINICAL_RESOURCE_IDS.PRICING_RULES,
@@ -203,8 +230,14 @@ const HR_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
   CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
   CLINICAL_RESOURCE_IDS.SHIFTS,
+  CLINICAL_RESOURCE_IDS.SHIFT_ASSIGNMENTS,
+  CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS,
   CLINICAL_RESOURCE_IDS.NURSE_ROSTERS,
+  CLINICAL_RESOURCE_IDS.SHIFT_TEMPLATES,
+  CLINICAL_RESOURCE_IDS.ROSTER_DAY_OFFS,
+  CLINICAL_RESOURCE_IDS.STAFF_AVAILABILITIES,
   CLINICAL_RESOURCE_IDS.PAYROLL_RUNS,
+  CLINICAL_RESOURCE_IDS.PAYROLL_ITEMS,
 ];
 
 const HOUSEKEEPING_RESOURCE_LIST_ORDER = [
@@ -216,23 +249,61 @@ const HOUSEKEEPING_RESOURCE_LIST_ORDER = [
 ];
 
 const REPORTS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS,
+  CLINICAL_RESOURCE_IDS.REPORT_RUNS,
   CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+  CLINICAL_RESOURCE_IDS.KPI_SNAPSHOTS,
+  CLINICAL_RESOURCE_IDS.ANALYTICS_EVENTS,
 ];
 
 const COMMUNICATIONS_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+  CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES,
+  CLINICAL_RESOURCE_IDS.CONVERSATIONS,
+  CLINICAL_RESOURCE_IDS.MESSAGES,
+  CLINICAL_RESOURCE_IDS.TEMPLATES,
+  CLINICAL_RESOURCE_IDS.TEMPLATE_VARIABLES,
 ];
 
 const SUBSCRIPTIONS_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.SUBSCRIPTION_PLANS,
   CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+  CLINICAL_RESOURCE_IDS.SUBSCRIPTION_INVOICES,
+  CLINICAL_RESOURCE_IDS.MODULES,
+  CLINICAL_RESOURCE_IDS.MODULE_SUBSCRIPTIONS,
+  CLINICAL_RESOURCE_IDS.LICENSES,
 ];
 
 const INTEGRATIONS_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+  CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS,
+  CLINICAL_RESOURCE_IDS.WEBHOOK_SUBSCRIPTIONS,
 ];
 
 const COMPLIANCE_RESOURCE_LIST_ORDER = [
   CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+  CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS,
+  CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS,
+  CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS,
+  CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS,
+];
+
+const BIOMEDICAL_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS,
+  CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS,
 ];
 
 const CLINICAL_ROUTE_ROOT = '/clinical';
@@ -247,6 +318,7 @@ const INVENTORY_ROUTE_ROOT = '/inventory';
 const BILLING_ROUTE_ROOT = '/billing';
 const HR_ROUTE_ROOT = '/hr';
 const HOUSEKEEPING_ROUTE_ROOT = '/housekeeping';
+const BIOMEDICAL_ROUTE_ROOT = '/housekeeping/biomedical';
 const REPORTS_ROUTE_ROOT = '/reports';
 const COMMUNICATIONS_ROUTE_ROOT = '/communications';
 const SUBSCRIPTIONS_ROUTE_ROOT = '/subscriptions';
@@ -1812,7 +1884,371 @@ const getContextFilters = (resourceId, context) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.INVOICE_ITEMS) {
+    return {
+      invoice_id: invoiceId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PRICING_RULES) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      status: status || undefined,
+      code: code || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.COVERAGE_PLANS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SHIFT_ASSIGNMENTS) {
+    return {
+      shift_id: normalizeContextId(context?.shiftId) || undefined,
+      staff_profile_id: staffProfileId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS) {
+    return {
+      shift_assignment_id: normalizeContextId(context?.shiftAssignmentId) || undefined,
+      staff_profile_id: staffProfileId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SHIFT_TEMPLATES) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      shift_type: shiftType || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ROSTER_DAY_OFFS) {
+    return {
+      nurse_roster_id: normalizeContextId(context?.nurseRosterId) || undefined,
+      staff_profile_id: staffProfileId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_AVAILABILITIES) {
+    return {
+      staff_profile_id: staffProfileId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PAYROLL_ITEMS) {
+    return {
+      payroll_run_id: normalizeContextId(context?.payrollRunId) || undefined,
+      staff_profile_id: staffProfileId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.REPORT_RUNS) {
+    return {
+      report_definition_id: normalizeContextId(context?.reportDefinitionId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS) {
+    return {
+      tenant_id: tenantId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.KPI_SNAPSHOTS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.ANALYTICS_EVENTS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NOTIFICATIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES) {
+    return {
+      notification_id: normalizeContextId(context?.notificationId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.CONVERSATIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MESSAGES) {
+    return {
+      conversation_id: normalizeContextId(context?.conversationId) || undefined,
+      template_id: normalizeContextId(context?.templateId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TEMPLATES) {
+    return {
+      tenant_id: tenantId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.TEMPLATE_VARIABLES) {
+    return {
+      template_id: normalizeContextId(context?.templateId) || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SUBSCRIPTION_PLANS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SUBSCRIPTION_INVOICES) {
+    return {
+      subscription_id: normalizeContextId(context?.subscriptionId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MODULES) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.MODULE_SUBSCRIPTIONS) {
+    return {
+      module_id: normalizeContextId(context?.moduleId) || undefined,
+      subscription_id: normalizeContextId(context?.subscriptionId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.LICENSES) {
+    return {
+      tenant_id: tenantId || undefined,
+      subscription_id: normalizeContextId(context?.subscriptionId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INTEGRATIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS) {
+    return {
+      integration_id: normalizeContextId(context?.integrationId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.WEBHOOK_SUBSCRIPTIONS) {
+    return {
+      integration_id: normalizeContextId(context?.integrationId) || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.AUDIT_LOGS) {
+    return {
+      tenant_id: tenantId || undefined,
+      user_id: userId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS) {
+    return {
+      tenant_id: tenantId || undefined,
+      patient_id: patientId || undefined,
+      user_id: userId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS) {
+    return {
+      tenant_id: tenantId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS) {
+    return {
+      tenant_id: tenantId || undefined,
+      user_id: userId || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (BIOMEDICAL_RESOURCE_LIST_ORDER.includes(resourceId)) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
   return {};
+};
+
+const DEFAULT_GENERIC_LIST_PARAMS = { page: 1, limit: 20 };
+const GENERIC_RESOURCE_ID_FALLBACKS = ['name', 'title', 'code', 'identifier', 'id'];
+const ACRONYM_SEGMENTS = new Set(['api', 'hr', 'icu', 'id', 'ipd', 'kpi', 'phi', 'qc']);
+
+const toDisplayResourceLabel = (resourceId) =>
+  sanitizeString(resourceId)
+    .split('-')
+    .filter(Boolean)
+    .map((segment) => {
+      const lower = segment.toLowerCase();
+      if (ACRONYM_SEGMENTS.has(lower)) return lower.toUpperCase();
+      return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+    })
+    .join(' ');
+
+const toI18nResourceKey = (resourceId) => {
+  const segments = sanitizeString(resourceId)
+    .split('-')
+    .filter(Boolean)
+    .map((segment) => segment.toLowerCase());
+
+  if (segments.length === 0) return '';
+
+  return segments
+    .map((segment, index) =>
+      index === 0 ? segment : `${segment.charAt(0).toUpperCase()}${segment.slice(1)}`
+    )
+    .join('');
+};
+
+const buildGenericResourceConfig = ({
+  id,
+  routeRoot,
+  requiresTenant = false,
+  supportsFacility = false,
+  allowCreate = true,
+  allowEdit = true,
+  allowDelete = true,
+  titleKeys = GENERIC_RESOURCE_ID_FALLBACKS,
+  subtitleKeys = ['status'],
+}) => {
+  const i18nResourceKey = toI18nResourceKey(id);
+  const displayLabel = toDisplayResourceLabel(id);
+  return {
+    id,
+    routePath: `${routeRoot}/${id}`,
+    i18nKey: `clinical.resources.${i18nResourceKey}`,
+    labelFallback: displayLabel,
+    pluralLabelFallback: displayLabel,
+    requiresTenant,
+    supportsFacility,
+    allowCreate,
+    allowEdit,
+    allowDelete,
+    listParams: { ...DEFAULT_GENERIC_LIST_PARAMS },
+    fields: [],
+    getItemTitle: (item) => {
+      for (const key of titleKeys) {
+        const value = sanitizeString(item?.[key]);
+        if (value) return value;
+      }
+      return sanitizeString(item?.id);
+    },
+    getItemSubtitle: (item) => {
+      for (const key of subtitleKeys) {
+        const value = sanitizeString(item?.[key]);
+        if (value) return value;
+      }
+      return '';
+    },
+    getInitialValues: () => ({}),
+    toPayload: () => ({}),
+    validate: () => ({}),
+    detailRows: [],
+  };
 };
 
 const resourceConfigs = {
@@ -8096,6 +8532,174 @@ const resourceConfigs = {
   },
 };
 
+const TIER_10_GENERIC_RESOURCES = [
+  { id: CLINICAL_RESOURCE_IDS.INVOICE_ITEMS, routeRoot: BILLING_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.PRICING_RULES, routeRoot: BILLING_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.COVERAGE_PLANS, routeRoot: BILLING_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.SHIFT_ASSIGNMENTS, routeRoot: HR_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS, routeRoot: HR_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.SHIFT_TEMPLATES, routeRoot: HR_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.ROSTER_DAY_OFFS, routeRoot: HR_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.STAFF_AVAILABILITIES, routeRoot: HR_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.PAYROLL_ITEMS, routeRoot: HR_ROUTE_ROOT },
+  {
+    id: CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS,
+    routeRoot: REPORTS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.REPORT_RUNS,
+    routeRoot: REPORTS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+    routeRoot: REPORTS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.KPI_SNAPSHOTS,
+    routeRoot: REPORTS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.ANALYTICS_EVENTS,
+    routeRoot: REPORTS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.CONVERSATIONS,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.MESSAGES,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.TEMPLATES,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.TEMPLATE_VARIABLES,
+    routeRoot: COMMUNICATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.SUBSCRIPTION_PLANS,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.SUBSCRIPTION_INVOICES,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.MODULES,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.MODULE_SUBSCRIPTIONS,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.LICENSES,
+    routeRoot: SUBSCRIPTIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+    routeRoot: INTEGRATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS,
+    routeRoot: INTEGRATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+    allowCreate: false,
+    allowEdit: false,
+    allowDelete: false,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.WEBHOOK_SUBSCRIPTIONS,
+    routeRoot: INTEGRATIONS_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+    routeRoot: COMPLIANCE_ROUTE_ROOT,
+    requiresTenant: true,
+    allowCreate: false,
+    allowEdit: false,
+    allowDelete: false,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS,
+    routeRoot: COMPLIANCE_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS,
+    routeRoot: COMPLIANCE_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS,
+    routeRoot: COMPLIANCE_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS,
+    routeRoot: COMPLIANCE_ROUTE_ROOT,
+    requiresTenant: true,
+  },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+];
+
+Object.assign(
+  resourceConfigs,
+  Object.fromEntries(
+    TIER_10_GENERIC_RESOURCES.map((spec) => [
+      spec.id,
+      buildGenericResourceConfig(spec),
+    ])
+  )
+);
+
 const getClinicalResourceConfig = (resourceId) => resourceConfigs[resourceId] || null;
 
 export {
@@ -8113,6 +8717,7 @@ export {
   BILLING_RESOURCE_LIST_ORDER,
   HR_RESOURCE_LIST_ORDER,
   HOUSEKEEPING_RESOURCE_LIST_ORDER,
+  BIOMEDICAL_RESOURCE_LIST_ORDER,
   REPORTS_RESOURCE_LIST_ORDER,
   COMMUNICATIONS_RESOURCE_LIST_ORDER,
   SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
@@ -8129,6 +8734,7 @@ export {
   BILLING_ROUTE_ROOT,
   HR_ROUTE_ROOT,
   HOUSEKEEPING_ROUTE_ROOT,
+  BIOMEDICAL_ROUTE_ROOT,
   REPORTS_ROUTE_ROOT,
   COMMUNICATIONS_ROUTE_ROOT,
   SUBSCRIPTIONS_ROUTE_ROOT,
