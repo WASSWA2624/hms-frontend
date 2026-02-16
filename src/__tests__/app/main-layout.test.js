@@ -35,6 +35,7 @@ jest.mock('expo-router', () => ({
 
 jest.mock('@navigation/guards', () => ({
   useAuthGuard: jest.fn(() => ({ authenticated: true, user: { id: '1', email: 'test@example.com' } })),
+  useRouteAccessGuard: jest.fn(() => ({ hasAccess: true, isPending: false, errorCode: null })),
 }));
 
 jest.mock('@platform/layouts', () => {

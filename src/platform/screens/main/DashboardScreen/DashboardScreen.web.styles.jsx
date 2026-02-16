@@ -5,346 +5,378 @@
  */
 import styled from 'styled-components';
 
-const getTablet = (theme) => theme.breakpoints?.tablet;
-const getDesktop = (theme) => theme.breakpoints?.desktop;
+const getTablet = (theme) => theme.breakpoints?.tablet || 768;
+const getDesktop = (theme) => theme.breakpoints?.desktop || 1200;
 
 const StyledHomeContainer = styled.main.withConfig({
   displayName: 'StyledHomeContainer',
-  componentId: 'DashboardScreen_StyledHomeContainer',
+  componentId: 'DashboardScreenWeb_StyledHomeContainer',
 })`
   display: flex;
   flex-direction: column;
   width: 100%;
   min-height: 100%;
-  background-color: ${({ theme }) => theme.colors.background.primary};
-  padding-right: 0;
-  box-sizing: border-box;
+  background: ${({ theme }) => theme.colors?.background?.primary || '#f7fafc'};
 `;
 
 const StyledContent = styled.div.withConfig({
   displayName: 'StyledContent',
-  componentId: 'DashboardScreen_StyledContent',
+  componentId: 'DashboardScreenWeb_StyledContent',
 })`
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.lg ?? 24}px;
   width: 100%;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
-`;
-
-const StyledWelcomeSection = styled.section.withConfig({
-  displayName: 'StyledWelcomeSection',
-  componentId: 'DashboardScreen_StyledWelcomeSection',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledWelcomeMessage = styled.div.withConfig({
-  displayName: 'StyledWelcomeMessage',
-  componentId: 'DashboardScreen_StyledWelcomeMessage',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const StyledWelcomeMeta = styled.div.withConfig({
-  displayName: 'StyledWelcomeMeta',
-  componentId: 'DashboardScreen_StyledWelcomeMeta',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const StyledHeroPanel = styled.div.withConfig({
-  displayName: 'StyledHeroPanel',
-  componentId: 'DashboardScreen_StyledHeroPanel',
-})`
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.background.primary} 0%, ${({ theme }) => theme.colors.background.secondary} 100%);
-  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  padding: ${({ theme }) => theme.spacing.lg}px;
-`;
-
-const StyledBadgeRow = styled.div.withConfig({
-  displayName: 'StyledBadgeRow',
-  componentId: 'DashboardScreen_StyledBadgeRow',
-})`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledSection = styled.section.withConfig({
   displayName: 'StyledSection',
-  componentId: 'DashboardScreen_StyledSection',
+  componentId: 'DashboardScreenWeb_StyledSection',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
 `;
 
 const StyledSectionHeader = styled.div.withConfig({
   displayName: 'StyledSectionHeader',
-  componentId: 'DashboardScreen_StyledSectionHeader',
+  componentId: 'DashboardScreenWeb_StyledSectionHeader',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    flex-direction: row;
     align-items: center;
+    flex-direction: row;
     justify-content: space-between;
   }
 `;
 
 const StyledSectionTitleGroup = styled.div.withConfig({
   displayName: 'StyledSectionTitleGroup',
-  componentId: 'DashboardScreen_StyledSectionTitleGroup',
+  componentId: 'DashboardScreenWeb_StyledSectionTitleGroup',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
 `;
 
 const StyledSectionMeta = styled.div.withConfig({
   displayName: 'StyledSectionMeta',
-  componentId: 'DashboardScreen_StyledSectionMeta',
+  componentId: 'DashboardScreenWeb_StyledSectionMeta',
 })`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  color: ${({ theme }) => theme.colors?.text?.secondary || '#64748b'};
 `;
 
 const StyledSectionBody = styled.div.withConfig({
   displayName: 'StyledSectionBody',
-  componentId: 'DashboardScreen_StyledSectionBody',
+  componentId: 'DashboardScreenWeb_StyledSectionBody',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
 `;
 
-const StyledStatusStrip = styled.div.withConfig({
-  displayName: 'StyledStatusStrip',
-  componentId: 'DashboardScreen_StyledStatusStrip',
+const StyledHeroPanel = styled.div.withConfig({
+  displayName: 'StyledHeroPanel',
+  componentId: 'DashboardScreenWeb_StyledHeroPanel',
 })`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors?.background?.tertiary || '#e2e8f0'};
+  border-radius: ${({ theme }) => theme.radius?.lg ?? 16}px;
+  padding: ${({ theme }) => theme.spacing?.lg ?? 24}px;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.16), transparent 54%),
+    linear-gradient(
+      135deg,
+      ${({ theme }) => theme.colors?.background?.primary || '#ffffff'} 0%,
+      ${({ theme }) => theme.colors?.background?.secondary || '#f8fafc'} 100%
+    );
 `;
 
-const StyledQuickActions = styled.div.withConfig({
-  displayName: 'StyledQuickActions',
-  componentId: 'DashboardScreen_StyledQuickActions',
+const StyledWelcomeSection = styled.div.withConfig({
+  displayName: 'StyledWelcomeSection',
+  componentId: 'DashboardScreenWeb_StyledWelcomeSection',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.md ?? 16}px;
+`;
+
+const StyledWelcomeMessage = styled.div.withConfig({
+  displayName: 'StyledWelcomeMessage',
+  componentId: 'DashboardScreenWeb_StyledWelcomeMessage',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+`;
+
+const StyledWelcomeMeta = styled.div.withConfig({
+  displayName: 'StyledWelcomeMeta',
+  componentId: 'DashboardScreenWeb_StyledWelcomeMeta',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+  color: ${({ theme }) => theme.colors?.text?.secondary || '#64748b'};
+`;
+
+const StyledBadgeRow = styled.div.withConfig({
+  displayName: 'StyledBadgeRow',
+  componentId: 'DashboardScreenWeb_StyledBadgeRow',
 })`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
 `;
 
-const StyledChecklist = styled.ul.withConfig({
-  displayName: 'StyledChecklist',
-  componentId: 'DashboardScreen_StyledChecklist',
+const StyledSummaryGrid = styled.div.withConfig({
+  displayName: 'StyledSummaryGrid',
+  componentId: 'DashboardScreenWeb_StyledSummaryGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+`;
+
+const StyledStatCardContent = styled.div.withConfig({
+  displayName: 'StyledStatCardContent',
+  componentId: 'DashboardScreenWeb_StyledStatCardContent',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+`;
+
+const StyledStatValueRow = styled.div.withConfig({
+  displayName: 'StyledStatValueRow',
+  componentId: 'DashboardScreenWeb_StyledStatValueRow',
+})`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+`;
+
+const StyledAnalyticsGrid = styled.div.withConfig({
+  displayName: 'StyledAnalyticsGrid',
+  componentId: 'DashboardScreenWeb_StyledAnalyticsGrid',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing?.md ?? 16}px;
+
+  @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+const StyledTrendChart = styled.div.withConfig({
+  displayName: 'StyledTrendChart',
+  componentId: 'DashboardScreenWeb_StyledTrendChart',
+})`
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  min-height: 220px;
+`;
+
+const StyledTrendColumn = styled.div.withConfig({
+  displayName: 'StyledTrendColumn',
+  componentId: 'DashboardScreenWeb_StyledTrendColumn',
+})`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  min-width: 0;
+`;
+
+const StyledTrendBarTrack = styled.div.withConfig({
+  displayName: 'StyledTrendBarTrack',
+  componentId: 'DashboardScreenWeb_StyledTrendBarTrack',
+})`
+  width: 100%;
+  max-width: 44px;
+  height: 144px;
+  border-radius: ${({ theme }) => theme.radius?.md ?? 12}px;
+  border: 1px solid ${({ theme }) => theme.colors?.background?.tertiary || '#e2e8f0'};
+  background: ${({ theme }) => theme.colors?.background?.secondary || '#f1f5f9'};
+  display: flex;
+  align-items: flex-end;
+  padding: 3px;
+  box-sizing: border-box;
+`;
+
+const StyledTrendBarFill = styled.div.withConfig({
+  displayName: 'StyledTrendBarFill',
+  componentId: 'DashboardScreenWeb_StyledTrendBarFill',
+})`
+  width: 100%;
+  height: ${({ $height }) => `${$height}%`};
+  min-height: ${({ $height }) => ($height > 0 ? '6px' : '0')};
+  border-radius: ${({ theme }) => theme.radius?.sm ?? 8}px;
+  background: linear-gradient(180deg, #2563eb 0%, #0d9488 100%);
+`;
+
+const StyledTrendMeta = styled.div.withConfig({
+  displayName: 'StyledTrendMeta',
+  componentId: 'DashboardScreenWeb_StyledTrendMeta',
+})`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+`;
+
+const StyledDonutLayout = styled.div.withConfig({
+  displayName: 'StyledDonutLayout',
+  componentId: 'DashboardScreenWeb_StyledDonutLayout',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing?.md ?? 16}px;
+  align-items: center;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+`;
+
+const StyledDonut = styled.div.withConfig({
+  displayName: 'StyledDonut',
+  componentId: 'DashboardScreenWeb_StyledDonut',
+})`
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: ${({ $gradient }) => $gradient};
+  position: relative;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+`;
+
+const StyledDonutCenter = styled.div.withConfig({
+  displayName: 'StyledDonutCenter',
+  componentId: 'DashboardScreenWeb_StyledDonutCenter',
+})`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors?.background?.primary || '#ffffff'};
+  border: 1px solid ${({ theme }) => theme.colors?.background?.tertiary || '#e2e8f0'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  box-sizing: border-box;
+`;
+
+const StyledLegendList = styled.ul.withConfig({
+  displayName: 'StyledLegendList',
+  componentId: 'DashboardScreenWeb_StyledLegendList',
 })`
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
 `;
 
-const StyledChecklistItemContent = styled.div.withConfig({
-  displayName: 'StyledChecklistItemContent',
-  componentId: 'DashboardScreen_StyledChecklistItemContent',
+const StyledLegendItem = styled.li.withConfig({
+  displayName: 'StyledLegendItem',
+  componentId: 'DashboardScreenWeb_StyledLegendItem',
 })`
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
   min-width: 0;
 `;
 
-const StyledChecklistFooter = styled.div.withConfig({
-  displayName: 'StyledChecklistFooter',
-  componentId: 'DashboardScreen_StyledChecklistFooter',
+const StyledLegendLabel = styled.div.withConfig({
+  displayName: 'StyledLegendLabel',
+  componentId: 'DashboardScreenWeb_StyledLegendLabel',
 })`
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  min-width: 0;
 `;
 
-const StyledStatGrid = styled.div.withConfig({
-  displayName: 'StyledStatGrid',
-  componentId: 'DashboardScreen_StyledStatGrid',
+const StyledLegendSwatch = styled.span.withConfig({
+  displayName: 'StyledLegendSwatch',
+  componentId: 'DashboardScreenWeb_StyledLegendSwatch',
+})`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${({ $color }) => $color || '#94a3b8'};
+  flex: 0 0 auto;
+`;
+
+const StyledHighlightGrid = styled.div.withConfig({
+  displayName: 'StyledHighlightGrid',
+  componentId: 'DashboardScreenWeb_StyledHighlightGrid',
 })`
   display: grid;
   grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-`;
-
-const StyledValueGrid = styled.div.withConfig({
-  displayName: 'StyledValueGrid',
-  componentId: 'DashboardScreen_StyledValueGrid',
-})`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledModuleGrid = styled.div.withConfig({
-  displayName: 'StyledModuleGrid',
-  componentId: 'DashboardScreen_StyledModuleGrid',
-})`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.md}px;
-
-  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 `;
 
-const StyledPlanRow = styled.div.withConfig({
-  displayName: 'StyledPlanRow',
-  componentId: 'DashboardScreen_StyledPlanRow',
-})`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.md}px;
-  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledPlanActions = styled.div.withConfig({
-  displayName: 'StyledPlanActions',
-  componentId: 'DashboardScreen_StyledPlanActions',
-})`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledActivityMeta = styled.div.withConfig({
-  displayName: 'StyledActivityMeta',
-  componentId: 'DashboardScreen_StyledActivityMeta',
-})`
-  color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const StyledHelpGrid = styled.div.withConfig({
-  displayName: 'StyledHelpGrid',
-  componentId: 'DashboardScreen_StyledHelpGrid',
-})`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.md}px;
-
-  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-`;
-
-const StyledCardWrapper = styled.div.withConfig({
-  displayName: 'StyledCardWrapper',
-  componentId: 'DashboardScreen_StyledCardWrapper',
-})`
-  height: 100%;
-`;
-
-const StyledStatCardContent = styled.div.withConfig({
-  displayName: 'StyledStatCardContent',
-  componentId: 'DashboardScreen_StyledStatCardContent',
+const StyledHighlightCard = styled.div.withConfig({
+  displayName: 'StyledHighlightCard',
+  componentId: 'DashboardScreenWeb_StyledHighlightCard',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledStatValueRow = styled.div.withConfig({
-  displayName: 'StyledStatValueRow',
-  componentId: 'DashboardScreen_StyledStatValueRow',
-})`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledCapacityList = styled.div.withConfig({
-  displayName: 'StyledCapacityList',
-  componentId: 'DashboardScreen_StyledCapacityList',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledCapacityItem = styled.div.withConfig({
-  displayName: 'StyledCapacityItem',
-  componentId: 'DashboardScreen_StyledCapacityItem',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const StyledCapacityHeader = styled.div.withConfig({
-  displayName: 'StyledCapacityHeader',
-  componentId: 'DashboardScreen_StyledCapacityHeader',
-})`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
+  border: 1px solid ${({ theme }) => theme.colors?.background?.tertiary || '#e2e8f0'};
+  border-radius: ${({ theme }) => theme.radius?.md ?? 12}px;
+  padding: ${({ theme }) => theme.spacing?.md ?? 16}px;
+  background: ${({ theme }) => theme.colors?.background?.secondary || '#f8fafc'};
 `;
 
 const StyledSectionGrid = styled.div.withConfig({
   displayName: 'StyledSectionGrid',
-  componentId: 'DashboardScreen_StyledSectionGrid',
+  componentId: 'DashboardScreenWeb_StyledSectionGrid',
 })`
   display: grid;
   grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing?.md ?? 16}px;
 
   @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
-const StyledCardHeaderContent = styled.div.withConfig({
-  displayName: 'StyledCardHeaderContent',
-  componentId: 'DashboardScreen_StyledCardHeaderContent',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-`;
-
 const StyledList = styled.ul.withConfig({
   displayName: 'StyledList',
-  componentId: 'DashboardScreen_StyledList',
+  componentId: 'DashboardScreenWeb_StyledList',
 })`
   list-style: none;
   margin: 0;
@@ -355,111 +387,148 @@ const StyledList = styled.ul.withConfig({
 
 const StyledListItem = styled.li.withConfig({
   displayName: 'StyledListItem',
-  componentId: 'DashboardScreen_StyledListItem',
+  componentId: 'DashboardScreenWeb_StyledListItem',
 })`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  padding: ${({ theme }) => theme.spacing.xs}px 0;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+  padding: ${({ theme }) => theme.spacing?.sm ?? 12}px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors?.background?.tertiary || '#e2e8f0'};
 
   &:last-child {
     border-bottom: none;
+    padding-bottom: 0;
   }
 `;
 
 const StyledListItemContent = styled.div.withConfig({
   displayName: 'StyledListItemContent',
-  componentId: 'DashboardScreen_StyledListItemContent',
+  componentId: 'DashboardScreenWeb_StyledListItemContent',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: 4px;
   min-width: 0;
 `;
 
 const StyledListItemMeta = styled.div.withConfig({
   displayName: 'StyledListItemMeta',
-  componentId: 'DashboardScreen_StyledListItemMeta',
+  componentId: 'DashboardScreenWeb_StyledListItemMeta',
 })`
-  color: ${({ theme }) => theme.colors.text.secondary};
+  color: ${({ theme }) => theme.colors?.text?.secondary || '#64748b'};
+`;
+
+const StyledActivityMeta = styled.div.withConfig({
+  displayName: 'StyledActivityMeta',
+  componentId: 'DashboardScreenWeb_StyledActivityMeta',
+})`
+  color: ${({ theme }) => theme.colors?.text?.secondary || '#64748b'};
+  white-space: nowrap;
+`;
+
+const StyledQuickActions = styled.div.withConfig({
+  displayName: 'StyledQuickActions',
+  componentId: 'DashboardScreenWeb_StyledQuickActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+`;
+
+const StyledCardHeaderContent = styled.div.withConfig({
+  displayName: 'StyledCardHeaderContent',
+  componentId: 'DashboardScreenWeb_StyledCardHeaderContent',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing?.xs ?? 8}px;
 `;
 
 const StyledStateWrapper = styled.div.withConfig({
   displayName: 'StyledStateWrapper',
-  componentId: 'DashboardScreen_StyledStateWrapper',
+  componentId: 'DashboardScreenWeb_StyledStateWrapper',
 })`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing.xl}px 0;
+  padding: ${({ theme }) => theme.spacing?.xl ?? 32}px 0;
 `;
 
 const StyledLoadingGrid = styled.div.withConfig({
   displayName: 'StyledLoadingGrid',
-  componentId: 'DashboardScreen_StyledLoadingGrid',
+  componentId: 'DashboardScreenWeb_StyledLoadingGrid',
 })`
   display: grid;
-  grid-template-columns: 1fr;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (min-width: ${({ theme }) => getDesktop(theme)}px) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 `;
 
 const StyledLoadingBlock = styled.div.withConfig({
   displayName: 'StyledLoadingBlock',
-  componentId: 'DashboardScreen_StyledLoadingBlock',
+  componentId: 'DashboardScreenWeb_StyledLoadingBlock',
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing?.sm ?? 12}px;
+`;
+
+const StyledCardWrapper = styled.div.withConfig({
+  displayName: 'StyledCardWrapper',
+  componentId: 'DashboardScreenWeb_StyledCardWrapper',
+})`
+  height: 100%;
 `;
 
 export {
   StyledHomeContainer,
   StyledContent,
-  StyledWelcomeSection,
-  StyledWelcomeMessage,
-  StyledWelcomeMeta,
-  StyledHeroPanel,
-  StyledBadgeRow,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitleGroup,
   StyledSectionMeta,
   StyledSectionBody,
-  StyledStatusStrip,
-  StyledQuickActions,
-  StyledChecklist,
-  StyledChecklistItemContent,
-  StyledChecklistFooter,
-  StyledStatGrid,
-  StyledValueGrid,
-  StyledModuleGrid,
-  StyledPlanRow,
-  StyledPlanActions,
-  StyledActivityMeta,
-  StyledHelpGrid,
-  StyledCardWrapper,
+  StyledHeroPanel,
+  StyledWelcomeSection,
+  StyledWelcomeMessage,
+  StyledWelcomeMeta,
+  StyledBadgeRow,
+  StyledSummaryGrid,
   StyledStatCardContent,
   StyledStatValueRow,
-  StyledCapacityList,
-  StyledCapacityItem,
-  StyledCapacityHeader,
+  StyledAnalyticsGrid,
+  StyledTrendChart,
+  StyledTrendColumn,
+  StyledTrendBarTrack,
+  StyledTrendBarFill,
+  StyledTrendMeta,
+  StyledDonutLayout,
+  StyledDonut,
+  StyledDonutCenter,
+  StyledLegendList,
+  StyledLegendItem,
+  StyledLegendLabel,
+  StyledLegendSwatch,
+  StyledHighlightGrid,
+  StyledHighlightCard,
   StyledSectionGrid,
-  StyledCardHeaderContent,
   StyledList,
   StyledListItem,
   StyledListItemContent,
   StyledListItemMeta,
+  StyledActivityMeta,
+  StyledQuickActions,
+  StyledCardHeaderContent,
   StyledStateWrapper,
   StyledLoadingGrid,
   StyledLoadingBlock,
+  StyledCardWrapper,
 };

@@ -4,3 +4,6 @@ Tier prompt files:
 - `14_01_locale-foundation-and-coverage.mdc`
 - `14_02_locale-validation-and-backend-parity.mdc`
 
+Cross-cutting mandatory contract in tier prompts:
+- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+

@@ -786,6 +786,11 @@
       "footer": {
         "title": "Footer visibility",
         "description": "Show or hide the footer in desktop layouts."
+      },
+      "access": {
+        "title": "Accessible settings",
+        "description": "Only settings available to your role and enabled features are listed here.",
+        "empty": "No settings are available for your current access level."
       }
     },
     "theme": {

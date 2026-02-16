@@ -142,3 +142,69 @@ export const StyledCardBody = styled.div.withConfig({
   gap: ${({ theme }) => theme?.spacing?.md ?? 16}px;
   align-items: flex-start;
 `;
+
+export const StyledAccessGroupGrid = styled.div.withConfig({
+  displayName: 'StyledAccessGroupGrid',
+  componentId: 'GeneralSettingsPanel_StyledAccessGroupGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: ${({ theme }) => theme?.spacing?.md ?? 16}px;
+`;
+
+export const StyledAccessGroupCard = styled.div.withConfig({
+  displayName: 'StyledAccessGroupCard',
+  componentId: 'GeneralSettingsPanel_StyledAccessGroupCard',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme?.spacing?.sm ?? 12}px;
+  padding: ${({ theme }) => theme?.spacing?.md ?? 16}px;
+  border: 1px solid ${({ theme }) => theme?.colors?.border?.light ?? '#e5e5ea'};
+  border-radius: ${({ theme }) => theme?.radius?.md ?? 8}px;
+  background-color: ${({ theme }) => theme?.colors?.background?.secondary ?? '#f2f2f7'};
+`;
+
+export const StyledAccessGroupTitle = styled.h3.withConfig({
+  displayName: 'StyledAccessGroupTitle',
+  componentId: 'GeneralSettingsPanel_StyledAccessGroupTitle',
+})`
+  margin: 0;
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.md ?? 16}px;
+  font-weight: ${({ theme }) => theme?.typography?.fontWeight?.semibold ?? 600};
+  color: ${({ theme }) => theme?.colors?.text?.primary ?? '#000'};
+`;
+
+export const StyledAccessLinkList = styled.div.withConfig({
+  displayName: 'StyledAccessLinkList',
+  componentId: 'GeneralSettingsPanel_StyledAccessLinkList',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme?.spacing?.xs ?? 8}px;
+`;
+
+export const StyledAccessLinkButton = styled.button.withConfig({
+  displayName: 'StyledAccessLinkButton',
+  componentId: 'GeneralSettingsPanel_StyledAccessLinkButton',
+})`
+  border: 1px solid ${({ theme, $active }) =>
+    $active ? theme?.colors?.border?.strong ?? '#0078d4' : theme?.colors?.border?.light ?? '#d1d1d6'};
+  background-color: ${({ theme, $active }) =>
+    $active ? theme?.colors?.background?.primary ?? '#fff' : theme?.colors?.background?.surface ?? '#fff'};
+  color: ${({ theme }) => theme?.colors?.text?.primary ?? '#000'};
+  border-radius: ${({ theme }) => theme?.radius?.sm ?? 6}px;
+  padding: ${({ theme }) => (theme?.spacing?.xs ?? 8) / 1.5}px ${({ theme }) => theme?.spacing?.sm ?? 12}px;
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.sm ?? 14}px;
+  line-height: 1.3;
+  cursor: pointer;
+
+  &:hover {
+    border-color: ${({ theme }) => theme?.colors?.border?.strong ?? '#0078d4'};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme?.colors?.border?.strong ?? '#0078d4'};
+    outline-offset: 1px;
+  }
+`;

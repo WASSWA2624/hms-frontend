@@ -179,7 +179,13 @@ const SETTINGS_ITEMS = [
     name: `${MAIN_NAV_I18N}.settings-contacts`,
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
   },
-  { id: 'settings-departments', icon: 'folder-outline', path: '/settings/departments', name: `${MAIN_NAV_I18N}.settings-departments` },
+  {
+    id: 'settings-departments',
+    icon: 'folder-outline',
+    path: '/settings/departments',
+    name: `${MAIN_NAV_I18N}.settings-departments`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   {
     id: 'settings-facilities',
     icon: 'business-outline',
@@ -208,8 +214,20 @@ const SETTINGS_ITEMS = [
     name: `${MAIN_NAV_I18N}.settings-role-permissions`,
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
   },
-  { id: 'settings-roles', icon: 'people-outline', path: '/settings/roles', name: `${MAIN_NAV_I18N}.settings-roles` },
-  { id: 'settings-rooms', icon: 'home-outline', path: '/settings/rooms', name: `${MAIN_NAV_I18N}.settings-rooms` },
+  {
+    id: 'settings-roles',
+    icon: 'people-outline',
+    path: '/settings/roles',
+    name: `${MAIN_NAV_I18N}.settings-roles`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
+  {
+    id: 'settings-rooms',
+    icon: 'home-outline',
+    path: '/settings/rooms',
+    name: `${MAIN_NAV_I18N}.settings-rooms`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
   {
     id: 'settings-tenants',
     icon: 'layers-outline',
@@ -259,7 +277,13 @@ const SETTINGS_ITEMS = [
     name: `${MAIN_NAV_I18N}.settings-users`,
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
   },
-  { id: 'settings-wards', icon: 'medkit-outline', path: '/settings/wards', name: `${MAIN_NAV_I18N}.settings-wards` },
+  {
+    id: 'settings-wards',
+    icon: 'medkit-outline',
+    path: '/settings/wards',
+    name: `${MAIN_NAV_I18N}.settings-wards`,
+    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+  },
 ];
 
 /** @type {MainNavChild[]} */

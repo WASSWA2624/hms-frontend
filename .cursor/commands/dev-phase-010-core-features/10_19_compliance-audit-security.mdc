@@ -38,6 +38,18 @@ For any selected step that touches UI (components, screens, layouts, route prese
 
 ---
 
+## Role-Based Visibility and Access Enforcement Contract (Mandatory)
+
+For any selected step that touches auth, routing, navigation, data access, or UI:
+- Users must never see or execute anything outside their role and permission scope.
+- Enforce access at multiple layers: menu item visibility, route/screen guards, section-level rendering, component-level rendering, and action/function-level handlers.
+- Hide unauthorized menu items, tabs, widgets, buttons, fields, cards, and screen sections by default; do not expose privileged controls unless explicitly required by approved requirements.
+- Block unauthorized function/action execution even when UI is bypassed (direct URL entry, deep links, state tampering, manual event triggering).
+- Use a single source of truth for access checks across web, Android, and iOS to prevent behavior drift.
+- Provide deterministic denied-access UX (safe redirect, read-only fallback, or localized permission message) without leaking sensitive details.
+- Add/update tests that verify all protected layers: menu visibility, route guards, screen/section/component rendering, and denied function/action paths.
+---
+
 ## Rule Loading Contract (Mandatory)
 
 Before coding, read and apply:

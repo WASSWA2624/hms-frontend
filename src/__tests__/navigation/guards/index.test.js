@@ -17,6 +17,8 @@ import {
   useAuthGuard,
   useRoleGuard,
   ROLE_GUARD_ERRORS,
+  useRouteAccessGuard,
+  ROUTE_ACCESS_GUARD_ERRORS,
 } from '@navigation/guards';
 
 describe('Step 7.11: Guard Infrastructure', () => {
@@ -44,6 +46,10 @@ describe('Step 7.11: Guard Infrastructure', () => {
       expect(typeof useRoleGuard).toBe('function');
     });
 
+    it('should export useRouteAccessGuard hook', () => {
+      expect(typeof useRouteAccessGuard).toBe('function');
+    });
+
     it('should export ROLE_GUARD_ERRORS constants', () => {
       expect(ROLE_GUARD_ERRORS).toBeDefined();
       expect(typeof ROLE_GUARD_ERRORS).toBe('object');
@@ -52,13 +58,21 @@ describe('Step 7.11: Guard Infrastructure', () => {
       expect(ROLE_GUARD_ERRORS.INSUFFICIENT_ROLE).toBe('INSUFFICIENT_ROLE');
     });
 
+    it('should export ROUTE_ACCESS_GUARD_ERRORS constants', () => {
+      expect(ROUTE_ACCESS_GUARD_ERRORS).toBeDefined();
+      expect(typeof ROUTE_ACCESS_GUARD_ERRORS).toBe('object');
+      expect(ROUTE_ACCESS_GUARD_ERRORS.ACCESS_DENIED).toBe('ACCESS_DENIED');
+    });
+
     it('should allow importing from @navigation/guards alias', () => {
       // Verify that the alias resolves correctly
       // This test verifies the imports at the top of the file work correctly
       // The imports are already tested above, this confirms alias resolution
       expect(useAuthGuard).toBeDefined();
       expect(useRoleGuard).toBeDefined();
+      expect(useRouteAccessGuard).toBeDefined();
       expect(ROLE_GUARD_ERRORS).toBeDefined();
+      expect(ROUTE_ACCESS_GUARD_ERRORS).toBeDefined();
     });
   });
 });

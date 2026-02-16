@@ -17,5 +17,6 @@ Global UX baseline now enforced in each tier prompt:
 - Mobile parity and compact UX contract.
 - Novice-first UX and navigation contract.
 - Strict role- and permission-based visibility, contextual in-app help, chronological flow guidance, and space-efficient reusable UI requirements.
+- Strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
 - User-friendly errors and recovery contract with actionable guidance and non-technical messaging.
 - Interconnected functionality coordination contract to enforce end-to-end consistency across linked screens and modules.

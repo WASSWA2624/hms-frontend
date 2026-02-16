@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { useAuthGuard } from '@navigation/guards';
+import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
 import { MainRouteLayout } from '@platform/layouts';
 
 /**
@@ -26,6 +26,8 @@ import { MainRouteLayout } from '@platform/layouts';
  */
 function MainGroupLayout() {
   useAuthGuard();
+  const { hasAccess, isPending } = useRouteAccessGuard();
+  if (isPending || !hasAccess) return null;
   return <MainRouteLayout />;
 }
 

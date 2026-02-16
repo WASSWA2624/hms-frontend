@@ -10,3 +10,6 @@ Tier prompt files:
 - `12_07_roster-automation-and-governance.mdc`
 - `12_08_biomedical-engineering-suite.mdc`
 
+Cross-cutting mandatory contract in tier prompts:
+- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+

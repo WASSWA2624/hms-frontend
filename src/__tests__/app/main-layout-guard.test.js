@@ -1,10 +1,11 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import MainLayout from '@app/(main)/_layout';
-import { useAuthGuard } from '@navigation/guards';
+import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
 
 jest.mock('@navigation/guards', () => ({
   useAuthGuard: jest.fn(),
+  useRouteAccessGuard: jest.fn(),
 }));
 
 jest.mock('@platform/layouts', () => ({
@@ -21,6 +22,11 @@ describe('MainLayout with Auth Guard', () => {
       authenticated: true,
       user: { id: '1', email: 'test@example.com' },
     });
+    useRouteAccessGuard.mockReturnValue({
+      hasAccess: true,
+      isPending: false,
+      errorCode: null,
+    });
   });
 
   test('renders main route layout for authenticated users', () => {
@@ -31,11 +37,13 @@ describe('MainLayout with Auth Guard', () => {
   test('invokes auth guard on render', () => {
     render(<MainLayout />);
     expect(useAuthGuard).toHaveBeenCalledTimes(1);
+    expect(useRouteAccessGuard).toHaveBeenCalledTimes(1);
   });
 
   test('invokes auth guard with default options (login redirect handled in hook)', () => {
     render(<MainLayout />);
     expect(useAuthGuard).toHaveBeenCalledWith();
+    expect(useRouteAccessGuard).toHaveBeenCalledWith();
   });
 
   test('remains stable when unauthenticated', () => {
@@ -43,10 +51,16 @@ describe('MainLayout with Auth Guard', () => {
       authenticated: false,
       user: null,
     });
+    useRouteAccessGuard.mockReturnValue({
+      hasAccess: false,
+      isPending: false,
+      errorCode: 'ACCESS_DENIED',
+    });
 
-    const { getByTestId } = render(<MainLayout />);
-    expect(getByTestId('main-route-layout')).toBeTruthy();
+    const { queryByTestId } = render(<MainLayout />);
+    expect(queryByTestId('main-route-layout')).toBeNull();
     expect(useAuthGuard).toHaveBeenCalledTimes(1);
+    expect(useRouteAccessGuard).toHaveBeenCalledTimes(1);
   });
 });
 

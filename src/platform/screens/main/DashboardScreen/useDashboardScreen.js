@@ -5,10 +5,16 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth, useNavigationVisibility } from '@hooks';
+import { useAuth, useNavigationVisibility, useNetwork } from '@hooks';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { STATES } from './types';
+import {
+  buildDashboardLiveData,
+  collectUserRoleKeys,
+  createEmptyDashboardData,
+  resolveRoleProfile,
+} from './dashboardLiveData';
 
 const SUMMARY_CARDS = [
   { id: 'patients', labelKey: 'home.summary.patientsToday', value: 128, delta: 12 },
@@ -266,37 +272,43 @@ const QUICK_ACTIONS = [
     id: 'newPatient',
     labelKey: 'home.quickActions.items.newPatient',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
-    supported: false,
+    supported: true,
+    path: '/patients/patients/create',
   },
   {
     id: 'appointment',
     labelKey: 'home.quickActions.items.appointment',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'RECEPTIONIST'],
-    supported: false,
+    supported: true,
+    path: '/scheduling/appointments/create',
   },
   {
     id: 'invoice',
     labelKey: 'home.quickActions.items.invoice',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'CASHIER', 'BILLING'],
-    supported: false,
+    supported: true,
+    path: '/billing/invoices/create',
   },
   {
     id: 'admit',
     labelKey: 'home.quickActions.items.admit',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
-    supported: false,
+    supported: true,
+    path: '/ipd/admissions/create',
   },
   {
     id: 'labTest',
     labelKey: 'home.quickActions.items.labTest',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'LAB_TECH'],
-    supported: false,
+    supported: true,
+    path: '/diagnostics/lab/lab-orders/create',
   },
   {
     id: 'sale',
     labelKey: 'home.quickActions.items.sale',
     roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'PHARMACIST', 'CASHIER'],
-    supported: false,
+    supported: true,
+    path: '/pharmacy/pharmacy-orders/create',
   },
 ];
 
@@ -552,6 +564,9 @@ const toActionAccessItem = (roles) => ({
   roles: Array.isArray(roles) ? roles : [],
 });
 
+const DEFAULT_ROLE_PROFILE = resolveRoleProfile({ roleKeys: [] });
+const REFRESH_INTERVAL_MS = 60 * 1000;
+
 /**
  * DashboardScreen hook
  * @returns {Object} Hook return object
@@ -560,6 +575,7 @@ const useDashboardScreen = () => {
   const router = useRouter();
   const { user, isAuthenticated, loadCurrentUser, logout } = useAuth();
   const { isItemVisible } = useNavigationVisibility();
+  const { isOffline } = useNetwork();
   const dashboardNavItem = useMemo(
     () => MAIN_NAV_ITEMS.find((item) => item?.id === 'dashboard') || null,
     []
@@ -573,21 +589,26 @@ const useDashboardScreen = () => {
   const [registrationContext, setRegistrationContext] = useState(null);
   const [isHydrating, setIsHydrating] = useState(true);
   const [screenState, setScreenState] = useState(STATES.LOADING);
+  const [dashboardRole, setDashboardRole] = useState(DEFAULT_ROLE_PROFILE);
+  const [liveDashboard, setLiveDashboard] = useState(() => createEmptyDashboardData(DEFAULT_ROLE_PROFILE));
   const [lastUpdated, setLastUpdated] = useState(() => new Date());
 
-  const hydrateDashboard = useCallback(async () => {
+  const hydrateDashboard = useCallback(async ({ silent = false } = {}) => {
     if (!isAuthenticated) {
-      setIsHydrating(false);
+      if (!silent) setIsHydrating(false);
       return;
     }
     if (!canAccessDashboard) {
-      setIsHydrating(false);
+      if (!silent) setIsHydrating(false);
       router.replace('/login');
       return;
     }
 
-    setIsHydrating(true);
-    setScreenState(STATES.LOADING);
+    if (!silent) {
+      setIsHydrating(true);
+      setScreenState(STATES.LOADING);
+    }
+
     try {
       let effectiveUser = user || null;
       if (!effectiveUser) {
@@ -600,27 +621,53 @@ const useDashboardScreen = () => {
             router.replace('/login');
             return;
           }
-          setScreenState(STATES.ERROR);
+          if (!silent) setScreenState(STATES.ERROR);
           return;
         }
         effectiveUser = loadAction.payload;
       }
 
       const context = await readRegistrationContext();
+      const resolvedFacilityType =
+        effectiveUser?.facility?.facility_type || context?.facility_type || '';
+      const roleKeys = collectUserRoleKeys(effectiveUser);
+      const roleProfile = resolveRoleProfile({ roleKeys, facilityType: resolvedFacilityType });
+
+      let liveData = createEmptyDashboardData(roleProfile);
+      try {
+        liveData = await buildDashboardLiveData({ roleProfile });
+      } catch {
+        liveData = createEmptyDashboardData(roleProfile);
+      }
+
       setRegistrationContext(context);
       setResolvedUser(effectiveUser);
+      setDashboardRole(roleProfile);
+      setLiveDashboard(liveData);
       setLastUpdated(new Date());
       setScreenState(STATES.IDLE);
     } catch {
-      setScreenState(STATES.ERROR);
+      if (!silent) setScreenState(STATES.ERROR);
     } finally {
-      setIsHydrating(false);
+      if (!silent) setIsHydrating(false);
     }
   }, [canAccessDashboard, isAuthenticated, loadCurrentUser, logout, router, user]);
 
   useEffect(() => {
     hydrateDashboard();
   }, [hydrateDashboard]);
+
+  const shouldAutoRefresh = process.env.NODE_ENV !== 'test';
+
+  useEffect(() => {
+    if (!shouldAutoRefresh || !isAuthenticated || !canAccessDashboard) return undefined;
+
+    const intervalId = setInterval(() => {
+      hydrateDashboard({ silent: true });
+    }, REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [canAccessDashboard, hydrateDashboard, isAuthenticated, shouldAutoRefresh]);
 
   const effectiveUser = resolvedUser || user || null;
 
@@ -645,26 +692,20 @@ const useDashboardScreen = () => {
 
   const quickActions = useMemo(
     () =>
-      QUICK_ACTIONS.map((item) => {
-        const hasRoleAccess = isItemVisible(toActionAccessItem(item.roles));
-        const isEnabled = hasRoleAccess && Boolean(item.supported);
-        return {
-          ...item,
-          isEnabled,
-          blockedReasonKey: hasRoleAccess
-            ? item.supported
-              ? ''
-              : 'home.quickActions.blocked.unavailable'
-            : 'home.quickActions.blocked.access',
-        };
-      }),
+      QUICK_ACTIONS.filter((item) => isItemVisible(toActionAccessItem(item.roles))).map((item) => ({
+        ...item,
+        isEnabled: Boolean(item.supported),
+        blockedReasonKey: item.supported ? '' : 'home.quickActions.blocked.unavailable',
+      })),
     [isItemVisible]
   );
 
   const handleQuickAction = useCallback((action) => {
     if (!action?.isEnabled) return false;
-    return false;
-  }, []);
+    if (!action?.path) return false;
+    router.push(action.path);
+    return true;
+  }, [router]);
 
   const handleRetry = useCallback(() => {
     hydrateDashboard();
@@ -672,8 +713,10 @@ const useDashboardScreen = () => {
 
   return {
     state: isHydrating ? STATES.LOADING : screenState,
-    isOffline: false,
+    isOffline,
     facilityContext,
+    dashboardRole,
+    liveDashboard,
     smartStatusStrip: SMART_STATUS_STRIP,
     onboardingChecklist: ONBOARDING_CHECKLIST,
     quickActions,

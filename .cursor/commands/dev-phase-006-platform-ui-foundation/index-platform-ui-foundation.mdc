@@ -6,3 +6,6 @@ Step prompt files:
 - `06_03_navigation-ui-building-blocks.mdc`
 - `06_04_app-agnostic-layouts.mdc`
 - `06_05_composition-patterns.mdc`
+
+Cross-cutting mandatory contract in step prompts:
+- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.

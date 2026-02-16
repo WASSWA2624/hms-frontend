@@ -7,19 +7,35 @@
 const React = require('react');
 const { render } = require('@testing-library/react-native');
 const { useRouter, usePathname } = require('expo-router');
+const useNavigationVisibility = require('@hooks/useNavigationVisibility').default;
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
   usePathname: jest.fn(),
 }));
 
-const useSettingsScreen = require('@platform/screens/settings/SettingsScreen/useSettingsScreen').default;
-const { SETTINGS_TABS, SETTINGS_TAB_ORDER } = require('@platform/screens/settings/SettingsScreen/types');
+jest.mock('@hooks/useNavigationVisibility', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
 
-// Component wrapper for testing the hook
-const HookWrapper = () => {
-  const hookResult = useSettingsScreen();
-  return null; // We'll capture via side effects
+const useSettingsScreen = require('@platform/screens/settings/SettingsScreen/useSettingsScreen').default;
+const { SETTINGS_TABS } = require('@platform/screens/settings/SettingsScreen/types');
+
+const renderHook = () => {
+  let hookResult;
+  const TestComponent = () => {
+    hookResult = useSettingsScreen();
+    return null;
+  };
+
+  render(<TestComponent />);
+  return hookResult;
+};
+
+const createVisibilityMock = (hiddenPaths = []) => {
+  const hidden = new Set(hiddenPaths);
+  return jest.fn((item) => !hidden.has(item?.path));
 };
 
 describe('useSettingsScreen Hook', () => {
@@ -29,18 +45,14 @@ describe('useSettingsScreen Hook', () => {
     jest.clearAllMocks();
     useRouter.mockReturnValue({ push: mockPush });
     usePathname.mockReturnValue('/settings/tenants');
+    useNavigationVisibility.mockReturnValue({
+      isItemVisible: createVisibilityMock(),
+    });
   });
 
   describe('initialization', () => {
     it('returns hook object with required methods', () => {
-      // Create a test component that uses the hook
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       expect(hookResult).toHaveProperty('selectedTab');
       expect(hookResult).toHaveProperty('tabs');
@@ -50,13 +62,7 @@ describe('useSettingsScreen Hook', () => {
     });
 
     it('provides all tab definitions', () => {
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       expect(Array.isArray(hookResult.tabs)).toBe(true);
       expect(hookResult.tabs.length).toBeGreaterThan(0);
@@ -66,28 +72,27 @@ describe('useSettingsScreen Hook', () => {
     });
 
     it('provides testID and accessibilityLabel', () => {
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       expect(hookResult.testID).toBe('settings-screen');
       expect(hookResult.accessibilityLabel).toBe('settings.screen.label');
+    });
+
+    it('filters tabs based on role/access visibility', () => {
+      useNavigationVisibility.mockReturnValue({
+        isItemVisible: createVisibilityMock(['/settings/users', '/settings/roles']),
+      });
+
+      const hookResult = renderHook();
+
+      expect(hookResult.tabs.some((tab) => tab.id === SETTINGS_TABS.USER)).toBe(false);
+      expect(hookResult.tabs.some((tab) => tab.id === SETTINGS_TABS.ROLE)).toBe(false);
     });
   });
 
   describe('tab changes', () => {
     it('handles tab changes via onTabChange', () => {
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       hookResult.onTabChange(SETTINGS_TABS.USER);
 
@@ -95,13 +100,7 @@ describe('useSettingsScreen Hook', () => {
     });
 
     it('navigates to correct route on tab change', () => {
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       hookResult.onTabChange(SETTINGS_TABS.ROLE);
 
@@ -109,13 +108,7 @@ describe('useSettingsScreen Hook', () => {
     });
 
     it('handles multiple tab changes', () => {
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       const testCases = [
         { id: SETTINGS_TABS.USER, route: '/settings/users' },
@@ -129,18 +122,23 @@ describe('useSettingsScreen Hook', () => {
         expect(mockPush).toHaveBeenCalledWith(route);
       });
     });
+
+    it('does not navigate to hidden tabs', () => {
+      useNavigationVisibility.mockReturnValue({
+        isItemVisible: createVisibilityMock(['/settings/users']),
+      });
+
+      const hookResult = renderHook();
+      hookResult.onTabChange(SETTINGS_TABS.USER);
+
+      expect(mockPush).not.toHaveBeenCalled();
+    });
   });
 
   describe('pathname detection', () => {
     it('detects current tab from pathname', () => {
       usePathname.mockReturnValue('/settings/users');
-      let hookResult;
-      const TestComponent = () => {
-        hookResult = useSettingsScreen();
-        return null;
-      };
-
-      render(<TestComponent />);
+      const hookResult = renderHook();
 
       // The hook detects the tab from pathname
       expect(hookResult).toBeDefined();
@@ -155,18 +153,22 @@ describe('useSettingsScreen Hook', () => {
 
       testCases.forEach(({ pathname }) => {
         usePathname.mockReturnValue(pathname);
-        let hookResult;
-        const TestComponent = () => {
-          hookResult = useSettingsScreen();
-          return null;
-        };
-
-        const { unmount } = render(<TestComponent />);
+        const hookResult = renderHook();
 
         expect(hookResult).toBeDefined();
         expect(hookResult.selectedTab).toBeDefined();
-        unmount();
       });
+    });
+
+    it('falls back to a visible tab when pathname tab is hidden', () => {
+      usePathname.mockReturnValue('/settings/users');
+      useNavigationVisibility.mockReturnValue({
+        isItemVisible: createVisibilityMock(['/settings/users']),
+      });
+
+      const hookResult = renderHook();
+
+      expect(hookResult.selectedTab).toBe(SETTINGS_TABS.GENERAL);
     });
   });
 });

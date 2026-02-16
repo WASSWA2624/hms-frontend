@@ -7,6 +7,7 @@ import { useI18n } from '@hooks';
 import { Switch } from '@platform/components';
 import { ThemeControls, LanguageControls } from '@platform/components';
 import useGeneralSettingsPanel from './useGeneralSettingsPanel';
+import useSettingsScreen from '../SettingsScreen/useSettingsScreen';
 import {
   StyledPanel,
   StyledHeader,
@@ -22,11 +23,17 @@ import {
   StyledCardTitle,
   StyledCardDescription,
   StyledCardBody,
+  StyledAccessGroupGrid,
+  StyledAccessGroupCard,
+  StyledAccessGroupTitle,
+  StyledAccessLinkList,
+  StyledAccessLinkButton,
 } from './GeneralSettingsPanel.web.styles';
 
 const GeneralSettingsPanelWeb = () => {
   const { t } = useI18n();
   const { footerVisible, onFooterVisibleChange } = useGeneralSettingsPanel();
+  const { groupedTabs, selectedTab, onTabChange } = useSettingsScreen();
 
   return (
     <StyledPanel testID="general-settings-panel" role="region" aria-label={t('settings.tabs.general')}>
@@ -87,6 +94,39 @@ const GeneralSettingsPanelWeb = () => {
             />
           </StyledCardBody>
         </StyledCard>
+      </StyledSection>
+
+      <StyledSection>
+        <StyledSectionHeader>
+          <StyledSectionTitle role="heading" aria-level={2}>
+            {t('settings.general.access.title')}
+          </StyledSectionTitle>
+          <StyledSectionDescription>{t('settings.general.access.description')}</StyledSectionDescription>
+        </StyledSectionHeader>
+        {groupedTabs.length > 0 ? (
+          <StyledAccessGroupGrid data-testid="general-settings-access-grid">
+            {groupedTabs.map((group) => (
+              <StyledAccessGroupCard key={group.id}>
+                <StyledAccessGroupTitle>{t(group.labelKey)}</StyledAccessGroupTitle>
+                <StyledAccessLinkList>
+                  {group.tabs.map((tab) => (
+                    <StyledAccessLinkButton
+                      key={tab.id}
+                      type="button"
+                      onClick={() => onTabChange(tab.id)}
+                      aria-current={selectedTab === tab.id ? 'page' : undefined}
+                      $active={selectedTab === tab.id}
+                    >
+                      {t(tab.label)}
+                    </StyledAccessLinkButton>
+                  ))}
+                </StyledAccessLinkList>
+              </StyledAccessGroupCard>
+            ))}
+          </StyledAccessGroupGrid>
+        ) : (
+          <StyledSectionDescription>{t('settings.general.access.empty')}</StyledSectionDescription>
+        )}
       </StyledSection>
     </StyledPanel>
   );

@@ -6,3 +6,6 @@ Tier prompt files:
 - `09_03_controls-and-global-utilities.mdc`
 - `09_04_responsive-fluent-verification.mdc`
 
+Cross-cutting mandatory contract in tier prompts:
+- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+

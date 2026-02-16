@@ -22,3 +22,6 @@ Tier prompt files:
 - `10_08_laboratory-lis.mdc`
 - `10_09_radiology-ris-pacs.mdc`
 
+Cross-cutting mandatory contract in tier prompts:
+- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+

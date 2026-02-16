@@ -128,6 +128,41 @@ export const SETTINGS_TAB_ORDER = [
   SETTINGS_TABS.OAUTH_ACCOUNT,
 ];
 
+/** Tab id -> route path */
+export const SETTINGS_TAB_ROUTES = {
+  [SETTINGS_TABS.GENERAL]: '/settings',
+  [SETTINGS_TABS.USER]: '/settings/users',
+  [SETTINGS_TABS.USER_PROFILE]: '/settings/user-profiles',
+  [SETTINGS_TABS.ROLE]: '/settings/roles',
+  [SETTINGS_TABS.PERMISSION]: '/settings/permissions',
+  [SETTINGS_TABS.ROLE_PERMISSION]: '/settings/role-permissions',
+  [SETTINGS_TABS.USER_ROLE]: '/settings/user-roles',
+  [SETTINGS_TABS.USER_SESSION]: '/settings/user-sessions',
+  [SETTINGS_TABS.TENANT]: '/settings/tenants',
+  [SETTINGS_TABS.FACILITY]: '/settings/facilities',
+  [SETTINGS_TABS.BRANCH]: '/settings/branches',
+  [SETTINGS_TABS.DEPARTMENT]: '/settings/departments',
+  [SETTINGS_TABS.UNIT]: '/settings/units',
+  [SETTINGS_TABS.ROOM]: '/settings/rooms',
+  [SETTINGS_TABS.WARD]: '/settings/wards',
+  [SETTINGS_TABS.BED]: '/settings/beds',
+  [SETTINGS_TABS.ADDRESS]: '/settings/addresses',
+  [SETTINGS_TABS.CONTACT]: '/settings/contacts',
+  [SETTINGS_TABS.API_KEY]: '/settings/api-keys',
+  [SETTINGS_TABS.API_KEY_PERMISSION]: '/settings/api-key-permissions',
+  [SETTINGS_TABS.USER_MFA]: '/settings/user-mfas',
+  [SETTINGS_TABS.OAUTH_ACCOUNT]: '/settings/oauth-accounts',
+};
+
+/** Route segment -> tab id (excludes /settings root) */
+export const SETTINGS_SEGMENT_TO_TAB = Object.entries(SETTINGS_TAB_ROUTES).reduce((acc, [tabId, route]) => {
+  if (typeof route !== 'string') return acc;
+  const parts = route.split('/').filter(Boolean);
+  const segment = parts[parts.length - 1];
+  if (segment && segment !== 'settings') acc[segment] = tabId;
+  return acc;
+}, {});
+
 export const STATES = {
   IDLE: 'idle',
   LOADING: 'loading',
