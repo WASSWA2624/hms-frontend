@@ -27,6 +27,28 @@ const StyledField = styled.View.withConfig({
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledTerms = styled.View.withConfig({
+  displayName: 'StyledTerms',
+  componentId: 'StyledTerms',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledTermsLink = styled.View.withConfig({
+  displayName: 'StyledTermsLink',
+  componentId: 'StyledTermsLink',
+})`
+  align-items: flex-start;
+  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
+const StyledTermsError = styled.View.withConfig({
+  displayName: 'StyledTermsError',
+  componentId: 'StyledTermsError',
+})`
+  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
 const StyledActions = styled.View.withConfig({
   displayName: 'StyledActions',
   componentId: 'StyledActions',
@@ -56,6 +78,9 @@ export {
   StyledContainer,
   StyledField,
   StyledForm,
+  StyledTerms,
+  StyledTermsLink,
+  StyledTermsError,
   StyledStatus,
 };
 

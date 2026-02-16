@@ -31,10 +31,11 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage, toDecimalString, toIsoTimestamp } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const PAYMENT_METHODS = ['CREDIT_CARD', 'MOBILE_MONEY', 'BANK_TRANSFER'];
 
-export default function OnboardingPaymentRoute() {
+function OnboardingPaymentRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -374,3 +375,5 @@ export default function OnboardingPaymentRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingPaymentRoute, { screenKey: 'onboarding-payment' });

@@ -66,6 +66,23 @@ const StyledRemember = styled.div.withConfig({
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledTerms = styled.div.withConfig({
+  displayName: 'StyledTerms',
+  componentId: 'StyledTerms',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
+const StyledTermsLink = styled.div.withConfig({
+  displayName: 'StyledTermsLink',
+  componentId: 'StyledTermsLink',
+})`
+  align-self: flex-start;
+`;
+
 const StyledActions = styled.div.withConfig({
   displayName: 'StyledActions',
   componentId: 'StyledActions',
@@ -125,4 +142,6 @@ export {
   StyledInlineError,
   StyledLinks,
   StyledRemember,
+  StyledTerms,
+  StyledTermsLink,
 };

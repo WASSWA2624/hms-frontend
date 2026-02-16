@@ -74,6 +74,7 @@ const useLoginScreen = () => {
     password: '',
     tenant_id: '',
     rememberSession: false,
+    termsAccepted: false,
   });
   const [tenantOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -116,6 +117,9 @@ const useLoginScreen = () => {
     if (key === LOGIN_FORM_FIELDS.TENANT_ID) {
       return String(value || '').trim();
     }
+    if (key === LOGIN_FORM_FIELDS.TERMS_ACCEPTED) {
+      return Boolean(value);
+    }
     return value;
   }, []);
 
@@ -151,6 +155,13 @@ const useLoginScreen = () => {
         return '';
       }
 
+      if (key === LOGIN_FORM_FIELDS.TERMS_ACCEPTED) {
+        if (!sourceForm.termsAccepted) {
+          return t('auth.layout.termsAcceptance.required');
+        }
+        return '';
+      }
+
       return '';
     },
     [t, tenantOptions.length]
@@ -162,6 +173,7 @@ const useLoginScreen = () => {
         identifier: validateField(LOGIN_FORM_FIELDS.IDENTIFIER, sourceForm),
         password: validateField(LOGIN_FORM_FIELDS.PASSWORD, sourceForm),
         tenant_id: validateField(LOGIN_FORM_FIELDS.TENANT_ID, sourceForm),
+        termsAccepted: validateField(LOGIN_FORM_FIELDS.TERMS_ACCEPTED, sourceForm),
       };
       const compact = Object.fromEntries(Object.entries(next).filter(([, value]) => Boolean(value)));
       setErrors(compact);
@@ -191,6 +203,21 @@ const useLoginScreen = () => {
   const toggleRememberSession = useCallback(() => {
     setForm((prev) => ({ ...prev, rememberSession: !prev.rememberSession }));
   }, []);
+
+  const toggleTermsAcceptance = useCallback(() => {
+    setForm((prev) => {
+      const next = { ...prev, termsAccepted: !prev.termsAccepted };
+      const message = validateField(LOGIN_FORM_FIELDS.TERMS_ACCEPTED, next);
+      setErrors((prevErrors) => {
+        const nextErrors = { ...prevErrors };
+        if (message) nextErrors[LOGIN_FORM_FIELDS.TERMS_ACCEPTED] = message;
+        else delete nextErrors[LOGIN_FORM_FIELDS.TERMS_ACCEPTED];
+        return nextErrors;
+      });
+      return next;
+    });
+    setSubmitError(null);
+  }, [validateField]);
 
   const handlePasswordSubmit = useCallback(async () => {
     const isValid = validate(form);
@@ -351,6 +378,10 @@ const useLoginScreen = () => {
     });
   }, [form.identifier, form.tenant_id, router]);
 
+  const goToTerms = useCallback(() => {
+    router.push('/terms');
+  }, [router]);
+
   return {
     form,
     tenantOptions,
@@ -360,10 +391,12 @@ const useLoginScreen = () => {
     submitError,
     setFieldValue,
     toggleRememberSession,
+    toggleTermsAcceptance,
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
     goToForgotPassword,
+    goToTerms,
   };
 };
 

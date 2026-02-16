@@ -95,6 +95,7 @@ const StyledBrandName = styled.View.withConfig({
   componentId: 'StyledBrandName',
 })`
   margin-left: ${({ theme }) => theme.spacing.xs}px;
+  min-width: 0;
   flex-shrink: 1;
   max-width: 78%;
 `;

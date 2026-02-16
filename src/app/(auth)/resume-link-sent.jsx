@@ -23,8 +23,9 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage, toSingleValue } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
-export default function ResumeLinkSentRoute() {
+function ResumeLinkSentRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -251,3 +252,5 @@ export default function ResumeLinkSentRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(ResumeLinkSentRoute, { screenKey: 'auth-resume-link-sent' });

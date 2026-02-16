@@ -31,6 +31,7 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const FACILITY_RECOMMENDATION_TOKENS = {
   CLINIC: ['opd', 'appointment', 'billing', 'report'],
@@ -54,7 +55,7 @@ const resolveRecommendedByName = (modules, facilityType) => {
     .filter(Boolean);
 };
 
-export default function OnboardingModulesRoute() {
+function OnboardingModulesRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -467,3 +468,5 @@ export default function OnboardingModulesRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingModulesRoute, { screenKey: 'onboarding-modules' });

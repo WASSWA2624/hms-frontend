@@ -989,6 +989,79 @@
       "helper": "Continue to create your account."
     }
   },
+  "terms": {
+    "title": "Terms and Conditions",
+    "subtitle": "Review these terms before continuing with account access and onboarding.",
+    "backHint": "Return to the previous screen",
+    "backUnavailableHint": "Back is unavailable because there is no previous screen.",
+    "lastUpdated": "Last updated: January 1, 2026",
+    "actions": {
+      "confirmRead": "I have read and understood the Terms and Conditions",
+      "confirmReadHint": "Confirm that you have read the terms and return to the previous screen."
+    },
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "body": "These terms govern access to and use of this platform across all countries and regions where it is made available, including web and mobile use for healthcare operations."
+      },
+      "eligibility": {
+        "title": "2. Eligibility",
+        "body": "You represent that you are legally permitted to use the service and, when acting for an organization, that you are authorized to bind that organization to these terms."
+      },
+      "use": {
+        "title": "3. Acceptable Use",
+        "body": "You must use the platform only for lawful and legitimate purposes and may not misuse the service, attempt unauthorized access, interfere with operations, or upload harmful content."
+      },
+      "healthcareCompliance": {
+        "title": "4. Healthcare and Regulatory Compliance",
+        "body": "You are solely responsible for ensuring that your use of the platform complies with applicable healthcare, medical, and data regulations in your jurisdiction, including requirements on records, consent, and patient confidentiality."
+      },
+      "privacy": {
+        "title": "5. Privacy and Data Handling",
+        "body": "You are responsible for lawful collection, entry, and use of personal and health-related data. You must provide required notices and obtain required legal bases or consent before processing data through the platform."
+      },
+      "crossBorderData": {
+        "title": "6. International and Cross-Border Data Transfers",
+        "body": "Because the platform may be used globally, your data may be processed in multiple regions. You are responsible for implementing any required transfer safeguards, contractual terms, and localization controls under local law."
+      },
+      "account": {
+        "title": "7. Account Responsibility and Security",
+        "body": "You are responsible for account credentials, user permissions, and all activity performed under your workspace. You must promptly report suspected unauthorized access or security incidents."
+      },
+      "feesBilling": {
+        "title": "8. Fees, Billing, and Taxes",
+        "body": "Paid features may require subscription fees. You agree to pay applicable charges and any required taxes under local law. Pricing, billing cycles, and plan terms are presented during plan selection and checkout."
+      },
+      "intellectualProperty": {
+        "title": "9. Intellectual Property",
+        "body": "The platform, software, and related materials are protected by intellectual property laws. Except for rights expressly granted, no license or ownership is transferred to you."
+      },
+      "serviceAvailability": {
+        "title": "10. Service Availability and Updates",
+        "body": "We may modify, improve, or suspend features to maintain security, reliability, and compliance. We do not guarantee uninterrupted availability in every jurisdiction or network environment."
+      },
+      "liability": {
+        "title": "11. Disclaimer and Limitation of Liability",
+        "body": "To the maximum extent permitted by law, the service is provided as-is and as-available. We are not responsible for indirect, incidental, or consequential losses, or for your regulatory non-compliance."
+      },
+      "termination": {
+        "title": "12. Suspension and Termination",
+        "body": "We may suspend or terminate access for violations of these terms, legal requirements, security concerns, or misuse. You may stop using the platform at any time, subject to applicable billing terms."
+      },
+      "governingLaw": {
+        "title": "13. Governing Law and Jurisdiction",
+        "body": "These terms are interpreted under applicable contract and consumer laws. Where local law requires different protections or dispute rules, those mandatory local rights will prevail."
+      },
+      "changes": {
+        "title": "14. Changes to Terms",
+        "body": "We may update these terms to reflect legal, operational, or product changes. Continued use after an update takes effect constitutes acceptance of the revised terms, where permitted by law."
+      },
+      "contact": {
+        "title": "15. Contact and Legal Requests",
+        "body": "For support, legal notices, or compliance requests, contact the support channels listed in the application footer or your organization administrator."
+      }
+    }
+  },
   "home": {
     "title": "Dashboard",
     "welcome": {
@@ -1485,7 +1558,14 @@
     "layout": {
       "title": "Welcome",
       "subtitle": "Set up your account to start managing care, billing, and operations.",
-      "backUnavailableHint": "Back is unavailable because there is no previous screen in this flow."
+      "backUnavailableHint": "Back is unavailable because there is no previous screen in this flow.",
+      "termsAcceptance": {
+        "label": "I accept the Terms and Conditions.",
+        "hint": "Check to confirm you accept the terms and conditions.",
+        "openTerms": "Read terms",
+        "openTermsHint": "Open the terms and conditions page.",
+        "required": "You must accept the terms and conditions to continue."
+      }
     },
     "welcome": {
       "title": "Welcome",

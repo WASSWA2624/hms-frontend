@@ -9,9 +9,9 @@ describe('Public Route Group Structure', () => {
     expect(fs.existsSync(publicGroupDir)).toBe(true);
   });
 
-  test('should include required landing route files', () => {
+  test('should include required public route files', () => {
     expect(fs.existsSync(path.join(publicGroupDir, '_layout.jsx'))).toBe(true);
     expect(fs.existsSync(path.join(publicGroupDir, 'landing.jsx'))).toBe(true);
+    expect(fs.existsSync(path.join(publicGroupDir, 'terms.jsx'))).toBe(true);
   });
 });
-

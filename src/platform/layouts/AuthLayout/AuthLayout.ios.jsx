@@ -77,7 +77,16 @@ const AuthLayoutIOS = ({
         <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
       </StyledBrandLogoShell>
       <StyledBrandName>
-        <Text variant="h2" align="center">{appName}</Text>
+        <Text
+          variant="h2"
+          align="center"
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          adjustsFontSizeToFit
+          minimumFontScale={0.72}
+        >
+          {appName}
+        </Text>
       </StyledBrandName>
     </StyledBrandHeader>
   );

@@ -26,6 +26,7 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -37,7 +38,7 @@ const calculateDaysLeft = (endDate) => {
   return Math.max(0, Math.ceil(diff / DAY_IN_MS));
 };
 
-export default function OnboardingTrialRoute() {
+function OnboardingTrialRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -259,3 +260,5 @@ export default function OnboardingTrialRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingTrialRoute, { screenKey: 'onboarding-trial' });

@@ -32,6 +32,7 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage, toIsoTimestamp } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const formatPrice = (value) => {
   const numeric = Number(value);
@@ -39,7 +40,7 @@ const formatPrice = (value) => {
   return numeric.toFixed(2);
 };
 
-export default function OnboardingPlanRoute() {
+function OnboardingPlanRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -409,3 +410,5 @@ export default function OnboardingPlanRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingPlanRoute, { screenKey: 'onboarding-plan' });

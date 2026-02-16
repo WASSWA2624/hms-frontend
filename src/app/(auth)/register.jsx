@@ -4,7 +4,8 @@
  */
 import { RegisterScreen } from '@platform/screens';
 
-export default function RegisterRoute() {
+function RegisterRoute() {
   return <RegisterScreen />;
 }
 
+export default RegisterRoute;

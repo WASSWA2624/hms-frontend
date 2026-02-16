@@ -2,8 +2,10 @@
  * Reset Password Route
  */
 import { ResetPasswordScreen } from '@platform/screens';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
-export default function ResetPasswordRoute() {
+function ResetPasswordRoute() {
   return <ResetPasswordScreen />;
 }
 
+export default withRouteTermsAcceptance(ResetPasswordRoute, { screenKey: 'auth-reset-password' });

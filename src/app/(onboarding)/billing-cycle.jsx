@@ -15,10 +15,11 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const CYCLES = ['MONTHLY', 'QUARTERLY', 'YEARLY'];
 
-export default function OnboardingBillingCycleRoute() {
+function OnboardingBillingCycleRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -264,3 +265,5 @@ export default function OnboardingBillingCycleRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingBillingCycleRoute, { screenKey: 'onboarding-billing-cycle' });

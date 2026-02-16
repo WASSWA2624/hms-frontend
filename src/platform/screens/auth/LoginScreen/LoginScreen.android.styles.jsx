@@ -57,6 +57,28 @@ const StyledRemember = styled.View.withConfig({
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledTerms = styled.View.withConfig({
+  displayName: 'StyledTerms',
+  componentId: 'LoginScreen_StyledTerms',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledTermsLink = styled.View.withConfig({
+  displayName: 'StyledTermsLink',
+  componentId: 'LoginScreen_StyledTermsLink',
+})`
+  align-items: flex-start;
+  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
+const StyledTermsError = styled.View.withConfig({
+  displayName: 'StyledTermsError',
+  componentId: 'LoginScreen_StyledTermsError',
+})`
+  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
 const StyledActions = styled.View.withConfig({
   displayName: 'StyledActions',
   componentId: 'LoginScreen_StyledActions',
@@ -108,4 +130,7 @@ export {
   StyledLinks,
   StyledPrimaryAction,
   StyledRemember,
+  StyledTerms,
+  StyledTermsLink,
+  StyledTermsError,
 };

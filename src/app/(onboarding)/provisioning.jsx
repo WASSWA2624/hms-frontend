@@ -21,10 +21,11 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { toSingleValue } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const PROVISION_STEPS = [20, 45, 70, 100];
 
-export default function OnboardingProvisioningRoute() {
+function OnboardingProvisioningRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -187,3 +188,5 @@ export default function OnboardingProvisioningRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingProvisioningRoute, { screenKey: 'onboarding-provisioning' });

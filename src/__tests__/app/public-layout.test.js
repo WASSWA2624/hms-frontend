@@ -44,7 +44,7 @@ describe('app/(public)/_layout.jsx', () => {
     });
   });
 
-  test('renders public layout and slot with shared header props and no landing back action', () => {
+  test('renders public layout and slot with shared header props and landing back action', () => {
     const { getByTestId } = render(<PublicLayoutRoute />);
     expect(getByTestId('public-group-layout')).toBeTruthy();
     expect(getByTestId('public-slot')).toBeTruthy();
@@ -54,7 +54,15 @@ describe('app/(public)/_layout.jsx', () => {
     expect(props.showScreenHeader).toBe(true);
     expect(props.screenTitle).toBe('landing.title');
     expect(props.screenSubtitle).toBe('landing.badge');
-    expect(props.screenBackAction).toBeUndefined();
+    expect(props.screenBackAction).toEqual(
+      expect.objectContaining({
+        label: 'common.back',
+        hint: 'common.backHint',
+        disabled: true,
+        disabledHint: 'landing.backUnavailableHint',
+        testID: 'public-layout-back',
+      })
+    );
   });
 
   test('enables public back action when history is available on non-landing routes', () => {
@@ -71,5 +79,21 @@ describe('app/(public)/_layout.jsx', () => {
 
     props.screenBackAction.onPress();
     expect(mockBack).toHaveBeenCalled();
+  });
+
+  test('uses terms metadata and back action on terms route', () => {
+    usePathname.mockReturnValue('/terms');
+    useRouter.mockReturnValue({
+      back: jest.fn(),
+      canGoBack: jest.fn(() => false),
+    });
+
+    render(<PublicLayoutRoute />);
+    const props = AuthLayout.mock.calls[0][0];
+
+    expect(props.screenTitle).toBe('terms.title');
+    expect(props.screenSubtitle).toBe('terms.subtitle');
+    expect(props.screenBackAction.disabled).toBe(true);
+    expect(props.screenBackAction.disabledHint).toBe('terms.backUnavailableHint');
   });
 });

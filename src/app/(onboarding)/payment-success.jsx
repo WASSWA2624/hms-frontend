@@ -28,10 +28,11 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage, toDecimalString } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const normalizeStatus = (value) => String(value || '').trim().toUpperCase();
 
-export default function OnboardingPaymentSuccessRoute() {
+function OnboardingPaymentSuccessRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user, loadCurrentUser } = useAuth();
@@ -301,3 +302,5 @@ export default function OnboardingPaymentSuccessRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingPaymentSuccessRoute, { screenKey: 'onboarding-payment-success' });

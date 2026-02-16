@@ -23,6 +23,7 @@ const initialForm = {
   facilityType: '',
   email: '',
   password: '',
+  termsAccepted: false,
 };
 
 const toSingleValue = (value) => {
@@ -90,6 +91,7 @@ const useRegisterScreen = () => {
         facilityType: optionIds.has(facilityType) ? facilityType : '',
         email: draft?.email || '',
         password: '',
+        termsAccepted: false,
       });
     } finally {
       setIsHydrating(false);
@@ -155,6 +157,10 @@ const useRegisterScreen = () => {
       if (password.length > MAX_PASSWORD_LENGTH) return t('forms.validation.maxLength', { max: MAX_PASSWORD_LENGTH });
       return '';
     }
+    if (key === 'termsAccepted') {
+      if (!sourceForm.termsAccepted) return t('auth.layout.termsAcceptance.required');
+      return '';
+    }
     return '';
   }, [optionIds, t]);
 
@@ -164,6 +170,7 @@ const useRegisterScreen = () => {
       adminName: validateField('adminName', sourceForm),
       email: validateField('email', sourceForm),
       password: validateField('password', sourceForm),
+      termsAccepted: validateField('termsAccepted', sourceForm),
     };
 
     const compact = Object.fromEntries(Object.entries(next).filter(([, message]) => Boolean(message)));
@@ -185,6 +192,25 @@ const useRegisterScreen = () => {
     });
     setSubmitError(null);
   }, [normalizeValue, validateField]);
+
+  const toggleTermsAcceptance = useCallback(() => {
+    setForm((prev) => {
+      const nextForm = { ...prev, termsAccepted: !prev.termsAccepted };
+      const message = validateField('termsAccepted', nextForm);
+      setErrors((prevErrors) => {
+        const nextErrors = { ...prevErrors };
+        if (message) nextErrors.termsAccepted = message;
+        else delete nextErrors.termsAccepted;
+        return nextErrors;
+      });
+      return nextForm;
+    });
+    setSubmitError(null);
+  }, [validateField]);
+
+  const goToTerms = useCallback(() => {
+    router.push('/terms');
+  }, [router]);
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || submitInFlightRef.current) return false;
@@ -291,7 +317,9 @@ const useRegisterScreen = () => {
     isSubmitting,
     submitError,
     setFieldValue,
+    toggleTermsAcceptance,
     handleSubmit,
+    goToTerms,
     retryHydration: hydrate,
     hasFacilityOptions: optionIds.size > 0,
   };

@@ -22,6 +22,7 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const resolveAdminName = (authUser, registrationContext) => {
   const first = String(authUser?.profile?.first_name || '').trim();
@@ -41,7 +42,7 @@ const resolveFacilityName = (authUser, registrationContext) =>
 const resolveFacilityType = (authUser, registrationContext) =>
   String(authUser?.facility?.facility_type || registrationContext?.facility_type || '').toUpperCase();
 
-export default function OnboardingWelcomeRoute() {
+function OnboardingWelcomeRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const { isAuthenticated, user, loadCurrentUser } = useAuth();
@@ -204,3 +205,5 @@ export default function OnboardingWelcomeRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingWelcomeRoute, { screenKey: 'onboarding-welcome' });

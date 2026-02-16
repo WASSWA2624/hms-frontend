@@ -55,6 +55,23 @@ const StyledActions = styled.div.withConfig({
   }
 `;
 
+const StyledTerms = styled.div.withConfig({
+  displayName: 'StyledTerms',
+  componentId: 'StyledTerms',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  margin-top: ${({ theme }) => theme.spacing.xs / 2}px;
+`;
+
+const StyledTermsLink = styled.div.withConfig({
+  displayName: 'StyledTermsLink',
+  componentId: 'StyledTermsLink',
+})`
+  align-self: flex-start;
+`;
+
 const StyledStatus = styled.div.withConfig({
   displayName: 'StyledStatus',
   componentId: 'StyledStatus',
@@ -67,6 +84,8 @@ export {
   StyledContainer,
   StyledFieldGrid,
   StyledForm,
+  StyledTerms,
+  StyledTermsLink,
   StyledStatus,
 };
 

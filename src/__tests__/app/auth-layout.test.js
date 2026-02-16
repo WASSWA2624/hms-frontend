@@ -75,6 +75,8 @@ describe('app/(auth)/_layout.jsx', () => {
     expect(props.screenTitle).toBe('auth.login.title');
     expect(props.screenSubtitle).toBe('auth.login.description');
     expect(props.screenBackAction.disabled).toBe(true);
+    expect(props.showTermsAcceptance).toBeUndefined();
+    expect(props.termsAcceptance).toBeUndefined();
   });
 
   test('passes register header props and disables back when history is unavailable', () => {

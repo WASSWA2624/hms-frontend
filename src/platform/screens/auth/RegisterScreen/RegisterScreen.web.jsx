@@ -6,11 +6,13 @@
 import React from 'react';
 import {
   Button,
+  Checkbox,
   EmptyState,
   EmptyStateSizes,
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -20,6 +22,8 @@ import {
   StyledContainer,
   StyledFieldGrid,
   StyledForm,
+  StyledTerms,
+  StyledTermsLink,
   StyledStatus,
 } from './RegisterScreen.web.styles';
 
@@ -33,7 +37,9 @@ const RegisterScreenWeb = () => {
     isSubmitting,
     submitError,
     setFieldValue,
+    toggleTermsAcceptance,
     handleSubmit,
+    goToTerms,
     retryHydration,
     hasFacilityOptions,
   } = useRegisterScreen();
@@ -138,13 +144,41 @@ const RegisterScreenWeb = () => {
           />
         </StyledFieldGrid>
 
+        <StyledTerms>
+          <Checkbox
+            checked={form.termsAccepted}
+            onChange={toggleTermsAcceptance}
+            label={t('auth.layout.termsAcceptance.label')}
+            accessibilityHint={t('auth.layout.termsAcceptance.hint')}
+            testID="register-terms-checkbox"
+          />
+          <StyledTermsLink>
+            <Button
+              variant="text"
+              size="small"
+              type="button"
+              onPress={goToTerms}
+              accessibilityLabel={t('auth.layout.termsAcceptance.openTerms')}
+              accessibilityHint={t('auth.layout.termsAcceptance.openTermsHint')}
+              testID="register-terms-link"
+            >
+              {t('auth.layout.termsAcceptance.openTerms')}
+            </Button>
+          </StyledTermsLink>
+          {errors.termsAccepted ? (
+            <Text variant="caption" color="error" testID="register-terms-error">
+              {errors.termsAccepted}
+            </Text>
+          ) : null}
+        </StyledTerms>
+
         <StyledActions>
           <Button
             variant="primary"
             size="small"
             type="submit"
             loading={isSubmitting}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !form.termsAccepted}
             accessibilityLabel={primaryLabel}
           >
             {primaryLabel}

@@ -22,6 +22,7 @@ import {
   readRegistrationContext,
   saveOnboardingStep,
 } from '@navigation';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const CHECKLIST_BY_FACILITY = {
   CLINIC: ['register_patient', 'book_appointment', 'create_invoice', 'record_consultation'],
@@ -31,7 +32,7 @@ const CHECKLIST_BY_FACILITY = {
   OTHER: ['add_ambulance', 'receive_request', 'dispatch_unit'],
 };
 
-export default function OnboardingChecklistRoute() {
+function OnboardingChecklistRoute() {
   const { t } = useI18n();
   const router = useRouter();
 
@@ -202,3 +203,5 @@ export default function OnboardingChecklistRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingChecklistRoute, { screenKey: 'onboarding-checklist' });

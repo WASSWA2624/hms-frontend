@@ -133,6 +133,11 @@ const StyledBrandHeader = styled.div.withConfig({
   align-items: center;
   justify-content: ${({ $centered }) => ($centered ? 'center' : 'flex-start')};
   gap: ${({ theme }) => theme.spacing.md}px;
+
+  @media (max-width: ${({ theme }) =>
+      (theme.breakpoints?.tablet ?? 768) - 1}px) {
+    gap: ${({ theme }) => theme.spacing.xs}px;
+  }
 `;
 
 const StyledBrandLogoShell = styled.div.withConfig({
@@ -184,7 +189,7 @@ const StyledBrandLogoShell = styled.div.withConfig({
 
   @media (max-width: ${({ theme }) =>
       (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    --brand-mark-size: 60px;
+    --brand-mark-size: 52px;
   }
 `;
 
@@ -195,6 +200,7 @@ const StyledBrandCopy = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  min-width: 0;
 `;
 
 const StyledBrandName = styled.div.withConfig({
@@ -231,12 +237,21 @@ const StyledBrandName = styled.div.withConfig({
 
   @media (max-width: ${({ theme }) =>
       (theme.breakpoints?.tablet ?? 768) - 1}px) {
+    max-width: 78%;
+
     h1,
     h2,
     h3,
     span {
-      font-size: clamp(26px, 8.4vw, 34px) !important;
-      line-height: 1.12 !important;
+      font-size: clamp(15px, 4.6vw, 20px) !important;
+      line-height: 1.2 !important;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      text-wrap: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: none;
+      -webkit-text-fill-color: ${({ theme }) => theme.colors.text.primary};
     }
   }
 `;

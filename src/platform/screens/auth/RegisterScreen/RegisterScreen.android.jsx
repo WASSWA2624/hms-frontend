@@ -6,11 +6,13 @@
 import React from 'react';
 import {
   Button,
+  Checkbox,
   EmptyState,
   EmptyStateSizes,
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -21,6 +23,9 @@ import {
   StyledContainer,
   StyledField,
   StyledForm,
+  StyledTerms,
+  StyledTermsError,
+  StyledTermsLink,
   StyledStatus,
 } from './RegisterScreen.android.styles';
 
@@ -34,7 +39,9 @@ const RegisterScreenAndroid = () => {
     isSubmitting,
     submitError,
     setFieldValue,
+    toggleTermsAcceptance,
     handleSubmit,
+    goToTerms,
     retryHydration,
     hasFacilityOptions,
   } = useRegisterScreen();
@@ -139,6 +146,34 @@ const RegisterScreenAndroid = () => {
             testID="register-password"
           />
         </StyledField>
+        <StyledTerms>
+          <Checkbox
+            checked={form.termsAccepted}
+            onChange={toggleTermsAcceptance}
+            label={t('auth.layout.termsAcceptance.label')}
+            accessibilityHint={t('auth.layout.termsAcceptance.hint')}
+            testID="register-terms-checkbox"
+          />
+          <StyledTermsLink>
+            <Button
+              variant="text"
+              size="small"
+              onPress={goToTerms}
+              accessibilityLabel={t('auth.layout.termsAcceptance.openTerms')}
+              accessibilityHint={t('auth.layout.termsAcceptance.openTermsHint')}
+              testID="register-terms-link"
+            >
+              {t('auth.layout.termsAcceptance.openTerms')}
+            </Button>
+          </StyledTermsLink>
+          {errors.termsAccepted ? (
+            <StyledTermsError>
+              <Text variant="caption" color="error" testID="register-terms-error">
+                {errors.termsAccepted}
+              </Text>
+            </StyledTermsError>
+          ) : null}
+        </StyledTerms>
 
         <StyledActions>
           <StyledActionSlot $last>
@@ -147,7 +182,7 @@ const RegisterScreenAndroid = () => {
               size="small"
               onPress={handleSubmit}
               loading={isSubmitting}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !form.termsAccepted}
               accessibilityLabel={primaryLabel}
             >
               {primaryLabel}

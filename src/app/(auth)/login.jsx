@@ -3,7 +3,8 @@
  */
 import { LoginScreen } from '@platform/screens';
 
-export default function LoginRoute() {
+function LoginRoute() {
   return <LoginScreen />;
 }
 
+export default LoginRoute;

@@ -15,9 +15,28 @@ const getEnvVar = (key, defaultValue = null) => {
 };
 
 export const NODE_ENV = getEnvVar('NODE_ENV', 'development');
+
+const isLoopbackHost = (hostname) => {
+  const normalized = String(hostname || '').toLowerCase();
+  return normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1';
+};
+
+const replaceWithCurrentWebHostname = (urlValue) => {
+  if (typeof window === 'undefined' || !window.location?.hostname) return urlValue;
+  try {
+    const parsed = new URL(urlValue);
+    if (!isLoopbackHost(parsed.hostname)) return urlValue;
+    if (isLoopbackHost(window.location.hostname)) return urlValue;
+    parsed.hostname = window.location.hostname;
+    return parsed.toString().replace(/\/$/, '');
+  } catch {
+    return urlValue;
+  }
+};
+
 const resolveApiBaseUrl = () => {
   const raw = getEnvVar('EXPO_PUBLIC_API_BASE_URL', '').trim();
-  if (raw) return raw;
+  if (raw) return replaceWithCurrentWebHostname(raw);
   if (typeof window !== 'undefined' && window.location?.hostname) {
     return `http://${window.location.hostname}:3000`;
   }

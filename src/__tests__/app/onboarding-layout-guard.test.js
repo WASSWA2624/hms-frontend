@@ -126,5 +126,7 @@ describe('app/(onboarding)/_layout guard behavior', () => {
     expect(props.screenSubtitle).toBe('onboarding.welcome.description');
     expect(props.screenBackAction.disabled).toBe(true);
     expect(props.screenBackAction.disabledHint).toBe('onboarding.layout.backUnavailableHint');
+    expect(props.showTermsAcceptance).toBeUndefined();
+    expect(props.termsAcceptance).toBeUndefined();
   });
 });

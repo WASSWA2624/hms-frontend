@@ -7,16 +7,45 @@ import { Slot, usePathname, useRouter } from 'expo-router';
 import { useI18n } from '@hooks';
 import { AuthLayout } from '@platform/layouts';
 
+const PUBLIC_SCREEN_META = {
+  '/landing': {
+    titleKey: 'landing.title',
+    subtitleKey: 'landing.badge',
+    showBackAction: true,
+    backDisabledHintKey: 'landing.backUnavailableHint',
+  },
+  '/terms': {
+    titleKey: 'terms.title',
+    subtitleKey: 'terms.subtitle',
+    showBackAction: true,
+    backDisabledHintKey: 'terms.backUnavailableHint',
+  },
+};
+
+const normalizePublicPath = (pathname) => {
+  if (!pathname) return '/';
+  const withoutQuery = String(pathname).split('?')[0].split('#')[0];
+  const withoutGroup = withoutQuery.replace('/(public)', '');
+  const normalized = withoutGroup.replace(/\/+$/, '');
+  return normalized || '/';
+};
+
 function PublicGroupLayout() {
   const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
-  const isLandingRoute = pathname === '/landing' || pathname === '/(public)/landing';
+  const normalizedPath = normalizePublicPath(pathname);
+  const screenMeta = PUBLIC_SCREEN_META[normalizedPath] || {
+    titleKey: 'landing.title',
+    subtitleKey: 'landing.description',
+    showBackAction: true,
+    backDisabledHintKey: 'landing.backUnavailableHint',
+  };
   const canGoBack = typeof router?.canGoBack === 'function' && router.canGoBack();
   const publicBackAction = {
     label: t('common.back'),
     hint: t('common.backHint'),
-    disabledHint: t('landing.backUnavailableHint'),
+    disabledHint: t(screenMeta.backDisabledHintKey),
     disabled: !canGoBack,
     onPress: () => {
       if (typeof router?.back !== 'function') return;
@@ -27,11 +56,11 @@ function PublicGroupLayout() {
 
   return (
     <AuthLayout
-      accessibilityLabel={t('landing.title')}
+      accessibilityLabel={t(screenMeta.titleKey)}
       showScreenHeader
-      screenTitle={t('landing.title')}
-      screenSubtitle={isLandingRoute ? t('landing.badge') : t('landing.description')}
-      screenBackAction={isLandingRoute ? undefined : publicBackAction}
+      screenTitle={t(screenMeta.titleKey)}
+      screenSubtitle={t(screenMeta.subtitleKey)}
+      screenBackAction={screenMeta.showBackAction ? publicBackAction : undefined}
       testID="public-group-layout"
     >
       <Slot />

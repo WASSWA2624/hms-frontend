@@ -9,6 +9,7 @@ import {
   ErrorStateSizes,
   LoadingSpinner,
   Select,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -24,6 +25,9 @@ import {
   StyledLinks,
   StyledPrimaryAction,
   StyledRemember,
+  StyledTerms,
+  StyledTermsError,
+  StyledTermsLink,
 } from './LoginScreen.ios.styles';
 
 const LoginScreenIOS = () => {
@@ -38,10 +42,12 @@ const LoginScreenIOS = () => {
     submitError,
     setFieldValue,
     toggleRememberSession,
+    toggleTermsAcceptance,
     handleSubmit,
     goToRegister,
     goToVerifyEmail,
     goToForgotPassword,
+    goToTerms,
   } = useLoginScreen();
 
   if (isHydrating) {
@@ -130,6 +136,35 @@ const LoginScreenIOS = () => {
             />
           </StyledRemember>
 
+          <StyledTerms>
+            <Checkbox
+              checked={form.termsAccepted}
+              onChange={toggleTermsAcceptance}
+              label={t('auth.layout.termsAcceptance.label')}
+              accessibilityHint={t('auth.layout.termsAcceptance.hint')}
+              testID="login-terms-checkbox"
+            />
+            <StyledTermsLink>
+              <Button
+                variant="text"
+                size="small"
+                onPress={goToTerms}
+                accessibilityLabel={t('auth.layout.termsAcceptance.openTerms')}
+                accessibilityHint={t('auth.layout.termsAcceptance.openTermsHint')}
+                testID="login-terms-link"
+              >
+                {t('auth.layout.termsAcceptance.openTerms')}
+              </Button>
+            </StyledTermsLink>
+            {errors.termsAccepted ? (
+              <StyledTermsError>
+                <Text variant="caption" color="error" testID="login-terms-error">
+                  {errors.termsAccepted}
+                </Text>
+              </StyledTermsError>
+            ) : null}
+          </StyledTerms>
+
           {submitError ? (
             <StyledInlineError>
               <ErrorState
@@ -148,7 +183,7 @@ const LoginScreenIOS = () => {
                 size="small"
                 onPress={handleSubmit}
                 loading={isSubmitting}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !form.termsAccepted}
                 accessibilityLabel={t('auth.login.buttonHint')}
                 testID="login-submit"
               >

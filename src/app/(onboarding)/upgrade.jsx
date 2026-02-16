@@ -16,10 +16,11 @@ import {
   Text,
 } from '@platform/components';
 import { readOnboardingProgress, saveOnboardingStep } from '@navigation';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const DEFAULT_VALUE_POINTS = ['automation', 'fasterBilling', 'expandedCare', 'retentionInsights'];
 
-export default function OnboardingUpgradeRoute() {
+function OnboardingUpgradeRoute() {
   const { t } = useI18n();
   const router = useRouter();
 
@@ -148,3 +149,5 @@ export default function OnboardingUpgradeRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingUpgradeRoute, { screenKey: 'onboarding-upgrade' });

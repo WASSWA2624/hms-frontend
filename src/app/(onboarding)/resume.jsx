@@ -23,10 +23,11 @@ import {
   saveOnboardingStep,
 } from '@navigation';
 import { resolveErrorMessage, toSingleValue } from '@navigation/onboardingHelpers';
+import withRouteTermsAcceptance from '../shared/withRouteTermsAcceptance';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function OnboardingResumeRoute() {
+function OnboardingResumeRoute() {
   const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -333,3 +334,5 @@ export default function OnboardingResumeRoute() {
     </Container>
   );
 }
+
+export default withRouteTermsAcceptance(OnboardingResumeRoute, { screenKey: 'onboarding-resume' });
