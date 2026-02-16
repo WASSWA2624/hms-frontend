@@ -1,7 +1,7 @@
 # HMS Implementation Master Write-Up
 
-Version: 2.0  
-Date: 2026-02-15  
+Version: 2.1  
+Date: 2026-02-16  
 Status: Active implementation baseline  
 Primary repos: `hms-frontend`, `hms-backend`
 
@@ -105,11 +105,11 @@ The app is complete only when all are true:
 
 Observed in current repository:
 
-- Backend module directories: **144**
-- Frontend feature directories: **144**
+- Backend module directories: **159**
+- Frontend feature directories: **159**
 - Feature-module count parity: **matched**
-- Frontend route files under `src/app`: **502**
-- Route placeholder catch-all files (`[...missing].jsx`): **21**
+- Frontend route files under `src/app`: **727**
+- Route placeholder catch-all files (`[...missing].jsx`): **22**
 
 ### 2.4 Important implications
 
@@ -1245,6 +1245,7 @@ Current placeholder files detected:
 - `src/app/(main)/diagnostics/radiology/[...missing].jsx`
 - `src/app/(main)/emergency/[...missing].jsx`
 - `src/app/(main)/housekeeping/[...missing].jsx`
+- `src/app/(main)/housekeeping/biomedical/[...missing].jsx`
 - `src/app/(main)/hr/[...missing].jsx`
 - `src/app/(main)/icu/[...missing].jsx`
 - `src/app/(main)/integrations/[...missing].jsx`
@@ -1257,58 +1258,17 @@ Current placeholder files detected:
 - `src/app/(main)/subscriptions/[...missing].jsx`
 - `src/app/(main)/theatre/[...missing].jsx`
 
-### 17.2 Potential route-coverage verification list
+### 17.2 Route-coverage verification status
 
-No explicit route filename matches were detected for these module slugs in a simple path check. This list is a verification queue (not an automatic failure list):
+The previous verification queue is now resolved at filename level, including pluralized route conventions (for example, `diagnosis` -> `diagnoses`, `notification-delivery` -> `notification-deliveries`).
 
-- `analytics-event`
-- `appointment-participant`
-- `appointment-reminder`
-- `audit-log`
-- `breach-notification`
-- `clinical-alert`
-- `consent`
-- `conversation`
-- `dashboard-widget`
-- `data-processing-log`
-- `diagnosis`
-- `discharge-summary`
-- `imaging-asset`
-- `imaging-study`
-- `integration-log`
-- `invoice-item`
-- `kpi-snapshot`
-- `lab-order-item`
-- `license`
-- `message`
-- `module-subscription`
-- `notification`
-- `notification-delivery`
-- `patient-allergy`
-- `patient-medical-history`
-- `payroll-item`
-- `pharmacy-order-item`
-- `phi-access-log`
-- `purchase-request`
-- `report-definition`
-- `report-run`
-- `roster-day-off`
-- `shift-assignment`
-- `shift-swap-request`
-- `shift-template`
-- `staff-availability`
-- `subscription-invoice`
-- `subscription-plan`
-- `system-change-log`
-- `template`
-- `template-variable`
-- `terms-acceptance`
-- `webhook-subscription`
+Current verification queue:
+
+- None
 
 Action rule:
 
-- For each item above, confirm whether coverage is intentionally nested/aggregated or genuinely missing.
-- Update this section as verification progresses.
+- Keep this section updated when new modules are introduced or route naming conventions change.
 
 ### 17.3 Biomedical expansion module tracking queue
 
