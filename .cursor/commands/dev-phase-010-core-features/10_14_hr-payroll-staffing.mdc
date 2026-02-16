@@ -13,6 +13,47 @@ Steps to review and implement (Phase 010 - Tier 14: HR, Payroll & Staffing):
 - **10.14.12** `roster-day-off`
 - **10.14.13** `staff-availability`
 
+## Concrete Parity Checklist for `10.14.1` (`staff-position`)
+
+Complete this checklist before moving to `10.14.2`.
+
+- [ ] Create `src/features/staff-position/` files:
+  - `staff-position.rules.js`
+  - `staff-position.model.js`
+  - `staff-position.api.js`
+  - `staff-position.usecase.js`
+  - `index.js`
+- [ ] Add exports:
+  - `src/features/index.js` -> `export * from './staff-position';`
+  - `src/hooks/useStaffPosition.js`
+  - `src/hooks/index.js` -> `export { default as useStaffPosition } from './useStaffPosition';`
+- [ ] Add endpoint group:
+  - `src/config/endpoints.js` -> `STAFF_POSITIONS` with `LIST/CREATE/GET/UPDATE/DELETE` at `/staff-positions`
+- [ ] Wire resource configuration:
+  - `src/platform/screens/clinical/ClinicalResourceConfigs.js`
+    - `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS = 'staff-positions'`
+    - include in `HR_RESOURCE_LIST_ORDER` before `STAFF_PROFILES`
+    - add config entry with route `/hr/staff-positions`
+  - `src/platform/screens/clinical/useClinicalResourceCrud.js`
+    - import/init/map `useStaffPosition`
+- [ ] Wire nav and i18n:
+  - `src/config/sideMenu.js` add `hr-staff-positions` (`/hr/staff-positions`)
+  - `src/i18n/locales/en.json` add `main-nav.hr-staff-positions`
+- [ ] Add tests:
+  - `src/__tests__/features/staff-position/staff-position.rules.test.js`
+  - `src/__tests__/features/staff-position/staff-position.model.test.js`
+  - `src/__tests__/features/staff-position/staff-position.api.test.js`
+  - `src/__tests__/features/staff-position/staff-position.usecase.test.js`
+  - `src/__tests__/hooks/useStaffPosition.test.js`
+  - update `src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+  - update `src/__tests__/config/endpoints.test.js`
+- [ ] Verify:
+  - `npm run test -- src/__tests__/features/staff-position`
+  - `npm run test -- src/__tests__/hooks/useStaffPosition.test.js`
+  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+  - `npm run test -- src/__tests__/config/endpoints.test.js`
+  - `rg -n "staff-position|staff-positions|STAFF_POSITIONS|useStaffPosition" src`
+
 Specific implementation scope for this tier:
 - Implement full feature-template files per selected module step(s): rules, model, api, usecase, optional events, and exports.
 - Add/update optional store slice and `use<Feature>` hook only when required by selected module scope.

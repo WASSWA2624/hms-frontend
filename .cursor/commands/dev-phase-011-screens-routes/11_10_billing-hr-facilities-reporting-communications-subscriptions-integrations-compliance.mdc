@@ -76,6 +76,32 @@ Steps to review and implement (Phase 011 - Tier 10: Billing, HR, Facilities, Bio
 - **11.10.75** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
 - **11.10.76** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
 
+## Concrete Parity Checklist for `11.10.12` (`(main)/hr/staff-positions`)
+
+Run this after `10.14.1` is complete.
+
+- [ ] Create route files:
+  - `src/app/(main)/hr/staff-positions/index.jsx`
+  - `src/app/(main)/hr/staff-positions/create.jsx`
+  - `src/app/(main)/hr/staff-positions/[id].jsx`
+  - `src/app/(main)/hr/staff-positions/[id]/edit.jsx`
+- [ ] Use generic resource wrappers with `resourceId="staff-positions"`:
+  - list -> `ClinicalResourceListScreen`
+  - create -> `ClinicalResourceFormScreen`
+  - detail -> `ClinicalResourceDetailScreen`
+  - edit -> `ClinicalResourceFormScreen`
+- [ ] Confirm shared wiring:
+  - `src/config/sideMenu.js` includes `/hr/staff-positions`
+  - `src/i18n/locales/en.json` includes `main-nav.hr-staff-positions`
+  - `src/platform/screens/clinical/ClinicalResourceConfigs.js` includes `staff-positions`
+  - `src/platform/screens/clinical/useClinicalResourceCrud.js` maps `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS`
+- [ ] Update route coverage:
+  - `src/__tests__/app/(main)/tier-10-routes.test.js` add `'staff-positions'` in `RESOURCES_WITH_EDIT.hr`
+- [ ] Verify:
+  - `npm run test -- "src/__tests__/app/(main)/tier-10-routes.test.js"`
+  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+  - navigate `/hr/staff-positions`, `/hr/staff-positions/create`, `/hr/staff-positions/:id`, `/hr/staff-positions/:id/edit`
+
 Specific implementation scope for this tier:
 - Implement selected screen/route wiring and interactions for this tier only.
 - Ensure end-to-end backend linkage for enabled actions and role-aware fallbacks when API contract or entitlement blocks an action.

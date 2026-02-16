@@ -331,6 +331,37 @@ src/app/
 - **11.10.75** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
 - **11.10.76** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
 
+#### Step 11.10.12 Execution Checklist (`(main)/hr/staff-positions`)
+Run this only after `10.14.1` is completed and passing.
+
+- [ ] Create route files:
+  - `src/app/(main)/hr/staff-positions/index.jsx`
+  - `src/app/(main)/hr/staff-positions/create.jsx`
+  - `src/app/(main)/hr/staff-positions/[id].jsx`
+  - `src/app/(main)/hr/staff-positions/[id]/edit.jsx`
+- [ ] Route wrappers must match generic Tier 10 resource screens:
+  - list route -> `<ClinicalResourceListScreen resourceId="staff-positions" />`
+  - create route -> `<ClinicalResourceFormScreen resourceId="staff-positions" />`
+  - detail route -> `<ClinicalResourceDetailScreen resourceId="staff-positions" />`
+  - edit route -> `<ClinicalResourceFormScreen resourceId="staff-positions" />`
+- [ ] Ensure navigation discoverability is wired:
+  - `src/config/sideMenu.js` includes `/hr/staff-positions`
+  - `src/i18n/locales/en.json` includes `main-nav.hr-staff-positions`
+- [ ] Ensure resource config parity is present:
+  - `src/platform/screens/clinical/ClinicalResourceConfigs.js` contains a `staff-positions` config with route `/hr/staff-positions`
+  - `src/platform/screens/clinical/useClinicalResourceCrud.js` maps `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS`
+- [ ] Add/update route parity test:
+  - `src/__tests__/app/(main)/tier-10-routes.test.js`:
+    - add `'staff-positions'` in `RESOURCES_WITH_EDIT.hr`
+    - verify all 4 route variants are covered through `TIER_10_ROUTE_CASES`
+- [ ] Run verification commands:
+  - `npm run test -- "src/__tests__/app/(main)/tier-10-routes.test.js"`
+  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+- [ ] Manual smoke checks:
+  - visit `/hr/staff-positions` list/create/detail/edit
+  - verify loading, empty, error, and permission-denied states
+  - verify sidebar item opens the correct route.
+
 ### Tier 11: Patient Portal
 - **11.11.1** Patient portal home - `(patient)/portal`
 - **11.11.2** Patient appointments - `(patient)/appointments`

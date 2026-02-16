@@ -1268,6 +1268,11 @@ Current verification queue:
 
 - `staff-position` feature module and route/screen wiring (`/api/v1/staff-positions`, `(main)/hr/staff-positions`)
 
+Execution checklist references:
+
+- `hms-frontend/dev-plan/P010_core-features.md` -> `Step 10.14.1 Execution Checklist (staff-position)`
+- `hms-frontend/dev-plan/P011_screens-routes.md` -> `Step 11.10.12 Execution Checklist ((main)/hr/staff-positions)`
+
 Action rule:
 
 - Keep this section updated when new modules are introduced or route naming conventions change.

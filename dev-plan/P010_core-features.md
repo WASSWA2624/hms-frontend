@@ -208,6 +208,52 @@ Each step implements exactly **one** mounted backend module from `hms-backend/sr
 - Step 10.14.12: `roster-day-off`
 - Step 10.14.13: `staff-availability`
 
+#### Step 10.14.1 Execution Checklist (`staff-position`) - Parity Blocker
+As of `2026-02-16`, this is the only known missing Phase 10 frontend module. Complete this checklist before starting `10.14.2`.
+
+- [ ] Create module files under `src/features/staff-position/`:
+  - `staff-position.rules.js`
+  - `staff-position.model.js`
+  - `staff-position.api.js`
+  - `staff-position.usecase.js`
+  - `index.js`
+- [ ] Export the module from `src/features/index.js`:
+  - `export * from './staff-position';`
+- [ ] Create hook and hook export:
+  - `src/hooks/useStaffPosition.js`
+  - `src/hooks/index.js` -> `export { default as useStaffPosition } from './useStaffPosition';`
+- [ ] Add endpoint contract in `src/config/endpoints.js`:
+  - `STAFF_POSITIONS` endpoint group with `LIST`, `CREATE`, `GET`, `UPDATE`, `DELETE`
+  - Route base must be `/staff-positions`
+- [ ] Add Tier 10 generic-resource wiring in `src/platform/screens/clinical/ClinicalResourceConfigs.js`:
+  - `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS = 'staff-positions'`
+  - Add `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS` to `HR_RESOURCE_LIST_ORDER` before `STAFF_PROFILES` (backend order parity)
+  - Add full `CLINICAL_RESOURCE_CONFIGS` entry for `routePath: '/hr/staff-positions'`
+- [ ] Wire CRUD dispatch in `src/platform/screens/clinical/useClinicalResourceCrud.js`:
+  - Import `useStaffPosition`
+  - Instantiate `const staffPosition = useStaffPosition();`
+  - Map `[CLINICAL_RESOURCE_IDS.STAFF_POSITIONS]: staffPosition`
+- [ ] Add navigation and i18n labels:
+  - `src/config/sideMenu.js`: add `hr-staff-positions` menu item with path `/hr/staff-positions`
+  - `src/i18n/locales/en.json`: add `main-nav.hr-staff-positions`
+- [ ] Add tests for the new feature/hook:
+  - `src/__tests__/features/staff-position/staff-position.rules.test.js`
+  - `src/__tests__/features/staff-position/staff-position.model.test.js`
+  - `src/__tests__/features/staff-position/staff-position.api.test.js`
+  - `src/__tests__/features/staff-position/staff-position.usecase.test.js`
+  - `src/__tests__/hooks/useStaffPosition.test.js`
+- [ ] Update parity tests:
+  - `src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js` (resource IDs and HR order expectations)
+  - `src/__tests__/config/endpoints.test.js` (assert `endpoints.STAFF_POSITIONS`)
+- [ ] Run verification commands:
+  - `npm run test -- src/__tests__/features/staff-position`
+  - `npm run test -- src/__tests__/hooks/useStaffPosition.test.js`
+  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+  - `npm run test -- src/__tests__/config/endpoints.test.js`
+- [ ] Gate check:
+  - `rg -n "staff-position|staff-positions|STAFF_POSITIONS|useStaffPosition" src`
+  - Result must include feature files, hook, endpoints, config wiring, side menu, i18n, and tests.
+
 ### Module Group 15: Housekeeping & Facilities
 - Step 10.15.1: `housekeeping-task`
 - Step 10.15.2: `housekeeping-schedule`
