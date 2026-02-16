@@ -52,8 +52,53 @@ For any selected step that touches UI (components, screens, layouts, route prese
 - Avoid long instructional paragraphs in screens; guidance must be brief, actionable, and local to the current step.
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this parity and compactness contract.
 
+## Novice-First UX and Navigation Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Design for first-time users with minimal or no prior training; every primary action must be obvious from context.
+- Keep user journeys chronological and self-explanatory from start to completion; every next step must be clearly signposted.
+- Make navigation between related screens easy and predictable with consistent placement, labels, and back/next patterns.
+- Prefer progressive disclosure and role-focused context; show only what the current user needs to complete the current task.
+- Pre-fill and auto-resolve known values from trusted context (tenant, facility, user, encounter, branch, etc.) and hide them unless confirmation or compliance visibility is required.
+- Enforce strict role and permission visibility for routes, navigation items, widgets, fields, and actions.
+- Do not surface unauthorized or irrelevant areas (for example, finance metrics for non-finance roles or registration flows for non-admin operational roles).
+- Reuse predefined shared components and established design tokens before creating new UI patterns.
+- Keep layouts space-efficient, lightweight, and performant; avoid visual clutter and long static instructions.
+- Provide contextual in-app guidance with a help icon pattern; on hover/focus/press it must reveal a tooltip or modal that explains terms, fields, and decisions.
+- Include concise guidance for domain sequencing where needed (for example, tenant vs facility and required creation order).
+- Ensure terminology, labels, and helper text remain short, clear, and action-oriented across Android, iOS, and web.
+
 ---
 
+
+## User-Friendly Errors and Recovery Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Display errors in plain language that users can understand without technical training.
+- Do not use ambiguous generic text such as "Something went wrong" or "Server error" without context.
+- Prefer specific, user-centered messages (for example, "We could not load facility data right now").
+- Provide immediate, actionable next steps in the UI (retry, check connection, refresh, confirm permissions, continue in read-only mode when appropriate).
+- Distinguish user-correctable issues from system-side issues and tailor guidance accordingly.
+- Map validation and business-rule failures to field-level or action-level messages near the relevant control.
+- Keep sensitive internals out of UI messages (no stack traces, SQL/errors, secrets, or internal identifiers).
+- Store technical diagnostics in logs and telemetry only; surface concise user-facing guidance in the screen.
+- For persistent system errors, provide a support handoff path with a user-friendly incident reference and clear instruction to contact support if retries fail.
+- Ensure all error/help text remains concise, localized, accessible, and role-appropriate.
+- Use contextual help triggers (help icon / tooltip / modal) to clarify domain terms and required action order when confusion is likely.
+
+## Interconnected Functionality Coordination Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Treat related screens and features as one coordinated workflow, not isolated pages.
+- Verify upstream and downstream dependencies so updates in one area correctly reflect in all linked areas.
+- Keep identifiers, statuses, timestamps, ownership fields, and state transitions consistent across connected modules.
+- Ensure actions in one screen (create/update/approve/cancel/assign/close) propagate clearly to dependent queues, summaries, detail views, and dashboards.
+- Provide explicit cross-screen navigation handoffs (next step, related records, return path) where workflows span multiple modules.
+- Align validation and business rules across interconnected forms to prevent contradictory outcomes between screens.
+- Enforce role and permission coordination across linked flows so users only see and trigger actions they are authorized for end-to-end.
+- Use shared domain components, hooks, and contracts to avoid duplicated logic and drift between connected features.
+- Handle partial failure/offline scenarios with clear reconciliation behavior so linked records do not silently diverge.
+- Include cross-functional test coverage for linked journeys, including success, validation, permission-denied, and recovery paths.
 ## Rule Loading Contract (Mandatory)
 
 Before coding, read and apply:
@@ -132,4 +177,3 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
-

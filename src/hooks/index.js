@@ -167,6 +167,8 @@ export { default as useEquipmentSparePart } from './useEquipmentSparePart';
 export { default as useEquipmentWarrantyContract } from './useEquipmentWarrantyContract';
 export { default as useEquipmentServiceProvider } from './useEquipmentServiceProvider';
 export { default as useEquipmentUtilizationSnapshot } from './useEquipmentUtilizationSnapshot';
+export { default as useReportDefinition } from './useReportDefinition';
+export { default as useReportRun } from './useReportRun';
 export { default as useDashboardWidget } from './useDashboardWidget';
 export { default as useKpiSnapshot } from './useKpiSnapshot';
 export { default as useAnalyticsEvent } from './useAnalyticsEvent';

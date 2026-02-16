@@ -13,3 +13,9 @@ Canonical tier prompt files:
 - `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance.mdc`
 - `11_11_patient-portal.mdc`
 
+Global UX baseline now enforced in each tier prompt:
+- Mobile parity and compact UX contract.
+- Novice-first UX and navigation contract.
+- Strict role- and permission-based visibility, contextual in-app help, chronological flow guidance, and space-efficient reusable UI requirements.
+- User-friendly errors and recovery contract with actionable guidance and non-technical messaging.
+- Interconnected functionality coordination contract to enforce end-to-end consistency across linked screens and modules.
