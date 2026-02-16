@@ -72,7 +72,7 @@ The HMS must:
 
 The app is complete only when all are true:
 
-1. 144 backend modules are functionally usable from frontend workflows.
+1. 160 backend modules are functionally usable from frontend workflows.
 2. Core and advanced workflows pass quality, security, and performance gates.
 3. Flexible payment and licensing models are operational.
 4. Modular activation works without code changes per tenant.
@@ -105,10 +105,10 @@ The app is complete only when all are true:
 
 Observed in current repository:
 
-- Backend module directories: **159**
+- Backend module directories: **160**
 - Frontend feature directories: **159**
-- Feature-module count parity: **matched**
-- Frontend route files under `src/app`: **727**
+- Feature-module count parity: **not yet matched** (missing frontend `staff-position`)
+- Frontend route files under `src/app`: **728**
 - Route placeholder catch-all files (`[...missing].jsx`): **22**
 
 ### 2.4 Important implications
@@ -251,7 +251,8 @@ This section is the mandatory feature catalog. It aligns with:
 
 - `hms-frontend/dev-plan/P010_core-features.md`
 - `hms-backend/dev-plan/P011_modules.mdc`
-- `6.15A` defines Biomedical Engineering expansion modules to add beyond the current 144-module baseline.
+- `hms-backend/src/app/router.js` (mounted route source of truth)
+- `6.15A` defines Biomedical Engineering expansion modules within the current 160-module backend surface.
 
 ### 6.1 Group 1: Auth, Sessions, Tenancy, Core Access
 
@@ -491,10 +492,11 @@ Acceptance essentials:
 
 Modules:
 
-- `staff-profile`, `staff-assignment`, `staff-leave`, `shift`, `shift-assignment`, `shift-swap-request`, `payroll-run`, `payroll-item`, `nurse-roster`, `shift-template`, `roster-day-off`, `staff-availability`
+- `staff-position`, `staff-profile`, `staff-assignment`, `staff-leave`, `shift`, `shift-assignment`, `shift-swap-request`, `payroll-run`, `payroll-item`, `nurse-roster`, `shift-template`, `roster-day-off`, `staff-availability`
 
 Must deliver:
 
+- Staff position catalog and assignment alignment for staffing workflows
 - Staff records and assignment management
 - Shift lifecycle and swap governance
 - Payroll run integrity
@@ -1201,7 +1203,7 @@ Maintain strict coverage for domain logic and error paths, consistent with dev-p
 
 ### 16.2 Current directional status
 
-- Feature-level module inventory exists and matches backend module count.
+- Feature-level module inventory is one module behind backend (`staff-position` pending in frontend feature scope).
 - Route and screen wiring is substantial, but completion and consistency checks remain.
 - Final hardening (accessibility, performance, parity audits, full localization) must be treated as blocking work, not optional work.
 
@@ -1260,11 +1262,11 @@ Current placeholder files detected:
 
 ### 17.2 Route-coverage verification status
 
-The previous verification queue is now resolved at filename level, including pluralized route conventions (for example, `diagnosis` -> `diagnoses`, `notification-delivery` -> `notification-deliveries`).
+The previous verification queue is mostly resolved at filename level, including pluralized route conventions (for example, `diagnosis` -> `diagnoses`, `notification-delivery` -> `notification-deliveries`).
 
 Current verification queue:
 
-- None
+- `staff-position` feature module and route/screen wiring (`/api/v1/staff-positions`, `(main)/hr/staff-positions`)
 
 Action rule:
 

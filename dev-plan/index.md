@@ -21,7 +21,7 @@ Chronological guide for building the React Native (Expo + App Router) HMS applic
 - Do not mark roadmap steps as "optional"; defer non-required scope to a later phase file.
 
 ## Backend Alignment Contract
-- Frontend Phase 10 module order must remain 1:1 with `hms-backend/dev-plan/P011_modules.mdc`.
+- Frontend Phase 10 module order must remain 1:1 with mounted backend modules in `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 - Frontend Phase 10 must include backend Module Group 15A (Biomedical Engineering & Medical Equipment Suite) in chronological order before Group 16.
 - Frontend routes/screens in Phase 11 must map to implemented backend modules/endpoints in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Advanced realtime-driven UX in Phase 12 must map to backend WS scope in `hms-backend/dev-plan/P013_ws_features.mdc`.

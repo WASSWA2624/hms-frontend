@@ -16,10 +16,10 @@ Review and implement all missing and non-compliant aspects of this selected tier
 You must ensure 100% compliance with:
 - All rules in hms-frontend/.cursor/rules/*
 - hms-frontend/write-up.md
-- Module order must align with `hms-backend/dev-plan/P011_modules.mdc`.
+- Module order must align with mounted backend modules in `hms-backend/src/app/router.js` (and with `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 - Endpoint contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and module route files are source of truth.
-- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-15`; implement full CRUD-capable feature behavior where the API contract and RBAC allow it.
+- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-16`; implement full CRUD-capable feature behavior where the API contract and RBAC allow it.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 

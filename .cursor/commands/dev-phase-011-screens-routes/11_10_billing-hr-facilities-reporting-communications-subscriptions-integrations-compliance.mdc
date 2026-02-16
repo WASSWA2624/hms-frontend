@@ -10,70 +10,71 @@ Steps to review and implement (Phase 011 - Tier 10: Billing, HR, Facilities, Bio
 - **11.10.9** Pre-authorizations - `(main)/billing/pre-authorizations` - backend `pre-authorization`
 - **11.10.10** Billing adjustments - `(main)/billing/billing-adjustments` - backend `billing-adjustment`
 - **11.10.11** HR home - `(main)/hr`
-- **11.10.12** Staff profiles - `(main)/hr/staff-profiles` - backend `staff-profile`
-- **11.10.13** Staff assignments - `(main)/hr/staff-assignments` - backend `staff-assignment`
-- **11.10.14** Staff leaves - `(main)/hr/staff-leaves` - backend `staff-leave`
-- **11.10.15** Shifts - `(main)/hr/shifts` - backend `shift`
-- **11.10.16** Shift assignments - `(main)/hr/shift-assignments` - backend `shift-assignment`
-- **11.10.17** Shift swap requests - `(main)/hr/shift-swap-requests` - backend `shift-swap-request`
-- **11.10.18** Nurse rosters - `(main)/hr/nurse-rosters` - backend `nurse-roster`
-- **11.10.19** Shift templates - `(main)/hr/shift-templates` - backend `shift-template`
-- **11.10.20** Roster day offs - `(main)/hr/roster-day-offs` - backend `roster-day-off`
-- **11.10.21** Staff availabilities - `(main)/hr/staff-availabilities` - backend `staff-availability`
-- **11.10.22** Payroll runs - `(main)/hr/payroll-runs` - backend `payroll-run`
-- **11.10.23** Payroll items - `(main)/hr/payroll-items` - backend `payroll-item`
-- **11.10.24** Housekeeping home - `(main)/housekeeping`
-- **11.10.25** Housekeeping tasks - `(main)/housekeeping/housekeeping-tasks` - backend `housekeeping-task`
-- **11.10.26** Housekeeping schedules - `(main)/housekeeping/housekeeping-schedules` - backend `housekeeping-schedule`
-- **11.10.27** Maintenance requests - `(main)/housekeeping/maintenance-requests` - backend `maintenance-request`
-- **11.10.28** Assets - `(main)/housekeeping/assets` - backend `asset`
-- **11.10.29** Asset service logs - `(main)/housekeeping/asset-service-logs` - backend `asset-service-log`
-- **11.10.30** Communications home - `(main)/communications`
-- **11.10.31** Notifications - `(main)/communications/notifications` - backend `notification`
-- **11.10.32** Notification deliveries - `(main)/communications/notification-deliveries` - backend `notification-delivery`
-- **11.10.33** Conversations - `(main)/communications/conversations` - backend `conversation`
-- **11.10.34** Messages - `(main)/communications/messages` - backend `message`
-- **11.10.35** Templates - `(main)/communications/templates` - backend `template`
-- **11.10.36** Template variables - `(main)/communications/template-variables` - backend `template-variable`
-- **11.10.37** Reports home - `(main)/reports`
-- **11.10.38** Report definitions - `(main)/reports/report-definitions` - backend `report-definition`
-- **11.10.39** Report runs - `(main)/reports/report-runs` - backend `report-run`
-- **11.10.40** Dashboard widgets - `(main)/reports/dashboard-widgets` - backend `dashboard-widget`
-- **11.10.41** KPI snapshots - `(main)/reports/kpi-snapshots` - backend `kpi-snapshot`
-- **11.10.42** Analytics events - `(main)/reports/analytics-events` - backend `analytics-event`
-- **11.10.43** Subscriptions home - `(main)/subscriptions`
-- **11.10.44** Subscription plans - `(main)/subscriptions/subscription-plans` - backend `subscription-plan`
-- **11.10.45** Subscriptions - `(main)/subscriptions/subscriptions` - backend `subscription`
-- **11.10.46** Subscription invoices - `(main)/subscriptions/subscription-invoices` - backend `subscription-invoice`
-- **11.10.47** Modules - `(main)/subscriptions/modules` - backend `module`
-- **11.10.48** Module subscriptions - `(main)/subscriptions/module-subscriptions` - backend `module-subscription`
-- **11.10.49** Licenses - `(main)/subscriptions/licenses` - backend `license`
-- **11.10.50** Compliance home - `(main)/compliance`
-- **11.10.51** Audit logs - `(main)/compliance/audit-logs` - backend `audit-log`
-- **11.10.52** PHI access logs - `(main)/compliance/phi-access-logs` - backend `phi-access-log`
-- **11.10.53** Data processing logs - `(main)/compliance/data-processing-logs` - backend `data-processing-log`
-- **11.10.54** Breach notifications - `(main)/compliance/breach-notifications` - backend `breach-notification`
-- **11.10.55** System change logs - `(main)/compliance/system-change-logs` - backend `system-change-log`
-- **11.10.56** Integrations home - `(main)/integrations`
-- **11.10.57** Integrations - `(main)/integrations/integrations` - backend `integration`
-- **11.10.58** Integration logs - `(main)/integrations/integration-logs` - backend `integration-log`
-- **11.10.59** Webhook subscriptions - `(main)/integrations/webhook-subscriptions` - backend `webhook-subscription`
-- **11.10.60** Biomedical home - `(main)/housekeeping/biomedical`
-- **11.10.61** Equipment categories - `(main)/housekeeping/biomedical/equipment-categories` - backend `equipment-category`
-- **11.10.62** Equipment registries - `(main)/housekeeping/biomedical/equipment-registries` - backend `equipment-registry`
-- **11.10.63** Equipment location histories - `(main)/housekeeping/biomedical/equipment-location-histories` - backend `equipment-location-history`
-- **11.10.64** Equipment disposal transfers - `(main)/housekeeping/biomedical/equipment-disposal-transfers` - backend `equipment-disposal-transfer`
-- **11.10.65** Equipment maintenance plans - `(main)/housekeeping/biomedical/equipment-maintenance-plans` - backend `equipment-maintenance-plan`
-- **11.10.66** Equipment work orders - `(main)/housekeeping/biomedical/equipment-work-orders` - backend `equipment-work-order`
-- **11.10.67** Equipment calibration logs - `(main)/housekeeping/biomedical/equipment-calibration-logs` - backend `equipment-calibration-log`
-- **11.10.68** Equipment safety test logs - `(main)/housekeeping/biomedical/equipment-safety-test-logs` - backend `equipment-safety-test-log`
-- **11.10.69** Equipment downtime logs - `(main)/housekeeping/biomedical/equipment-downtime-logs` - backend `equipment-downtime-log`
-- **11.10.70** Equipment incident reports - `(main)/housekeeping/biomedical/equipment-incident-reports` - backend `equipment-incident-report`
-- **11.10.71** Equipment recall notices - `(main)/housekeeping/biomedical/equipment-recall-notices` - backend `equipment-recall-notice`
-- **11.10.72** Equipment spare parts - `(main)/housekeeping/biomedical/equipment-spare-parts` - backend `equipment-spare-part`
-- **11.10.73** Equipment warranty contracts - `(main)/housekeeping/biomedical/equipment-warranty-contracts` - backend `equipment-warranty-contract`
-- **11.10.74** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
-- **11.10.75** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
+- **11.10.12** Staff positions - `(main)/hr/staff-positions` - backend `staff-position`
+- **11.10.13** Staff profiles - `(main)/hr/staff-profiles` - backend `staff-profile`
+- **11.10.14** Staff assignments - `(main)/hr/staff-assignments` - backend `staff-assignment`
+- **11.10.15** Staff leaves - `(main)/hr/staff-leaves` - backend `staff-leave`
+- **11.10.16** Shifts - `(main)/hr/shifts` - backend `shift`
+- **11.10.17** Shift assignments - `(main)/hr/shift-assignments` - backend `shift-assignment`
+- **11.10.18** Shift swap requests - `(main)/hr/shift-swap-requests` - backend `shift-swap-request`
+- **11.10.19** Nurse rosters - `(main)/hr/nurse-rosters` - backend `nurse-roster`
+- **11.10.20** Shift templates - `(main)/hr/shift-templates` - backend `shift-template`
+- **11.10.21** Roster day offs - `(main)/hr/roster-day-offs` - backend `roster-day-off`
+- **11.10.22** Staff availabilities - `(main)/hr/staff-availabilities` - backend `staff-availability`
+- **11.10.23** Payroll runs - `(main)/hr/payroll-runs` - backend `payroll-run`
+- **11.10.24** Payroll items - `(main)/hr/payroll-items` - backend `payroll-item`
+- **11.10.25** Housekeeping home - `(main)/housekeeping`
+- **11.10.26** Housekeeping tasks - `(main)/housekeeping/housekeeping-tasks` - backend `housekeeping-task`
+- **11.10.27** Housekeeping schedules - `(main)/housekeeping/housekeeping-schedules` - backend `housekeeping-schedule`
+- **11.10.28** Maintenance requests - `(main)/housekeeping/maintenance-requests` - backend `maintenance-request`
+- **11.10.29** Assets - `(main)/housekeeping/assets` - backend `asset`
+- **11.10.30** Asset service logs - `(main)/housekeeping/asset-service-logs` - backend `asset-service-log`
+- **11.10.31** Communications home - `(main)/communications`
+- **11.10.32** Notifications - `(main)/communications/notifications` - backend `notification`
+- **11.10.33** Notification deliveries - `(main)/communications/notification-deliveries` - backend `notification-delivery`
+- **11.10.34** Conversations - `(main)/communications/conversations` - backend `conversation`
+- **11.10.35** Messages - `(main)/communications/messages` - backend `message`
+- **11.10.36** Templates - `(main)/communications/templates` - backend `template`
+- **11.10.37** Template variables - `(main)/communications/template-variables` - backend `template-variable`
+- **11.10.38** Reports home - `(main)/reports`
+- **11.10.39** Report definitions - `(main)/reports/report-definitions` - backend `report-definition`
+- **11.10.40** Report runs - `(main)/reports/report-runs` - backend `report-run`
+- **11.10.41** Dashboard widgets - `(main)/reports/dashboard-widgets` - backend `dashboard-widget`
+- **11.10.42** KPI snapshots - `(main)/reports/kpi-snapshots` - backend `kpi-snapshot`
+- **11.10.43** Analytics events - `(main)/reports/analytics-events` - backend `analytics-event`
+- **11.10.44** Subscriptions home - `(main)/subscriptions`
+- **11.10.45** Subscription plans - `(main)/subscriptions/subscription-plans` - backend `subscription-plan`
+- **11.10.46** Subscriptions - `(main)/subscriptions/subscriptions` - backend `subscription`
+- **11.10.47** Subscription invoices - `(main)/subscriptions/subscription-invoices` - backend `subscription-invoice`
+- **11.10.48** Modules - `(main)/subscriptions/modules` - backend `module`
+- **11.10.49** Module subscriptions - `(main)/subscriptions/module-subscriptions` - backend `module-subscription`
+- **11.10.50** Licenses - `(main)/subscriptions/licenses` - backend `license`
+- **11.10.51** Compliance home - `(main)/compliance`
+- **11.10.52** Audit logs - `(main)/compliance/audit-logs` - backend `audit-log`
+- **11.10.53** PHI access logs - `(main)/compliance/phi-access-logs` - backend `phi-access-log`
+- **11.10.54** Data processing logs - `(main)/compliance/data-processing-logs` - backend `data-processing-log`
+- **11.10.55** Breach notifications - `(main)/compliance/breach-notifications` - backend `breach-notification`
+- **11.10.56** System change logs - `(main)/compliance/system-change-logs` - backend `system-change-log`
+- **11.10.57** Integrations home - `(main)/integrations`
+- **11.10.58** Integrations - `(main)/integrations/integrations` - backend `integration`
+- **11.10.59** Integration logs - `(main)/integrations/integration-logs` - backend `integration-log`
+- **11.10.60** Webhook subscriptions - `(main)/integrations/webhook-subscriptions` - backend `webhook-subscription`
+- **11.10.61** Biomedical home - `(main)/housekeeping/biomedical`
+- **11.10.62** Equipment categories - `(main)/housekeeping/biomedical/equipment-categories` - backend `equipment-category`
+- **11.10.63** Equipment registries - `(main)/housekeeping/biomedical/equipment-registries` - backend `equipment-registry`
+- **11.10.64** Equipment location histories - `(main)/housekeeping/biomedical/equipment-location-histories` - backend `equipment-location-history`
+- **11.10.65** Equipment disposal transfers - `(main)/housekeeping/biomedical/equipment-disposal-transfers` - backend `equipment-disposal-transfer`
+- **11.10.66** Equipment maintenance plans - `(main)/housekeeping/biomedical/equipment-maintenance-plans` - backend `equipment-maintenance-plan`
+- **11.10.67** Equipment work orders - `(main)/housekeeping/biomedical/equipment-work-orders` - backend `equipment-work-order`
+- **11.10.68** Equipment calibration logs - `(main)/housekeeping/biomedical/equipment-calibration-logs` - backend `equipment-calibration-log`
+- **11.10.69** Equipment safety test logs - `(main)/housekeeping/biomedical/equipment-safety-test-logs` - backend `equipment-safety-test-log`
+- **11.10.70** Equipment downtime logs - `(main)/housekeeping/biomedical/equipment-downtime-logs` - backend `equipment-downtime-log`
+- **11.10.71** Equipment incident reports - `(main)/housekeeping/biomedical/equipment-incident-reports` - backend `equipment-incident-report`
+- **11.10.72** Equipment recall notices - `(main)/housekeeping/biomedical/equipment-recall-notices` - backend `equipment-recall-notice`
+- **11.10.73** Equipment spare parts - `(main)/housekeeping/biomedical/equipment-spare-parts` - backend `equipment-spare-part`
+- **11.10.74** Equipment warranty contracts - `(main)/housekeeping/biomedical/equipment-warranty-contracts` - backend `equipment-warranty-contract`
+- **11.10.75** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
+- **11.10.76** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
 
 Specific implementation scope for this tier:
 - Implement selected screen/route wiring and interactions for this tier only.

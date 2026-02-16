@@ -21,9 +21,10 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - Errors layer exists (Phase 1)
 - Shared utilities exist (URL helpers, pagination, error normalization)
 
-## Review Snapshot (2026-02-15)
+## Review Snapshot (2026-02-16)
 - Reviewed against `hms-backend/dev-plan/P011_modules.mdc`.
-- Core module steps listed in this phase: **159**.
+- Reviewed against mounted backend resources in `hms-backend/src/app/router.js` (source of truth when docs lag code).
+- Core module steps listed in this phase: **160**.
 - Missing modules: **None**.
 - Modules present but not required: **None**.
 - Read-only backend modules are still required in frontend scope (list/detail access):
@@ -56,7 +57,7 @@ For each module step, implement the full feature template:
 - Public APIs exported via `index.js`
 
 ## Steps
-Each step implements exactly **one** backend module from `hms-backend/dev-plan/P011_modules.mdc`.
+Each step implements exactly **one** mounted backend module from `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 
 ## Chronology Lock (Mandatory)
 - Execute module groups in order: **1 -> 20** exactly as listed below.
@@ -193,18 +194,19 @@ Each step implements exactly **one** backend module from `hms-backend/dev-plan/P
 - Step 10.13.9: `billing-adjustment`
 
 ### Module Group 14: HR, Payroll & Staffing
-- Step 10.14.1: `staff-profile`
-- Step 10.14.2: `staff-assignment`
-- Step 10.14.3: `staff-leave`
-- Step 10.14.4: `shift`
-- Step 10.14.5: `shift-assignment`
-- Step 10.14.6: `shift-swap-request`
-- Step 10.14.7: `payroll-run`
-- Step 10.14.8: `payroll-item`
-- Step 10.14.9: `nurse-roster` (Nurses Time-table Generator: roster config, constraints, generated schedules - write-up sections 6.14, 7.9, and 20.3)
-- Step 10.14.10: `shift-template`
-- Step 10.14.11: `roster-day-off`
-- Step 10.14.12: `staff-availability`
+- Step 10.14.1: `staff-position`
+- Step 10.14.2: `staff-profile`
+- Step 10.14.3: `staff-assignment`
+- Step 10.14.4: `staff-leave`
+- Step 10.14.5: `shift`
+- Step 10.14.6: `shift-assignment`
+- Step 10.14.7: `shift-swap-request`
+- Step 10.14.8: `payroll-run`
+- Step 10.14.9: `payroll-item`
+- Step 10.14.10: `nurse-roster` (Nurses Time-table Generator: roster config, constraints, generated schedules - write-up sections 6.14, 7.9, and 20.3)
+- Step 10.14.11: `shift-template`
+- Step 10.14.12: `roster-day-off`
+- Step 10.14.13: `staff-availability`
 
 ### Module Group 15: Housekeeping & Facilities
 - Step 10.15.1: `housekeeping-task`

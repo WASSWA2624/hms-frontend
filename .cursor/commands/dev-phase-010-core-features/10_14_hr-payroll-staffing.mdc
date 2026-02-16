@@ -1,16 +1,17 @@
 Steps to review and implement (Phase 010 - Tier 14: HR, Payroll & Staffing):
-- **10.14.1** `staff-profile`
-- **10.14.2** `staff-assignment`
-- **10.14.3** `staff-leave`
-- **10.14.4** `shift`
-- **10.14.5** `shift-assignment`
-- **10.14.6** `shift-swap-request`
-- **10.14.7** `payroll-run`
-- **10.14.8** `payroll-item`
-- **10.14.9** `nurse-roster` - (Nurses Time-table Generator: roster config, constraints, generated schedules - write-up sections 6.14, 7.9, and 20.3)
-- **10.14.10** `shift-template`
-- **10.14.11** `roster-day-off`
-- **10.14.12** `staff-availability`
+- **10.14.1** `staff-position`
+- **10.14.2** `staff-profile`
+- **10.14.3** `staff-assignment`
+- **10.14.4** `staff-leave`
+- **10.14.5** `shift`
+- **10.14.6** `shift-assignment`
+- **10.14.7** `shift-swap-request`
+- **10.14.8** `payroll-run`
+- **10.14.9** `payroll-item`
+- **10.14.10** `nurse-roster` - (Nurses Time-table Generator: roster config, constraints, generated schedules - write-up sections 6.14, 7.9, and 20.3)
+- **10.14.11** `shift-template`
+- **10.14.12** `roster-day-off`
+- **10.14.13** `staff-availability`
 
 Specific implementation scope for this tier:
 - Implement full feature-template files per selected module step(s): rules, model, api, usecase, optional events, and exports.
@@ -23,10 +24,10 @@ Review and implement all missing and non-compliant aspects of this selected tier
 You must ensure 100% compliance with:
 - All rules in hms-frontend/.cursor/rules/*
 - hms-frontend/write-up.md
-- Module order must align with `hms-backend/dev-plan/P011_modules.mdc`.
+- Module order must align with mounted backend modules in `hms-backend/src/app/router.js` (and with `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 - Endpoint contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and module route files are source of truth.
-- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-15`; implement full CRUD-capable feature behavior where the API contract and RBAC allow it.
+- All Phase 10 modules listed in `P010_core-features.md` are mounted in backend snapshot `2026-02-16`; implement full CRUD-capable feature behavior where the API contract and RBAC allow it.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
