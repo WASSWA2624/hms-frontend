@@ -745,6 +745,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/shifts/${id}`,
     UPDATE: (id) => `${baseUrl}/shifts/${id}`,
     DELETE: (id) => `${baseUrl}/shifts/${id}`,
+    PUBLISH: (id) => `${baseUrl}/shifts/${id}/publish`,
   },
   SHIFT_ASSIGNMENTS: {
     LIST: `${baseUrl}/shift-assignments`,

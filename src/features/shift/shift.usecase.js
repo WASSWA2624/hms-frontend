@@ -76,4 +76,12 @@ const deleteShift = async (id) =>
     return normalizeShift(response.data);
   });
 
-export { listShifts, getShift, createShift, updateShift, deleteShift };
+const publishShift = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseShiftId(id);
+    const parsed = parseShiftPayload(payload);
+    const response = await shiftApi.publish(parsedId, parsed);
+    return normalizeShift(response.data);
+  });
+
+export { listShifts, getShift, createShift, updateShift, deleteShift, publishShift };

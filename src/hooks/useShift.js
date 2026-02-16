@@ -8,7 +8,8 @@ import {
   getShift,
   createShift,
   updateShift,
-  deleteShift
+  deleteShift,
+  publishShift,
 } from '@features/shift';
 
 const useShift = () =>
@@ -18,6 +19,7 @@ const useShift = () =>
     create: createShift,
     update: updateShift,
     remove: deleteShift,
+    publish: publishShift,
   });
 
 export default useShift;

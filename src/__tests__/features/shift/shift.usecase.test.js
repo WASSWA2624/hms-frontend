@@ -2,7 +2,7 @@
  * Shift Usecase Tests
  * File: shift.usecase.test.js
  */
-import { listShifts, getShift, createShift, updateShift, deleteShift } from '@features/shift';
+import { publishShift, listShifts, getShift, createShift, updateShift, deleteShift } from '@features/shift';
 import { shiftApi } from '@features/shift/shift.api';
 import { queueRequestIfOffline } from '@offline/request';
 import { runCrudUsecaseTests } from '../../helpers/crud-usecase-runner';
@@ -14,6 +14,7 @@ jest.mock('@features/shift/shift.api', () => ({
     create: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
+    publish: jest.fn(),
   },
 }));
 
@@ -23,11 +24,13 @@ jest.mock('@offline/request', () => ({
 
 describe('shift.usecase', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     shiftApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     shiftApi.get.mockResolvedValue({ data: { id: '1' } });
     shiftApi.create.mockResolvedValue({ data: { id: '1' } });
     shiftApi.update.mockResolvedValue({ data: { id: '1' } });
     shiftApi.remove.mockResolvedValue({ data: { id: '1' } });
+    shiftApi.publish.mockResolvedValue({ data: { id: '1', status: 'PUBLISHED' } });
   });
 
   runCrudUsecaseTests(
@@ -40,4 +43,16 @@ describe('shift.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('publishes shift', async () => {
+    await expect(publishShift('1', { notify_staff: true })).resolves.toMatchObject({
+      id: '1',
+      status: 'PUBLISHED',
+    });
+    expect(shiftApi.publish).toHaveBeenCalledWith('1', { notify_staff: true });
+  });
+
+  it('rejects invalid id for publish', async () => {
+    await expect(publishShift(null, { notify_staff: true })).rejects.toBeDefined();
+  });
 });
