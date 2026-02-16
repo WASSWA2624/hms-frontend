@@ -15,6 +15,7 @@ import {
   StyledLeadingSlot,
   StyledTitleGroup,
   StyledTitleBlock,
+  StyledCenterSlot,
   StyledActionsGroup,
   StyledUtilityGroup,
   StyledActionButton,
@@ -68,6 +69,7 @@ const buildActionItems = ({ actions, testID }) => {
  * @param {Function} props.onBreadcrumbPress - Breadcrumb press handler
  * @param {Array} props.actions - Action definitions
  * @param {string} props.currentRole - Current user role
+ * @param {React.ReactNode} props.centerSlot - Optional desktop center slot
  * @param {React.ReactNode} props.utilitySlot - Optional utility controls
  * @param {React.ReactNode} props.leadingSlot - Optional leading controls
  * @param {string} props.accessibilityLabel - Accessibility label
@@ -81,6 +83,7 @@ const GlobalHeaderWeb = ({
   onBreadcrumbPress,
   actions = [],
   currentRole,
+  centerSlot,
   utilitySlot,
   leadingSlot,
   accessibilityLabel,
@@ -138,6 +141,7 @@ const GlobalHeaderWeb = ({
               : null}
           </StyledTitleBlock>
         </StyledTitleGroup>
+        {centerSlot ? <StyledCenterSlot>{centerSlot}</StyledCenterSlot> : null}
         {hasUtilities ? (
           <StyledActionsGroup>
             {primaryActionItems}

@@ -33,7 +33,7 @@ export default function NotificationsList({
           type="button"
           role="menuitem"
           data-notification-id={item.id}
-          onClick={onItemSelect}
+          onClick={(event) => onItemSelect?.(event, item)}
           aria-label={item.title}
         >
           <StyledNotificationsItemContent>
@@ -55,7 +55,7 @@ export default function NotificationsList({
       >
         <StyledNotificationsItemContent>
           <StyledNotificationsItemIcon>
-            <Icon glyph="📬" decorative accessibilityLabel={viewAllLabel} />
+            <Icon glyph="\u{1F4EC}" decorative accessibilityLabel={viewAllLabel} />
           </StyledNotificationsItemIcon>
           <StyledNotificationsItemTitle>{viewAllLabel}</StyledNotificationsItemTitle>
         </StyledNotificationsItemContent>

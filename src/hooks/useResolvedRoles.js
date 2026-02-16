@@ -8,6 +8,24 @@ import { tokenManager } from '@security';
 import useAuth from './useAuth';
 import { normalizeRoles } from './roleUtils';
 
+const tokenRoleCache = {
+  accessToken: null,
+  roles: [],
+  resolved: false,
+};
+
+const clearTokenRoleCache = () => {
+  tokenRoleCache.accessToken = null;
+  tokenRoleCache.roles = [];
+  tokenRoleCache.resolved = false;
+};
+
+const setTokenRoleCache = (accessToken, roles) => {
+  tokenRoleCache.accessToken = accessToken || null;
+  tokenRoleCache.roles = Array.isArray(roles) ? roles : [];
+  tokenRoleCache.resolved = true;
+};
+
 const decodeBase64 = (value) => {
   if (typeof value !== 'string') return null;
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
@@ -71,14 +89,15 @@ const extractRolesFromPayload = (payload) => {
 
 const useResolvedRoles = () => {
   const { isAuthenticated, roles: authRoles } = useAuth();
-  const [tokenRoles, setTokenRoles] = useState([]);
-  const [isTokenResolved, setIsTokenResolved] = useState(false);
+  const [tokenRoles, setTokenRoles] = useState(() => tokenRoleCache.roles);
+  const [isTokenResolved, setIsTokenResolved] = useState(() => tokenRoleCache.resolved);
 
   useEffect(() => {
     let active = true;
-    setTokenRoles([]);
 
     if (!isAuthenticated) {
+      clearTokenRoleCache();
+      setTokenRoles([]);
       setIsTokenResolved(true);
       return () => {
         active = false;
@@ -86,22 +105,33 @@ const useResolvedRoles = () => {
     }
 
     if (authRoles.length > 0) {
+      clearTokenRoleCache();
+      setTokenRoles([]);
       setIsTokenResolved(true);
       return () => {
         active = false;
       };
     }
 
-    setIsTokenResolved(false);
     const resolveFromToken = async () => {
+      let accessToken = null;
       try {
-        const accessToken = await tokenManager.getAccessToken();
-        const payload = parseJwtPayload(accessToken);
+        accessToken = await tokenManager.getAccessToken();
         if (!active) return;
-        setTokenRoles(extractRolesFromPayload(payload));
+        const cacheToken = accessToken || null;
+        if (tokenRoleCache.resolved && tokenRoleCache.accessToken === cacheToken) {
+          setTokenRoles(tokenRoleCache.roles);
+          setIsTokenResolved(true);
+          return;
+        }
+
+        const payload = parseJwtPayload(accessToken);
+        const resolvedRoles = extractRolesFromPayload(payload);
+        setTokenRoleCache(accessToken, resolvedRoles);
+        setTokenRoles(resolvedRoles);
       } catch {
         if (!active) return;
-        setTokenRoles([]);
+        setTokenRoles(tokenRoleCache.resolved ? tokenRoleCache.roles : []);
       } finally {
         if (active) setIsTokenResolved(true);
       }
@@ -123,4 +153,3 @@ const useResolvedRoles = () => {
 };
 
 export default useResolvedRoles;
-

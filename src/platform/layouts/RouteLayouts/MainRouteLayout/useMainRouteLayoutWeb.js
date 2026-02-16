@@ -9,19 +9,36 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useWindowDimensions } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { useAuth, useFocusTrap, useI18n, useNavigationVisibility, useUiState } from '@hooks';
+import {
+  useAuth,
+  useFocusTrap,
+  useI18n,
+  useNavigationVisibility,
+  useNotification,
+  useUiState,
+} from '@hooks';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 import breakpoints from '@theme/breakpoints';
 import { Icon, LoadingOverlay } from '@platform/components';
 import {
-  useHeaderActions,
   useNotificationData,
   useHeaderCustomizationItems,
 } from './useMainLayoutMemo';
 import useKeyboardShortcuts from './useKeyboardShortcuts';
-import { ACTION_VARIANTS } from '@platform/components/navigation/GlobalHeader/types';
+import {
+  flattenNavigation,
+  formatNotificationMeta,
+  hasPathMatch,
+  isNotificationUnread,
+  normalizeRoute,
+  resolveNotificationIcon,
+  resolveNotificationRoute as resolveNotificationRouteCandidate,
+} from '@navigation/notification-routing';
 import { actions as uiActions } from '@store/slices/ui.slice';
 import { SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_DEFAULT_WIDTH, clamp } from './types';
+
+const NOTIFICATION_PAGE_LIMIT = 8;
+const NOTIFICATION_REFRESH_INTERVAL_MS = 60000;
 
 export default function useMainRouteLayoutWeb() {
   const { t } = useI18n();
@@ -35,13 +52,32 @@ export default function useMainRouteLayoutWeb() {
     headerActionVisibility,
     footerVisible,
   } = useUiState();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
+  const { list: listNotifications, markRead: markNotificationRead } = useNotification();
   const { isItemVisible } = useNavigationVisibility();
   const mainItems = MAIN_NAV_ITEMS;
   const { width } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
   const isTablet = width >= breakpoints.tablet && width < breakpoints.desktop;
+  const isDesktop = width >= breakpoints.desktop;
   const isCompactHeader = width < breakpoints.desktop;
+  const resolvedUserId = useMemo(() => {
+    const value = user?.id;
+    if (value == null) return null;
+    const normalized = String(value).trim();
+    return normalized || null;
+  }, [user?.id]);
+  const resolvedTenantId = useMemo(() => {
+    const value =
+      user?.tenant_id ||
+      user?.tenantId ||
+      user?.tenant?.id ||
+      user?.currentTenantId ||
+      null;
+    if (value == null) return null;
+    const normalized = String(value).trim();
+    return normalized || null;
+  }, [user]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -49,6 +85,7 @@ export default function useMainRouteLayoutWeb() {
   const [isHeaderCustomizationOpen, setIsHeaderCustomizationOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [rawNotificationItems, setRawNotificationItems] = useState([]);
   const closeButtonRef = useRef(null);
   const mobileSidebarRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -211,20 +248,6 @@ export default function useMainRouteLayoutWeb() {
     }
   }, []);
 
-  const handleNotificationSelect = useCallback(
-    (e) => {
-      if (e.currentTarget?.dataset?.notificationId) setIsNotificationsOpen(false);
-      if (isMobile) setIsOverflowOpen(false);
-    },
-    [isMobile]
-  );
-
-  const handleViewNotifications = useCallback(() => {
-    router.push('/notifications');
-    setIsNotificationsOpen(false);
-    setIsOverflowOpen(false);
-  }, [router]);
-
   const handleToggleHeaderActionVisibility = useCallback(
     (key) => dispatch(uiActions.toggleHeaderActionVisibility(key)),
     [dispatch]
@@ -306,33 +329,183 @@ export default function useMainRouteLayoutWeb() {
 
   const authHeaderActions = useMemo(() => [], []);
 
-  const rawNotificationItems = useMemo(
-    () => [
-      {
-        id: 'appointments',
-        title: t('navigation.notifications.items.appointments.title'),
-        meta: t('navigation.notifications.items.appointments.meta'),
-        unread: true,
-        icon: '📅',
-      },
-      {
-        id: 'labResults',
-        title: t('navigation.notifications.items.labResults.title'),
-        meta: t('navigation.notifications.items.labResults.meta'),
-        unread: true,
-        icon: '🧪',
-      },
-      {
-        id: 'messages',
-        title: t('navigation.notifications.items.messages.title'),
-        meta: t('navigation.notifications.items.messages.meta'),
-        unread: false,
-        icon: '💬',
-      },
-    ],
-    [t]
+  const flattenedMainNavigation = useMemo(
+    () => flattenNavigation(mainItems),
+    [mainItems]
   );
-  const { notificationItems, unreadCount } = useNotificationData(rawNotificationItems);
+
+  const canAccessRoute = useCallback(
+    (path) => {
+      const normalizedPath = normalizeRoute(path);
+      let bestMatch = null;
+
+      flattenedMainNavigation.forEach((entry) => {
+        if (!hasPathMatch(normalizedPath, entry.path)) return;
+        if (!bestMatch || entry.path.length > bestMatch.path.length) {
+          bestMatch = entry;
+        }
+      });
+
+      if (!bestMatch) return true;
+      if (bestMatch.parent && !isItemVisible(bestMatch.parent)) return false;
+      return isItemVisible(bestMatch.item);
+    },
+    [flattenedMainNavigation, isItemVisible]
+  );
+
+  const resolveAccessibleNotificationRoute = useCallback(
+    (notification) => {
+      return resolveNotificationRouteCandidate(notification, canAccessRoute);
+    },
+    [canAccessRoute]
+  );
+
+  const notificationsIndexRoute = '/notifications';
+
+  const normalizedNotificationItems = useMemo(
+    () =>
+      (rawNotificationItems || [])
+        .map((notification) => {
+          if (!notification?.id) return null;
+          const route = resolveAccessibleNotificationRoute(notification);
+          if (!route) return null;
+
+          const title =
+            typeof notification?.title === 'string' && notification.title.trim()
+              ? notification.title.trim()
+              : t('navigation.notifications.label');
+          const meta = formatNotificationMeta(notification) || t('navigation.notifications.menuLabel');
+
+          return {
+            id: String(notification.id),
+            title,
+            meta,
+            unread: isNotificationUnread(notification),
+            icon: resolveNotificationIcon(notification),
+            route,
+            notification,
+          };
+        })
+        .filter(Boolean),
+    [rawNotificationItems, resolveAccessibleNotificationRoute, t]
+  );
+  const { notificationItems, unreadCount } = useNotificationData(normalizedNotificationItems);
+
+  const refreshNotifications = useCallback(async () => {
+    if (!isAuthenticated) return [];
+
+    const params = {
+      page: 1,
+      limit: NOTIFICATION_PAGE_LIMIT,
+      sort_by: 'created_at',
+      order: 'desc',
+    };
+    if (resolvedUserId) params.user_id = resolvedUserId;
+    else if (resolvedTenantId) params.tenant_id = resolvedTenantId;
+
+    const result = await listNotifications(params);
+    if (!result) return null;
+    if (Array.isArray(result)) return result;
+    if (Array.isArray(result?.items)) return result.items;
+    return [];
+  }, [isAuthenticated, listNotifications, resolvedTenantId, resolvedUserId]);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!isAuthenticated) {
+      setRawNotificationItems([]);
+      return () => {
+        active = false;
+      };
+    }
+
+    const load = async () => {
+      const items = await refreshNotifications();
+      if (!active || !Array.isArray(items)) return;
+      setRawNotificationItems(items);
+    };
+
+    load();
+    const intervalId = setInterval(load, NOTIFICATION_REFRESH_INTERVAL_MS);
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
+  }, [isAuthenticated, refreshNotifications]);
+
+  useEffect(() => {
+    if (!isNotificationsOpen) return;
+    let active = true;
+
+    const load = async () => {
+      const items = await refreshNotifications();
+      if (!active || !Array.isArray(items)) return;
+      setRawNotificationItems(items);
+    };
+
+    load();
+    return () => {
+      active = false;
+    };
+  }, [isNotificationsOpen, refreshNotifications]);
+
+  const handleNotificationSelect = useCallback(
+    async (event, selectedItem) => {
+      const notificationId = String(
+        selectedItem?.id || event?.currentTarget?.dataset?.notificationId || ''
+      ).trim();
+      const resolvedItem =
+        selectedItem || notificationItems.find((item) => item.id === notificationId) || null;
+      const targetRoute =
+        resolvedItem?.route ||
+        resolveAccessibleNotificationRoute(resolvedItem?.notification || null);
+
+      if (notificationId && resolvedItem?.unread) {
+        try {
+          await markNotificationRead(notificationId);
+          setRawNotificationItems((prevItems) =>
+            prevItems.map((notification) =>
+              String(notification?.id) === notificationId
+                ? {
+                    ...notification,
+                    read_at:
+                      notification?.read_at ||
+                      notification?.readAt ||
+                      new Date().toISOString(),
+                    is_read: true,
+                    read: true,
+                  }
+                : notification
+            )
+          );
+        } catch {
+          // Ignore mark-read failures so navigation remains responsive.
+        }
+      }
+
+      setIsNotificationsOpen(false);
+      if (isMobile) setIsOverflowOpen(false);
+
+      if (targetRoute) {
+        router.push(targetRoute);
+      }
+    },
+    [
+      isMobile,
+      markNotificationRead,
+      notificationItems,
+      resolveAccessibleNotificationRoute,
+      router,
+    ]
+  );
+
+  const handleViewNotifications = useCallback(() => {
+    router.push(notificationsIndexRoute);
+    setIsNotificationsOpen(false);
+    setIsOverflowOpen(false);
+  }, [notificationsIndexRoute, router]);
 
   const shouldShowNotifications = isHeaderActionVisible('notifications');
   const shouldShowNetwork = isHeaderActionVisible('network');
@@ -341,7 +514,7 @@ export default function useMainRouteLayoutWeb() {
   const shouldShowFullscreenInline = isHeaderActionVisible('fullscreen') && !isCompactHeader && !isMobile;
   const shouldShowFullscreenOverflow = isHeaderActionVisible('fullscreen') && (isCompactHeader || isMobile);
   const fullscreenLabel = isFullscreen ? t('navigation.fullscreen.exit') : t('navigation.fullscreen.enter');
-  const fullscreenIconGlyph = isFullscreen ? '🗗' : '⛶';
+  const fullscreenIconGlyph = isFullscreen ? '\u{1F5D7}' : '\u26F6';
 
   const overflowItems = useMemo(
     () =>
@@ -379,7 +552,12 @@ export default function useMainRouteLayoutWeb() {
   }, []);
 
   const CUSTOMIZATION_ICON_MAP = useMemo(
-    () => ({ notifications: '🔔', network: '📶', database: '🗄', fullscreen: '⛶' }),
+    () => ({
+      notifications: '\u{1F514}',
+      network: '\u{1F4F6}',
+      database: '\u{1F5C4}',
+      fullscreen: '\u26F6',
+    }),
     []
   );
 
@@ -391,6 +569,7 @@ export default function useMainRouteLayoutWeb() {
     resolvedSidebarWidth,
     isSidebarCollapsed,
     isMobile,
+    isDesktop,
     isHeaderHidden,
     isMobileSidebarOpen,
     isNotificationsOpen,

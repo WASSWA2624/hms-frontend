@@ -232,13 +232,23 @@ describe('Main layout navigation skeleton', () => {
 
   test('renders shell banners when banner payload exists', () => {
     useShellBanners.mockReturnValue([
-      { id: 'offline', variant: 'offline', title: 'Offline', message: 'Network unavailable' },
+      { id: 'maintenance', variant: 'maintenance', title: 'Maintenance', message: 'Planned window' },
     ]);
     render(<MainRouteLayoutWeb />);
 
     const appFrameProps = AppFrame.mock.calls[0][0];
     expect(appFrameProps.banner).toBeTruthy();
     expect(appFrameProps.banner.props.testID).toBe('main-shell-banners');
+  });
+
+  test('does not render shell banner for network status banners on web', () => {
+    useShellBanners.mockReturnValue([
+      { id: 'offline', variant: 'offline', title: 'Offline', message: 'Network unavailable' },
+    ]);
+    render(<MainRouteLayoutWeb />);
+
+    const appFrameProps = AppFrame.mock.calls[0][0];
+    expect(appFrameProps.banner).toBeNull();
   });
 
   test('passes notices and overlay slots into AppFrame', () => {

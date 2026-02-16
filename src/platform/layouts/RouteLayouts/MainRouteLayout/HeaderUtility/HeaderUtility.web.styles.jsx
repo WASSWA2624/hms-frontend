@@ -37,6 +37,24 @@ const StyledHeaderUtilityRow = styled.div.withConfig({
   }
 `;
 
+const StyledHeaderStatusCluster = styled.div.withConfig({
+  displayName: 'StyledHeaderStatusCluster',
+  componentId: 'StyledHeaderStatusCluster',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  flex-wrap: nowrap;
+
+  & > * {
+    min-height: 28px;
+  }
+
+  @media (max-width: 767px) {
+    gap: 4px;
+  }
+`;
+
 const StyledHeaderMenuWrapper = styled.div.withConfig({
   displayName: 'StyledHeaderMenuWrapper',
   componentId: 'StyledHeaderMenuWrapper',
@@ -565,6 +583,7 @@ const StyledNetworkButton = styled.div.withConfig({
 
 export {
   StyledHeaderUtilityRow,
+  StyledHeaderStatusCluster,
   StyledHeaderMenuWrapper,
   StyledHeaderMenuButton,
   StyledOverflowMenuButton,

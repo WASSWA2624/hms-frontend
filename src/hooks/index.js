@@ -16,6 +16,7 @@ export { default as useAsyncState } from './useAsyncState';
 export { default as useCrud } from './useCrud';
 export { default as useAuth } from './useAuth';
 export { default as useResolvedRoles } from './useResolvedRoles';
+export { default as useSessionRestore } from './useSessionRestore';
 export { default as useBiometricAuth } from './useBiometricAuth';
 export { default as useNavigationVisibility } from './useNavigationVisibility';
 export { default as useTenantAccess } from './useTenantAccess';

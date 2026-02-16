@@ -38,6 +38,10 @@ jest.mock('@navigation/guards', () => ({
   useRouteAccessGuard: jest.fn(() => ({ hasAccess: true, isPending: false, errorCode: null })),
 }));
 
+jest.mock('@hooks', () => ({
+  useSessionRestore: jest.fn(() => ({ isReady: true })),
+}));
+
 jest.mock('@platform/layouts', () => {
   const React = require('react');
   const { Slot } = require('expo-router');

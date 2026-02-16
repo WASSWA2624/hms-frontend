@@ -179,6 +179,41 @@
       "menuLabel": "Notifications menu",
       "empty": "No new notifications",
       "viewAll": "View all notifications",
+      "types": {
+        "appointment": "Appointment",
+        "billing": "Billing",
+        "lab": "Lab",
+        "pharmacy": "Pharmacy",
+        "system": "System",
+        "general": "General"
+      },
+      "screen": {
+        "title": "Notifications",
+        "summary": "{{unread}} unread of {{total}} notifications",
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "refreshError": "Unable to refresh notifications right now.",
+        "openAction": "Open action",
+        "markRead": "Mark as read",
+        "markUnread": "Mark as unread",
+        "messageFallback": "No additional details provided.",
+        "timeUnknown": "Time unavailable",
+        "filters": {
+          "all": "All",
+          "unread": "Unread",
+          "read": "Read"
+        },
+        "badges": {
+          "read": "Read",
+          "unread": "Unread"
+        },
+        "states": {
+          "emptyTitle": "No notifications available",
+          "emptyDescription": "There are no notifications for your role right now.",
+          "errorTitle": "Unable to load notifications",
+          "errorDescription": "Check your connection and try again."
+        }
+      },
       "items": {
         "appointments": {
           "title": "Upcoming appointment",

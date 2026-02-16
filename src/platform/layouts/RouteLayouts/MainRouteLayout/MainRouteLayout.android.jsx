@@ -41,7 +41,9 @@ const MainRouteLayoutAndroid = () => {
     handleToggleSidebar,
   } = useMainRouteLayoutNative();
   const breadcrumbItems = useBreadcrumbs(mainItems);
-  const banners = useShellBanners();
+  const banners = useShellBanners().filter(
+    (banner) => banner.id !== 'offline' && banner.id !== 'low-quality' && banner.id !== 'online'
+  );
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
   ) : null;

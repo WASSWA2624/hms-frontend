@@ -19,15 +19,17 @@
 
 import React from 'react';
 import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
+import { useSessionRestore } from '@hooks';
 import { MainRouteLayout } from '@platform/layouts';
 
 /**
  * Main group layout wrapper.
  */
 function MainGroupLayout() {
-  useAuthGuard();
+  const { isReady: isSessionReady } = useSessionRestore();
+  useAuthGuard({ skipRedirect: !isSessionReady });
   const { hasAccess, isPending } = useRouteAccessGuard();
-  if (isPending || !hasAccess) return null;
+  if (!isSessionReady || isPending || !hasAccess) return null;
   return <MainRouteLayout />;
 }
 

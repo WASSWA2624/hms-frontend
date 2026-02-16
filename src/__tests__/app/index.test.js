@@ -30,14 +30,12 @@ jest.mock('@services/storage', () => ({
   },
 }));
 
-const mockShouldPersistTokens = jest.fn();
 const mockGetAccessToken = jest.fn();
 const mockGetRefreshToken = jest.fn();
 const mockClearTokens = jest.fn();
 const mockIsTokenExpired = jest.fn();
 jest.mock('@security', () => ({
   tokenManager: {
-    shouldPersistTokens: (...args) => mockShouldPersistTokens(...args),
     getAccessToken: (...args) => mockGetAccessToken(...args),
     getRefreshToken: (...args) => mockGetRefreshToken(...args),
     clearTokens: (...args) => mockClearTokens(...args),
@@ -75,7 +73,6 @@ describe('Index Route (index.jsx)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockStorageSetItem.mockResolvedValue(true);
-    mockShouldPersistTokens.mockResolvedValue(false);
     mockGetAccessToken.mockResolvedValue(null);
     mockGetRefreshToken.mockResolvedValue(null);
     mockClearTokens.mockResolvedValue(true);
@@ -96,12 +93,10 @@ describe('Index Route (index.jsx)', () => {
     });
 
     expect(mockStorageSetItem).toHaveBeenCalledWith('hms.app.first_launch_completed', true);
-    expect(mockShouldPersistTokens).not.toHaveBeenCalled();
   });
 
   it('redirects returning users with persistent valid session to last route', async () => {
     mockStorageGetItem.mockResolvedValue(true);
-    mockShouldPersistTokens.mockResolvedValue(true);
     mockGetAccessToken.mockResolvedValue('valid-access-token');
     mockGetRefreshToken.mockResolvedValue('refresh-token');
     mockIsTokenExpired.mockReturnValue(false);
@@ -119,7 +114,6 @@ describe('Index Route (index.jsx)', () => {
 
   it('falls back to /dashboard when last route is missing and session is restored', async () => {
     mockStorageGetItem.mockResolvedValue(true);
-    mockShouldPersistTokens.mockResolvedValue(true);
     mockGetAccessToken.mockResolvedValue('valid-access-token');
     mockGetRefreshToken.mockResolvedValue('refresh-token');
     mockIsTokenExpired.mockReturnValue(false);
@@ -133,9 +127,10 @@ describe('Index Route (index.jsx)', () => {
     });
   });
 
-  it('redirects returning users without persistent login to /welcome', async () => {
+  it('redirects returning users without stored tokens to /welcome', async () => {
     mockStorageGetItem.mockResolvedValue(true);
-    mockShouldPersistTokens.mockResolvedValue(false);
+    mockGetAccessToken.mockResolvedValue(null);
+    mockGetRefreshToken.mockResolvedValue(null);
 
     const dispatch = jest.fn((action) => action);
     const store = createMockStore(dispatch);
@@ -153,7 +148,6 @@ describe('Index Route (index.jsx)', () => {
 
   it('redirects to /welcome when persistent tokens exist but session restore fails', async () => {
     mockStorageGetItem.mockResolvedValue(true);
-    mockShouldPersistTokens.mockResolvedValue(true);
     mockGetAccessToken.mockResolvedValue('expired-access-token');
     mockGetRefreshToken.mockResolvedValue('refresh-token');
     mockIsTokenExpired.mockReturnValue(true);

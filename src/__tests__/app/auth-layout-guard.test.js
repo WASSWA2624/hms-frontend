@@ -12,6 +12,7 @@ jest.mock('@hooks', () => ({
   useI18n: () => ({
     t: (key) => key,
   }),
+  useSessionRestore: () => ({ isReady: true }),
 }));
 
 jest.mock('@navigation/guards', () => ({

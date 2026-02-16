@@ -94,6 +94,17 @@ describe('Token Manager', () => {
       const result = await tokenManager.setTokens(accessToken, refreshToken);
       expect(result).toBe(false);
     });
+
+    it('stores session mode tokens when persist=false', async () => {
+      mockSecureStorage.setItem.mockResolvedValue(true);
+
+      const result = await tokenManager.setTokens('session-access', 'session-refresh', { persist: false });
+
+      expect(result).toBe(true);
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('access_token', 'session-access');
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('refresh_token', 'session-refresh');
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('token_storage_mode', 'session');
+    });
   });
 
   describe('clearTokens', () => {
@@ -169,6 +180,25 @@ describe('Token Manager', () => {
       });
       const token = `header.${base64Encode(JSON.stringify({ exp: 1 }))}.signature`;
       expect(tokenManager.isTokenExpired(token)).toBe(true);
+    });
+  });
+
+  describe('shouldPersistTokens', () => {
+    it('returns false when storage mode is session', async () => {
+      mockSecureStorage.getItem.mockResolvedValue('session');
+
+      const result = await tokenManager.shouldPersistTokens();
+
+      expect(result).toBe(false);
+      expect(mockSecureStorage.getItem).toHaveBeenCalledWith('token_storage_mode');
+    });
+
+    it('returns true when storage mode is not session', async () => {
+      mockSecureStorage.getItem.mockResolvedValue('persistent');
+
+      const result = await tokenManager.shouldPersistTokens();
+
+      expect(result).toBe(true);
     });
   });
 });

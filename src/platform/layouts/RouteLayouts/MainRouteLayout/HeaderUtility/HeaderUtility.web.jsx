@@ -17,6 +17,7 @@ import {
   StyledHeaderMenuItemIcon,
   StyledHeaderMenuItemLabel,
   StyledHeaderMenuSectionTitle,
+  StyledHeaderStatusCluster,
   StyledHeaderMenuWrapper,
   StyledHeaderToggleButton,
   StyledHeaderUtilityRow,
@@ -43,6 +44,57 @@ function MaximizeRestoreIcon({ isFullscreen, ...rest }) {
   ) : (
     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" {...rest}>
       <rect x="0" y="0" width="12" height="12" rx="0.5" />
+    </svg>
+  );
+}
+
+/** Web-safe notification bell icon (avoids emoji font fallback issues). */
+function NotificationsBellIcon(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M6 9a6 6 0 0 1 12 0v5l2 2H4l2-2V9z" />
+      <path d="M10 19a2 2 0 0 0 4 0" />
+    </svg>
+  );
+}
+
+/** Sliders icon for header customization (distinct from settings cog). */
+function CustomizeSlidersIcon(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M4 21v-7" />
+      <path d="M4 10V3" />
+      <path d="M12 21v-4" />
+      <path d="M12 14V3" />
+      <path d="M20 21v-10" />
+      <path d="M20 8V3" />
+      <circle cx="4" cy="13" r="2" />
+      <circle cx="12" cy="16" r="2" />
+      <circle cx="20" cy="10" r="2" />
     </svg>
   );
 }
@@ -183,10 +235,81 @@ function OverflowMenuContent({
   ));
 }
 
+export function HeaderStatusCluster({
+  t,
+  shouldShowNotificationsInline,
+  shouldShowNetwork,
+  shouldShowDatabase,
+  isNotificationsOpen,
+  notificationItems,
+  unreadCount,
+  notificationsRef,
+  notificationsMenuRef,
+  handleToggleNotifications,
+  handleNotificationsKeyDown,
+  handleViewNotifications,
+  handleNotificationSelect,
+}) {
+  const { isOffline, isLowQuality, isSyncing } = useNetwork();
+  const networkStatusKey = isOffline ? 'offline' : isLowQuality ? 'unstable' : isSyncing ? 'syncing' : 'online';
+  const networkStatusLabel = t(`navigation.network.status.${networkStatusKey}`);
+  const networkTooltip = `${t('navigation.network.label')}: ${networkStatusLabel}`;
+
+  if (!shouldShowNotificationsInline && !shouldShowNetwork && !shouldShowDatabase) return null;
+
+  return (
+    <StyledHeaderStatusCluster>
+      {shouldShowNotificationsInline ? (
+        <StyledNotificationsWrapper ref={notificationsRef}>
+          <StyledNotificationsButton
+            type="button"
+            onClick={handleToggleNotifications}
+            aria-haspopup="menu"
+            aria-expanded={isNotificationsOpen}
+            aria-label={t('navigation.notifications.label')}
+            title={t('navigation.notifications.label')}
+            data-testid="main-notifications-toggle"
+          >
+            <NotificationsBellIcon />
+            {unreadCount > 0 ? (
+              <StyledNotificationsBadge>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </StyledNotificationsBadge>
+            ) : null}
+          </StyledNotificationsButton>
+          {isNotificationsOpen ? (
+            <NotificationsMenu
+              items={notificationItems}
+              emptyLabel={t('navigation.notifications.empty')}
+              menuLabel={t('navigation.notifications.menuLabel')}
+              viewAllLabel={t('navigation.notifications.viewAll')}
+              onItemSelect={handleNotificationSelect}
+              onViewAll={handleViewNotifications}
+              onKeyDown={handleNotificationsKeyDown}
+              menuRef={notificationsMenuRef}
+            />
+          ) : null}
+        </StyledNotificationsWrapper>
+      ) : null}
+      {shouldShowNetwork ? (
+        <StyledNetworkButton title={networkTooltip} data-testid="main-network-indicator">
+          <NetworkConnectivityIcon title={networkStatusLabel} />
+        </StyledNetworkButton>
+      ) : null}
+      {shouldShowDatabase ? (
+        <StyledNetworkButton title={t('navigation.network.database.label')}>
+          <DatabaseIndicator testID="main-database-indicator" title={t('navigation.network.database.label')} />
+        </StyledNetworkButton>
+      ) : null}
+    </StyledHeaderStatusCluster>
+  );
+}
+
 export default function HeaderUtility(props) {
   const {
     t,
     isMobile,
+    hideStatusCluster = false,
     shouldShowNotificationsInline,
     shouldShowNetwork,
     shouldShowDatabase,
@@ -206,7 +329,6 @@ export default function HeaderUtility(props) {
     overflowMenuRef,
     handleToggleNotifications,
     handleNotificationsKeyDown,
-    handleCloseNotifications,
     handleViewNotifications,
     handleNotificationSelect,
     handleToggleHeaderCustomization,
@@ -307,7 +429,7 @@ export default function HeaderUtility(props) {
 
   return (
     <StyledHeaderUtilityRow>
-      {shouldShowNotificationsInline ? (
+      {!hideStatusCluster && shouldShowNotificationsInline ? (
         <StyledNotificationsWrapper ref={notificationsRef}>
           <StyledNotificationsButton
             type="button"
@@ -318,7 +440,7 @@ export default function HeaderUtility(props) {
             title={t('navigation.notifications.label')}
             data-testid="main-notifications-toggle"
           >
-            <Icon glyph="🔔" decorative accessibilityLabel={t('navigation.notifications.label')} />
+            <NotificationsBellIcon />
             {unreadCount > 0 ? (
               <StyledNotificationsBadge>
                 {unreadCount > 99 ? '99+' : unreadCount}
@@ -339,12 +461,12 @@ export default function HeaderUtility(props) {
           ) : null}
         </StyledNotificationsWrapper>
       ) : null}
-      {shouldShowNetwork ? (
+      {!hideStatusCluster && shouldShowNetwork ? (
         <StyledNetworkButton title={networkTooltip} data-testid="main-network-indicator">
           <NetworkConnectivityIcon title={networkStatusLabel} />
         </StyledNetworkButton>
       ) : null}
-      {shouldShowDatabase ? (
+      {!hideStatusCluster && shouldShowDatabase ? (
         <StyledNetworkButton title={t('navigation.network.database.label')}>
           <DatabaseIndicator testID="main-database-indicator" title={t('navigation.network.database.label')} />
         </StyledNetworkButton>
@@ -371,7 +493,7 @@ export default function HeaderUtility(props) {
             title={t('navigation.header.customize')}
             data-testid="main-header-customize-toggle"
           >
-            <Icon glyph="⚙" decorative accessibilityLabel={t('navigation.header.customize')} />
+            <CustomizeSlidersIcon />
           </StyledHeaderMenuButton>
           {isHeaderCustomizationOpen ? (
             <HeaderCustomizationMenu

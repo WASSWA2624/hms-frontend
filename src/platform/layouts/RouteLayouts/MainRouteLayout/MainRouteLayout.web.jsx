@@ -16,11 +16,9 @@ import {
   Breadcrumbs,
   GlobalHeader,
   Icon,
-  LanguageControls,
   NoticeSurface,
   ShellBanners,
   Sidebar,
-  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import { useShellBanners } from '@hooks';
@@ -28,7 +26,7 @@ import { useHeaderActions } from './useMainLayoutMemo';
 import useMainRouteLayoutWeb from './useMainRouteLayoutWeb';
 import Brand from './Brand';
 import HamburgerIcon from './HamburgerIcon';
-import HeaderUtility from './HeaderUtility';
+import HeaderUtility, { HeaderStatusCluster } from './HeaderUtility';
 import MobileSidebar from './MobileSidebar';
 import useBreadcrumbs from '@platform/layouts/common/useBreadcrumbs';
 import {
@@ -41,7 +39,9 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH } from '.
 const MainRouteLayoutWeb = () => {
   useAuthGuard();
   const layout = useMainRouteLayoutWeb();
-  const banners = useShellBanners();
+  const banners = useShellBanners().filter(
+    (banner) => banner.id !== 'offline' && banner.id !== 'low-quality' && banner.id !== 'online'
+  );
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
   ) : null;
@@ -53,6 +53,7 @@ const MainRouteLayoutWeb = () => {
     resolvedSidebarWidth,
     isSidebarCollapsed,
     isMobile,
+    isDesktop,
     isHeaderHidden,
     isMobileSidebarOpen,
     authHeaderActions,
@@ -142,13 +143,8 @@ const MainRouteLayoutWeb = () => {
       accessibilityLabel={t('navigation.header.title')}
       testID="main-header"
       actions={headerActions}
-      utilitySlot={(
-        <>
-          <LanguageControls testID="main-language-controls" />
-          <ThemeControls testID="main-theme-controls" />
-          <HeaderUtility {...layout} />
-        </>
-      )}
+      centerSlot={isDesktop ? <HeaderStatusCluster {...layout} /> : null}
+      utilitySlot={<HeaderUtility {...layout} hideStatusCluster={isDesktop} />}
     />
   );
 

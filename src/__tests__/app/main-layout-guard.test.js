@@ -1,7 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import MainLayout from '@app/(main)/_layout';
+import { useSessionRestore } from '@hooks';
 import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
+
+jest.mock('@hooks', () => ({
+  useSessionRestore: jest.fn(),
+}));
 
 jest.mock('@navigation/guards', () => ({
   useAuthGuard: jest.fn(),
@@ -18,6 +23,7 @@ jest.mock('@platform/layouts', () => ({
 describe('MainLayout with Auth Guard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useSessionRestore.mockReturnValue({ isReady: true });
     useAuthGuard.mockReturnValue({
       authenticated: true,
       user: { id: '1', email: 'test@example.com' },
@@ -42,7 +48,9 @@ describe('MainLayout with Auth Guard', () => {
 
   test('invokes auth guard with default options (login redirect handled in hook)', () => {
     render(<MainLayout />);
-    expect(useAuthGuard).toHaveBeenCalledWith();
+    expect(useAuthGuard).toHaveBeenCalledWith(
+      expect.objectContaining({ skipRedirect: false })
+    );
     expect(useRouteAccessGuard).toHaveBeenCalledWith();
   });
 

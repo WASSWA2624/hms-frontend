@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { useI18n } from '@hooks';
+import { useI18n, useSessionRestore } from '@hooks';
 import { LoadingSpinner } from '@platform/components';
 import { AuthLayout } from '@platform/layouts';
 import { readOnboardingProgress, readRegistrationContext, saveAuthResumeContext } from '@navigation';
@@ -30,9 +30,10 @@ function OnboardingGroupLayout() {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const authRequired = useMemo(() => AUTH_REQUIRED_PATHS.has(pathname), [pathname]);
+  const { isReady: isSessionReady } = useSessionRestore({ enabled: authRequired });
 
   useEffect(() => {
-    if (!isRehydrated || !authRequired || isAuthenticated) {
+    if (!isRehydrated || !isSessionReady || !authRequired || isAuthenticated) {
       setIsRedirecting(false);
       return;
     }
@@ -64,9 +65,9 @@ function OnboardingGroupLayout() {
     return () => {
       active = false;
     };
-  }, [authRequired, isAuthenticated, isRehydrated, pathname, router]);
+  }, [authRequired, isAuthenticated, isRehydrated, isSessionReady, pathname, router]);
 
-  if (isRedirecting) {
+  if ((authRequired && !isSessionReady) || isRedirecting) {
     return <LoadingSpinner accessibilityLabel={t('common.loading')} testID="onboarding-group-redirecting" />;
   }
 

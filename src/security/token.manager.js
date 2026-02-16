@@ -52,12 +52,12 @@ const setTokens = async (accessToken, refreshToken, options = {}) => {
   if (!persist) {
     inMemoryMode = STORAGE_MODES.SESSION;
     inMemoryTokens = { accessToken, refreshToken };
-    await Promise.all([
-      secure.removeItem(TOKEN_KEYS.ACCESS_TOKEN),
-      secure.removeItem(TOKEN_KEYS.REFRESH_TOKEN),
-      secure.removeItem(TOKEN_KEYS.STORAGE_MODE),
+    const results = await Promise.all([
+      secure.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken),
+      secure.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken),
+      secure.setItem(TOKEN_KEYS.STORAGE_MODE, STORAGE_MODES.SESSION),
     ]);
-    return true;
+    return results.every(Boolean);
   }
 
   inMemoryMode = STORAGE_MODES.PERSISTENT;

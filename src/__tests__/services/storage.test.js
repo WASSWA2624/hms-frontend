@@ -31,11 +31,38 @@ jest.mock('@errors', () => ({
 
 const { async, secure } = require('@services/storage');
 const { handleError } = require('@errors');
+const originalWindow = globalThis.window;
+
+const createMockSessionStorage = (initialValues = {}) => {
+  const store = new Map(Object.entries(initialValues));
+  return {
+    getItem: jest.fn((key) => (store.has(key) ? store.get(key) : null)),
+    setItem: jest.fn((key, value) => {
+      store.set(key, String(value));
+    }),
+    removeItem: jest.fn((key) => {
+      store.delete(key);
+    }),
+  };
+};
 
 describe('Storage Services', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSecureStore.isAvailableAsync.mockResolvedValue(true);
+    if (typeof originalWindow === 'undefined') {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  afterAll(() => {
+    if (typeof originalWindow === 'undefined') {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
   });
 
   describe('AsyncStorage Service', () => {
@@ -163,6 +190,30 @@ describe('Storage Services', () => {
           })
         );
       });
+
+      it('uses web sessionStorage fallback when secure read fails', async () => {
+        const error = new Error('Secure read failed');
+        const sessionStorage = createMockSessionStorage({ 'test-key': 'session-value' });
+        globalThis.window = { sessionStorage };
+        mockSecureStore.getItemAsync.mockRejectedValue(error);
+
+        const result = await secure.getItem('test-key');
+
+        expect(result).toBe('session-value');
+        expect(sessionStorage.getItem).toHaveBeenCalledWith('test-key');
+      });
+
+      it('uses web sessionStorage when SecureStore is unavailable', async () => {
+        const sessionStorage = createMockSessionStorage({ 'test-key': 'session-value' });
+        globalThis.window = { sessionStorage };
+        mockSecureStore.isAvailableAsync.mockResolvedValue(false);
+
+        const result = await secure.getItem('test-key');
+
+        expect(result).toBe('session-value');
+        expect(sessionStorage.getItem).toHaveBeenCalledWith('test-key');
+        expect(mockSecureStore.getItemAsync).not.toHaveBeenCalled();
+      });
     });
 
     describe('setItem', () => {
@@ -204,6 +255,19 @@ describe('Storage Services', () => {
         expect(value).toBe('volatile-value');
         expect(mockSecureStore.setItemAsync).not.toHaveBeenCalled();
       });
+
+      it('stores values in web sessionStorage when SecureStore is unavailable on web', async () => {
+        const sessionStorage = createMockSessionStorage();
+        globalThis.window = { sessionStorage };
+        mockSecureStore.isAvailableAsync.mockResolvedValue(false);
+
+        const setOk = await secure.setItem('web-key', 'web-value');
+        const value = await secure.getItem('web-key');
+
+        expect(setOk).toBe(true);
+        expect(value).toBe('web-value');
+        expect(sessionStorage.setItem).toHaveBeenCalledWith('web-key', 'web-value');
+      });
     });
 
     describe('removeItem', () => {
@@ -243,6 +307,20 @@ describe('Storage Services', () => {
         expect(removed).toBe(true);
         expect(value).toBeNull();
         expect(mockSecureStore.deleteItemAsync).not.toHaveBeenCalled();
+      });
+
+      it('removes web sessionStorage value when SecureStore is unavailable on web', async () => {
+        const sessionStorage = createMockSessionStorage();
+        globalThis.window = { sessionStorage };
+        mockSecureStore.isAvailableAsync.mockResolvedValue(false);
+        await secure.setItem('web-remove', 'value');
+
+        const removed = await secure.removeItem('web-remove');
+        const value = await secure.getItem('web-remove');
+
+        expect(removed).toBe(true);
+        expect(value).toBeNull();
+        expect(sessionStorage.removeItem).toHaveBeenCalledWith('web-remove');
       });
     });
   });

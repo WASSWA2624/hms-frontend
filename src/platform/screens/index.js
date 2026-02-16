@@ -23,6 +23,7 @@ export { default as WelcomeEntryScreen } from './auth/WelcomeEntryScreen';
 
 // Main screens (authenticated/main screens)
 export { default as DashboardScreen } from './main/DashboardScreen';
+export { default as NotificationsScreen } from './main/NotificationsScreen';
 
 // Settings screens (direct platform path so Metro resolves .android/.web, not barrel)
 export { default as SettingsScreen } from './settings/SettingsScreen/SettingsScreen';

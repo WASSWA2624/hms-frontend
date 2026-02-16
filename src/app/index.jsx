@@ -52,33 +52,30 @@ export default function IndexRoute() {
         }
 
         let target = WELCOME_ROUTE;
-        const shouldPersistSession = await tokenManager.shouldPersistTokens();
-        if (shouldPersistSession) {
-          const accessToken = await tokenManager.getAccessToken();
-          const refreshToken = await tokenManager.getRefreshToken();
-          const hasPersistedTokens = Boolean(accessToken || refreshToken);
+        const accessToken = await tokenManager.getAccessToken();
+        const refreshToken = await tokenManager.getRefreshToken();
+        const hasStoredTokens = Boolean(accessToken || refreshToken);
 
-          if (hasPersistedTokens) {
-            let sessionRestored = false;
+        if (hasStoredTokens) {
+          let sessionRestored = false;
 
-            if (accessToken && !tokenManager.isTokenExpired(accessToken)) {
+          if (accessToken && !tokenManager.isTokenExpired(accessToken)) {
+            const loadResult = await dispatch(authActions.loadCurrentUser());
+            sessionRestored = wasThunkFulfilled(loadResult) && Boolean(loadResult.payload);
+          } else if (refreshToken) {
+            const refreshResult = await dispatch(authActions.refreshSession());
+            if (wasThunkFulfilled(refreshResult)) {
               const loadResult = await dispatch(authActions.loadCurrentUser());
               sessionRestored = wasThunkFulfilled(loadResult) && Boolean(loadResult.payload);
-            } else if (refreshToken) {
-              const refreshResult = await dispatch(authActions.refreshSession());
-              if (wasThunkFulfilled(refreshResult)) {
-                const loadResult = await dispatch(authActions.loadCurrentUser());
-                sessionRestored = wasThunkFulfilled(loadResult) && Boolean(loadResult.payload);
-              }
             }
+          }
 
-            if (sessionRestored) {
-              const lastRoute = await getLastRoute();
-              target = lastRoute || DEFAULT_HOME_ROUTE;
-            } else {
-              await tokenManager.clearTokens();
-              dispatch(authActions.clearAuth());
-            }
+          if (sessionRestored) {
+            const lastRoute = await getLastRoute();
+            target = lastRoute || DEFAULT_HOME_ROUTE;
+          } else {
+            await tokenManager.clearTokens();
+            dispatch(authActions.clearAuth());
           }
         } else {
           dispatch(authActions.clearAuth());

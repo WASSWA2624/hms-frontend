@@ -40,6 +40,7 @@ const StyledHeaderRow = styled.div.withConfig({
   displayName: 'StyledHeaderRow',
   componentId: 'StyledHeaderRow',
 })`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,6 +51,24 @@ const StyledHeaderRow = styled.div.withConfig({
 
   @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
     gap: ${({ theme }) => theme.spacing.xs}px;
+  }
+`;
+
+const StyledCenterSlot = styled.div.withConfig({
+  displayName: 'StyledCenterSlot',
+  componentId: 'StyledCenterSlot',
+})`
+  display: none;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
   }
 `;
 
@@ -186,6 +205,7 @@ export {
   StyledHeader,
   StyledHeaderRow,
   StyledLeadingSlot,
+  StyledCenterSlot,
   StyledTitleGroup,
   StyledTitleBlock,
   StyledActionsGroup,
