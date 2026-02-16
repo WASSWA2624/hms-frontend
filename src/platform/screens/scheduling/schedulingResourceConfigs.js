@@ -4,6 +4,8 @@
 
 const SCHEDULING_RESOURCE_IDS = {
   APPOINTMENTS: 'appointments',
+  APPOINTMENT_PARTICIPANTS: 'appointment-participants',
+  APPOINTMENT_REMINDERS: 'appointment-reminders',
   PROVIDER_SCHEDULES: 'provider-schedules',
   AVAILABILITY_SLOTS: 'availability-slots',
   VISIT_QUEUES: 'visit-queues',
@@ -11,6 +13,8 @@ const SCHEDULING_RESOURCE_IDS = {
 
 const SCHEDULING_RESOURCE_LIST_ORDER = [
   SCHEDULING_RESOURCE_IDS.APPOINTMENTS,
+  SCHEDULING_RESOURCE_IDS.APPOINTMENT_PARTICIPANTS,
+  SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS,
   SCHEDULING_RESOURCE_IDS.PROVIDER_SCHEDULES,
   SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS,
   SCHEDULING_RESOURCE_IDS.VISIT_QUEUES,
@@ -88,6 +92,14 @@ const APPOINTMENT_STATUS_OPTIONS = [
   { value: 'NO_SHOW', labelKey: 'scheduling.options.status.noShow' },
 ];
 
+const REMINDER_CHANNEL_OPTIONS = [
+  { value: 'EMAIL', labelKey: 'scheduling.options.reminderChannel.email' },
+  { value: 'SMS', labelKey: 'scheduling.options.reminderChannel.sms' },
+  { value: 'PUSH', labelKey: 'scheduling.options.reminderChannel.push' },
+  { value: 'WHATSAPP', labelKey: 'scheduling.options.reminderChannel.whatsapp' },
+  { value: 'IN_APP', labelKey: 'scheduling.options.reminderChannel.inApp' },
+];
+
 const DAY_OF_WEEK_OPTIONS = [
   { value: '0', labelKey: 'scheduling.options.dayOfWeek.sunday' },
   { value: '1', labelKey: 'scheduling.options.dayOfWeek.monday' },
@@ -126,6 +138,19 @@ const getContextFilters = (resourceId, context) => {
       patient_id: patientId || undefined,
       provider_user_id: providerUserId || undefined,
       status: status || undefined,
+    };
+  }
+
+  if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_PARTICIPANTS) {
+    return {
+      appointment_id: appointmentId || undefined,
+      participant_patient_id: patientId || undefined,
+    };
+  }
+
+  if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS) {
+    return {
+      appointment_id: appointmentId || undefined,
     };
   }
 
@@ -279,6 +304,169 @@ const resourceConfigs = {
       { labelKey: 'scheduling.resources.appointments.detail.reasonLabel', valueKey: 'reason' },
       { labelKey: 'scheduling.resources.appointments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'scheduling.resources.appointments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [SCHEDULING_RESOURCE_IDS.APPOINTMENT_PARTICIPANTS]: {
+    id: SCHEDULING_RESOURCE_IDS.APPOINTMENT_PARTICIPANTS,
+    routePath: `${SCHEDULING_ROUTE_ROOT}/appointment-participants`,
+    i18nKey: 'scheduling.resources.appointmentParticipants',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'appointment_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentParticipants.form.appointmentIdLabel',
+        placeholderKey: 'scheduling.resources.appointmentParticipants.form.appointmentIdPlaceholder',
+        hintKey: 'scheduling.resources.appointmentParticipants.form.appointmentIdHint',
+      },
+      {
+        name: 'participant_user_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentParticipants.form.participantUserIdLabel',
+        placeholderKey: 'scheduling.resources.appointmentParticipants.form.participantUserIdPlaceholder',
+        hintKey: 'scheduling.resources.appointmentParticipants.form.participantUserIdHint',
+      },
+      {
+        name: 'participant_patient_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentParticipants.form.participantPatientIdLabel',
+        placeholderKey: 'scheduling.resources.appointmentParticipants.form.participantPatientIdPlaceholder',
+        hintKey: 'scheduling.resources.appointmentParticipants.form.participantPatientIdHint',
+      },
+      {
+        name: 'role',
+        type: 'text',
+        required: false,
+        maxLength: 80,
+        labelKey: 'scheduling.resources.appointmentParticipants.form.roleLabel',
+        placeholderKey: 'scheduling.resources.appointmentParticipants.form.rolePlaceholder',
+        hintKey: 'scheduling.resources.appointmentParticipants.form.roleHint',
+      },
+    ],
+    getItemTitle: (item) =>
+      sanitizeString(item?.role) ||
+      sanitizeString(item?.participant_user_id) ||
+      sanitizeString(item?.participant_patient_id) ||
+      sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const appointmentId = sanitizeString(item?.appointment_id);
+      if (!appointmentId) return '';
+      return `${t('scheduling.resources.appointmentParticipants.detail.appointmentLabel')}: ${appointmentId}`;
+    },
+    getInitialValues: (record, context) => ({
+      appointment_id: sanitizeString(record?.appointment_id || context?.appointmentId),
+      participant_user_id: sanitizeString(record?.participant_user_id || context?.providerUserId),
+      participant_patient_id: sanitizeString(record?.participant_patient_id || context?.patientId),
+      role: sanitizeString(record?.role),
+    }),
+    toPayload: (values) => ({
+      appointment_id: sanitizeString(values.appointment_id),
+      participant_user_id: sanitizeString(values.participant_user_id) || undefined,
+      participant_patient_id: sanitizeString(values.participant_patient_id) || undefined,
+      role: sanitizeString(values.role) || undefined,
+    }),
+    detailRows: [
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.appointmentLabel', valueKey: 'appointment_id' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.participantUserLabel', valueKey: 'participant_user_id' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.participantPatientLabel', valueKey: 'participant_patient_id' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.roleLabel', valueKey: 'role' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'scheduling.resources.appointmentParticipants.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS]: {
+    id: SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS,
+    routePath: `${SCHEDULING_ROUTE_ROOT}/appointment-reminders`,
+    i18nKey: 'scheduling.resources.appointmentReminders',
+    requiresTenant: false,
+    supportsFacility: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'appointment_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentReminders.form.appointmentIdLabel',
+        placeholderKey: 'scheduling.resources.appointmentReminders.form.appointmentIdPlaceholder',
+        hintKey: 'scheduling.resources.appointmentReminders.form.appointmentIdHint',
+      },
+      {
+        name: 'channel',
+        type: 'select',
+        required: true,
+        labelKey: 'scheduling.resources.appointmentReminders.form.channelLabel',
+        placeholderKey: 'scheduling.resources.appointmentReminders.form.channelPlaceholder',
+        hintKey: 'scheduling.resources.appointmentReminders.form.channelHint',
+        options: REMINDER_CHANNEL_OPTIONS,
+      },
+      {
+        name: 'scheduled_at',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentReminders.form.scheduledAtLabel',
+        placeholderKey: 'scheduling.resources.appointmentReminders.form.scheduledAtPlaceholder',
+        hintKey: 'scheduling.resources.appointmentReminders.form.scheduledAtHint',
+      },
+      {
+        name: 'sent_at',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.appointmentReminders.form.sentAtLabel',
+        placeholderKey: 'scheduling.resources.appointmentReminders.form.sentAtPlaceholder',
+        hintKey: 'scheduling.resources.appointmentReminders.form.sentAtHint',
+      },
+    ],
+    getItemTitle: (item) =>
+      sanitizeString(item?.channel) ||
+      sanitizeString(item?.scheduled_at) ||
+      sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const appointmentId = sanitizeString(item?.appointment_id);
+      if (!appointmentId) return '';
+      return `${t('scheduling.resources.appointmentReminders.detail.appointmentLabel')}: ${appointmentId}`;
+    },
+    getInitialValues: (record, context) => ({
+      appointment_id: sanitizeString(record?.appointment_id || context?.appointmentId),
+      channel: sanitizeString(record?.channel),
+      scheduled_at: sanitizeString(record?.scheduled_at),
+      sent_at: sanitizeString(record?.sent_at),
+    }),
+    toPayload: (values) => ({
+      appointment_id: sanitizeString(values.appointment_id),
+      channel: sanitizeString(values.channel),
+      scheduled_at: toIsoDateTime(values.scheduled_at),
+      sent_at: toIsoDateTime(values.sent_at) || undefined,
+    }),
+    validate: (values, t) => {
+      const errors = {};
+      const scheduledAtError = buildDateTimeError(values.scheduled_at, t);
+      const sentAtError = buildDateTimeError(values.sent_at, t);
+      if (scheduledAtError) errors.scheduled_at = scheduledAtError;
+      if (sentAtError) errors.sent_at = sentAtError;
+      return errors;
+    },
+    detailRows: [
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.appointmentLabel', valueKey: 'appointment_id' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.channelLabel', valueKey: 'channel' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.sentAtLabel', valueKey: 'sent_at', type: 'datetime' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'scheduling.resources.appointmentReminders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
   [SCHEDULING_RESOURCE_IDS.PROVIDER_SCHEDULES]: {

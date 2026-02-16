@@ -4087,6 +4087,7 @@
     "access": {
       "createDenied": "You do not have permission to create patient records.",
       "editDenied": "You do not have permission to edit patient records.",
+      "editUnsupported": "Editing is not available for this resource.",
       "deleteDenied": "You do not have permission to delete patient records."
     },
     "common": {
@@ -4564,6 +4565,136 @@
           "contentTypePlaceholder": "Optional MIME type",
           "contentTypeHint": "Optional"
         }
+      },
+      "consents": {
+        "label": "Consent",
+        "pluralLabel": "Consents",
+        "overviewDescription": "Patient consent history for treatment, billing, and data use.",
+        "list": {
+          "title": "Consents",
+          "accessibilityLabel": "Consents list",
+          "emptyTitle": "No consents",
+          "emptyMessage": "No consent records available yet.",
+          "loadError": "Unable to load consents.",
+          "addLabel": "Add Consent",
+          "addHint": "Create a consent record",
+          "delete": "Delete consent",
+          "deleteHint": "Delete this consent",
+          "itemLabel": "Consent {{name}}",
+          "itemHint": "Open consent {{name}}"
+        },
+        "detail": {
+          "title": "Consent Details",
+          "errorTitle": "Failed to load consent",
+          "notFoundTitle": "Consent not found",
+          "notFoundMessage": "This consent could not be found.",
+          "backHint": "Return to consents list",
+          "edit": "Edit consent",
+          "editHint": "Edit this consent",
+          "delete": "Delete consent",
+          "deleteHint": "Delete this consent",
+          "idLabel": "Consent ID",
+          "tenantLabel": "Tenant ID",
+          "patientLabel": "Patient ID",
+          "consentTypeLabel": "Consent type",
+          "statusLabel": "Status",
+          "grantedAtLabel": "Granted at",
+          "revokedAtLabel": "Revoked at",
+          "createdLabel": "Created",
+          "updatedLabel": "Updated"
+        },
+        "options": {
+          "consentType": {
+            "treatment": "Treatment",
+            "dataSharing": "Data sharing",
+            "research": "Research",
+            "billing": "Billing",
+            "other": "Other"
+          },
+          "status": {
+            "granted": "Granted",
+            "revoked": "Revoked",
+            "pending": "Pending"
+          }
+        },
+        "form": {
+          "createTitle": "Create Consent",
+          "editTitle": "Edit Consent",
+          "cardLabel": "Consent form",
+          "loadError": "Failed to load consent for editing.",
+          "submitErrorTitle": "Unable to save consent",
+          "submitErrorMessage": "Check the form and try again.",
+          "submitCreate": "Create Consent",
+          "submitEdit": "Save Changes",
+          "cancel": "Cancel",
+          "cancelHint": "Return without saving",
+          "patientLoadErrorMessage": "Unable to load patients for consent assignment.",
+          "consentTypeLabel": "Consent type",
+          "consentTypePlaceholder": "Select consent type",
+          "consentTypeHint": "Required",
+          "statusLabel": "Status",
+          "statusPlaceholder": "Select status",
+          "statusHint": "Required",
+          "grantedAtLabel": "Granted date",
+          "grantedAtPlaceholder": "YYYY-MM-DD",
+          "grantedAtHint": "Optional",
+          "revokedAtLabel": "Revoked date",
+          "revokedAtPlaceholder": "YYYY-MM-DD",
+          "revokedAtHint": "Optional"
+        }
+      },
+      "termsAcceptances": {
+        "label": "Terms Acceptance",
+        "pluralLabel": "Terms Acceptances",
+        "overviewDescription": "Accepted terms versions linked to users.",
+        "list": {
+          "title": "Terms Acceptances",
+          "accessibilityLabel": "Terms acceptances list",
+          "emptyTitle": "No terms acceptances",
+          "emptyMessage": "No terms acceptance records available yet.",
+          "loadError": "Unable to load terms acceptances.",
+          "addLabel": "Add Terms Acceptance",
+          "addHint": "Create a terms acceptance record",
+          "delete": "Delete terms acceptance",
+          "deleteHint": "Delete this terms acceptance",
+          "itemLabel": "Terms acceptance {{name}}",
+          "itemHint": "Open terms acceptance {{name}}"
+        },
+        "detail": {
+          "title": "Terms Acceptance Details",
+          "errorTitle": "Failed to load terms acceptance",
+          "notFoundTitle": "Terms acceptance not found",
+          "notFoundMessage": "This terms acceptance could not be found.",
+          "backHint": "Return to terms acceptances list",
+          "edit": "Edit terms acceptance",
+          "editHint": "Editing is not available for terms acceptances",
+          "delete": "Delete terms acceptance",
+          "deleteHint": "Delete this terms acceptance",
+          "idLabel": "Terms acceptance ID",
+          "tenantLabel": "Tenant ID",
+          "userLabel": "User ID",
+          "versionLabel": "Version label",
+          "createdLabel": "Created",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "createTitle": "Create Terms Acceptance",
+          "editTitle": "Edit Terms Acceptance",
+          "cardLabel": "Terms acceptance form",
+          "loadError": "Failed to load terms acceptance for editing.",
+          "submitErrorTitle": "Unable to save terms acceptance",
+          "submitErrorMessage": "Check the form and try again.",
+          "submitCreate": "Create Terms Acceptance",
+          "submitEdit": "Save Changes",
+          "cancel": "Cancel",
+          "cancelHint": "Return without saving",
+          "userLabel": "User ID",
+          "userPlaceholder": "Enter user ID",
+          "userHint": "Required",
+          "versionLabel": "Version label",
+          "versionPlaceholder": "e.g. v1.0",
+          "versionHint": "Required"
+        }
       }
     }
   },
@@ -4573,7 +4704,7 @@
     },
     "overview": {
       "title": "Scheduling",
-      "description": "Manage appointments, provider schedules, availability slots, and visit queues from one workspace.",
+      "description": "Manage appointments, participants, reminders, provider schedules, availability slots, and visit queues from one workspace.",
       "loadErrorTitle": "Unable to load scheduling overview",
       "loadError": "Unable to load scheduling overview data. Check your connection and try again.",
       "createAppointment": "Create Appointment",
@@ -4630,6 +4761,13 @@
         "thursday": "Thursday",
         "friday": "Friday",
         "saturday": "Saturday"
+      },
+      "reminderChannel": {
+        "email": "Email",
+        "sms": "SMS",
+        "push": "Push",
+        "whatsapp": "WhatsApp",
+        "inApp": "In-app"
       }
     },
     "resources": {
@@ -4709,6 +4847,128 @@
           "reasonLabel": "Reason",
           "reasonPlaceholder": "Optional appointment reason",
           "reasonHint": "Optional"
+        }
+      },
+      "appointmentParticipants": {
+        "label": "Appointment Participant",
+        "pluralLabel": "Appointment Participants",
+        "overviewDescription": "Users and patients linked to an appointment.",
+        "list": {
+          "title": "Appointment Participants",
+          "accessibilityLabel": "Appointment participants list",
+          "emptyTitle": "No appointment participants",
+          "emptyMessage": "No appointment participants available yet.",
+          "loadError": "Unable to load appointment participants.",
+          "addLabel": "Add Appointment Participant",
+          "addHint": "Create an appointment participant",
+          "delete": "Delete appointment participant",
+          "deleteHint": "Delete this appointment participant",
+          "itemLabel": "Appointment participant {{name}}",
+          "itemHint": "Open appointment participant {{name}}"
+        },
+        "detail": {
+          "title": "Appointment Participant Details",
+          "errorTitle": "Failed to load appointment participant details",
+          "notFoundTitle": "Appointment participant not found",
+          "notFoundMessage": "This appointment participant could not be found.",
+          "backHint": "Return to appointment participants list",
+          "edit": "Edit appointment participant",
+          "editHint": "Edit this appointment participant",
+          "delete": "Delete appointment participant",
+          "deleteHint": "Delete this appointment participant",
+          "idLabel": "Participant ID",
+          "tenantLabel": "Tenant ID",
+          "appointmentLabel": "Appointment ID",
+          "participantUserLabel": "Participant User ID",
+          "participantPatientLabel": "Participant Patient ID",
+          "roleLabel": "Role",
+          "createdLabel": "Created",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "createTitle": "Create Appointment Participant",
+          "editTitle": "Edit Appointment Participant",
+          "cardLabel": "Appointment participant form",
+          "loadError": "Failed to load appointment participant for editing.",
+          "submitErrorTitle": "Unable to save appointment participant",
+          "submitErrorMessage": "Check the form and try again.",
+          "submitCreate": "Create Participant",
+          "submitEdit": "Save Changes",
+          "cancel": "Cancel",
+          "cancelHint": "Return without saving",
+          "appointmentIdLabel": "Appointment ID",
+          "appointmentIdPlaceholder": "Enter appointment ID",
+          "appointmentIdHint": "Required",
+          "participantUserIdLabel": "Participant User ID",
+          "participantUserIdPlaceholder": "Enter participant user ID",
+          "participantUserIdHint": "Optional",
+          "participantPatientIdLabel": "Participant Patient ID",
+          "participantPatientIdPlaceholder": "Enter participant patient ID",
+          "participantPatientIdHint": "Optional",
+          "roleLabel": "Role",
+          "rolePlaceholder": "e.g. ATTENDING",
+          "roleHint": "Optional"
+        }
+      },
+      "appointmentReminders": {
+        "label": "Appointment Reminder",
+        "pluralLabel": "Appointment Reminders",
+        "overviewDescription": "Reminder channels and delivery schedule for appointments.",
+        "list": {
+          "title": "Appointment Reminders",
+          "accessibilityLabel": "Appointment reminders list",
+          "emptyTitle": "No appointment reminders",
+          "emptyMessage": "No appointment reminders available yet.",
+          "loadError": "Unable to load appointment reminders.",
+          "addLabel": "Add Appointment Reminder",
+          "addHint": "Create an appointment reminder",
+          "delete": "Delete appointment reminder",
+          "deleteHint": "Delete this appointment reminder",
+          "itemLabel": "Appointment reminder {{name}}",
+          "itemHint": "Open appointment reminder {{name}}"
+        },
+        "detail": {
+          "title": "Appointment Reminder Details",
+          "errorTitle": "Failed to load appointment reminder details",
+          "notFoundTitle": "Appointment reminder not found",
+          "notFoundMessage": "This appointment reminder could not be found.",
+          "backHint": "Return to appointment reminders list",
+          "edit": "Edit appointment reminder",
+          "editHint": "Edit this appointment reminder",
+          "delete": "Delete appointment reminder",
+          "deleteHint": "Delete this appointment reminder",
+          "idLabel": "Reminder ID",
+          "tenantLabel": "Tenant ID",
+          "appointmentLabel": "Appointment ID",
+          "channelLabel": "Channel",
+          "scheduledAtLabel": "Scheduled at",
+          "sentAtLabel": "Sent at",
+          "createdLabel": "Created",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "createTitle": "Create Appointment Reminder",
+          "editTitle": "Edit Appointment Reminder",
+          "cardLabel": "Appointment reminder form",
+          "loadError": "Failed to load appointment reminder for editing.",
+          "submitErrorTitle": "Unable to save appointment reminder",
+          "submitErrorMessage": "Check the form and try again.",
+          "submitCreate": "Create Reminder",
+          "submitEdit": "Save Changes",
+          "cancel": "Cancel",
+          "cancelHint": "Return without saving",
+          "appointmentIdLabel": "Appointment ID",
+          "appointmentIdPlaceholder": "Enter appointment ID",
+          "appointmentIdHint": "Required",
+          "channelLabel": "Channel",
+          "channelPlaceholder": "Select channel",
+          "channelHint": "Required",
+          "scheduledAtLabel": "Scheduled at",
+          "scheduledAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "scheduledAtHint": "Use ISO 8601 date-time.",
+          "sentAtLabel": "Sent at",
+          "sentAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
+          "sentAtHint": "Optional ISO 8601 date-time."
         }
       },
       "providerSchedules": {

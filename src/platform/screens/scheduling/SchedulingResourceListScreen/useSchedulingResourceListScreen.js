@@ -36,6 +36,22 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_PARTICIPANTS) {
+    return {
+      ...baseContext,
+      appointmentId: sanitizeString(item.appointment_id) || baseContext.appointmentId,
+      patientId: sanitizeString(item.participant_patient_id) || baseContext.patientId,
+      providerUserId: sanitizeString(item.participant_user_id) || baseContext.providerUserId,
+    };
+  }
+
+  if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS) {
+    return {
+      ...baseContext,
+      appointmentId: sanitizeString(item.appointment_id) || baseContext.appointmentId,
+    };
+  }
+
   if (resourceId === SCHEDULING_RESOURCE_IDS.PROVIDER_SCHEDULES) {
     return {
       ...baseContext,

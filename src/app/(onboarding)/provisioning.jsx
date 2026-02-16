@@ -104,7 +104,7 @@ export default function OnboardingProvisioningRoute() {
   const handleContinue = useCallback(() => {
     if (!context) return;
     router.replace({
-      pathname: '/(onboarding)/welcome',
+      pathname: '/welcome',
       params: context.email ? { email: context.email } : {},
     });
   }, [context, router]);

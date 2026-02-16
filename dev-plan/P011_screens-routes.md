@@ -347,8 +347,8 @@ src/app/
 - Tests added and passing per `testing.mdc` (including a11y coverage).
 
 ## Completeness
-- [ ] Tier 1 (`11.1.1-11.1.14`) public entry and onboarding (done: `11.1.1`, `11.1.2`)
-- [ ] Tier 2 (`11.2.1-11.2.8`) auth and shell (done: `11.2.1`, `11.2.4`, `11.2.8`)
+- [x] Tier 1 (`11.1.1-11.1.14`) public entry and onboarding
+- [x] Tier 2 (`11.2.1-11.2.8`) auth and shell
 - [x] Tier 3 (`11.3.1-11.3.22`) settings and core access
 - [ ] Tier 4 (`11.4.1-11.4.10`) patient registry and consent
 - [ ] Tier 5 (`11.5.1-11.5.7`) scheduling and queues

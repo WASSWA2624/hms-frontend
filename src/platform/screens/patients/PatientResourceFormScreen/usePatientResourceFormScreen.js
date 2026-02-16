@@ -19,6 +19,7 @@ import {
 } from '../patientScreenUtils';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_ONLY_FIELDS = new Set(['date_of_birth', 'diagnosis_date', 'granted_at', 'revoked_at']);
 
 const usePatientResourceFormScreen = (resourceId) => {
   const config = getPatientResourceConfig(resourceId);
@@ -131,6 +132,11 @@ const usePatientResourceFormScreen = (resourceId) => {
       return;
     }
 
+    if (isEdit && config.supportsEdit === false) {
+      router.replace(withPatientContext(`${config.routePath}/${routeRecordId}`, patientContextId));
+      return;
+    }
+
     if (!isEdit && !canCreatePatientRecords) {
       router.replace(`${listPath}${listPath.includes('?') ? '&' : '?'}notice=accessDenied`);
       return;
@@ -150,9 +156,10 @@ const usePatientResourceFormScreen = (resourceId) => {
     canAccessPatients,
     hasScope,
     isEdit,
+    routeRecordId,
+    patientContextId,
     canCreatePatientRecords,
     canEditPatientRecords,
-    routeRecordId,
     router,
     listPath,
   ]);
@@ -253,11 +260,7 @@ const usePatientResourceFormScreen = (resourceId) => {
         return;
       }
 
-      if (
-        (field.name === 'date_of_birth' || field.name === 'diagnosis_date') &&
-        stringValue &&
-        !DATE_REGEX.test(String(stringValue))
-      ) {
+      if (DATE_ONLY_FIELDS.has(field.name) && stringValue && !DATE_REGEX.test(String(stringValue))) {
         nextErrors[field.name] = t('patients.common.form.dateFormat');
       }
     });

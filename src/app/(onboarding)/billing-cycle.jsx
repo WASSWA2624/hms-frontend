@@ -10,6 +10,7 @@ import { listSubscriptionPlans, updateSubscription } from '@features';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,
+  readRegistrationContext,
   saveAuthResumeContext,
   saveOnboardingStep,
 } from '@navigation';
@@ -81,7 +82,14 @@ export default function OnboardingBillingCycleRoute() {
   }, []);
 
   const ensureLoginResume = useCallback(async () => {
-    const identifier = String(user?.email || '').trim().toLowerCase();
+    let identifier = String(user?.email || '').trim().toLowerCase();
+    if (!identifier) {
+      const [progress, registration] = await Promise.all([
+        readOnboardingProgress(),
+        readRegistrationContext(),
+      ]);
+      identifier = String(progress?.context?.email || registration?.email || '').trim().toLowerCase();
+    }
     if (!identifier) return;
     await saveAuthResumeContext({
       identifier,

@@ -41,6 +41,7 @@ const PatientResourceDetailScreenIOS = ({ resourceId }) => {
     onDelete,
     canEdit,
     canDelete,
+    showEditAction,
   } = usePatientResourceDetailScreen(resourceId);
 
   const rows = useMemo(() => config?.detailRows || [], [config?.detailRows]);
@@ -179,18 +180,20 @@ const PatientResourceDetailScreenIOS = ({ resourceId }) => {
             {t('common.back')}
           </Button>
 
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onEdit}
-            disabled={!canEdit}
-            accessibilityLabel={t(`${config.i18nKey}.detail.edit`)}
-            accessibilityHint={t(`${config.i18nKey}.detail.editHint`)}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="patient-resource-detail-edit"
-          >
-            {t(`${config.i18nKey}.detail.edit`)}
-          </Button>
+          {showEditAction ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onEdit}
+              disabled={!canEdit}
+              accessibilityLabel={t(`${config.i18nKey}.detail.edit`)}
+              accessibilityHint={t(`${config.i18nKey}.detail.editHint`)}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="patient-resource-detail-edit"
+            >
+              {t(`${config.i18nKey}.detail.edit`)}
+            </Button>
+          ) : null}
 
           <Button
             variant="surface"

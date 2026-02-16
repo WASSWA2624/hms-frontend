@@ -189,7 +189,14 @@ export default function OnboardingModulesRoute() {
   }, []);
 
   const ensureLoginResumeContext = useCallback(async () => {
-    const identifier = String(user?.email || '').trim().toLowerCase();
+    let identifier = String(user?.email || '').trim().toLowerCase();
+    if (!identifier) {
+      const [progress, registration] = await Promise.all([
+        readOnboardingProgress(),
+        readRegistrationContext(),
+      ]);
+      identifier = String(progress?.context?.email || registration?.email || '').trim().toLowerCase();
+    }
     if (!identifier) return;
     await saveAuthResumeContext({
       identifier,
@@ -462,4 +469,3 @@ export default function OnboardingModulesRoute() {
     </Container>
   );
 }
-

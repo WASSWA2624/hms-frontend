@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useI18n } from '@hooks';
 import { LoadingSpinner } from '@platform/components';
 import { AuthLayout } from '@platform/layouts';
-import { readOnboardingProgress, saveAuthResumeContext } from '@navigation';
+import { readOnboardingProgress, readRegistrationContext, saveAuthResumeContext } from '@navigation';
 
 const AUTH_REQUIRED_PATHS = new Set([
   '/plan',
@@ -42,8 +42,11 @@ function OnboardingGroupLayout() {
 
     const redirectToLogin = async () => {
       try {
-        const progress = await readOnboardingProgress();
-        const identifier = String(progress?.context?.email || '').trim().toLowerCase();
+        const [progress, registration] = await Promise.all([
+          readOnboardingProgress(),
+          readRegistrationContext(),
+        ]);
+        const identifier = String(progress?.context?.email || registration?.email || '').trim().toLowerCase();
         if (identifier) {
           await saveAuthResumeContext({
             identifier,

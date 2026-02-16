@@ -107,7 +107,7 @@ export default function OnboardingChecklistRoute() {
   }, [completedIds, facilityType, router]);
 
   const handleBack = useCallback(() => {
-    router.replace('/(onboarding)/welcome');
+    router.replace('/welcome');
   }, [router]);
 
   const handleRetry = useCallback(() => {

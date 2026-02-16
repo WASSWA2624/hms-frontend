@@ -159,7 +159,14 @@ export default function OnboardingPaymentSuccessRoute() {
   }, [hydrate]);
 
   const handleLogin = useCallback(async () => {
-    const identifier = String(user?.email || '').trim().toLowerCase();
+    let identifier = String(user?.email || '').trim().toLowerCase();
+    if (!identifier) {
+      const [progress, registration] = await Promise.all([
+        readOnboardingProgress(),
+        readRegistrationContext(),
+      ]);
+      identifier = String(progress?.context?.email || registration?.email || '').trim().toLowerCase();
+    }
     if (identifier) {
       await saveAuthResumeContext({
         identifier,

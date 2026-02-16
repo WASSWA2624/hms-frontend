@@ -10,6 +10,8 @@ import {
   usePatientAllergy,
   usePatientMedicalHistory,
   usePatientDocument,
+  useConsent,
+  useTermsAcceptance,
 } from '@hooks';
 import { PATIENT_RESOURCE_IDS } from './patientResourceConfigs';
 
@@ -21,6 +23,8 @@ const usePatientResourceCrud = (resourceId) => {
   const patientAllergy = usePatientAllergy();
   const patientMedicalHistory = usePatientMedicalHistory();
   const patientDocument = usePatientDocument();
+  const consent = useConsent();
+  const termsAcceptance = useTermsAcceptance();
 
   return useMemo(() => {
     const map = {
@@ -31,6 +35,8 @@ const usePatientResourceCrud = (resourceId) => {
       [PATIENT_RESOURCE_IDS.PATIENT_ALLERGIES]: patientAllergy,
       [PATIENT_RESOURCE_IDS.PATIENT_MEDICAL_HISTORIES]: patientMedicalHistory,
       [PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS]: patientDocument,
+      [PATIENT_RESOURCE_IDS.CONSENTS]: consent,
+      [PATIENT_RESOURCE_IDS.TERMS_ACCEPTANCES]: termsAcceptance,
     };
     return map[resourceId] || patient;
   }, [
@@ -42,6 +48,8 @@ const usePatientResourceCrud = (resourceId) => {
     patientAllergy,
     patientMedicalHistory,
     patientDocument,
+    consent,
+    termsAcceptance,
   ]);
 };
 

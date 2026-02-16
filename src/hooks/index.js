@@ -66,6 +66,8 @@ export { default as usePatientGuardian } from './usePatientGuardian';
 export { default as usePatientAllergy } from './usePatientAllergy';
 export { default as usePatientMedicalHistory } from './usePatientMedicalHistory';
 export { default as usePatientDocument } from './usePatientDocument';
+export { default as useConsent } from './useConsent';
+export { default as useTermsAcceptance } from './useTermsAcceptance';
 export { default as usePatientAccess } from './usePatientAccess';
 export { default as usePatientPortalAccess } from './usePatientPortalAccess';
 export { default as useSchedulingAccess } from './useSchedulingAccess';

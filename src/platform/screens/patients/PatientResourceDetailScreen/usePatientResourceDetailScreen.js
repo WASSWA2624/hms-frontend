@@ -44,6 +44,8 @@ const usePatientResourceDetailScreen = (resourceId) => {
     () => withPatientContext(config?.routePath || PATIENT_ROUTE_ROOT, patientContextId),
     [config?.routePath, patientContextId]
   );
+  const supportsEdit = config?.supportsEdit !== false;
+  const canEdit = canEditPatientRecords && supportsEdit;
 
   const item = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
 
@@ -97,9 +99,9 @@ const usePatientResourceDetailScreen = (resourceId) => {
   }, [router, listPath]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditPatientRecords || !config || !routeRecordId) return;
+    if (!canEdit || !config || !routeRecordId) return;
     router.push(withPatientContext(`${config.routePath}/${routeRecordId}/edit`, patientContextId));
-  }, [canEditPatientRecords, config, routeRecordId, router, patientContextId]);
+  }, [canEdit, config, routeRecordId, router, patientContextId]);
 
   const handleDelete = useCallback(async () => {
     if (!canDeletePatientRecords || !routeRecordId || !config) return;
@@ -127,9 +129,12 @@ const usePatientResourceDetailScreen = (resourceId) => {
     onBack: handleBack,
     onEdit: handleEdit,
     onDelete: handleDelete,
-    canEdit: canEditPatientRecords,
+    canEdit,
     canDelete: canDeletePatientRecords,
-    editBlockedReason: canEditPatientRecords ? '' : t('patients.access.editDenied'),
+    showEditAction: supportsEdit,
+    editBlockedReason: supportsEdit
+      ? canEditPatientRecords ? '' : t('patients.access.editDenied')
+      : t('patients.access.editUnsupported'),
     deleteBlockedReason: canDeletePatientRecords ? '' : t('patients.access.deleteDenied'),
     listPath,
   };

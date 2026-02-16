@@ -10,6 +10,8 @@ const PATIENT_RESOURCE_IDS = {
   PATIENT_ALLERGIES: 'patient-allergies',
   PATIENT_MEDICAL_HISTORIES: 'patient-medical-histories',
   PATIENT_DOCUMENTS: 'patient-documents',
+  CONSENTS: 'consents',
+  TERMS_ACCEPTANCES: 'terms-acceptances',
 };
 
 const PATIENT_RESOURCE_LIST_ORDER = [
@@ -20,6 +22,8 @@ const PATIENT_RESOURCE_LIST_ORDER = [
   PATIENT_RESOURCE_IDS.PATIENT_ALLERGIES,
   PATIENT_RESOURCE_IDS.PATIENT_MEDICAL_HISTORIES,
   PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS,
+  PATIENT_RESOURCE_IDS.CONSENTS,
+  PATIENT_RESOURCE_IDS.TERMS_ACCEPTANCES,
 ];
 
 const PATIENT_ROUTE_ROOT = '/patients';
@@ -602,6 +606,142 @@ const resourceConfigs = {
       { labelKey: 'patients.resources.patientDocuments.detail.contentTypeLabel', valueKey: 'content_type' },
       { labelKey: 'patients.resources.patientDocuments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'patients.resources.patientDocuments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [PATIENT_RESOURCE_IDS.CONSENTS]: {
+    id: PATIENT_RESOURCE_IDS.CONSENTS,
+    routePath: `${PATIENT_ROUTE_ROOT}/consents`,
+    i18nKey: 'patients.resources.consents',
+    supportsPatientFilter: true,
+    requiresPatientSelection: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'consent_type',
+        type: 'select',
+        required: true,
+        labelKey: 'patients.resources.consents.form.consentTypeLabel',
+        placeholderKey: 'patients.resources.consents.form.consentTypePlaceholder',
+        hintKey: 'patients.resources.consents.form.consentTypeHint',
+        options: [
+          { value: 'TREATMENT', labelKey: 'patients.resources.consents.options.consentType.treatment' },
+          { value: 'DATA_SHARING', labelKey: 'patients.resources.consents.options.consentType.dataSharing' },
+          { value: 'RESEARCH', labelKey: 'patients.resources.consents.options.consentType.research' },
+          { value: 'BILLING', labelKey: 'patients.resources.consents.options.consentType.billing' },
+          { value: 'OTHER', labelKey: 'patients.resources.consents.options.consentType.other' },
+        ],
+      },
+      {
+        name: 'status',
+        type: 'select',
+        required: true,
+        labelKey: 'patients.resources.consents.form.statusLabel',
+        placeholderKey: 'patients.resources.consents.form.statusPlaceholder',
+        hintKey: 'patients.resources.consents.form.statusHint',
+        options: [
+          { value: 'GRANTED', labelKey: 'patients.resources.consents.options.status.granted' },
+          { value: 'REVOKED', labelKey: 'patients.resources.consents.options.status.revoked' },
+          { value: 'PENDING', labelKey: 'patients.resources.consents.options.status.pending' },
+        ],
+      },
+      {
+        name: 'granted_at',
+        type: 'text',
+        required: false,
+        maxLength: 32,
+        labelKey: 'patients.resources.consents.form.grantedAtLabel',
+        placeholderKey: 'patients.resources.consents.form.grantedAtPlaceholder',
+        hintKey: 'patients.resources.consents.form.grantedAtHint',
+      },
+      {
+        name: 'revoked_at',
+        type: 'text',
+        required: false,
+        maxLength: 32,
+        labelKey: 'patients.resources.consents.form.revokedAtLabel',
+        placeholderKey: 'patients.resources.consents.form.revokedAtPlaceholder',
+        hintKey: 'patients.resources.consents.form.revokedAtHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.consent_type) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const status = sanitizeString(item?.status);
+      if (!status) return '';
+      return `${t('patients.resources.consents.detail.statusLabel')}: ${status}`;
+    },
+    getInitialValues: (record) => ({
+      consent_type: sanitizeString(record?.consent_type),
+      status: sanitizeString(record?.status),
+      granted_at: toDateOnly(record?.granted_at),
+      revoked_at: toDateOnly(record?.revoked_at),
+    }),
+    toPayload: (values) => ({
+      consent_type: sanitizeString(values.consent_type),
+      status: sanitizeString(values.status),
+      granted_at: toIsoDateTime(values.granted_at) || undefined,
+      revoked_at: toIsoDateTime(values.revoked_at) || undefined,
+    }),
+    detailRows: [
+      { labelKey: 'patients.resources.consents.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'patients.resources.consents.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.consents.detail.patientLabel', valueKey: 'patient_id' },
+      { labelKey: 'patients.resources.consents.detail.consentTypeLabel', valueKey: 'consent_type' },
+      { labelKey: 'patients.resources.consents.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'patients.resources.consents.detail.grantedAtLabel', valueKey: 'granted_at', type: 'datetime' },
+      { labelKey: 'patients.resources.consents.detail.revokedAtLabel', valueKey: 'revoked_at', type: 'datetime' },
+      { labelKey: 'patients.resources.consents.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'patients.resources.consents.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [PATIENT_RESOURCE_IDS.TERMS_ACCEPTANCES]: {
+    id: PATIENT_RESOURCE_IDS.TERMS_ACCEPTANCES,
+    routePath: `${PATIENT_ROUTE_ROOT}/terms-acceptances`,
+    i18nKey: 'patients.resources.termsAcceptances',
+    supportsPatientFilter: false,
+    requiresPatientSelection: false,
+    supportsEdit: false,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'user_id',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'patients.resources.termsAcceptances.form.userLabel',
+        placeholderKey: 'patients.resources.termsAcceptances.form.userPlaceholder',
+        hintKey: 'patients.resources.termsAcceptances.form.userHint',
+      },
+      {
+        name: 'version_label',
+        type: 'text',
+        required: true,
+        maxLength: 40,
+        labelKey: 'patients.resources.termsAcceptances.form.versionLabel',
+        placeholderKey: 'patients.resources.termsAcceptances.form.versionPlaceholder',
+        hintKey: 'patients.resources.termsAcceptances.form.versionHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.version_label) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      const userId = sanitizeString(item?.user_id);
+      if (!userId) return '';
+      return `${t('patients.resources.termsAcceptances.detail.userLabel')}: ${userId}`;
+    },
+    getInitialValues: (record) => ({
+      user_id: sanitizeString(record?.user_id),
+      version_label: sanitizeString(record?.version_label),
+    }),
+    toPayload: (values) => ({
+      user_id: sanitizeString(values.user_id),
+      version_label: sanitizeString(values.version_label),
+    }),
+    detailRows: [
+      { labelKey: 'patients.resources.termsAcceptances.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.userLabel', valueKey: 'user_id' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.versionLabel', valueKey: 'version_label' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
 };
