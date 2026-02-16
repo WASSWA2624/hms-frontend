@@ -1,13 +1,21 @@
 import {
+  BILLING_RESOURCE_LIST_ORDER,
+  BIOMEDICAL_RESOURCE_LIST_ORDER,
   CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
+  COMPLIANCE_RESOURCE_LIST_ORDER,
+  COMMUNICATIONS_RESOURCE_LIST_ORDER,
   EMERGENCY_RESOURCE_LIST_ORDER,
+  HR_RESOURCE_LIST_ORDER,
   INVENTORY_RESOURCE_LIST_ORDER,
+  INTEGRATIONS_RESOURCE_LIST_ORDER,
   ICU_RESOURCE_LIST_ORDER,
   IPD_RESOURCE_LIST_ORDER,
   LAB_RESOURCE_LIST_ORDER,
   PHARMACY_RESOURCE_LIST_ORDER,
   RADIOLOGY_RESOURCE_LIST_ORDER,
+  REPORTS_RESOURCE_LIST_ORDER,
+  SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   getClinicalResourceConfig,
   getContextFilters,
@@ -277,5 +285,150 @@ describe('clinicalResourceConfigs', () => {
     expect(purchaseRequestsConfig?.fields?.length).toBe(5);
     expect(purchaseRequestsConfig?.requiresTenant).toBe(true);
     expect(purchaseRequestsConfig?.supportsFacility).toBe(true);
+  });
+
+  it('keeps tier 10 billing, hr, reports, communications, subscriptions, integrations, and compliance resources in order', () => {
+    expect(BILLING_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.INVOICES,
+      CLINICAL_RESOURCE_IDS.INVOICE_ITEMS,
+      CLINICAL_RESOURCE_IDS.PAYMENTS,
+      CLINICAL_RESOURCE_IDS.REFUNDS,
+      CLINICAL_RESOURCE_IDS.PRICING_RULES,
+      CLINICAL_RESOURCE_IDS.COVERAGE_PLANS,
+      CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS,
+      CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS,
+      CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS,
+    ]);
+
+    expect(HR_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
+      CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
+      CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
+      CLINICAL_RESOURCE_IDS.SHIFTS,
+      CLINICAL_RESOURCE_IDS.SHIFT_ASSIGNMENTS,
+      CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS,
+      CLINICAL_RESOURCE_IDS.NURSE_ROSTERS,
+      CLINICAL_RESOURCE_IDS.SHIFT_TEMPLATES,
+      CLINICAL_RESOURCE_IDS.ROSTER_DAY_OFFS,
+      CLINICAL_RESOURCE_IDS.STAFF_AVAILABILITIES,
+      CLINICAL_RESOURCE_IDS.PAYROLL_RUNS,
+      CLINICAL_RESOURCE_IDS.PAYROLL_ITEMS,
+    ]);
+
+    expect(REPORTS_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS,
+      CLINICAL_RESOURCE_IDS.REPORT_RUNS,
+      CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS,
+      CLINICAL_RESOURCE_IDS.KPI_SNAPSHOTS,
+      CLINICAL_RESOURCE_IDS.ANALYTICS_EVENTS,
+    ]);
+
+    expect(COMMUNICATIONS_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.NOTIFICATIONS,
+      CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES,
+      CLINICAL_RESOURCE_IDS.CONVERSATIONS,
+      CLINICAL_RESOURCE_IDS.MESSAGES,
+      CLINICAL_RESOURCE_IDS.TEMPLATES,
+      CLINICAL_RESOURCE_IDS.TEMPLATE_VARIABLES,
+    ]);
+
+    expect(SUBSCRIPTIONS_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.SUBSCRIPTION_PLANS,
+      CLINICAL_RESOURCE_IDS.SUBSCRIPTIONS,
+      CLINICAL_RESOURCE_IDS.SUBSCRIPTION_INVOICES,
+      CLINICAL_RESOURCE_IDS.MODULES,
+      CLINICAL_RESOURCE_IDS.MODULE_SUBSCRIPTIONS,
+      CLINICAL_RESOURCE_IDS.LICENSES,
+    ]);
+
+    expect(INTEGRATIONS_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.INTEGRATIONS,
+      CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS,
+      CLINICAL_RESOURCE_IDS.WEBHOOK_SUBSCRIPTIONS,
+    ]);
+
+    expect(COMPLIANCE_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.AUDIT_LOGS,
+      CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS,
+      CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS,
+      CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS,
+      CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS,
+    ]);
+  });
+
+  it('keeps tier 10 biomedical resources in order', () => {
+    expect(BIOMEDICAL_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS,
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS,
+    ]);
+  });
+
+  it('maps tier 10 context filters for invoice items and integration logs', () => {
+    expect(
+      getContextFilters(CLINICAL_RESOURCE_IDS.INVOICE_ITEMS, {
+        invoiceId: 'invoice-1',
+        search: 'consultation fee',
+      })
+    ).toEqual({
+      invoice_id: 'invoice-1',
+      search: 'consultation fee',
+    });
+
+    expect(
+      getContextFilters(CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS, {
+        integrationId: 'integration-1',
+        status: 'FAILED',
+        search: 'timeout',
+      })
+    ).toEqual({
+      integration_id: 'integration-1',
+      status: 'FAILED',
+      search: 'timeout',
+    });
+  });
+
+  it('provides tier 10 route configs and read-only log capabilities', () => {
+    const reportDefinitionsConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.REPORT_DEFINITIONS
+    );
+    const notificationDeliveriesConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES
+    );
+    const integrationLogsConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS
+    );
+    const auditLogsConfig = getClinicalResourceConfig(CLINICAL_RESOURCE_IDS.AUDIT_LOGS);
+    const equipmentRegistriesConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES
+    );
+
+    expect(reportDefinitionsConfig?.routePath).toBe('/reports/report-definitions');
+    expect(notificationDeliveriesConfig?.routePath).toBe(
+      '/communications/notification-deliveries'
+    );
+    expect(equipmentRegistriesConfig?.routePath).toBe(
+      '/housekeeping/biomedical/equipment-registries'
+    );
+
+    expect(integrationLogsConfig?.allowCreate).toBe(false);
+    expect(integrationLogsConfig?.allowEdit).toBe(false);
+    expect(integrationLogsConfig?.allowDelete).toBe(false);
+
+    expect(auditLogsConfig?.allowCreate).toBe(false);
+    expect(auditLogsConfig?.allowEdit).toBe(false);
+    expect(auditLogsConfig?.allowDelete).toBe(false);
   });
 });
