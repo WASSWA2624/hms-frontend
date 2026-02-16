@@ -10,7 +10,7 @@ import { ThemeProvider } from 'styled-components';
 import lightTheme from '@theme/light.theme';
 
 const mockPush = jest.fn();
-const mockPathname = '/settings';
+let mockPathname = '/settings';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -74,6 +74,7 @@ const renderWithTheme = (component) => render(<ThemeProvider theme={lightTheme}>
 describe('Sidebar Component - Web', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPathname = '/settings';
   });
 
   const items = [
@@ -143,5 +144,36 @@ describe('Sidebar Component - Web', () => {
 
     fireEvent.change(input, { target: { value: 'roles' } });
     expect(queryByText('Roles')).toBeNull();
+  });
+
+  it('toggles and routes when a parent section is clicked', () => {
+    mockPathname = '/dashboard';
+    const { getByTestId, queryByTestId } = renderWithTheme(<SidebarWeb items={items} testID="sidebar" />);
+
+    expect(queryByTestId('sidebar-item-settings-users')).toBeNull();
+    fireEvent.click(getByTestId('sidebar-item-settings'));
+
+    expect(mockPush).toHaveBeenCalledWith('/settings');
+    expect(getByTestId('sidebar-item-settings-users')).toBeTruthy();
+  });
+
+  it('routes nested items to their own screens', () => {
+    const { getByTestId } = renderWithTheme(<SidebarWeb items={items} testID="sidebar" />);
+
+    fireEvent.click(getByTestId('sidebar-item-settings'));
+    fireEvent.click(getByTestId('sidebar-item-settings-users'));
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/users');
+  });
+
+  it('allows collapsing the active parent section while a nested route is selected', () => {
+    mockPathname = '/settings/users';
+    const { getByTestId, queryByTestId } = renderWithTheme(<SidebarWeb items={items} testID="sidebar" />);
+
+    expect(getByTestId('sidebar-item-settings-users')).toBeTruthy();
+    fireEvent.click(getByTestId('sidebar-item-settings'));
+
+    expect(mockPush).toHaveBeenCalledWith('/settings');
+    expect(queryByTestId('sidebar-item-settings-users')).toBeNull();
   });
 });

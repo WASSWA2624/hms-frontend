@@ -41,22 +41,29 @@ const SidebarItemWeb = (props) => {
   const { path, label, icon, collapsed, active, onClick, level = 0, hasChildren, expanded, onToggleExpand } = normalize(props);
   const glyph = getMenuIconGlyph(icon);
   const testID = props.testID ?? (props.item?.id ? `sidebar-item-${props.item.id}` : undefined);
+  const expandToggleLabel = expanded
+    ? t('navigation.sidebar.collapseSectionLabel', { label })
+    : t('navigation.sidebar.expandSectionLabel', { label });
+
   const handleClick = (e) => {
     e?.preventDefault?.();
     if (onClick) onClick();
     else if (path) router.push(path);
   };
+
   const handleExpandClick = (e) => {
     e?.preventDefault?.();
     e?.stopPropagation?.();
     onToggleExpand?.();
   };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleClick(e);
     }
   };
+
   return (
     <Row
       href={path || '#'}
@@ -70,27 +77,27 @@ const SidebarItemWeb = (props) => {
       $active={active}
       $collapsed={collapsed}
       $level={level}
+      $hasChildren={hasChildren}
+      $expanded={expanded}
       data-testid={testID}
     >
-      <IconWrapper aria-hidden="true">
+      <IconWrapper aria-hidden="true" $active={active} $level={level} $expanded={expanded}>
         <Icon glyph={glyph} size="sm" decorative />
       </IconWrapper>
-      <Label $collapsed={collapsed} $active={active}>
+      <Label $collapsed={collapsed} $active={active} $level={level}>
         {label}
       </Label>
       {hasChildren && !collapsed && (
         <ExpandButton
           type="button"
-          aria-label={
-            expanded
-              ? t('navigation.sidebar.collapseSectionLabel', { label })
-              : t('navigation.sidebar.expandSectionLabel', { label })
-          }
+          aria-label={expandToggleLabel}
           aria-description={t('navigation.sidebar.expandToggleHint', { label })}
+          aria-expanded={expanded}
+          title={expandToggleLabel}
           onClick={handleExpandClick}
           $expanded={expanded}
         >
-          ▾
+          {'\u25BE'}
         </ExpandButton>
       )}
     </Row>

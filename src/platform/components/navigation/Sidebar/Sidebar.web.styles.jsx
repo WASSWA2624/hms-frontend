@@ -32,9 +32,14 @@ const StyledSidebar = styled.nav.withConfig({
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: ${({ theme }) => theme.colors.background.primary};
+  background: linear-gradient(
+    180deg,
+    ${({ theme }) => theme.colors.background.primary} 0%,
+    ${({ theme }) => theme.colors.background.secondary} 100%
+  );
   border-right: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   border-radius: 0 ${({ theme }) => theme.radius?.sm ?? 4}px ${({ theme }) => theme.radius?.sm ?? 4}px 0;
+  box-shadow: inset -1px 0 0 ${({ theme }) => theme.colors.background.tertiary}, 2px 0 10px rgba(0, 0, 0, 0.03);
 `;
 
 const StyledSidebarSearch = styled.div.withConfig({
@@ -176,15 +181,15 @@ const StyledSidebarContent = styled.div.withConfig({
 })`
   flex: 1;
   min-height: 0;
-  padding: ${({ theme }) => theme.spacing.xs}px;
-  padding-right: ${({ theme }) => theme.spacing.md}px;
-  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
-  scroll-padding-bottom: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding-right: ${({ theme }) => theme.spacing.xs / 2}px;
+  padding-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
+  scroll-padding-bottom: ${({ theme }) => theme.spacing.xs / 2}px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  gap: 0;
   scrollbar-gutter: stable;
 `;
 
@@ -194,7 +199,7 @@ const StyledSidebarSection = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  gap: 0;
 `;
 
 const StyledSidebarSectionHeader = styled.div.withConfig({
@@ -216,9 +221,9 @@ const StyledNavItemChildren = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  gap: 0;
   padding-left: ${({ theme }) => theme.spacing.sm}px;
-  border-left: 2px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-left: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   margin-left: ${({ theme }) => theme.spacing.sm}px;
 `;
 

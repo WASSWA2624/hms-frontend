@@ -55,7 +55,7 @@ const SidebarWeb = ({
   const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
-  const [expandedId, setExpandedId] = useState(() => null);
+  const [expandedState, setExpandedState] = useState(() => ({ id: null, manual: false }));
   const [searchQuery, setSearchQuery] = useState('');
 
   const tree = useMemo(() => {
@@ -78,21 +78,32 @@ const SidebarWeb = ({
   });
 
   const expandedIdResolved = useMemo(() => {
-    if (expandedId !== null && expandedId !== undefined) return expandedId;
+    if (expandedState.manual) return expandedState.id;
     const withActive = tree.find((i) => i.children && hasActiveChild(pathname, i.children));
     return withActive ? withActive.id : null;
-  }, [tree, pathname, expandedId]);
+  }, [tree, pathname, expandedState]);
 
-  const toggleSection = useCallback((itemId) => {
-    setExpandedId((prev) => (prev === itemId ? null : itemId));
+  const toggleSection = useCallback((itemId, isExpanded) => {
+    setExpandedState({
+      id: isExpanded ? null : itemId,
+      manual: true,
+    });
   }, []);
 
   const handleItemClick = useCallback(
     (item, href) => {
       if (onItemPress) onItemPress(item, href);
-      else if (href) router.push(href);
+      else if (href && href !== pathname) router.push(href);
     },
-    [onItemPress, router]
+    [onItemPress, router, pathname]
+  );
+
+  const handleSectionClick = useCallback(
+    (item, href, hasChildren, isExpanded) => {
+      if (hasChildren) toggleSection(item.id, isExpanded);
+      handleItemClick(item, href);
+    },
+    [toggleSection, handleItemClick]
   );
 
   const handleSearchChange = useCallback((eventOrValue) => {
@@ -198,12 +209,12 @@ const SidebarWeb = ({
                   collapsed={collapsed}
                   active={active}
                   testID={testID ? `sidebar-item-${item.id}` : undefined}
-                  onClick={() => handleItemClick(item, href)}
-                  onPress={() => handleItemClick(item, href)}
+                  onClick={() => handleSectionClick(item, href, hasChildren, expanded)}
+                  onPress={() => handleSectionClick(item, href, hasChildren, expanded)}
                   level={0}
                   hasChildren={hasChildren}
                   expanded={expanded}
-                  onToggleExpand={hasChildren ? () => toggleSection(item.id) : undefined}
+                  onToggleExpand={hasChildren ? () => toggleSection(item.id, expanded) : undefined}
                 />
               </StyledSidebarSectionHeader>
               {hasChildren && expanded && !collapsed && (
