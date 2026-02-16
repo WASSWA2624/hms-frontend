@@ -110,6 +110,7 @@ const normalizeClinicalContext = (params = {}) => {
   const batchNumber = sanitizeString(firstValue(params.batchNumber)) || undefined;
   const category = sanitizeString(firstValue(params.category)) || undefined;
   const sku = sanitizeString(firstValue(params.sku)) || undefined;
+  const contentType = sanitizeString(firstValue(params.contentType)) || undefined;
   const assetTag = sanitizeString(firstValue(params.assetTag)) || undefined;
   const staffNumber = sanitizeString(firstValue(params.staffNumber)) || undefined;
   const unit = sanitizeString(firstValue(params.unit)) || undefined;
@@ -231,6 +232,7 @@ const normalizeClinicalContext = (params = {}) => {
     batchNumber,
     category,
     sku,
+    contentType,
     assetTag,
     staffNumber,
     unit,

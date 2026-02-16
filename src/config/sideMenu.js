@@ -389,6 +389,13 @@ const CLINICAL_ITEMS = [
     roles: CLINICAL_ACCESS_ROLES,
   },
   {
+    id: 'clinical-clinical-alerts',
+    icon: 'warning-outline',
+    path: '/clinical/clinical-alerts',
+    name: `${MAIN_NAV_I18N}.clinical-clinical-alerts`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
     id: 'clinical-referrals',
     icon: 'git-branch-outline',
     path: '/clinical/referrals',
@@ -584,6 +591,13 @@ const DIAGNOSTICS_ITEMS = [
     roles: DIAGNOSTICS_ACCESS_ROLES,
   },
   {
+    id: 'diagnostics-lab-order-items',
+    icon: 'list-outline',
+    path: '/diagnostics/lab/lab-order-items',
+    name: `${MAIN_NAV_I18N}.diagnostics-lab-order-items`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
     id: 'diagnostics-lab-samples',
     icon: 'grid-outline',
     path: '/diagnostics/lab/lab-samples',
@@ -640,6 +654,13 @@ const DIAGNOSTICS_ITEMS = [
     roles: DIAGNOSTICS_ACCESS_ROLES,
   },
   {
+    id: 'diagnostics-imaging-assets',
+    icon: 'image-outline',
+    path: '/diagnostics/radiology/imaging-assets',
+    name: `${MAIN_NAV_I18N}.diagnostics-imaging-assets`,
+    roles: DIAGNOSTICS_ACCESS_ROLES,
+  },
+  {
     id: 'diagnostics-pacs-links',
     icon: 'key-outline',
     path: '/diagnostics/radiology/pacs-links',
@@ -677,6 +698,13 @@ const PHARMACY_ITEMS = [
     icon: 'time-outline',
     path: '/pharmacy/pharmacy-orders',
     name: `${MAIN_NAV_I18N}.pharmacy-pharmacy-orders`,
+    roles: PHARMACY_ACCESS_ROLES,
+  },
+  {
+    id: 'pharmacy-pharmacy-order-items',
+    icon: 'grid-outline',
+    path: '/pharmacy/pharmacy-order-items',
+    name: `${MAIN_NAV_I18N}.pharmacy-pharmacy-order-items`,
     roles: PHARMACY_ACCESS_ROLES,
   },
   {
@@ -723,6 +751,13 @@ const INVENTORY_ITEMS = [
     icon: 'business-outline',
     path: '/inventory/suppliers',
     name: `${MAIN_NAV_I18N}.inventory-suppliers`,
+    roles: INVENTORY_ACCESS_ROLES,
+  },
+  {
+    id: 'inventory-purchase-requests',
+    icon: 'folder-outline',
+    path: '/inventory/purchase-requests',
+    name: `${MAIN_NAV_I18N}.inventory-purchase-requests`,
     roles: INVENTORY_ACCESS_ROLES,
   },
   {

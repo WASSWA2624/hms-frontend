@@ -81,6 +81,14 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.CLINICAL_ALERTS) {
+    return {
+      ...baseContext,
+      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      severity: sanitizeString(item.severity) || baseContext.severity,
+    };
+  }
+
   if (resourceId === CLINICAL_RESOURCE_IDS.REFERRALS) {
     return {
       ...baseContext,
@@ -296,6 +304,16 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS) {
+    return {
+      ...baseContext,
+      labOrderItemId: sanitizeString(item.id) || baseContext.labOrderItemId,
+      labOrderId: sanitizeString(item.lab_order_id) || baseContext.labOrderId,
+      labTestId: sanitizeString(item.lab_test_id) || baseContext.labTestId,
+      status: sanitizeString(item.status) || baseContext.status,
+    };
+  }
+
   if (resourceId === CLINICAL_RESOURCE_IDS.LAB_SAMPLES) {
     return {
       ...baseContext,
@@ -359,6 +377,14 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.IMAGING_ASSETS) {
+    return {
+      ...baseContext,
+      imagingStudyId: sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
+      contentType: sanitizeString(item.content_type) || baseContext.contentType,
+    };
+  }
+
   if (resourceId === CLINICAL_RESOURCE_IDS.PACS_LINKS) {
     return {
       ...baseContext,
@@ -404,6 +430,18 @@ const buildItemContext = (resourceId, item, baseContext) => {
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
       status: sanitizeString(item.status) || baseContext.status,
       orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PHARMACY_ORDER_ITEMS) {
+    return {
+      ...baseContext,
+      pharmacyOrderItemId: sanitizeString(item.id) || baseContext.pharmacyOrderItemId,
+      pharmacyOrderId: sanitizeString(item.pharmacy_order_id) || baseContext.pharmacyOrderId,
+      drugId: sanitizeString(item.drug_id) || baseContext.drugId,
+      status: sanitizeString(item.status) || baseContext.status,
+      frequency: sanitizeString(item.frequency) || baseContext.frequency,
+      route: sanitizeString(item.route) || baseContext.route,
     };
   }
 
@@ -464,6 +502,18 @@ const buildItemContext = (resourceId, item, baseContext) => {
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       name: sanitizeString(item.name) || baseContext.name,
       contactEmail: sanitizeString(item.contact_email) || baseContext.contactEmail,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.PURCHASE_REQUESTS) {
+    return {
+      ...baseContext,
+      purchaseRequestId: sanitizeString(item.id) || baseContext.purchaseRequestId,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      requestedByUserId: sanitizeString(item.requested_by_user_id) || baseContext.requestedByUserId,
+      status: sanitizeString(item.status) || baseContext.status,
+      requestedAtFrom: sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
     };
   }
 

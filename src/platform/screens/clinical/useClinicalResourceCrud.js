@@ -11,6 +11,7 @@ import {
   useAmbulanceTrip,
   useBedAssignment,
   useCarePlan,
+  useClinicalAlert,
   useCriticalAlert,
   useClinicalNote,
   useDispenseLog,
@@ -30,6 +31,7 @@ import {
   useInventoryItem,
   useInventoryStock,
   useInvoice,
+  useImagingAsset,
   usePayment,
   useRefund,
   useInsuranceClaim,
@@ -52,6 +54,7 @@ import {
   useIntegration,
   useAuditLog,
   useLabOrder,
+  useLabOrderItem,
   useLabPanel,
   useLabQcLog,
   useLabResult,
@@ -61,7 +64,9 @@ import {
   useNursingNote,
   usePacsLink,
   usePharmacyOrder,
+  usePharmacyOrderItem,
   usePostOpNote,
+  usePurchaseRequest,
   usePurchaseOrder,
   useProcedure,
   useRadiologyOrder,
@@ -97,6 +102,7 @@ const useClinicalResourceCrud = (resourceId) => {
   const drugBatch = useDrugBatch();
   const formularyItem = useFormularyItem();
   const pharmacyOrder = usePharmacyOrder();
+  const pharmacyOrderItem = usePharmacyOrderItem();
   const dispenseLog = useDispenseLog();
   const adverseEvent = useAdverseEvent();
   const inventoryItem = useInventoryItem();
@@ -125,12 +131,14 @@ const useClinicalResourceCrud = (resourceId) => {
   const auditLog = useAuditLog();
   const stockMovement = useStockMovement();
   const supplier = useSupplier();
+  const purchaseRequest = usePurchaseRequest();
   const purchaseOrder = usePurchaseOrder();
   const goodsReceipt = useGoodsReceipt();
   const stockAdjustment = useStockAdjustment();
   const labTest = useLabTest();
   const labPanel = useLabPanel();
   const labOrder = useLabOrder();
+  const labOrderItem = useLabOrderItem();
   const labSample = useLabSample();
   const labResult = useLabResult();
   const labQcLog = useLabQcLog();
@@ -138,6 +146,7 @@ const useClinicalResourceCrud = (resourceId) => {
   const radiologyOrder = useRadiologyOrder();
   const radiologyResult = useRadiologyResult();
   const imagingStudy = useImagingStudy();
+  const imagingAsset = useImagingAsset();
   const pacsLink = usePacsLink();
   const emergencyCase = useEmergencyCase();
   const triageAssessment = useTriageAssessment();
@@ -151,6 +160,7 @@ const useClinicalResourceCrud = (resourceId) => {
   const procedure = useProcedure();
   const vitalSign = useVitalSign();
   const carePlan = useCarePlan();
+  const clinicalAlert = useClinicalAlert();
   const referral = useReferral();
   const followUp = useFollowUp();
 
@@ -173,18 +183,21 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.DRUG_BATCHES]: drugBatch,
       [CLINICAL_RESOURCE_IDS.FORMULARY_ITEMS]: formularyItem,
       [CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS]: pharmacyOrder,
+      [CLINICAL_RESOURCE_IDS.PHARMACY_ORDER_ITEMS]: pharmacyOrderItem,
       [CLINICAL_RESOURCE_IDS.DISPENSE_LOGS]: dispenseLog,
       [CLINICAL_RESOURCE_IDS.ADVERSE_EVENTS]: adverseEvent,
       [CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS]: inventoryItem,
       [CLINICAL_RESOURCE_IDS.INVENTORY_STOCKS]: inventoryStock,
       [CLINICAL_RESOURCE_IDS.STOCK_MOVEMENTS]: stockMovement,
       [CLINICAL_RESOURCE_IDS.SUPPLIERS]: supplier,
+      [CLINICAL_RESOURCE_IDS.PURCHASE_REQUESTS]: purchaseRequest,
       [CLINICAL_RESOURCE_IDS.PURCHASE_ORDERS]: purchaseOrder,
       [CLINICAL_RESOURCE_IDS.GOODS_RECEIPTS]: goodsReceipt,
       [CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS]: stockAdjustment,
       [CLINICAL_RESOURCE_IDS.LAB_TESTS]: labTest,
       [CLINICAL_RESOURCE_IDS.LAB_PANELS]: labPanel,
       [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: labOrder,
+      [CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS]: labOrderItem,
       [CLINICAL_RESOURCE_IDS.LAB_SAMPLES]: labSample,
       [CLINICAL_RESOURCE_IDS.LAB_RESULTS]: labResult,
       [CLINICAL_RESOURCE_IDS.LAB_QC_LOGS]: labQcLog,
@@ -192,6 +205,7 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS]: radiologyOrder,
       [CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS]: radiologyResult,
       [CLINICAL_RESOURCE_IDS.IMAGING_STUDIES]: imagingStudy,
+      [CLINICAL_RESOURCE_IDS.IMAGING_ASSETS]: imagingAsset,
       [CLINICAL_RESOURCE_IDS.PACS_LINKS]: pacsLink,
       [CLINICAL_RESOURCE_IDS.EMERGENCY_CASES]: emergencyCase,
       [CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS]: triageAssessment,
@@ -205,6 +219,7 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.PROCEDURES]: procedure,
       [CLINICAL_RESOURCE_IDS.VITAL_SIGNS]: vitalSign,
       [CLINICAL_RESOURCE_IDS.CARE_PLANS]: carePlan,
+      [CLINICAL_RESOURCE_IDS.CLINICAL_ALERTS]: clinicalAlert,
       [CLINICAL_RESOURCE_IDS.REFERRALS]: referral,
       [CLINICAL_RESOURCE_IDS.FOLLOW_UPS]: followUp,
       [CLINICAL_RESOURCE_IDS.INVOICES]: invoice,
@@ -250,6 +265,7 @@ const useClinicalResourceCrud = (resourceId) => {
     drugBatch,
     formularyItem,
     pharmacyOrder,
+    pharmacyOrderItem,
     dispenseLog,
     adverseEvent,
     inventoryItem,
@@ -278,12 +294,14 @@ const useClinicalResourceCrud = (resourceId) => {
     auditLog,
     stockMovement,
     supplier,
+    purchaseRequest,
     purchaseOrder,
     goodsReceipt,
     stockAdjustment,
     labTest,
     labPanel,
     labOrder,
+    labOrderItem,
     labSample,
     labResult,
     labQcLog,
@@ -291,6 +309,7 @@ const useClinicalResourceCrud = (resourceId) => {
     radiologyOrder,
     radiologyResult,
     imagingStudy,
+    imagingAsset,
     pacsLink,
     emergencyCase,
     triageAssessment,
@@ -304,6 +323,7 @@ const useClinicalResourceCrud = (resourceId) => {
     procedure,
     vitalSign,
     carePlan,
+    clinicalAlert,
     referral,
     followUp,
   ]);
