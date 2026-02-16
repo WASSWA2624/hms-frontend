@@ -109,6 +109,7 @@ import {
   useStaffAssignment,
   useStaffAvailability,
   useStaffLeave,
+  useStaffPosition,
   useStaffProfile,
   useStockAdjustment,
   useStockMovement,
@@ -194,6 +195,7 @@ const useClinicalResourceCrud = (resourceId) => {
   const insuranceClaim = useInsuranceClaim();
   const preAuthorization = usePreAuthorization();
   const billingAdjustment = useBillingAdjustment();
+  const staffPosition = useStaffPosition();
   const staffProfile = useStaffProfile();
   const staffAssignment = useStaffAssignment();
   const staffLeave = useStaffLeave();
@@ -319,6 +321,7 @@ const useClinicalResourceCrud = (resourceId) => {
       [CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS]: insuranceClaim,
       [CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS]: preAuthorization,
       [CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS]: billingAdjustment,
+      [CLINICAL_RESOURCE_IDS.STAFF_POSITIONS]: staffPosition,
       [CLINICAL_RESOURCE_IDS.STAFF_PROFILES]: staffProfile,
       [CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS]: staffAssignment,
       [CLINICAL_RESOURCE_IDS.STAFF_LEAVES]: staffLeave,
@@ -445,6 +448,7 @@ const useClinicalResourceCrud = (resourceId) => {
     insuranceClaim,
     preAuthorization,
     billingAdjustment,
+    staffPosition,
     staffProfile,
     staffAssignment,
     staffLeave,

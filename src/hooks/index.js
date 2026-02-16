@@ -135,6 +135,7 @@ export { default as useCoveragePlan } from './useCoveragePlan';
 export { default as useInsuranceClaim } from './useInsuranceClaim';
 export { default as usePreAuthorization } from './usePreAuthorization';
 export { default as useBillingAdjustment } from './useBillingAdjustment';
+export { default as useStaffPosition } from './useStaffPosition';
 export { default as useStaffProfile } from './useStaffProfile';
 export { default as useStaffAssignment } from './useStaffAssignment';
 export { default as useStaffLeave } from './useStaffLeave';

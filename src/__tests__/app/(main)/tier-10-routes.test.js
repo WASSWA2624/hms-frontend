@@ -28,6 +28,7 @@ const RESOURCES_WITH_EDIT = {
     'billing-adjustments',
   ],
   hr: [
+    'staff-positions',
     'staff-profiles',
     'staff-assignments',
     'staff-leaves',

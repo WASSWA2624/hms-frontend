@@ -880,6 +880,13 @@ const BILLING_ITEMS = [
 /** @type {MainNavChild[]} */
 const HR_ITEMS = [
   {
+    id: 'hr-staff-positions',
+    icon: 'layers-outline',
+    path: '/hr/staff-positions',
+    name: `${MAIN_NAV_I18N}.hr-staff-positions`,
+    roles: HR_ACCESS_ROLES,
+  },
+  {
     id: 'hr-staff-profiles',
     icon: 'people-outline',
     path: '/hr/staff-profiles',

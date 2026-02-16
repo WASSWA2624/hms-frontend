@@ -301,6 +301,7 @@ describe('clinicalResourceConfigs', () => {
     ]);
 
     expect(HR_RESOURCE_LIST_ORDER).toEqual([
+      CLINICAL_RESOURCE_IDS.STAFF_POSITIONS,
       CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
       CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
       CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
@@ -407,6 +408,7 @@ describe('clinicalResourceConfigs', () => {
     const notificationDeliveriesConfig = getClinicalResourceConfig(
       CLINICAL_RESOURCE_IDS.NOTIFICATION_DELIVERIES
     );
+    const staffPositionsConfig = getClinicalResourceConfig(CLINICAL_RESOURCE_IDS.STAFF_POSITIONS);
     const integrationLogsConfig = getClinicalResourceConfig(
       CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS
     );
@@ -419,6 +421,7 @@ describe('clinicalResourceConfigs', () => {
     expect(notificationDeliveriesConfig?.routePath).toBe(
       '/communications/notification-deliveries'
     );
+    expect(staffPositionsConfig?.routePath).toBe('/hr/staff-positions');
     expect(equipmentRegistriesConfig?.routePath).toBe(
       '/housekeeping/biomedical/equipment-registries'
     );

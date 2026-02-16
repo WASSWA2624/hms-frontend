@@ -45,4 +45,10 @@ describe('endpoints.js', () => {
     expect(endpoints.EQUIPMENT_WORK_ORDERS).toBeDefined();
     expect(endpoints.EQUIPMENT_DISPOSAL_TRANSFERS).toBeDefined();
   });
+
+  test('should expose staff position endpoint group', () => {
+    expect(endpoints.STAFF_POSITIONS).toBeDefined();
+    expect(endpoints.STAFF_POSITIONS.LIST).toMatch(/\/staff-positions$/);
+    expect(endpoints.STAFF_POSITIONS.GET('id')).toMatch(/\/staff-positions\/id$/);
+  });
 });

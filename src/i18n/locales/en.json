@@ -355,6 +355,7 @@
         "billing-pre-authorizations": "Pre-authorizations",
         "billing-billing-adjustments": "Billing Adjustments",
         "hr": "HR",
+        "hr-staff-positions": "Staff Positions",
         "hr-staff-profiles": "Staff Profiles",
         "hr-staff-assignments": "Staff Assignments",
         "hr-staff-leaves": "Staff Leaves",
@@ -9472,6 +9473,35 @@
           "statusHint": "Optional",
           "statusLabel": "Status",
           "statusPlaceholder": "Enter status"
+        }
+      },
+      "staffPositions": {
+        "detail": {
+          "createdLabel": "Created",
+          "departmentLabel": "Department",
+          "descriptionLabel": "Description",
+          "facilityLabel": "Facility",
+          "idLabel": "Id",
+          "isActiveLabel": "Active",
+          "nameLabel": "Name",
+          "tenantLabel": "Tenant",
+          "updatedLabel": "Updated"
+        },
+        "form": {
+          "departmentIdHint": "Optional",
+          "departmentIdLabel": "Department Id",
+          "departmentIdPlaceholder": "Enter department id",
+          "descriptionHint": "Optional",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "Enter description",
+          "facilityIdHint": "Optional",
+          "facilityIdLabel": "Facility Id",
+          "facilityIdPlaceholder": "Enter facility id",
+          "isActiveHint": "Enable when this position can be assigned.",
+          "isActiveLabel": "Active",
+          "nameHint": "Required",
+          "nameLabel": "Name",
+          "namePlaceholder": "Enter position name"
         }
       },
       "staffProfiles": {

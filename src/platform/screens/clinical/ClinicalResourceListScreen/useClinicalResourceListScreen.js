@@ -605,6 +605,20 @@ const buildItemContext = (resourceId, item, baseContext) => {
     };
   }
 
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_POSITIONS) {
+    return {
+      ...baseContext,
+      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
+      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
+      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      name: sanitizeString(item.name) || baseContext.name,
+      isActive:
+        typeof item?.is_active === 'boolean'
+          ? item.is_active
+          : baseContext.isActive,
+    };
+  }
+
   if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_PROFILES) {
     return {
       ...baseContext,

@@ -1266,7 +1266,8 @@ The previous verification queue is mostly resolved at filename level, including 
 
 Current verification queue:
 
-- `staff-position` feature module and route/screen wiring (`/api/v1/staff-positions`, `(main)/hr/staff-positions`)
+- None.
+- `staff-position` parity completed on `2026-02-16` (`/api/v1/staff-positions`, `(main)/hr/staff-positions`).
 
 Execution checklist references:
 

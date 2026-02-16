@@ -718,6 +718,13 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/billing-adjustments/${id}`,
     DELETE: (id) => `${baseUrl}/billing-adjustments/${id}`,
   },
+  STAFF_POSITIONS: {
+    LIST: `${baseUrl}/staff-positions`,
+    CREATE: `${baseUrl}/staff-positions`,
+    GET: (id) => `${baseUrl}/staff-positions/${id}`,
+    UPDATE: (id) => `${baseUrl}/staff-positions/${id}`,
+    DELETE: (id) => `${baseUrl}/staff-positions/${id}`,
+  },
   STAFF_PROFILES: {
     LIST: `${baseUrl}/staff-profiles`,
     CREATE: `${baseUrl}/staff-profiles`,

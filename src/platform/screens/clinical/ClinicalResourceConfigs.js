@@ -71,6 +71,7 @@ Object.assign(CLINICAL_RESOURCE_IDS, {
   INSURANCE_CLAIMS: 'insurance-claims',
   PRE_AUTHORIZATIONS: 'pre-authorizations',
   BILLING_ADJUSTMENTS: 'billing-adjustments',
+  STAFF_POSITIONS: 'staff-positions',
   STAFF_PROFILES: 'staff-profiles',
   STAFF_ASSIGNMENTS: 'staff-assignments',
   STAFF_LEAVES: 'staff-leaves',
@@ -226,6 +227,7 @@ const BILLING_RESOURCE_LIST_ORDER = [
 ];
 
 const HR_RESOURCE_LIST_ORDER = [
+  CLINICAL_RESOURCE_IDS.STAFF_POSITIONS,
   CLINICAL_RESOURCE_IDS.STAFF_PROFILES,
   CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS,
   CLINICAL_RESOURCE_IDS.STAFF_LEAVES,
@@ -1752,6 +1754,17 @@ const getContextFilters = (resourceId, context) => {
     return {
       invoice_id: invoiceId || undefined,
       status: status || undefined,
+      search: search || undefined,
+    };
+  }
+
+  if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_POSITIONS) {
+    return {
+      tenant_id: tenantId || undefined,
+      facility_id: facilityId || undefined,
+      department_id: departmentId || undefined,
+      name: sanitizeString(context?.name) || undefined,
+      is_active: typeof isActive === 'boolean' ? isActive : undefined,
       search: search || undefined,
     };
   }
@@ -7436,6 +7449,97 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.billingAdjustments.detail.adjustedAtLabel', valueKey: 'adjusted_at', type: 'datetime' },
       { labelKey: 'clinical.resources.billingAdjustments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'clinical.resources.billingAdjustments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+    ],
+  },
+  [CLINICAL_RESOURCE_IDS.STAFF_POSITIONS]: {
+    id: CLINICAL_RESOURCE_IDS.STAFF_POSITIONS,
+    routePath: `${HR_ROUTE_ROOT}/staff-positions`,
+    i18nKey: 'clinical.resources.staffPositions',
+    requiresTenant: true,
+    supportsFacility: true,
+    listParams: { page: 1, limit: 20 },
+    fields: [
+      {
+        name: 'facility_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffPositions.form.facilityIdLabel',
+        placeholderKey: 'clinical.resources.staffPositions.form.facilityIdPlaceholder',
+        hintKey: 'clinical.resources.staffPositions.form.facilityIdHint',
+      },
+      {
+        name: 'department_id',
+        type: 'text',
+        required: false,
+        maxLength: 64,
+        labelKey: 'clinical.resources.staffPositions.form.departmentIdLabel',
+        placeholderKey: 'clinical.resources.staffPositions.form.departmentIdPlaceholder',
+        hintKey: 'clinical.resources.staffPositions.form.departmentIdHint',
+      },
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+        maxLength: 120,
+        labelKey: 'clinical.resources.staffPositions.form.nameLabel',
+        placeholderKey: 'clinical.resources.staffPositions.form.namePlaceholder',
+        hintKey: 'clinical.resources.staffPositions.form.nameHint',
+      },
+      {
+        name: 'description',
+        type: 'text',
+        required: false,
+        maxLength: 255,
+        labelKey: 'clinical.resources.staffPositions.form.descriptionLabel',
+        placeholderKey: 'clinical.resources.staffPositions.form.descriptionPlaceholder',
+        hintKey: 'clinical.resources.staffPositions.form.descriptionHint',
+      },
+      {
+        name: 'is_active',
+        type: 'switch',
+        required: false,
+        labelKey: 'clinical.resources.staffPositions.form.isActiveLabel',
+        hintKey: 'clinical.resources.staffPositions.form.isActiveHint',
+      },
+    ],
+    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) => {
+      if (typeof item?.is_active === 'boolean') {
+        return `${t('clinical.resources.staffPositions.detail.isActiveLabel')}: ${item.is_active ? t('common.on') : t('common.off')}`;
+      }
+      return '';
+    },
+    getInitialValues: (record, context) => ({
+      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
+      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      name: sanitizeString(record?.name || context?.name),
+      description: sanitizeString(record?.description),
+      is_active:
+        typeof record?.is_active === 'boolean'
+          ? record.is_active
+          : typeof context?.isActive === 'boolean'
+            ? context.isActive
+            : true,
+    }),
+    toPayload: (values) => ({
+      facility_id: sanitizeString(values.facility_id) || null,
+      department_id: sanitizeString(values.department_id) || null,
+      name: sanitizeString(values.name),
+      description: sanitizeString(values.description) || null,
+      is_active: Boolean(values.is_active),
+    }),
+    validate: () => ({}),
+    detailRows: [
+      { labelKey: 'clinical.resources.staffPositions.detail.idLabel', valueKey: 'id' },
+      { labelKey: 'clinical.resources.staffPositions.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'clinical.resources.staffPositions.detail.facilityLabel', valueKey: 'facility_id' },
+      { labelKey: 'clinical.resources.staffPositions.detail.departmentLabel', valueKey: 'department_id' },
+      { labelKey: 'clinical.resources.staffPositions.detail.nameLabel', valueKey: 'name' },
+      { labelKey: 'clinical.resources.staffPositions.detail.descriptionLabel', valueKey: 'description' },
+      { labelKey: 'clinical.resources.staffPositions.detail.isActiveLabel', valueKey: 'is_active', type: 'boolean' },
+      { labelKey: 'clinical.resources.staffPositions.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.staffPositions.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STAFF_PROFILES]: {
