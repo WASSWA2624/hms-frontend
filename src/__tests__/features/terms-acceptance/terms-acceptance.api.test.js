@@ -12,6 +12,16 @@ jest.mock('@services/api', () => ({
 }));
 
 describe('terms-acceptance.api', () => {
+  it('lists terms acceptances with default params', async () => {
+    apiClient.mockResolvedValue({ data: [] });
+    await termsAcceptanceApi.list();
+    expect(buildQueryString).toHaveBeenCalledWith({});
+    expect(apiClient).toHaveBeenCalledWith({
+      url: `${endpoints.TERMS_ACCEPTANCES.LIST}?page=1`,
+      method: 'GET',
+    });
+  });
+
   it('lists terms acceptances with query params', async () => {
     apiClient.mockResolvedValue({ data: [] });
     await termsAcceptanceApi.list({ page: 1 });

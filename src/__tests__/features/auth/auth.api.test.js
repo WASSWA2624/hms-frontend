@@ -5,6 +5,7 @@
 import { apiClient } from '@services/api';
 import { endpoints } from '@config/endpoints';
 import {
+  identifyApi,
   loginApi,
   logoutApi,
   refreshApi,
@@ -28,8 +29,10 @@ describe('auth.api', () => {
   });
 
   it('calls auth endpoints', async () => {
+    await identifyApi({ identifier: 'user@example.com' });
     await loginApi({ email: 'user', password: 'pass' });
     await logoutApi();
+    await logoutApi({ refresh_token: 'token' });
     await refreshApi({ refreshToken: 'token' });
     await registerApi({ email: 'user' });
     await verifyEmailApi({ token: 't' });
@@ -41,6 +44,11 @@ describe('auth.api', () => {
     await getCurrentUserApi();
 
     expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.AUTH.IDENTIFY,
+      method: 'POST',
+      body: { identifier: 'user@example.com' },
+    });
+    expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.LOGIN,
       method: 'POST',
       body: { email: 'user', password: 'pass' },
@@ -48,6 +56,11 @@ describe('auth.api', () => {
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.LOGOUT,
       method: 'POST',
+    });
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.AUTH.LOGOUT,
+      method: 'POST',
+      body: { refresh_token: 'token' },
     });
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.REFRESH,

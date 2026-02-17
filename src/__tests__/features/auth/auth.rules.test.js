@@ -28,10 +28,12 @@ describe('auth.rules', () => {
       tenant_id: '550e8400-e29b-41d4-a716-446655440000',
     });
     expect(parseAuthPayload({ token: 'abc' })).toEqual({ token: 'abc' });
+    expect(parseAuthPayload()).toEqual({});
   });
 
   it('rejects credentials without identifier', () => {
     expect(() => parseCredentials({ password: 'pass', tenant_id: '550e8400-e29b-41d4-a716-446655440000' })).toThrow('identifier_required');
+    expect(() => parseCredentials()).toThrow();
   });
 
   it('rejects phone numbers with plus sign', () => {

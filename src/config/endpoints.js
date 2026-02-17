@@ -952,8 +952,9 @@ export const endpoints = {
     DELETE: (id) => `${baseUrl}/equipment-disposal-transfers/${id}`,
   },
   USERS: {
-    GET: (id) => `${baseUrl}/users/${id}`,
     LIST: `${baseUrl}/users`,
+    CREATE: `${baseUrl}/users`,
+    GET: (id) => `${baseUrl}/users/${id}`,
     UPDATE: (id) => `${baseUrl}/users/${id}`,
     DELETE: (id) => `${baseUrl}/users/${id}`,
     GET_PROFILE: `${baseUrl}/users/me`,
