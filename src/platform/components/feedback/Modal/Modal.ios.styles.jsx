@@ -83,7 +83,11 @@ const StyledScrollViewContent = styled.View.withConfig({
 `;
 
 const scrollContentContainerStyle = StyleSheet.create({
-  content: { flexGrow: 1 },
+  content: {
+    flexGrow: 1,
+    width: '100%',
+    alignItems: 'stretch',
+  },
 }).content;
 
 export { StyledBackdrop, StyledModalContainer, StyledCloseButton, StyledCloseButtonText, StyledKeyboardAvoidingView, StyledScrollViewContent, scrollContentContainerStyle };

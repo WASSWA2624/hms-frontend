@@ -4,7 +4,7 @@
  * File: Modal.ios.jsx
  */
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Modal, ScrollView } from 'react-native';
 import { StyledBackdrop, StyledModalContainer, StyledCloseButton, StyledCloseButtonText, StyledKeyboardAvoidingView, StyledScrollViewContent, scrollContentContainerStyle } from './Modal.ios.styles';
 import useModal from './useModal';
@@ -41,6 +41,19 @@ const ModalIOS = ({
     onDismiss,
     dismissOnBackdrop,
   });
+  const [scrollViewportHeight, setScrollViewportHeight] = useState(0);
+  const [scrollContentHeight, setScrollContentHeight] = useState(0);
+
+  const handleScrollLayout = useCallback((event) => {
+    const nextHeight = event?.nativeEvent?.layout?.height ?? 0;
+    setScrollViewportHeight(nextHeight);
+  }, []);
+
+  const handleContentSizeChange = useCallback((_width, nextHeight) => {
+    setScrollContentHeight(nextHeight ?? 0);
+  }, []);
+
+  const shouldShowVerticalIndicator = scrollContentHeight > scrollViewportHeight + 1;
 
   if (!visible) return null;
 
@@ -64,6 +77,9 @@ const ModalIOS = ({
             <ScrollView
               keyboardShouldPersistTaps="handled"
               horizontal={false}
+              onLayout={handleScrollLayout}
+              onContentSizeChange={handleContentSizeChange}
+              showsVerticalScrollIndicator={shouldShowVerticalIndicator}
               showsHorizontalScrollIndicator={false}
               alwaysBounceHorizontal={false}
               contentContainerStyle={scrollContentContainerStyle}
