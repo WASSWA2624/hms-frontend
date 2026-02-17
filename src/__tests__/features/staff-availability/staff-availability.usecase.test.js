@@ -31,6 +31,7 @@ describe('staff-availability.usecase', () => {
   let consoleErrorSpy;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     staffAvailabilityApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     staffAvailabilityApi.get.mockResolvedValue({ data: { id: '1' } });
@@ -53,5 +54,20 @@ describe('staff-availability.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('unwraps nested list payload envelopes', async () => {
+    staffAvailabilityApi.list.mockResolvedValue({
+      data: {
+        data: [{ id: '2' }],
+      },
+    });
+
+    await expect(listStaffAvailabilities({})).resolves.toEqual([{ id: '2' }]);
+  });
+
+  it('returns empty list when list payload is null', async () => {
+    staffAvailabilityApi.list.mockResolvedValue({ data: null });
+    await expect(listStaffAvailabilities({})).resolves.toEqual([]);
+  });
 });
 

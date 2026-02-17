@@ -34,4 +34,16 @@ describe('shift.api', () => {
       body: { notify_staff: true },
     });
   });
+
+  it('posts shift publish action with default payload', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'PUBLISHED' } });
+
+    await shiftApi.publish('1');
+
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.SHIFTS.PUBLISH('1'),
+      method: 'POST',
+      body: {},
+    });
+  });
 });

@@ -31,6 +31,7 @@ describe('roster-day-off.usecase', () => {
   let consoleErrorSpy;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     rosterDayOffApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     rosterDayOffApi.get.mockResolvedValue({ data: { id: '1' } });
@@ -53,5 +54,20 @@ describe('roster-day-off.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('unwraps nested list payload envelopes', async () => {
+    rosterDayOffApi.list.mockResolvedValue({
+      data: {
+        data: [{ id: '2' }],
+      },
+    });
+
+    await expect(listRosterDayOffs({})).resolves.toEqual([{ id: '2' }]);
+  });
+
+  it('returns empty list when list payload is null', async () => {
+    rosterDayOffApi.list.mockResolvedValue({ data: null });
+    await expect(listRosterDayOffs({})).resolves.toEqual([]);
+  });
 });
 

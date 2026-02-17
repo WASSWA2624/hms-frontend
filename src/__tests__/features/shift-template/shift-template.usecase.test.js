@@ -31,6 +31,7 @@ describe('shift-template.usecase', () => {
   let consoleErrorSpy;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     shiftTemplateApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     shiftTemplateApi.get.mockResolvedValue({ data: { id: '1' } });
@@ -53,5 +54,20 @@ describe('shift-template.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('unwraps nested list payload envelopes', async () => {
+    shiftTemplateApi.list.mockResolvedValue({
+      data: {
+        data: [{ id: '2' }],
+      },
+    });
+
+    await expect(listShiftTemplates({})).resolves.toEqual([{ id: '2' }]);
+  });
+
+  it('returns empty list when list payload is null', async () => {
+    shiftTemplateApi.list.mockResolvedValue({ data: null });
+    await expect(listShiftTemplates({})).resolves.toEqual([]);
+  });
 });
 

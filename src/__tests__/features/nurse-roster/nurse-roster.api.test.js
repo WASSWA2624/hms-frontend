@@ -52,4 +52,16 @@ describe('nurse-roster.api', () => {
       })
     );
   });
+
+  it('publishNurseRosterApi defaults payload to empty object', async () => {
+    apiClient.mockResolvedValue({ data: {} });
+    await publishNurseRosterApi('id-123');
+    expect(apiClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('/nurse-rosters/id-123/publish'),
+        method: 'POST',
+        body: {},
+      })
+    );
+  });
 });

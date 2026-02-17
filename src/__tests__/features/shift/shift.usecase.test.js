@@ -52,6 +52,14 @@ describe('shift.usecase', () => {
     expect(shiftApi.publish).toHaveBeenCalledWith('1', { notify_staff: true });
   });
 
+  it('publishes shift with default payload', async () => {
+    await expect(publishShift('1')).resolves.toMatchObject({
+      id: '1',
+      status: 'PUBLISHED',
+    });
+    expect(shiftApi.publish).toHaveBeenCalledWith('1', {});
+  });
+
   it('rejects invalid id for publish', async () => {
     await expect(publishShift(null, { notify_staff: true })).rejects.toBeDefined();
   });

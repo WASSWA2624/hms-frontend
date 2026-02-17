@@ -6,9 +6,13 @@ import {
   listNurseRosters,
   getNurseRoster,
   createNurseRoster,
+  updateNurseRoster,
+  deleteNurseRoster,
   publishNurseRoster,
 } from '@features/nurse-roster';
 import * as api from '@features/nurse-roster/nurse-roster.api';
+import { queueRequestIfOffline } from '@offline/request';
+import { runCrudUsecaseTests } from '../../helpers/crud-usecase-runner';
 
 jest.mock('@features/nurse-roster/nurse-roster.api', () => ({
   nurseRosterApi: {
@@ -20,37 +24,61 @@ jest.mock('@features/nurse-roster/nurse-roster.api', () => ({
   },
   publishNurseRosterApi: jest.fn(),
 }));
-jest.mock('@offline/request', () => ({ queueRequestIfOffline: jest.fn(() => null) }));
+jest.mock('@offline/request', () => ({ queueRequestIfOffline: jest.fn() }));
 
 describe('nurse-roster.usecase', () => {
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
-  });
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-  it('listNurseRosters returns normalized list', async () => {
     api.nurseRosterApi.list.mockResolvedValue({ data: [{ id: '1' }] });
-    const result = await listNurseRosters({});
-    expect(result).toEqual([{ id: '1' }]);
+    api.nurseRosterApi.get.mockResolvedValue({ data: { id: '1' } });
+    api.nurseRosterApi.create.mockResolvedValue({ data: { id: '1' } });
+    api.nurseRosterApi.update.mockResolvedValue({ data: { id: '1' } });
+    api.nurseRosterApi.remove.mockResolvedValue({ data: { id: '1' } });
+    api.publishNurseRosterApi.mockResolvedValue({ data: { id: '1', status: 'PUBLISHED' } });
   });
 
-  it('getNurseRoster returns normalized roster', async () => {
-    api.nurseRosterApi.get.mockResolvedValue({ data: { id: '1', status: 'DRAFT' } });
-    const result = await getNurseRoster('1');
-    expect(result).toEqual({ id: '1', status: 'DRAFT' });
+  afterEach(() => {
+    consoleErrorSpy?.mockRestore?.();
   });
 
-  it('createNurseRoster returns normalized roster', async () => {
-    api.nurseRosterApi.create.mockResolvedValue({ data: { id: 'new', status: 'DRAFT' } });
-    const result = await createNurseRoster({
-      tenant_id: 't1',
-      period_start: '2026-02-01',
-      period_end: '2026-02-28',
+  runCrudUsecaseTests(
+    {
+      list: listNurseRosters,
+      get: getNurseRoster,
+      create: createNurseRoster,
+      update: updateNurseRoster,
+      remove: deleteNurseRoster,
+    },
+    { queueRequestIfOffline }
+  );
+
+  it('listNurseRosters unwraps nested data payloads', async () => {
+    api.nurseRosterApi.list.mockResolvedValue({
+      data: {
+        data: [{ id: '1', status: 'DRAFT' }],
+      },
     });
-    expect(result).toEqual({ id: 'new', status: 'DRAFT' });
+
+    const result = await listNurseRosters({});
+    expect(result).toEqual([{ id: '1', status: 'DRAFT' }]);
+  });
+
+  it('listNurseRosters falls back to empty list for null payloads', async () => {
+    api.nurseRosterApi.list.mockResolvedValue({ data: null });
+    await expect(listNurseRosters({})).resolves.toEqual([]);
   });
 
   it('publishNurseRoster calls publish api', async () => {
-    api.publishNurseRosterApi.mockResolvedValue({ data: { id: '1', status: 'PUBLISHED' } });
+    const result = await publishNurseRoster('1', { notify_staff: true });
+    expect(api.publishNurseRosterApi).toHaveBeenCalledWith('1', { notify_staff: true });
+    expect(result).toEqual({ id: '1', status: 'PUBLISHED' });
+  });
+
+  it('publishNurseRoster uses default payload when omitted', async () => {
     const result = await publishNurseRoster('1');
     expect(api.publishNurseRosterApi).toHaveBeenCalledWith('1', {});
     expect(result).toEqual({ id: '1', status: 'PUBLISHED' });
