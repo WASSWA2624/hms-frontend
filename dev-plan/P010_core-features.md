@@ -88,7 +88,7 @@ Action implementation gates:
 Each step implements exactly **one** mounted backend module from `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 
 ## Chronology Lock (Mandatory)
-- Execute module groups in order: **1 -> 15 -> 15A -> 20**, then validate Group 21 feature-mapped reuse.
+- Execute module groups in order: **1 through 15, then 15A, then 16 through 20**; then validate Group 21 feature-mapped reuse.
 - Do not skip ahead to a later group while an earlier group has pending modules.
 - Do not merge multiple modules into one implementation step.
 - For each module step, complete feature files, tests, and exports before starting the next module.
@@ -318,4 +318,13 @@ No additional backend modules are introduced. Phase 12 must reuse these Phase 10
 - `notification`
 
 **Note**: Group 21 UX/realtime/commercial overlays are implemented in `P012_advanced-features.md`.
+
+## Completion Criteria
+- All 160 backend-mounted modules have matching frontend feature contracts and tests.
+- Group 15A biomedical suite is implemented in-order with subscription-gated readiness controls.
+- Workflow action endpoint support (section `25`) is mapped to feature/usecase actions with normalized error/status handling.
+- Group 18 entitlement/commercial controls include section `26` action-path support.
+- No unresolved module parity deltas remain against backend router/modules.
+
+**Next Phase**: `P011_screens-routes.md`
 

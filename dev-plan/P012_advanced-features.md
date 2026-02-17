@@ -186,3 +186,12 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Validate i18n and accessibility for all new user-facing UI.
 - Validate WS event idempotency handling and duplicate-event safety for realtime-driven screens.
 - Validate entitlement and feature-flag fallback paths for deferred backend contracts.
+
+## Completion Criteria
+- Advanced feature slices are implemented without creating unauthorized backend module boundaries.
+- WS-driven UX is aligned to backend event contracts and idempotency expectations.
+- Workflow/commercial/interop/growth control surfaces map to backend endpoint sections `25-28`.
+- Adaptability UX foundations support configuration-first tenant customization (no forked code paths).
+- Tests for permission failure, offline handling, and fallback behavior pass.
+
+**Next Phase**: `P013_finalization.md`

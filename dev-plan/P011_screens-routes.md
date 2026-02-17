@@ -32,7 +32,7 @@ Implement HMS routes and screens in strict chronological order. One step equals 
 - `write-up.md` sections `9` and `10` (entitlement and commercial route behavior).
 - `write-up.md` section `17` (placeholder route retirement and route parity verification).
 
-## Backend Alignment (Mandatory)
+## Backend Alignment Gate (Mandatory)
 - Module source of truth: mounted backend modules in `hms-backend/src/app/router.js` (use `hms-backend/dev-plan/P011_modules.mdc` where synchronized)
 - Endpoint/path source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc`
 - Frontend module implementation source of truth: `P010_core-features.md`
@@ -398,5 +398,14 @@ Route-file coverage status (`2026-02-17`):
 - `11.3.19-11.3.20`: list/detail/create-edit flows implemented.
 - `11.3.21`: user sessions list/detail implemented; create-edit not applicable.
 - `11.3.22`: list/detail/create-edit flows implemented.
+
+## Completion Criteria
+- Route-file coverage remains `207/207` for defined steps in this phase.
+- Module-backed routes remain aligned with backend modules/endpoints.
+- Workflow action routes/screens expose explicit pending/success/failure/retry states.
+- Placeholder catch-all retirement is completed or formally approved as deferred with owner/date.
+- Route-level regression, accessibility, and offline UX checks pass.
+
+**Next Phase**: `P012_advanced-features.md`
 
 
