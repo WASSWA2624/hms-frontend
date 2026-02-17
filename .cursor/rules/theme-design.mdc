@@ -75,4 +75,4 @@ And only for static, token-driven, performance-sensitive styles.
 ## Related Owners
 - UI file structure: `component-structure.mdc`
 - Provider placement and theme init: `bootstrap-config.mdc`
-- Accessibility requirements: `accessibility.mdc`
+- Accessibility contrast and motion criteria: `accessibility.mdc`

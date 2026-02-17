@@ -71,6 +71,6 @@ Cross-feature collaboration must happen through explicit public contracts, share
 
 ## Related Owners
 - Redux details: `state-management.mdc`
-- Service boundaries: `services-integration.mdc`
+- Infrastructure contract boundaries: `services-integration.mdc`
 - Hook API boundaries: `hooks-utils.mdc`
 - Test policy and coverage gates: `testing.mdc`

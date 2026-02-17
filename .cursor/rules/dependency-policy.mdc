@@ -5,53 +5,34 @@ alwaysApply: true
 # Dependency Minimization Policy
 
 ## Purpose
-Keep the codebase **lean**, **secure**, and **maintainable** with minimal dependencies, preferring built-in capabilities.
+Keep the codebase lean, maintainable, and secure by minimizing third-party dependencies.
 
-**Core Principle**: Mandatory (see `core-principles.mdc`).
+## Mandatory Rules
+- Prefer built-in platform/runtime APIs before adding packages.
+- Add a dependency only for a concrete, current need.
+- Avoid duplicate packages solving the same problem.
+- Prefer smaller, actively maintained libraries with clear release cadence.
+- Require Android, iOS, and Web compatibility.
 
-## Rules (Mandatory)
-- Prefer built-in APIs first (`fetch`, `Intl`, React/React Native primitives, Expo modules).
-- New dependencies must:
-  - Solve a real, current need
-  - Be actively maintained and well-used
-  - Have minimal bundle/dependency footprint
-  - Support Android, iOS, and Web
-- Prefer small internal utilities over large general-purpose libraries.
-- No duplicate dependencies solving the same problem.
+## Approval Checklist
+Before adding a dependency, document:
+1. Why built-ins are insufficient.
+2. Bundle/runtime impact.
+3. Security posture (maintenance, advisories, release activity).
+4. Integration/testing strategy.
 
-## Review Checklist
-- Built-in alternative considered and why insufficient?
-- Bundle size and transitive dependencies?
-- Security posture (CVEs, release cadence)?
-- Testing/mocking strategy?
-- **Compatibility testing completed** (see below)
+## Compatibility Gates
+A candidate dependency must pass:
+1. Version compatibility with current React/React Native/Expo stack.
+2. Multi-platform boot and runtime sanity checks.
+3. No overlap/conflict with existing architectural owners.
 
-## Compatibility Testing (Mandatory)
-### Required Tests
-1. **Version**: Compatible with current React/React Native/Expo (see `tech-stack.mdc`); no peer dependency conflicts
-2. **Platform**: Works on Android, iOS, and Web
-3. **Integration**: No conflicts with Redux Toolkit, Expo App Router, or styled-components; no duplicate functionality
-4. **Build/Runtime**: Installs cleanly; Metro starts; app boots; minimal usage works
+Dependencies failing any gate must not be merged.
 
-### Process
-1. Install in test branch
-2. Create minimal test usage
-3. Run on all platforms
-4. Confirm no errors; verify bundle impact
+## Documentation Rules
+Dependency changes must be committed with:
+- `tech-stack.mdc` updates (version + purpose)
+- Any required `dev-plan/` updates
+- Notes on compatibility validation
 
-### Approval Criteria
-✅ All compatibility tests pass
-✅ No peer dependency conflicts or platform-specific build errors
-✅ No runtime errors on all platforms
-✅ Acceptable bundle size impact
-
-**Rule**: Dependencies failing compatibility tests **must not** be added.
-
-## Documentation (Mandatory)
-When dependencies change:
-1. **Update `tech-stack.mdc`** (Single Source of Truth): Add/update dependency with version, purpose, usage rules, compatibility notes
-2. **Update `dev-plan/P000_setup.md`** (or other `dev-plan/` docs) if applicable
-3. **Document compatibility test results**: platforms tested, known issues, bundle impact
-4. **Commit together** with dependency update
-
-**Rule**: Documentation must be updated **immediately**. `tech-stack.mdc` is the single source of truth. Out-of-sync documentation is a violation.
+Out-of-sync dependency documentation is a policy violation.

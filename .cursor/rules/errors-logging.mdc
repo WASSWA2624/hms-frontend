@@ -3,21 +3,20 @@ alwaysApply: true
 ---
 
 # Error Handling & Logging Standards
+
 ## Purpose
-Define how errors are detected, normalized, stored, displayed, and logged.
-Errors are signals, not UI.
+Define how technical failures are normalized, stored, surfaced, and logged.
+This file owns the global error/logging pipeline.
 
-## Error Ownership Model
-| Layer | Responsibility |
-| --- | --- |
-| UI | Display safe fallback and recovery actions |
-| Hooks | Expose semantic error states and retry APIs |
-| Store | Store error codes only |
-| Services | Detect technical failures |
-| Errors Layer | Normalize and route errors |
-| Logging | Record structured operational events |
+## Ownership Model
+- UI: render safe fallback/recovery UX
+- Hooks: expose semantic error state and retry actions
+- Store: hold error codes/state only
+- Services: detect and throw technical failures
+- Errors layer: normalize and route errors
+- Logging layer: emit structured sanitized events
 
-## Folder Structure
+## Core Modules
 ```txt
 src/errors/
   index.js
@@ -31,70 +30,32 @@ src/logging/
 ```
 
 ## Error Boundary Rules
-- A single global `ErrorBoundary` wraps the app.
-- It is mounted only in `src/app/_layout.jsx`.
-- It catches render/runtime errors, shows fallback UI, and reports fatal errors.
+- Exactly one global `ErrorBoundary` wraps the app.
+- It is mounted in `src/app/_layout.jsx`.
+- It reports fatal runtime/render failures through the logging pipeline.
 
-## Error Normalization
-All errors must pass through a single normalization layer (`error.handler.js`).
-Rules:
-- UI never receives raw errors.
-- Store keeps error codes only.
-- Services never format user-facing messages.
+## Normalization Rules
+- All non-trivial errors pass through `src/errors/error.handler.js`.
+- UI must not receive raw technical error payloads.
+- Store keeps normalized codes/status, not raw error objects.
 
-## Service Error Rules
-Services:
-- Detect technical failures.
-- Throw normalized technical errors/codes.
-- Must not swallow errors silently.
-- May emit technical logs only via `src/logging/` (no `console.*`, no UI messages).
-
-## Hook Error Rules
-Hooks:
-- Catch service/store errors.
-- Expose semantic error state + retry APIs.
-- Must not show toasts/alerts directly.
-
-## Redux Error Rules
-- Store error codes only.
-- No raw error objects.
-- Clear errors explicitly.
-
-## Logging Standards
-Allowed:
-- Errors
-- Performance metrics
-- State transitions
-- Critical lifecycle events
-
-Forbidden:
-- Tokens
-- PII
-- Raw request bodies with sensitive data
-- Secrets
-
-## Logging Placement
-Logging is allowed in:
-- `errors/` handlers
+## Logging Rules
+Allowed logging locations:
+- Errors layer handlers
 - Store middleware
+- Services/interceptors
 - Workers
 - Bootstrap
-- Service boundaries (API client/interceptors and SDK wrappers) through `src/logging/`
 
-Logging is forbidden in:
+Forbidden logging locations:
 - UI render code
-- Pure utilities
-- Ad-hoc `console.*` calls in production code
+- Pure utility functions
+- Ad-hoc production `console.*` calls
 
-## Monitoring
-External monitoring integrations must go through `src/logging/` with environment-aware configuration.
+Never log tokens, credentials, secrets, or PII.
 
-## Offline Error Handling
-- Offline errors must be distinguishable from online failures.
-- Sync failures must be recoverable.
-- Network loss must not crash the app.
-
-## Forbidden Patterns
-- Raw errors leaking to UI
-- Logging inside render functions
-- Multiple competing error normalization pipelines
+## Related Owners
+- Security sanitization and sensitive-data rules: `security.mdc`
+- Infrastructure integration boundaries: `services-integration.mdc`
+- State error shape: `state-management.mdc`
+- Test requirements: `testing.mdc`

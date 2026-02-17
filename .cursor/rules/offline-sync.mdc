@@ -3,185 +3,61 @@ alwaysApply: true
 ---
 
 # Offline-First & Synchronization Architecture
+
 ## Purpose
-This document defines **how the application behaves without network connectivity** and how data is **safely synchronized** when connectivity is restored.
-Goals:
-- App must remain **usable offline**
-- No data loss during network failures
-- Deterministic, recoverable synchronization
-- Clear separation between **UI**, **state**, and **infrastructure**
-- Scalable support for background sync
-Offline support is a **core architectural requirement**, not an enhancement.
----
+Define queueing and synchronization behavior for degraded or disconnected network conditions.
+This file owns offline orchestration rules.
 
 ## Offline Ownership
-The **Offline Layer** owns:
-- Network detection
-- Request queuing
-- Retry & reconciliation logic
-- Sync orchestration
-- State hydration after restart
-It does **not**:
-- Render UI
-- Contain business rules
-- Directly call UI components
----
+Offline layer owns:
+- Connectivity observation
+- Mutation queueing and persistence
+- Sync orchestration and retry
+- Hydration and restart recovery
 
-## Folder Structure
+Offline layer must not:
+- Render UI
+- Contain domain-specific business rules
+- Be driven directly from component render logic
+
+## Core Modules
 ```txt
 src/offline/
-    ├── index.js                  # Offline public API
-    ├── queue.js                  # Persistent request queue
-    ├── sync.manager.js           # Sync orchestration engine
-    ├── network.listener.js       # Network connectivity observer
-    └── hydration.js              # State rehydration logic
+  index.js
+  queue.js
+  sync.manager.js
+  network.listener.js
+  hydration.js
 ```
-Related folders:
-```txt
-src/workers/                  # Background execution
-src/store/                    # Network + sync state
-src/services/                 # API execution
-```
----
-## Network Detection Rules
-### Network Listener
-* Network status is detected centrally
-* Uses a single connectivity observer
-* Emits normalized connectivity events
-Rules:
-* UI must never check connectivity directly
-* Network state is exposed via Redux selectors
-* Connectivity changes must not trigger UI crashes
----
 
-## Offline Queue Rules
-### Queue Responsibilities
-The offline queue:
-* Stores failed or deferred requests
-* Persists across app restarts
-* Retries requests deterministically
-Allowed queue items:
-* API mutations
-* Critical writes
-* User actions requiring eventual consistency
-Forbidden:
-* Read-only requests
-* UI-only events
-* Analytics-only calls
----
+## Queue Rules
+- Queue only mutation/intent operations, not read-only requests.
+- Preserve queue order and idempotency guarantees.
+- Persist queue state across restarts.
+- Corrupt entries must fail safely and be isolated.
 
-### Queue Persistence
-* Queue must be persisted securely
-* Order must be preserved
-* Corrupted queue entries must be safely discarded
----
+## Sync Rules
+- Sync is event-driven (reconnect, foreground, worker trigger, explicit retry intent).
+- Partial failures must not block unrelated queue items.
+- Sync operations must be idempotent and resumable.
+- UI may request retry intent, but sync execution remains in offline/services/workers.
 
-## Sync Manager
-### Sync Manager Responsibilities
-The sync manager:
-* Orchestrates queue execution
-* Resolves conflicts
-* Coordinates with workers
-* Emits sync lifecycle events
-Rules:
-* Sync is **event-driven**, not UI-driven
-* Sync logic must be idempotent
-* Partial failures must not block the entire queue
----
+## State and UI Contract
+- Redux tracks network/sync state and error codes.
+- UI consumes state via selectors/hooks.
+- UI must not run offline engine logic directly.
 
-### Sync Triggers
-Sync may be triggered by:
-* Network reconnection
-* App foregrounding
-* Manual retry action
-* Background workers
-UI must not:
-* Control sync flow
-* Execute sync logic directly
----
+## Conflict Handling
+- Default server-authoritative reconciliation unless feature contract defines otherwise.
+- If user intervention is required, sync pauses and exposes a resolvable state.
 
-## State Integration
-### Redux Integration
-Redux tracks:
-* Network status
-* Sync status
-* Error codes
-Rules:
-* Redux stores **state**, not sync logic
-* Offline layer drives Redux updates
-* UI reacts via selectors only
----
+## Security and Reliability
+- Sensitive queued payloads follow `security.mdc` encryption requirements.
+- Expired/invalid auth must block protected sync operations safely.
 
-## Hydration Rules
-### App Restart Recovery
-On app startup:
-* Offline queue is rehydrated
-* Sync state is restored
-* Pending operations are resumed
-Rules:
-* Hydration must be deterministic
-* Corrupt state must fail safely
-* UI must not block on hydration
----
-
-## Background Workers
-### Worker Usage
-Workers may:
-* Process queued sync tasks
-* Retry failed operations
-* Perform deferred uploads
-Workers must:
-* Be stateless
-* Be restart-safe
-* Report results back to sync manager
----
-
-## Error Handling
-### Offline Errors
-Rules:
-* Errors must be normalized
-* Store only error codes
-* Retryable vs fatal errors must be distinguishable
-UI responsibility:
-* Display friendly offline states
-* Never expose raw error objects
----
-
-## Conflict Resolution
-### Conflict Rules
-* Server is the source of truth unless explicitly overridden
-* Conflicts must be resolved deterministically
-* No UI decision-making during sync
-If user input is required:
-* Sync pauses
-* UI is notified via state
-* User action resumes sync
----
-
-## Performance Rules
-* Queue execution must be throttled
-* Sync must not block UI thread
-* Large payloads must be chunked
-* Background sync preferred where supported
----
-
-## Forbidden Patterns
-❌ UI checking `isOnline()` directly
-❌ API calls bypassing offline queue
-❌ Sync logic inside Redux reducers
-❌ Sync triggered from components
-❌ Silent data drops
-
-## Related `.mdc` files
-* `services-integration.mdc` - Service layer rules (services must be stateless and offline-compatible)
-* `state-management.mdc` - Redux integration (network status, sync status stored in Redux)
-* `features-domain.mdc` - Feature integration with offline queue
----
-
-## Enforcement
-* All write operations must be offline-aware
-* Any feature without offline consideration is incomplete
-* Offline violations are considered **critical defects**
----
-
-**Offline support is mandatory, predictable, and non-negotiable.**
+## Related Owners
+- Service execution contracts for queued work: `services-integration.mdc`
+- Redux integration: `state-management.mdc`
+- Domain flow rules: `features-domain.mdc`
+- Offline encryption and credential safeguards: `security.mdc`
+- Test requirements: `testing.mdc`

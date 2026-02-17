@@ -3,188 +3,74 @@ alwaysApply: true
 ---
 
 # Security Standards & Policies
+
 ## Purpose
-This document defines **mandatory security rules** for protecting:
-- User data
-- Authentication credentials
-- Protected features (e.g., role/permission-gated)
-- Offline-persisted information
-- Network communication
-Security is treated as a **cross-cutting concern** and applies to **every layer** of the application.
----
+Define mandatory security requirements across auth, storage, transport, permissions, and protected feature access.
 
 ## Security Ownership
-The **Security Layer** owns:
-- Authentication token lifecycle
-- Encryption & secure storage
-- Biometric authentication
-- Permission handling
-- Secure feature gating
-It does **not**:
-- Render UI
-- Contain business logic
-- Handle navigation directly
----
+Security layer owns:
+- Token lifecycle and secure storage access
+- Encryption and key management helpers
+- Permission/biometric helper logic
+- Security gate decisions consumed by navigation/features
 
-## Folder Structure
+Security layer must not:
+- Render UI
+- Depend on feature UI flows for enforcement
+
+## Core Modules
 ```txt
 src/security/
-    ├── index.js                 # Security public API
-    ├── token.manager.js         # Token lifecycle & validation
-    ├── encryption.js            # Encryption / decryption helpers
-    ├── biometric.js             # Biometric authentication
-    └── permissions.js           # Platform permissions
+  index.js
+  token.manager.js
+  encryption.js
+  biometric.js
+  permissions.js
 ```
-Related folders:
-```txt
-src/services/
-src/store/
-src/offline/
-src/config/
-```
----
 
-## Authentication & Tokens
-### Token Rules
-* Tokens must **never** be stored in plain text
-* Tokens must be stored only via **SecureStore**
-* Access tokens must be short-lived
-* Refresh tokens must be rotated
-Rules:
-* Token access is centralized in `token.manager.js`
-* No direct token access outside security layer
-* Redux stores only **token metadata**, never raw tokens
----
+## Token and Session Rules
+- Raw tokens/credentials must never be persisted in plain text.
+- Sensitive credentials are stored only with secure storage primitives.
+- Token access and refresh flow are centralized in `token.manager.js`.
+- UI must not parse or refresh tokens directly.
+- Redux may store session/token metadata only (expiry flags, auth state), never raw token values.
 
-### Token Lifecycle
-Token manager handles:
-* Secure storage
-* Expiration checks
-* Refresh flow
-* Revocation
-Forbidden:
-❌ Manual token refresh in UI
-❌ Token parsing inside components
----
+## Storage and Encryption Rules
+- Sensitive offline payloads must be encrypted.
+- Encryption keys must not be hardcoded.
+- Secure and non-secure storage concerns must remain separated.
 
-## Secure Storage
-### Storage Rules
-Use:
-* `SecureStore` → credentials, tokens, secrets
-* `AsyncStorage` → non-sensitive cached data
-Forbidden:
-❌ Storing secrets in Redux
-❌ Storing secrets in plain storage
-❌ Hardcoding secrets
----
+## Permission and Biometric Rules
+- Permission requests are just-in-time and routed through security helpers.
+- Biometric usage is optional and must provide fallback auth paths.
+- UI components must not contain permission/biometric implementation logic.
 
-## Encryption Standards
-### Encryption Rules
-* Sensitive offline data must be encrypted
-* Encryption keys must never be hardcoded
-* Encryption helpers live in `encryption.js`
-Use cases:
-* Offline queue payloads
-* Cached sensitive user data
-* Sensitive request/response storage (if persisted)
----
+## Network Security Rules
+- HTTPS-only transport.
+- No sensitive values in URL/query strings.
+- Auth headers are injected centrally via service/client infrastructure.
 
-## Biometric Authentication
-### Biometric Rules
-Biometric auth may be used for:
-* App unlock
-* Sensitive actions
-* Protected feature access
-Rules:
-* Biometric is optional, never mandatory
-* Fallback authentication must exist
-* No biometric logic in UI components
----
+## Access Control Rules
+- Access checks must combine backend authority, security context, and guard policy.
+- Client-only gate checks are insufficient for protected resources.
+- Guard integration points are owned by routing/navigation policy.
 
-## Permissions Handling
-### Permission Rules
-* All permissions are requested **just-in-time**
-* Permission logic lives in `permissions.js`
-* UI must not directly request permissions
-Rules:
-* Graceful degradation if permission denied
-* Permissions must be platform-aware
-* Permission state is observable via Redux
----
-
-## Network Security
-### Transport Rules
-* HTTPS only
-* Certificate pinning where supported
-* No sensitive data in URLs
-API client rules:
-* Auth headers injected centrally
-* Tokens refreshed transparently
-* Failed auth handled globally
----
-
-## Feature Gating
-### Protected Feature Access Rules
-* Feature availability determined by:
-  * User permissions/roles
-  * Entitlements (if applicable; project-specific and documented in `dev-plan/`)
-  * Feature flags
-* UI must not enforce access alone
-Rules:
-* Guards live in `navigation/guards`
-* Backend is source of truth
-* Offline access must be explicitly defined
-Forbidden:
-❌ UI-only access checks
-❌ Client-only permission validation
----
-
-## Offline Security
-### Offline Rules
-* Offline queue must be encrypted
-* Failed secure operations must not retry infinitely
-* Security violations must abort sync
-Rules:
-* Tokens must be validated before sync
-* Expired credentials block queued requests
----
-
-## Error Handling
-### Security Errors
-* Errors must be normalized
-* No sensitive data in logs
-* Security errors must trigger safe logout if required
-UI rules:
-* Never expose internal error details
-* Use generic messages
----
-
-## Logging & Monitoring
-### Logging Rules
-* Never log:
-  * Tokens
-  * Credentials
-  * PII
-* Security-related logs must be sanitized
-* Sensitive logs must be disabled in production
----
-
-## Related `.mdc` files
-* `services-integration.mdc` - Storage service rules (SecureStore usage)
-* `state-management.mdc` - Redux rules (tokens must not be stored in Redux)
-* `bootstrap-config.mdc` - Security initialization order
+## Logging and Error Rules
+- Never log tokens, credentials, secrets, or PII.
+- Security failures must surface sanitized errors only.
+- High-risk auth failures must trigger safe session reset/logout behavior.
 
 ## Forbidden Patterns
-❌ Tokens in Redux
-❌ Secrets in client-side environment variables / build-time config (env is not secret on mobile/web)
-❌ Permission requests in UI
-❌ Encryption logic outside security layer
-❌ Bypassing security guards
----
+- Raw tokens in Redux state
+- Secrets in plain storage or source/config constants
+- Permission requests implemented ad hoc in UI files
+- Encryption logic scattered outside security/service boundaries
 
 ## Enforcement
-* Any security violation is a **release blocker**
-* All sensitive flows require security review
-* This document overrides convenience decisions
----
-**Security is mandatory, centralized, and non-negotiable.**
+Security violations are release blockers.
+
+## Related Owners
+- Service integration and secret-handling boundaries: `services-integration.mdc`
+- Store constraints: `state-management.mdc`
+- Startup order/provider wiring: `bootstrap-config.mdc`
+- Error/logging pipeline: `errors-logging.mdc`

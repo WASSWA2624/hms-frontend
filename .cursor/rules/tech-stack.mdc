@@ -5,175 +5,69 @@ alwaysApply: true
 # Technology Stack & Module Standards
 
 ## Purpose
-Defines **approved technologies and modules** for this React Native (Expo + App Router) application to ensure consistency, reproducibility, and minimal unapproved packages.
+Define the approved stack, versions, and allowed module choices.
+This file owns dependency/version policy for runtime and tooling.
 
----
+## Language and Module System
+- Source code is JavaScript only (`.js`, `.jsx`).
+- ES modules are required in `src/**`.
+- Module-system exceptions are owned by `coding-conventions.mdc`.
 
 ## Core Frameworks
-| Technology       | Version    | Purpose                            |
-| ---------------- | ---------- | ---------------------------------- |
-| React Native     | `0.81.5`   | Mobile framework (Android & iOS)   |
-| Expo SDK         | `~54.0.32` | Unified build/deployment           |
-| React            | `19.1.0`   | Core UI library                    |
-| React DOM        | `19.1.0`   | Web rendering (PWA)                |
-| React Native Web | `^0.21.0`  | Web platform support               |
+| Technology | Version | Purpose |
+| --- | --- | --- |
+| React Native | `0.81.5` | Native app runtime |
+| Expo SDK | `~54.0.32` | App platform/toolchain |
+| React | `19.1.0` | UI runtime |
+| React DOM | `19.1.0` | Web rendering |
+| React Native Web | `^0.21.0` | Cross-platform web support |
 
-**Language**: JavaScript only (see `core-principles.mdc` #5). ES Modules mandatory (see `coding-conventions.mdc`).
+## Approved Runtime Libraries
+### State and Routing
+| Library | Version | Notes |
+| --- | --- | --- |
+| Redux Toolkit | `^2.11.2` | Global state |
+| React-Redux | `^9.2.0` | Redux bindings |
+| Redux Persist | `^6.0.0` | Store persistence |
+| Expo App Router | `~6.0.22` | Routing |
+| @remix-run/router | `^1.23.0` | Router dependency |
 
----
+### UI and Theme
+| Library | Version | Notes |
+| --- | --- | --- |
+| styled-components | `^6.1.19` | Styling system |
+| react-native-safe-area-context | `~5.6.0` | Safe area handling |
+| expo-status-bar | `~3.0.9` | Status bar UI |
 
-## State Management
-| Library       | Version    | Purpose                 |
-| ------------- | ---------- | ----------------------- |
-| Redux Toolkit | `^2.11.2`  | Global state management |
-| Redux Persist | `^6.0.0`   | State persistence       |
-| React-Redux   | `^9.2.0`   | React bindings          |
+### Validation, Storage, Connectivity
+| Library | Version | Notes |
+| --- | --- | --- |
+| Zod | `^4.2.1` | Runtime validation |
+| @react-native-async-storage/async-storage | `2.2.0` | Non-sensitive persistence |
+| expo-secure-store | `~15.0.8` | Sensitive credential storage |
+| @react-native-community/netinfo | `11.4.1` | Connectivity state |
+| expo-localization | `^17.0.8` | Locale and formatting helpers |
 
-**Rules**: Only Redux Toolkit for global state. Reducers must be pure.
+### Testing and Quality
+| Tool | Version | Notes |
+| --- | --- | --- |
+| Jest | `^29.7.0` | Test runner |
+| jest-expo | `^54.0.2` | Expo test preset |
+| @testing-library/react-native | `^13.3.3` | UI behavior tests |
+| @testing-library/jest-native | `^5.4.3` | RN matchers |
+| react-test-renderer | `19.1.0` | Renderer support |
+| ESLint | `^9.39.2` | Linting |
+| Prettier | `^3.7.4` | Formatting |
 
----
+## Networking Rule
+- Network requests use the built-in Fetch API via service wrappers.
+- API orchestration and auth header handling are owned by `services-integration.mdc`.
 
-## Navigation & Routing
-| Library              | Version    | Purpose                  |
-| -------------------- | ---------- | ------------------------ |
-| Expo App Router      | `~6.0.22`  | Routing system           |
-| @remix-run/router    | `^1.23.0`  | Core router (dependency) |
-| react-native-screens | `~4.16.0`  | Native screen management |
+## Optional Libraries
+Optional packages (for example `react-native-svg`, `react-native-gesture-handler`) require dependency approval from `dependency-policy.mdc` before adoption.
 
-**Single Source of Truth**: `app-router.mdc`
-
----
-
-## Validation
-| Library | Version  | Purpose                       |
-| ------- | -------- | ----------------------------- |
-| Zod     | `^4.2.1` | Schema validation (API/forms) |
-
-**Rules**: Use Zod for all validations. No custom validation libraries.
-
----
-
-## Networking
-| Library            | Version | Purpose          |
-| ------------------ | ------- | ---------------- |
-| Built-in Fetch API | Native  | Network requests |
-
-**Single Source of Truth**: `services-integration.mdc` (API client, auth headers, error handling).
-
----
-
-## Theming & UI
-| Library                        | Version    | Purpose              |
-| ------------------------------ | ---------- | -------------------- |
-| Styled Components              | `^6.1.19`  | Theming and styles   |
-| react-native-safe-area-context | `~5.6.0`   | Safe area handling   |
-| react-native-screens           | `~4.16.0`  | Native screens       |
-| expo-status-bar                | `~3.0.9`   | Status bar styling   |
-
-**Optional** (install when needed): `react-native-svg`, `react-native-gesture-handler`
-
-**Single Source of Truth**: `theme-design.mdc` (theming), `platform-ui.mdc` (platform UI).
-
----
-
-## Storage & Persistence
-| Library                                    | Version   | Purpose                   |
-| ------------------------------------------ | --------- | ------------------------- |
-| @react-native-async-storage/async-storage  | `2.2.0`   | Async key-value storage   |
-| expo-secure-store                          | `~15.0.8` | Secure credential storage |
-
-**Rules**: AsyncStorage for non-sensitive data; expo-secure-store for tokens/credentials. See `services-integration.mdc`, `security.mdc`.
-
----
-
-## Network & Connectivity
-| Library                         | Version  | Purpose                |
-| ------------------------------- | -------- | ---------------------- |
-| @react-native-community/netinfo | `11.4.1` | Network state detection |
-
-**Single Source of Truth**: `offline-sync.mdc`
-
----
-
-## Internationalization
-| Library           | Version   | Purpose                       |
-| ----------------- | --------- | ----------------------------- |
-| expo-localization | `^17.0.8` | Locale detection & formatting |
-
-**Single Source of Truth**: `i18n.mdc`
-
----
-
-## Expo Modules
-| Library                    | Version    | Purpose                     |
-| -------------------------- | ---------- | --------------------------- |
-| expo-constants             | `~18.0.13` | App constants & metadata    |
-| expo-linking               | `~8.0.11`  | Deep linking & URL handling |
-| expo-local-authentication  | `^17.0.8`  | Biometric authentication    |
-
----
-
-## Utilities
-| Library  | Version       | Purpose                         |
-| -------- | ------------- | ------------------------------- |
-| Lodash   | Not installed | Add only if justified and pinned |
-| date-fns | Not installed | Add only if justified and pinned |
-| clsx     | Not installed | Add only if justified and pinned |
-
-**Rules**: Prefer built-in APIs (`Intl`, etc.) first. Follow `dependency-policy.mdc`.
-
----
-
-## Testing
-| Library                       | Version    | Purpose              |
-| ----------------------------- | ---------- | -------------------- |
-| Jest                          | `^29.7.0`  | Unit testing         |
-| jest-expo                     | `^54.0.2`  | Jest preset for Expo |
-| React Native Testing Library  | `^13.3.3`  | Component testing    |
-| @testing-library/jest-native | `^5.4.3`   | Jest matchers for RN |
-| react-test-renderer           | `19.1.0`   | React test renderer  |
-| MSW / MirageJS                | Optional   | API mocking          |
-
-**Single Source of Truth**: `testing.mdc`
-
----
-
-## Linting & Formatting
-| Tool                   | Version    | Purpose            |
-| ---------------------- | ---------- | ------------------ |
-| ESLint                 | `^9.39.2`  | Linting            |
-| eslint-config-expo     | `^10.0.0`  | Expo ESLint config |
-| Prettier               | `^3.7.4`   | Code formatting    |
-| eslint-config-prettier | `^10.1.8`  | No conflicts       |
-
-**Rules**: All code must pass lint/format before merge. See `coding-conventions.mdc`.
-
----
-
-## Build Tools
-| Tool                         | Version  | Purpose                   |
-| ---------------------------- | -------- | ------------------------- |
-| babel-plugin-module-resolver | `^5.0.2` | Path alias resolution     |
-| workbox-webpack-plugin       | `^7.4.0` | PWA service worker (web)  |
-| patch-package                | `^8.0.0` | Maintain small upstream patches |
-
-**Single Source of Truth**: `coding-conventions.mdc` (Babel config, path aliases).
-
----
-
-## Node & Package Manager
-| Technology | Version    | Purpose                 |
-| ---------- | ---------- | ----------------------- |
-| Node.js    | `>=20.0.0` | Development environment |
-| npm / Yarn | Latest     | Dependency management   |
-
-**Rules**: Commit lockfiles. Match `.nvmrc` if used.
-
----
-
-## Reproducibility
-1. Clone repository
-2. Run `npm ci` or `yarn install`
-3. Start with `expo start`
-4. Use same Node/Expo SDK versions across environments
-5. Restore lockfile before installing for rebuilds
+## Change Rules
+When dependencies change:
+1. Update this file in the same change.
+2. Validate compatibility on Android, iOS, and Web.
+3. Update related `dev-plan/` notes if behavior/process changes.

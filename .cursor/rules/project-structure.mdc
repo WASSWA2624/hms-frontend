@@ -47,7 +47,7 @@ Allowed direction:
 ```txt
 app -> platform/hooks/features
 platform -> hooks/utils
-hooks -> store/features/utils
+hooks -> store/features/utils/services (technical cross-cutting only)
 features -> services/store/utils
 store -> services/utils
 services -> security/config/utils/logging
