@@ -12,7 +12,10 @@ const StyledContainer = styled.View.withConfig({
   componentId: 'StyledContainer',
 })`
   flex: 1;
+  width: 100%;
   background-color: ${({ theme }) => theme.colors.background.primary};
+  padding: ${({ theme }) => theme.spacing.md}px;
+  min-height: ${({ theme }) => theme.spacing.xxl * 4}px;
 `;
 
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
@@ -25,11 +28,11 @@ const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView).withConfig({
 const StyledScrollView = styled(ScrollView).withConfig({
   displayName: 'StyledScrollView',
   componentId: 'StyledScrollView',
-}).attrs({
+}).attrs(() => ({
   contentContainerStyle: {
     flexGrow: 1,
   },
-})`
+}))`
   flex: 1;
 `;
 

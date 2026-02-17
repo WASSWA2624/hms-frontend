@@ -175,6 +175,15 @@ describe('AuthLayout Component', () => {
       expect(getByLabelText('Authentication Form')).toBeTruthy();
     });
 
+    it('should use translated accessibility label when none is provided', () => {
+      const { getByLabelText } = renderWithTheme(
+        <AuthLayout>
+          <Text>Content</Text>
+        </AuthLayout>
+      );
+      expect(getByLabelText(mockEnTranslations.auth.layout.title)).toBeTruthy();
+    });
+
     it('should have accessibility role main when no label provided', () => {
       const { getByText, getByTestId } = renderWithTheme(
         <AuthLayout testID="auth-layout">
@@ -187,6 +196,33 @@ describe('AuthLayout Component', () => {
       // Web uses role="main"; native uses accessibilityRole="none" (RN doesn't support "main")
       const role = container.props.accessibilityRole || container.props.role;
       expect(['main', 'none']).toContain(role);
+    });
+  });
+
+  describe('Screen Header', () => {
+    it('should render screen header content when enabled', () => {
+      const { getByText } = renderWithTheme(
+        <AuthLayout showScreenHeader screenTitle="Onboarding" screenSubtitle="Step details">
+          <Text>Form</Text>
+        </AuthLayout>
+      );
+      expect(getByText('Onboarding')).toBeTruthy();
+      expect(getByText('Step details')).toBeTruthy();
+      expect(getByText('Form')).toBeTruthy();
+    });
+
+    it('should use disabled hint fallback when back action cannot execute', () => {
+      const { getByTestId } = renderWithTheme(
+        <AuthLayout
+          showScreenHeader
+          screenTitle="Onboarding"
+          screenBackAction={{ label: 'Go Back' }}
+        >
+          <Text>Form</Text>
+        </AuthLayout>
+      );
+      const backButton = getByTestId('auth-layout-back');
+      expect(backButton.props.accessibilityHint).toBe(mockEnTranslations.auth.layout.backUnavailableHint);
     });
   });
 
@@ -373,6 +409,48 @@ describe('AuthLayout Component', () => {
         );
         expect(getByText('Form with Input')).toBeTruthy();
       });
+
+      it('should render Android screen header and banner variants', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutAndroid = require('@platform/layouts/AuthLayout/AuthLayout.android').default;
+        const onPress = jest.fn();
+        const { getByText, getByTestId } = renderWithTheme(
+          <AuthLayoutAndroid
+            testID="android-auth-layout"
+            banner={<Text>Android Banner</Text>}
+            showScreenHeader
+            screenTitle="Android Header"
+            screenSubtitle="Android Subtitle"
+            screenBackAction={{ label: 'Return', hint: 'Return hint', onPress, testID: 'android-back' }}
+          >
+            <Text>Android Content</Text>
+          </AuthLayoutAndroid>
+        );
+
+        expect(getByText('Android Banner')).toBeTruthy();
+        expect(getByText('Android Header')).toBeTruthy();
+        expect(getByText('Android Subtitle')).toBeTruthy();
+        expect(getByText('Android Content')).toBeTruthy();
+        expect(getByTestId('android-back')).toBeTruthy();
+      });
+
+      it('should render Android screen header without back action or subtitle', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutAndroid = require('@platform/layouts/AuthLayout/AuthLayout.android').default;
+        const { getByText, queryByTestId, queryByText } = renderWithTheme(
+          <AuthLayoutAndroid
+            testID="android-auth-layout"
+            showScreenHeader
+            screenTitle="Android Title Only"
+          >
+            <Text>Android Content</Text>
+          </AuthLayoutAndroid>
+        );
+
+        expect(getByText('Android Title Only')).toBeTruthy();
+        expect(queryByText('Android Subtitle')).toBeNull();
+        expect(queryByTestId('auth-layout-back')).toBeNull();
+      });
     });
 
     describe('iOS variant', () => {
@@ -501,6 +579,44 @@ describe('AuthLayout Component', () => {
         const container = UNSAFE_getByType(AuthLayoutWeb);
         expect(container).toBeTruthy();
       });
+
+      it('should render Web screen header and banner variants', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutWeb = require('@platform/layouts/AuthLayout/AuthLayout.web').default;
+        const onPress = jest.fn();
+        const { getByText, getByTestId } = renderWithTheme(
+          <AuthLayoutWeb
+            testID="web-auth-layout"
+            banner={<Text>Web Banner</Text>}
+            showScreenHeader
+            screenTitle="Web Header"
+            screenSubtitle="Web Subtitle"
+            screenBackAction={{ label: 'Return', hint: 'Return hint', onPress, testID: 'web-back' }}
+          >
+            <Text>Web Content</Text>
+          </AuthLayoutWeb>
+        );
+
+        expect(getByText('Web Banner')).toBeTruthy();
+        expect(getByText('Web Header')).toBeTruthy();
+        expect(getByText('Web Subtitle')).toBeTruthy();
+        expect(getByText('Web Content')).toBeTruthy();
+        expect(getByTestId('web-back')).toBeTruthy();
+      });
+
+      it('should render Web screen header without back action or subtitle', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutWeb = require('@platform/layouts/AuthLayout/AuthLayout.web').default;
+        const { getByText, queryByTestId, queryByText } = renderWithTheme(
+          <AuthLayoutWeb testID="web-auth-layout" showScreenHeader screenTitle="Web Title Only">
+            <Text>Web Content</Text>
+          </AuthLayoutWeb>
+        );
+
+        expect(getByText('Web Title Only')).toBeTruthy();
+        expect(queryByText('Web Subtitle')).toBeNull();
+        expect(queryByTestId('auth-layout-back')).toBeNull();
+      });
     });
   });
 
@@ -544,6 +660,14 @@ describe('AuthLayout Component', () => {
         </AuthLayoutFromIndex>
       );
       expect(getByText('Index Export Content')).toBeTruthy();
+    });
+
+    it('should export useAuthLayout and LAYOUT_VARIANTS from index.js', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const AuthLayoutIndex = require('@platform/layouts/AuthLayout/index');
+      expect(typeof AuthLayoutIndex.useAuthLayout).toBe('function');
+      expect(AuthLayoutIndex.LAYOUT_VARIANTS).toBeDefined();
+      expect(AuthLayoutIndex.LAYOUT_VARIANTS.DEFAULT).toBe('default');
     });
   });
 

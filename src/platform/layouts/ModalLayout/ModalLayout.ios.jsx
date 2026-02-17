@@ -7,6 +7,7 @@
 import React from 'react';
 import { StyledContainer, StyledKeyboardAvoidingView, StyledScrollView } from './ModalLayout.ios.styles';
 import Modal from '@platform/components/feedback/Modal';
+import { useI18n } from '@hooks';
 
 /**
  * ModalLayout component for iOS
@@ -27,17 +28,22 @@ const ModalLayoutIOS = ({
   accessibilityLabel,
   testID,
 }) => {
+  const { t } = useI18n();
+  const resolvedAccessibilityLabel = accessibilityLabel || t('common.modal');
+  const resolvedAccessibilityHint = t('common.modalHint');
+
   return (
     <Modal
       visible={visible}
       onDismiss={onDismiss}
       size={size}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
+      accessibilityHint={resolvedAccessibilityHint}
       testID={testID}
     >
       <StyledKeyboardAvoidingView behavior="padding">
         <StyledScrollView keyboardShouldPersistTaps="handled">
-          <StyledContainer>
+          <StyledContainer accessibilityRole="none" accessibilityLabel={resolvedAccessibilityHint}>
             {children}
           </StyledContainer>
         </StyledScrollView>

@@ -44,19 +44,25 @@ const MainLayoutWeb = ({
   className,
 }) => {
   const { t } = useI18n();
-  const { hasSidebar } = useMainLayout({ header, footer, sidebar, breadcrumbs });
+  const {
+    hasHeader,
+    hasFooter,
+    hasSidebar,
+    hasBreadcrumbs,
+  } = useMainLayout({ header, footer, sidebar, breadcrumbs });
+  const resolvedAccessibilityLabel = accessibilityLabel || t('navigation.mainNavigation');
 
   return (
     <StyledContainer
       className={className}
-      data-testid={testID}
+      testID={testID}
       role="main"
-      aria-label={accessibilityLabel}
+      aria-label={resolvedAccessibilityLabel}
     >
       <StyledSkipLink href="#main-content">
         {t('navigation.skipToMainContent')}
       </StyledSkipLink>
-      {header && (
+      {hasHeader && (
         <StyledHeader role="banner">
           {header}
         </StyledHeader>
@@ -67,9 +73,9 @@ const MainLayoutWeb = ({
             {sidebar}
           </StyledSidebar>
         )}
-        <StyledContent id="main-content" hasSidebar={hasSidebar}>
+        <StyledContent id="main-content">
           <StyledContentBody>
-            {breadcrumbs && (
+            {hasBreadcrumbs && (
               <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>
                 {breadcrumbs}
               </StyledBreadcrumbs>
@@ -80,7 +86,7 @@ const MainLayoutWeb = ({
           </StyledContentBody>
         </StyledContent>
       </StyledBody>
-      {footer && (
+      {hasFooter && (
         <StyledFooter role="contentinfo">
           {footer}
         </StyledFooter>

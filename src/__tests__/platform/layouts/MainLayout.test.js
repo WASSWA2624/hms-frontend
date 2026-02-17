@@ -200,6 +200,15 @@ describe('MainLayout Component', () => {
       expect(getByLabelText('Main Application Area')).toBeTruthy();
     });
 
+    it('should use translated accessibility label when none is provided', () => {
+      const { getByLabelText } = renderWithTheme(
+        <MainLayout>
+          <Text>Content</Text>
+        </MainLayout>
+      );
+      expect(getByLabelText(mockEnTranslations.navigation.mainNavigation)).toBeTruthy();
+    });
+
     it('should have skip link on web', () => {
       const { getByText, queryByText } = renderWithTheme(
         <MainLayout>

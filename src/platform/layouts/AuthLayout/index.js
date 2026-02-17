@@ -5,4 +5,6 @@
  */
 
 export { default } from './AuthLayout';
+export { default as useAuthLayout } from './useAuthLayout';
+export { LAYOUT_VARIANTS } from './types';
 

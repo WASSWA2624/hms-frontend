@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { useI18n } from '@hooks';
 import { StyledContainer } from './ModalLayout.web.styles';
 import Modal from '@platform/components/feedback/Modal';
 
@@ -29,16 +30,21 @@ const ModalLayoutWeb = ({
   testID,
   className,
 }) => {
+  const { t } = useI18n();
+  const resolvedAccessibilityLabel = accessibilityLabel || t('common.modal');
+  const resolvedAccessibilityHint = t('common.modalHint');
+
   return (
     <Modal
       visible={visible}
       onDismiss={onDismiss}
       size={size}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
+      accessibilityHint={resolvedAccessibilityHint}
       testID={testID}
       className={className}
     >
-      <StyledContainer>
+      <StyledContainer role="region" aria-label={resolvedAccessibilityHint}>
         {children}
       </StyledContainer>
     </Modal>

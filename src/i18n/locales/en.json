@@ -45,7 +45,9 @@
     "message": "Message",
     "toastDismissHint": "Press Escape to dismiss",
     "action": "Action",
-    "tooltip": "Tooltip"
+    "tooltip": "Tooltip",
+    "modal": "Dialog",
+    "modalHint": "Dialog content"
   },
   "greeting": {
     "hello": "Hello, {{name}}"

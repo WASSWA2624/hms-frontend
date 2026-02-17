@@ -5,6 +5,27 @@
  */
 
 import styled from 'styled-components';
+import Text from '@platform/components/display/Text';
+
+const toRgba = (hexColor, opacity) => {
+  if (typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
+    return hexColor;
+  }
+
+  const normalized = hexColor.slice(1);
+  const expanded = normalized.length === 3
+    ? normalized.split('').map((char) => `${char}${char}`).join('')
+    : normalized;
+
+  if (expanded.length !== 6) {
+    return hexColor;
+  }
+
+  const red = Number.parseInt(expanded.slice(0, 2), 16);
+  const green = Number.parseInt(expanded.slice(2, 4), 16);
+  const blue = Number.parseInt(expanded.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+};
 
 const StyledContainer = styled.main
   .withConfig({
@@ -15,50 +36,19 @@ const StyledContainer = styled.main
   .attrs(({ testID }) => ({
     'data-testid': testID,
   }))`
-  --auth-shell-pad: clamp(12px, 5vw, 32px);
-  --auth-card-default: 760px;
-  --auth-card-max: 980px;
-  min-height: 100%;
-  height: auto;
+  min-height: 100dvh;
   width: 100%;
-  background: linear-gradient(
-    165deg,
-    #f2f9ff 0%,
-    #e7f3ff 55%,
-    #dceeff 100%
-  );
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  margin-top: ${({ theme }) => theme.spacing.sm}px;
-  padding: 0 var(--auth-shell-pad) var(--auth-shell-pad);
+  padding: ${({ theme }) => theme.spacing.lg}px;
+  background: linear-gradient(
+    160deg,
+    ${({ theme }) => theme.colors.background.secondary} 0%,
+    ${({ theme }) => theme.colors.background.primary} 100%
+  );
   box-sizing: border-box;
-  overflow: visible;
-
-  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
-    min-height: 100dvh;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px)
-    and (max-width: ${({ theme }) => (theme.breakpoints?.desktop ?? 1024) - 1}px)
-    and (orientation: landscape) {
-    min-height: 100dvh;
-  }
-
-  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    min-height: 100dvh;
-    height: 100dvh;
-    margin-top: 0;
-    padding-top: calc(${({ theme }) => theme.spacing.sm}px + env(safe-area-inset-top, 0px));
-    padding-left: calc(var(--auth-shell-pad) + env(safe-area-inset-left, 0px));
-    padding-right: calc(var(--auth-shell-pad) + env(safe-area-inset-right, 0px));
-    padding-bottom: calc(var(--auth-shell-pad) + env(safe-area-inset-bottom, 0px));
-    position: fixed;
-    inset: 0;
-    overscroll-behavior: none;
-    overflow: hidden;
-  }
 `;
 
 const StyledBanner = styled.div.withConfig({
@@ -66,62 +56,45 @@ const StyledBanner = styled.div.withConfig({
   componentId: 'StyledBanner',
 })`
   width: 100%;
-  min-width: 0;
-  max-width: min(100%, var(--auth-card-max));
-  margin: 0 auto ${({ theme }) => theme.spacing.md}px;
-  box-sizing: border-box;
+  max-width: ${({ theme }) => theme.spacing.xxl * 20}px;
+  margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledCard = styled.div.withConfig({
   displayName: 'StyledCard',
   componentId: 'StyledCard',
 })`
-  --auth-card-pad: clamp(16px, 2vw, 30px);
   width: 100%;
-  min-width: 0;
-  max-width: min(100%, var(--auth-card-max));
-  margin: 0 auto;
-  background: linear-gradient(
-    180deg,
-    ${({ theme }) => theme.colors.background.primary} 0%,
-    ${({ theme }) => theme.colors.background.secondary} 100%
-  );
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  padding: var(--auth-card-pad);
+  max-width: ${({ theme }) => theme.spacing.xxl * 20}px;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme }) => theme.spacing.lg}px;
+  border-radius: ${({ theme }) => theme.radius.lg}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  box-sizing: border-box;
+  background-color: ${({ theme }) => theme.colors.background.primary};
   box-shadow: ${({ theme }) => {
     const shadow = theme.shadows?.md;
     if (!shadow) return 'none';
-    return `${shadow.shadowOffset?.width ?? 0}px ${shadow.shadowOffset?.height ?? 2}px ${(shadow.shadowRadius ?? 4) * 2}px rgba(0, 0, 0, ${shadow.shadowOpacity ?? 0.15})`;
+    return `${shadow.shadowOffset?.width ?? 0}px ${shadow.shadowOffset?.height ?? 2}px ${(shadow.shadowRadius ?? 4) * 2}px ${toRgba(shadow.shadowColor, shadow.shadowOpacity ?? 0.15)}`;
   }};
+  box-sizing: border-box;
+`;
+
+const StyledBranding = styled.section.withConfig({
+  displayName: 'StyledBranding',
+  componentId: 'StyledBranding',
+  shouldForwardProp: (prop) => prop !== '$withScreenHeader',
+})`
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - var(--auth-shell-pad));
-  overflow: hidden;
-  margin-bottom: 0;
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    flex: 1 1 0%;
-    max-height: 100%;
-    min-height: 0;
-    height: auto;
-    overflow: hidden;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
-    min-height: calc(100dvh - var(--auth-shell-pad));
-    height: calc(100dvh - var(--auth-shell-pad));
-  }
-
-  @media (min-width: ${({ theme }) =>
-      theme.breakpoints?.tablet ?? 768}px) and (max-width: ${({ theme }) =>
-      (theme.breakpoints?.desktop ?? 1024) -
-      1}px) and (orientation: landscape) {
-    min-height: calc(100dvh - var(--auth-shell-pad));
-    height: calc(100dvh - var(--auth-shell-pad));
-  }
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+  border-bottom: 1px solid ${({ theme }) => `${theme.colors.primary}33`};
+  margin-bottom: ${({ theme, $withScreenHeader }) =>
+    ($withScreenHeader ? theme.spacing.xs : theme.spacing.sm)}px;
 `;
 
 const StyledBrandHeader = styled.div.withConfig({
@@ -129,78 +102,26 @@ const StyledBrandHeader = styled.div.withConfig({
   componentId: 'StyledBrandHeader',
 })`
   display: flex;
-  width: ${({ $centered }) => ($centered ? '100%' : 'auto')};
+  flex-direction: row;
   align-items: center;
-  justify-content: ${({ $centered }) => ($centered ? 'center' : 'flex-start')};
-  gap: ${({ theme }) => theme.spacing.md}px;
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    gap: ${({ theme }) => theme.spacing.xs}px;
-  }
+  justify-content: flex-start;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  width: 100%;
 `;
 
 const StyledBrandLogoShell = styled.div.withConfig({
   displayName: 'StyledBrandLogoShell',
   componentId: 'StyledBrandLogoShell',
 })`
-  --brand-mark-size: clamp(56px, 8vw, 76px);
-  --brand-logo-size: calc(var(--brand-mark-size) - 16px);
-  position: relative;
-  width: var(--brand-mark-size);
-  height: var(--brand-mark-size);
-  min-width: var(--brand-mark-size);
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  border: 1px solid ${({ theme }) => `${theme.colors.primary}66`};
-  background:
-    radial-gradient(
-      circle at 28% 22%,
-      rgba(255, 255, 255, 0.92) 0%,
-      rgba(255, 255, 255, 0.18) 40%,
-      transparent 62%
-    ),
-    linear-gradient(
-      150deg,
-      ${({ theme }) => theme.colors.background.primary} 0%,
-      ${({ theme }) => `${theme.colors.primary}2B`} 100%
-    );
-  box-shadow:
-    0 2px 0 rgba(8, 34, 74, 0.22),
-    0 12px 22px rgba(8, 34, 74, 0.16);
+  width: ${({ theme }) => theme.spacing.xxl + theme.spacing.xs}px;
+  height: ${({ theme }) => theme.spacing.xxl + theme.spacing.xs}px;
+  min-width: ${({ theme }) => theme.spacing.xxl + theme.spacing.xs}px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: calc(${({ theme }) => theme.radius.lg}px - 4px);
-    border: 1px solid ${({ theme }) => `${theme.colors.primary}2B`};
-    pointer-events: none;
-  }
-
-  img {
-    width: var(--brand-logo-size) !important;
-    height: var(--brand-logo-size) !important;
-    filter: drop-shadow(0 2px 4px rgba(12, 24, 45, 0.18));
-  }
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    --brand-mark-size: 52px;
-  }
-`;
-
-const StyledBrandCopy = styled.div.withConfig({
-  displayName: 'StyledBrandCopy',
-  componentId: 'StyledBrandCopy',
-})`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
-  min-width: 0;
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  border: 1px solid ${({ theme }) => `${theme.colors.primary}66`};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
 `;
 
 const StyledBrandName = styled.div.withConfig({
@@ -208,107 +129,25 @@ const StyledBrandName = styled.div.withConfig({
   componentId: 'StyledBrandName',
 })`
   display: flex;
-  align-items: center;
-  min-height: 0;
-  line-height: 1;
+  min-width: 0;
+  flex: 1;
 
+  span,
   h1,
   h2,
-  h3,
-  span {
+  h3 {
     margin: 0;
-    font-size: clamp(28px, 4.4vw, 40px) !important;
-    font-weight: 800 !important;
-    line-height: 1.1 !important;
-    letter-spacing: -0.03em;
-    text-wrap: balance;
-    text-align: ${({ $centered }) => ($centered ? 'center' : 'left')};
-    color: ${({ theme }) => theme.colors.text.primary};
-    background: linear-gradient(
-      140deg,
-      ${({ theme }) => theme.colors.text.primary} 0%,
-      ${({ theme }) => `${theme.colors.primary}D9`} 74%,
-      ${({ theme }) => `${theme.colors.primary}A6`} 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    max-width: 78%;
-
-    h1,
-    h2,
-    h3,
-    span {
-      font-size: clamp(15px, 4.6vw, 20px) !important;
-      line-height: 1.2 !important;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      text-wrap: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      background: none;
-      -webkit-text-fill-color: ${({ theme }) => theme.colors.text.primary};
-    }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
-const StyledBranding = styled.div.withConfig({
-  displayName: 'StyledBranding',
-  componentId: 'StyledBranding',
+const StyledSupplementalBranding = styled.div.withConfig({
+  displayName: 'StyledSupplementalBranding',
+  componentId: 'StyledSupplementalBranding',
 })`
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: ${({ $hasSupplementalBranding }) =>
-    ($hasSupplementalBranding ? 'space-between' : 'center')};
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  flex: 0 0 auto;
-  margin: calc(var(--auth-card-pad) * -1) calc(var(--auth-card-pad) * -1)
-    ${({ theme }) => theme.spacing.sm}px;
-  padding: ${({ theme }) => theme.spacing.md}px var(--auth-card-pad)
-    ${({ theme }) => theme.spacing.sm}px;
-  background:
-    radial-gradient(
-      circle at 100% 0%,
-      ${({ theme }) => `${theme.colors.primary}24`} 0%,
-      transparent 56%
-    ),
-    linear-gradient(
-      165deg,
-      ${({ theme }) => `${theme.colors.primary}0F`} 0%,
-      ${({ theme }) => `${theme.colors.background.primary}E6`} 50%,
-      ${({ theme }) => `${theme.colors.background.secondary}E6`} 100%
-    );
-  margin-bottom: ${({ theme, $withScreenHeader }) =>
-    ($withScreenHeader ? theme.spacing.xs / 2 : theme.spacing.md)}px;
-  border-bottom: 1px solid ${({ theme }) => `${theme.colors.primary}33`};
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: var(--auth-card-pad);
-    right: var(--auth-card-pad);
-    bottom: 0;
-    height: 2px;
-    border-radius: ${({ theme }) => theme.radius.full}px;
-    background: linear-gradient(
-      90deg,
-      ${({ theme }) => `${theme.colors.primary}A6`} 0%,
-      ${({ theme }) => `${theme.colors.primary}2B`} 100%
-    );
-  }
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    padding: ${({ theme }) => theme.spacing.sm}px var(--auth-card-pad);
-    margin-bottom: ${({ theme, $withScreenHeader }) =>
-      ($withScreenHeader ? theme.spacing.xs / 2 : theme.spacing.sm)}px;
-  }
+  width: 100%;
 `;
 
 const StyledScreenHeader = styled.section.withConfig({
@@ -318,21 +157,12 @@ const StyledScreenHeader = styled.section.withConfig({
   width: 100%;
   display: flex;
   flex-direction: column;
-  flex: 0 0 auto;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
-  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
-  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
-  border-top-left-radius: ${({ theme }) => theme.radius.md}px;
-  border-top-right-radius: ${({ theme }) => theme.radius.md}px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => `${theme.colors.primary}33`};
-  background: linear-gradient(
-    180deg,
-    ${({ theme }) => theme.colors.background.primary} 0%,
-    ${({ theme }) => theme.colors.background.secondary} 100%
-  );
-  box-shadow: 0 1px 0 rgba(8, 34, 74, 0.1), 0 8px 12px rgba(8, 34, 74, 0.08);
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  box-sizing: border-box;
 `;
 
 const StyledScreenHeaderRow = styled.div.withConfig({
@@ -352,37 +182,34 @@ const StyledScreenHeaderCopy = styled.div.withConfig({
 })`
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 `;
 
 const StyledScreenHeaderTitle = styled.div.withConfig({
   displayName: 'StyledScreenHeaderTitle',
   componentId: 'StyledScreenHeaderTitle',
 })`
-  span,
-  h1,
-  h2,
-  h3 {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.primary};
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-    white-space: nowrap;
-  }
+  width: 100%;
+`;
+
+const StyledScreenHeaderTitleText = styled(Text).attrs({
+  variant: 'label',
+  color: 'primary',
+})`
+  text-transform: uppercase;
+  letter-spacing: ${({ theme }) => theme.spacing.xs / 4}px;
 `;
 
 const StyledScreenHeaderSubtitle = styled.div.withConfig({
   displayName: 'StyledScreenHeaderSubtitle',
   componentId: 'StyledScreenHeaderSubtitle',
 })`
-  span,
-  h1,
-  h2,
-  h3 {
-    margin: 0;
-  }
+  width: 100%;
 `;
+
+const StyledScreenHeaderSubtitleText = styled(Text).attrs({
+  variant: 'body',
+  color: 'text.secondary',
+})``;
 
 const StyledContent = styled.div.withConfig({
   displayName: 'StyledContent',
@@ -393,43 +220,34 @@ const StyledContent = styled.div.withConfig({
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 2px;
-
-  @media (max-width: ${({ theme }) =>
-      (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 0;
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-  }
+  scrollbar-gutter: stable;
 `;
 
 const StyledHelpLinks = styled.div.withConfig({
   displayName: 'StyledHelpLinks',
   componentId: 'StyledHelpLinks',
 })`
-  margin-top: ${({ theme }) => theme.spacing.md}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
   display: flex;
   align-items: center;
 `;
 
 export {
   StyledBanner,
-  StyledBrandCopy,
-  StyledBrandLogoShell,
   StyledContainer,
   StyledCard,
   StyledBrandHeader,
+  StyledBrandLogoShell,
   StyledBrandName,
   StyledBranding,
+  StyledSupplementalBranding,
   StyledContent,
   StyledHelpLinks,
   StyledScreenHeader,
   StyledScreenHeaderRow,
   StyledScreenHeaderCopy,
   StyledScreenHeaderTitle,
+  StyledScreenHeaderTitleText,
   StyledScreenHeaderSubtitle,
+  StyledScreenHeaderSubtitleText,
 };

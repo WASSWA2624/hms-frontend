@@ -7,22 +7,25 @@
 import React from 'react';
 import { AppLogo, AppLogoSizes, Button, Icon, Text } from '@platform/components';
 import { useI18n } from '@hooks';
+import useAuthLayout from './useAuthLayout';
 import {
   StyledBanner,
-  StyledBrandCopy,
   StyledContainer,
   StyledCard,
   StyledBrandHeader,
   StyledBrandLogoShell,
   StyledBrandName,
   StyledBranding,
+  StyledSupplementalBranding,
   StyledContent,
   StyledHelpLinks,
   StyledScreenHeader,
   StyledScreenHeaderRow,
   StyledScreenHeaderCopy,
   StyledScreenHeaderTitle,
+  StyledScreenHeaderTitleText,
   StyledScreenHeaderSubtitle,
+  StyledScreenHeaderSubtitleText,
 } from './AuthLayout.web.styles';
 
 /**
@@ -63,50 +66,50 @@ const AuthLayoutWeb = ({
 }) => {
   const { t } = useI18n();
   const appName = t('app.name');
-  const hasSupplementalBranding = Boolean(branding);
-  const hasScreenHeader = Boolean(showScreenHeader && (screenTitle || screenSubtitle || screenBackAction));
-  const hasBackAction = Boolean(screenBackAction);
-  const isBackDisabled =
-    !hasBackAction ||
-    Boolean(screenBackAction?.disabled) ||
-    typeof screenBackAction?.onPress !== 'function';
-  const resolvedBackLabel = screenBackAction?.label || t('common.back');
-  const resolvedBackHint = isBackDisabled
-    ? screenBackAction?.disabledHint || t('auth.layout.backUnavailableHint')
-    : screenBackAction?.hint || t('common.backHint');
+  const {
+    hasScreenHeader,
+    hasBackAction,
+    isBackDisabled,
+    resolvedBackLabel,
+    resolvedBackHint,
+    resolvedAccessibilityLabel,
+    resolvedScreenHeaderLabel,
+  } = useAuthLayout({
+    accessibilityLabel,
+    showScreenHeader,
+    screenTitle,
+    screenSubtitle,
+    screenBackAction,
+    t,
+  });
 
   return (
     <StyledContainer
       className={className}
       testID={testID}
       role="main"
-      aria-label={accessibilityLabel}
+      aria-label={resolvedAccessibilityLabel}
     >
       {banner ? <StyledBanner role="region">{banner}</StyledBanner> : null}
       <StyledCard>
-        <StyledBranding
-          $hasSupplementalBranding={hasSupplementalBranding}
-          $withScreenHeader={hasScreenHeader}
-        >
-          <StyledBrandHeader $centered={!hasSupplementalBranding}>
+        <StyledBranding $withScreenHeader={hasScreenHeader}>
+          <StyledBrandHeader>
             <StyledBrandLogoShell>
               <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
             </StyledBrandLogoShell>
-            <StyledBrandCopy>
-              <StyledBrandName $centered={!hasSupplementalBranding}>
-                <Text variant="h2" align={hasSupplementalBranding ? undefined : 'center'}>{appName}</Text>
-              </StyledBrandName>
-            </StyledBrandCopy>
+            <StyledBrandName>
+              <Text variant="h2">{appName}</Text>
+            </StyledBrandName>
           </StyledBrandHeader>
-          {branding}
+          {branding ? <StyledSupplementalBranding>{branding}</StyledSupplementalBranding> : null}
         </StyledBranding>
         {hasScreenHeader ? (
-          <StyledScreenHeader role="region" aria-label={screenTitle || t('auth.layout.title')}>
+          <StyledScreenHeader role="region" aria-label={resolvedScreenHeaderLabel}>
             <StyledScreenHeaderRow>
               <StyledScreenHeaderCopy>
                 {screenTitle ? (
                   <StyledScreenHeaderTitle>
-                    <Text variant="label">{screenTitle}</Text>
+                    <StyledScreenHeaderTitleText>{screenTitle}</StyledScreenHeaderTitleText>
                   </StyledScreenHeaderTitle>
                 ) : null}
               </StyledScreenHeaderCopy>
@@ -129,9 +132,7 @@ const AuthLayoutWeb = ({
             </StyledScreenHeaderRow>
             {screenSubtitle ? (
               <StyledScreenHeaderSubtitle>
-                <Text variant="body" color="text.secondary">
-                  {screenSubtitle}
-                </Text>
+                <StyledScreenHeaderSubtitleText>{screenSubtitle}</StyledScreenHeaderSubtitleText>
               </StyledScreenHeaderSubtitle>
             ) : null}
           </StyledScreenHeader>

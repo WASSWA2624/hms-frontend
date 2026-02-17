@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { useI18n } from '@hooks';
+import useMainLayout from './useMainLayout';
 import {
   StyledContainer,
   StyledHeader,
@@ -35,14 +36,20 @@ const MainLayoutAndroid = ({
   testID,
 }) => {
   const { t } = useI18n();
+  const {
+    hasHeader,
+    hasFooter,
+    hasBreadcrumbs,
+  } = useMainLayout({ header, footer, breadcrumbs });
+  const resolvedAccessibilityLabel = accessibilityLabel || t('navigation.mainNavigation');
 
   return (
     <StyledContainer
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
       testID={testID}
       accessibilityRole="none"
     >
-      {header && (
+      {hasHeader && (
         <StyledHeader accessibilityRole="header">
           {header}
         </StyledHeader>
@@ -52,7 +59,7 @@ const MainLayoutAndroid = ({
         showsVerticalScrollIndicator={false}
       >
         <StyledContent>
-          {breadcrumbs && (
+          {hasBreadcrumbs && (
             <StyledBreadcrumbs accessibilityRole="none" accessibilityLabel={t('navigation.breadcrumbs.label')}>
               {breadcrumbs}
             </StyledBreadcrumbs>
@@ -62,7 +69,7 @@ const MainLayoutAndroid = ({
           </StyledScreenSlot>
         </StyledContent>
       </StyledScrollView>
-      {footer && (
+      {hasFooter && (
         <StyledFooter accessibilityRole="none">
           {footer}
         </StyledFooter>

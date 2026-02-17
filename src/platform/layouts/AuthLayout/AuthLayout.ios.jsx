@@ -8,7 +8,9 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppLogo, AppLogoSizes, Button, Icon, Text } from '@platform/components';
 import { useI18n } from '@hooks';
+import useAuthLayout from './useAuthLayout';
 import {
+  StyledBanner,
   StyledContainer,
   StyledKeyboardAvoidingView,
   StyledCard,
@@ -16,9 +18,12 @@ import {
   StyledBrandHeader,
   StyledBrandLogoShell,
   StyledBrandName,
+  StyledSupplementalBranding,
   StyledScreenHeader,
   StyledScreenHeaderRow,
   StyledScreenHeaderCopy,
+  StyledScreenHeaderTitleText,
+  StyledScreenHeaderSubtitleText,
   StyledContent,
   StyledHelpLinks,
 } from './AuthLayout.ios.styles';
@@ -60,61 +65,59 @@ const AuthLayoutIOS = ({
   const { t } = useI18n();
   const appName = t('app.name');
   const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
-  const hasScreenHeader = Boolean(showScreenHeader && (screenTitle || screenSubtitle || screenBackAction));
-  const hasBackAction = Boolean(screenBackAction);
-  const isBackDisabled =
-    !hasBackAction ||
-    Boolean(screenBackAction?.disabled) ||
-    typeof screenBackAction?.onPress !== 'function';
-  const resolvedBackLabel = screenBackAction?.label || t('common.back');
-  const resolvedBackHint = isBackDisabled
-    ? screenBackAction?.disabledHint || t('auth.layout.backUnavailableHint')
-    : screenBackAction?.hint || t('common.backHint');
-
-  const resolvedBranding = branding ?? (
-    <StyledBrandHeader>
-      <StyledBrandLogoShell>
-        <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
-      </StyledBrandLogoShell>
-      <StyledBrandName>
-        <Text
-          variant="h2"
-          align="center"
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          adjustsFontSizeToFit
-          minimumFontScale={0.72}
-        >
-          {appName}
-        </Text>
-      </StyledBrandName>
-    </StyledBrandHeader>
-  );
+  const {
+    hasScreenHeader,
+    hasBackAction,
+    isBackDisabled,
+    resolvedBackLabel,
+    resolvedBackHint,
+    resolvedAccessibilityLabel,
+  } = useAuthLayout({
+    accessibilityLabel,
+    showScreenHeader,
+    screenTitle,
+    screenSubtitle,
+    screenBackAction,
+    t,
+  });
 
   return (
     <StyledContainer
       topInset={topInset}
       bottomInset={bottomInset}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedAccessibilityLabel}
       testID={testID}
       accessibilityRole="none"
     >
-      {banner}
+      {banner ? <StyledBanner accessibilityRole="none">{banner}</StyledBanner> : null}
       <StyledKeyboardAvoidingView behavior="padding">
         <StyledCard>
-          <StyledBranding $withScreenHeader={hasScreenHeader}>{resolvedBranding}</StyledBranding>
+          <StyledBranding $withScreenHeader={hasScreenHeader}>
+            <StyledBrandHeader>
+              <StyledBrandLogoShell>
+                <AppLogo size={AppLogoSizes.MD} accessibilityLabel={appName} />
+              </StyledBrandLogoShell>
+              <StyledBrandName>
+                <Text
+                  variant="h2"
+                  align="center"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.72}
+                >
+                  {appName}
+                </Text>
+              </StyledBrandName>
+            </StyledBrandHeader>
+            {branding ? <StyledSupplementalBranding>{branding}</StyledSupplementalBranding> : null}
+          </StyledBranding>
           {hasScreenHeader ? (
             <StyledScreenHeader>
               <StyledScreenHeaderRow>
                 <StyledScreenHeaderCopy>
                   {screenTitle ? (
-                    <Text
-                      variant="label"
-                      color="primary"
-                      style={{ letterSpacing: 0.8, textTransform: 'uppercase' }}
-                    >
-                      {screenTitle}
-                    </Text>
+                    <StyledScreenHeaderTitleText>{screenTitle}</StyledScreenHeaderTitleText>
                   ) : null}
                 </StyledScreenHeaderCopy>
                 {hasBackAction ? (
@@ -133,9 +136,7 @@ const AuthLayoutIOS = ({
                 ) : null}
               </StyledScreenHeaderRow>
               {screenSubtitle ? (
-                <Text variant="body" color="text.secondary">
-                  {screenSubtitle}
-                </Text>
+                <StyledScreenHeaderSubtitleText>{screenSubtitle}</StyledScreenHeaderSubtitleText>
               ) : null}
             </StyledScreenHeader>
           ) : null}

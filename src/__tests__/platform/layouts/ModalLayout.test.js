@@ -132,6 +132,15 @@ describe('ModalLayout Component', () => {
   });
 
   describe('Accessibility', () => {
+    it('should use default translated accessibility label when none is provided', () => {
+      const { getByLabelText } = renderWithProviders(
+        <ModalLayout visible={true} onDismiss={mockOnDismiss}>
+          <Text>Content</Text>
+        </ModalLayout>
+      );
+      expect(getByLabelText('Dialog')).toBeTruthy();
+    });
+
     it('should have accessibility label', () => {
       const { getByLabelText } = renderWithProviders(
         <ModalLayout

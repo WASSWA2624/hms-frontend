@@ -3,15 +3,21 @@
  * Styled-components for Web platform
  * File: MainLayout.web.styles.jsx
  */
+
 import styled from 'styled-components';
+
+const getSidebarWidth = (theme) => theme.spacing.xxl * 4 + theme.spacing.md;
 
 const StyledContainer = styled.main.withConfig({
   displayName: 'StyledContainer',
   componentId: 'StyledContainer',
-})`
+  shouldForwardProp: (prop) => prop !== 'testID',
+}).attrs(({ testID }) => ({
+  'data-testid': testID,
+}))`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
@@ -21,16 +27,12 @@ const StyledHeader = styled.header.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  min-height: ${({ theme }) => theme.spacing.sm * 7}px;
+  min-height: ${({ theme }) => theme.spacing.xxl + theme.spacing.sm}px;
   display: flex;
-  flex-direction: row;
   align-items: stretch;
-  justify-content: stretch;
-  padding: 0;
-  width: 100%;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 2;
 `;
 
 const StyledBody = styled.div.withConfig({
@@ -38,8 +40,8 @@ const StyledBody = styled.div.withConfig({
   componentId: 'StyledBody',
 })`
   display: flex;
-  flex-direction: row;
   flex: 1;
+  flex-direction: row;
   min-height: 0;
 `;
 
@@ -48,11 +50,9 @@ const StyledSidebar = styled.aside.withConfig({
   componentId: 'StyledSidebar',
 })`
   display: none;
-  width: 200px;
-  min-width: 200px;
   background-color: ${({ theme }) => theme.colors.background.secondary};
   border-right: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
@@ -60,10 +60,12 @@ const StyledSidebar = styled.aside.withConfig({
 
   @media (min-width: ${({ theme }) => theme.breakpoints.desktop}px) {
     display: flex;
+    width: ${({ theme }) => getSidebarWidth(theme)}px;
+    min-width: ${({ theme }) => getSidebarWidth(theme)}px;
   }
 `;
 
-const StyledContent = styled.main.withConfig({
+const StyledContent = styled.section.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
 })`
@@ -71,10 +73,6 @@ const StyledContent = styled.main.withConfig({
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 0;
-  max-width: 100%;
-  margin: 0;
-  width: 100%;
   min-width: 0;
   overflow-x: hidden;
 `;
@@ -87,14 +85,9 @@ const StyledContentBody = styled.div.withConfig({
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  min-width: 0;
-  align-items: stretch;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  width: 100%;
-  box-sizing: border-box;
-  padding-bottom: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledScreenSlot = styled.div.withConfig({
@@ -105,9 +98,9 @@ const StyledScreenSlot = styled.div.withConfig({
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  min-width: 0;
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  box-sizing: border-box;
 `;
 
 const StyledFooter = styled.footer.withConfig({
@@ -116,8 +109,7 @@ const StyledFooter = styled.footer.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.secondary};
   border-top: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.md}px;
-  margin-top: auto;
+  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
   flex-shrink: 0;
 `;
 
@@ -127,13 +119,12 @@ const StyledBreadcrumbs = styled.nav.withConfig({
 })`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
   width: 100%;
-  align-self: stretch;
-  flex: 0 0 auto;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 `;
 
 const StyledSkipLink = styled.a.withConfig({
@@ -141,26 +132,16 @@ const StyledSkipLink = styled.a.withConfig({
   componentId: 'StyledSkipLink',
 })`
   position: absolute;
-  top: ${({ theme }) => -theme.spacing.xl - theme.spacing.sm}px;
+  top: ${({ theme }) => -(theme.spacing.xl + theme.spacing.sm)}px;
   left: 0;
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.text.inverse};
-  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   text-decoration: none;
-  z-index: 1000;
+  z-index: 3;
   border-radius: 0 0 ${({ theme }) => theme.radius.sm}px 0;
 
   &:focus {
-    top: 0;
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
-
-  &:focus:not(:focus-visible) {
-    outline: none;
-  }
-
-  &:focus-visible {
     top: 0;
     outline: 2px solid ${({ theme }) => theme.colors.primary};
     outline-offset: 2px;
