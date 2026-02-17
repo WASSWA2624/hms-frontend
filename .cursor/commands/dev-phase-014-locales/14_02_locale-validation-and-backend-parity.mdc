@@ -1,6 +1,6 @@
 Steps to review and implement (Phase 014 - Tier 2: Locale Validation and Backend Parity):
-- **14.3** Validate and Test Locale Switching
-- **14.4** Verify Backend-Frontend Locale Parity
+- **14.3** Validate runtime locale switching and RTL behavior
+- **14.4** Verify backend/frontend locale parity and metadata behavior
 
 Specific implementation scope for this tier:
 - Implement only selected locale rollout and verification scope for this tier.
@@ -21,26 +21,32 @@ Only implement what is required for this tier's selected step(s).
 ## Mobile UI Parity and Compact UX Contract (Mandatory)
 
 For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
-- Android and iOS must match mobile web UI for layout, spacing density, typography scale, component sizing, and interaction patterns.
-- Use shared-first implementations by default. Only create .android or .ios overrides when required by hard platform constraints or accessibility requirements.
-- When overrides are required, keep visual and interaction parity with mobile web.
-- Prioritize simplicity and space economy: compact layouts, short labels, short helper text, and minimal non-essential copy.
-- Add inline/in-app guidance for critical user actions using concise contextual hints and progressive disclosure.
-- Avoid long instructional paragraphs in screens; guidance must be brief, actionable, and local to the current step.
-- Keep full compliance with i18n, accessibility, and theme-token rules while applying this parity and compactness contract.
+- Android and iOS must visually and behaviorally match mobile web for layout density, typography scale, component sizing, spacing, and interaction patterns.
+- Use shared-first implementations by default. Platform-specific override files are allowed only for hard platform/accessibility constraints and must preserve parity with mobile web.
+- Keep UI simple, modern, compact, stable, and fully responsive across phone, tablet, and web breakpoints.
+- Keep user journeys chronological and obvious for first-time users: clear actions, short labels, and minimal friction.
+- Prefer consolidating related actions on one screen when it reduces fragmentation and cognitive load.
+- Auto-resolve and hide known context parameters (tenant, facility, branch, user, encounter, and similar context) unless user input is mandatory by contract or compliance.
+- Do not show internal model IDs in UI. Display human-readable business IDs/labels from backend or domain data contracts.
+- Keep navigation straightforward with stable route structure, stable nav items, and consistent placement of controls.
+- Reuse shared platform components/patterns/tokens first; avoid ad-hoc one-off UI implementations.
+- Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
+- Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
 ---
-
 ## Role-Based Visibility and Access Enforcement Contract (Mandatory)
 
 For any selected step that touches auth, routing, navigation, data access, or UI:
 - Users must never see or execute anything outside their role and permission scope.
+- Ensure each role sees the routes, nav items, screens, sections, components, and actions required for their responsibilities; missing required access is a defect.
 - Enforce access at multiple layers: menu item visibility, route/screen guards, section-level rendering, component-level rendering, and action/function-level handlers.
 - Hide unauthorized menu items, tabs, widgets, buttons, fields, cards, and screen sections by default; do not expose privileged controls unless explicitly required by approved requirements.
 - Block unauthorized function/action execution even when UI is bypassed (direct URL entry, deep links, state tampering, manual event triggering).
 - Use a single source of truth for access checks across web, Android, and iOS to prevent behavior drift.
+- Use canonical backend role names and permission contracts as defined by `hms-backend/.cursor/rules/index.mdc` and backend auth/rbac contracts.
 - Provide deterministic denied-access UX (safe redirect, read-only fallback, or localized permission message) without leaking sensitive details.
-- Add/update tests that verify all protected layers: menu visibility, route guards, screen/section/component rendering, and denied function/action paths.
+- Add/update tests that verify protected and required role paths: menu visibility, required route availability, route guards, screen/section/component rendering, and denied function/action paths.
+
 ---
 
 ## Rule Loading Contract (Mandatory)
@@ -121,3 +127,5 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
+
+

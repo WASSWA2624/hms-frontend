@@ -1,23 +1,20 @@
-Steps to review and implement (Phase 013 - Tier 1: Product Readiness Hardening):
-- **13.1** Onboarding feature hardening
-- **13.2** Help system completion
-- **13.3** Placeholder route retirement
-- **13.4** End-to-end workflow regression packs
-- **13.5** Localization readiness audit (pre-Phase 14)
+Steps to review and implement (Phase 012 - Tier 9: Realtime Event and Action Orchestration):
+- **12.28** Realtime event orchestration UX
+- **12.29** Workflow action endpoint UX controls
 
 Specific implementation scope for this tier:
-- Execute only selected finalization gate scope for this tier.
-- Prioritize high-risk regressions and readiness blockers first.
-- Produce reproducible verification evidence for selected checks.
+- Implement advanced UX for selected steps while preserving core-phase stability.
+- Align realtime/action UX behavior with mounted websocket/action endpoint contracts and deterministic fallback states.
+- Maintain first-class i18n/accessibility/security behavior for advanced states.
 
 Review and implement all missing and non-compliant aspects of this selected tier per:
-- hms-frontend/dev-plan/P013_finalization.md
+- hms-frontend/dev-plan/P012_advanced-features.md
 
 You must ensure 100% compliance with:
 - All rules in hms-frontend/.cursor/rules/*
 - hms-frontend/write-up.md
-- Final readiness and parity checks must align with mounted routes in `hms-backend/src/app/router.js` and backend dev-plan contracts.
-- Performance assumptions should remain compatible with `hms-backend/dev-plan/P008_perf.mdc`.
+- Advanced scope must align with relevant backend contracts (including `hms-backend/dev-plan/P013_ws_features.mdc` for realtime-selected steps).
+- HTTP/API behavior must align with mounted routes in `hms-backend/src/app/router.js` and selected module route files.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
 Only implement what is required for this tier's selected step(s).
@@ -84,7 +81,7 @@ Before coding, read and apply:
 
 ## Tier Step Selection Contract (Mandatory)
 
-- This file covers only the listed step IDs for Phase 013 Tier 1.
+- This file covers only the listed step IDs for Phase 012 Tier 9.
 - If specific step IDs from this tier are selected, implement only those IDs.
 - If the tier is selected as a whole, implement all listed step IDs in order.
 - If shared prerequisite wiring is required, implement only the minimum required for this tier.
@@ -95,17 +92,17 @@ Before coding, read and apply:
 ## Implementation Areas
 
 Primary areas for this tier:
-- Selected hardening/audit/performance/parity code paths under `src/**`
-- Targeted tests/verification outputs for selected finalization checks
-- Minimal docs/checklists required for selected sign-off scope
+- Selected advanced route surfaces under `src/app/**`
+- Selected feature-domain extensions under `src/features/**` and `src/hooks/**`
+- Targeted tests for selected advanced workflows and failure paths
 
 ---
 
 ## Tier Constraints (Mandatory)
 
-- Do NOT introduce new feature scope during finalization tiers.
-- Do NOT skip selected readiness gates.
-- Do NOT modify unselected tiers beyond minimal prerequisite wiring.
+- Do NOT expand beyond selected advanced tier steps.
+- Do NOT assume unsupported realtime/backend capabilities.
+- Do NOT regress baseline core feature behavior from phases 10/11.
 
 ---
 
@@ -131,5 +128,3 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
-
-

@@ -6,6 +6,8 @@ Tier prompt files:
 - `13_03_performance-and-readiness-gates.mdc`
 - `13_04_backend-and-frontend-parity-sign-off.mdc`
 
+Phase coverage:
+- Steps `13.1` through `13.12` from `hms-frontend/dev-plan/P013_finalization.md`.
+
 Cross-cutting mandatory contract in tier prompts:
 - Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
-

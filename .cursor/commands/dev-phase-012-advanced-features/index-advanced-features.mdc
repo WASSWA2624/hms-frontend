@@ -9,7 +9,13 @@ Tier prompt files:
 - `12_06_executive-analytics.mdc`
 - `12_07_roster-automation-and-governance.mdc`
 - `12_08_biomedical-engineering-suite.mdc`
+- `12_09_realtime-and-action-orchestration.mdc`
+- `12_10_commercial-and-interoperability-operations.mdc`
+- `12_11_growth-acquisition-and-reputation.mdc`
+- `12_12_configuration-and-governance-adaptability.mdc`
+
+Phase coverage:
+- Steps `12.1` through `12.35` from `hms-frontend/dev-plan/P012_advanced-features.md`.
 
 Cross-cutting mandatory contract in tier prompts:
-- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
-
+- Enforce strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.

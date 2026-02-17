@@ -3,7 +3,10 @@ Phase folder: dev-phase-014-locales
 Tier prompt files:
 - `14_01_locale-foundation-and-coverage.mdc`
 - `14_02_locale-validation-and-backend-parity.mdc`
+- `14_03_locale-release-lock-and-sign-off.mdc`
+
+Phase coverage:
+- Steps `14.1` through `14.5` from `hms-frontend/dev-plan/P014_locales.md`.
 
 Cross-cutting mandatory contract in tier prompts:
 - Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
-
