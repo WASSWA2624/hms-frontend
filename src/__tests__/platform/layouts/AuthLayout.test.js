@@ -451,6 +451,26 @@ describe('AuthLayout Component', () => {
         expect(queryByText('Android Subtitle')).toBeNull();
         expect(queryByTestId('auth-layout-back')).toBeNull();
       });
+
+      it('should render Android subtitle-only header with fallback back test id', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutAndroid = require('@platform/layouts/AuthLayout/AuthLayout.android').default;
+        const onPress = jest.fn();
+        const { getByText, queryByText, getByTestId } = renderWithTheme(
+          <AuthLayoutAndroid
+            testID="android-auth-layout"
+            showScreenHeader
+            screenSubtitle="Android subtitle only"
+            screenBackAction={{ label: 'Return', onPress }}
+          >
+            <Text>Android Content</Text>
+          </AuthLayoutAndroid>
+        );
+
+        expect(getByText('Android subtitle only')).toBeTruthy();
+        expect(queryByText('Android Header')).toBeNull();
+        expect(getByTestId('auth-layout-back')).toBeTruthy();
+      });
     });
 
     describe('iOS variant', () => {
@@ -512,6 +532,50 @@ describe('AuthLayout Component', () => {
           </AuthLayoutIOS>
         );
         expect(getByText('Form with Input')).toBeTruthy();
+      });
+
+      it('should render iOS screen header and banner variants', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutIOS = require('@platform/layouts/AuthLayout/AuthLayout.ios').default;
+        const onPress = jest.fn();
+        const { getByText, getByTestId } = renderWithTheme(
+          <AuthLayoutIOS
+            testID="ios-auth-layout"
+            banner={<Text>iOS Banner</Text>}
+            showScreenHeader
+            screenTitle="iOS Header"
+            screenSubtitle="iOS Subtitle"
+            screenBackAction={{ label: 'Return', hint: 'Return hint', onPress, testID: 'ios-back' }}
+          >
+            <Text>iOS Content</Text>
+          </AuthLayoutIOS>
+        );
+
+        expect(getByText('iOS Banner')).toBeTruthy();
+        expect(getByText('iOS Header')).toBeTruthy();
+        expect(getByText('iOS Subtitle')).toBeTruthy();
+        expect(getByText('iOS Content')).toBeTruthy();
+        expect(getByTestId('ios-back')).toBeTruthy();
+      });
+
+      it('should render iOS subtitle-only header with fallback back test id', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutIOS = require('@platform/layouts/AuthLayout/AuthLayout.ios').default;
+        const onPress = jest.fn();
+        const { getByText, queryByText, getByTestId } = renderWithTheme(
+          <AuthLayoutIOS
+            testID="ios-auth-layout"
+            showScreenHeader
+            screenSubtitle="iOS subtitle only"
+            screenBackAction={{ label: 'Return', onPress }}
+          >
+            <Text>iOS Content</Text>
+          </AuthLayoutIOS>
+        );
+
+        expect(getByText('iOS subtitle only')).toBeTruthy();
+        expect(queryByText('iOS Header')).toBeNull();
+        expect(getByTestId('auth-layout-back')).toBeTruthy();
       });
     });
 
@@ -616,6 +680,26 @@ describe('AuthLayout Component', () => {
         expect(getByText('Web Title Only')).toBeTruthy();
         expect(queryByText('Web Subtitle')).toBeNull();
         expect(queryByTestId('auth-layout-back')).toBeNull();
+      });
+
+      it('should render Web subtitle-only header with fallback back test id', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutWeb = require('@platform/layouts/AuthLayout/AuthLayout.web').default;
+        const onPress = jest.fn();
+        const { getByText, queryByText, getByTestId } = renderWithTheme(
+          <AuthLayoutWeb
+            testID="web-auth-layout"
+            showScreenHeader
+            screenSubtitle="Web subtitle only"
+            screenBackAction={{ label: 'Return', onPress }}
+          >
+            <Text>Web Content</Text>
+          </AuthLayoutWeb>
+        );
+
+        expect(getByText('Web subtitle only')).toBeTruthy();
+        expect(queryByText('Web Header')).toBeNull();
+        expect(getByTestId('auth-layout-back')).toBeTruthy();
       });
     });
   });

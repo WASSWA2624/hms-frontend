@@ -92,4 +92,20 @@ describe('useAuthLayout', () => {
     expect(result.current.resolvedBackHint).toBe('Custom disabled hint');
     expect(result.current.isBackDisabled).toBe(true);
   });
+
+  it('falls back to common back hint when action is enabled without custom hint', () => {
+    const { result } = renderHook(() =>
+      useAuthLayout({
+        t,
+        showScreenHeader: true,
+        screenBackAction: {
+          label: 'Go Back',
+          onPress: jest.fn(),
+        },
+      })
+    );
+
+    expect(result.current.isBackDisabled).toBe(false);
+    expect(result.current.resolvedBackHint).toBe('Return to previous page');
+  });
 });
