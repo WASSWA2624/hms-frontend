@@ -7,6 +7,7 @@ import {
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
+  Select,
   Text,
   TextField,
 } from '@platform/components';
@@ -24,6 +25,7 @@ const ForgotPasswordScreenAndroid = () => {
   const { t } = useI18n();
   const {
     form,
+    tenantOptions,
     errors,
     isHydrating,
     isSubmitting,
@@ -63,21 +65,23 @@ const ForgotPasswordScreenAndroid = () => {
           />
         </StyledField>
 
-        <StyledField>
-          <TextField
-            label={t('auth.forgotPassword.fields.tenant.label')}
-            placeholder={t('auth.forgotPassword.fields.tenant.placeholder')}
-            value={form.tenant_id}
-            onChangeText={(value) => setFieldValue('tenant_id', value)}
-            errorMessage={errors.tenant_id}
-            validationState={getValidationState('tenant_id')}
-            helperText={t('auth.forgotPassword.fields.tenant.hint')}
-            maxLength={64}
-            density="compact"
-            required
-            testID="forgot-password-tenant"
-          />
-        </StyledField>
+        {tenantOptions.length > 1 ? (
+          <StyledField>
+            <Select
+              label={t('auth.forgotPassword.fields.tenant.label')}
+              options={tenantOptions}
+              value={form.tenant_id}
+              onValueChange={(value) => setFieldValue('tenant_id', value)}
+              placeholder={t('auth.forgotPassword.fields.tenant.placeholder')}
+              errorMessage={errors.tenant_id}
+              validationState={getValidationState('tenant_id')}
+              helperText={t('auth.forgotPassword.fields.tenant.hint')}
+              compact
+              required
+              testID="forgot-password-tenant"
+            />
+          </StyledField>
+        ) : null}
 
         <StyledActions>
           <Button
@@ -140,4 +144,3 @@ const ForgotPasswordScreenAndroid = () => {
 };
 
 export default ForgotPasswordScreenAndroid;
-

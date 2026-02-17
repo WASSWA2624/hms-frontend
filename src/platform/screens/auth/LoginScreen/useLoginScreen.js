@@ -227,16 +227,28 @@ const useLoginScreen = () => {
 
     const identifier = form.identifier.trim();
     const isEmail = identifier.includes('@');
+    const normalizedIdentifier = isEmail ? identifier.toLowerCase() : identifier.replace(/[^\d]/g, '');
     let identifyPayload = null;
     let resolvedTenantId = String(form.tenant_id || '').trim();
 
     if (!resolvedTenantId) {
-      const identifyAction = await identify({ identifier });
+      const identifyAction = await identify({ identifier: normalizedIdentifier });
       if (identifyAction?.meta?.requestStatus === 'fulfilled') {
         identifyPayload = identifyAction?.payload || null;
         const activeTenantIds = resolveActiveTenantIds(identifyPayload);
         if (activeTenantIds.length === 1) {
           [resolvedTenantId] = activeTenantIds;
+        } else if (activeTenantIds.length > 1) {
+          await saveAuthResumeContext({
+            identifier: normalizedIdentifier,
+            next_path: '/tenant-selection',
+            params: { identifier: normalizedIdentifier },
+          });
+          router.push({
+            pathname: '/tenant-selection',
+            params: { identifier: normalizedIdentifier },
+          });
+          return true;
         }
       }
     }
@@ -246,9 +258,9 @@ const useLoginScreen = () => {
       remember_me: form.rememberSession,
     };
     if (isEmail) {
-      payload.email = identifier.toLowerCase();
+      payload.email = normalizedIdentifier;
     } else {
-      payload.phone = identifier.replace(/[^\d]/g, '');
+      payload.phone = normalizedIdentifier;
     }
     if (resolvedTenantId) {
       payload.tenant_id = resolvedTenantId;
@@ -276,10 +288,10 @@ const useLoginScreen = () => {
         }
 
         await saveAuthResumeContext({
-          identifier,
+          identifier: normalizedIdentifier,
           next_path: '/facility-selection',
           params: {
-            identifier: isEmail ? identifier.toLowerCase() : identifier,
+            identifier: normalizedIdentifier,
             tenant_id: action?.payload?.tenantId || resolvedTenantId || '',
             tenant_name: action?.payload?.tenantName || tenantNameParam || '',
             tenant_code: action?.payload?.tenantCode || tenantCodeParam || '',
@@ -296,9 +308,22 @@ const useLoginScreen = () => {
     const code = action?.payload?.code || action?.error?.code || action?.error?.message || 'UNKNOWN_ERROR';
     let message = resolveErrorMessage(code, action?.payload?.message, t);
 
+    if (code === 'MULTIPLE_TENANTS') {
+      await saveAuthResumeContext({
+        identifier: normalizedIdentifier,
+        next_path: '/tenant-selection',
+        params: { identifier: normalizedIdentifier },
+      });
+      router.push({
+        pathname: '/tenant-selection',
+        params: { identifier: normalizedIdentifier },
+      });
+      return false;
+    }
+
     if (code === 'INVALID_CREDENTIALS') {
       if (!identifyPayload) {
-        const identifyAction = await identify({ identifier });
+        const identifyAction = await identify({ identifier: normalizedIdentifier });
         if (identifyAction?.meta?.requestStatus === 'fulfilled') {
           identifyPayload = identifyAction?.payload || null;
         }
@@ -327,17 +352,17 @@ const useLoginScreen = () => {
 
     if (code === 'ACCOUNT_PENDING') {
       await saveAuthResumeContext({
-        identifier,
+        identifier: normalizedIdentifier,
         next_path: '/verify-email',
         params: {
-          email: isEmail ? identifier.toLowerCase() : '',
+          email: isEmail ? normalizedIdentifier : '',
           reason: 'pending_verification',
         },
       });
       router.push({
         pathname: '/verify-email',
         params: {
-          email: isEmail ? identifier.toLowerCase() : '',
+          email: isEmail ? normalizedIdentifier : '',
           reason: 'pending_verification',
         },
       });

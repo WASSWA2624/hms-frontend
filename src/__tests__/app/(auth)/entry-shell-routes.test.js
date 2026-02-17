@@ -19,6 +19,8 @@ jest.mock('@platform/screens', () => ({
   FacilitySelectionScreen: (...args) => mockFacilitySelectionScreen(...args),
 }));
 
+jest.mock('../../../app/shared/withRouteTermsAcceptance', () => (Component) => Component);
+
 const assertRouteRendersScreen = (routePath, screenMock) => {
   const routeModule = require(routePath);
   expect(routeModule.default).toBeDefined();

@@ -1823,10 +1823,13 @@
           "hint": "Enter the email for your account"
         },
         "tenant": {
-          "label": "Tenant ID",
-          "placeholder": "Enter tenant ID",
-          "hint": "Enter the tenant ID provided by your organization"
+          "label": "Organization",
+          "placeholder": "Select organization",
+          "hint": "Choose the organization linked to this email"
         }
+      },
+      "fallback": {
+        "organization": "Organization {{index}}"
       },
       "actions": {
         "reset": "I already have a reset token",
@@ -1837,7 +1840,7 @@
       "validation": {
         "emailRequired": "Email is required",
         "emailInvalid": "Enter a valid email address",
-        "tenantRequired": "Tenant ID is required"
+        "tenantRequired": "Select your organization to continue"
       }
     },
     "resetPassword": {
