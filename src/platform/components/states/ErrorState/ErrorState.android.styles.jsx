@@ -15,8 +15,8 @@ const StyledErrorState = styled.View.withConfig({
   justify-content: center;
   padding: ${({ theme }) => theme.spacing.xl}px;
   background-color: ${({ theme }) => theme.colors.status?.error?.background || theme.colors.background?.secondary};
-  border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
-  border-left-width: 4px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border-left-width: ${({ theme }) => theme.spacing.xs}px;
   border-left-color: ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
 `;
 
@@ -83,8 +83,7 @@ const StyledDescription = styled.Text.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.primary};
-  opacity: 0.85;
+  color: ${({ theme }) => theme.colors.text.secondary};
   text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing.md}px;
 `;

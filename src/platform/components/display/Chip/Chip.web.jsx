@@ -45,24 +45,29 @@ const ChipWeb = ({
   const { t } = useI18n();
   const handleClick = onPress || rest.onClick;
   const chip = useChip({ variant, size, onPress: handleClick, removable, onRemove });
+  const contentLabel =
+    typeof children === 'string' || typeof children === 'number'
+      ? String(children)
+      : t('common.message');
+  const resolvedAccessibilityLabel = accessibilityLabel || contentLabel;
 
   const handleRemove = (e) => {
     if (e && e.stopPropagation) {
       e.stopPropagation();
     }
-    if (onRemove) {
-      onRemove();
-    }
+    onRemove();
   };
 
   return (
     <StyledChip
       variant={chip.variant}
       size={chip.size}
+      interactive={chip.isInteractive}
       onClick={chip.onPress}
       disabled={!chip.isInteractive}
       role={chip.isInteractive ? 'button' : 'text'}
-      aria-label={accessibilityLabel || children?.toString()}
+      aria-disabled={!chip.isInteractive}
+      aria-label={resolvedAccessibilityLabel}
       data-testid={testID}
       className={className}
       style={style}

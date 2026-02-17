@@ -6,6 +6,11 @@
 
 import styled from 'styled-components';
 
+const getSnackbarShadow = (theme) => {
+  const shadow = theme.shadows.md;
+  return `${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px ${shadow.shadowRadius}px ${theme.colors.overlay.backdrop}`;
+};
+
 const StyledSnackbar = styled.div.withConfig({
   displayName: 'StyledSnackbar',
   componentId: 'StyledSnackbar',
@@ -33,14 +38,12 @@ const StyledSnackbar = styled.div.withConfig({
     };
     return colors[variant] || colors.info;
   }};
-  box-shadow: ${({ theme }) =>
-    theme.shadows?.md
-      ? `${theme.shadows.md.shadowOffset.width}px ${theme.shadows.md.shadowOffset.height}px ${theme.shadows.md.shadowRadius}px rgba(0, 0, 0, ${theme.shadows.md.shadowOpacity})`
-      : 'none'};
+  box-shadow: ${({ theme }) => getSnackbarShadow(theme)};
   min-width: ${({ theme }) => theme.spacing.xxl * 4}px;
   max-width: ${({ theme }) => theme.spacing.xxl * 12}px;
   margin: 0 auto;
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn ${({ theme }) => theme.animations.duration.slow}ms
+    ${({ theme }) => theme.animations.easing.easeOut};
   
   @keyframes slideIn {
     from {
@@ -79,28 +82,20 @@ const StyledActionButton = styled.button.withConfig({
   padding-right: ${({ theme }) => theme.spacing.md}px;
   padding-top: ${({ theme }) => theme.spacing.sm}px;
   padding-bottom: ${({ theme }) => theme.spacing.sm}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: none;
-  background-color: ${({ theme }) => {
-    const onPrimary = theme.colors.onPrimary || theme.colors.text.inverse;
-    return onPrimary === '#FFFFFF' || theme.mode === 'light'
-      ? 'rgba(255, 255, 255, 0.2)'
-      : 'rgba(0, 0, 0, 0.2)';
-  }};
+  background-color: ${({ theme }) => theme.colors.overlay.sheetBackdrop};
   cursor: pointer;
   
   &:hover {
-    background-color: ${({ theme }) => {
-      const onPrimary = theme.colors.onPrimary || theme.colors.text.inverse;
-      return onPrimary === '#FFFFFF' || theme.mode === 'light'
-        ? 'rgba(255, 255, 255, 0.3)'
-        : 'rgba(0, 0, 0, 0.3)';
-    }};
+    background-color: ${({ theme }) => theme.colors.overlay.backdrop};
   }
   
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.onPrimary || theme.colors.text.inverse};
-    outline-offset: 2px;
+    outline: ${({ theme }) => theme.spacing.xs / 2}px solid ${({ theme }) => theme.colors.onPrimary || theme.colors.text.inverse};
+    outline-offset: ${({ theme }) => theme.spacing.xs / 2}px;
   }
 `;
 
@@ -113,7 +108,7 @@ const StyledActionButtonText = styled.span.withConfig({
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.onPrimary || theme.colors.text.inverse};
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: ${({ theme }) => theme.spacing.xs / 8}px;
 `;
 
 export { StyledSnackbar, StyledSnackbarText, StyledActionButton, StyledActionButtonText };

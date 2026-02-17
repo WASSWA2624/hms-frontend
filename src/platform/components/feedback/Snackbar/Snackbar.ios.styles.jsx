@@ -29,10 +29,11 @@ const StyledSnackbar = styled.View.withConfig({
     };
     return colors[variant] || colors.info;
   }};
-  shadow-color: ${({ theme }) => theme.colors.text.primary};
-  shadow-offset: 0px ${({ theme }) => theme.spacing.xs / 2}px;
-  shadow-opacity: 0.15;
-  shadow-radius: ${({ theme }) => theme.spacing.xs}px;
+  shadow-color: ${({ theme }) => theme.shadows.md.shadowColor};
+  shadow-offset: ${({ theme }) => theme.shadows.md.shadowOffset.width}px
+    ${({ theme }) => theme.shadows.md.shadowOffset.height}px;
+  shadow-opacity: ${({ theme }) => theme.shadows.md.shadowOpacity};
+  shadow-radius: ${({ theme }) => theme.shadows.md.shadowRadius}px;
   min-width: ${({ theme }) => theme.spacing.xxl * 4}px;
   max-width: 100%;
 `;
@@ -56,13 +57,12 @@ const StyledActionButton = styled.Pressable.withConfig({
 })`
   padding-horizontal: ${({ theme }) => theme.spacing.md}px;
   padding-vertical: ${({ theme }) => theme.spacing.sm}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  align-items: center;
+  justify-content: center;
   border-radius: ${({ theme }) => theme.radius.sm}px;
-  background-color: ${({ theme }) => {
-    const onPrimary = theme.colors.onPrimary || theme.colors.text.inverse;
-    return onPrimary === '#FFFFFF' || theme.mode === 'light'
-      ? 'rgba(255, 255, 255, 0.2)'
-      : 'rgba(0, 0, 0, 0.2)';
-  }};
+  background-color: ${({ theme }) => theme.colors.overlay.sheetBackdrop};
 `;
 
 const StyledActionButtonText = styled.Text.withConfig({
@@ -74,7 +74,7 @@ const StyledActionButtonText = styled.Text.withConfig({
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.onPrimary || theme.colors.text.inverse};
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: ${({ theme }) => theme.spacing.xs / 8}px;
 `;
 
 export { StyledSnackbar, StyledSnackbarText, StyledActionButton, StyledActionButtonText };

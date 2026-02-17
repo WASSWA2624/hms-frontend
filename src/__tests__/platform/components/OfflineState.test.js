@@ -11,6 +11,27 @@ import Icon from '@platform/components/display/Icon';
 import Button from '@platform/components/Button';
 import lightTheme from '@theme/light.theme';
 
+// Mock i18n hook
+const mockEnTranslations = require('@i18n/locales/en.json');
+jest.mock('@hooks', () => ({
+  useI18n: () => ({
+    t: (key, params = {}) => {
+      const keys = key.split('.');
+      let value = mockEnTranslations;
+      for (const k of keys) {
+        value = value?.[k];
+      }
+      if (typeof value === 'string' && params) {
+        return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
+          return params[paramKey] !== undefined ? String(params[paramKey]) : match;
+        });
+      }
+      return value || key;
+    },
+    locale: 'en',
+  }),
+}));
+
 const renderWithTheme = (component) => {
   return render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
 };
@@ -297,14 +318,12 @@ describe('OfflineState Component', () => {
         expect(getByLabelText('Title Only')).toBeTruthy();
       });
 
-      it('should not set accessibilityLabel when title is React node on Android', () => {
-        const { getByTestId } = renderWithTheme(
+      it('should use i18n accessibility fallback when title is React node on Android', () => {
+        const { getByLabelText } = renderWithTheme(
           <OfflineStateAndroid title={<span>React Title</span>} testID="offline-state-android" />
         );
-        const offlineState = getByTestId('offline-state-android');
-        expect(offlineState).toBeTruthy();
-        // When title is not string, accessibilityLabel should be undefined unless explicitly provided
-        expect(offlineState.props.accessibilityLabel).toBeUndefined();
+        const expectedLabel = mockEnTranslations?.common?.offlineState || 'common.offlineState';
+        expect(getByLabelText(expectedLabel)).toBeTruthy();
       });
     });
 
@@ -393,14 +412,12 @@ describe('OfflineState Component', () => {
         expect(getByLabelText('Title Only')).toBeTruthy();
       });
 
-      it('should not set accessibilityLabel when title is React node on iOS', () => {
-        const { getByTestId } = renderWithTheme(
+      it('should use i18n accessibility fallback when title is React node on iOS', () => {
+        const { getByLabelText } = renderWithTheme(
           <OfflineStateIOS title={<span>React Title</span>} testID="offline-state-ios" />
         );
-        const offlineState = getByTestId('offline-state-ios');
-        expect(offlineState).toBeTruthy();
-        // When title is not string, accessibilityLabel should be undefined unless explicitly provided
-        expect(offlineState.props.accessibilityLabel).toBeUndefined();
+        const expectedLabel = mockEnTranslations?.common?.offlineState || 'common.offlineState';
+        expect(getByLabelText(expectedLabel)).toBeTruthy();
       });
     });
   });
@@ -464,6 +481,39 @@ describe('OfflineState Component', () => {
       );
       const offlineState = getByTestId('offline-state-web');
       expect(offlineState.props.className).toBe('custom-class');
+    });
+
+    it('should prioritize custom accessibility label on web', () => {
+      const { getByLabelText } = renderWithTheme(
+        <OfflineStateWeb
+          title="Web Offline State"
+          accessibilityLabel="Custom web offline label"
+          testID="offline-state-web"
+        />
+      );
+      expect(getByLabelText('Custom web offline label')).toBeTruthy();
+    });
+
+    it('should use i18n accessibility fallback for non-string title on web', () => {
+      const { getByLabelText } = renderWithTheme(
+        <OfflineStateWeb title={<span>Web Offline State</span>} testID="offline-state-web" />
+      );
+      const expectedLabel = mockEnTranslations?.common?.offlineState || 'common.offlineState';
+      expect(getByLabelText(expectedLabel)).toBeTruthy();
+    });
+
+    it('should render icon, description, and action branches on web', () => {
+      const { getByText } = renderWithTheme(
+        <OfflineStateWeb
+          title="Web Offline State"
+          description="Web offline description"
+          icon={<Icon glyph="wifi-off" accessibilityLabel="Offline icon" />}
+          action={<Button>Retry</Button>}
+          testID="offline-state-web"
+        />
+      );
+      expect(getByText('Web offline description')).toBeTruthy();
+      expect(getByText('Retry')).toBeTruthy();
     });
   });
 

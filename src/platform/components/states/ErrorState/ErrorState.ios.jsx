@@ -9,6 +9,7 @@ import { StyledErrorState, StyledIconContainer, StyledTitle, StyledDescription, 
 import { useErrorState } from './useErrorState';
 import { SIZES } from './types';
 import Icon, { SIZES as IconSizes, TONES } from '@platform/components/display/Icon';
+import { useI18n } from '@hooks';
 
 /**
  * ErrorState component for iOS
@@ -33,12 +34,16 @@ const ErrorStateIOS = ({
   style,
   ...rest
 }) => {
+  const { t } = useI18n();
   const errorState = useErrorState({ size });
+  const defaultAccessibilityLabel =
+    accessibilityLabel ||
+    (typeof title === 'string' && title ? title : t('common.errorState'));
   const iconSizeMap = { small: IconSizes.SM, medium: IconSizes.MD, large: IconSizes.LG };
   const defaultIcon = !icon && (
     <Icon
       glyph="!"
-      size={iconSizeMap[errorState.size] || IconSizes.MD}
+      size={iconSizeMap[errorState.size]}
       tone={TONES.ERROR}
       decorative
     />
@@ -49,7 +54,7 @@ const ErrorStateIOS = ({
     <StyledErrorState
       size={errorState.size}
       accessibilityRole="alert"
-      accessibilityLabel={accessibilityLabel || (typeof title === 'string' ? title : undefined)}
+      accessibilityLabel={defaultAccessibilityLabel}
       testID={testID}
       style={style}
       {...rest}

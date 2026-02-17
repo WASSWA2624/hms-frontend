@@ -36,24 +36,29 @@ const ChipIOS = ({
 }) => {
   const { t } = useI18n();
   const chip = useChip({ variant, size, onPress, removable, onRemove });
+  const contentLabel =
+    typeof children === 'string' || typeof children === 'number'
+      ? String(children)
+      : t('common.message');
+  const resolvedAccessibilityLabel = accessibilityLabel || contentLabel;
 
   const handleRemove = (e) => {
     if (e && e.stopPropagation) {
       e.stopPropagation();
     }
-    if (onRemove) {
-      onRemove();
-    }
+    onRemove();
   };
 
   return (
     <StyledChip
       variant={chip.variant}
       size={chip.size}
+      interactive={chip.isInteractive}
       onPress={chip.onPress}
       disabled={!chip.isInteractive}
       accessibilityRole={chip.isInteractive ? 'button' : 'text'}
-      accessibilityLabel={accessibilityLabel || children?.toString()}
+      accessibilityState={{ disabled: !chip.isInteractive }}
+      accessibilityLabel={resolvedAccessibilityLabel}
       testID={testID}
       style={style}
       {...rest}

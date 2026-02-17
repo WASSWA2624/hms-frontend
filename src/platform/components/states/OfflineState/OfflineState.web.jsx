@@ -8,6 +8,7 @@ import React from 'react';
 import { StyledOfflineState, StyledIconContainer, StyledTitle, StyledDescription, StyledActionContainer } from './OfflineState.web.styles';
 import { useOfflineState } from './useOfflineState';
 import { SIZES } from './types';
+import { useI18n } from '@hooks';
 
 /**
  * OfflineState component for Web
@@ -34,13 +35,17 @@ const OfflineStateWeb = ({
   style,
   ...rest
 }) => {
+  const { t } = useI18n();
   const offlineState = useOfflineState({ size });
+  const defaultAccessibilityLabel =
+    accessibilityLabel ||
+    (typeof title === 'string' && title ? title : t('common.offlineState'));
 
   return (
     <StyledOfflineState
       size={offlineState.size}
       role="status"
-      aria-label={accessibilityLabel || (typeof title === 'string' ? title : undefined)}
+      aria-label={defaultAccessibilityLabel}
       data-testid={testID}
       testID={testID}
       className={className}

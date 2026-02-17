@@ -9,6 +9,7 @@ import { StyledErrorState, StyledIconContainer, StyledTitle, StyledHeaderRow, St
 import { useErrorState } from './useErrorState';
 import { SIZES } from './types';
 import Icon, { SIZES as IconSizes, TONES } from '@platform/components/display/Icon';
+import { useI18n } from '@hooks';
 
 /**
  * ErrorState component for Web
@@ -35,12 +36,16 @@ const ErrorStateWeb = ({
   style,
   ...rest
 }) => {
+  const { t } = useI18n();
   const errorState = useErrorState({ size });
+  const defaultAccessibilityLabel =
+    accessibilityLabel ||
+    (typeof title === 'string' && title ? title : t('common.errorState'));
   const iconSizeMap = { small: IconSizes.SM, medium: IconSizes.MD, large: IconSizes.LG };
   const defaultIcon = !icon && (
     <Icon
       glyph="!"
-      size={iconSizeMap[errorState.size] || IconSizes.MD}
+      size={iconSizeMap[errorState.size]}
       tone={TONES.ERROR}
       decorative
     />
@@ -51,27 +56,25 @@ const ErrorStateWeb = ({
     <StyledErrorState
       size={errorState.size}
       role="alert"
-      aria-label={accessibilityLabel || (typeof title === 'string' ? title : undefined)}
+      aria-label={defaultAccessibilityLabel}
       data-testid={testID}
       testID={testID}
       className={className}
       style={style}
       {...rest}
     >
-      {(iconToRender || title) && (
-        <StyledHeaderRow>
-          {iconToRender && (
-            <StyledIconContainer size={errorState.size}>
-              {iconToRender}
-            </StyledIconContainer>
-          )}
-          {title && (
-            <StyledTitle size={errorState.size}>
-              {title}
-            </StyledTitle>
-          )}
-        </StyledHeaderRow>
-      )}
+      <StyledHeaderRow>
+        {iconToRender && (
+          <StyledIconContainer size={errorState.size}>
+            {iconToRender}
+          </StyledIconContainer>
+        )}
+        {title && (
+          <StyledTitle size={errorState.size}>
+            {title}
+          </StyledTitle>
+        )}
+      </StyledHeaderRow>
       {description && (
         <StyledDescription size={errorState.size}>
           {description}

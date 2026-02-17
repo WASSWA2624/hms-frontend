@@ -40,6 +40,8 @@
     "radio": "Radio",
     "checkbox": "Checkbox",
     "emptyState": "Empty state",
+    "errorState": "Error state",
+    "offlineState": "Offline state",
     "message": "Message",
     "toastDismissHint": "Press Escape to dismiss",
     "action": "Action",

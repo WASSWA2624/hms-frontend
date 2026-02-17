@@ -36,10 +36,11 @@ const StyledToast = styled.View.withConfig({
     };
     return colors[variant] || colors.info;
   }};
-  shadow-color: ${({ theme }) => theme.colors.text.primary};
-  shadow-offset: 0px ${({ theme }) => theme.spacing.xs / 2}px;
-  shadow-opacity: 0.15;
-  shadow-radius: ${({ theme }) => theme.spacing.xs}px;
+  shadow-color: ${({ theme }) => theme.shadows.md.shadowColor};
+  shadow-offset: ${({ theme }) => theme.shadows.md.shadowOffset.width}px
+    ${({ theme }) => theme.shadows.md.shadowOffset.height}px;
+  shadow-opacity: ${({ theme }) => theme.shadows.md.shadowOpacity};
+  shadow-radius: ${({ theme }) => theme.shadows.md.shadowRadius}px;
   min-width: ${({ theme }) => theme.spacing.xxl * 4}px;
   max-width: 100%;
 `;

@@ -31,7 +31,6 @@ const StyledIconContainer = styled.div.withConfig({
     };
     return margins[size] || margins.medium;
   }}px;
-  opacity: 0.5;
   display: flex;
   align-items: center;
   justify-content: center;

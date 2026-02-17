@@ -6,6 +6,11 @@
 
 import styled from 'styled-components';
 
+const getErrorIconShadow = (theme) => {
+  const shadow = theme.shadows.sm;
+  return `${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px ${shadow.shadowRadius}px ${theme.colors.overlay.backdrop}`;
+};
+
 const StyledErrorState = styled.div.withConfig({
   displayName: 'StyledErrorState',
   componentId: 'StyledErrorState',
@@ -27,8 +32,8 @@ const StyledErrorState = styled.div.withConfig({
     return paddings[size] || paddings.medium;
   }}px;
   background-color: ${({ theme }) => theme.colors.status?.error?.background || theme.colors.background?.secondary};
-  border-radius: ${({ theme }) => theme.radius?.sm ?? 4}px;
-  border-left: 4px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border-left: ${({ theme }) => theme.spacing.xs}px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
 `;
 
 const StyledIconContainer = styled.div.withConfig({
@@ -56,9 +61,9 @@ const StyledIconContainer = styled.div.withConfig({
     return sizes[size] || sizes.medium;
   }}px;
   border-radius: ${({ theme }) => theme.radius.full}px;
-  background-color: ${({ theme }) => theme.colors.background?.primary || '#FFFFFF'};
-  border: 1px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  border: ${({ theme }) => theme.spacing.xs / 4}px solid ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
+  box-shadow: ${({ theme }) => getErrorIconShadow(theme)};
   flex-shrink: 0;
   color: ${({ theme }) => theme.colors.error || theme.colors.status?.error?.text};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -132,8 +137,7 @@ const StyledDescription = styled.p.withConfig({
     };
     return sizes[size] * theme.typography.lineHeight.normal || sizes.medium * theme.typography.lineHeight.normal;
   }}px;
-  color: ${({ theme }) => theme.colors.text.primary};
-  opacity: 0.85;
+  color: ${({ theme }) => theme.colors.text.secondary};
   text-align: center;
   margin: 0 0 ${({ theme }) => theme.spacing.sm}px 0;
   max-width: 100%;

@@ -11,6 +11,27 @@ import Icon from '@platform/components/display/Icon';
 import Button from '@platform/components/Button';
 import lightTheme from '@theme/light.theme';
 
+// Mock i18n hook
+const mockEnTranslations = require('@i18n/locales/en.json');
+jest.mock('@hooks', () => ({
+  useI18n: () => ({
+    t: (key, params = {}) => {
+      const keys = key.split('.');
+      let value = mockEnTranslations;
+      for (const k of keys) {
+        value = value?.[k];
+      }
+      if (typeof value === 'string' && params) {
+        return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
+          return params[paramKey] !== undefined ? String(params[paramKey]) : match;
+        });
+      }
+      return value || key;
+    },
+    locale: 'en',
+  }),
+}));
+
 const renderWithTheme = (component) => {
   return render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
 };
@@ -307,14 +328,12 @@ describe('ErrorState Component', () => {
         expect(getByLabelText('Title Only')).toBeTruthy();
       });
 
-      it('should not set accessibilityLabel when title is React node on Android', () => {
-        const { getByTestId } = renderWithTheme(
+      it('should use i18n accessibility fallback when title is React node on Android', () => {
+        const { getByLabelText } = renderWithTheme(
           <ErrorStateAndroid title={<span>React Title</span>} testID="error-state-android" />
         );
-        const errorState = getByTestId('error-state-android');
-        expect(errorState).toBeTruthy();
-        // When title is not string, accessibilityLabel should be undefined unless explicitly provided
-        expect(errorState.props.accessibilityLabel).toBeUndefined();
+        const expectedLabel = mockEnTranslations?.common?.errorState || 'common.errorState';
+        expect(getByLabelText(expectedLabel)).toBeTruthy();
       });
     });
 
@@ -403,14 +422,12 @@ describe('ErrorState Component', () => {
         expect(getByLabelText('Title Only')).toBeTruthy();
       });
 
-      it('should not set accessibilityLabel when title is React node on iOS', () => {
-        const { getByTestId } = renderWithTheme(
+      it('should use i18n accessibility fallback when title is React node on iOS', () => {
+        const { getByLabelText } = renderWithTheme(
           <ErrorStateIOS title={<span>React Title</span>} testID="error-state-ios" />
         );
-        const errorState = getByTestId('error-state-ios');
-        expect(errorState).toBeTruthy();
-        // When title is not string, accessibilityLabel should be undefined unless explicitly provided
-        expect(errorState.props.accessibilityLabel).toBeUndefined();
+        const expectedLabel = mockEnTranslations?.common?.errorState || 'common.errorState';
+        expect(getByLabelText(expectedLabel)).toBeTruthy();
       });
     });
   });
@@ -474,6 +491,45 @@ describe('ErrorState Component', () => {
       );
       const errorState = getByTestId('error-state-web');
       expect(errorState.props.className).toBe('custom-class');
+    });
+
+    it('should prioritize custom accessibility label on web', () => {
+      const { getByLabelText } = renderWithTheme(
+        <ErrorStateWeb
+          title="Web Error State"
+          accessibilityLabel="Custom web error label"
+          testID="error-state-web"
+        />
+      );
+      expect(getByLabelText('Custom web error label')).toBeTruthy();
+    });
+
+    it('should use i18n accessibility fallback for non-string title on web', () => {
+      const { getByLabelText } = renderWithTheme(
+        <ErrorStateWeb title={<span>Web Error State</span>} testID="error-state-web" />
+      );
+      const expectedLabel = mockEnTranslations?.common?.errorState || 'common.errorState';
+      expect(getByLabelText(expectedLabel)).toBeTruthy();
+    });
+
+    it('should render description and action branches on web', () => {
+      const { getByText } = renderWithTheme(
+        <ErrorStateWeb
+          title="Web Error State"
+          description="Web description"
+          action={<Button>Retry</Button>}
+          testID="error-state-web"
+        />
+      );
+      expect(getByText('Web description')).toBeTruthy();
+      expect(getByText('Retry')).toBeTruthy();
+    });
+
+    it('should fallback icon size mapping for invalid size on web', () => {
+      const { getByLabelText } = renderWithTheme(
+        <ErrorStateWeb size="invalid-size" title="Invalid size" testID="error-state-web" />
+      );
+      expect(getByLabelText('Invalid size')).toBeTruthy();
     });
   });
 

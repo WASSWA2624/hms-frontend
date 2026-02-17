@@ -28,6 +28,8 @@ const StyledChip = styled.Pressable.withConfig({
     };
     return padding[size] || padding.medium;
   }}px;
+  min-height: ${({ interactive, theme }) =>
+    interactive ? theme.spacing.xxl - theme.spacing.xs : 0}px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   border-width: ${({ variant }) => (variant === 'outline' ? 1 : 0)}px;
   background-color: ${({ variant, theme }) => {
@@ -88,8 +90,8 @@ const StyledRemoveButton = styled.Pressable.withConfig({
   padding: ${({ theme }) => theme.spacing.xs}px;
   align-items: center;
   justify-content: center;
-  min-width: ${({ theme }) => theme.spacing.md + theme.spacing.xs}px;
-  min-height: ${({ theme }) => theme.spacing.md + theme.spacing.xs}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
 `;
 
 export { StyledChip, StyledChipText, StyledRemoveButton };

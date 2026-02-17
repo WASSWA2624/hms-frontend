@@ -29,7 +29,6 @@ const StyledIconContainer = styled.View.withConfig({
     };
     return margins[size] || margins.medium;
   }}px;
-  opacity: 0.5;
 `;
 
 const StyledTitle = styled.Text.withConfig({

@@ -45,6 +45,8 @@ const StyledChip = styled.button.withConfig({
     };
     return padding[size] || padding.medium;
   }}px;
+  min-height: ${({ interactive, theme }) =>
+    interactive ? theme.spacing.xxl - theme.spacing.xs : 0}px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   border-width: ${({ variant }) => (variant === 'outline' ? 1 : 0)}px;
   border-style: solid;
@@ -68,7 +70,7 @@ const StyledChip = styled.button.withConfig({
     ${({ variant, theme, disabled }) => {
       if (disabled) return '';
       if (variant === 'primary') {
-        return `background-color: ${theme.colors.primary}; opacity: 0.9;`;
+        return `background-color: ${theme.colors.primary};`;
       }
       if (variant === 'outline') {
         return `background-color: ${theme.colors.background.secondary};`;
@@ -78,8 +80,8 @@ const StyledChip = styled.button.withConfig({
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
+    outline: ${({ theme }) => theme.spacing.xs / 2}px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: ${({ theme }) => theme.spacing.xs / 2}px;
   }
 `;
 
@@ -125,19 +127,19 @@ const StyledRemoveButton = styled.button.withConfig({
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: ${({ theme }) => theme.spacing.md + theme.spacing.xs}px;
-  min-height: ${({ theme }) => theme.spacing.md + theme.spacing.xs}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border: none;
   background: transparent;
   cursor: pointer;
 
   &:hover {
-    opacity: 0.7;
+    background-color: ${({ theme }) => theme.colors.overlay.sheetBackdrop};
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
+    outline: ${({ theme }) => theme.spacing.xs / 2}px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: ${({ theme }) => theme.spacing.xs / 2}px;
     border-radius: ${({ theme }) => theme.radius.sm}px;
   }
 `;

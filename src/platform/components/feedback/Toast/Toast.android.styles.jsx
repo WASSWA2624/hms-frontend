@@ -36,7 +36,7 @@ const StyledToast = styled.View.withConfig({
     };
     return colors[variant] || colors.info;
   }};
-  elevation: 6;
+  elevation: ${({ theme }) => theme.shadows.md.elevation};
   min-width: ${({ theme }) => theme.spacing.xxl * 4}px;
   max-width: 100%;
 `;

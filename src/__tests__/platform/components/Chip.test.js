@@ -463,6 +463,33 @@ describe('Chip Component', () => {
       expect(getByText('Nested')).toBeTruthy();
     });
 
+    it('should fallback accessibility label to i18n message for non-text children on Android', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const ChipAndroid = require('@platform/components/display/Chip/Chip.android').default;
+      const { getByLabelText } = renderWithProviders(
+        <ChipAndroid testID="android-non-text-label"><span>Nested</span></ChipAndroid>
+      );
+      expect(getByLabelText(enTranslations.common.message)).toBeTruthy();
+    });
+
+    it('should fallback accessibility label to i18n message for non-text children on iOS', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const ChipIOS = require('@platform/components/display/Chip/Chip.ios').default;
+      const { getByLabelText } = renderWithProviders(
+        <ChipIOS testID="ios-non-text-label"><span>Nested</span></ChipIOS>
+      );
+      expect(getByLabelText(enTranslations.common.message)).toBeTruthy();
+    });
+
+    it('should fallback accessibility label to i18n message for non-text children on web', () => {
+      // eslint-disable-next-line import/no-unresolved
+      const ChipWeb = require('@platform/components/display/Chip/Chip.web').default;
+      const { getByLabelText } = renderWithProviders(
+        <ChipWeb testID="web-non-text-label"><span>Nested</span></ChipWeb>
+      );
+      expect(getByLabelText(enTranslations.common.message)).toBeTruthy();
+    });
+
     it('should handle style prop', () => {
       const customStyle = { marginTop: 10 };
       const { getByText } = renderWithProviders(
@@ -693,6 +720,19 @@ describe('Chip Component', () => {
           <ChipAndroid testID="android-chip">Android Chip</ChipAndroid>
         );
         expect(getByText('Android Chip')).toBeTruthy();
+      });
+
+      it('should expose interactive accessibility state on Android when onPress is provided', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const ChipAndroid = require('@platform/components/display/Chip/Chip.android').default;
+        const { getByLabelText } = renderWithProviders(
+          <ChipAndroid onPress={mockOnPress} testID="android-chip-interactive">Android Chip</ChipAndroid>
+        );
+        const chip = getByLabelText('Android Chip');
+        expect(chip.props.accessibilityRole).toBe('button');
+        expect(chip.props.accessibilityState?.disabled).toBe(false);
+        fireEvent.press(chip);
+        expect(mockOnPress).toHaveBeenCalledTimes(1);
       });
 
       it('should handle remove with event stopPropagation on Android', () => {

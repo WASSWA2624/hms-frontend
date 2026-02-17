@@ -9,7 +9,7 @@ import styled, { keyframes } from 'styled-components';
 const slideInTop = keyframes`
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-24px);
+    transform: translateX(-50%) translateY(calc(var(--toast-slide-distance) * -1));
   }
   to {
     opacity: 1;
@@ -20,7 +20,7 @@ const slideInTop = keyframes`
 const slideInCenter = keyframes`
   from {
     opacity: 0;
-    transform: translate(-50%, calc(-50% - 24px));
+    transform: translate(-50%, calc(-50% - var(--toast-slide-distance)));
   }
   to {
     opacity: 1;
@@ -31,7 +31,7 @@ const slideInCenter = keyframes`
 const slideInBottom = keyframes`
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(24px);
+    transform: translateX(-50%) translateY(var(--toast-slide-distance));
   }
   to {
     opacity: 1;
@@ -39,10 +39,16 @@ const slideInBottom = keyframes`
   }
 `;
 
+const getToastShadow = (theme) => {
+  const shadow = theme.shadows.md;
+  return `${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px ${shadow.shadowRadius}px ${theme.colors.overlay.backdrop}`;
+};
+
 const StyledToast = styled.div.withConfig({
   displayName: 'StyledToast',
   componentId: 'StyledToast',
 })`
+  --toast-slide-distance: ${({ theme }) => theme.spacing.lg}px;
   position: fixed;
   left: 50%;
   z-index: 9999;
@@ -81,17 +87,19 @@ const StyledToast = styled.div.withConfig({
     };
     return colors[variant] || colors.info;
   }};
-  box-shadow: ${({ theme }) => theme.shadows?.md || '0 4px 12px rgba(0, 0, 0, 0.15)'};
+  box-shadow: ${({ theme }) => getToastShadow(theme)};
   min-width: ${({ theme }) => theme.spacing.xxl * 4}px;
   max-width: ${({ theme }) => theme.spacing.xxl * 8}px;
-  ${({ position }) => {
+  ${({ position, theme }) => {
+    const duration = `${theme.animations.duration.slow}ms`;
+    const easing = theme.animations.easing.easeOut;
     if (position === 'top') {
-      return `animation: ${slideInTop} 0.3s ease-out;`;
+      return `animation: ${slideInTop} ${duration} ${easing};`;
     }
     if (position === 'center') {
-      return `animation: ${slideInCenter} 0.3s ease-out;`;
+      return `animation: ${slideInCenter} ${duration} ${easing};`;
     }
-    return `animation: ${slideInBottom} 0.3s ease-out;`;
+    return `animation: ${slideInBottom} ${duration} ${easing};`;
   }}
 
   @media (prefers-reduced-motion: reduce) {

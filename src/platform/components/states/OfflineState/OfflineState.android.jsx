@@ -8,6 +8,7 @@ import React from 'react';
 import { StyledOfflineState, StyledIconContainer, StyledTitle, StyledDescription, StyledActionContainer } from './OfflineState.android.styles';
 import { useOfflineState } from './useOfflineState';
 import { SIZES } from './types';
+import { useI18n } from '@hooks';
 
 /**
  * OfflineState component for Android
@@ -32,13 +33,17 @@ const OfflineStateAndroid = ({
   style,
   ...rest
 }) => {
+  const { t } = useI18n();
   const offlineState = useOfflineState({ size });
+  const defaultAccessibilityLabel =
+    accessibilityLabel ||
+    (typeof title === 'string' && title ? title : t('common.offlineState'));
 
   return (
     <StyledOfflineState
       size={offlineState.size}
       accessibilityRole="none"
-      accessibilityLabel={accessibilityLabel || (typeof title === 'string' ? title : undefined)}
+      accessibilityLabel={defaultAccessibilityLabel}
       testID={testID}
       style={style}
       {...rest}

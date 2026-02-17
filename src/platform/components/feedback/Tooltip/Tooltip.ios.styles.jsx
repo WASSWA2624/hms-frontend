@@ -17,10 +17,11 @@ const StyledTooltip = styled.View.withConfig({
   border-radius: ${({ theme }) => theme.radius.sm}px;
   background-color: ${({ theme }) => theme.colors.tooltip.background};
   max-width: ${({ theme }) => theme.spacing.xxl * 4}px;
-  shadow-color: ${({ theme }) => theme.colors.text.primary};
-  shadow-offset: 0px ${({ theme }) => theme.spacing.xs / 2}px;
-  shadow-opacity: 0.2;
-  shadow-radius: ${({ theme }) => theme.spacing.xs}px;
+  shadow-color: ${({ theme }) => theme.shadows.sm.shadowColor};
+  shadow-offset: ${({ theme }) => theme.shadows.sm.shadowOffset.width}px
+    ${({ theme }) => theme.shadows.sm.shadowOffset.height}px;
+  shadow-opacity: ${({ theme }) => theme.shadows.sm.shadowOpacity};
+  shadow-radius: ${({ theme }) => theme.shadows.sm.shadowRadius}px;
   ${({ position, theme }) => {
     const margin = theme.spacing.sm;
     if (position === 'top') {
