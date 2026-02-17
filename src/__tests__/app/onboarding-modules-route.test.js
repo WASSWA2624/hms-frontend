@@ -43,6 +43,11 @@ jest.mock('@navigation', () => ({
   saveAuthResumeContext: (...args) => mockSaveAuthResumeContext(...args),
 }));
 
+jest.mock('../../app/shared/withRouteTermsAcceptance', () => ({
+  __esModule: true,
+  default: (Component) => Component,
+}));
+
 jest.mock('@platform/components', () => {
   const ReactLocal = require('react');
   const { View, Text: RNText, Pressable } = require('react-native');
@@ -61,6 +66,12 @@ jest.mock('@platform/components', () => {
     EmptyStateSizes: { SMALL: 'small' },
     ErrorState: Wrapper,
     ErrorStateSizes: { SMALL: 'small' },
+    Checkbox: ({ checked, onChange, testID }) => (
+      <Pressable
+        testID={testID}
+        onPress={() => onChange(!checked)}
+      />
+    ),
     LoadingSpinner: ({ testID }) => <View testID={testID || 'loading-spinner'} />,
     Stack: Wrapper,
     Text: ({ children, testID }) => <RNText testID={testID}>{children}</RNText>,

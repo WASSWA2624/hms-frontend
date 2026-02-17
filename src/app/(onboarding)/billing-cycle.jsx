@@ -118,6 +118,22 @@ function OnboardingBillingCycleRoute() {
       return;
     }
 
+    if (!selectedPlanId) {
+      setError({
+        code: 'ONBOARDING_PLAN_REQUIRED',
+        message: t('onboarding.plan.errors.planRequired'),
+      });
+      return;
+    }
+
+    if (!subscriptionId) {
+      setError({
+        code: 'ONBOARDING_SUBSCRIPTION_REQUIRED',
+        message: t('onboarding.payment.errors.subscriptionRequired'),
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       let resolvedPlanId = selectedPlanId;

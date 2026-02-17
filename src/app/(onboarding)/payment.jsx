@@ -21,6 +21,7 @@ import {
   createSubscriptionInvoice,
   listSubscriptionInvoices,
   listSubscriptionPlans,
+  updateInvoice,
   updateSubscription,
 } from '@features';
 import {
@@ -51,6 +52,7 @@ function OnboardingPaymentRoute() {
     subscription_id: '',
     subscription_plan_id: '',
     invoice_id: '',
+    payment_id: '',
     billing_cycle: 'MONTHLY',
     amount: '0.00',
     currency: 'USD',
@@ -74,6 +76,7 @@ function OnboardingPaymentRoute() {
         subscription_id: String(progress?.context?.subscription_id || '').trim(),
         subscription_plan_id: String(progress?.context?.subscription_plan_id || '').trim(),
         invoice_id: String(progress?.context?.invoice_id || '').trim(),
+        payment_id: String(progress?.context?.payment_id || '').trim(),
         billing_cycle: String(progress?.context?.billing_cycle || 'MONTHLY').trim().toUpperCase(),
         amount: toDecimalString(progress?.context?.payment_amount || 0),
         currency: String(progress?.context?.payment_currency || 'USD').trim().toUpperCase(),
@@ -185,6 +188,19 @@ function OnboardingPaymentRoute() {
           issued_at: toIsoTimestamp(new Date()),
         });
         invoiceId = String(createdInvoice?.id || '').trim();
+        if (invoiceId) {
+          setCheckoutContext((prev) => ({ ...prev, invoice_id: invoiceId }));
+          try {
+            await mergeOnboardingContext({
+              invoice_id: invoiceId,
+              payment_amount: amount,
+              payment_currency: checkoutContext.currency || 'USD',
+              payment_method: selectedMethod,
+            });
+          } catch {
+            // Keep checkout in-memory even if progress persistence fails.
+          }
+        }
       }
 
       if (!invoiceId) {
@@ -205,24 +221,53 @@ function OnboardingPaymentRoute() {
         });
       }
 
-      const createdPayment = await createPayment({
-        tenant_id: checkoutContext.tenant_id,
-        facility_id: checkoutContext.facility_id || null,
-        patient_id: null,
-        invoice_id: invoiceId,
-        status: 'COMPLETED',
-        method: selectedMethod,
-        amount,
-        paid_at: toIsoTimestamp(new Date()),
-        transaction_ref: `onboarding-${Date.now()}`,
-      });
-      const paymentId = String(createdPayment?.id || '').trim();
+      let paymentId = String(checkoutContext.payment_id || '').trim();
+      if (!paymentId) {
+        const createdPayment = await createPayment({
+          tenant_id: checkoutContext.tenant_id,
+          facility_id: checkoutContext.facility_id || null,
+          patient_id: null,
+          invoice_id: invoiceId,
+          status: 'COMPLETED',
+          method: selectedMethod,
+          amount,
+          paid_at: toIsoTimestamp(new Date()),
+          transaction_ref: `onboarding-${Date.now()}`,
+        });
+        paymentId = String(createdPayment?.id || '').trim();
+        if (!paymentId) {
+          throw new Error('PAYMENT_CREATE_FAILED');
+        }
+        setCheckoutContext((prev) => ({ ...prev, invoice_id: invoiceId, payment_id: paymentId }));
+        try {
+          await mergeOnboardingContext({
+            invoice_id: invoiceId,
+            payment_id: paymentId,
+            payment_status: 'COMPLETED',
+            payment_method: selectedMethod,
+            payment_amount: amount,
+            payment_currency: checkoutContext.currency || 'USD',
+          });
+        } catch {
+          // Keep checkout in-memory even if progress persistence fails.
+        }
+      }
+
+      try {
+        await updateInvoice(invoiceId, {
+          status: 'PAID',
+          billing_status: 'PAID',
+        });
+      } catch {
+        // Non-blocking: payment/subscription activation remains source of truth.
+      }
 
       await updateSubscription(checkoutContext.subscription_id, { status: 'ACTIVE' });
 
       await mergeOnboardingContext({
         invoice_id: invoiceId,
         payment_id: paymentId,
+        payment_status: 'COMPLETED',
         payment_method: selectedMethod,
         payment_amount: amount,
         payment_currency: checkoutContext.currency || 'USD',
@@ -231,6 +276,7 @@ function OnboardingPaymentRoute() {
       await saveOnboardingStep('payment_success', {
         invoice_id: invoiceId,
         payment_id: paymentId,
+        payment_status: 'COMPLETED',
         payment_method: selectedMethod,
         subscription_id: checkoutContext.subscription_id,
       });
