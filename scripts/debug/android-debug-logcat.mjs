@@ -19,7 +19,7 @@ function findAdb() {
     candidates.push(path.join(env.LOCALAPPDATA, 'Android', 'Sdk', 'platform-tools', 'adb.exe'));
   }
   for (const p of candidates) if (fs.existsSync(p)) return p;
-  return null;
+  return isWin ? 'adb.exe' : 'adb';
 }
 
 const projectRoot = path.resolve(__dirname, '..', '..');
@@ -29,10 +29,6 @@ const logPath = path.join(logDir, 'android-debug.log');
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
 
 const adbPath = findAdb();
-if (!adbPath) {
-  console.error('adb not found. Set ANDROID_HOME or add platform-tools to PATH.');
-  process.exit(1);
-}
 
 const logStream = fs.createWriteStream(logPath, { flags: 'w' });
 const timestamp = () => new Date().toISOString();
@@ -77,4 +73,3 @@ clear.on('error', (err) => {
   process.stderr.write(`adb logcat -c failed: ${err.message}\n`);
   process.exit(1);
 });
-

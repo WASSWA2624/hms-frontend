@@ -63,10 +63,35 @@ describe('web-console-logger', () => {
     expect(logPayload).toMatchObject({ level: 'log' });
     expect(logPayload.message).toContain('hello');
     expect(logPayload.message).toContain('"code":42');
+    expect(logPayload.context).toMatchObject({
+      href: expect.any(String),
+      route: expect.any(String),
+    });
 
     expect(warnPayload).toMatchObject({ level: 'warn', message: 'warn-message' });
     expect(errorPayload).toMatchObject({ level: 'error' });
     expect(errorPayload.message).toContain('boom');
+  });
+
+  test('redacts sensitive values before forwarding payloads', () => {
+    jest.isolateModules(() => {
+      require('@debug/web-console-logger');
+    });
+
+    console.log({
+      token: 'abc123',
+      password: 'secret-pass',
+      nested: {
+        Authorization: 'Bearer from-object-should-not-appear',
+      },
+    }, 'Authorization: Bearer super-secret-token');
+
+    const logPayload = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+    expect(logPayload.message).toContain('"token":"[REDACTED]"');
+    expect(logPayload.message).toContain('"password":"[REDACTED]"');
+    expect(logPayload.message).toContain('"Authorization":"[REDACTED]"');
+    expect(logPayload.message).not.toContain('super-secret-token');
+    expect(logPayload.message).not.toContain('from-object-should-not-appear');
   });
 
   test('forwards uncaught errors and unhandled rejections', () => {

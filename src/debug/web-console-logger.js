@@ -5,6 +5,9 @@
  */
 const DEFAULT_RECEIVER_URL = 'http://127.0.0.1:9966/log';
 const PATCH_FLAG = '__HMS_WEB_DEBUG_LOGGER_PATCHED__';
+const REDACTED = '[REDACTED]';
+const SENSITIVE_KEY_PATTERN =
+  /pass(word|code)?|token|secret|api[-_]?key|authori[sz]ation|cookie|session|otp|pin|ssn|nin/i;
 
 const LOG_RECEIVER_URL =
   (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_DEBUG_LOG_URL) ||
@@ -19,20 +22,60 @@ function isWebDev() {
   );
 }
 
-function formatArg(arg) {
-  if (arg instanceof Error) {
-    return `${arg.message}\n${arg.stack || ''}`;
+function sanitizeString(value) {
+  return value
+    .replace(/\bBearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]')
+    .replace(
+      /("?(?:pass(?:word|code)?|token|secret|api[-_]?key|authori[sz]ation|cookie|session|otp|pin|ssn|nin)"?\s*[:=]\s*)("[^"]*"|'[^']*'|[^,\s]+)/gi,
+      `$1"${REDACTED}"`
+    );
+}
+
+function sanitizeValue(value, seen = new WeakSet(), depth = 0) {
+  if (depth > 5) return '[TRUNCATED]';
+
+  if (typeof value === 'string') return sanitizeString(value);
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: sanitizeString(value.message || ''),
+      stack: sanitizeString(value.stack || ''),
+    };
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeValue(item, seen, depth + 1));
+  }
+  if (typeof value === 'object' && value !== null) {
+    if (seen.has(value)) return '[CIRCULAR]';
+    seen.add(value);
+
+    const sanitized = {};
+    Object.entries(value).forEach(([key, fieldValue]) => {
+      if (SENSITIVE_KEY_PATTERN.test(key)) {
+        sanitized[key] = REDACTED;
+        return;
+      }
+      sanitized[key] = sanitizeValue(fieldValue, seen, depth + 1);
+    });
+
+    seen.delete(value);
+    return sanitized;
   }
 
-  if (typeof arg === 'object') {
+  return value;
+}
+
+function formatArg(arg) {
+  if (typeof arg === 'object' && arg !== null) {
+    const sanitized = sanitizeValue(arg);
     try {
-      return JSON.stringify(arg);
+      return JSON.stringify(sanitized);
     } catch {
       return '[Unserializable Object]';
     }
   }
 
-  return String(arg);
+  return String(sanitizeValue(arg));
 }
 
 function formatArgs(args) {
@@ -42,12 +85,24 @@ function formatArgs(args) {
 function send(level, message) {
   const fetchImpl = globalThis?.fetch;
   if (typeof fetchImpl !== 'function') return;
+  const href =
+    typeof window !== 'undefined' && window.location
+      ? sanitizeString(window.location.href || '')
+      : '';
+  const route =
+    typeof window !== 'undefined' && window.location
+      ? sanitizeString(window.location.pathname || '')
+      : '';
 
   try {
     fetchImpl(LOG_RECEIVER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ level, message }),
+      body: JSON.stringify({
+        level,
+        message: sanitizeString(message),
+        context: { href, route },
+      }),
       keepalive: true,
     }).catch(() => {});
   } catch (_) {}
