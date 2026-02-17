@@ -24,6 +24,13 @@ const StyledFlagTrigger = styled(Pressable).withConfig({
   background-color: transparent;
 `;
 
+const StyledFlagGlyph = styled(Text).withConfig({
+  displayName: 'StyledFlagGlyph',
+})`
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
 const StyledLanguageItem = styled(Pressable).withConfig({
   displayName: 'StyledLanguageItem',
 })`
@@ -40,13 +47,31 @@ const StyledLanguageItemFlag = styled(Text).withConfig({
   font-size: 20px;
 `;
 
+const StyledModalRoot = styled(View).withConfig({
+  displayName: 'StyledModalRoot',
+})`
+  flex: 1;
+`;
+
 const StyledModalOverlay = styled(Pressable).withConfig({
   displayName: 'StyledModalOverlay',
 })`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: ${({ theme }) => theme.colors.overlay.backdrop};
+`;
+
+const StyledModalStage = styled(View).withConfig({
+  displayName: 'StyledModalStage',
+}).attrs({
+  pointerEvents: 'box-none',
+})`
   flex: 1;
-  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
-  padding: 24px;
+  padding: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 const StyledModalContent = styled(View).withConfig({
@@ -57,4 +82,14 @@ const StyledModalContent = styled(View).withConfig({
   overflow: hidden;
 `;
 
-export { StyledLanguageControls, StyledFlagTrigger, StyledLanguageItem, StyledLanguageItemFlag, StyledModalOverlay, StyledModalContent };
+export {
+  StyledFlagGlyph,
+  StyledFlagTrigger,
+  StyledLanguageControls,
+  StyledLanguageItem,
+  StyledLanguageItemFlag,
+  StyledModalContent,
+  StyledModalOverlay,
+  StyledModalRoot,
+  StyledModalStage,
+};

@@ -10,9 +10,11 @@ import { getMenuIconGlyph } from '@config/sideMenu';
 import PatientFrame from '../../PatientFrame';
 import {
   GlobalHeader,
+  LanguageControls,
   NoticeSurface,
   ShellBanners,
   TabBar,
+  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import usePatientRouteLayout from './usePatientRouteLayout';
@@ -37,6 +39,20 @@ const PatientRouteLayoutAndroid = () => {
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="patient-shell-banners" />
   ) : null;
+  const headerUtilitySlot = (
+    <>
+      <LanguageControls
+        testID="patient-language-controls"
+        accessibilityLabel={t('settings.language.accessibilityLabel')}
+        accessibilityHint={t('settings.language.hint')}
+      />
+      <ThemeControls
+        testID="patient-theme-controls"
+        accessibilityLabel={t('settings.theme.accessibilityLabel')}
+        accessibilityHint={t('settings.theme.hint')}
+      />
+    </>
+  );
 
   return (
     <PatientFrame
@@ -46,6 +62,7 @@ const PatientRouteLayoutAndroid = () => {
           accessibilityLabel={t('navigation.header.title')}
           testID="patient-header"
           actions={headerActions}
+          utilitySlot={headerUtilitySlot}
         />
       )}
       banner={bannerSlot}

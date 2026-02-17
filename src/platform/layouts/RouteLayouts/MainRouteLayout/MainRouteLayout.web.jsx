@@ -16,9 +16,11 @@ import {
   Breadcrumbs,
   GlobalHeader,
   Icon,
+  LanguageControls,
   NoticeSurface,
   ShellBanners,
   Sidebar,
+  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import { useShellBanners } from '@hooks';
@@ -39,9 +41,7 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH } from '.
 const MainRouteLayoutWeb = () => {
   useAuthGuard();
   const layout = useMainRouteLayoutWeb();
-  const banners = useShellBanners().filter(
-    (banner) => banner.id !== 'offline' && banner.id !== 'low-quality' && banner.id !== 'online'
-  );
+  const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
   ) : null;
@@ -136,6 +136,21 @@ const MainRouteLayoutWeb = () => {
     ),
     [t]
   );
+  const headerUtilitySlot = (
+    <>
+      <LanguageControls
+        testID="main-language-controls"
+        accessibilityLabel={t('settings.language.accessibilityLabel')}
+        accessibilityHint={t('settings.language.hint')}
+      />
+      <ThemeControls
+        testID="main-theme-controls"
+        accessibilityLabel={t('settings.theme.accessibilityLabel')}
+        accessibilityHint={t('settings.theme.hint')}
+      />
+      <HeaderUtility {...layout} hideStatusCluster={isDesktop} />
+    </>
+  );
 
   const headerSlot = isHeaderHidden ? null : (
     <GlobalHeader
@@ -144,7 +159,7 @@ const MainRouteLayoutWeb = () => {
       testID="main-header"
       actions={headerActions}
       centerSlot={isDesktop ? <HeaderStatusCluster {...layout} /> : null}
-      utilitySlot={<HeaderUtility {...layout} hideStatusCluster={isDesktop} />}
+      utilitySlot={headerUtilitySlot}
     />
   );
 

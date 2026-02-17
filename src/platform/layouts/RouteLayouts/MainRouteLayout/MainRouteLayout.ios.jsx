@@ -12,9 +12,11 @@ import { AppFrame } from '@platform/layouts';
 import {
   Breadcrumbs,
   GlobalHeader,
+  LanguageControls,
   NoticeSurface,
   ShellBanners,
   TabBar,
+  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import useMainRouteLayoutNative from './useMainRouteLayoutNative';
@@ -39,9 +41,7 @@ const MainRouteLayoutIOS = () => {
     handleToggleSidebar,
   } = useMainRouteLayoutNative();
   const breadcrumbItems = useBreadcrumbs(mainItems);
-  const banners = useShellBanners().filter(
-    (banner) => banner.id !== 'offline' && banner.id !== 'low-quality' && banner.id !== 'online'
-  );
+  const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
   ) : null;
@@ -72,6 +72,20 @@ const MainRouteLayoutIOS = () => {
     ),
     [t]
   );
+  const headerUtilitySlot = (
+    <>
+      <LanguageControls
+        testID="main-language-controls"
+        accessibilityLabel={t('settings.language.accessibilityLabel')}
+        accessibilityHint={t('settings.language.hint')}
+      />
+      <ThemeControls
+        testID="main-theme-controls"
+        accessibilityLabel={t('settings.theme.accessibilityLabel')}
+        accessibilityHint={t('settings.theme.hint')}
+      />
+    </>
+  );
   const breadcrumbsSlot = breadcrumbItems.length ? (
     <Breadcrumbs
       items={breadcrumbItems}
@@ -89,6 +103,7 @@ const MainRouteLayoutIOS = () => {
             accessibilityLabel={t('navigation.header.title')}
             testID="main-header"
             actions={headerActions}
+            utilitySlot={headerUtilitySlot}
           />
         }
         footer={

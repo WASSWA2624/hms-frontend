@@ -4,11 +4,15 @@
  * File: ThemeToggle.android.jsx
  */
 import React from 'react';
-import { Text } from 'react-native';
 import { useI18n } from '@hooks';
 import useThemeControls from '../ThemeControls/useThemeControls';
 import { THEME_MODES } from './types';
-import { StyledThemeToggleWrapper, StyledThemeToggleTrack, StyledThemeToggleButton } from './ThemeToggle.android.styles';
+import {
+  StyledThemeIcon,
+  StyledThemeToggleButton,
+  StyledThemeToggleTrack,
+  StyledThemeToggleWrapper,
+} from './ThemeToggle.android.styles';
 
 const ThemeToggleAndroid = ({ testID, accessibilityLabel }) => {
   const { t } = useI18n();
@@ -20,6 +24,7 @@ const ThemeToggleAndroid = ({ testID, accessibilityLabel }) => {
   const isLight = theme === THEME_MODES.LIGHT;
   const toggleTheme = () => setTheme(isLight ? THEME_MODES.DARK : THEME_MODES.LIGHT);
   const currentLabel = isLight ? lightLabel : darkLabel;
+  const currentIcon = isLight ? '\u2600' : '\u{1F319}';
 
   return (
     <StyledThemeToggleWrapper testID={testID} accessibilityLabel={resolvedLabel}>
@@ -30,7 +35,7 @@ const ThemeToggleAndroid = ({ testID, accessibilityLabel }) => {
           accessibilityLabel={currentLabel}
           accessibilityState={{ selected: isLight }}
         >
-          <Text style={{ fontSize: 16 }}>{isLight ? '☀' : '🌙'}</Text>
+          <StyledThemeIcon>{currentIcon}</StyledThemeIcon>
         </StyledThemeToggleButton>
       </StyledThemeToggleTrack>
     </StyledThemeToggleWrapper>

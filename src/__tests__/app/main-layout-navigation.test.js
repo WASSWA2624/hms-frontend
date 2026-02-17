@@ -81,6 +81,7 @@ jest.mock('@platform/components', () => ({
     <div testID={testID} aria-label={accessibilityLabel} />
   )),
   Icon: jest.fn(() => <span />),
+  LanguageControls: jest.fn(({ testID }) => <div testID={testID} />),
   NoticeSurface: jest.fn(({ testID }) => <div testID={testID} />),
   ShellBanners: jest.fn(({ testID }) => <div testID={testID} />),
   Sidebar: jest.fn(({ accessibilityLabel, testID }) => (
@@ -89,6 +90,7 @@ jest.mock('@platform/components', () => ({
   TabBar: jest.fn(({ accessibilityLabel, testID }) => (
     <div testID={testID} aria-label={accessibilityLabel} />
   )),
+  ThemeControls: jest.fn(({ testID }) => <div testID={testID} />),
 }));
 
 jest.mock('@platform/layouts', () => ({
@@ -216,7 +218,7 @@ describe('Main layout navigation skeleton', () => {
     expect(useAuthGuard).toHaveBeenCalledTimes(4);
   });
 
-  test('does not wire language and theme controls into tier-2 shell headers', () => {
+  test('wires language and theme controls into tier-3 shell headers', () => {
     render(<MainRouteLayoutIOS />);
     render(<MainRouteLayoutAndroid />);
     render(<MainRouteLayoutWeb />);
@@ -224,10 +226,11 @@ describe('Main layout navigation skeleton', () => {
     const utilityChildren = GlobalHeader.mock.calls.flatMap(([props]) =>
       React.Children.toArray(props.utilitySlot?.props?.children ?? [])
     );
-    expect(utilityChildren.some((child) => child?.props?.testID === 'main-language-controls')).toBe(false);
-    expect(utilityChildren.some((child) => child?.props?.testID === 'main-theme-controls')).toBe(false);
-    expect(GlobalHeader.mock.calls[0][0].utilitySlot).toBeUndefined();
-    expect(GlobalHeader.mock.calls[1][0].utilitySlot).toBeUndefined();
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-language-controls')).toBe(true);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-theme-controls')).toBe(true);
+    expect(GlobalHeader.mock.calls[0][0].utilitySlot).toBeDefined();
+    expect(GlobalHeader.mock.calls[1][0].utilitySlot).toBeDefined();
+    expect(GlobalHeader.mock.calls[2][0].utilitySlot).toBeDefined();
   });
 
   test('renders shell banners when banner payload exists', () => {
@@ -241,14 +244,15 @@ describe('Main layout navigation skeleton', () => {
     expect(appFrameProps.banner.props.testID).toBe('main-shell-banners');
   });
 
-  test('does not render shell banner for network status banners on web', () => {
+  test('renders shell banner for network status banners on web', () => {
     useShellBanners.mockReturnValue([
       { id: 'offline', variant: 'offline', title: 'Offline', message: 'Network unavailable' },
     ]);
     render(<MainRouteLayoutWeb />);
 
     const appFrameProps = AppFrame.mock.calls[0][0];
-    expect(appFrameProps.banner).toBeNull();
+    expect(appFrameProps.banner).toBeTruthy();
+    expect(appFrameProps.banner.props.testID).toBe('main-shell-banners');
   });
 
   test('passes notices and overlay slots into AppFrame', () => {

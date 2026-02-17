@@ -4,7 +4,7 @@
  * File: ThemeToggle.ios.styles.jsx
  */
 import styled from 'styled-components/native';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 
 const StyledThemeToggleWrapper = styled(View).withConfig({
   displayName: 'StyledThemeToggleWrapper',
@@ -36,4 +36,12 @@ const StyledThemeToggleButton = styled(Pressable).withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
-export { StyledThemeToggleWrapper, StyledThemeToggleTrack, StyledThemeToggleButton };
+const StyledThemeIcon = styled(Text).withConfig({
+  displayName: 'StyledThemeIcon',
+  componentId: 'StyledThemeIcon',
+})`
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+export { StyledThemeToggleWrapper, StyledThemeToggleTrack, StyledThemeToggleButton, StyledThemeIcon };

@@ -54,6 +54,11 @@ jest.mock('@platform/components', () => ({
       Mock GlobalHeader
     </div>
   )),
+  LanguageControls: jest.fn(({ testID, ...props }) => (
+    <div data-testid={testID} {...props}>
+      Mock LanguageControls
+    </div>
+  )),
   TabBar: jest.fn(({ accessibilityLabel, testID, ...props }) => (
     <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
       Mock TabBar
@@ -77,6 +82,11 @@ jest.mock('@platform/components', () => ({
   NoticeSurface: jest.fn(({ testID, ...props }) => (
     <div data-testid={testID} {...props}>
       Mock NoticeSurface
+    </div>
+  )),
+  ThemeControls: jest.fn(({ testID, ...props }) => (
+    <div data-testid={testID} {...props}>
+      Mock ThemeControls
     </div>
   )),
 }));
@@ -200,7 +210,7 @@ describe('PatientLayout with Navigation', () => {
     expect(useAuthGuard).toHaveBeenCalled();
   });
 
-  it('does not wire language and theme controls in tier-2 patient shell headers', () => {
+  it('wires language and theme controls in tier-3 patient shell headers', () => {
     render(<PatientRouteLayoutWeb />);
     render(<PatientRouteLayoutAndroid />);
     render(<PatientRouteLayoutIOS />);
@@ -208,11 +218,11 @@ describe('PatientLayout with Navigation', () => {
     const utilityChildren = GlobalHeader.mock.calls.flatMap(([props]) =>
       React.Children.toArray(props.utilitySlot?.props?.children ?? [])
     );
-    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-language-controls')).toBe(false);
-    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-theme-controls')).toBe(false);
-    expect(GlobalHeader.mock.calls[0][0].utilitySlot).toBeUndefined();
-    expect(GlobalHeader.mock.calls[1][0].utilitySlot).toBeUndefined();
-    expect(GlobalHeader.mock.calls[2][0].utilitySlot).toBeUndefined();
+    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-language-controls')).toBe(true);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'patient-theme-controls')).toBe(true);
+    expect(GlobalHeader.mock.calls[0][0].utilitySlot).toBeDefined();
+    expect(GlobalHeader.mock.calls[1][0].utilitySlot).toBeDefined();
+    expect(GlobalHeader.mock.calls[2][0].utilitySlot).toBeDefined();
   });
 
   it('renders shell banners when banner payload exists on web', () => {
