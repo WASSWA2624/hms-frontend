@@ -112,6 +112,7 @@ For any selected step that touches auth, routing, navigation, data access, or UI
 - Ensure each role sees the routes, nav items, screens, sections, components, and actions required for their responsibilities; missing required access is a defect.
 - Enforce access at multiple layers: menu item visibility, route/screen guards, section-level rendering, component-level rendering, and action/function-level handlers.
 - Hide unauthorized menu items, tabs, widgets, buttons, fields, cards, and screen sections by default; do not expose privileged controls unless explicitly required by approved requirements.
+- Determine navigation visibility from the logged-in user's role set; show main and nested nav items only when those roles are authorized for the linked routes/screens.
 - Block unauthorized function/action execution even when UI is bypassed (direct URL entry, deep links, state tampering, manual event triggering).
 - Use a single source of truth for access checks across web, Android, and iOS to prevent behavior drift.
 - Use canonical backend role names and permission contracts as defined by `hms-backend/.cursor/rules/index.mdc` and backend auth/rbac contracts.

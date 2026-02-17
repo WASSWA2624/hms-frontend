@@ -26,4 +26,4 @@ Global UX baseline enforced in each tier prompt:
 - User-friendly errors and recovery contract.
 - Total UI component/sub-component compliance review with redesign required for non-compliant UI.
 - Interconnected functionality coordination contract.
-- Strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.
+- Strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections, with main and nested nav items rendered only for roles in the logged-in user's authorized role set.
