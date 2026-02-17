@@ -26,6 +26,13 @@ const normalizeFacilities = (value) => {
       return {
         id,
         name: toTrimmed(facility.name || facility.facility_name || facility.display_name || ''),
+        code: toTrimmed(
+          facility.code ||
+            facility.facility_code ||
+            facility.facility_number ||
+            facility.facility_reference ||
+            ''
+        ),
         slug: toTrimmed(facility.slug || facility.facility_slug || ''),
       };
     })
@@ -40,6 +47,19 @@ const normalizeSession = (record) => {
   const identifier = normalizeIdentifier(record.identifier || record.email || record.phone);
   const password = String(record.password || '');
   const tenantId = toTrimmed(record.tenant_id || record.tenantId);
+  const tenantName = toTrimmed(
+    record.tenant_name ||
+      record.tenantName ||
+      record.tenant_display_name ||
+      ''
+  );
+  const tenantCode = toTrimmed(
+    record.tenant_code ||
+      record.tenantCode ||
+      record.tenant_number ||
+      record.tenant_reference ||
+      ''
+  );
   const facilities = normalizeFacilities(record.facilities);
 
   if (!identifier || !password || !tenantId || facilities.length === 0) {
@@ -55,6 +75,8 @@ const normalizeSession = (record) => {
     phone,
     password,
     tenant_id: tenantId,
+    tenant_name: tenantName,
+    tenant_code: tenantCode,
     facilities,
     remember_me: Boolean(record.remember_me),
     created_at: new Date().toISOString(),
@@ -73,4 +95,3 @@ export const readFacilitySelectionSession = () => activeSession;
 export const clearFacilitySelectionSession = () => {
   activeSession = null;
 };
-

@@ -25,16 +25,6 @@ export default function PublicLandingRoute() {
   const params = useLocalSearchParams();
 
   const querySelection = useMemo(() => resolveQuerySelection(params), [params]);
-  const tenantIdParam = useMemo(() => {
-    const value = params?.tenant_id;
-    if (Array.isArray(value)) return value[0] || '';
-    return typeof value === 'string' ? value : '';
-  }, [params]);
-  const facilityIdParam = useMemo(() => {
-    const value = params?.facility_id;
-    if (Array.isArray(value)) return value[0] || '';
-    return typeof value === 'string' ? value : '';
-  }, [params]);
   const [initialFacilityId, setInitialFacilityId] = useState(querySelection || undefined);
   const [isHydrating, setIsHydrating] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,8 +72,6 @@ export default function PublicLandingRoute() {
           params: {
             facility: selection,
             facility_type: mapFacilityToBackendType(selection) || '',
-            tenant_id: tenantIdParam || '',
-            facility_id: facilityIdParam || '',
           },
         });
       } catch {
@@ -92,7 +80,7 @@ export default function PublicLandingRoute() {
         setIsSubmitting(false);
       }
     },
-    [facilityIdParam, router, tenantIdParam]
+    [router]
   );
 
   if (isHydrating) {

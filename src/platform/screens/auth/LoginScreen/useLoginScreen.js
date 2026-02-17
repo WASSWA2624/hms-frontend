@@ -66,6 +66,8 @@ const useLoginScreen = () => {
   const { identify, login } = useAuth();
 
   const tenantParam = useMemo(() => toSingleValue(params?.tenant_id).trim(), [params?.tenant_id]);
+  const tenantNameParam = useMemo(() => toSingleValue(params?.tenant_name).trim(), [params?.tenant_name]);
+  const tenantCodeParam = useMemo(() => toSingleValue(params?.tenant_code).trim(), [params?.tenant_code]);
   const identifierParam = useMemo(() => toSingleValue(params?.identifier).trim(), [params?.identifier]);
   const prefilledEmail = useMemo(() => toSingleValue(params?.email).trim().toLowerCase(), [params?.email]);
 
@@ -260,6 +262,8 @@ const useLoginScreen = () => {
           identifier,
           password: form.password,
           tenant_id: action?.payload?.tenantId || resolvedTenantId,
+          tenant_name: action?.payload?.tenantName || tenantNameParam || '',
+          tenant_code: action?.payload?.tenantCode || tenantCodeParam || '',
           remember_me: form.rememberSession,
           facilities: action?.payload?.facilities || [],
         });
@@ -277,6 +281,8 @@ const useLoginScreen = () => {
           params: {
             identifier: isEmail ? identifier.toLowerCase() : identifier,
             tenant_id: action?.payload?.tenantId || resolvedTenantId || '',
+            tenant_name: action?.payload?.tenantName || tenantNameParam || '',
+            tenant_code: action?.payload?.tenantCode || tenantCodeParam || '',
           },
         });
         router.push('/facility-selection');
@@ -339,7 +345,7 @@ const useLoginScreen = () => {
 
     setSubmitError({ code, message });
     return false;
-  }, [form, identify, login, router, t, validate]);
+  }, [form, identify, login, router, t, tenantCodeParam, tenantNameParam, validate]);
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitting) return false;

@@ -99,13 +99,11 @@ describe('Public Landing Route', () => {
       params: {
         facility: 'clinic',
         facility_type: 'CLINIC',
-        tenant_id: '',
-        facility_id: '',
       },
     });
   });
 
-  test('forwards onboarding context params to register route', async () => {
+  test('does not forward onboarding ID params to register route', async () => {
     mockParams.current = {
       facility: 'hospital',
       tenant_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -130,8 +128,6 @@ describe('Public Landing Route', () => {
       params: {
         facility: 'hospital',
         facility_type: 'HOSPITAL',
-        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
-        facility_id: '660e8400-e29b-41d4-a716-446655440000',
       },
     });
   });

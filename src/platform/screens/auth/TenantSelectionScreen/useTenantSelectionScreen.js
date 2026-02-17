@@ -11,6 +11,8 @@ import { MAX_IDENTIFIER_LENGTH, TENANT_SELECTION_FORM_FIELDS } from './types';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^[0-9]{10,15}$/;
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const toSingleValue = (value) => {
   if (Array.isArray(value)) return value[0] || '';
@@ -25,6 +27,62 @@ const resolveErrorMessage = (code, message, t) => {
 };
 
 const getIdentifierType = (identifier) => (identifier.includes('@') ? 'email' : 'phone');
+
+const normalizeDisplayValue = (value) => String(value || '').trim();
+
+const isTechnicalIdentifier = (value) => {
+  const normalized = normalizeDisplayValue(value);
+  if (!normalized) return true;
+  if (UUID_REGEX.test(normalized)) return true;
+  if (normalized.length >= 24 && /^[0-9a-f]+$/i.test(normalized)) return true;
+  return false;
+};
+
+const resolveTenantOptionMeta = (tenant, index, t) => {
+  const displayName = normalizeDisplayValue(
+    tenant?.tenant_name ||
+      tenant?.tenant_display_name ||
+      tenant?.tenant_slug ||
+      tenant?.tenant_alias
+  );
+  const businessCode = normalizeDisplayValue(
+    tenant?.tenant_code ||
+      tenant?.tenant_number ||
+      tenant?.tenant_reference ||
+      tenant?.tenant_human_id
+  );
+
+  const readableName = !isTechnicalIdentifier(displayName) ? displayName : '';
+  const readableCode = !isTechnicalIdentifier(businessCode) ? businessCode : '';
+
+  if (readableName && readableCode) {
+    return {
+      label: `${readableName} (${readableCode})`,
+      tenantName: readableName,
+      tenantCode: readableCode,
+    };
+  }
+  if (readableName) {
+    return {
+      label: readableName,
+      tenantName: readableName,
+      tenantCode: readableCode,
+    };
+  }
+  if (readableCode) {
+    return {
+      label: readableCode,
+      tenantName: '',
+      tenantCode: readableCode,
+    };
+  }
+
+  return {
+    label: t('auth.tenantSelection.fallback.organization', { index: index + 1 }),
+    tenantName: '',
+    tenantCode: '',
+  };
+};
 
 const useTenantSelectionScreen = () => {
   const router = useRouter();
@@ -155,7 +213,7 @@ const useTenantSelectionScreen = () => {
   );
 
   const goToLoginStep = useCallback(
-    (identifier, tenantId) => {
+    (identifier, tenantId, tenantName, tenantCode) => {
       const normalizedIdentifier = normalizeIdentifier(identifier);
       const identifierType = getIdentifierType(normalizedIdentifier);
       const params = {
@@ -164,6 +222,8 @@ const useTenantSelectionScreen = () => {
         tenant_id: tenantId,
       };
       if (identifierType === 'email') params.email = normalizedIdentifier;
+      if (tenantName) params.tenant_name = tenantName;
+      if (tenantCode) params.tenant_code = tenantCode;
       router.replace({
         pathname: '/login',
         params,
@@ -217,13 +277,24 @@ const useTenantSelectionScreen = () => {
         return true;
       }
 
-      const options = users
-        .filter((item) => item?.tenant_id && item?.status === 'ACTIVE')
-        .map((item) => ({
-          label: item.tenant_name || item.tenant_slug || item.tenant_id,
-          value: item.tenant_id,
-        }))
-        .filter((item, index, arr) => arr.findIndex((x) => x.value === item.value) === index);
+      const activeUsers = users.filter(
+        (item) => item?.tenant_id && String(item?.status || '').toUpperCase() === 'ACTIVE'
+      );
+      const seenTenantIds = new Set();
+      const options = activeUsers
+        .map((item) => {
+          const tenantId = String(item?.tenant_id || '').trim();
+          if (!tenantId || seenTenantIds.has(tenantId)) return null;
+          seenTenantIds.add(tenantId);
+          const meta = resolveTenantOptionMeta(item, seenTenantIds.size - 1, t);
+          return {
+            value: tenantId,
+            label: meta.label,
+            tenantName: meta.tenantName,
+            tenantCode: meta.tenantCode,
+          };
+        })
+        .filter(Boolean);
 
       if (options.length === 0) {
         setSubmitError({
@@ -234,7 +305,13 @@ const useTenantSelectionScreen = () => {
       }
 
       if (options.length === 1) {
-        goToLoginStep(sourceForm.identifier, options[0].value);
+        const [onlyOption] = options;
+        goToLoginStep(
+          sourceForm.identifier,
+          onlyOption.value,
+          onlyOption.tenantName,
+          onlyOption.tenantCode
+        );
         return true;
       }
 
@@ -257,7 +334,14 @@ const useTenantSelectionScreen = () => {
     const requiresTenant = tenantOptions.length > 0;
     const isValid = validate(sourceForm, requiresTenant);
     if (!isValid) return false;
-    goToLoginStep(sourceForm.identifier, sourceForm.tenant_id);
+    const selectedOption =
+      tenantOptions.find((item) => item.value === sourceForm.tenant_id) || null;
+    goToLoginStep(
+      sourceForm.identifier,
+      sourceForm.tenant_id,
+      selectedOption?.tenantName || '',
+      selectedOption?.tenantCode || ''
+    );
     return true;
   }, [form.identifier, form.tenant_id, goToLoginStep, normalizeIdentifier, tenantOptions, validate]);
 
@@ -298,4 +382,3 @@ const useTenantSelectionScreen = () => {
 };
 
 export default useTenantSelectionScreen;
-

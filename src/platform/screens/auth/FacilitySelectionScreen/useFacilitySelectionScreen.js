@@ -18,6 +18,9 @@ const toSingleValue = (value) => {
   return typeof value === 'string' ? value : '';
 };
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const resolveErrorMessage = (code, message, t) => {
   if (!code) return message || t('errors.fallback.message');
   const key = `errors.codes.${code}`;
@@ -25,20 +28,52 @@ const resolveErrorMessage = (code, message, t) => {
   return translated !== key ? translated : message || t('errors.fallback.message');
 };
 
-const normalizeFacilityOption = (facility) => {
+const normalizeDisplayValue = (value) => String(value || '').trim();
+
+const isTechnicalIdentifier = (value) => {
+  const normalized = normalizeDisplayValue(value);
+  if (!normalized) return true;
+  if (UUID_REGEX.test(normalized)) return true;
+  if (normalized.length >= 24 && /^[0-9a-f]+$/i.test(normalized)) return true;
+  return false;
+};
+
+const normalizeFacilityOption = (facility, index, t) => {
   if (!facility || typeof facility !== 'object') return null;
-  const id = String(facility.id || facility.facility_id || '').trim();
+  const id = normalizeDisplayValue(facility.id || facility.facility_id);
   if (!id) return null;
+  const displayName = normalizeDisplayValue(
+    facility.name ||
+      facility.facility_name ||
+      facility.display_name ||
+      facility.slug ||
+      facility.facility_slug
+  );
+  const businessCode = normalizeDisplayValue(
+    facility.code ||
+      facility.facility_code ||
+      facility.facility_number ||
+      facility.facility_reference ||
+      facility.facility_human_id
+  );
+
+  const readableName = !isTechnicalIdentifier(displayName) ? displayName : '';
+  const readableCode = !isTechnicalIdentifier(businessCode) ? businessCode : '';
+
+  let label = t('auth.facilitySelection.fallback.facility', { index: index + 1 });
+  if (readableName && readableCode) {
+    label = `${readableName} (${readableCode})`;
+  } else if (readableName) {
+    label = readableName;
+  } else if (readableCode) {
+    label = readableCode;
+  }
+
   return {
     value: id,
-    label:
-      String(
-        facility.name ||
-        facility.facility_name ||
-        facility.slug ||
-        facility.facility_slug ||
-        id
-      ).trim() || id,
+    label,
+    facilityName: readableName,
+    facilityCode: readableCode,
   };
 };
 
@@ -61,10 +96,41 @@ const useFacilitySelectionScreen = () => {
   const facilityOptions = useMemo(
     () =>
       (Array.isArray(session?.facilities) ? session.facilities : [])
-        .map(normalizeFacilityOption)
+        .map((facility, index) => normalizeFacilityOption(facility, index, t))
         .filter(Boolean),
-    [session?.facilities]
+    [session?.facilities, t]
   );
+
+  const tenantLabel = useMemo(() => {
+    const displayName = normalizeDisplayValue(
+      session?.tenant_name ||
+        session?.tenant_display_name ||
+        session?.tenant_slug
+    );
+    const businessCode = normalizeDisplayValue(
+      session?.tenant_code ||
+        session?.tenant_number ||
+        session?.tenant_reference ||
+        session?.tenant_human_id
+    );
+
+    const readableName = !isTechnicalIdentifier(displayName) ? displayName : '';
+    const readableCode = !isTechnicalIdentifier(businessCode) ? businessCode : '';
+
+    if (readableName && readableCode) return `${readableName} (${readableCode})`;
+    if (readableName) return readableName;
+    if (readableCode) return readableCode;
+    return t('auth.facilitySelection.summary.tenantUnknown');
+  }, [
+    session?.tenant_code,
+    session?.tenant_display_name,
+    session?.tenant_human_id,
+    session?.tenant_name,
+    session?.tenant_number,
+    session?.tenant_reference,
+    session?.tenant_slug,
+    t,
+  ]);
 
   const hasSession = Boolean(session && session.password && session.tenant_id && session.identifier);
   const hasFacilityOptions = facilityOptions.length > 0;
@@ -144,6 +210,8 @@ const useFacilitySelectionScreen = () => {
             identifier: session.identifier,
             password: session.password,
             tenant_id: action?.payload?.tenantId || session.tenant_id,
+            tenant_name: action?.payload?.tenantName || session.tenant_name || '',
+            tenant_code: action?.payload?.tenantCode || session.tenant_code || '',
             remember_me: session.remember_me,
             facilities: action?.payload?.facilities || [],
           });
@@ -204,7 +272,7 @@ const useFacilitySelectionScreen = () => {
     submitBlockedReason,
     isSubmitDisabled: Boolean(submitBlockedReason),
     identifier: session?.identifier || '',
-    tenantId: session?.tenant_id || '',
+    tenantLabel,
     setFieldValue,
     handleSubmit,
     goToLogin,
@@ -213,4 +281,3 @@ const useFacilitySelectionScreen = () => {
 };
 
 export default useFacilitySelectionScreen;
-

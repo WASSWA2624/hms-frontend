@@ -118,6 +118,8 @@ describe('auth.usecase', () => {
       requiresFacilitySelection: true,
       facilities: [{ id: 'f1' }],
       tenantId: 'tenant-1',
+      tenantName: '',
+      tenantCode: '',
       identifier: 'user@example.com',
       password: 'pass',
     });
@@ -138,6 +140,8 @@ describe('auth.usecase', () => {
       requiresFacilitySelection: true,
       facilities: [],
       tenantId: 'tenant-2',
+      tenantName: '',
+      tenantCode: '',
       identifier: '256701234567',
       password: 'pass',
     });

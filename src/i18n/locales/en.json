@@ -1969,6 +1969,9 @@
     "tenantSelection": {
       "title": "Select organization",
       "description": "Choose the organization you want to sign in to.",
+      "fallback": {
+        "organization": "Organization {{index}}"
+      },
       "fields": {
         "identifier": {
           "label": "Email or phone number",
@@ -2001,7 +2004,11 @@
       "description": "Choose a facility to complete sign in.",
       "summary": {
         "identifier": "Account: {{identifier}}",
-        "tenant": "Organization: {{tenantId}}"
+        "tenant": "Organization: {{tenant}}",
+        "tenantUnknown": "Selected organization"
+      },
+      "fallback": {
+        "facility": "Facility {{index}}"
       },
       "fields": {
         "facility": {

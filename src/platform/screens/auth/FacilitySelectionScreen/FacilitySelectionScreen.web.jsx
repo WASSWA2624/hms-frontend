@@ -4,9 +4,10 @@
 import React from 'react';
 import {
   Button,
+  Checkbox,
   ErrorState,
   ErrorStateSizes,
-  Select,
+  Stack,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -32,7 +33,7 @@ const FacilitySelectionScreenWeb = () => {
     submitBlockedReason,
     isSubmitDisabled,
     identifier,
-    tenantId,
+    tenantLabel,
     setFieldValue,
     handleSubmit,
     goToLogin,
@@ -64,13 +65,11 @@ const FacilitySelectionScreenWeb = () => {
     );
   }
 
-  const getValidationState = (field) => (errors[field] ? 'error' : 'default');
-
   return (
     <StyledContainer role="region" aria-label={t('auth.facilitySelection.title')}>
       <StyledSummary>
         <Text variant="label">{t('auth.facilitySelection.summary.identifier', { identifier })}</Text>
-        <Text variant="caption">{t('auth.facilitySelection.summary.tenant', { tenantId })}</Text>
+        <Text variant="caption">{t('auth.facilitySelection.summary.tenant', { tenant: tenantLabel })}</Text>
       </StyledSummary>
 
       <StyledForm
@@ -80,19 +79,27 @@ const FacilitySelectionScreenWeb = () => {
         }}
       >
         <StyledField>
-          <Select
-            label={t('auth.facilitySelection.fields.facility.label')}
-            options={facilityOptions}
-            value={form.facility_id}
-            onValueChange={(value) => setFieldValue('facility_id', value)}
-            placeholder={t('auth.facilitySelection.fields.facility.placeholder')}
-            errorMessage={errors.facility_id}
-            validationState={getValidationState('facility_id')}
-            helperText={t('auth.facilitySelection.fields.facility.hint')}
-            compact
-            required
-            testID="facility-selection-facility"
-          />
+          <Stack spacing="xs">
+            <Text variant="label">{t('auth.facilitySelection.fields.facility.label')}</Text>
+            <Text variant="caption">{t('auth.facilitySelection.fields.facility.hint')}</Text>
+            <Stack spacing="xs">
+              {facilityOptions.map((option) => (
+                <Checkbox
+                  key={option.value}
+                  checked={form.facility_id === option.value}
+                  onChange={(checked) => setFieldValue('facility_id', checked ? option.value : '')}
+                  label={option.label}
+                  accessibilityHint={t('auth.facilitySelection.fields.facility.hint')}
+                  testID={`facility-selection-option-${option.value}`}
+                />
+              ))}
+            </Stack>
+            {errors.facility_id ? (
+              <Text variant="caption" color="error" testID="facility-selection-facility-error">
+                {errors.facility_id}
+              </Text>
+            ) : null}
+          </Stack>
         </StyledField>
 
         <StyledActions>
@@ -154,4 +161,3 @@ const FacilitySelectionScreenWeb = () => {
 };
 
 export default FacilitySelectionScreenWeb;
-

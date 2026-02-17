@@ -58,6 +58,8 @@ const loginUseCase = async (payload) =>
         requiresFacilitySelection: true,
         facilities: data.facilities || [],
         tenantId: data.tenant_id,
+        tenantName: data.tenant_name || data?.tenant?.name || '',
+        tenantCode: data.tenant_code || data?.tenant?.code || data?.tenant?.tenant_code || '',
         identifier: payload.email || payload.phone,
         password: payload.password,
       };

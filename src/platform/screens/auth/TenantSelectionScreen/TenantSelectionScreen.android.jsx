@@ -4,10 +4,11 @@
 import React from 'react';
 import {
   Button,
+  Checkbox,
   ErrorState,
   ErrorStateSizes,
   LoadingSpinner,
-  Select,
+  Stack,
   Text,
   TextField,
 } from '@platform/components';
@@ -68,19 +69,27 @@ const TenantSelectionScreenAndroid = () => {
 
         {isTenantStep ? (
           <StyledField>
-            <Select
-              label={t('auth.tenantSelection.fields.tenant.label')}
-              options={tenantOptions}
-              value={form.tenant_id}
-              onValueChange={(value) => setFieldValue('tenant_id', value)}
-              placeholder={t('auth.tenantSelection.fields.tenant.placeholder')}
-              errorMessage={errors.tenant_id}
-              validationState={getValidationState('tenant_id')}
-              helperText={t('auth.tenantSelection.fields.tenant.hint')}
-              compact
-              required
-              testID="tenant-selection-tenant"
-            />
+            <Stack spacing="xs">
+              <Text variant="label">{t('auth.tenantSelection.fields.tenant.label')}</Text>
+              <Text variant="caption">{t('auth.tenantSelection.fields.tenant.hint')}</Text>
+              <Stack spacing="xs">
+                {tenantOptions.map((option) => (
+                  <Checkbox
+                    key={option.value}
+                    checked={form.tenant_id === option.value}
+                    onChange={(checked) => setFieldValue('tenant_id', checked ? option.value : '')}
+                    label={option.label}
+                    accessibilityHint={t('auth.tenantSelection.fields.tenant.hint')}
+                    testID={`tenant-selection-option-${option.value}`}
+                  />
+                ))}
+              </Stack>
+              {errors.tenant_id ? (
+                <Text variant="caption" color="error" testID="tenant-selection-tenant-error">
+                  {errors.tenant_id}
+                </Text>
+              ) : null}
+            </Stack>
           </StyledField>
         ) : null}
 
@@ -130,4 +139,3 @@ const TenantSelectionScreenAndroid = () => {
 };
 
 export default TenantSelectionScreenAndroid;
-
