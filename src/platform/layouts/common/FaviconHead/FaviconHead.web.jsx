@@ -1,9 +1,3 @@
-/**
- * FaviconHead - Web
- * Injects favicon link into document head for browser tab icon.
- * Uses bundled asset so favicon works in both dev and production.
- * File: FaviconHead.web.jsx
- */
 import { useEffect } from 'react';
 import {
   FLUENT_PRIMARY,
@@ -11,7 +5,7 @@ import {
   PUBLIC_FAVICON,
   PUBLIC_ICON_192,
   PUBLIC_ICON_512,
-} from '../../../../config/app-identity';
+} from '@config/app-identity';
 
 const FaviconHead = () => {
   useEffect(() => {

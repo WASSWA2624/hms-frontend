@@ -1,12 +1,6 @@
-/**
- * ThemeProviderWrapper – Web
- * Uses createGlobalStyle (web-only). Native uses ThemeProviderWrapper.native.jsx.
- */
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { createGlobalStyle } from 'styled-components';
-import { ThemeProvider as BaseThemeProvider } from '@theme';
-import { selectTheme } from '@store/selectors';
+import ThemeProviderWrapper from './ThemeProviderWrapper.jsx';
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -24,15 +18,13 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const ThemeProviderWrapper = ({ children }) => {
-  const themeMode = useSelector(selectTheme);
-  const mode = themeMode === 'dark' ? 'dark' : 'light';
+const ThemeProviderWrapperWeb = ({ children }) => {
   return (
-    <BaseThemeProvider theme={mode}>
+    <ThemeProviderWrapper>
       <GlobalStyle />
       {children}
-    </BaseThemeProvider>
+    </ThemeProviderWrapper>
   );
 };
 
-export default ThemeProviderWrapper;
+export default ThemeProviderWrapperWeb;

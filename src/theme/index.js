@@ -16,8 +16,14 @@ export function getTheme(mode = 'light') {
   return mode === 'dark' ? darkTheme : lightTheme;
 }
 
+const resolveThemeObject = (theme) => {
+  if (theme && typeof theme === 'object') return theme;
+  if (typeof theme === 'string') return getTheme(theme);
+  return getTheme('light');
+};
+
 export function ThemeProviderWrapper({ children, theme = 'light' }) {
-  const themeObj = getTheme(theme);
+  const themeObj = resolveThemeObject(theme);
   return (
     <ThemeProvider theme={themeObj}>
       {children}

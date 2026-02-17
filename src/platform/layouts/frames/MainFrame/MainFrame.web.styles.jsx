@@ -41,12 +41,16 @@ const StyledContent = styled.main.withConfig({
   padding: ${({ theme }) => theme.spacing.md}px;
   padding-bottom: ${({ hasFooter, theme }) => (hasFooter ? `${theme.spacing.xl}px` : '0')};
 
-  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     padding: ${({ theme }) => theme.spacing.lg}px;
   }
 
-  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.desktop}px) {
     padding: ${({ theme }) => theme.spacing.xl}px;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.large}px) {
+    padding: ${({ theme }) => theme.spacing.xxl}px;
   }
 `;
 

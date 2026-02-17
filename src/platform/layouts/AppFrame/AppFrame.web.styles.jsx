@@ -67,8 +67,6 @@ const StyledBody = styled.div.withConfig({
   margin: 0;
 `;
 
-const TABLET = 768;
-
 const StyledSidebar = styled.aside.withConfig({
   displayName: 'StyledSidebar',
   componentId: 'StyledSidebar',
@@ -86,14 +84,23 @@ const StyledSidebar = styled.aside.withConfig({
   position: relative;
   margin: 0;
 
-  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? TABLET}px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     display: block;
-    width: ${({ sidebarWidth, sidebarCollapsed, collapsedWidth }) =>
-      sidebarCollapsed ? `${collapsedWidth}px` : `${sidebarWidth}px`};
-    min-width: ${({ sidebarWidth, sidebarCollapsed, collapsedWidth }) =>
-      sidebarCollapsed ? `${collapsedWidth}px` : `${sidebarWidth}px`};
-    max-width: ${({ sidebarWidth, sidebarCollapsed, collapsedWidth }) =>
-      sidebarCollapsed ? `${collapsedWidth}px` : `${sidebarWidth}px`};
+    width: ${({ theme, sidebarWidth, sidebarCollapsed, collapsedWidth }) => {
+      const expandedWidth = sidebarWidth ?? theme.spacing.xxl * 8;
+      const compactWidth = collapsedWidth ?? theme.spacing.xxl * 2;
+      return sidebarCollapsed ? `${compactWidth}px` : `${expandedWidth}px`;
+    }};
+    min-width: ${({ theme, sidebarWidth, sidebarCollapsed, collapsedWidth }) => {
+      const expandedWidth = sidebarWidth ?? theme.spacing.xxl * 8;
+      const compactWidth = collapsedWidth ?? theme.spacing.xxl * 2;
+      return sidebarCollapsed ? `${compactWidth}px` : `${expandedWidth}px`;
+    }};
+    max-width: ${({ theme, sidebarWidth, sidebarCollapsed, collapsedWidth }) => {
+      const expandedWidth = sidebarWidth ?? theme.spacing.xxl * 8;
+      const compactWidth = collapsedWidth ?? theme.spacing.xxl * 2;
+      return sidebarCollapsed ? `${compactWidth}px` : `${expandedWidth}px`;
+    }};
     flex: 0 0 auto;
     visibility: visible;
     background-color: ${({ theme }) => theme.colors.background.primary};

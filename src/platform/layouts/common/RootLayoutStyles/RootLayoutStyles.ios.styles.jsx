@@ -1,15 +1,9 @@
-/**
- * Root Layout Styles - iOS
- * Styled-components for iOS platform
- * File: RootLayoutStyles.ios.styles.jsx
- * 
- * Per theme-design.mdc: iOS styles use styled-components/native entrypoint
- * Per component-structure.mdc: Platform separation is MANDATORY
- * Per theme-design.mdc: Consume theme tokens only; Microsoft Fluent look and feel.
- */
-
 import styled from 'styled-components/native';
 import { View, ActivityIndicator } from 'react-native';
+import {
+  getRootLayoutBackgroundColor,
+  getRootLayoutIndicatorColor,
+} from './RootLayoutStyles.styles';
 
 const StyledLoadingContainer = styled(View).withConfig({
   displayName: 'StyledLoadingContainer',
@@ -18,16 +12,15 @@ const StyledLoadingContainer = styled(View).withConfig({
   flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: ${({ theme }) => theme.colors?.background?.primary ?? '#FFFFFF'};
+  background-color: ${({ theme }) => getRootLayoutBackgroundColor(theme)};
 `;
 
 const StyledActivityIndicator = styled(ActivityIndicator).withConfig({
   displayName: 'StyledActivityIndicator',
   componentId: 'StyledActivityIndicator',
 }).attrs(({ theme }) => ({
-  color: theme?.colors?.primary ?? '#0078D4',
+  color: getRootLayoutIndicatorColor(theme),
 }))`
-  /* Fluent primary color applied via attrs */
 `;
 
 const StyledSlotContainer = styled(View).withConfig({
@@ -36,7 +29,7 @@ const StyledSlotContainer = styled(View).withConfig({
 })`
   flex: 1;
   height: 100%;
-  background-color: ${({ theme }) => theme.colors?.background?.primary ?? '#FFFFFF'};
+  background-color: ${({ theme }) => getRootLayoutBackgroundColor(theme)};
 `;
 
 export {

@@ -8,6 +8,7 @@ import { I18nProvider } from '@i18n';
 import { tSync } from '@i18n';
 import { bootstrapApp } from '@bootstrap';
 import { logger } from '@logging';
+import { ThemeProvider as StaticThemeProvider } from '@theme';
 import store from '@store';
 import { persistLastRoute } from '@navigation/routePersistence';
 import {
@@ -59,6 +60,12 @@ const BootstrapLoadingFallback = () => (
   </StyledLoadingContainer>
 );
 
+const BootstrapLoadingFallbackWithTheme = () => (
+  <StaticThemeProvider theme="light">
+    <BootstrapLoadingFallback />
+  </StaticThemeProvider>
+);
+
 /**
  * Root Layout Component
  *
@@ -107,7 +114,7 @@ const RootLayout = () => {
     return (
       <>
         <FaviconHead />
-        <BootstrapLoadingFallback />
+        <BootstrapLoadingFallbackWithTheme />
       </>
     );
   }
@@ -117,18 +124,15 @@ const RootLayout = () => {
       <FaviconHead />
       <ErrorBoundary>
         <Provider store={store}>
-          <PersistGate
-            loading={<BootstrapLoadingFallback />}
-            persistor={store.persistor}
-          >
-            <ThemeProviderWrapper>
+          <ThemeProviderWrapper>
+            <PersistGate loading={<BootstrapLoadingFallback />} persistor={store.persistor}>
               <I18nProvider>
                 <StyledSlotContainer>
                   <Slot />
                 </StyledSlotContainer>
               </I18nProvider>
-            </ThemeProviderWrapper>
-          </PersistGate>
+            </PersistGate>
+          </ThemeProviderWrapper>
         </Provider>
       </ErrorBoundary>
     </>
