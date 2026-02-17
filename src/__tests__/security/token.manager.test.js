@@ -17,10 +17,9 @@ const { tokenManager } = require('@security');
 
 const base64Encode = (value) => {
   if (typeof globalThis?.btoa === 'function') return globalThis.btoa(value);
-  // eslint-disable-next-line no-undef
-  if (typeof Buffer !== 'undefined') {
-    // eslint-disable-next-line no-undef
-    return Buffer.from(value, 'utf8').toString('base64');
+  const nodeBuffer = globalThis?.Buffer;
+  if (nodeBuffer && typeof nodeBuffer.from === 'function') {
+    return nodeBuffer.from(value, 'utf8').toString('base64');
   }
   throw new Error('NO_BASE64_ENCODER');
 };
@@ -80,8 +79,14 @@ describe('Token Manager', () => {
 
       const result = await tokenManager.setTokens(accessToken, refreshToken);
       expect(result).toBe(true);
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('access_token', accessToken);
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('refresh_token', refreshToken);
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+        'access_token',
+        accessToken
+      );
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+        'refresh_token',
+        refreshToken
+      );
     });
 
     it('should return false if any token storage fails', async () => {
@@ -98,12 +103,25 @@ describe('Token Manager', () => {
     it('stores session mode tokens when persist=false', async () => {
       mockSecureStorage.setItem.mockResolvedValue(true);
 
-      const result = await tokenManager.setTokens('session-access', 'session-refresh', { persist: false });
+      const result = await tokenManager.setTokens(
+        'session-access',
+        'session-refresh',
+        { persist: false }
+      );
 
       expect(result).toBe(true);
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('access_token', 'session-access');
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('refresh_token', 'session-refresh');
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith('token_storage_mode', 'session');
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+        'access_token',
+        'session-access'
+      );
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+        'refresh_token',
+        'session-refresh'
+      );
+      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+        'token_storage_mode',
+        'session'
+      );
     });
   });
 
@@ -113,7 +131,9 @@ describe('Token Manager', () => {
 
       await tokenManager.clearTokens();
       expect(mockSecureStorage.removeItem).toHaveBeenCalledWith('access_token');
-      expect(mockSecureStorage.removeItem).toHaveBeenCalledWith('refresh_token');
+      expect(mockSecureStorage.removeItem).toHaveBeenCalledWith(
+        'refresh_token'
+      );
     });
   });
 
@@ -165,7 +185,8 @@ describe('Token Manager', () => {
     it('uses atob when available', () => {
       globalThis.atob = jest.fn((value) => {
         // Reverse base64url normalization for testing.
-        return Buffer.from(value, 'base64').toString('utf8');
+        const nodeBuffer = globalThis?.Buffer;
+        return nodeBuffer.from(value, 'base64').toString('utf8');
       });
       const futureTime = Math.floor((Date.now() + 3600000) / 1000);
       const payload = { exp: futureTime };
@@ -190,7 +211,9 @@ describe('Token Manager', () => {
       const result = await tokenManager.shouldPersistTokens();
 
       expect(result).toBe(false);
-      expect(mockSecureStorage.getItem).toHaveBeenCalledWith('token_storage_mode');
+      expect(mockSecureStorage.getItem).toHaveBeenCalledWith(
+        'token_storage_mode'
+      );
     });
 
     it('returns true when storage mode is not session', async () => {
@@ -202,4 +225,3 @@ describe('Token Manager', () => {
     });
   });
 });
-

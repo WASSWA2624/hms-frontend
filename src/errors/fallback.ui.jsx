@@ -1,5 +1,5 @@
 import React from 'react';
-import useI18n from '@hooks/useI18n';
+import { tSync } from '@i18n';
 import {
   Container,
   Content,
@@ -10,12 +10,10 @@ import {
 } from './fallback.ui.styles';
 
 const FallbackUI = ({ error, onRetry }) => {
-  const { t } = useI18n();
-
-  const title = t('errors.fallback.title');
-  const safeMessage = error?.safeMessage || t('errors.fallback.message');
-  const retryLabel = t('errors.fallback.retry');
-  const retryHint = t('errors.fallback.retryHint');
+  const title = tSync('errors.fallback.title');
+  const safeMessage = error?.safeMessage || tSync('errors.fallback.message');
+  const retryLabel = tSync('errors.fallback.retry');
+  const retryHint = tSync('errors.fallback.retryHint');
 
   return (
     <Container>

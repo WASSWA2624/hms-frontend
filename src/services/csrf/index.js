@@ -4,11 +4,25 @@
  * File: index.js
  */
 import { endpoints } from '@config/endpoints';
+import { handleError } from '@errors';
+import { logger } from '@logging';
 
 let cachedToken = null;
 let tokenFetchPromise = null;
 
 const CSRF_HEADER = 'x-csrf-token';
+
+const reportCsrfError = (error, context = {}) => {
+  const normalized = handleError(error, {
+    scope: 'services.csrf',
+    ...context,
+  });
+  logger.warn('CSRF operation failed', {
+    code: normalized.code,
+    severity: normalized.severity,
+    context,
+  });
+};
 
 /**
  * Fetch CSRF token from server
@@ -17,8 +31,7 @@ const CSRF_HEADER = 'x-csrf-token';
 const fetchCsrfToken = async () => {
   try {
     const url = endpoints.AUTH.CSRF_TOKEN;
-    console.log('[CSRF] Fetching token from:', url);
-    
+
     const response = await fetch(url, {
       method: 'GET',
       credentials: 'include', // Include cookies for session
@@ -28,21 +41,22 @@ const fetchCsrfToken = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch CSRF token: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch CSRF token: ${response.status} ${response.statusText}`
+      );
     }
 
     const result = await response.json();
     const token = result?.data?.token;
-    
+
     if (!token) {
       throw new Error(`CSRF token not in response: ${JSON.stringify(result)}`);
     }
 
     cachedToken = token;
-    console.log('[CSRF] Token fetched successfully');
     return token;
   } catch (error) {
-    console.error('[CSRF] Error fetching token:', error);
+    reportCsrfError(error, { op: 'fetchCsrfToken' });
     throw error;
   }
 };
@@ -64,10 +78,9 @@ const getCsrfToken = async () => {
   }
 
   // Start new fetch and cache the promise
-  tokenFetchPromise = fetchCsrfToken()
-    .finally(() => {
-      tokenFetchPromise = null; // Clear promise after resolution
-    });
+  tokenFetchPromise = fetchCsrfToken().finally(() => {
+    tokenFetchPromise = null; // Clear promise after resolution
+  });
 
   return tokenFetchPromise;
 };
@@ -88,20 +101,14 @@ const clearCsrfToken = () => {
 const getCsrfHeaders = async () => {
   try {
     const token = await getCsrfToken();
-    console.log('[CSRF] Adding token to request headers');
     return {
       [CSRF_HEADER]: token,
     };
   } catch (error) {
-    console.error('[CSRF] Failed to get CSRF token for headers:', error.message);
+    reportCsrfError(error, { op: 'getCsrfHeaders' });
     // Don't silently fail - let the caller know
     throw error;
   }
 };
 
-export {
-  getCsrfToken,
-  getCsrfHeaders,
-  clearCsrfToken,
-  CSRF_HEADER,
-};
+export { getCsrfToken, getCsrfHeaders, clearCsrfToken, CSRF_HEADER };

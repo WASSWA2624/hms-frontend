@@ -28,7 +28,11 @@ const getNestedValue = (obj, path) => {
   if (!path || typeof path !== 'string') return undefined;
   return path
     .split('.')
-    .reduce((current, key) => (current && current[key] !== undefined ? current[key] : undefined), obj);
+    .reduce(
+      (current, key) =>
+        current && current[key] !== undefined ? current[key] : undefined,
+      obj
+    );
 };
 
 const interpolate = (value, params) => {
@@ -70,7 +74,9 @@ const getDeviceLocale = () =>
 
 const createI18n = ({ storage = null, initialLocale = null } = {}) => {
   const supportedLocales = Object.keys(translations);
-  let localeCache = initialLocale ? resolveSupportedLocale(initialLocale) : null;
+  let localeCache = initialLocale
+    ? resolveSupportedLocale(initialLocale)
+    : null;
 
   const getCurrentLocale = async () => {
     if (localeCache) return localeCache;
@@ -91,9 +97,7 @@ const createI18n = ({ storage = null, initialLocale = null } = {}) => {
     const dict = translations[locale] || translations[DEFAULT_LOCALE];
     const fallback = translations[DEFAULT_LOCALE];
     const raw =
-      getNestedValue(dict, key) ||
-      getNestedValue(fallback, key) ||
-      key;
+      getNestedValue(dict, key) || getNestedValue(fallback, key) || key;
     return interpolate(String(raw), params);
   };
 
@@ -103,13 +107,18 @@ const createI18n = ({ storage = null, initialLocale = null } = {}) => {
     const dict = translations[resolvedLocale] || translations[DEFAULT_LOCALE];
     const fallback = translations[DEFAULT_LOCALE];
     const raw =
-      getNestedValue(dict, key) ||
-      getNestedValue(fallback, key) ||
-      key;
+      getNestedValue(dict, key) || getNestedValue(fallback, key) || key;
     return interpolate(String(raw), params);
   };
 
-  return { getDeviceLocale, getCurrentLocale, setLocale, t, tSync, supportedLocales };
+  return {
+    getDeviceLocale,
+    getCurrentLocale,
+    setLocale,
+    t,
+    tSync,
+    supportedLocales,
+  };
 };
 
 // Default exports use a lazily loaded storage adapter in the real implementation.
@@ -119,13 +128,14 @@ export { createI18n, getDeviceLocale, LOCALE_STORAGE_KEY };
 // Uses device locale by default (no storage dependency)
 const defaultI18n = createI18n();
 export const tSync = (key, params = {}) => defaultI18n.tSync(key, params);
+export default tSync;
 
 /**
  * I18nProvider Component
  * Provides i18n context to the entire app.
  * Per bootstrap-config.mdc: Localization Provider mounted only in root layout.
  * Per i18n.mdc: Handles locale detection, translation loading, and locale switching.
- * 
+ *
  * Note: The provider ensures i18n is initialized and ready.
  * The useI18n hook reads locale from Redux store, so this provider
  * primarily ensures i18n system is ready and provides structure for future enhancements.
@@ -137,4 +147,3 @@ export const I18nProvider = ({ children }) => {
   // per i18n.mdc requirements.
   return <>{children}</>;
 };
-
