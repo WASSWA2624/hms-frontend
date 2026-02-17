@@ -12,11 +12,9 @@ import { AppFrame } from '@platform/layouts';
 import {
   Breadcrumbs,
   GlobalHeader,
-  LanguageControls,
   NoticeSurface,
   ShellBanners,
   TabBar,
-  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import useMainRouteLayoutNative from './useMainRouteLayoutNative';
@@ -91,12 +89,6 @@ const MainRouteLayoutAndroid = () => {
             accessibilityLabel={t('navigation.header.title')}
             testID="main-header"
             actions={headerActions}
-            utilitySlot={(
-              <>
-                <LanguageControls testID="main-language-controls" />
-                <ThemeControls testID="main-theme-controls" />
-              </>
-            )}
           />
         }
         footer={

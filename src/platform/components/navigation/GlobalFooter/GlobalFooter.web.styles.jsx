@@ -78,6 +78,9 @@ const StyledFooterLink = styled.a.withConfig({
   displayName: 'StyledFooterLink',
   componentId: 'StyledFooterLink',
 })`
+  display: inline-flex;
+  align-items: center;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   color: ${({ theme }) => theme.colors.text.secondary};
   text-decoration: none;
   white-space: nowrap;

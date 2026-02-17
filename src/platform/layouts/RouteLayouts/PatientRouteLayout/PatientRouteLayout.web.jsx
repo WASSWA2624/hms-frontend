@@ -9,11 +9,9 @@ import { useI18n, useShellBanners } from '@hooks';
 import PatientFrame from '../../PatientFrame';
 import {
   GlobalHeader,
-  LanguageControls,
   NoticeSurface,
   ShellBanners,
   Sidebar,
-  ThemeControls,
 } from '@platform/components';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
 import usePatientRouteLayout from './usePatientRouteLayout';
@@ -50,12 +48,6 @@ const PatientRouteLayoutWeb = () => {
           accessibilityLabel={t('navigation.header.title')}
           testID="patient-header"
           actions={headerActions}
-          utilitySlot={(
-            <>
-              <LanguageControls testID="patient-language-controls" />
-              <ThemeControls testID="patient-theme-controls" />
-            </>
-          )}
         />
       )}
       sidebar={(

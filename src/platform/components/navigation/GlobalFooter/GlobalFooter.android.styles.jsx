@@ -86,7 +86,7 @@ const StyledLegalButton = styled.Pressable.withConfig({
   displayName: 'StyledLegalButton',
   componentId: 'StyledLegalButton',
 })`
-  min-height: 36px;
+  min-height: 44px;
   justify-content: center;
 `;
 
@@ -94,7 +94,7 @@ const StyledLegalText = styled.View.withConfig({
   displayName: 'StyledLegalText',
   componentId: 'StyledLegalText',
 })`
-  min-height: 36px;
+  min-height: 44px;
   justify-content: center;
 `;
 
@@ -117,7 +117,7 @@ const StyledQuickActionButton = styled.Pressable.withConfig({
   align-items: center;
   column-gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  min-height: 36px;
+  min-height: 44px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   border-width: 1px;
   border-color: ${({ theme, isPrimary }) =>
@@ -206,3 +206,4 @@ export {
   StyledFooterLink,
   StyledFooterSeparator,
 };
+

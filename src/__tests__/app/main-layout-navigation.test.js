@@ -81,7 +81,6 @@ jest.mock('@platform/components', () => ({
     <div testID={testID} aria-label={accessibilityLabel} />
   )),
   Icon: jest.fn(() => <span />),
-  LanguageControls: jest.fn(({ testID }) => <div testID={testID} />),
   NoticeSurface: jest.fn(({ testID }) => <div testID={testID} />),
   ShellBanners: jest.fn(({ testID }) => <div testID={testID} />),
   Sidebar: jest.fn(({ accessibilityLabel, testID }) => (
@@ -90,7 +89,6 @@ jest.mock('@platform/components', () => ({
   TabBar: jest.fn(({ accessibilityLabel, testID }) => (
     <div testID={testID} aria-label={accessibilityLabel} />
   )),
-  ThemeControls: jest.fn(({ testID }) => <div testID={testID} />),
 }));
 
 jest.mock('@platform/layouts', () => ({
@@ -218,7 +216,7 @@ describe('Main layout navigation skeleton', () => {
     expect(useAuthGuard).toHaveBeenCalledTimes(4);
   });
 
-  test('wires language and theme controls into shell headers', () => {
+  test('does not wire language and theme controls into tier-2 shell headers', () => {
     render(<MainRouteLayoutIOS />);
     render(<MainRouteLayoutAndroid />);
     render(<MainRouteLayoutWeb />);
@@ -226,8 +224,10 @@ describe('Main layout navigation skeleton', () => {
     const utilityChildren = GlobalHeader.mock.calls.flatMap(([props]) =>
       React.Children.toArray(props.utilitySlot?.props?.children ?? [])
     );
-    expect(utilityChildren.some((child) => child?.props?.testID === 'main-language-controls')).toBe(true);
-    expect(utilityChildren.some((child) => child?.props?.testID === 'main-theme-controls')).toBe(true);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-language-controls')).toBe(false);
+    expect(utilityChildren.some((child) => child?.props?.testID === 'main-theme-controls')).toBe(false);
+    expect(GlobalHeader.mock.calls[0][0].utilitySlot).toBeUndefined();
+    expect(GlobalHeader.mock.calls[1][0].utilitySlot).toBeUndefined();
   });
 
   test('renders shell banners when banner payload exists', () => {

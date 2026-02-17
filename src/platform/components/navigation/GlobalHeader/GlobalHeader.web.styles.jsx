@@ -5,6 +5,8 @@
  */
 import styled from 'styled-components';
 
+const MIN_TOUCH_TARGET = ({ theme }) => theme.spacing.xxl - theme.spacing.xs;
+
 const StyledHeader = styled.header.withConfig({
   displayName: 'StyledHeader',
   componentId: 'StyledHeader',
@@ -25,12 +27,12 @@ const StyledHeader = styled.header.withConfig({
   flex-direction: column;
   justify-content: center;
 
-  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) and (max-width: ${({ theme }) => (theme.breakpoints?.desktop ?? 1024) - 1}px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     min-height: ${({ theme }) => theme.spacing.lg}px;
     padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   }
 
-  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     min-height: ${({ theme }) => theme.spacing.lg}px;
     padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   }
@@ -49,7 +51,7 @@ const StyledHeaderRow = styled.div.withConfig({
   flex-wrap: nowrap;
   min-width: 0;
 
-  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     gap: ${({ theme }) => theme.spacing.xs}px;
   }
 `;
@@ -60,7 +62,7 @@ const StyledCenterSlot = styled.div.withConfig({
 })`
   display: none;
 
-  @media (min-width: ${({ theme }) => theme.breakpoints?.desktop ?? 1024}px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.desktop}px) {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -138,8 +140,8 @@ const StyledActionButton = styled.button.withConfig({
   justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: 0 ${({ theme }) => theme.spacing.xs}px;
-  min-height: ${({ theme }) => theme.spacing.xl}px;
-  min-width: ${({ theme }) => theme.spacing.xl}px;
+  min-height: ${MIN_TOUCH_TARGET}px;
+  min-width: ${MIN_TOUCH_TARGET}px;
   border-radius: ${({ theme, isCircular }) =>
     isCircular ? theme.radius.full : theme.radius.sm}px;
   border: 1px solid
@@ -167,9 +169,9 @@ const StyledActionButton = styled.button.withConfig({
     outline-offset: 2px;
   }
 
-  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet ?? 768) - 1}px) {
-    min-height: ${({ theme }) => theme.spacing.xl}px;
-    min-width: ${({ theme }) => theme.spacing.xl}px;
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     padding: 0 ${({ theme }) => theme.spacing.xs}px;
     font-size: ${({ theme }) => theme.typography?.fontSize?.xs ?? 12}px;
     border-radius: ${({ theme }) => theme.radius?.full ?? 9999}px;

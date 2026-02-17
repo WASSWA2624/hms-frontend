@@ -5,6 +5,8 @@
 import styled from 'styled-components';
 import { Button } from '@platform/components';
 
+const MIN_TOUCH_TARGET = ({ theme }) => theme.spacing.xxl - theme.spacing.xs;
+
 const StyledMobileSidebarOverlay = styled.div.withConfig({
   displayName: 'StyledMobileSidebarOverlay',
   componentId: 'StyledMobileSidebarOverlay',
@@ -104,12 +106,12 @@ const StyledBrand = styled.div.withConfig({
   min-width: 0;
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     gap: ${({ theme }) => theme.spacing.xs}px;
   }
 
   /* Mobile */
-  @media (max-width: 767px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     gap: 6px;
   }
 `;
@@ -134,14 +136,14 @@ const StyledBrandLogo = styled.div.withConfig({
   text-transform: uppercase;
 
   /* Tablet: 28px */
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     width: 28px;
     height: 28px;
     font-size: 11px;
   }
 
   /* Mobile: 24px */
-  @media (max-width: 767px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     width: 24px;
     height: 24px;
     font-size: 10px;
@@ -159,12 +161,12 @@ const StyledBrandName = styled.span.withConfig({
   white-space: nowrap;
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   }
 
   /* Mobile: Hide full name */
-  @media (max-width: 767px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     display: none;
   }
 `;
@@ -181,7 +183,7 @@ const StyledBrandShortName = styled.span.withConfig({
   white-space: nowrap;
 
   /* Mobile: Show short name */
-  @media (max-width: 767px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     display: inline;
     font-size: 13px;
   }
@@ -294,22 +296,22 @@ const StyledHeaderUtilityRow = styled.div.withConfig({
   height: 100%;
 
   & > * {
-    min-height: 28px;
+    min-height: ${MIN_TOUCH_TARGET}px;
   }
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     gap: 6px;
     & > * {
-      min-height: 28px;
+      min-height: ${MIN_TOUCH_TARGET}px;
     }
   }
 
   /* Mobile: Compact layout */
-  @media (max-width: 767px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     gap: 4px;
     & > * {
-      min-height: 28px;
+      min-height: ${MIN_TOUCH_TARGET}px;
     }
   }
 `;
@@ -332,8 +334,8 @@ const StyledHeaderMenuButton = styled.button.withConfig({
   align-items: center;
   justify-content: center;
   gap: 0;
-  min-height: 28px;
-  min-width: 28px;
+  min-height: ${MIN_TOUCH_TARGET}px;
+  min-width: ${MIN_TOUCH_TARGET}px;
   padding: 0;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
@@ -361,16 +363,16 @@ const StyledHeaderMenuButton = styled.button.withConfig({
   }
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     font-size: 13px;
   }
 
   /* Mobile: Compact pill-shaped button */
-  @media (max-width: 767px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     font-size: 13px;
     border: none;
     border-radius: ${({ theme }) => theme.radius.full}px;
@@ -395,8 +397,8 @@ const StyledOverflowMenuButton = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  min-width: 28px;
+  min-height: ${MIN_TOUCH_TARGET}px;
+  min-width: ${MIN_TOUCH_TARGET}px;
   padding: 0;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   border-radius: ${({ theme }) => theme.radius.sm}px;
@@ -430,15 +432,15 @@ const StyledOverflowMenuButton = styled.button.withConfig({
   }
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
   }
 
   /* Mobile: Compact, pill-shaped button */
-  @media (max-width: 767px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     border: none;
     border-radius: ${({ theme }) => theme.radius.full}px;
     background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -591,8 +593,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
   componentId: 'StyledHeaderToggleButton',
 })`
   && {
-    min-height: 28px;
-    min-width: 28px;
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     padding: 0;
     border-color: ${({ theme }) => theme.colors.background.tertiary};
     border-radius: ${({ theme }) => theme.radius.sm}px;
@@ -601,8 +603,8 @@ const StyledHeaderToggleButton = styled(Button).withConfig({
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}px) {
     && {
-      min-height: 28px;
-      min-width: 28px;
+      min-height: ${MIN_TOUCH_TARGET}px;
+      min-width: ${MIN_TOUCH_TARGET}px;
       padding: 0;
       border-color: ${({ theme }) => theme.colors.background.tertiary};
       border-radius: ${({ theme }) => theme.radius.full}px;
@@ -622,8 +624,8 @@ const StyledHeaderRevealButton = styled(Button).withConfig({
     left: ${({ dragLeft, theme }) => (dragLeft != null ? `${dragLeft}px` : 'auto')};
     right: ${({ dragLeft, theme }) => (dragLeft != null ? 'auto' : `${theme.spacing.sm}px`)};
     z-index: 1400;
-    min-height: 28px;
-    min-width: 28px;
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     padding: 0;
     border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
     background-color: ${({ theme }) => theme.colors.background.primary};
@@ -680,8 +682,8 @@ const StyledNotificationsButton = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  min-width: 28px;
+  min-height: ${MIN_TOUCH_TARGET}px;
+  min-width: ${MIN_TOUCH_TARGET}px;
   padding: 0;
   border-radius: ${({ theme }) => theme.radius.full}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
@@ -706,16 +708,16 @@ const StyledNotificationsButton = styled.button.withConfig({
   }
 
   /* Tablet */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     font-size: 13px;
   }
 
   /* Mobile: Compact notification button */
-  @media (max-width: 767px) {
-    min-height: 28px;
-    min-width: 28px;
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
+    min-height: ${MIN_TOUCH_TARGET}px;
+    min-width: ${MIN_TOUCH_TARGET}px;
     font-size: 13px;
     border: none;
     background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -937,3 +939,4 @@ export {
   StyledSidebarWrapper,
   StyledFullscreenButton,
 };
+

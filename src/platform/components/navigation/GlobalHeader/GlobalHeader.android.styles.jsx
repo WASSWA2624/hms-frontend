@@ -86,8 +86,8 @@ const StyledActionButton = styled(Pressable).withConfig({
   justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme, isIconOnly }) => (isIconOnly ? theme.spacing.xs : 0)}px;
-  min-height: ${({ isIconOnly }) => (isIconOnly ? 36 : 44)}px;
-  min-width: ${({ isIconOnly }) => (isIconOnly ? 36 : 44)}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border-radius: ${({ theme, isCircular }) =>
     isCircular ? theme.radius.full : theme.radius.sm}px;
   border-width: 1px;
@@ -125,3 +125,4 @@ export {
   StyledActionIcon,
   StyledBreadcrumbsRow,
 };
+
