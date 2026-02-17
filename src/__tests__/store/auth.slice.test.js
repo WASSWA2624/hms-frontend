@@ -3,6 +3,7 @@
  * File: auth.slice.test.js
  */
 import { configureStore } from '@reduxjs/toolkit';
+import { handleError } from '@errors';
 
 jest.mock('@features/auth', () => ({
   changePasswordUseCase: jest.fn(),
@@ -19,8 +20,17 @@ jest.mock('@features/auth', () => ({
   verifyPhoneUseCase: jest.fn(),
 }));
 
-import { actions, reducer } from '@store/slices/auth.slice';
-import {
+jest.mock('@errors', () => ({
+  handleError: jest.fn((error) => ({
+    code: error?.code || 'UNKNOWN_ERROR',
+    message: error?.message || 'UNKNOWN_ERROR',
+    safeMessage: error?.message || 'UNKNOWN_ERROR',
+    severity: 'error',
+  })),
+}));
+
+const { actions, reducer } = require('@store/slices/auth.slice');
+const {
   loginUseCase,
   identifyUseCase,
   registerUseCase,
@@ -33,7 +43,7 @@ import {
   forgotPasswordUseCase,
   resetPasswordUseCase,
   changePasswordUseCase,
-} from '@features/auth';
+} = require('@features/auth');
 
 const createStore = () =>
   configureStore({
@@ -44,11 +54,24 @@ const createStore = () =>
 
 describe('auth.slice', () => {
   beforeEach(() => {
+    handleError.mockImplementation((error) => ({
+      code: error?.code || 'UNKNOWN_ERROR',
+      message: error?.message || 'UNKNOWN_ERROR',
+      safeMessage: error?.message || 'UNKNOWN_ERROR',
+      severity: 'error',
+    }));
     loginUseCase.mockResolvedValue({ id: '1' });
     identifyUseCase.mockResolvedValue({ users: [] });
-    registerUseCase.mockResolvedValue({ user: { id: '2' }, hasSession: false, verification: null });
+    registerUseCase.mockResolvedValue({
+      user: { id: '2' },
+      hasSession: false,
+      verification: null,
+    });
     logoutUseCase.mockResolvedValue(true);
-    refreshSessionUseCase.mockResolvedValue({ accessToken: 'a', refreshToken: 'b' });
+    refreshSessionUseCase.mockResolvedValue({
+      accessToken: 'a',
+      refreshToken: 'b',
+    });
     loadCurrentUserUseCase.mockResolvedValue({ id: '3' });
     verifyEmailUseCase.mockResolvedValue({ verified: true });
     verifyPhoneUseCase.mockResolvedValue({ verified: true });
@@ -60,11 +83,13 @@ describe('auth.slice', () => {
 
   it('handles login/register/logout flows', async () => {
     const store = createStore();
-    await store.dispatch(actions.login({
-      email: 'user@example.com',
-      password: 'pass',
-      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
-    }));
+    await store.dispatch(
+      actions.login({
+        email: 'user@example.com',
+        password: 'pass',
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+      })
+    );
     expect(store.getState().auth.isAuthenticated).toBe(true);
     await store.dispatch(actions.register({ email: 'user' }));
     expect(store.getState().auth.user).toEqual({ id: '2' });
@@ -83,33 +108,42 @@ describe('auth.slice', () => {
   it('stores error codes on failures', async () => {
     const store = createStore();
     loginUseCase.mockRejectedValueOnce({ code: 'UNAUTHORIZED' });
-    await store.dispatch(actions.login({
-      email: 'user@example.com',
-      password: 'pass',
-      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
-    }));
+    await store.dispatch(
+      actions.login({
+        email: 'user@example.com',
+        password: 'pass',
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+      })
+    );
     expect(store.getState().auth.errorCode).toBe('UNAUTHORIZED');
   });
 
   it('does not authenticate when login requires facility selection', async () => {
     const store = createStore();
-    loginUseCase.mockResolvedValueOnce({ requiresFacilitySelection: true, facilities: [] });
-    await store.dispatch(actions.login({
-      email: 'user@example.com',
-      password: 'pass',
-      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
-    }));
+    loginUseCase.mockResolvedValueOnce({
+      requiresFacilitySelection: true,
+      facilities: [],
+    });
+    await store.dispatch(
+      actions.login({
+        email: 'user@example.com',
+        password: 'pass',
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+      })
+    );
     expect(store.getState().auth.isAuthenticated).toBe(false);
     expect(store.getState().auth.user).toBeNull();
   });
 
   it('clears local auth state even when logout request fails', async () => {
     const store = createStore();
-    await store.dispatch(actions.login({
-      email: 'user@example.com',
-      password: 'pass',
-      tenant_id: '550e8400-e29b-41d4-a716-446655440000'
-    }));
+    await store.dispatch(
+      actions.login({
+        email: 'user@example.com',
+        password: 'pass',
+        tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+      })
+    );
     logoutUseCase.mockRejectedValueOnce({ code: 'NETWORK_ERROR' });
     await store.dispatch(actions.logout());
     expect(store.getState().auth.isAuthenticated).toBe(false);
@@ -119,11 +153,29 @@ describe('auth.slice', () => {
   it('handles verification and password flows', async () => {
     const store = createStore();
     await store.dispatch(actions.verifyEmail({ token: 'token' }));
-    await store.dispatch(actions.verifyPhone({ token: 'token', phone: '1234567890' }));
-    await store.dispatch(actions.resendVerification({ type: 'email', email: 'user@example.com' }));
-    await store.dispatch(actions.forgotPassword({ email: 'user@example.com', tenant_id: 'tenant' }));
-    await store.dispatch(actions.resetPassword({ token: 'token', new_password: 'Pass123!', confirm_password: 'Pass123!' }));
-    await store.dispatch(actions.changePassword({ old_password: 'Pass123!', new_password: 'Pass456!', confirm_password: 'Pass456!' }));
+    await store.dispatch(
+      actions.verifyPhone({ token: 'token', phone: '1234567890' })
+    );
+    await store.dispatch(
+      actions.resendVerification({ type: 'email', email: 'user@example.com' })
+    );
+    await store.dispatch(
+      actions.forgotPassword({ email: 'user@example.com', tenant_id: 'tenant' })
+    );
+    await store.dispatch(
+      actions.resetPassword({
+        token: 'token',
+        new_password: 'Pass123!',
+        confirm_password: 'Pass123!',
+      })
+    );
+    await store.dispatch(
+      actions.changePassword({
+        old_password: 'Pass123!',
+        new_password: 'Pass456!',
+        confirm_password: 'Pass456!',
+      })
+    );
     expect(store.getState().auth.isLoading).toBe(false);
     expect(store.getState().auth.errorCode).toBeNull();
   });
@@ -137,7 +189,13 @@ describe('auth.slice', () => {
 
   it('clears auth state', () => {
     const state = reducer(
-      { user: { id: '1' }, isAuthenticated: true, isLoading: false, errorCode: 'ERROR', lastUpdated: null },
+      {
+        user: { id: '1' },
+        isAuthenticated: true,
+        isLoading: false,
+        errorCode: 'ERROR',
+        lastUpdated: null,
+      },
       actions.clearAuth()
     );
     expect(state.user).toBeNull();

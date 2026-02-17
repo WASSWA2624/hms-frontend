@@ -4,6 +4,7 @@
  * File: auth.slice.js
  */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { handleError } from '@errors';
 import {
   changePasswordUseCase,
   forgotPasswordUseCase,
@@ -28,181 +29,249 @@ const initialState = {
 };
 
 const normalizeErrorCode = (payload) =>
-  (typeof payload === 'object' && payload?.code != null ? payload.code : payload) || 'UNKNOWN_ERROR';
+  (typeof payload === 'object' && payload?.code != null
+    ? payload.code
+    : payload) || 'UNKNOWN_ERROR';
 
-const login = createAsyncThunk('auth/login', async (payload, { rejectWithValue }) => {
-  try {
-    const user = await loginUseCase(payload);
-    return user || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_LOGIN_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Login failed',
-      status: error?.status || 500
-    });
-  }
-});
+const toRejectedAuthError = (error, context, fallbackMessage) => {
+  const normalized = handleError(error, context);
+  return {
+    code: normalized.code || 'UNKNOWN_ERROR',
+    message: normalized.safeMessage || normalized.message || fallbackMessage,
+    status: typeof error?.status === 'number' ? error.status : 500,
+  };
+};
 
-const register = createAsyncThunk('auth/register', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await registerUseCase(payload);
-    if (result && typeof result === 'object' && ('user' in result || 'hasSession' in result)) {
-      return {
-        user: result.user || null,
-        hasSession: Boolean(result.hasSession),
-        verification: result.verification || null,
-      };
+const login = createAsyncThunk(
+  'auth/login',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const user = await loginUseCase(payload);
+      return user || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'login' },
+          'Login failed'
+        )
+      );
     }
-    return {
-      user: result || null,
-      hasSession: false,
-      verification: null,
-    };
-  } catch (error) {
-    console.error('[AUTH_THUNK_REGISTER_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Registration failed',
-      status: error?.status || 500
-    });
   }
-});
+);
 
-const identify = createAsyncThunk('auth/identify', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await identifyUseCase(payload);
-    return result || { users: [] };
-  } catch (error) {
-    console.error('[AUTH_THUNK_IDENTIFY_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Identify failed',
-      status: error?.status || 500
-    });
+const register = createAsyncThunk(
+  'auth/register',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await registerUseCase(payload);
+      if (
+        result &&
+        typeof result === 'object' &&
+        ('user' in result || 'hasSession' in result)
+      ) {
+        return {
+          user: result.user || null,
+          hasSession: Boolean(result.hasSession),
+          verification: result.verification || null,
+        };
+      }
+      return {
+        user: result || null,
+        hasSession: false,
+        verification: null,
+      };
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'register' },
+          'Registration failed'
+        )
+      );
+    }
   }
-});
+);
 
-const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
-  try {
-    await logoutUseCase();
-    return true;
-  } catch (error) {
-    console.error('[AUTH_THUNK_LOGOUT_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Logout failed',
-      status: error?.status || 500
-    });
+const identify = createAsyncThunk(
+  'auth/identify',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await identifyUseCase(payload);
+      return result || { users: [] };
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'identify' },
+          'Identify failed'
+        )
+      );
+    }
   }
-});
+);
 
-const refreshSession = createAsyncThunk('auth/refresh', async (_, { rejectWithValue }) => {
-  try {
-    const tokens = await refreshSessionUseCase();
-    return tokens || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_REFRESH_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Session refresh failed',
-      status: error?.status || 500
-    });
+const logout = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutUseCase();
+      return true;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'logout' },
+          'Logout failed'
+        )
+      );
+    }
   }
-});
+);
 
-const loadCurrentUser = createAsyncThunk('auth/loadCurrentUser', async (_, { rejectWithValue }) => {
-  try {
-    const user = await loadCurrentUserUseCase();
-    return user || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_LOADCURRENTUSER_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Failed to load user',
-      status: error?.status || 500
-    });
+const refreshSession = createAsyncThunk(
+  'auth/refresh',
+  async (_, { rejectWithValue }) => {
+    try {
+      const tokens = await refreshSessionUseCase();
+      return tokens || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'refreshSession' },
+          'Session refresh failed'
+        )
+      );
+    }
   }
-});
+);
 
-const verifyEmail = createAsyncThunk('auth/verifyEmail', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await verifyEmailUseCase(payload);
-    return result || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_VERIFYEMAIL_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Email verification failed',
-      status: error?.status || 500
-    });
+const loadCurrentUser = createAsyncThunk(
+  'auth/loadCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const user = await loadCurrentUserUseCase();
+      return user || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'loadCurrentUser' },
+          'Failed to load user'
+        )
+      );
+    }
   }
-});
+);
 
-const verifyPhone = createAsyncThunk('auth/verifyPhone', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await verifyPhoneUseCase(payload);
-    return result || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_VERIFYPHONE_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Phone verification failed',
-      status: error?.status || 500
-    });
+const verifyEmail = createAsyncThunk(
+  'auth/verifyEmail',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await verifyEmailUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'verifyEmail' },
+          'Email verification failed'
+        )
+      );
+    }
   }
-});
+);
 
-const resendVerification = createAsyncThunk('auth/resendVerification', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await resendVerificationUseCase(payload);
-    return result || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_RESENDVERIFICATION_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Resend verification failed',
-      status: error?.status || 500
-    });
+const verifyPhone = createAsyncThunk(
+  'auth/verifyPhone',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await verifyPhoneUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'verifyPhone' },
+          'Phone verification failed'
+        )
+      );
+    }
   }
-});
+);
 
-const forgotPassword = createAsyncThunk('auth/forgotPassword', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await forgotPasswordUseCase(payload);
-    return result || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_FORGOTPASSWORD_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Password reset request failed',
-      status: error?.status || 500
-    });
+const resendVerification = createAsyncThunk(
+  'auth/resendVerification',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await resendVerificationUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'resendVerification' },
+          'Resend verification failed'
+        )
+      );
+    }
   }
-});
+);
 
-const resetPassword = createAsyncThunk('auth/resetPassword', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await resetPasswordUseCase(payload);
-    return result || null;
-  } catch (error) {
-    console.error('[AUTH_THUNK_RESETPASSWORD_ERROR]', error);
-    return rejectWithValue({
-      code: error?.code || 'UNKNOWN_ERROR',
-      message: error?.message || 'Password reset failed',
-      status: error?.status || 500
-    });
+const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await forgotPasswordUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'forgotPassword' },
+          'Password reset request failed'
+        )
+      );
+    }
   }
-});
+);
 
-const changePassword = createAsyncThunk('auth/changePassword', async (payload, { rejectWithValue }) => {
-  try {
-    const result = await changePasswordUseCase(payload);
-    return result || null;
-  } catch (error) {
-    return rejectWithValue(error?.code || 'UNKNOWN_ERROR');
+const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await resetPasswordUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'resetPassword' },
+          'Password reset failed'
+        )
+      );
+    }
   }
-});
+);
+
+const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const result = await changePasswordUseCase(payload);
+      return result || null;
+    } catch (error) {
+      return rejectWithValue(
+        toRejectedAuthError(
+          error,
+          { scope: 'store.auth', op: 'changePassword' },
+          'Password change failed'
+        )
+      );
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -225,10 +294,14 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         const payload = action.payload;
-        const requiresFacilitySelection = Boolean(payload?.requiresFacilitySelection);
+        const requiresFacilitySelection = Boolean(
+          payload?.requiresFacilitySelection
+        );
         state.isLoading = false;
-        state.user = requiresFacilitySelection ? null : (payload || null);
-        state.isAuthenticated = Boolean(!requiresFacilitySelection && payload?.id);
+        state.user = requiresFacilitySelection ? null : payload || null;
+        state.isAuthenticated = Boolean(
+          !requiresFacilitySelection && payload?.id
+        );
         state.lastUpdated = Date.now();
       })
       .addCase(login.rejected, (state, action) => {
