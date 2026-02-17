@@ -1,60 +1,51 @@
-﻿---
+---
 alwaysApply: true
 ---
+
 # Platform UI Layer Standards
 
 ## Purpose
-Define rules for `src/platform` components, screens, and layouts across Android, iOS, and Web.
-All UI must follow the Microsoft Fluent / Microsoft 365 direction from `theme-design.mdc`.
+Define behavioral constraints for `src/platform` UI code across Android, iOS, and Web.
+This file owns runtime UI behavior; file/folder naming is owned by `component-structure.mdc`.
 
-## Layer Principles
-1. Presentation-only: no business/domain logic in UI files.
-2. Shared-first platform strategy: default shared implementation, targeted platform overrides only when needed.
-3. Reusability without duplication: extract shared logic/styles instead of copying per platform.
-4. Consistency: naming, folders, imports, and state handling follow project standards.
-5. Performance: keep render paths small and avoid unnecessary per-platform duplication.
+## UI Responsibilities
+- Render presentation and user interactions.
+- Consume semantic state/actions through hooks.
+- Remain platform-aware using shared-first file strategy.
 
-## Structure Authority
-- `component-structure.mdc` is the single source of truth for platform file/folder structure.
+UI must not:
+- Contain domain business rules.
+- Execute navigation policy logic directly.
+- Perform irreversible side effects in render paths.
 
-## Platform Strategy (Mandatory)
-- Start with shared `ComponentName.jsx` / `ScreenName.jsx` and shared `*.styles.jsx`.
-- Add `.android/.ios/.web` and platform style overrides only for real platform differences.
-- Avoid visual divergence that conflicts with Fluent direction unless required by accessibility or platform constraints.
+## Platform Strategy
+- Shared implementation first.
+- Add platform override files only when behavior or markup truly differs.
+- Keep public props/API equivalent across shared and override implementations.
 
-## Mobile Parity Policy
-- Android and iOS should align with mobile web behavior and design tokens.
-- Exact pixel parity is not required when native constraints apply (safe areas, OS controls, input behavior).
-- Any intentional platform divergence must be minimal and documented in the component/screen notes or PR.
+## Composition & State Access
+- Prefer composition and hooks over complex component inheritance.
+- Screens should orchestrate via hooks/features and stay thin.
+- UI should not call store internals directly.
 
-## Style Wiring (Mandatory)
-- `*.android.jsx` imports Android styles (or shared styles if no override exists).
-- `*.ios.jsx` imports iOS styles (or shared styles if no override exists).
-- `*.web.jsx` imports web styles (or shared styles if no override exists).
-- Never import one platform override style file from another platform override style file.
+## Import Boundaries
+UI may import:
+- `@platform/...`
+- `@hooks/...`
+- `@utils/...`
 
-## Reusability Rules
-- Shared component/screen logic goes in hooks (`useComponentName.js`, `useScreenName.js`).
-- Shared constants/contracts go in `types.js`.
-- Shared visual primitives come from theme tokens and shared style files.
+UI may not import:
+- Service internals for business flows
+- Store internals (reducers, middleware, persistence internals)
+- Infrastructure modules directly for domain actions
 
-## Composition and Side Effects
-- Prefer hooks and composition over class components.
-- UI files do not perform irreversible side effects directly; delegate through hooks/features/store conventions.
-- Screens should remain lightweight and orchestrate via hooks/features.
-
-## Import Rules
-- Use alias imports.
-- UI components/screens/layouts cannot import domain modules directly.
-- UI can import platform UI, shared hooks, and pure utilities within boundary rules.
-
-## Responsiveness and Performance
-- Must be responsive on mobile, tablet, and web.
-- Prefer flexible layouts and theme breakpoints.
-- Use list virtualization (`FlatList` / `SectionList`) for large collections.
-
-## Resilience
-- Every screen must handle loading, empty, error, and offline states without crashing.
+## UX Resilience
+Each screen must handle loading, empty, error, and offline states without crashing.
 
 ## Related
-`component-structure.mdc`, `app-router.mdc`, `features-domain.mdc`, `testing.mdc`, `theme-design.mdc`, `coding-conventions.mdc`
+- `component-structure.mdc` (structure)
+- `theme-design.mdc` (styling/theming)
+- `app-router.mdc` (routing boundaries)
+- `hooks-utils.mdc` (hook contracts)
+- `accessibility.mdc` (a11y/UX quality)
+- `testing.mdc` (UI testing scope)

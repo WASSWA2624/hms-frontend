@@ -1,59 +1,57 @@
 ---
 alwaysApply: true
 ---
+
 # App Router & Navigation Standards
 
 ## Purpose
-Establish clear, consistent, and maintainable conventions for routing and navigation using Expo App Router.
+Define routing and navigation rules for Expo App Router.
+This file owns route organization, route naming, and navigation boundaries.
 
-## File & Folder Structure
-- All routes: `src/app/`
-- Layouts: `_layout.jsx`
-- **Route groups:** Use parentheses, e.g. `(group-name)` for related features—mandatory for organization.
-- 404 handler: `+not-found.jsx`
+## Route Location
+- All routes live under `src/app/`.
+- Only these files may live directly under `src/app/`:
+  - `_layout.jsx`
+  - `index.jsx`
+  - `+not-found.jsx`
+  - `_error.jsx` (optional)
+- All feature routes must be inside route groups such as `src/app/(auth)/`.
 
-## Rules
+## Route Groups
+- Route groups use parentheses and are allowed only in `src/app/`.
+- Each route group must include its own `_layout.jsx` for group navigation/guard composition.
+- Group names are project-specific and tracked in `dev-plan/`.
 
-1. **Route Grouping**
-   - All feature-related routes **must** be inside a route group folder: `(group-name)` in `src/app/`.
-   - Only the root route (`index.jsx`) or error handlers (`+not-found.jsx`, `_error.jsx`) may exist directly in `src/app/`.
-   - Each route group **must** have its own `_layout.jsx` for group-specific logic (guards, navigation, etc).
-   - Route groups organize UIs by feature or access level (e.g., `(auth)`, `(main)`, `(settings)`) — actual groups are project-specific and documented in `dev-plan/`.
-   - Parentheses for groups are **never** used outside `src/app/` (`src/platform/` uses plain folders; see `component-structure.mdc`).
+## Naming & Exports
+- Route segment files use `kebab-case` (example: `user-profile.jsx`).
+- Default segment pages may use `index.jsx` inside a route folder.
+- Layout files must be named `_layout.jsx`.
+- Route pages and layouts must use default exports.
 
-2. **Layouts**
-   - Root layout (`src/app/_layout.jsx`) handles global providers and startup as per `bootstrap-config.mdc`.
-   - Group layouts handle authentication, access control, and navigation for their group.
+## Page Boundaries
+Pages may import:
+- Platform UI (`@platform/...`)
+- Shared hooks (`@hooks/...`)
+- Feature entrypoints/use-cases (`@features/...`)
 
-3. **Pages**
-   * Each page must reside in its respective route folder
-   * Pages can import platform UI components, shared hooks, and feature entrypoints/use-cases
-   * Pages must not import services, store internals, or infrastructure modules directly
-   * Pages should be lightweight and delegate logic to hooks or features
-4. **Navigation**
-   - All navigation must use Expo App Router—do **not** use React Navigation stack outside it.
-   - Guard logic lives in `src/navigation/guards/` and should be applied via layouts.
-   - When generating links, **omit group segments** from paths (e.g., `/login` instead of `/(auth)/login`).
-   - Follow import conventions in `coding-conventions.mdc`.
+Pages must not import:
+- Service internals (`@services/...` internals)
+- Store implementation internals (reducers, middleware, persistence wiring)
+- Infrastructure modules directly for business flows
 
-5. **Naming Conventions**
-   - Use `kebab-case` for route files (e.g., `user-profile.jsx`).
-   - All layouts start with `_layout.jsx`.
+## Navigation Rules
+- Use Expo App Router only.
+- Do not use a separate React Navigation stack outside Expo App Router.
+- Guard logic belongs in `src/navigation/guards/` and is applied by layouts.
+- Generated links must omit route group segments (use `/login`, not `/(auth)/login`).
 
-6. **Exports**
-   - All pages and layouts **must** use default export.
-   - Barrel files (`index.js`) are optional in route folders. See `coding-conventions.mdc`.
+## Error Handling
+- The global `ErrorBoundary` is mounted once in `src/app/_layout.jsx` (owner: `errors-logging.mdc`).
+- Route-level error surfaces use App Router conventions (`+not-found.jsx`, optional `_error.jsx`).
+- Do not mount competing global error boundaries in group layouts.
 
-7. **Platform-specific Pages**
-   - Platform-specific pages allowed (e.g., `page.android.jsx`, `page.ios.jsx`, `page.web.jsx`).
-   - If used, follow same platform file-naming as for UI components (`component-structure.mdc`).
-   - Prefer shared logic via hooks, not duplicate page logic.
-
-8. **Error Handling**
-   - Use `ErrorBoundary.jsx` in layouts to catch rendering errors.
-   - All route-level errors must be propagated to `errors/` for logging.
-
-## Related `.mdc` files
-- `component-structure.mdc` (UI/component patterns)
-- `security.mdc` (route guards and auth)
-- `features-domain.mdc` (business logic delegation)
+## Related
+- `bootstrap-config.mdc` (provider placement)
+- `errors-logging.mdc` (error boundary ownership)
+- `component-structure.mdc` (platform file strategy)
+- `coding-conventions.mdc` (imports, module system, naming baseline)

@@ -5,80 +5,53 @@ alwaysApply: true
 # Coding Conventions, Enforcement & Change Policy
 
 ## Purpose
-Centralize **global coding conventions** and **governance** that apply across all layers and platforms.
+Define global conventions that apply to all layers.
+This file owns naming, module system, imports/exports, and side-effect placement.
 
-## Mandatory conventions (global)
-### File naming
-- `camelCase` → hooks, utils, functions
-- `PascalCase` → components, screens, layouts
-- `kebab-case` → routes when applicable
+## File Naming
+- `camelCase`: hooks, utilities, functions
+- `PascalCase`: components, screens, layouts
+- Routing files (`src/app/**`):
+  - Route segment files in `kebab-case` (example: `user-profile.jsx`)
+  - Default segment entry files use `index.jsx`
+  - Layout files use `_layout.jsx`
 
-### Exports
-- **ES Modules (ESM) are mandatory** - use `export` statements exclusively
-- Prefer **named exports**: `export { name }` or `export const name = ...`
-**Index file extensions** (authoritative):
-- **Barrel files** (export-only): MUST use `index.js` — no JSX; only re-exports. Applies to platform, features, services, hooks, utils, etc. See `component-structure.mdc` for platform barrel pattern.
-- **Route pages/layouts** (Expo App Router): Use `index.jsx` for pages/layouts that render JSX; default export required. See `app-router.mdc`. Barrel (`index.js`) in route folders is optional.
+## Module System
+- ES modules are mandatory in source code.
+- Use `import` / `export` only in `src/**`.
+- CommonJS is forbidden in `src/**`.
 
-### Module System
-- **ES Modules (ESM) are mandatory** for all source code
-- Use `import` and `export` statements exclusively
-- **CommonJS (`require`, `module.exports`) is forbidden** in source code (`src/**`)
-- **Configuration files at project root** (e.g., `babel.config.js`, `metro.config.js`, `jest.config.js`) may use **CommonJS** when required by tooling; prefer ES modules only when the toolchain supports it reliably
-- **Expo entrypoint exception**: the repository root `index.js` may use `require('expo-router/entry')` (tooling requirement). Do not use CommonJS elsewhere.
-- **Scripts** (e.g. under `scripts/`): use **ESM** (`.mjs` and `import`/`export`) so that the “no CommonJS elsewhere” rule is satisfied; run with `node path/to/script.mjs`.
+Allowed exceptions:
+- Tooling config files at repository root when toolchains require CommonJS (`babel.config.js`, `metro.config.js`, `jest.config.js`).
+- Repository root Expo entry `index.js` may use `require('expo-router/entry')`.
 
-### Imports
-- Use **absolute imports** via aliases
-- Never import across layers incorrectly (see `project-structure.mdc` for layer boundaries)
-- Always use ES module `import` syntax: `import { name } from './module'`
+## Exports
+- Prefer named exports by default.
+- Exceptions:
+  - Expo App Router pages/layouts must use default exports.
+  - Leaf platform component barrels may re-export default component entries (see `component-structure.mdc`).
+- Barrel files are `index.js` and must contain exports only (no JSX).
 
-**Available Aliases** (configured in `babel.config.js`):
-- `@` → `./src`
-- `@app` → `./src/app`
-- `@platform` → `./src/platform`
-- `@theme` → `./src/theme`
-- `@store` → `./src/store`
-- `@features` → `./src/features`
-- `@services` → `./src/services`
-- `@offline` → `./src/offline`
-- `@security` → `./src/security`
-- `@hooks` → `./src/hooks`
-- `@utils` → `./src/utils`
-- `@config` → `./src/config`
-- `@i18n` → `./src/i18n`
-- `@errors` → `./src/errors`
-- `@logging` → `./src/logging`
-- `@bootstrap` → `./src/bootstrap`
-- `@navigation` → `./src/navigation`
-- `@debug` → `./src/debug`
+## Imports
+- Use alias imports from `babel.config.js` mappings.
+- Respect layer boundaries from `project-structure.mdc`.
+- Prefer specific aliases (`@services`, `@hooks`) over generic `@/` when possible.
 
-**Alias Usage Rules**:
-- Prefer specific aliases (`@services`, `@hooks`) over generic `@/` when possible
-- Use `@/` only for root-level imports when no specific alias exists
-- Example: `import { api } from '@services/api'` not `import { api } from '@/services/api'`
-
-### Side effects (authoritative)
-Side effects belong in:
-- Redux middleware / thunks (see `state-management.mdc`)
-- Services (see `services-integration.mdc`)
+## Side Effects
+Authoritative placement:
+- Redux middleware/thunks
+- Services
 - Workers
 - Bootstrap
 
-Hooks may coordinate UI-adjacent side effects (focus, lifecycle, subscriptions) but must delegate irreversible work to the above (see `hooks-utils.mdc`).
-
-UI must not perform side effects directly (see `platform-ui.mdc`).
+Hooks may coordinate UI-adjacent lifecycle side effects, but irreversible work must be delegated to the locations above.
+UI render code must not execute irreversible side effects directly.
 
 ## Enforcement
-- All PRs **must comply** with the linked rule documents in `index.mdc`
-- Violations are considered **architectural defects**
-- Rule documents override ad-hoc decisions
-- Testing standards are defined in `testing.mdc`
+- All PRs must comply with `index.mdc` and owner files.
+- Violations are architectural defects.
+- Testing requirements are owned by `testing.mdc`.
 
-## Internationalization (i18n) Enforcement
-- **100% i18n mandatory** — see `i18n.mdc`. Do not restate i18n rules here.
-
-## Change policy
-- Architectural changes require updating the relevant `.mdc`
-- `index.mdc` must be updated when new rule files are added
-
+## Change Policy
+- Architectural changes require updating the relevant owner `.mdc` file.
+- `index.mdc` must be updated when ownership or rule files change.

@@ -3,173 +3,87 @@ alwaysApply: true
 ---
 
 # Hooks & Utilities Standards
+
 ## Purpose
-This document defines **how reusable hooks and utilities are written, organized, and consumed** across the application.
-Goals:
-- **100% code reusability** - Every piece of code must be reusable (see `core-principles.mdc`)
-- Maximize code reuse
-- Prevent logic duplication
-- Keep UI components thin
-- Enforce architectural boundaries
-Hooks and utilities are **shared building blocks**, not feature owners.
----
+Define how reusable hooks and utilities are built and consumed.
+This file owns hook and utility behavior, not domain rules or service contracts.
 
-## Ownership & Scope
-### Hooks Layer Owns
-- Cross-cutting logic reusable across UI and features
-- State access abstraction (selectors + dispatch)
-- Platform-safe side effects
+## Ownership
+Hooks own:
+- UI-facing orchestration APIs
+- Selector/dispatch abstraction for UI
+- Local UI state and lifecycle coordination
 
-### Utilities Layer Owns
-- Pure, stateless helper functions
-- Formatting, validation, transformation logic
-- Zero dependency on React or Redux
----
+Utilities own:
+- Pure stateless helpers
+- Formatting/transformation/validation helpers
+- Deterministic logic without React/Redux dependencies
 
 ## Folder Structure
 ```txt
 src/hooks/
-    ├── index.js              # Hooks barrel
-    └── useHookName.js        # e.g. useAuth, useNetwork, useTheme
+  index.js
+  useHookName.js
 src/utils/
-    ├── index.js              # Utilities barrel
-    └── util-name.js          # e.g. formatter.js, validator.js
+  index.js
+  util-name.js
 ```
----
 
-## Hook Design Rules
-### Naming
-See `coding-conventions.mdc`. Hooks:
-* Must start with `use`
-* Use `camelCase`
-* One hook = one responsibility
-Examples:
-* `useAuth`
-* `useNetwork`
-* `useTheme`
----
+## Hook Rules
+- Hooks start with `use` and use `camelCase`.
+- One hook = one responsibility.
+- Hooks must not render JSX.
+- Hooks must not contain domain business rules.
+- Hooks must not import UI components.
 
-### Hook Responsibilities
-Hooks may:
-* Call Redux selectors
-* Dispatch Redux actions
-* Call feature-level APIs / thunks that call services (preferred)
-* Manage local state
-* Coordinate UI-adjacent side effects (lifecycle/focus/subscriptions) without doing irreversible work in UI
-Hooks must not:
-* Render JSX
-* Contain business rules
-* Directly manipulate navigation
-* Import UI components
----
+## Redux Integration
+- UI must consume Redux via semantic hooks.
+- UI must not call `useSelector`/`useDispatch` directly in screens/components.
+- Hooks expose semantic APIs (example: `useAuth()` returns state + actions).
 
-### Hook Composition
-Hooks may compose other hooks.
-Allowed:
-```js
-useAuth → useSelector + useDispatch
-```
-Forbidden:
-```js
-useAuth → UI component import
-```
----
+## Side Effects and Service Access
+- Hooks may coordinate lifecycle side effects (subscriptions, focus, cleanup).
+- Business data/network flows must go through features/thunks/middleware to services.
+- Direct `@services` calls from hooks are allowed only for technical cross-cutting hooks (example: connectivity observers, platform capability checks), never for domain business flows.
 
-## Redux Integration Rules
-Hooks are the **only approved way** for UI to interact with Redux.
-Rules:
-* UI must not call `useSelector` directly
-* UI must not import store actions directly
-* Hooks expose semantic APIs
-Example:
-```js
-const { user, login, logout } = useAuth();
-```
----
-
-## Side Effects
-See `coding-conventions.mdc`. Side effects in hooks **only if**:
-* They are UI-adjacent (focus, lifecycle, subscriptions)
-* Irreversible work is delegated to **thunks/middleware/services/workers/bootstrap**
-
-Clarification:
-* Hooks should not perform direct network calls as a default pattern. Prefer **features → thunks/middleware → services** and expose the semantic API via hooks.
-
-Forbidden:
-❌ Direct API calls in UI components
-❌ Business logic in hooks
-❌ Irreversible side effects in hooks (delegate to services/thunks/middleware/workers/bootstrap)
----
-
-## Utility Design Rules
-### Utility Characteristics
+## Utility Rules
 Utilities must be:
-* Pure
-* Stateless
-* Deterministic
-* Testable
-Rules:
-* No React imports
-* No Redux imports
-* No side effects
----
+- Pure
+- Stateless
+- Deterministic
+- Independently testable
 
-### Utility Responsibilities
-Utilities may:
-* Format values
-* Validate inputs
-* Transform data
-* Normalize API responses
 Utilities must not:
-* Access storage
-* Perform I/O
-* Call APIs
-* Log analytics
----
+- Import React
+- Import Redux
+- Perform I/O (network, storage, SDK calls)
+- Log analytics
 
-## Imports & Dependencies
-### Dependency Direction
+## Dependency Direction
 Allowed:
 ```txt
-hooks → store
-hooks → services
-hooks → utils
+hooks -> store
+hooks -> features
+hooks -> utils
+hooks -> services (technical cross-cutting only)
+utils -> (none of hooks/store/services)
 ```
+
 Forbidden:
 ```txt
-utils → hooks
-utils → services
-utils → store
+utils -> hooks
+utils -> store
+utils -> services
+hooks -> platform components
 ```
----
 
-## Error Handling
-Hooks:
-* Normalize errors
-* Expose error states to UI
-* Never throw uncaught errors
-Utilities:
-* Must throw only predictable errors
-* Never swallow errors silently
----
+## Error Contract
+- Hooks expose normalized, semantic error state to UI.
+- Utilities may throw predictable errors for invalid inputs.
+- Do not leak raw service errors to UI components.
 
-## Performance Rules
-* Hooks must memoize expensive operations
-* Avoid unnecessary subscriptions
-* Prefer selectors over raw state access
----
-
-## Forbidden Patterns
-❌ Hooks rendering JSX
-❌ Utilities importing React
-❌ Business rules inside hooks
-❌ Multiple responsibilities in one hook
-❌ UI logic inside utilities
----
-
-## Enforcement
-* Hooks and utilities are shared contracts
-* Breaking changes require versioning or refactor
-* Violations block PR approval
----
-**Hooks orchestrate. Utilities compute. UI renders.**
+## Related
+- `coding-conventions.mdc` (side-effect placement)
+- `features-domain.mdc` (business flow ownership)
+- `services-integration.mdc` (service boundaries)
+- `state-management.mdc` (Redux ownership)

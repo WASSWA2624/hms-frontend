@@ -1,20 +1,25 @@
-﻿---
+---
 alwaysApply: true
 ---
 
 # Services & External Integrations Standards
+
 ## Purpose
-Define how external systems and irreversible side effects are integrated.
-Services are infrastructure, not business logic.
+Define infrastructure/service boundaries for external I/O and irreversible side effects.
 
-## What Is a Service?
-A service module talks to external systems:
-- Network APIs
-- Device storage
-- Third-party SDKs
-- Other irreversible side effects
+## Service Ownership
+Services own:
+- Network calls
+- Storage access
+- SDK integrations
+- Technical retry/timeout/header behavior
 
-## Folder Ownership
+Services must not own:
+- Domain business rules
+- UI rendering or navigation
+- Redux reducer logic
+
+## Folder Structure
 ```txt
 src/services/
   index.js
@@ -30,59 +35,25 @@ src/services/
   analytics/
     tracker.js
     index.js
-  [third-party-service]/
-    client.js
-    index.js
 ```
 
-## Responsibilities
-A service may:
-- Perform network/storage/SDK calls
-- Handle auth headers and retries
-- Throw technical errors
-- Emit technical logs through the centralized logger
+## API Service Rules
+- `client.js` centralizes request execution and low-level error shaping.
+- `endpoints.js` reads environment/config values from `src/config` only.
+- `interceptors.js` handles headers/auth refresh wiring and sanitized operational logs.
+- Services must not emit user-facing messages.
 
-A service must not:
-- Contain business rules
-- Import UI modules
-- Dispatch Redux actions
-- Perform navigation
-- Own domain-model decisions
+## Storage Rules
+- Non-sensitive data: async storage service.
+- Sensitive credentials/tokens: secure storage service.
+- Encryption primitives belong to `src/security`.
 
-## API Services
-### `client.js`
-- Central fetch wrapper
-- Timeout handling
-- Header injection
-- Technical error normalization
+## Analytics Rules
+- Fire-and-forget behavior only.
+- Must not block UI critical paths.
+- Must not contain domain branching.
 
-### `endpoints.js`
-- Central endpoint registry
-- Environment-aware values from config
-
-### `interceptors.js`
-- Attach credentials/tokens
-- Handle 401/refresh integration
-- Emit sanitized operational logs via `src/logging/`
-
-Rules:
-- No navigation logic
-- No UI feedback
-- No ad-hoc `console.*` logging
-
-## Storage Services
-- `async.js`: non-sensitive cached data
-- `secure.js`: credentials/tokens
-- Never mix secure and non-secure concerns
-- Encryption primitives belong to `src/security/`
-
-## Analytics Services
-- Track events/screens/errors
-- Fire-and-forget
-- Must not block UI
-- No business rule branching
-
-## Dependency Rules
+## Dependency Direction
 Allowed:
 ```txt
 services -> utils
@@ -93,25 +64,17 @@ services -> logging
 
 Forbidden:
 ```txt
-services -> features
 services -> platform
 services -> store
 services -> app
+services -> features domain rules
 ```
 
 ## Offline Compatibility
-- Services must be stateless.
-- Offline orchestration belongs to `offline/`, workers, and features.
+- Services remain stateless and reusable.
+- Offline orchestration is owned by `offline-sync.mdc`.
 
-## Forbidden Patterns
-- Direct API calls in UI
-- Redux logic in services
-- Business logic in interceptors
-- Feature-specific logic in shared clients
-- Direct SDK calls outside service wrappers
-
-## Related
-- `features-domain.mdc`
-- `state-management.mdc`
-- `offline-sync.mdc`
-- `errors-logging.mdc`
+## Related Owners
+- Feature/domain flow ownership: `features-domain.mdc`
+- Side-effect placement: `coding-conventions.mdc`
+- Central error normalization and logging flow: `errors-logging.mdc`

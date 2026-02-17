@@ -3,227 +3,76 @@ alwaysApply: true
 ---
 
 # Theme & Design System Standards
-## Purpose
-Single source of truth for **all visual design**. Theme-driven UI; Microsoft Fluent / Microsoft 365 look and feel across all platforms. Support mobile, tablet, desktop, and large screens.
 
-**Implementation**: styled-components only. Inline styles forbidden. `StyleSheet` only inside `*.android.styles.jsx` / `*.ios.styles.jsx` for static, theme-driven styles (see below). See `core-principles.mdc` for global styling policy.
----
+## Purpose
+Define the visual system (tokens, themes, styling constraints) for all platforms.
+This file owns styling policy and design token usage.
 
 ## Theme Ownership
-The **Theme Layer** owns:
-- Colors, spacing, typography, radius, shadows
-- Light and Dark themes only (exactly two)
-- Breakpoints & responsive helpers
-- Design tokens
-It does **not**:
-- Contain UI components
-- Contain business logic
-- Contain platform conditionals
----
+Theme layer owns:
+- Color, spacing, typography, radius, shadow tokens
+- Breakpoints and motion tokens
+- Theme resolution and shape
+
+Theme layer does not own:
+- UI rendering logic
+- Domain business logic
 
 ## Folder Structure
 ```txt
 src/theme/
-    ├── index.js              # Theme provider & resolver
-    ├── breakpoints.js        # Responsive breakpoints
-    ├── animations.js         # Motion tokens/helpers (reduced motion supported)
-    ├── tokens/               # Design tokens
-    │   ├── colors.js
-    │   ├── spacing.js
-    │   ├── typography.js
-    │   ├── radius.js
-    │   └── shadows.js
-    ├── light.theme.js        # Light theme definition
-    └── dark.theme.js         # Dark theme definition
+  index.js
+  breakpoints.js
+  animations.js
+  tokens/
+    colors.js
+    spacing.js
+    typography.js
+    radius.js
+    shadows.js
+  light.theme.js
+  dark.theme.js
 ```
----
 
-## Design Tokens Rules
-### Token Principles
-* Tokens are **primitive values only**
-* Tokens must be **platform-agnostic**
-* Tokens must be **semantic**, not visual hacks
-Example:
-```js
-// ✅ GOOD
-primary
-surface
-textPrimary
-// ❌ BAD
-blue500
-lightGray
-```
----
+## Theme Variants
+- Only two themes are supported: `light` and `dark`.
+- Both themes must share identical object shape.
+- Theme switching is controlled outside UI components (store/bootstrap).
 
-### Token Categories
-#### Colors
-* Semantic naming only
-* Group by usage (background, text, status)
-* No hex values outside token files
+## Token Rules
+- Tokens are semantic and platform-agnostic.
+- No hardcoded visual values in UI files.
+- Hex values belong only in token files.
 
-#### Spacing
-* Use a fixed spacing scale
-* No arbitrary numbers in UI
+## Styling Rules
+- Styled-components is the default styling approach.
+- Styled components are defined in `*.styles.jsx` files.
+- Inline styles are forbidden for production UI.
 
-#### Typography
-* Font families
-* Font sizes
-* Line heights
-* Font weights
+### Native `StyleSheet` Exception
+`StyleSheet` is allowed only in:
+- `*.android.styles.jsx`
+- `*.ios.styles.jsx`
 
-#### Radius
-* Small, medium, large
-* No inline border-radius values
+And only for static, token-driven, performance-sensitive styles.
 
-#### Shadows
-* Abstract elevation
-* Platform differences resolved in theme
----
+### Styled-Components Entrypoints
+- `*.android.styles.jsx` -> `styled-components/native`
+- `*.ios.styles.jsx` -> `styled-components/native`
+- `*.web.styles.jsx` -> `styled-components`
 
-## Theme Files
-### Theme Composition
-Themes must be composed from tokens:
-```js
-import colors from './tokens/colors';
-import spacing from './tokens/spacing';
-import typography from './tokens/typography';
-import radius from './tokens/radius';
-import shadows from './tokens/shadows';
+## Platform Styling Strategy
+- Shared style file first (`Component.styles.jsx`).
+- Platform override style files only when required.
+- No `Platform.OS` branching in style files.
+- Override files must preserve the same theme API shape.
 
-const lightTheme = {
-  colors,
-  spacing,
-  typography,
-  radius,
-  shadows,
-};
+## Accessibility and Design Direction
+- Contrast and focus visibility must satisfy accessibility requirements.
+- Motion must respect reduced-motion preferences.
+- Visual direction follows Microsoft Fluent / Microsoft 365 style principles.
 
-export { lightTheme };
-```
-Rules:
-* Themes must have **identical shape**
-* Never add theme keys conditionally
-* Dark theme must override values, not structure
----
-
-## Theme Provider Rules
-### Supported Themes (Mandatory)
-* **Only two themes**: Light and Dark. No other theme variants (e.g. high-contrast) are part of the app theme system.
-* Theme provider and store must expose only `light` and `dark`; theme resolution must choose one of these two.
-
-### Provider Placement
-ThemeProvider mounted **only once**. See `bootstrap-config.mdc` for placement.
-
-### Theme Switching
-* Theme switching is controlled via:
-  * Redux state or
-  * Feature flags
-* UI components must not toggle themes directly
----
-
-## Styled-Components Rules
-### Mandatory Usage
-* **Styled-components is the default for UI styles**
-* Inline styles are forbidden
-
-### Limited StyleSheet exception (native only)
-- `StyleSheet` may be used **only** inside `*.android.styles.jsx` / `*.ios.styles.jsx` for static style objects that are performance-critical.
-- `StyleSheet` styles must still be **theme/token-driven** (no hardcoded colors/spacing).
-- `StyleSheet` must not be used in `*.web.styles.jsx` or in component render files.
-
-### Platform entrypoints (MANDATORY)
-Use the correct styled-components entrypoint per platform style file:
-- `*.android.styles.jsx` → `styled-components/native`
-- `*.ios.styles.jsx` → `styled-components/native`
-- `*.web.styles.jsx` → `styled-components`
-
-Forbidden:
-- Using `styled-components/native` inside `*.web.styles.jsx`
-- Using `styled-components` inside native `*.android.styles.jsx` / `*.ios.styles.jsx`
-
-### Styled Component Creation
-See `component-structure.mdc`.
----
-
-### Accessing Theme
-```js
-const Button = styled.Pressable`
-  background-color: ${({ theme }) => theme.colors.primary};
-  padding: ${({ theme }) => theme.spacing.md}px;
-`;
-```
-Rules:
-* Never import tokens directly into components
-* Always consume styles via `theme`
----
-
-## Platform-Specific Styling
-### File-Level Separation
-Use shared-first styling with optional platform overrides:
-```txt
-Component.styles.jsx                 # shared default
-Component.android.styles.jsx         # optional override
-Component.ios.styles.jsx             # optional override
-Component.web.styles.jsx             # optional override
-```
-Rules:
-* No `Platform.OS` checks inside styles
-* No conditional theme branching per platform
-* Any platform override file must consume the same theme API as shared styles
----
-
-## Responsive Design
-### Breakpoints
-Breakpoints live in:
-```txt
-src/theme/breakpoints.js
-```
-Rules:
-* Use named breakpoints (mobile, tablet, desktop)
-* No magic screen widths in components
-
-### Responsive Helpers
-* Responsive logic may exist in:
-  * theme helpers
-  * shared hooks (`useBreakpoint`)
-* UI components consume responsive values declaratively
----
-
-## Accessibility & Theming
-Rules:
-* All color pairs must meet contrast requirements
-* Font sizes must scale appropriately
-* Focus states must be theme-defined
-* Motion must be reducible via theme flags
-
-## Microsoft Fluent Design Principles (Mandatory)
-- **Typography**: Segoe UI–style (theme tokens); clear hierarchy.
-- **Colors**: Fluent blue primary (#0078D4–style), neutrals, semantic success/warning/error; theme tokens only.
-- **Corners**: 2–4px typical (theme radius); no large border-radius.
-- **Depth**: Light shadows/borders; no heavy skeuomorphism.
-- **Reference**: Fluent / Microsoft 365 patterns (cards, command bars, lists, forms). One cohesive Fluent look on Android, iOS, Web; prefer over Material/HIG unless a11y or platform requires.
-- **Cards**: Subtle borders or light shadows; restrained elevation.
-- **Motion**: Subtle; respect reduced motion.
-- **Consistency**: One spacing scale, one typography scale, semantic colors, small radius, consistent elevation (all from tokens).
-- **Responsive**: Mobile-first; breakpoints; 44x44px touch targets; command-bar/ribbon patterns on desktop where appropriate.
-
----
-## Forbidden Patterns
-❌ Hardcoded colors, spacing, font sizes
-❌ Inline styles
-❌ `StyleSheet` outside native `*.android.styles.jsx` / `*.ios.styles.jsx`
-❌ Platform checks inside styles
-❌ Importing tokens directly into UI
-❌ Styling logic inside components
-❌ Theme mutation at runtime
-❌ Creating styled-components outside `.styles.jsx` files (STRICTLY FORBIDDEN - see `component-structure.mdc`)
-❌ Inconsistent spacing or typography
-❌ Overuse of shadows or effects
-❌ Cluttered layouts
-❌ Poor visual hierarchy
-❌ Visual styles that conflict with Microsoft Fluent look and feel (e.g. heavy Material or iOS-only styling when Fluent is the target)
-
-## Enforcement
-All UI must consume the theme; no hardcoded visual values. Design changes require token/theme updates. Fluent principles and token semantics are mandatory.
----
-**Theme = single source of truth for all visuals. UI = Microsoft Fluent / Microsoft 365 look and feel.**
+## Related Owners
+- UI file structure: `component-structure.mdc`
+- Provider placement and theme init: `bootstrap-config.mdc`
+- Accessibility requirements: `accessibility.mdc`

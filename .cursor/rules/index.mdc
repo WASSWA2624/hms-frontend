@@ -5,48 +5,66 @@ alwaysApply: true
 # Project Rules Index
 
 ## Purpose
-This document is the **single entry point** for all coding standards, architectural rules, and conventions used in this React Native (Expo + App Router) application. These rules ensure **consistency**, **scalability**, **maintainability**, and **platform correctness** across the codebase.
+`index.mdc` is the table of contents and precedence map for all project rules.
+It does not define implementation details that belong to area-specific rule files.
 
-**Important:** `index.mdc` is a **TOC + meta index** — it may describe where rules live, but must not duplicate/define the rules themselves. All authoritative rules live in the linked `.mdc` files below.
+## Conflict Resolution
+Use this order when two statements appear to conflict:
+1. Security and compliance rules
+2. The area owner listed in "Rule Ownership"
+3. `core-principles.mdc` for tradeoff direction
+4. Other supporting rule files
 
-**Current implementation alignment (2026-02-12):**
-- Route/screen progress is tracked in `hms-frontend/dev-plan/` (especially `P011_screens-routes.md`).
-- Platform UI bridge exports (`ScreenName.jsx` / `ComponentName.jsx`) are governed by `component-structure.mdc`.
+If a non-owner file repeats owner policy, the owner file is authoritative.
 
-## Rule documents
-- [Core development principles](./core-principles.mdc) ⭐ **START HERE** - Fundamental principles that guide all development
-- [Tech stack & modules](./tech-stack.mdc) - **Single source of truth for all dependencies**
+## Rule Documents
+- [Core development principles](./core-principles.mdc) - high-level engineering principles
+- [Tech stack & modules](./tech-stack.mdc) - approved dependency list and versions
 - [Dependency minimization policy](./dependency-policy.mdc)
 - [Project structure & architecture](./project-structure.mdc)
-- [App Router & navigation](./app-router.mdc) - **Single source of truth for routing**
+- [App Router & navigation](./app-router.mdc) - routing conventions and boundaries
 - [Platform UI layer](./platform-ui.mdc)
-- [UI component structure](./component-structure.mdc) - **Single source of truth for component organization**
-- [Theme & design system](./theme-design.mdc) - **Single source of truth for theming and styling** (Microsoft Fluent / Microsoft 365 look and feel)
+- [UI component structure](./component-structure.mdc) - platform folder/file conventions
+- [Theme & design system](./theme-design.mdc) - theming and styling rules
 - [State management (Redux Toolkit)](./state-management.mdc)
 - [Features & domain rules](./features-domain.mdc)
 - [Services & integrations](./services-integration.mdc)
 - [Hooks & utilities](./hooks-utils.mdc)
 - [Offline-first architecture](./offline-sync.mdc)
 - [Security standards](./security.mdc)
-- [Internationalization (i18n) & localization](./i18n.mdc) - **Single source of truth for i18n**
+- [Internationalization (i18n) & localization](./i18n.mdc)
 - [Accessibility (a11y) & User Experience (UX)](./accessibility.mdc)
 - [Performance & efficiency](./performance.mdc)
 - [Errors & logging](./errors-logging.mdc)
-- [Debug system](./debug.mdc) - Cross-platform debug scripts and log files (dev-only)
-- [Bootstrap & configuration](./bootstrap-config.mdc) - **Single source of truth for provider placement**
-- [Coding conventions, enforcement & change policy](./coding-conventions.mdc) - **Single source of truth for module system, imports, and conventions**
-- [Testing strategy](./testing.mdc) - **Single source of truth for testing**
+- [Debug system](./debug.mdc) - development-only debugging workflow
+- [Bootstrap & configuration](./bootstrap-config.mdc) - startup and provider placement
+- [Coding conventions, enforcement & change policy](./coding-conventions.mdc)
+- [Testing strategy](./testing.mdc)
 
-## Single Sources of Truth
-To avoid contradictions, key areas have designated single sources of truth:
-- **Dependencies**: `tech-stack.mdc` - All dependency versions and usage rules
-- **Routing**: `app-router.mdc` - All routing conventions and route grouping
-- **Component Structure**: `component-structure.mdc` - Component/screen organization and file structure
-- **Theming**: `theme-design.mdc` - Theme tokens, design system, styled-components rules, Microsoft Fluent / Microsoft 365 visual direction
-- **Module System & Exports**: `coding-conventions.mdc` - ES modules, imports, exports, barrel files, index file extensions
-- **Provider Placement**: `bootstrap-config.mdc` - Where all providers are mounted
-- **Testing**: `testing.mdc` - All testing requirements and coverage standards
-- **i18n**: `i18n.mdc` - All internationalization rules and translation requirements
-- **Side Effects**: `coding-conventions.mdc` - Where side effects are allowed (referenced by hooks, UI, and other layers)
+## Rule Ownership
+- Dependencies and versions: `tech-stack.mdc`
+- Dependency approval process: `dependency-policy.mdc`
+- Module system, naming, imports/exports, side-effect placement: `coding-conventions.mdc`
+- Architecture boundaries and folder ownership: `project-structure.mdc`
+- Routing and navigation constraints: `app-router.mdc`
+- Platform component/screen folder and file conventions: `component-structure.mdc`
+- UI layer behavior constraints: `platform-ui.mdc`
+- Theme and styling constraints: `theme-design.mdc`
+- Global provider placement and startup order: `bootstrap-config.mdc`
+- State management rules: `state-management.mdc`
+- Feature/domain boundaries: `features-domain.mdc`
+- Service/integration boundaries: `services-integration.mdc`
+- Hook and utility constraints: `hooks-utils.mdc`
+- Offline queue/sync behavior: `offline-sync.mdc`
+- Security requirements: `security.mdc`
+- i18n and locale behavior: `i18n.mdc`
+- Accessibility and UX quality bars: `accessibility.mdc`
+- Performance budgets and profiling: `performance.mdc`
+- Error normalization and logging flow: `errors-logging.mdc`
+- Test requirements and coverage policy: `testing.mdc`
+- Dev-only debug tooling: `debug.mdc`
 
-**Important**: When rules reference these areas, they must point to the single source of truth to prevent contradictions. Do not duplicate authoritative rules in multiple files.
+## Maintenance Rules
+- Keep each file scoped to its owned area.
+- If a rule must be mentioned in a non-owner file, keep it short and reference the owner file.
+- Update `index.mdc` whenever a rule file is added, removed, or ownership changes.
