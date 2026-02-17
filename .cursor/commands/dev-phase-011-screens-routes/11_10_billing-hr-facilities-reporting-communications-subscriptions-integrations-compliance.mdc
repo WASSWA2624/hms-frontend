@@ -137,6 +137,19 @@ For any selected step that touches UI (components, screens, layouts, route prese
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
 ---
+
+## Total UI Component and Sub-Component Compliance Contract (Mandatory)
+
+For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+- Review every impacted UI component and nested sub-component end-to-end, including conditional branches (tabs, modals, drawers, tables, cards, forms, field groups, action bars, empty/loading/error states).
+- Assess each element for full compliance with this UX target: elegant, intuitive, modern, simple, self-explanatory, role-aware, minimal, quick to use, and chronologically organized.
+- If any element is non-compliant, redesign it before completion (information hierarchy, interaction flow, copy, control placement, visual density, and component composition).
+- Remove or merge redundant controls/sections to reduce clutter and shorten task time without hiding required clinical/business context.
+- Ensure every primary workflow has clear chronological next actions and predictable back/forward handoffs.
+- Enforce role-aware visibility and action readiness at component and sub-component level (not only at route level).
+- Keep redesigned UI aligned with shared components/tokens and platform parity; avoid one-off visual patterns unless required by accessibility/compliance constraints.
+- Document reviewed components, non-compliance findings, and redesign decisions in the final compliance report.
+---
 ## Novice-First UX and Navigation Contract (Mandatory)
 
 For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
@@ -263,6 +276,7 @@ Primary areas for this tier:
 4. Run relevant checks/tests and report results.
 5. Verify no architecture boundary violations.
 6. Verify no out-of-tier scope creep.
+7. Complete and document a full UI component/sub-component compliance review for selected step(s), redesigning non-compliant UI where needed.
 
 ---
 
@@ -274,6 +288,6 @@ Return ONLY:
 2. Related exports/wiring updates required by selected step(s) only.
 3. i18n locale key updates required by selected step(s).
 4. Tests/check commands run and result summary.
-5. A concise compliance report confirming selected step IDs, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
+5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
