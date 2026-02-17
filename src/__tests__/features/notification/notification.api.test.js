@@ -33,6 +33,15 @@ describe('notification.api', () => {
     });
   });
 
+  it('lists notifications with default params', async () => {
+    apiClient.mockResolvedValue({ data: [] });
+    await listNotificationsApi();
+    expect(apiClient).toHaveBeenCalledWith({
+      url: `${endpoints.NOTIFICATIONS.LIST}${buildQueryString({})}`,
+      method: 'GET',
+    });
+  });
+
   it('gets a notification', async () => {
     apiClient.mockResolvedValue({ data: { id: '1' } });
     await getNotificationApi('1');
