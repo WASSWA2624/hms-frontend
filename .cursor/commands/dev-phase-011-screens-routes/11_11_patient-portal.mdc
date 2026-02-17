@@ -39,6 +39,17 @@ For any selected step that touches UI (components, screens, layouts, route prese
 - Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
+## Human-Readable Identity and Context Selection Contract (Mandatory)
+
+For any selected step that touches UI, onboarding, auth, or context selection:
+- Never display raw technical identifiers (UUID/GUID/internal primary keys) to non-super users.
+- Keep technical IDs internal to state, route params, and API payloads; do not render them in labels, inputs, tables, cards, helper text, or summaries for standard users.
+- Display human-readable names and business labels by default (tenant name, facility name, module name, plan name, invoice number, license code).
+- If a visible identifier is required, use a human-readable business ID/code (for example `FAC-00124`) instead of raw GUID values.
+- Once user email is captured/resolved in onboarding/auth flows, load authorized tenant/facility options from mounted backend resources and present readable names in checkbox/selectable list controls.
+- Auto-resolve and hide IDs when only one authorized tenant/facility exists; otherwise let users choose from readable option lists.
+- For privileged support/admin screens where technical IDs are required, gate visibility by role and keep default views human-readable.
+
 ---
 
 ## Total UI Component and Sub-Component Compliance Contract (Mandatory)

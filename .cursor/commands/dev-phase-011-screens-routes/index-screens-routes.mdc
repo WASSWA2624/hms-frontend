@@ -22,6 +22,7 @@ Scope guard:
 
 Global UX baseline enforced in each tier prompt:
 - Mobile parity and compact UX contract.
+- Human-readable identity and context-selection contract: no raw UUID/GUID/internal ID exposure to non-super users; use email-first tenant/facility name-based selection and human-readable business IDs where visible IDs are needed.
 - Novice-first UX and navigation contract.
 - User-friendly errors and recovery contract.
 - Total UI component/sub-component compliance review with redesign required for non-compliant UI.
