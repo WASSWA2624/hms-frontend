@@ -60,4 +60,4 @@ src/offline/
 - Redux integration: `state-management.mdc`
 - Domain flow rules: `features-domain.mdc`
 - Offline encryption and credential safeguards: `security.mdc`
-- Test requirements: `testing.mdc`
+- Offline reliability test coverage: `testing.mdc`
