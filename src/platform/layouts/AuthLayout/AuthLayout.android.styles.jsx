@@ -173,6 +173,8 @@ const StyledScrollView = styled(ScrollView)
   .attrs(({ theme }) => ({
     contentContainerStyle: {
       flexGrow: 1,
+      width: '100%',
+      alignItems: 'stretch',
       paddingBottom: theme?.spacing?.sm ?? 8,
     },
   }))`

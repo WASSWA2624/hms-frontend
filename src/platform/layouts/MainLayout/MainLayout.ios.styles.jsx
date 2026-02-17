@@ -34,6 +34,8 @@ const StyledScrollView = styled(ScrollView).withConfig({
 }).attrs({
   contentContainerStyle: {
     flexGrow: 1,
+    width: '100%',
+    alignItems: 'stretch',
   },
 })`
   flex: 1;

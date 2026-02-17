@@ -36,19 +36,27 @@ const StyledContainer = styled.main
   .attrs(({ testID }) => ({
     'data-testid': testID,
   }))`
+  height: 100dvh;
   min-height: 100dvh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing.lg}px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  padding: ${({ theme }) => theme.spacing.md}px;
   background: linear-gradient(
     160deg,
     ${({ theme }) => theme.colors.background.secondary} 0%,
     ${({ theme }) => theme.colors.background.primary} 100%
   );
   box-sizing: border-box;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) {
+    padding: ${({ theme }) => theme.spacing.lg}px;
+  }
 `;
 
 const StyledBanner = styled.div.withConfig({
@@ -66,8 +74,7 @@ const StyledCard = styled.div.withConfig({
 })`
   width: 100%;
   max-width: ${({ theme }) => theme.spacing.xxl * 20}px;
-  min-height: 0;
-  max-height: 100%;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md}px;
@@ -216,11 +223,8 @@ const StyledContent = styled.div.withConfig({
   componentId: 'StyledContent',
 })`
   width: 100%;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  min-width: 0;
   overflow-x: hidden;
-  scrollbar-gutter: stable;
 `;
 
 const StyledHelpLinks = styled.div.withConfig({

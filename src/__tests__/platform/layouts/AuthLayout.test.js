@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { ScrollView, Text } from 'react-native';
+import { act } from '@testing-library/react-native';
 import AuthLayout from '@platform/layouts/AuthLayout';
 import { renderWithProviders } from '../../helpers/test-utils';
 
@@ -419,10 +420,40 @@ describe('AuthLayout Component', () => {
           </AuthLayoutAndroid>
         );
 
-        const scrollView = UNSAFE_getByType(ScrollView);
-        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
-        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
-        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+        const initialScrollView = UNSAFE_getByType(ScrollView);
+        expect(initialScrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(initialScrollView.props.horizontal).toBe(false);
+        expect(initialScrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(initialScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout(undefined);
+          initialScrollView.props.onContentSizeChange(320, undefined);
+        });
+
+        const fallbackScrollView = UNSAFE_getByType(ScrollView);
+        expect(fallbackScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout({
+            nativeEvent: {
+              layout: {
+                height: 220,
+              },
+            },
+          });
+          initialScrollView.props.onContentSizeChange(320, 420);
+        });
+
+        const overflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(overflowScrollView.props.showsVerticalScrollIndicator).toBe(true);
+
+        act(() => {
+          overflowScrollView.props.onContentSizeChange(320, 140);
+        });
+
+        const nonOverflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(nonOverflowScrollView.props.showsVerticalScrollIndicator).toBe(false);
       });
 
       it('should render Android screen header and banner variants', () => {
@@ -558,10 +589,41 @@ describe('AuthLayout Component', () => {
           </AuthLayoutIOS>
         );
 
-        const scrollView = UNSAFE_getByType(ScrollView);
-        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
-        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
-        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+        const initialScrollView = UNSAFE_getByType(ScrollView);
+        expect(initialScrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(initialScrollView.props.horizontal).toBe(false);
+        expect(initialScrollView.props.alwaysBounceHorizontal).toBe(false);
+        expect(initialScrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(initialScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout(undefined);
+          initialScrollView.props.onContentSizeChange(320, undefined);
+        });
+
+        const fallbackScrollView = UNSAFE_getByType(ScrollView);
+        expect(fallbackScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout({
+            nativeEvent: {
+              layout: {
+                height: 220,
+              },
+            },
+          });
+          initialScrollView.props.onContentSizeChange(320, 420);
+        });
+
+        const overflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(overflowScrollView.props.showsVerticalScrollIndicator).toBe(true);
+
+        act(() => {
+          overflowScrollView.props.onContentSizeChange(320, 140);
+        });
+
+        const nonOverflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(nonOverflowScrollView.props.showsVerticalScrollIndicator).toBe(false);
       });
 
       it('should render iOS screen header and banner variants', () => {

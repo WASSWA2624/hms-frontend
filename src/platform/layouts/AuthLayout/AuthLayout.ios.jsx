@@ -4,7 +4,7 @@
  * File: AuthLayout.ios.jsx
  */
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppLogo, AppLogoSizes, Button, Icon, Text } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -80,6 +80,19 @@ const AuthLayoutIOS = ({
     screenBackAction,
     t,
   });
+  const [scrollViewportHeight, setScrollViewportHeight] = useState(0);
+  const [scrollContentHeight, setScrollContentHeight] = useState(0);
+
+  const handleScrollLayout = useCallback((event) => {
+    const nextHeight = event?.nativeEvent?.layout?.height ?? 0;
+    setScrollViewportHeight(nextHeight);
+  }, []);
+
+  const handleContentSizeChange = useCallback((_width, nextHeight) => {
+    setScrollContentHeight(nextHeight ?? 0);
+  }, []);
+
+  const shouldShowVerticalIndicator = scrollContentHeight > scrollViewportHeight + 1;
 
   return (
     <StyledContainer
@@ -141,7 +154,12 @@ const AuthLayoutIOS = ({
             </StyledScreenHeader>
           ) : null}
           <StyledContent
+            horizontal={false}
+            alwaysBounceHorizontal={false}
+            onLayout={handleScrollLayout}
+            onContentSizeChange={handleContentSizeChange}
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={shouldShowVerticalIndicator}
             showsHorizontalScrollIndicator={false}
           >
             {children}

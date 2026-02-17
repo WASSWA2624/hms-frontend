@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { ScrollView, Text } from 'react-native';
+import { act } from '@testing-library/react-native';
 import MainLayout from '@platform/layouts/MainLayout';
 import { renderWithProviders } from '../../helpers/test-utils';
 
@@ -390,10 +391,40 @@ describe('MainLayout Component', () => {
           </MainLayoutAndroid>
         );
 
-        const scrollView = UNSAFE_getByType(ScrollView);
-        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
-        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
-        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+        const initialScrollView = UNSAFE_getByType(ScrollView);
+        expect(initialScrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(initialScrollView.props.horizontal).toBe(false);
+        expect(initialScrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(initialScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout(undefined);
+          initialScrollView.props.onContentSizeChange(320, undefined);
+        });
+
+        const fallbackScrollView = UNSAFE_getByType(ScrollView);
+        expect(fallbackScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout({
+            nativeEvent: {
+              layout: {
+                height: 180,
+              },
+            },
+          });
+          initialScrollView.props.onContentSizeChange(320, 360);
+        });
+
+        const overflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(overflowScrollView.props.showsVerticalScrollIndicator).toBe(true);
+
+        act(() => {
+          overflowScrollView.props.onContentSizeChange(320, 120);
+        });
+
+        const nonOverflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(nonOverflowScrollView.props.showsVerticalScrollIndicator).toBe(false);
       });
 
       it('should have correct accessibility role on Android', () => {
@@ -468,10 +499,41 @@ describe('MainLayout Component', () => {
           </MainLayoutIOS>
         );
 
-        const scrollView = UNSAFE_getByType(ScrollView);
-        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
-        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
-        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+        const initialScrollView = UNSAFE_getByType(ScrollView);
+        expect(initialScrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(initialScrollView.props.horizontal).toBe(false);
+        expect(initialScrollView.props.alwaysBounceHorizontal).toBe(false);
+        expect(initialScrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(initialScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout(undefined);
+          initialScrollView.props.onContentSizeChange(320, undefined);
+        });
+
+        const fallbackScrollView = UNSAFE_getByType(ScrollView);
+        expect(fallbackScrollView.props.showsVerticalScrollIndicator).toBe(false);
+
+        act(() => {
+          initialScrollView.props.onLayout({
+            nativeEvent: {
+              layout: {
+                height: 180,
+              },
+            },
+          });
+          initialScrollView.props.onContentSizeChange(320, 360);
+        });
+
+        const overflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(overflowScrollView.props.showsVerticalScrollIndicator).toBe(true);
+
+        act(() => {
+          overflowScrollView.props.onContentSizeChange(320, 120);
+        });
+
+        const nonOverflowScrollView = UNSAFE_getByType(ScrollView);
+        expect(nonOverflowScrollView.props.showsVerticalScrollIndicator).toBe(false);
       });
 
       it('should have correct accessibility role on iOS', () => {

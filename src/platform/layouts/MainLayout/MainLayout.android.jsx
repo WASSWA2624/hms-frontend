@@ -4,7 +4,7 @@
  * File: MainLayout.android.jsx
  */
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useI18n } from '@hooks';
 import useMainLayout from './useMainLayout';
 import {
@@ -42,6 +42,19 @@ const MainLayoutAndroid = ({
     hasBreadcrumbs,
   } = useMainLayout({ header, footer, breadcrumbs });
   const resolvedAccessibilityLabel = accessibilityLabel || t('navigation.mainNavigation');
+  const [scrollViewportHeight, setScrollViewportHeight] = useState(0);
+  const [scrollContentHeight, setScrollContentHeight] = useState(0);
+
+  const handleScrollLayout = useCallback((event) => {
+    const nextHeight = event?.nativeEvent?.layout?.height ?? 0;
+    setScrollViewportHeight(nextHeight);
+  }, []);
+
+  const handleContentSizeChange = useCallback((_width, nextHeight) => {
+    setScrollContentHeight(nextHeight ?? 0);
+  }, []);
+
+  const shouldShowVerticalIndicator = scrollContentHeight > scrollViewportHeight + 1;
 
   return (
     <StyledContainer
@@ -55,7 +68,11 @@ const MainLayoutAndroid = ({
         </StyledHeader>
       )}
       <StyledScrollView
+        horizontal={false}
+        onLayout={handleScrollLayout}
+        onContentSizeChange={handleContentSizeChange}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={shouldShowVerticalIndicator}
         showsHorizontalScrollIndicator={false}
       >
         <StyledContent>
