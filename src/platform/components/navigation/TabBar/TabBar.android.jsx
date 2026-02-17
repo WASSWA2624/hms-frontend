@@ -5,7 +5,6 @@
  */
 import React from 'react';
 import { useRouter } from 'expo-router';
-import Text from '@platform/components/display/Text';
 import Badge from '@platform/components/display/Badge';
 import { useI18n } from '@hooks';
 import useTabBar from './useTabBar';
@@ -17,6 +16,8 @@ import {
   StyledTabItemLabel,
   StyledTabItemBadge,
 } from './TabBar.android.styles';
+
+const DEFAULT_TAB_ICON = 'o';
 
 /**
  * TabBar component for Android
@@ -88,7 +89,7 @@ const TabBarAndroid = ({
               accessibilityState={{ selected: isActive }}
               testID={testID ? `${testID}-tab-${item.id}` : undefined}
             >
-              <StyledTabItemIcon active={isActive}>{item.icon || '○'}</StyledTabItemIcon>
+              <StyledTabItemIcon active={isActive}>{item.icon || DEFAULT_TAB_ICON}</StyledTabItemIcon>
               <StyledTabItemLabel active={isActive}>{item.label}</StyledTabItemLabel>
               {item.badge && item.badgeCount > 0 && (
                 <StyledTabItemBadge>

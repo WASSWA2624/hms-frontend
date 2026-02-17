@@ -24,6 +24,10 @@ import {
   StyledBreadcrumbEllipsis,
 } from './Breadcrumbs.web.styles';
 
+const ELLIPSIS_I18N_KEY = 'navigation.breadcrumbs.ellipsis';
+const BACK_ICON_GLYPH = '<';
+const isActivationKey = (key) => key === 'Enter' || key === ' ' || key === 'Spacebar';
+
 /**
  * Breadcrumb item structure
  * @typedef {Object} BreadcrumbItem
@@ -82,10 +86,10 @@ const BreadcrumbsWeb = ({
     const lastTwo = items.slice(-2);
     return [
       first,
-      { label: '...', isEllipsis: true },
+      { label: t(ELLIPSIS_I18N_KEY), isEllipsis: true },
       ...lastTwo,
     ];
-  }, [items, maxItems, isMobile]);
+  }, [items, maxItems, isMobile, t]);
 
   const handleItemPress = (item, index) => {
     if (onItemPress) {
@@ -98,8 +102,7 @@ const BreadcrumbsWeb = ({
   };
 
   const handleItemKeyDown = (event, item, index) => {
-    // Handle Enter and Space keys for keyboard navigation
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (isActivationKey(event.key)) {
       event.preventDefault();
       const isLast = index === displayItems.length - 1;
       if (!isLast && !item.isEllipsis) {
@@ -224,7 +227,7 @@ const BreadcrumbsWeb = ({
               ) : (
                 <StyledBreadcrumbItem
                   $isLast={isLast}
-                  role="text"
+                  aria-current={isLast ? 'page' : undefined}
                   aria-label={item.label}
                 >
                   {item.icon && (
@@ -251,7 +254,7 @@ const BreadcrumbsWeb = ({
             data-testid={testID ? `${testID}-back` : undefined}
             testID={testID ? `${testID}-back` : undefined}
           >
-            <Icon glyph="←" size="xs" decorative />
+            <Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />
             <StyledBackLabel>{t('common.back')}</StyledBackLabel>
           </StyledBackButton>
         </StyledBreadcrumbsActions>

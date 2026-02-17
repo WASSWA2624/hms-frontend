@@ -86,6 +86,19 @@ describe('SidebarItem Component - Web', () => {
     expect(mockPush).toHaveBeenCalledWith('/patients');
   });
 
+  it('routes to the item path when Enter key is pressed', () => {
+    const { getByTestId } = renderWithTheme(
+      <SidebarItemWeb
+        item={{ id: 'appointments', label: 'Appointments', path: '/appointments', icon: 'time-outline' }}
+        testID="sidebar-item-appointments"
+      />
+    );
+
+    fireEvent.keyDown(getByTestId('sidebar-item-appointments'), { key: 'Enter' });
+
+    expect(mockPush).toHaveBeenCalledWith('/appointments');
+  });
+
   it('routes nested rows without toggling expansion', () => {
     const onToggleExpand = jest.fn();
     const { getByTestId } = renderWithTheme(

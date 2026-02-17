@@ -41,9 +41,12 @@ const StyledBackButton = styled(Pressable).withConfig({
 })`
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding-vertical: ${({ theme }) => theme.spacing.xs}px;
   padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.background.tertiary};
@@ -85,6 +88,8 @@ const StyledLink = styled(Pressable).withConfig({
 })`
   flex-direction: row;
   align-items: center;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledBreadcrumbText = styled(Text).withConfig({

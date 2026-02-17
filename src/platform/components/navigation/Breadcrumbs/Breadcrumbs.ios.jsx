@@ -153,7 +153,7 @@ const BreadcrumbsIOS = ({
             accessibilityLabel={t('common.back')}
             testID={testID ? `${testID}-back` : undefined}
           >
-            <Icon glyph="←" size="xs" decorative />
+            <Icon glyph="<" size="xs" decorative />
             <StyledBackLabel>{t('common.back')}</StyledBackLabel>
           </StyledBackButton>
         </StyledBreadcrumbsActions>

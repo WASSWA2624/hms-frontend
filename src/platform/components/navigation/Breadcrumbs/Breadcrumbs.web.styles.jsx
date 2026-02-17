@@ -53,9 +53,11 @@ const StyledBackButton = styled.button.withConfig({
 })`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  min-height: 32px;
+  min-width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -135,9 +137,11 @@ const StyledSeparator = styled.span.withConfig({
 const linkButtonStyles = css`
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
   cursor: pointer;
-  padding: 0;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   transition: background-color 0.15s ease, color 0.15s ease;
   white-space: nowrap;
@@ -176,7 +180,7 @@ const linkButtonStyles = css`
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     max-width: 120px;
-    padding: 0;
+    padding: ${({ theme }) => theme.spacing.xs}px;
 
     & > *:last-child {
       font-size: ${({ theme }) => theme.typography.fontSize.xs}px;

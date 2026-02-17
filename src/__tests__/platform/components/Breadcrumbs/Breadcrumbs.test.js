@@ -254,6 +254,23 @@ describe('Breadcrumbs Component', () => {
   });
 
   describe('Web-specific behavior', () => {
+    it('uses localized truncation label when breadcrumbs are collapsed', () => {
+      const BreadcrumbsWeb = require('@platform/components/navigation/Breadcrumbs/Breadcrumbs.web').default;
+      const manyItems = [
+        { label: 'Home', href: '/' },
+        { label: 'Level 1', href: '/level-1' },
+        { label: 'Level 2', href: '/level-2' },
+        { label: 'Level 3', href: '/level-3' },
+        { label: 'Current' },
+      ];
+
+      const { getByText } = renderWithProviders(
+        <BreadcrumbsWeb items={manyItems} maxItems={3} testID="breadcrumbs" />
+      );
+
+      expect(getByText('More', { includeHiddenElements: true })).toBeTruthy();
+    });
+
     it('should support href prop for web links', () => {
       const itemsWithHref = [
         { label: 'Home', href: '/' },

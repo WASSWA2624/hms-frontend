@@ -17,6 +17,8 @@ import {
   StyledTabItemBadge,
 } from './TabBar.web.styles';
 
+const DEFAULT_TAB_ICON = 'o';
+
 /**
  * TabBar component for Web
  * @param {Object} props - TabBar props
@@ -91,7 +93,7 @@ const TabBarWeb = ({
               aria-selected={isActive}
               data-testid={testID ? `${testID}-tab-${item.id}` : undefined}
             >
-              <StyledTabItemIcon active={isActive}>{item.icon || '○'}</StyledTabItemIcon>
+              <StyledTabItemIcon active={isActive}>{item.icon || DEFAULT_TAB_ICON}</StyledTabItemIcon>
               <StyledTabItemLabel active={isActive}>{item.label}</StyledTabItemLabel>
               {item.badge && item.badgeCount > 0 && (
                 <StyledTabItemBadge>

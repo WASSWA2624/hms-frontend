@@ -12,10 +12,10 @@ export const Row = styled.a.withConfig({
   align-items: center;
   justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'flex-start')};
   gap: ${({ theme, $collapsed, $level = 0 }) => ($collapsed ? 0 : $level > 0 ? theme.spacing.xs - 1 : theme.spacing.xs)}px;
-  min-height: ${({ $collapsed, $level = 0 }) => ($collapsed ? '32px' : $level > 0 ? '24px' : '30px')};
-  height: ${({ $collapsed }) => ($collapsed ? '32px' : 'auto')};
-  min-width: ${({ $collapsed }) => ($collapsed ? '32px' : '0')};
-  width: ${({ $collapsed }) => ($collapsed ? '32px' : '100%')};
+  min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  height: auto;
+  min-width: ${({ theme, $collapsed }) => ($collapsed ? `${theme.spacing.xxl - theme.spacing.xs}px` : '0')};
+  width: ${({ theme, $collapsed }) => ($collapsed ? `${theme.spacing.xxl - theme.spacing.xs}px` : '100%')};
   max-width: 100%;
   padding: ${({ theme, $collapsed, $level = 0 }) =>
     $collapsed
@@ -28,7 +28,7 @@ export const Row = styled.a.withConfig({
     if ($active || ($hasChildren && $expanded)) return theme.colors.primary;
     return theme.colors.background.tertiary;
   }};
-  border-radius: ${({ theme }) => theme.radius?.xs ?? 2}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.text.primary)};
@@ -146,16 +146,16 @@ export const ExpandButton = styled.button.withConfig({
   box-sizing: border-box;
   margin-left: ${({ theme }) => theme.spacing.xs / 2}px;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
+  height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   padding: 0;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  border-radius: ${({ theme }) => theme.radius?.xs ?? 3}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
   color: ${({ theme }) => theme.colors.text.secondary};
   cursor: pointer;
-  font-size: ${({ theme }) => (theme.typography?.fontSize?.xs ?? 12) - 3}px;
-  font-weight: ${({ theme }) => theme.typography?.fontWeight?.semibold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   line-height: 1;
   display: inline-flex;
   align-items: center;
