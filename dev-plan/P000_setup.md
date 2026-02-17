@@ -3,6 +3,30 @@
 ## Purpose
 Initialize the Expo React Native project with correct structure, dependencies, and configuration. Follows rules defined in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; all linked rules are authoritative. Do not duplicate rule content here.
 
+## Rule References
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/tech-stack.mdc`
+- `.cursor/rules/dependency-policy.mdc`
+- `.cursor/rules/project-structure.mdc`
+- `.cursor/rules/coding-conventions.mdc`
+- `.cursor/rules/bootstrap-config.mdc`
+- `.cursor/rules/debug.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/i18n.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` section `0.4` (source-of-truth hierarchy).
+- `write-up.md` sections `2.1` and `2.4` (frontend baseline and quality implications).
+- `write-up.md` section `5.1` (layered architecture prerequisites).
+- `write-up.md` sections `14` and `15` (NFR + quality gate foundations).
+- `write-up.md` section `19.1` (deployment readiness prerequisites).
+
+## Backend Alignment Gate
+- Frontend runtime config must target backend versioned API shape (`/api/v1`) through env/config modules only.
+- Health/readiness contracts (`/health`, `/ready`, `/live`) must remain available for environment checks.
+- Dependency versions must remain compatible with backend-facing contracts and documented in `tech-stack.mdc`.
+
 ## Prerequisites
 - Node.js >= 20.0.0
 - npm or yarn
@@ -567,6 +591,7 @@ Initialize the Expo React Native project with correct structure, dependencies, a
 - Folder structure created
 - Build tools configured
 - Testing framework ready
+- Backend API base/version wiring verified (`/api/v1` contract)
 - Ready to proceed to Phase 1
 
 **Next Phase**: `P001_foundation.md`

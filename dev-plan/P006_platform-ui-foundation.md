@@ -24,6 +24,17 @@ Follow the rule references below. This plan file does not redefine rules—only 
 - `.cursor/rules/errors-logging.mdc`
 - `.cursor/rules/dependency-policy.mdc`
 
+## Write-up Coverage
+- `write-up.md` sections `8.1` to `8.6` (UX goals, route/screen UX contract, accessibility, simplicity charter).
+- `write-up.md` section `14.2` (interaction performance expectations).
+- `write-up.md` section `15` (UI test and quality gates).
+- `write-up.md` section `22` (modern, simple, professional product positioning).
+
+## Backend Alignment Gate
+- UI primitives/patterns must be resource-agnostic and reusable across all 160 backend-backed modules.
+- State surfaces must support action-driven workflows required by backend action endpoints (status, loading, error, retry).
+- Component architecture must support entitlement-aware rendering without domain logic leakage.
+
 ## Prerequisites
 - Phase 5 completed (cross-cutting hooks available for UI patterns)
 - Theme tokens available (Phase 3)
@@ -290,12 +301,14 @@ Follow the rule references below. This plan file does not redefine rules—only 
 ---
 
 ## Completion Criteria
-- ✅ All items in this phase implemented and **fully tested** per `.cursor/rules/testing.mdc`
-- ✅ **100% test coverage** achieved per `.cursor/rules/testing.mdc`
-- ✅ UI implementation complies with the referenced `.mdc` rules (platform UI boundaries, theming, a11y, conventions, and domain ownership)
-- ✅ No duplicate "foundation primitives" implemented outside Step 6.1 (reuse only)
-- ✅ All components follow platform file structure per `.cursor/rules/component-structure.mdc`
-- ✅ All styles use theme tokens exclusively (no hardcoded values per `.cursor/rules/theme-design.mdc`)
+- [x] All items in this phase implemented and fully tested per `testing.mdc`.
+- [x] Coverage targets achieved for all newly introduced UI components.
+- [x] UI implementation complies with referenced rules (platform boundaries, theme, accessibility, conventions, ownership).
+- [x] No duplicate foundation primitives exist outside Step `6.1` scope.
+- [x] All components follow platform file structure per `component-structure.mdc`.
+- [x] All styles use theme tokens only (no hardcoded visual values).
+- [x] Component primitives provide all required UX states (loading, empty, error, offline) for downstream module screens.
 
 **Next Phase**: `P007_app-shell.md`
+
 

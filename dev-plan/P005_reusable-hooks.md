@@ -12,6 +12,17 @@ Follow the rule references below. This plan file does not redefine rules—only 
 - `.cursor/rules/errors-logging.mdc`
 - `.cursor/rules/i18n.mdc`
 
+## Write-up Coverage
+- `write-up.md` section `5.2` (UI consumption contract through hooks/use-cases).
+- `write-up.md` section `8` (predictable UX states and interaction consistency).
+- `write-up.md` sections `14.2` and `14.4` (performance and offline-aware UX behavior).
+- `write-up.md` section `15` (test gates for hook orchestration paths).
+
+## Backend Alignment Gate
+- Domain hooks must delegate module operations to Phase 10 feature contracts that map to backend modules/endpoints.
+- Hooks must expose normalized state/error codes suitable for backend action-endpoint workflows.
+- Hooks used by entitlement-sensitive screens must remain compatible with module activation gating from Group 18.
+
 ## Prerequisites
 - Phase 4 completed
 - Store configured (Phase 3)
@@ -141,8 +152,10 @@ Follow the rule references below. This plan file does not redefine rules—only 
 ---
 
 ## Completion Criteria
-- ✅ All cross-cutting hooks implemented and tested
-- ✅ No feature hooks that import `src/features/**` or `src/store/slices/*feature*` yet
-- ✅ Hook APIs are generic and reusable (no domain-specific module knowledge)
+- [x] All cross-cutting hooks implemented and tested.
+- [x] No feature hooks import `src/features/**` internals or raw store internals.
+- [x] Hook APIs are generic and reusable (no domain-specific module knowledge hardcoded).
+- [x] Hook outputs support backend-aligned error/action handling patterns.
 
 **Next Phase**: `P006_platform-ui-foundation.md`
+

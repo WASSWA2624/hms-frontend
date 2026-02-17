@@ -19,6 +19,17 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 - `.cursor/rules/testing.mdc` (coverage, platform-specific tests)
 - `.cursor/rules/i18n.mdc` (100% i18n for UI text)
 
+## Write-up Coverage
+- `write-up.md` section `8` (route/screen contract, accessibility, mobile behavior, UI simplicity charter).
+- `write-up.md` section `11` (self-marketable onboarding and conversion path UX surfaces).
+- `write-up.md` sections `14.2` and `14.4` (performance and low-bandwidth/offline UX resilience).
+- `write-up.md` section `22` (modern, professional, low-friction UI positioning).
+
+## Backend Alignment Gate
+- Layout navigation and shell slots must support all backend module groups without rework.
+- Global banners/utilities must support backend-driven states: entitlement failures, maintenance windows, integration health, and sync/retry messaging.
+- App identity and navigation structure must keep path parity with Phase 11 route contracts and backend endpoint domains.
+
 ## Layout and Component Requirements (Mandatory)
 - **Platforms**: Every layout and global UI component must have `.android.jsx`, `.ios.jsx`, `.web.jsx` (and matching `.styles.jsx`) per `component-structure.mdc`.
 - **Screen sizes**: Use theme breakpoints (mobile, tablet, desktop, large); responsive behavior at each breakpoint; no magic numbers.
@@ -181,6 +192,7 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 - **MainRouteLayout** and **PatientRouteLayout** with subcomponents (MobileSidebar, HamburgerIcon, Brand, HeaderUtility, etc.) implemented and wired per Step 9.6.
 - **Microsoft Fluent / Microsoft 365** look and feel applied (theme tokens, no hardcoded visuals).
 - Theme controls: **light and dark only**.
+- Route/shell UX satisfies write-up Section 8 simplicity charter and accessibility requirements.
 - All steps executed in order; tests passing; rule compliance verified per `.cursor/rules/`.
 
 **Next Phase**: `P010_core-features.md`

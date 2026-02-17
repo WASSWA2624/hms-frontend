@@ -10,6 +10,9 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - `.cursor/rules/errors-logging.mdc`
 - `.cursor/rules/security.mdc`
 - `.cursor/rules/offline-sync.mdc`
+- `.cursor/rules/platform-ui.mdc`
+- `.cursor/rules/accessibility.mdc`
+- `.cursor/rules/performance.mdc`
 - `.cursor/rules/testing.mdc`
 - `.cursor/rules/i18n.mdc`
 
@@ -19,10 +22,21 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Backend module and endpoint parity confirmed (`hms-backend/dev-plan/P011_modules.mdc`, `hms-backend/dev-plan/P010_api_endpoints.mdc`)
 - Backend realtime scope confirmed for event-driven UX (`hms-backend/dev-plan/P013_ws_features.mdc`)
 
+## Write-up Coverage
+- `write-up.md` sections `7`, `9`, `10`, and `11` (workflow overlays, modules strategy, commercial controls, growth engine).
+- `write-up.md` sections `12` and `20` (interoperability and KPI frameworks).
+- `write-up.md` sections `14.5`, `18.3`, and `21` (observability, product DoD closure, and priority backlog themes).
+
+## Backend Alignment Gate
+- Realtime UX must map to WS event scope in `hms-backend/dev-plan/P013_ws_features.mdc`.
+- Advanced action/control UX must map to endpoint sections `25`, `26`, `27`, and `28` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+- Feature-mapped Group 21 scope must reuse Phase 10 modules; no unsanctioned backend module creation in frontend architecture.
+
 ## Advanced Scope Contract
 - Advanced features must reuse core modules; do not introduce unauthorized module boundaries.
 - Any backend dependency used by a step must be documented in that step.
 - If a backend contract is intentionally deferred, keep UI behind a feature flag and do not break chronology.
+- Tenant-specific behavior must be configuration-first (policies/workflows/forms/templates), not forked code paths.
 
 ## Steps (Atomic, Chronological)
 
@@ -134,7 +148,41 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Build calibration/safety logs and downtime/utilization dashboards for operations and compliance reviews.
 - Backend dependencies: `equipment-calibration-log`, `equipment-safety-test-log`, `equipment-downtime-log`, `equipment-utilization-snapshot`, `equipment-recall-notice`.
 
+### Step 12.28: Realtime event orchestration UX
+- Build event-driven UI updates for queue, admissions, critical alerts, diagnostics release, pharmacy dispense, emergency dispatch, billing, and entitlement updates.
+- Backend dependencies: WS event contracts from `hms-backend/dev-plan/P013_ws_features.mdc`.
+
+### Step 12.29: Workflow action endpoint UX controls
+- Build explicit UI controls for backend workflow actions (prioritize, transfer, finalize, release, sign-off, dispense, claim submit/reconcile, roster generate, biomedical triage/start/return-to-service).
+- Backend dependencies: endpoint section `25` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+
+### Step 12.30: Commercial and entitlement operations UX
+- Build subscription/module lifecycle UX for upgrade, downgrade, renewal, proration preview, activation/deactivation, and invoice collection/retry.
+- Backend dependencies: endpoint section `26` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+
+### Step 12.31: Interoperability and migration operations console
+- Build admin UX for integration test/sync/replay and interop import/export controls (FHIR/HL7/DICOM/migration flows).
+- Backend dependencies: endpoint section `27` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+
+### Step 12.32: Growth acquisition surfaces
+- Build public-facing services/providers/branches discovery and campaign management views with conversion instrumentation.
+- Backend dependencies: endpoint section `28` (`public/services`, `public/providers`, `public/branches`, `campaigns`).
+
+### Step 12.33: Referral and reputation loops UX
+- Build referral redemption flows and NPS/CSAT capture/reporting surfaces.
+- Backend dependencies: endpoint section `28` (`referrals`, `referrals/{id}/redeem`, `feedback/nps`, `feedback/csat`).
+
+### Step 12.34: Configuration-first adaptability foundation UX
+- Build policy/workflow/form configuration surfaces for tenant-level rules without code forks.
+- Backend dependencies: `system-change-log`, `template`, `template-variable`, module entitlement resources.
+
+### Step 12.35: Versioned tenant configuration governance UX
+- Build publish/rollback/approval UX for tenant configuration releases with audit trails and scope-aware overrides.
+- Backend dependencies: `system-change-log`, `audit-log`, `module-subscription`, `license`.
+
 ## Testing Gate (Applies to Every Step)
 - Add tests for normal flow, edge cases, permission failures, and offline behavior.
 - Maintain 100% coverage for changed modules per `testing.mdc`.
 - Validate i18n and accessibility for all new user-facing UI.
+- Validate WS event idempotency handling and duplicate-event safety for realtime-driven screens.
+- Validate entitlement and feature-flag fallback paths for deferred backend contracts.

@@ -3,6 +3,27 @@
 ## Purpose
 Build the infrastructure layer: services (API, storage, analytics) and security. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
+## Rule References
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/services-integration.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/errors-logging.mdc`
+- `.cursor/rules/offline-sync.mdc`
+- `.cursor/rules/coding-conventions.mdc`
+- `.cursor/rules/project-structure.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` sections `5.3` and `5.4` (backend contract, tenancy, scoped access).
+- `write-up.md` sections `12` and `13` (integration, data protection, auditable operations).
+- `write-up.md` sections `14.4` and `14.5` (offline tolerance and observability).
+- `write-up.md` section `18.1` (module-level deterministic validation/error handling).
+
+## Backend Alignment Gate
+- API client/interceptors must align to mounted backend resources under `/api/v1/*` from `hms-backend/src/app/router.js`.
+- Security/token handling must remain compatible with backend auth/session lifecycle (`auth`, `user-session`, `user-mfa`, `oauth-account`).
+- Service error surfaces must preserve backend traceability while exposing sanitized frontend error codes only.
+
 ## Prerequisites
 - Phase 1 completed
 - Config layer available
@@ -386,12 +407,14 @@ Build the infrastructure layer: services (API, storage, analytics) and security.
 ---
 
 ## Completion Criteria
-- ✅ Storage services (async, secure) complete
-- ✅ Security layer (token manager, encryption) complete
-- ✅ API client with interceptors complete
-- ✅ Analytics service complete
-- ✅ All tests written and passing
-- ✅ No dependencies on UI or Redux
-- ✅ Services are stateless and testable
+- [x] Storage services (async + secure) complete.
+- [x] Security layer (token manager, encryption, biometric/permission support) complete.
+- [x] API client with interceptors complete.
+- [x] Analytics service complete.
+- [x] All tests written and passing.
+- [x] No dependencies on UI or Redux internals.
+- [x] Services are stateless and testable.
+- [x] Backend endpoint/error contract alignment verified.
 
 **Next Phase**: `P003_state-theme.md`
+

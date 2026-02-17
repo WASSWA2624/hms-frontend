@@ -10,9 +10,24 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - `.cursor/rules/bootstrap-config.mdc`
 - `.cursor/rules/errors-logging.mdc`
 - `.cursor/rules/security.mdc`
+- `.cursor/rules/state-management.mdc`
+- `.cursor/rules/theme-design.mdc`
+- `.cursor/rules/hooks-utils.mdc`
+- `.cursor/rules/accessibility.mdc`
 - `.cursor/rules/coding-conventions.mdc`
 - `.cursor/rules/testing.mdc`
 - `.cursor/rules/i18n.mdc`
+
+## Write-up Coverage
+- `write-up.md` sections `5.1`, `5.2`, and `5.4` (frontend architecture and scoped access model).
+- `write-up.md` section `7.1` (self-onboarding flow routing contract).
+- `write-up.md` section `8.2` (route-group and screen wiring standards).
+- `write-up.md` sections `9.1` and `9.4` (module entitlement enforcement at UI entry points).
+
+## Backend Alignment Gate
+- Guard composition must align with backend auth/session/tenant modules (`auth`, `user-session`, `tenant`, `facility`) and entitlement checks.
+- Canonical route names in UI must map to backend resources and avoid route-group segments in navigation links.
+- App-shell guard decisions must be compatible with backend-driven role, tenant, and module activation policies.
 
 ## Prerequisites
 - Phase 6 completed
@@ -501,22 +516,22 @@ When navigating/linking (after routes are created in Phase 10 and Phase 11), **o
 
 ## Completion Criteria
 
-**Rule References**: All completion criteria must comply with referenced rules above (`bootstrap-config.mdc`, `app-router.mdc`, `testing.mdc`, `errors-logging.mdc`, `hooks-utils.mdc`, `security.mdc`, `coding-conventions.mdc`, `i18n.mdc`).
+**Rule References**: All completion criteria must comply with referenced rules above.
 
-- ✅ Root layout file exists with proper structure (per `app-router.mdc`, `bootstrap-config.mdc`)
-- ✅ ErrorBoundary catches and handles errors safely (per `errors-logging.mdc`, `bootstrap-config.mdc`)
-- ✅ Redux Provider wraps app (per `bootstrap-config.mdc`, `state-management.mdc`)
-- ✅ ThemeProvider wraps app (per `bootstrap-config.mdc`, `theme-design.mdc`)
-- ✅ Localization Provider wraps app (per `bootstrap-config.mdc`, `i18n.mdc`)
-- ✅ Bootstrap runs in correct order and failures are handled safely (per `bootstrap-config.mdc`: security → store → theme → offline)
-- ✅ Auth and main route groups exist with layouts (per `app-router.mdc`)
-- ✅ Guards implemented (auth, role) with configurable redirect paths (per `hooks-utils.mdc`, `security.mdc`)
-- ✅ Guards wired in route layouts with canonical paths (`/login`, `/dashboard`) (per `app-router.mdc`)
-- ✅ Navigation skeleton renders in main layout (per `platform-ui.mdc`, `accessibility.mdc`)
-- ✅ **All steps have passing tests with required coverage** (per `testing.mdc`: 100% coverage mandatory overall, all branches tested)
-- ✅ **All tests verify behavior, not implementation details** (per `testing.mdc`)
-- ✅ **All external dependencies mocked in tests** (per `testing.mdc`: no real network, storage, navigation in tests)
-- ⏳ **Routes and screens are implemented in Phase 10 (Core Features) and Phase 11 (Screens & Routes)** (not part of this phase)
+- [x] Root layout file exists with proper structure.
+- [x] Global ErrorBoundary catches and handles errors safely.
+- [x] Redux Provider wraps app at root layout only.
+- [x] ThemeProvider wraps app at root layout only.
+- [x] Localization Provider wraps app at root layout only.
+- [x] Bootstrap runs in correct order and failures are handled safely.
+- [x] Auth and main route groups exist with layouts.
+- [x] Guards implemented (auth, role) with configurable redirect paths.
+- [x] Guards wired in route layouts with canonical paths (`/login`, `/dashboard`).
+- [x] Navigation skeleton renders in main layout.
+- [x] Tests pass with required coverage and branch checks.
+- [x] Backend auth/tenant/entitlement contract compatibility verified for guard entry points.
+- [ ] Routes and module screens are fully production-hardened in Phases `10`-`13` (this phase provides shell infrastructure only).
 
 **Next Phase**: `P008_debug-resources.md`
+
 

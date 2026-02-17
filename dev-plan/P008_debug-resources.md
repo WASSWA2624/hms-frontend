@@ -12,6 +12,18 @@ Implement the debug system defined in `.cursor/rules/debug.mdc`: script-based lo
 - `.cursor/rules/coding-conventions.mdc`
 - `.cursor/rules/project-structure.mdc`
 - `.cursor/rules/bootstrap-config.mdc`
+- `.cursor/rules/errors-logging.mdc`
+- `.cursor/rules/performance.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` section `14.5` (observability baseline).
+- `write-up.md` section `15.3` (release gate diagnostics and regression readiness).
+- `write-up.md` section `19.2` (support/incident triage readiness).
+
+## Backend Alignment Gate
+- Debug tooling must capture enough frontend context to correlate with backend request IDs and module endpoints during parity audits.
+- Debug scripts must remain dev-only and never alter production request/response behavior.
 
 ## Steps (Atomic, Chronological)
 
@@ -52,5 +64,6 @@ Implement the debug system defined in `.cursor/rules/debug.mdc`: script-based lo
 - All debug scripts exist and run.
 - In-app web console forwarding works in dev web.
 - Debug folder is documented and safe for git.
+- Debug output supports frontend/backend parity diagnostics without exposing secrets/PII.
 
 **Next Phase**: `P009_app-layouts.md`

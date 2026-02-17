@@ -3,6 +3,27 @@
 ## Purpose
 Build Redux store and theme system. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
+## Rule References
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/state-management.mdc`
+- `.cursor/rules/theme-design.mdc`
+- `.cursor/rules/accessibility.mdc`
+- `.cursor/rules/i18n.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/performance.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` section `5.2` (frontend architecture contract and module orchestration support).
+- `write-up.md` sections `8.3`, `8.5`, and `8.6` (a11y, i18n readiness, UI consistency).
+- `write-up.md` sections `13.1` and `13.2` (access-control-safe state handling and protection of sensitive values).
+- `write-up.md` section `14.2` (performance-ready state/theme patterns).
+
+## Backend Alignment Gate
+- Persist only non-sensitive metadata required for backend session/tenant continuity.
+- Store state shape must support tenant/facility/branch-scoped UX decisions without holding raw tokens.
+- Theme and locale settings must stay interoperable with backend-driven user profile/session metadata.
+
 ## Prerequisites
 - Phase 2 completed
 - Phase 1 completed (i18n and `getDeviceLocale` from `@i18n` are used by the UI slice)
@@ -521,14 +542,16 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`. **Complia
 ---
 
 ## Completion Criteria
-- ✅ Theme tokens complete (colors, spacing, typography, radius, shadows, animations)
-- ✅ Light and dark themes defined (only two themes per theme-design.mdc)
-- ✅ Responsive breakpoints defined (320px, 768px, 1024px, 1440px)
-- ✅ Theme provider created
-- ✅ Redux store configured
-- ✅ UI slice created (theme, locale, loading)
-- ✅ Persistence configured
-- ✅ Selectors created
-- ✅ All tests written and passing
+- [x] Theme tokens complete (colors, spacing, typography, radius, shadows, animations).
+- [x] Light and dark themes defined (only two themes).
+- [x] Responsive breakpoints defined (`320`, `768`, `1024`, `1440`).
+- [x] Theme provider created.
+- [x] Redux store configured with deterministic reducers/selectors.
+- [x] UI slice created (theme, locale, loading, safe metadata only).
+- [x] Persistence configured with security constraints.
+- [x] Selectors created.
+- [x] All tests written and passing.
+- [x] Backend-compatible session/tenant metadata boundaries verified.
 
 **Next Phase**: `P004_offline.md`
+

@@ -3,13 +3,17 @@
 ## Purpose
 Implement HMS routes and screens in strict chronological order. One step equals one screen route. Each screen consumes Phase 10 hooks/features and maps to backend resources. Tier 1 onboarding steps must preserve self-serve onboarding, trial, payment, and resume-flow requirements.
 
-## Rules
+## Rule References
 - `.cursor/rules/index.mdc`
 - `.cursor/rules/app-router.mdc`
 - `.cursor/rules/platform-ui.mdc`
 - `.cursor/rules/component-structure.mdc`
 - `.cursor/rules/features-domain.mdc`
+- `.cursor/rules/hooks-utils.mdc`
 - `.cursor/rules/security.mdc`
+- `.cursor/rules/errors-logging.mdc`
+- `.cursor/rules/offline-sync.mdc`
+- `.cursor/rules/performance.mdc`
 - `.cursor/rules/accessibility.mdc`
 - `.cursor/rules/testing.mdc`
 - `.cursor/rules/theme-design.mdc`
@@ -21,17 +25,31 @@ Implement HMS routes and screens in strict chronological order. One step equals 
 - Phase 7 completed (router groups and guards)
 - Phase 6 completed (reusable platform components)
 
+## Write-up Coverage
+- `write-up.md` sections `7.1` to `7.10` (workflow route journeys).
+- `write-up.md` section `8.2` (screen contract: list/create/detail/edit + related panels).
+- `write-up.md` sections `8.3` to `8.6` (a11y, low-bandwidth behavior, i18n, UI simplicity charter).
+- `write-up.md` sections `9` and `10` (entitlement and commercial route behavior).
+- `write-up.md` section `17` (placeholder route retirement and route parity verification).
+
 ## Backend Alignment (Mandatory)
 - Module source of truth: mounted backend modules in `hms-backend/src/app/router.js` (use `hms-backend/dev-plan/P011_modules.mdc` where synchronized)
 - Endpoint/path source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc`
 - Frontend module implementation source of truth: `P010_core-features.md`
 - Every module-backed screen below includes explicit backend module mapping.
+- Workflow actions source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc` section `25`.
+- Commercial/interop/growth route dependencies source of truth: sections `26`, `27`, and `28`.
 
 ## Atomic Step Contract
 - One step equals one route file under `src/app/**` and one screen implementation under `src/platform/screens/**`.
 - Do not combine multiple module screens into one step.
 - Do not skip step order.
 - Complete tests and verification for the current step before moving to the next.
+
+## Route Coverage Snapshot (2026-02-17)
+- Planned route steps in this file: **207**.
+- Planned route steps with on-disk route entry files: **207/207**.
+- Remaining placeholder catch-all files in `src/app/**`: **22** (tracked for retirement in Phase 13).
 
 ## Route Structure
 
@@ -331,36 +349,14 @@ src/app/
 - **11.10.75** Equipment service providers - `(main)/housekeeping/biomedical/equipment-service-providers` - backend `equipment-service-provider`
 - **11.10.76** Equipment utilization snapshots - `(main)/housekeeping/biomedical/equipment-utilization-snapshots` - backend `equipment-utilization-snapshot`
 
-#### Step 11.10.12 Execution Checklist (`(main)/hr/staff-positions`)
-Run this only after `10.14.1` is completed and passing.
+#### Step 11.10.12 Historical Closure Note (`(main)/hr/staff-positions`)
+Parity checklist closed on `2026-02-17`.
 
-- [ ] Create route files:
-  - `src/app/(main)/hr/staff-positions/index.jsx`
-  - `src/app/(main)/hr/staff-positions/create.jsx`
-  - `src/app/(main)/hr/staff-positions/[id].jsx`
-  - `src/app/(main)/hr/staff-positions/[id]/edit.jsx`
-- [ ] Route wrappers must match generic Tier 10 resource screens:
-  - list route -> `<ClinicalResourceListScreen resourceId="staff-positions" />`
-  - create route -> `<ClinicalResourceFormScreen resourceId="staff-positions" />`
-  - detail route -> `<ClinicalResourceDetailScreen resourceId="staff-positions" />`
-  - edit route -> `<ClinicalResourceFormScreen resourceId="staff-positions" />`
-- [ ] Ensure navigation discoverability is wired:
-  - `src/config/sideMenu.js` includes `/hr/staff-positions`
-  - `src/i18n/locales/en.json` includes `main-nav.hr-staff-positions`
-- [ ] Ensure resource config parity is present:
-  - `src/platform/screens/clinical/ClinicalResourceConfigs.js` contains a `staff-positions` config with route `/hr/staff-positions`
-  - `src/platform/screens/clinical/useClinicalResourceCrud.js` maps `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS`
-- [ ] Add/update route parity test:
-  - `src/__tests__/app/(main)/tier-10-routes.test.js`:
-    - add `'staff-positions'` in `RESOURCES_WITH_EDIT.hr`
-    - verify all 4 route variants are covered through `TIER_10_ROUTE_CASES`
-- [ ] Run verification commands:
-  - `npm run test -- "src/__tests__/app/(main)/tier-10-routes.test.js"`
-  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
-- [ ] Manual smoke checks:
-  - visit `/hr/staff-positions` list/create/detail/edit
-  - verify loading, empty, error, and permission-denied states
-  - verify sidebar item opens the correct route.
+Verification evidence (keep in CI):
+- Route files exist for list/create/detail/edit under `src/app/(main)/hr/staff-positions/`.
+- Tier 10 route parity tests include `staff-positions` cases.
+- Clinical resource config and CRUD mapping include `staff-positions`.
+- Navigation + i18n labels remain wired for `/hr/staff-positions`.
 
 ### Tier 11: Patient Portal
 - **11.11.1** Patient portal home - `(patient)/portal`
@@ -373,24 +369,28 @@ Run this only after `10.14.1` is completed and passing.
 - Route file created in `src/app/**` with default export.
 - Platform screen created in `src/platform/screens/**` following `component-structure.mdc`.
 - Screen wired only through hooks/features; no direct service/store internals.
+- Module screens provide `list/create/detail/edit` surfaces unless the backend resource is explicitly read-only.
+- Workflow action endpoints (section `25`) have explicit UI states: pending, success, failure, retry, and permission-denied.
 - All user-facing text uses i18n keys.
 - Loading, empty, error, and offline states implemented.
 - Guard and navigation behavior verified.
 - Tests added and passing per `testing.mdc` (including a11y coverage).
 
 ## Completeness
-- [x] Tier 1 (`11.1.1-11.1.14`) public entry and onboarding
-- [x] Tier 2 (`11.2.1-11.2.8`) auth and shell
-- [x] Tier 3 (`11.3.1-11.3.22`) settings and core access
-- [ ] Tier 4 (`11.4.1-11.4.10`) patient registry and consent
-- [ ] Tier 5 (`11.5.1-11.5.7`) scheduling and queues
-- [ ] Tier 6 (`11.6.1-11.6.10`) clinical documentation
-- [ ] Tier 7 (`11.7.1-11.7.23`) IPD, ICU, theatre, emergency
-- [ ] Tier 8 (`11.8.1-11.8.15`) diagnostics
-- [ ] Tier 9 (`11.9.1-11.9.17`) pharmacy and inventory
-- [ ] Tier 10 (`11.10.1-11.10.76`) billing, HR, facilities, biomedical engineering, reporting, communications, subscriptions, integrations, compliance
-- [ ] Tier 11 (`11.11.1-11.11.5`) patient portal
-- [ ] Navigation and deep links validated for all completed screens
+Route-file coverage status (`2026-02-17`):
+- [x] Tier 1 (`11.1.1-11.1.14`) public entry and onboarding.
+- [x] Tier 2 (`11.2.1-11.2.8`) auth and shell.
+- [x] Tier 3 (`11.3.1-11.3.22`) settings and core access.
+- [x] Tier 4 (`11.4.1-11.4.10`) patient registry and consent.
+- [x] Tier 5 (`11.5.1-11.5.7`) scheduling and queues.
+- [x] Tier 6 (`11.6.1-11.6.10`) clinical documentation.
+- [x] Tier 7 (`11.7.1-11.7.23`) IPD, ICU, theatre, emergency.
+- [x] Tier 8 (`11.8.1-11.8.15`) diagnostics.
+- [x] Tier 9 (`11.9.1-11.9.17`) pharmacy and inventory.
+- [x] Tier 10 (`11.10.1-11.10.76`) billing, HR, facilities, biomedical engineering, reporting, communications, subscriptions, integrations, compliance.
+- [x] Tier 11 (`11.11.1-11.11.5`) patient portal.
+- [ ] Functional hardening/regression sign-off across all routes (Phase 13 gate).
+- [ ] Placeholder catch-all route retirement complete (`[...missing].jsx` files).
 
 ## Settings Status (`11.3.1-11.3.22`)
 - `11.3.1-11.3.17`: list/detail/create-edit flows implemented.
@@ -398,3 +398,5 @@ Run this only after `10.14.1` is completed and passing.
 - `11.3.19-11.3.20`: list/detail/create-edit flows implemented.
 - `11.3.21`: user sessions list/detail implemented; create-edit not applicable.
 - `11.3.22`: list/detail/create-edit flows implemented.
+
+

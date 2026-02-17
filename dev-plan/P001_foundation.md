@@ -3,6 +3,28 @@
 ## Purpose
 Build the foundation layer: configuration, utilities, logging, and error handling. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
+## Rule References
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/project-structure.mdc`
+- `.cursor/rules/bootstrap-config.mdc`
+- `.cursor/rules/coding-conventions.mdc`
+- `.cursor/rules/errors-logging.mdc`
+- `.cursor/rules/i18n.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` section `5.2` (frontend module contract shape and composition).
+- `write-up.md` section `8.5` (i18n behavior baseline).
+- `write-up.md` sections `12.1` and `12.4` (data and validation consistency expectations).
+- `write-up.md` section `13` (sanitized errors, secure config handling).
+- `write-up.md` sections `15` and `18.1` (module-level quality and DoD controls).
+
+## Backend Alignment Gate
+- `src/config/endpoints.js` naming must map to backend resources in `hms-backend/src/app/router.js`.
+- Error normalization must keep frontend-safe codes while preserving backend traceability.
+- Locale and message-key usage must remain compatible with backend locale metadata and response contracts.
+
 ## Prerequisites
 - Phase 0 completed
 - All folders created
@@ -664,13 +686,15 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 ---
 
 ## Completion Criteria
-- ✅ Config layer complete with env, constants, endpoints, feature flags
-- ✅ Utils layer complete with formatter, validator, helpers
-- ✅ Logging layer complete with levels and logger
-- ✅ Error handling layer complete with handler, boundary, fallback UI
-- ✅ i18n system complete (Step 1.13 before error handler); locale detection and translation support; en.json used by errors layer
-- ✅ All tests written and passing
-- ✅ All barrel exports created
-- ✅ No dependencies on other layers (foundation is independent)
+- [x] Config layer complete with env, constants, endpoints, feature flags.
+- [x] Utils layer complete with formatter, validator, and helpers.
+- [x] Logging layer complete with levels and logger.
+- [x] Error handling layer complete with handler, boundary, and fallback UI.
+- [x] i18n system complete (Step `1.13` before error handler); locale detection and translation support are available.
+- [x] All tests written and passing.
+- [x] All barrel exports created.
+- [x] Endpoint registry and normalized error semantics aligned with backend contracts.
+- [x] No dependencies on other layers (foundation remains independent).
 
 **Next Phase**: `P002_infrastructure.md`
+

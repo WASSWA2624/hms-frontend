@@ -7,6 +7,8 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - `.cursor/rules/features-domain.mdc` (Feature Template Structure - MANDATORY)
 - `.cursor/rules/state-management.mdc`
 - `.cursor/rules/services-integration.mdc`
+- `.cursor/rules/project-structure.mdc`
+- `.cursor/rules/hooks-utils.mdc`
 - `.cursor/rules/errors-logging.mdc`
 - `.cursor/rules/i18n.mdc`
 - `.cursor/rules/testing.mdc`
@@ -21,12 +23,24 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - Errors layer exists (Phase 1)
 - Shared utilities exist (URL helpers, pagination, error normalization)
 
-## Review Snapshot (2026-02-16)
+## Write-up Coverage
+- `write-up.md` section `6` (mandatory module groups and acceptance essentials).
+- `write-up.md` section `7` (workflow-critical module behavior).
+- `write-up.md` sections `9` and `10` (entitlement/commercial control requirements).
+- `write-up.md` sections `13`, `15`, and `18.1` (security, test, and module DoD gates).
+
+## Backend Alignment Gate
+- Modules source of truth: `hms-backend/src/app/router.js` and `hms-backend/dev-plan/P011_modules.mdc`.
+- Endpoint source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc` (including sections `25-28` action/control endpoints).
+- No Phase 10 module may be omitted, renamed, or merged if mounted in backend router.
+
+## Review Snapshot (2026-02-17)
 - Reviewed against `hms-backend/dev-plan/P011_modules.mdc`.
 - Reviewed against mounted backend resources in `hms-backend/src/app/router.js` (source of truth when docs lag code).
 - Core module steps listed in this phase: **160**.
 - Missing modules: **None**.
 - Modules present but not required: **None**.
+- Frontend feature directories present for planned modules: **160/160**.
 - Read-only backend modules are still required in frontend scope (list/detail access):
   - `audit-log`
   - `integration-log`
@@ -56,11 +70,25 @@ For each module step, implement the full feature template:
 - Errors are normalized and domain-specific
 - Public APIs exported via `index.js`
 
+## Workflow Action Endpoint Contract (Mandatory)
+For modules with workflow actions from `hms-backend/dev-plan/P010_api_endpoints.mdc` section `25`, implement action-safe feature contracts in the same module step:
+- Queue and triage actions: `visit-queues/{id}/prioritize`.
+- Inpatient workflow actions: `admissions/{id}/transfer`, `discharge-summaries/{id}/finalize`.
+- Diagnostics release/sign-off actions: `lab-results/{id}/release`, `radiology-results/{id}/sign-off`.
+- Pharmacy/billing/claim actions: `pharmacy-orders/{id}/dispense`, `insurance-claims/{id}/submit`, `insurance-claims/{id}/reconcile`.
+- Staffing and biomedical actions: `nurse-rosters/{id}/generate`, `maintenance-requests/{id}/triage`, `equipment-work-orders/{id}/start`, `equipment-work-orders/{id}/return-to-service`.
+- Group 18 entitlement/commercial actions: subscription/module activation lifecycle endpoints from section `26`.
+
+Action implementation gates:
+- No raw status mutation helpers in UI; action orchestration stays in feature/usecase layer.
+- Action states are auditable and expose normalized status/error codes.
+- Role/entitlement checks are enforced before action dispatch.
+
 ## Steps
 Each step implements exactly **one** mounted backend module from `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
 
 ## Chronology Lock (Mandatory)
-- Execute module groups in order: **1 -> 20** exactly as listed below.
+- Execute module groups in order: **1 -> 15 -> 15A -> 20**, then validate Group 21 feature-mapped reuse.
 - Do not skip ahead to a later group while an earlier group has pending modules.
 - Do not merge multiple modules into one implementation step.
 - For each module step, complete feature files, tests, and exports before starting the next module.
@@ -208,51 +236,15 @@ Each step implements exactly **one** mounted backend module from `hms-backend/sr
 - Step 10.14.12: `roster-day-off`
 - Step 10.14.13: `staff-availability`
 
-#### Step 10.14.1 Execution Checklist (`staff-position`) - Parity Blocker
-As of `2026-02-16`, this is the only known missing Phase 10 frontend module. Complete this checklist before starting `10.14.2`.
+#### Step 10.14.1 Historical Closure Note (`staff-position`)
+Parity blocker resolved on `2026-02-17`.
 
-- [ ] Create module files under `src/features/staff-position/`:
-  - `staff-position.rules.js`
-  - `staff-position.model.js`
-  - `staff-position.api.js`
-  - `staff-position.usecase.js`
-  - `index.js`
-- [ ] Export the module from `src/features/index.js`:
-  - `export * from './staff-position';`
-- [ ] Create hook and hook export:
-  - `src/hooks/useStaffPosition.js`
-  - `src/hooks/index.js` -> `export { default as useStaffPosition } from './useStaffPosition';`
-- [ ] Add endpoint contract in `src/config/endpoints.js`:
-  - `STAFF_POSITIONS` endpoint group with `LIST`, `CREATE`, `GET`, `UPDATE`, `DELETE`
-  - Route base must be `/staff-positions`
-- [ ] Add Tier 10 generic-resource wiring in `src/platform/screens/clinical/ClinicalResourceConfigs.js`:
-  - `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS = 'staff-positions'`
-  - Add `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS` to `HR_RESOURCE_LIST_ORDER` before `STAFF_PROFILES` (backend order parity)
-  - Add full `CLINICAL_RESOURCE_CONFIGS` entry for `routePath: '/hr/staff-positions'`
-- [ ] Wire CRUD dispatch in `src/platform/screens/clinical/useClinicalResourceCrud.js`:
-  - Import `useStaffPosition`
-  - Instantiate `const staffPosition = useStaffPosition();`
-  - Map `[CLINICAL_RESOURCE_IDS.STAFF_POSITIONS]: staffPosition`
-- [ ] Add navigation and i18n labels:
-  - `src/config/sideMenu.js`: add `hr-staff-positions` menu item with path `/hr/staff-positions`
-  - `src/i18n/locales/en.json`: add `main-nav.hr-staff-positions`
-- [ ] Add tests for the new feature/hook:
-  - `src/__tests__/features/staff-position/staff-position.rules.test.js`
-  - `src/__tests__/features/staff-position/staff-position.model.test.js`
-  - `src/__tests__/features/staff-position/staff-position.api.test.js`
-  - `src/__tests__/features/staff-position/staff-position.usecase.test.js`
-  - `src/__tests__/hooks/useStaffPosition.test.js`
-- [ ] Update parity tests:
-  - `src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js` (resource IDs and HR order expectations)
-  - `src/__tests__/config/endpoints.test.js` (assert `endpoints.STAFF_POSITIONS`)
-- [ ] Run verification commands:
-  - `npm run test -- src/__tests__/features/staff-position`
-  - `npm run test -- src/__tests__/hooks/useStaffPosition.test.js`
-  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
-  - `npm run test -- src/__tests__/config/endpoints.test.js`
-- [ ] Gate check:
-  - `rg -n "staff-position|staff-positions|STAFF_POSITIONS|useStaffPosition" src`
-  - Result must include feature files, hook, endpoints, config wiring, side menu, i18n, and tests.
+Verification evidence (maintain in CI/parity checks):
+- `src/features/staff-position/*` exists and is exported from `src/features/index.js`.
+- `src/hooks/useStaffPosition.js` exists and is exported from `src/hooks/index.js`.
+- Endpoint registry includes `/staff-positions` group in `src/config/endpoints.js`.
+- Tier 10 HR route wiring includes `/hr/staff-positions` and related CRUD views.
+- Feature/hook/config parity tests remain green.
 
 ### Module Group 15: Housekeeping & Facilities
 - Step 10.15.1: `housekeeping-task`
@@ -260,21 +252,24 @@ As of `2026-02-16`, this is the only known missing Phase 10 frontend module. Com
 - Step 10.15.3: `maintenance-request`
 - Step 10.15.4: `asset`
 - Step 10.15.5: `asset-service-log`
-- Step 10.15.6: `equipment-category` (backend Module Group 15A)
-- Step 10.15.7: `equipment-registry` (backend Module Group 15A)
-- Step 10.15.8: `equipment-location-history` (backend Module Group 15A)
-- Step 10.15.9: `equipment-disposal-transfer` (backend Module Group 15A)
-- Step 10.15.10: `equipment-maintenance-plan` (backend Module Group 15A)
-- Step 10.15.11: `equipment-work-order` (backend Module Group 15A)
-- Step 10.15.12: `equipment-calibration-log` (backend Module Group 15A)
-- Step 10.15.13: `equipment-safety-test-log` (backend Module Group 15A)
-- Step 10.15.14: `equipment-downtime-log` (backend Module Group 15A)
-- Step 10.15.15: `equipment-incident-report` (backend Module Group 15A)
-- Step 10.15.16: `equipment-recall-notice` (backend Module Group 15A)
-- Step 10.15.17: `equipment-spare-part` (backend Module Group 15A)
-- Step 10.15.18: `equipment-warranty-contract` (backend Module Group 15A)
-- Step 10.15.19: `equipment-service-provider` (backend Module Group 15A)
-- Step 10.15.20: `equipment-utilization-snapshot` (backend Module Group 15A)
+
+### Module Group 15A: Biomedical Engineering & Medical Equipment Suite
+Subscription-gated suite with mandatory safety/audit controls and cross-role fault reporting support.
+- Step 10.15.6: `equipment-category`
+- Step 10.15.7: `equipment-registry`
+- Step 10.15.8: `equipment-location-history`
+- Step 10.15.9: `equipment-disposal-transfer`
+- Step 10.15.10: `equipment-maintenance-plan`
+- Step 10.15.11: `equipment-work-order`
+- Step 10.15.12: `equipment-calibration-log`
+- Step 10.15.13: `equipment-safety-test-log`
+- Step 10.15.14: `equipment-downtime-log`
+- Step 10.15.15: `equipment-incident-report`
+- Step 10.15.16: `equipment-recall-notice`
+- Step 10.15.17: `equipment-spare-part`
+- Step 10.15.18: `equipment-warranty-contract`
+- Step 10.15.19: `equipment-service-provider`
+- Step 10.15.20: `equipment-utilization-snapshot`
 
 ### Module Group 16: Notifications & Communications
 - Step 10.16.1: `notification`
@@ -311,4 +306,16 @@ As of `2026-02-16`, this is the only known missing Phase 10 frontend module. Com
 - Step 10.20.2: `integration-log`
 - Step 10.20.3: `webhook-subscription`
 
-**Note**: Telemedicine and patient engagement flows reuse core modules and are implemented in Phase 12 advanced slices.
+### Module Group 21: Telemedicine & Patient Engagement (Feature Mapped)
+No additional backend modules are introduced. Phase 12 must reuse these Phase 10 modules:
+- `appointment`
+- `encounter`
+- `message`
+- `clinical-note`
+- `lab-result`
+- `radiology-result`
+- `pharmacy-order`
+- `notification`
+
+**Note**: Group 21 UX/realtime/commercial overlays are implemented in `P012_advanced-features.md`.
+

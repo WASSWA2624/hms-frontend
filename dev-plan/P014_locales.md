@@ -1,83 +1,109 @@
 # Phase 14: Locales (Last Phase)
 
 ## Purpose
-Implement **all supported locale files** and ensure **translation completeness** for the application. This is the **last phase** of development. All user-facing strings must exist in every locale file; no missing keys. Follows `.cursor/rules/i18n.mdc`.
-
-## Prerequisites
-- Phase 13 completed (finalization)
-- All features and screens implemented and using i18n keys
-- Default locale (e.g. `en`) already populated during earlier phases
+Implement all supported locale files, enforce translation-key parity, validate RTL behavior, and lock backend/frontend locale compatibility. This is the final phase in the frontend roadmap.
 
 ## Rule References
-- `.cursor/rules/i18n.mdc` (authoritative: no hardcoded UI text, keys in all locale files, dot notation, stable keys)
-- `.cursor/rules/coding-conventions.mdc` (no restating i18n rules here)
-- `hms-backend/dev-plan/P014_locales.mdc` (cross-system locale alignment)
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/i18n.mdc`
+- `.cursor/rules/accessibility.mdc`
+- `.cursor/rules/testing.mdc`
+- `.cursor/rules/coding-conventions.mdc`
+- `hms-backend/dev-plan/P014_locales.mdc`
+
+## Prerequisites
+- Phase 13 completed (finalization gates closed).
+- All features and screens implemented and using i18n keys.
+- Default locale (`en`) populated and validated.
+
+## Write-up Coverage
+- `write-up.md` section `8.5` (i18n/localization requirements).
+- `write-up.md` sections `14.5` and `15.3` (observability + quality gate checks for locale behavior).
+- `write-up.md` sections `18.2` and `19.3` (release readiness and client implementation readiness).
+- `write-up.md` section `10` (regional payment/commercial terminology readiness).
+
+## Backend Alignment Gate
+- Supported locale codes must stay aligned with backend locale rollout in `hms-backend/dev-plan/P014_locales.mdc`.
+- Shared RTL locales must align on direction metadata and rendering behavior.
+- Any locale drift (frontend-only or backend-only) requires explicit justification, owner, and target resolution phase.
+
+## Supported Locale Target Set
+Target locale codes for parity with backend expansion:
+`en, es, fr, de, it, pt, ru, nl, pl, sv, el, ro, cs, hu, uk, da, no, fi, tr, zh, ja, ko, hi, bn, ur, pa, te, mr, ta, vi, th, ms, id, tl, gu, jv, yue, fa, km, my, ne, si, ar, he, sw, am, ha, yo, zu, af, lg, ht, qu, mi`
+
+RTL subset requiring direction validation:
+`ar, he, fa, ur`
 
 ## Steps (Atomic, Chronological)
 
-### Step 14.1: Define Supported Locales
-**Goal**: Document and implement the list of supported locales for the project.
+### Step 14.1: Finalize locale inventory and files
+**Goal**: Lock the supported locale list and create one file per locale in `src/i18n/locales/`.
 
 **Actions**:
-1. Document supported locales in `dev-plan/` (e.g. in this file or `index.md`). Locales are project-specific; the set is defined by the JSON files in `src/i18n/locales/`.
-2. Ensure each locale has a corresponding file: `src/i18n/locales/<locale>.json` (e.g. `en.json`, `fr.json`).
-3. Per `i18n.mdc`: every translation key must exist in **every** locale file; no key may be missing from any supported language.
+1. Declare/verify supported locales in frontend config and document them in this file.
+2. Ensure each locale has `src/i18n/locales/<locale>.json`.
+3. Keep `en` as fallback/default locale.
 
-**Verification**: List of locales documented; one JSON file per locale.
+**Verification**:
+- File exists for every supported locale code.
+- Locale inventory matches documented list.
 
-**Rule Reference**: `.cursor/rules/i18n.mdc`
-
----
-
-### Step 14.2: Add Missing Keys to All Locale Files
-**Goal**: For every key used in the app, add the key and translation to every locale file in `src/i18n/locales/`.
+### Step 14.2: Enforce translation-key parity and schema checks
+**Goal**: Ensure every key used in app code exists in every locale file.
 
 **Actions**:
-1. Extract all i18n keys used in the codebase (e.g. from `t()`, `tSync()`, translation key props).
-2. For each key, ensure it exists in **every** locale file with an appropriate translation (use professional translation or placeholder; never leave key missing).
-3. Use dot notation and logical grouping (e.g. `common.*`, `errors.*`, `navigation.*`) per `i18n.mdc`.
-4. Fallback: default locale (e.g. `en`) is used when a key is missing; ensure no runtime crashes; optionally warn in non-production.
+1. Extract keys used by UI (`t()` and related helpers).
+2. Validate cross-file key parity against `en.json`.
+3. Validate placeholder/template consistency (same interpolation tokens across locales).
 
-**Verification**: No key present in one locale file is missing in another. Automated test or script can validate key parity across locale files.
+**Verification**:
+- No missing keys in any supported locale file.
+- No malformed JSON or interpolation-token drift.
 
-**Rule Reference**: `.cursor/rules/i18n.mdc`
-
----
-
-### Step 14.3: Validate and Test Locale Switching
-**Goal**: Ensure locale switching works; all UI text updates; no hardcoded strings; RTL supported if applicable.
+### Step 14.3: Validate runtime locale switching and RTL behavior
+**Goal**: Confirm locale switching works safely and completely across web/iOS/Android.
 
 **Actions**:
-1. Test switching to each supported locale; verify all screens and components show translated text.
-2. Verify no hardcoded user-facing strings remain (grep or lint per `i18n.mdc`).
-3. If RTL locales are supported, verify layout direction and text direction per `i18n.mdc`.
-4. Run full test suite with locale coverage; add tests for key presence in all locale files if not already present.
+1. Test switching into each locale and verify translated UI across core workflows.
+2. Validate no hardcoded user-facing strings remain.
+3. Validate RTL direction/layout for `ar`, `he`, `fa`, `ur`.
+4. Validate date/number/currency formatting through `Intl` pathways.
 
-**Verification**: All locales switch correctly; tests pass; key-parity test passes.
+**Verification**:
+- Locale switching updates UI without crashes.
+- RTL locales render with correct direction and usable layout.
+- Formatting output matches locale expectations.
 
-**Rule Reference**: `.cursor/rules/i18n.mdc`, `.cursor/rules/testing.mdc`
-
----
-
-### Step 14.4: Verify Backend-Frontend Locale Parity
-**Goal**: Ensure frontend locale coverage stays aligned with backend locale rollout and direction metadata expectations.
+### Step 14.4: Verify backend/frontend locale parity and metadata behavior
+**Goal**: Ensure frontend locale support matches backend locale expansion and direction metadata behavior.
 
 **Actions**:
-1. Compare frontend locale file set in `src/i18n/locales/` with backend locale coverage documented in `hms-backend/dev-plan/P014_locales.mdc`.
-2. Validate RTL behavior consistency for shared RTL locales.
-3. Document and justify any frontend-only or backend-only locales.
+1. Compare locale code sets and RTL expectations with `hms-backend/dev-plan/P014_locales.mdc`.
+2. Validate shared locale behavior on fallback and invalid-locale paths.
+3. Document any accepted temporary drift with owner/date.
 
-**Verification**: Locale parity check completed; no undocumented locale drift.
+**Verification**:
+- No undocumented locale drift.
+- Shared locales behave consistently across frontend/backend contracts.
 
-**Rule Reference**: `.cursor/rules/i18n.mdc`
+### Step 14.5: Locale release lock and final sign-off
+**Goal**: Close localization as a release-blocking quality gate.
 
----
+**Actions**:
+1. Run locale-focused regression tests and key-parity CI checks.
+2. Capture localization sign-off evidence in release artifacts.
+3. Freeze locale catalogs for release branch cut.
+
+**Verification**:
+- Localization gate marked green in release checklist.
+- Locale catalogs frozen and traceable.
 
 ## Completion Criteria
 - All supported locale files exist in `src/i18n/locales/`.
-- Every translation key used in the app exists in every locale file with a valid translation.
-- Locale switching works; no hardcoded UI strings; tests pass.
-- Supported locales documented in dev-plan.
-- Backend/frontend locale parity verified and documented.
+- Every translation key used in the app exists in every locale file with valid placeholders.
+- Locale switching works across all platforms with no hardcoded UI strings.
+- RTL locales (`ar`, `he`, `fa`, `ur`) are validated and usable.
+- Backend/frontend locale parity is verified and documented.
+- Localization release gate is signed off.
 
 **This is the last phase.** No subsequent development phase follows.

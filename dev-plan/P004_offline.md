@@ -3,6 +3,35 @@
 ## Purpose
 Implement offline-first architecture with request queuing, network detection, and sync management. Follows rules in `.cursor/rules/`. **Compliance**: `.cursor/rules/index.mdc` is the entry point; do not duplicate rule content here.
 
+## Rule References
+- `.cursor/rules/index.mdc`
+- `.cursor/rules/offline-sync.mdc`
+- `.cursor/rules/state-management.mdc`
+- `.cursor/rules/security.mdc`
+- `.cursor/rules/services-integration.mdc`
+- `.cursor/rules/bootstrap-config.mdc`
+- `.cursor/rules/errors-logging.mdc`
+- `.cursor/rules/testing.mdc`
+
+## Write-up Coverage
+- `write-up.md` section `5.6` (offline + conflict resolution requirements).
+- `write-up.md` sections `7.2`, `7.3`, and `7.7` (critical clinical/billing workflows requiring offline-safe behavior).
+- `write-up.md` section `14.4` (offline tolerance NFR).
+- `write-up.md` section `15.3` (quality gate requirement for offline checks).
+
+## Offline Critical Workflow Contract
+The following workflows must support queueing/draft/retry behavior without data loss:
+- Queue/registration basics.
+- Vitals capture.
+- Clinical note draft save.
+- Medication administration draft capture.
+- User-visible retry + conflict resolution path with deterministic outcomes.
+
+## Backend Alignment Gate
+- Queued operations must preserve backend resource + action metadata (`module`, endpoint path, method, request idempotency key).
+- Sync replay must target versioned API routes under `/api/v1/*`.
+- Auth-expired or invalid-session states must safely block protected replay and expose actionable UI state.
+
 ## Prerequisites
 - Phase 3 completed
 - Store available
@@ -362,12 +391,14 @@ Implement offline-first architecture with request queuing, network detection, an
 ---
 
 ## Completion Criteria
-- ✅ Network listener complete
-- ✅ Offline queue complete
-- ✅ Sync manager complete
-- ✅ Hydration logic complete
-- ✅ Network slice added to store
-- ✅ Bootstrap layer complete with correct initialization order
-- ✅ All tests written and passing
+- [x] Network listener complete.
+- [x] Offline queue complete with persistence and safe isolation for corrupt entries.
+- [x] Sync manager complete with resumable/idempotent behavior.
+- [x] Hydration logic complete.
+- [x] Network slice added to store.
+- [x] Bootstrap layer complete with mandated initialization order.
+- [x] All tests written and passing.
+- [x] Conflict detection + user-resolvable retry path verified.
 
 **Next Phase**: `P005_reusable-hooks.md`
+

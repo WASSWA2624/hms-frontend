@@ -1,92 +1,77 @@
 # HMS Frontend Development Plan
 
 ## Purpose
-Chronological guide for building the React Native (Expo + App Router) HMS application. Each step is atomic, follows `.cursor/rules/` strictly, and aligns with `write-up.md` and `hms-backend/dev-plan/`.
+Chronological execution contract for building and hardening the React Native (Expo + App Router) HMS frontend. This plan is atomic, rule-first, and synchronized with `write-up.md`, backend module/endpoint inventory, and `.cursor/rules/`.
 
-## Rule compliance
-- **Entry point**: `.cursor/rules/index.mdc` is the single entry point and takes precedence.
-- **No duplication**: Do not duplicate rule content in the dev-plan.
-- **100% compliance**: Every phase and step must comply with linked rule documents.
+## Rule Compliance
+- Entry point: `.cursor/rules/index.mdc`.
+- Owner precedence: follow owner files referenced by `index.mdc`; do not override owner policy in `dev-plan/`.
+- Enforcement: every phase step must include implementation + verification gates that satisfy `testing.mdc`, `security.mdc`, and architecture boundary owners.
 
-## Principles
-- **Atomic**: One step, one deliverable.
-- **Chronological**: Execute phases and steps in strict order.
-- **Rule-first**: Rules are authoritative; the dev-plan defines order and verification only.
-- **Clear verification**: Each step must include implementation and verification outcomes.
+## Write-up Coverage Matrix (2026-02-17 Review)
+- Sections `0-5` (governance, architecture, tenancy, offline, adaptability): `P000` through `P007`.
+- Sections `6-7` (functional groups + workflow contracts): `P010`, `P011`, `P012`.
+- Sections `8` and `14.4` (UX/a11y/responsive/offline UX): `P006`, `P009`, `P011`, `P013`.
+- Sections `9-11` (modules/commercial/growth): `P010`, `P011`, `P012`, `P013`.
+- Sections `12-13` (interop, security, compliance): `P001`, `P002`, `P010`, `P011`, `P012`, `P013`.
+- Sections `14-15` (NFRs, quality gates): `P004`, `P008`, `P009`, `P013`, `P014`.
+- Sections `16-22` (DoD, readiness, KPI, backlog): `P013` and `P014` release gates.
 
 ## Atomic Execution Contract
-- Every `Step X.Y` is mandatory and executed in order.
-- A step may include ordered actions, but it must produce exactly one primary deliverable.
-- If a step would produce multiple independent deliverables, split it into additional numbered steps.
-- Do not mark roadmap steps as "optional"; defer non-required scope to a later phase file.
+- Every `Step X.Y` is mandatory and must be executed in sequence.
+- One step produces one primary deliverable; split steps when scope exceeds one atomic outcome.
+- No step is optional if it is required for write-up, backend parity, or rule compliance.
 
 ## Backend Alignment Contract
-- Frontend Phase 10 module order must remain 1:1 with mounted backend modules in `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
-- Frontend Phase 10 must include backend Module Group 15A (Biomedical Engineering & Medical Equipment Suite) in chronological order before Group 16.
-- Frontend routes/screens in Phase 11 must map to implemented backend modules/endpoints in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
-- Advanced realtime-driven UX in Phase 12 must map to backend WS scope in `hms-backend/dev-plan/P013_ws_features.mdc`.
-- Locale rollout in Phase 14 must stay compatible with backend locale expansion in `hms-backend/dev-plan/P014_locales.mdc`.
-- Final readiness checks in Phase 13 must validate backend readiness assumptions from `hms-backend/dev-plan/P008_perf.mdc`.
+- Modules source of truth: `hms-backend/src/app/router.js` and `hms-backend/dev-plan/P011_modules.mdc`.
+- Endpoints source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc` (sections `0-28`, including action endpoints).
+- Realtime source of truth: `hms-backend/dev-plan/P013_ws_features.mdc`.
+- Locale source of truth: `hms-backend/dev-plan/P014_locales.mdc`.
+- Performance/release baseline: `hms-backend/dev-plan/P008_perf.mdc`.
 
 ## Development Order (Chronological)
-
-Phases 0-7 are generic building blocks. Phase 8 is debug resources. From Phase 9 onward, work is app-specific (layouts, features, screens, locales). Phase 14 (Locales) is the last phase.
-
-1. **P000_setup.md** - Project setup, dependencies, folder structure, Babel/Metro/ESLint/Jest, debug folder and npm scripts.
+1. **P000_setup.md** - Setup, dependencies, structure, tooling.
 2. **P001_foundation.md** - Config, utils, logging, errors, i18n bootstrap.
-3. **P002_infrastructure.md** - Services and security.
-4. **P003_state-theme.md** - State (Redux), theme (light/dark only).
-5. **P004_offline.md** - Offline-first and bootstrap layer.
-6. **P005_reusable-hooks.md** - Reusable hooks (no feature hooks).
-7. **P006_platform-ui-foundation.md** - Platform UI primitives/patterns.
-8. **P007_app-shell.md** - App Router, guards, navigation skeleton.
-9. **P008_debug-resources.md** - Debug scripts, `src/debug`, web console logger, npm scripts.
-10. **P009_app-layouts.md** - App layouts across platforms and screen sizes.
-11. **P010_core-features.md** - Core HMS features (auth, tenancy, modules).
-12. **P011_screens-routes.md** - Screens/routes for core modules and onboarding.
-13. **P012_advanced-features.md** - Advanced/optional modules.
-14. **P013_finalization.md** - Finalization (onboarding, help, testing, polish).
-15. **P014_locales.md** - Locale files and translation completeness (last phase).
+3. **P002_infrastructure.md** - Services + security.
+4. **P003_state-theme.md** - Redux + light/dark theme system.
+5. **P004_offline.md** - Offline queue/sync + bootstrap integration.
+6. **P005_reusable-hooks.md** - Cross-cutting semantic hooks.
+7. **P006_platform-ui-foundation.md** - Reusable platform UI primitives/patterns.
+8. **P007_app-shell.md** - Router groups, guards, shell wiring.
+9. **P008_debug-resources.md** - Debug scripts and dev logging resources.
+10. **P009_app-layouts.md** - App-level layouts and shell UX.
+11. **P010_core-features.md** - 160 backend module feature contracts.
+12. **P011_screens-routes.md** - Route + screen wiring for module workflows.
+13. **P012_advanced-features.md** - Advanced/realtime/commercial/growth/adaptability slices.
+14. **P013_finalization.md** - Hardening, release gates, parity sign-off.
+15. **P014_locales.md** - Locale expansion and parity lock (last phase).
 
-## Current Implementation Snapshot (2026-02-15)
-
-- Foundations, infrastructure, app shell, and layouts (P000-P009) are in place.
-- P011 route progress:
-  - Completed: `11.1.1`, `11.1.2`, `11.2.1`, `11.2.4`, `11.2.8`, and `11.3.1-11.3.22`.
-  - Next onboarding/auth step: `11.1.3` (`(auth)/resume-link-sent`).
-- Remaining module screens (tiers 4+) are still pending.
+## Current Implementation Snapshot (2026-02-17)
+- Backend modules in `hms-backend/src/modules`: **160**.
+- Frontend feature modules in `hms-frontend/src/features`: **160**.
+- Feature-module parity: **matched** (no missing frontend module).
+- Frontend routes under `src/app`: **734** files.
+- Placeholder catch-all routes (`[...missing].jsx`): **22** (must be retired in `P013` hardening).
+- Planned Phase 11 route steps with on-disk route entry files: **207/207**.
 
 ## Flow
-
 ```text
-P000 Setup
-  -> P001 Foundation
-  -> P002 Infrastructure
-  -> P003 State & Theme
-  -> P004 Offline + Bootstrap
-  -> P005 Reusable Hooks
-  -> P006 Platform UI Foundation
-  -> P007 App Shell
-  -> P008 Debug Resources
-  -> P009 App Layouts
-  -> P010 Core Features
-  -> P011 Screens & Routes
-  -> P012 Advanced Features
-  -> P013 Finalization
-  -> P014 Locales (last phase)
+P000 -> P001 -> P002 -> P003 -> P004 -> P005 -> P006 -> P007 -> P008 -> P009 -> P010 -> P011 -> P012 -> P013 -> P014
 ```
 
 ## Reproducibility
-Following **P000_setup.md** through **P009_app-layouts.md** in strict chronological order reproduces the current shared foundation. The current repository additionally includes partial implementation of **P010/P011** (auth/onboarding entry and full settings route set).
+- Running phases `P000` through `P009` reproduces shared architecture and shell foundations.
+- Phases `P010` and `P011` map module and route coverage directly to backend inventory.
+- Phases `P012` through `P014` close advanced scope, release gates, and locale completeness.
 
 ## How to Use
-1. Follow phases and steps in order.
-2. After each step, run tests per `.cursor/rules/testing.mdc`.
-3. Verify compliance against `.cursor/rules/index.mdc` and linked rules.
-4. Use `.js` / `.jsx` per `.cursor/rules/coding-conventions.mdc`.
-5. Use i18n keys for all UI text per `.cursor/rules/i18n.mdc`.
+1. Execute files in order; do not skip phases.
+2. Execute steps in-order inside each phase.
+3. Run tests after each atomic step per `.cursor/rules/testing.mdc`.
+4. Validate rule-owner compliance through `.cursor/rules/index.mdc`.
+5. Validate backend parity gates before closing each phase.
 
 ## Rule References
-All steps follow `.cursor/rules/`. Start with `.cursor/rules/index.mdc`, then apply linked rule files such as `core-principles.mdc`, `project-structure.mdc`, `tech-stack.mdc`, `theme-design.mdc`, `bootstrap-config.mdc`, `debug.mdc`, `component-structure.mdc`, and `app-router.mdc`.
+All rules under `.cursor/rules/` apply. Start at `.cursor/rules/index.mdc`, then follow owner files by area (architecture, routing, UI, state, services, hooks, offline, security, i18n, accessibility, performance, errors, debug, bootstrap, testing).
 
 **Start with**: `P000_setup.md`
