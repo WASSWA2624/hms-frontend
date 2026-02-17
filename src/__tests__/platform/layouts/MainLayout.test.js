@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import MainLayout from '@platform/layouts/MainLayout';
 import { renderWithProviders } from '../../helpers/test-utils';
 
@@ -381,6 +381,21 @@ describe('MainLayout Component', () => {
         expect(getByText('Android Content')).toBeTruthy();
       });
 
+      it('should enforce vertical-only scroll behavior on Android', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const MainLayoutAndroid = require('@platform/layouts/MainLayout/MainLayout.android').default;
+        const { UNSAFE_getByType } = renderWithTheme(
+          <MainLayoutAndroid testID="android-layout">
+            <Text>Android Content</Text>
+          </MainLayoutAndroid>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+      });
+
       it('should have correct accessibility role on Android', () => {
         // eslint-disable-next-line import/no-unresolved
         const MainLayoutAndroid = require('@platform/layouts/MainLayout/MainLayout.android').default;
@@ -442,6 +457,21 @@ describe('MainLayout Component', () => {
         );
         expect(getByText('iOS Breadcrumbs')).toBeTruthy();
         expect(getByText('iOS Content')).toBeTruthy();
+      });
+
+      it('should enforce vertical-only scroll behavior on iOS', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const MainLayoutIOS = require('@platform/layouts/MainLayout/MainLayout.ios').default;
+        const { UNSAFE_getByType } = renderWithTheme(
+          <MainLayoutIOS testID="ios-layout">
+            <Text>iOS Content</Text>
+          </MainLayoutIOS>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
       });
 
       it('should have correct accessibility role on iOS', () => {

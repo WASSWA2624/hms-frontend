@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import AuthLayout from '@platform/layouts/AuthLayout';
 import { renderWithProviders } from '../../helpers/test-utils';
 
@@ -410,6 +410,21 @@ describe('AuthLayout Component', () => {
         expect(getByText('Form with Input')).toBeTruthy();
       });
 
+      it('should enforce vertical-only scroll behavior on Android content', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutAndroid = require('@platform/layouts/AuthLayout/AuthLayout.android').default;
+        const { UNSAFE_getByType } = renderWithTheme(
+          <AuthLayoutAndroid testID="android-auth-layout">
+            <Text>Android Content</Text>
+          </AuthLayoutAndroid>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+      });
+
       it('should render Android screen header and banner variants', () => {
         // eslint-disable-next-line import/no-unresolved
         const AuthLayoutAndroid = require('@platform/layouts/AuthLayout/AuthLayout.android').default;
@@ -532,6 +547,21 @@ describe('AuthLayout Component', () => {
           </AuthLayoutIOS>
         );
         expect(getByText('Form with Input')).toBeTruthy();
+      });
+
+      it('should enforce vertical-only scroll behavior on iOS content', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const AuthLayoutIOS = require('@platform/layouts/AuthLayout/AuthLayout.ios').default;
+        const { UNSAFE_getByType } = renderWithTheme(
+          <AuthLayoutIOS testID="ios-auth-layout">
+            <Text>iOS Content</Text>
+          </AuthLayoutIOS>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
       });
 
       it('should render iOS screen header and banner variants', () => {

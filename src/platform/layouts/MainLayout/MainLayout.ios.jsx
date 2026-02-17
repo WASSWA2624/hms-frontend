@@ -56,7 +56,7 @@ const MainLayoutIOS = ({
       )}
       <StyledScrollView
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
       >
         <StyledContent>
           {hasBreadcrumbs && (

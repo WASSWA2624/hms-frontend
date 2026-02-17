@@ -18,6 +18,7 @@ const StyledContainer = styled.div.withConfig({
   padding: ${({ theme }) => theme.spacing.md}px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   min-height: ${({ theme }) => theme.spacing.xxl * 4}px;
+  overflow-x: hidden;
   box-sizing: border-box;
 `;
 

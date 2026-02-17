@@ -142,7 +142,7 @@ const AuthLayoutAndroid = ({
           ) : null}
           <StyledContent
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
           >
             {children}
           </StyledContent>

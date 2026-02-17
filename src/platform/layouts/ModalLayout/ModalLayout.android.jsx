@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { StyledContainer, StyledKeyboardAvoidingView, StyledScrollView } from './ModalLayout.android.styles';
+import { StyledContainer } from './ModalLayout.android.styles';
 import Modal from '@platform/components/feedback/Modal';
 import { useI18n } from '@hooks';
 
@@ -41,13 +41,9 @@ const ModalLayoutAndroid = ({
       accessibilityHint={resolvedAccessibilityHint}
       testID={testID}
     >
-      <StyledKeyboardAvoidingView behavior="height">
-        <StyledScrollView keyboardShouldPersistTaps="handled">
-          <StyledContainer accessibilityRole="none" accessibilityLabel={resolvedAccessibilityHint}>
-            {children}
-          </StyledContainer>
-        </StyledScrollView>
-      </StyledKeyboardAvoidingView>
+      <StyledContainer accessibilityRole="none" accessibilityLabel={resolvedAccessibilityHint}>
+        {children}
+      </StyledContainer>
     </Modal>
   );
 };

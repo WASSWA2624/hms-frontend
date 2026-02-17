@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Modal, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { Modal, ScrollView } from 'react-native';
 import { StyledBackdrop, StyledModalContainer, StyledCloseButton, StyledCloseButtonText, StyledKeyboardAvoidingView, StyledScrollViewContent, scrollContentContainerStyle } from './Modal.ios.styles';
 import useModal from './useModal';
 import { useI18n } from '@hooks';
@@ -63,7 +63,9 @@ const ModalIOS = ({
             )}
             <ScrollView
               keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
+              horizontal={false}
+              showsHorizontalScrollIndicator={false}
+              alwaysBounceHorizontal={false}
               contentContainerStyle={scrollContentContainerStyle}
             >
               <StyledScrollViewContent>

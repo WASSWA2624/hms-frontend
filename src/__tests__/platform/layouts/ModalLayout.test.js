@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 // Import both default and named exports to ensure index.js is fully covered
 import ModalLayout, { MODAL_SIZES } from '@platform/layouts/ModalLayout';
 import { renderWithProviders } from '../../helpers/test-utils';
@@ -449,6 +449,21 @@ describe('ModalLayout Component', () => {
         expect(getByText('Form with Input')).toBeTruthy();
         // KeyboardAvoidingView should be present on Android
       });
+
+      it('should enforce vertical-only scroll behavior on Android modal content', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const ModalLayoutAndroid = require('@platform/layouts/ModalLayout/ModalLayout.android').default;
+        const { UNSAFE_getByType } = renderWithProviders(
+          <ModalLayoutAndroid visible={true} onDismiss={mockOnDismiss} testID="android-modal-layout">
+            <Text>Android Content</Text>
+          </ModalLayoutAndroid>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.horizontal).toBe(false);
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+      });
     });
 
     describe('iOS variant', () => {
@@ -484,6 +499,22 @@ describe('ModalLayout Component', () => {
         );
         expect(getByText('Form with Input')).toBeTruthy();
         // KeyboardAvoidingView should be present on iOS
+      });
+
+      it('should enforce vertical-only scroll behavior on iOS modal content', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const ModalLayoutIOS = require('@platform/layouts/ModalLayout/ModalLayout.ios').default;
+        const { UNSAFE_getByType } = renderWithProviders(
+          <ModalLayoutIOS visible={true} onDismiss={mockOnDismiss} testID="ios-modal-layout">
+            <Text>iOS Content</Text>
+          </ModalLayoutIOS>
+        );
+
+        const scrollView = UNSAFE_getByType(ScrollView);
+        expect(scrollView.props.horizontal).toBe(false);
+        expect(scrollView.props.showsHorizontalScrollIndicator).toBe(false);
+        expect(scrollView.props.showsVerticalScrollIndicator).toBeUndefined();
+        expect(scrollView.props.alwaysBounceHorizontal).toBe(false);
       });
     });
 
@@ -566,8 +597,6 @@ describe('ModalLayout Component', () => {
       const styles = require('@platform/layouts/ModalLayout/ModalLayout.android.styles');
       expect(styles).toBeDefined();
       expect(styles.StyledContainer).toBeDefined();
-      expect(styles.StyledKeyboardAvoidingView).toBeDefined();
-      expect(styles.StyledScrollView).toBeDefined();
     });
 
     it('should export iOS styles', () => {
@@ -575,8 +604,6 @@ describe('ModalLayout Component', () => {
       const styles = require('@platform/layouts/ModalLayout/ModalLayout.ios.styles');
       expect(styles).toBeDefined();
       expect(styles.StyledContainer).toBeDefined();
-      expect(styles.StyledKeyboardAvoidingView).toBeDefined();
-      expect(styles.StyledScrollView).toBeDefined();
     });
 
     it('should export Web styles', () => {

@@ -142,6 +142,7 @@ const StyledContent = styled.div.withConfig({
 })`
   padding: ${({ theme }) => theme.spacing.lg}px;
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: 100%;
 `;
 

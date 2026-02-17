@@ -5,12 +5,11 @@
  */
 
 import React from 'react';
-import { Modal, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { Modal, ScrollView } from 'react-native';
 import { StyledBackdrop, StyledModalContainer, StyledCloseButton, StyledCloseButtonText, StyledKeyboardAvoidingView, StyledScrollViewContent, scrollContentContainerStyle } from './Modal.android.styles';
 import useModal from './useModal';
 import { useI18n } from '@hooks';
 import { SIZES } from './types';
-import Text from '@platform/components/display/Text';
 
 /**
  * Modal component for Android
@@ -64,7 +63,8 @@ const ModalAndroid = ({
             )}
             <ScrollView
               keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
+              horizontal={false}
+              showsHorizontalScrollIndicator={false}
               contentContainerStyle={scrollContentContainerStyle}
             >
               <StyledScrollViewContent>
