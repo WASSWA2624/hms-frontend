@@ -13,7 +13,10 @@ module.exports = {
   projects: [
     {
       displayName: 'native',
-      testMatch: ['**/__tests__/**/*.test.js', '!**/__tests__/**/*.web.test.js'],
+      testMatch: [
+        '**/__tests__/**/*.test.js',
+        '!**/__tests__/**/*.web.test.js',
+      ],
       preset: 'jest-expo',
       cacheDirectory: '<rootDir>/.jest-cache/native',
       setupFiles: ['<rootDir>/jest.setup.js'],
@@ -22,7 +25,8 @@ module.exports = {
       ],
       moduleNameMapper: {
         '^immer$': '<rootDir>/node_modules/immer/dist/cjs/index.js',
-        '^react-redux$': '<rootDir>/node_modules/react-redux/dist/cjs/react-redux.development.cjs',
+        '^react-redux$':
+          '<rootDir>/node_modules/react-redux/dist/cjs/react-redux.development.cjs',
         '^@/(.*)$': '<rootDir>/src/$1',
         '^@app/(.*)$': '<rootDir>/src/app/$1',
         '^@platform/(.*)$': '<rootDir>/src/platform/$1',
@@ -42,15 +46,19 @@ module.exports = {
         '^@i18n$': '<rootDir>/src/i18n',
         '^@i18n/(.*)$': '<rootDir>/src/i18n/$1',
         '^@errors$': '<rootDir>/src/errors',
-        '^@errors/fallback\\.ui$': '<rootDir>/src/errors/fallback.ui.native.jsx',
+        '^@errors/fallback\\.ui$':
+          '<rootDir>/src/errors/fallback.ui.native.jsx',
         '^@errors/(.*)$': '<rootDir>/src/errors/$1',
         '^@logging$': '<rootDir>/src/logging',
         '^@logging/(.*)$': '<rootDir>/src/logging/$1',
         '^@debug$': '<rootDir>/src/debug',
         '^@debug/(.*)$': '<rootDir>/src/debug/$1',
-        '^react-native/Libraries/BatchedBridge/NativeModules$': '<rootDir>/test/mocks/NativeModules.js',
-        '^expo/src/async-require/messageSocket$': '<rootDir>/test/mocks/expoMessageSocket.js',
-        '^expo-modules-core/src/polyfill/dangerous-internal$': '<rootDir>/test/mocks/expoDangerousInternal.js',
+        '^react-native/Libraries/BatchedBridge/NativeModules$':
+          '<rootDir>/test/mocks/NativeModules.js',
+        '^expo/src/async-require/messageSocket$':
+          '<rootDir>/test/mocks/expoMessageSocket.js',
+        '^expo-modules-core/src/polyfill/dangerous-internal$':
+          '<rootDir>/test/mocks/expoDangerousInternal.js',
       },
     },
     {
@@ -64,7 +72,8 @@ module.exports = {
       ],
       moduleNameMapper: {
         '^immer$': '<rootDir>/node_modules/immer/dist/cjs/index.js',
-        '^react-redux$': '<rootDir>/node_modules/react-redux/dist/cjs/react-redux.development.cjs',
+        '^react-redux$':
+          '<rootDir>/node_modules/react-redux/dist/cjs/react-redux.development.cjs',
         '^@/(.*)$': '<rootDir>/src/$1',
         '^@app/(.*)$': '<rootDir>/src/app/$1',
         '^@platform/(.*)$': '<rootDir>/src/platform/$1',
@@ -90,9 +99,12 @@ module.exports = {
         '^@logging/(.*)$': '<rootDir>/src/logging/$1',
         '^@debug$': '<rootDir>/src/debug',
         '^@debug/(.*)$': '<rootDir>/src/debug/$1',
-        '^react-native/Libraries/BatchedBridge/NativeModules$': '<rootDir>/test/mocks/NativeModules.js',
-        '^expo/src/async-require/messageSocket$': '<rootDir>/test/mocks/expoMessageSocket.js',
-        '^expo-modules-core/src/polyfill/dangerous-internal$': '<rootDir>/test/mocks/expoDangerousInternal.js',
+        '^react-native/Libraries/BatchedBridge/NativeModules$':
+          '<rootDir>/test/mocks/NativeModules.js',
+        '^expo/src/async-require/messageSocket$':
+          '<rootDir>/test/mocks/expoMessageSocket.js',
+        '^expo-modules-core/src/polyfill/dangerous-internal$':
+          '<rootDir>/test/mocks/expoDangerousInternal.js',
       },
     },
   ],
@@ -117,4 +129,3 @@ module.exports = {
   },
   passWithNoTests: true,
 };
-
