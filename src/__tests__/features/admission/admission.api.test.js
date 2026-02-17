@@ -34,4 +34,16 @@ describe('admission.api', () => {
       body: { discharged_at: '2026-02-15T12:00:00.000Z' },
     });
   });
+
+  it('posts admission discharge action with default payload', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'DISCHARGED' } });
+
+    await admissionApi.discharge('1');
+
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.ADMISSIONS.DISCHARGE('1'),
+      method: 'POST',
+      body: {},
+    });
+  });
 });

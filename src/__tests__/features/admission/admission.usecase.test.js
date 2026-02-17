@@ -71,6 +71,21 @@ describe('admission.usecase', () => {
     });
   });
 
+  it('discharges admission online with default payload', async () => {
+    queueRequestIfOffline.mockResolvedValue(false);
+
+    await expect(dischargeAdmission('1')).resolves.toMatchObject({
+      id: '1',
+      status: 'DISCHARGED',
+    });
+    expect(queueRequestIfOffline).toHaveBeenCalledWith({
+      url: endpoints.ADMISSIONS.DISCHARGE('1'),
+      method: 'POST',
+      body: {},
+    });
+    expect(admissionApi.discharge).toHaveBeenCalledWith('1', {});
+  });
+
   it('queues admission discharge offline', async () => {
     queueRequestIfOffline.mockResolvedValue(true);
 

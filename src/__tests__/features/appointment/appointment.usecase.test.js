@@ -67,6 +67,21 @@ describe('appointment.usecase', () => {
     expect(appointmentApi.cancel).toHaveBeenCalledWith('1', { reason: 'Patient requested' });
   });
 
+  it('cancels appointment online with default payload', async () => {
+    queueRequestIfOffline.mockResolvedValue(false);
+
+    await expect(cancelAppointment('1')).resolves.toMatchObject({
+      id: '1',
+      status: 'CANCELLED',
+    });
+    expect(queueRequestIfOffline).toHaveBeenCalledWith({
+      url: endpoints.APPOINTMENTS.CANCEL('1'),
+      method: 'POST',
+      body: {},
+    });
+    expect(appointmentApi.cancel).toHaveBeenCalledWith('1', {});
+  });
+
   it('queues appointment cancel offline', async () => {
     queueRequestIfOffline.mockResolvedValue(true);
 

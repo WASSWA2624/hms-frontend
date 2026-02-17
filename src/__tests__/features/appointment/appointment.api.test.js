@@ -32,4 +32,14 @@ describe('appointment.api', () => {
       body: { reason: 'Patient requested' },
     });
   });
+
+  it('posts appointment cancel action with default payload', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'CANCELLED' } });
+    await appointmentApi.cancel('1');
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.APPOINTMENTS.CANCEL('1'),
+      method: 'POST',
+      body: {},
+    });
+  });
 });
