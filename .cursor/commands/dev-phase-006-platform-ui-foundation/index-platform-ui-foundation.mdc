@@ -7,5 +7,13 @@ Step prompt files:
 - `06_04_app-agnostic-layouts.mdc`
 - `06_05_composition-patterns.mdc`
 
+Phase coverage:
+- Parent steps `6.1` through `6.5` from `hms-frontend/dev-plan/P006_platform-ui-foundation.md`.
+- Child steps `6.1.1` through `6.5.4` are distributed across the five step prompt files above.
+
+Scope guard:
+- This index file is phase metadata only.
+- Implementation constraints and enforcement contracts belong to the step prompt files.
+
 Cross-cutting mandatory contract in step prompts:
-- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+- Enforce strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.

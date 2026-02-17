@@ -6,6 +6,12 @@ Tier prompt files:
 - `09_03_controls-and-global-utilities.mdc`
 - `09_04_responsive-fluent-verification.mdc`
 
-Cross-cutting mandatory contract in tier prompts:
-- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+Phase coverage:
+- Steps `9.1` through `9.10` from `hms-frontend/dev-plan/P009_app-layouts.md`.
 
+Scope guard:
+- This index file is phase metadata only.
+- Implementation constraints and enforcement contracts belong to the tier prompt files.
+
+Cross-cutting mandatory contract in tier prompts:
+- Enforce strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.

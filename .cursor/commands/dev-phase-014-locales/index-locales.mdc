@@ -8,5 +8,9 @@ Tier prompt files:
 Phase coverage:
 - Steps `14.1` through `14.5` from `hms-frontend/dev-plan/P014_locales.md`.
 
+Scope guard:
+- This index file is phase metadata only.
+- Implementation constraints and enforcement contracts belong to the tier prompt files.
+
 Cross-cutting mandatory contract in tier prompts:
-- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
+- Enforce strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.

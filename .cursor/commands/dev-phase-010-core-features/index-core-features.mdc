@@ -2,6 +2,14 @@ Phase folder: dev-phase-010-core-features
 
 Tier prompt files:
 - `10_01_auth-sessions-tenancy-core-access.mdc`
+- `10_02_patient-registry-consent.mdc`
+- `10_03_scheduling-availability-queues.mdc`
+- `10_04_encounters-clinical-documentation.mdc`
+- `10_05_inpatient-ipd-bed-management.mdc`
+- `10_06_icu-critical-care.mdc`
+- `10_07_theatre-anesthesia.mdc`
+- `10_08_laboratory-lis.mdc`
+- `10_09_radiology-ris-pacs.mdc`
 - `10_10_pharmacy.mdc`
 - `10_11_inventory-procurement.mdc`
 - `10_12_emergency-ambulance.mdc`
@@ -12,16 +20,14 @@ Tier prompt files:
 - `10_17_reporting-analytics.mdc`
 - `10_18_subscriptions-licensing-modules.mdc`
 - `10_19_compliance-audit-security.mdc`
-- `10_02_patient-registry-consent.mdc`
 - `10_20_integrations-webhooks.mdc`
-- `10_03_scheduling-availability-queues.mdc`
-- `10_04_encounters-clinical-documentation.mdc`
-- `10_05_inpatient-ipd-bed-management.mdc`
-- `10_06_icu-critical-care.mdc`
-- `10_07_theatre-anesthesia.mdc`
-- `10_08_laboratory-lis.mdc`
-- `10_09_radiology-ris-pacs.mdc`
+
+Phase coverage:
+- Steps `10.1.1` through `10.20.3` from `hms-frontend/dev-plan/P010_core-features.md` (full 160-module feature contract surface).
+
+Scope guard:
+- This index file is phase metadata only.
+- Implementation constraints and enforcement contracts belong to the tier prompt files.
 
 Cross-cutting mandatory contract in tier prompts:
-- Enforce strict role-based visibility and execution controls across menu items, functions/actions, UI components, screens, and screen sections.
-
+- Enforce strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections.
