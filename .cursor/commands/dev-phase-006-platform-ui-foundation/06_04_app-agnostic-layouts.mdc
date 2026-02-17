@@ -22,6 +22,10 @@ For any selected step that touches UI (components, screens, layouts, route prese
 - Android and iOS must visually and behaviorally match mobile web for layout density, typography scale, component sizing, spacing, and interaction patterns.
 - Use shared-first implementations by default. Platform-specific override files are allowed only for hard platform/accessibility constraints and must preserve parity with mobile web.
 - Keep UI simple, modern, compact, stable, and fully responsive across phone, tablet, and web breakpoints.
+- All layouts must provide reliable scroll behavior for the screen/children content on Android, iOS, and Web.
+- Layout scroll direction must be vertical-only by default; horizontal scrolling must be prevented unless explicitly required by an approved UI contract.
+- Scrolling must allow users to reach and fully view all child content from top to bottom without clipping, trapped regions, or hidden tail content.
+- Scroll indicators/scrollbars must be visible only when content overflows and scrolling is actually needed.
 - Keep user journeys chronological and obvious for first-time users: clear actions, short labels, and minimal friction.
 - Prefer consolidating related actions on one screen when it reduces fragmentation and cognitive load.
 - Auto-resolve and hide known context parameters (tenant, facility, branch, user, encounter, and similar context) unless user input is mandatory by contract or compliance.
@@ -107,6 +111,8 @@ Implement full functionality required for the selected Phase 6 step(s):
 - Ensure 100% test coverage for changed code and all required states/interactions/a11y for selected steps.
 - Ensure full i18n compliance for all user-facing text and accessibility labels.
 - Ensure responsive behavior on Android, iOS, and Web for selected steps.
+- Ensure selected layouts expose a scrollable content region for children/screens and preserve full content visibility when users scroll.
+- Ensure selected layouts suppress horizontal overflow in normal flows and expose vertical scrolling only when content exceeds available viewport height.
 - Ensure selected steps include loading/empty/error/offline states when applicable.
 - Keep UI presentation-only; do not leak domain/business logic into platform UI files.
 
@@ -137,10 +143,14 @@ Implement full functionality required for the selected Phase 6 step(s):
 - Use i18n keys for labels, placeholders, errors, helper text, and accessibility labels/hints.
 - Add new keys to all existing locale files under `src/i18n/locales/`.
 - Enforce accessible semantics, keyboard support (web), visible focus, screen-reader feedback, and minimum 44x44 touch targets.
+- Ensure scrollable layout containers remain keyboard/screen-reader accessible and do not block users from reaching off-screen child content.
+- Ensure scroll containers do not expose unnecessary persistent scroll indicators when no overflow is present.
 
 ### Performance, Error Handling, and Security
 - Avoid avoidable re-renders; memoize expensive logic where needed.
 - Provide deterministic loading/error/empty/offline handling.
+- Avoid nested/competing scroll containers that cause scroll lock, cut-off content, or unreachable child controls.
+- Avoid horizontal scroll drift/jank caused by width overflow; vertical content flow must remain stable and predictable.
 - Keep logging and error handling aligned with `errors-logging.mdc`; no ad-hoc `console.*` in production code.
 - Do not expose sensitive data in logs, errors, or UI text.
 
@@ -170,7 +180,7 @@ For each selected step, complete all of the following before moving to the next:
 1. Implement/fix selected module files with correct structure and exports.
 2. Implement/fix styles with token-only Fluent compliance.
 3. Implement/fix accessibility and i18n compliance.
-4. Add/update tests for all required variants/states/interactions/error paths/a11y.
+4. Add/update tests for all required variants/states/interactions/error paths/a11y, including vertical-only scroll behavior, conditional scroll indicator visibility, and full child visibility.
 5. Run tests for selected modules and confirm coverage compliance.
 6. Verify no architecture boundary violations.
 7. Verify no unselected-step scope creep.
@@ -185,6 +195,8 @@ For each selected step, complete all of the following before moving to the next:
 - File/folder/export/import conventions are fully compliant.
 - Fluent design and theme-token usage are fully compliant.
 - i18n and accessibility are fully compliant.
+- Layout scrolling is fully functional across Android, iOS, and Web; all child/screen content is reachable and fully visible while scrolling.
+- Layout scrolling is vertical-only by default, with horizontal overflow prevented and indicators shown only when scrolling is needed.
 - Tests are complete and coverage requirements are satisfied.
 - No backend dependency was introduced for Phase 6 foundation work.
 - No unselected Phase 6 steps were implemented.
