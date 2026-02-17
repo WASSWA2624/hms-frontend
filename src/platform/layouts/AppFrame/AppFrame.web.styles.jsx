@@ -157,8 +157,7 @@ const StyledScreenSlot = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
   min-width: 0;
   width: 100%;
   padding: ${({ theme }) => theme.spacing.xs * 2}px;

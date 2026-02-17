@@ -106,8 +106,8 @@ const AppFrameWeb = ({
             )}
             <StyledScreenSlot>
               {children}
-              <StyledEndSpacer aria-hidden="true" />
             </StyledScreenSlot>
+            <StyledEndSpacer aria-hidden="true" />
           </StyledContentBody>
         </StyledContent>
       </StyledBody>
