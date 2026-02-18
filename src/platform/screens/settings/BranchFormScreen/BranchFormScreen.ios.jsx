@@ -62,6 +62,7 @@ const BranchFormScreenIOS = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -231,7 +232,7 @@ const BranchFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('branch.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('branch.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}
@@ -375,4 +376,6 @@ const BranchFormScreenIOS = () => {
 };
 
 export default BranchFormScreenIOS;
+
+
 

@@ -15,10 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -26,28 +28,78 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
-  StyledSeparator,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './BranchListScreen.android.styles';
 import useBranchListScreen from './useBranchListScreen';
 
+const resolveBranchTitle = (t, branch) => {
+  const name = humanizeIdentifier(branch?.name);
+  if (name) return String(name).trim();
+  return t('branch.list.unnamed');
+};
+
+const resolveBranchTenant = (t, branch) => {
+  const value = humanizeIdentifier(
+    branch?.tenant_name
+    ?? branch?.tenant?.name
+    ?? branch?.tenant_label
+    ?? branch?.tenant_id
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveBranchFacility = (t, branch) => {
+  const value = humanizeIdentifier(
+    branch?.facility_name
+    ?? branch?.facility?.name
+    ?? branch?.facility_label
+    ?? branch?.facility_id
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveBranchSubtitle = (t, branch) => {
+  const tenant = resolveBranchTenant(t, branch);
+  const facility = resolveBranchFacility(t, branch);
+
+  if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
+    return t('branch.list.contextValue', { tenant, facility });
+  }
+  if (facility !== t('common.notAvailable')) {
+    return t('branch.list.facilityValue', { facility });
+  }
+  if (tenant !== t('common.notAvailable')) {
+    return t('branch.list.tenantValue', { tenant });
+  }
+  return undefined;
+};
+
 const BranchListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
     search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
     onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onBranchPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useBranchListScreen();
@@ -74,51 +126,68 @@ const BranchListScreenAndroid = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="branch-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: branch }) => {
-    const title = branch?.name ?? branch?.id ?? '';
-    const subtitle = branch?.is_active === false
-      ? t('branch.list.statusInactive')
-      : t('branch.list.statusActive');
+  const renderItem = ({ item: branch, index }) => {
+    const title = resolveBranchTitle(t, branch);
+    const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+    const branchId = branch?.id;
+    const itemKey = branchId ?? `branch-${index}`;
+    const statusLabel = branch?.is_active
+      ? t('branch.list.statusActive')
+      : t('branch.list.statusInactive');
+    const statusTone = branch?.is_active ? 'success' : 'warning';
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onBranchPress(branch.id)}
-        actions={onDelete ? (
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(branch.id, e)}
-            accessibilityLabel={t('branch.list.delete')}
-            accessibilityHint={t('branch.list.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID={`branch-delete-${branch.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        ) : undefined}
+        subtitle={resolveBranchSubtitle(t, branch)}
+        metadata={[]}
+        status={{
+          label: statusLabel,
+          tone: statusTone,
+          showDot: true,
+          accessibilityLabel: t('branch.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={branchId ? () => onBranchPress(branchId) : undefined}
+        onView={branchId ? () => onBranchPress(branchId) : undefined}
+        onEdit={onEdit && branchId ? (event) => onEdit(branchId, event) : undefined}
+        onDelete={onDelete && branchId ? (event) => onDelete(branchId, event) : undefined}
+        viewLabel={t('branch.list.view')}
+        viewHint={t('branch.list.viewHint')}
+        editLabel={t('branch.list.edit')}
+        editHint={t('branch.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('branch.list.deleteHint')}
+        onMore={branchId ? () => onBranchPress(branchId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('branch.list.viewHint')}
+        viewTestID={`branch-view-${itemKey}`}
+        editTestID={`branch-edit-${itemKey}`}
+        deleteTestID={`branch-delete-${itemKey}`}
+        moreTestID={`branch-more-${itemKey}`}
         accessibilityLabel={t('branch.list.itemLabel', { name: title })}
         accessibilityHint={t('branch.list.itemHint', { name: title })}
-        testID={`branch-item-${branch.id}`}
+        testID={`branch-item-${itemKey}`}
       />
     );
   };
@@ -148,6 +217,16 @@ const BranchListScreenAndroid = () => {
               testID="branch-list-search"
             />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('branch.list.searchScopeLabel')}
+              compact
+              testID="branch-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -188,18 +267,43 @@ const BranchListScreenAndroid = () => {
                   testID="branch-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="branch-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="branch-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('branch.list.noResultsTitle')}
+                description={t('branch.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('branch.list.clearSearchAndFilters')}
+                    testID="branch-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('branch.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="branch-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(b) => b.id}
+                  keyExtractor={(branch, index) => branch?.id ?? `branch-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('branch.list.accessibilityLabel')}
                   testID="branch-list-flatlist"
@@ -214,4 +318,3 @@ const BranchListScreenAndroid = () => {
 };
 
 export default BranchListScreenAndroid;
-

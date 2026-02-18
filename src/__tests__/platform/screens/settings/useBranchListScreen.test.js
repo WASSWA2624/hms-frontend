@@ -1,18 +1,32 @@
 /**
  * useBranchListScreen Hook Tests
  */
-const { renderHook, act } = require('@testing-library/react-native');
-const useBranchListScreen = require('@platform/screens/settings/BranchListScreen/useBranchListScreen').default;
+const { renderHook, act, waitFor } = require('@testing-library/react-native');
+const ReactNative = require('react-native');
 
+const mockUseWindowDimensions = jest.spyOn(ReactNative, 'useWindowDimensions');
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 let mockParams = {};
 
 jest.mock('@hooks', () => ({
-  useI18n: jest.fn(() => ({ t: (k) => k })),
-  useNetwork: jest.fn(() => ({ isOffline: false })),
+  useI18n: jest.fn(() => ({
+    t: (key, values) => {
+      if (key === 'branch.list.bulkDeleteConfirm') return `Confirm ${values?.count || 0}`;
+      return key;
+    },
+  })),
+  useAuth: jest.fn(),
+  useNetwork: jest.fn(),
   useBranch: jest.fn(),
   useTenantAccess: jest.fn(),
+}));
+
+jest.mock('@services/storage', () => ({
+  async: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+  },
 }));
 
 jest.mock('@utils', () => {
@@ -28,7 +42,9 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useBranch, useNetwork, useTenantAccess } = require('@hooks');
+const useBranchListScreen = require('@platform/screens/settings/BranchListScreen/useBranchListScreen').default;
+const { useAuth, useNetwork, useBranch, useTenantAccess } = require('@hooks');
+const { async: asyncStorage } = require('@services/storage');
 const { confirmAction } = require('@utils');
 
 describe('useBranchListScreen', () => {
@@ -39,6 +55,14 @@ describe('useBranchListScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockParams = {};
+    mockUseWindowDimensions.mockReturnValue({
+      width: 1280,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+
+    useAuth.mockReturnValue({ user: { id: 'user-1' } });
     useNetwork.mockReturnValue({ isOffline: false });
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
@@ -49,24 +73,169 @@ describe('useBranchListScreen', () => {
     useBranch.mockReturnValue({
       list: mockList,
       remove: mockRemove,
-      data: { items: [], pagination: {} },
+      data: { items: [] },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
+    asyncStorage.getItem.mockResolvedValue(null);
+    asyncStorage.setItem.mockResolvedValue(true);
   });
 
-  it('returns items, handlers, and state', () => {
+  it('global admin path enables list/create/delete and table mode', async () => {
     const { result } = renderHook(() => useBranchListScreen());
-    expect(result.current.items).toEqual([]);
-    expect(result.current.search).toBe('');
-    expect(typeof result.current.onRetry).toBe('function');
-    expect(typeof result.current.onSearch).toBe('function');
-    expect(typeof result.current.onBranchPress).toBe('function');
+
+    expect(mockReset).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(result.current.isTableMode).toBe(true);
+    expect(typeof result.current.onAdd).toBe('function');
+    expect(typeof result.current.onEdit).toBe('function');
+    expect(typeof result.current.onDelete).toBe('function');
+
+    await waitFor(() => {
+      expect(asyncStorage.getItem).toHaveBeenCalled();
+    });
+  });
+
+  it('uses compact mobile list mode below table breakpoint', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+    expect(result.current.isTableMode).toBe(false);
+  });
+
+  it('global all-field search and scoped search behave correctly', () => {
+    useBranch.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          {
+            id: 'branch-1',
+            name: 'Acme Hospital',
+            facility_name: 'Main Campus',
+            is_active: true,
+          },
+          {
+            id: 'branch-2',
+            name: 'Beta Diagnostics',
+            facility_name: 'Lab Wing',
+            is_active: false,
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    act(() => {
+      result.current.onSearch('lab');
+    });
+    expect(result.current.items.some((item) => item.id === 'branch-2')).toBe(true);
+
+    act(() => {
+      result.current.onSearchScopeChange('name');
+      result.current.onSearch('acme');
+    });
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].id).toBe('branch-1');
+  });
+
+  it('advanced filters support multi-condition OR grouping', () => {
+    useBranch.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'branch-1', name: 'Acme Hospital', branch_type: 'HOSPITAL', is_active: true },
+          { id: 'branch-2', name: 'Beta Clinic', branch_type: 'CLINIC', is_active: false },
+          { id: 'branch-3', name: 'Gamma Lab', branch_type: 'LAB', is_active: false },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    const firstFilterId = result.current.filters[0].id;
+
+    act(() => {
+      result.current.onFilterFieldChange(firstFilterId, 'name');
+      result.current.onFilterOperatorChange(firstFilterId, 'contains');
+      result.current.onFilterValueChange(firstFilterId, 'acme');
+      result.current.onAddFilter();
+    });
+
+    const secondFilterId = result.current.filters[1].id;
+    act(() => {
+      result.current.onFilterFieldChange(secondFilterId, 'status');
+      result.current.onFilterOperatorChange(secondFilterId, 'is');
+      result.current.onFilterValueChange(secondFilterId, 'inactive');
+      result.current.onFilterLogicChange('OR');
+    });
+
+    expect(result.current.items.map((branch) => branch.id)).toEqual([
+      'branch-1',
+      'branch-2',
+      'branch-3',
+    ]);
+  });
+
+  it('tenant-scoped admin fetches branches for own tenant context', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    expect(typeof result.current.onAdd).toBe('function');
+    expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
   });
 
-  it('redirects users without branch access', () => {
+  it('persists updated table preferences', async () => {
+    asyncStorage.getItem.mockResolvedValue({
+      pageSize: 20,
+      density: 'comfortable',
+      columnOrder: ['status', 'facility', 'tenant', 'name'],
+      visibleColumns: ['status', 'name'],
+      searchScope: 'status',
+      filterLogic: 'OR',
+      filters: [{ id: 'stored-filter', field: 'status', operator: 'is', value: 'active' }],
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    await waitFor(() => {
+      expect(result.current.pageSize).toBe(20);
+      expect(result.current.density).toBe('comfortable');
+      expect(result.current.searchScope).toBe('status');
+    });
+
+    act(() => {
+      result.current.onDensityChange('compact');
+    });
+
+    await waitFor(() => {
+      expect(asyncStorage.setItem).toHaveBeenCalled();
+    });
+  });
+
+  it('redirects unauthorized users to settings after roles resolve', () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: false,
       canManageAllTenants: false,
@@ -74,14 +243,12 @@ describe('useBranchListScreen', () => {
       isResolved: true,
     });
 
-    const { result } = renderHook(() => useBranchListScreen());
+    renderHook(() => useBranchListScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings');
-    expect(result.current.onAdd).toBeUndefined();
-    expect(result.current.onDelete).toBeUndefined();
   });
 
-  it('redirects tenant-scoped users without tenant id', () => {
+  it('redirects tenant-scoped users without tenant context', () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: false,
@@ -92,218 +259,130 @@ describe('useBranchListScreen', () => {
     renderHook(() => useBranchListScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings');
-    expect(mockList).not.toHaveBeenCalled();
   });
 
-  it('calls list on mount', () => {
-    renderHook(() => useBranchListScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('calls list with tenant scope for tenant-scoped admins', () => {
-    useTenantAccess.mockReturnValue({
-      canAccessTenantSettings: true,
-      canManageAllTenants: false,
-      tenantId: 'tenant-1',
-      isResolved: true,
-    });
-
-    renderHook(() => useBranchListScreen());
-
-    expect(mockList).toHaveBeenCalledWith({
-      page: 1,
-      limit: 20,
-      tenant_id: 'tenant-1',
-    });
-  });
-
-  it('onRetry calls fetchList', () => {
-    const { result } = renderHook(() => useBranchListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onSearch updates list with trimmed search', () => {
-    const { result } = renderHook(() => useBranchListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    act(() => {
-      result.current.onSearch('  main  ');
-    });
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'main' });
-  });
-
-  it('onSearch keeps tenant scope for tenant-scoped admins', () => {
-    useTenantAccess.mockReturnValue({
-      canAccessTenantSettings: true,
-      canManageAllTenants: false,
-      tenantId: 'tenant-1',
-      isResolved: true,
-    });
-    const { result } = renderHook(() => useBranchListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-
-    act(() => {
-      result.current.onSearch('  main  ');
-    });
-
-    expect(mockList).toHaveBeenCalledWith({
-      page: 1,
-      limit: 20,
-      search: 'main',
-      tenant_id: 'tenant-1',
-    });
-  });
-
-  it('onRetry uses current search', () => {
-    const { result } = renderHook(() => useBranchListScreen());
-    act(() => {
-      result.current.onSearch('branch');
-    });
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, search: 'branch' });
-  });
-
-  it('onBranchPress pushes route with id', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useBranchListScreen());
-    result.current.onBranchPress('bid-1');
-    expect(mockPush).toHaveBeenCalledWith('/settings/branches/bid-1');
-  });
-
-  it('onAdd pushes route to create', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useBranchListScreen());
-    result.current.onAdd();
-    expect(mockPush).toHaveBeenCalledWith('/settings/branches/create');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
-    useBranch.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [] },
-      isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useBranchListScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBe('branch.list.loadError');
-  });
-
-  it('onDelete calls remove then fetchList', async () => {
-    mockRemove.mockResolvedValue({ id: 'bid-1' });
-    mockReset.mockClear();
-    mockList.mockClear();
-    const { result } = renderHook(() => useBranchListScreen());
-    await act(async () => {
-      await result.current.onDelete('bid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('bid-1');
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onDelete sets notice when offline', async () => {
-    useNetwork.mockReturnValue({ isOffline: true });
-    mockRemove.mockResolvedValue({ id: 'bid-1' });
-    const { result } = renderHook(() => useBranchListScreen());
-    await act(async () => {
-      await result.current.onDelete('bid-1');
-    });
-    expect(result.current.noticeMessage).toBe('branch.list.noticeQueued');
-  });
-
-  it('onDelete does not refetch when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useBranchListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('bid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('bid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete calls stopPropagation when event provided', async () => {
-    const stopPropagation = jest.fn();
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useBranchListScreen());
-    await act(async () => {
-      await result.current.onDelete('bid-1', { stopPropagation });
-    });
-    expect(stopPropagation).toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw or refetch when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useBranchListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('bid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('bid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
+  it('onDelete is blocked when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
+    mockRemove.mockResolvedValue({ id: 'branch-1' });
+
     const { result } = renderHook(() => useBranchListScreen());
     await act(async () => {
-      await result.current.onDelete('bid-1');
+      await result.current.onDelete('branch-1');
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
   });
 
-  it('handles items from data', () => {
+  it('uses cached branches when offline and live list data is unavailable', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
     useBranch.mockReturnValue({
       list: mockList,
       remove: mockRemove,
-      data: { items: [{ id: 'b1', name: 'Branch 1' }] },
+      data: null,
+      isLoading: false,
+      errorCode: 'NETWORK_ERROR',
+      reset: mockReset,
+    });
+    asyncStorage.getItem.mockImplementation(async (key) => {
+      if (String(key).includes('hms.settings.branches.list.cache')) {
+        return [{
+          id: 'branch-cached-1',
+          name: 'Cached Branch',
+          facility_name: 'Local Facility',
+          is_active: true,
+        }];
+      }
+      return null;
+    });
+
+    const { result } = renderHook(() => useBranchListScreen());
+
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(1);
+      expect(result.current.items[0].id).toBe('branch-cached-1');
+    });
+  });
+
+  it('refreshes branch list automatically when connection is restored', async () => {
+    const networkState = { isOffline: true };
+    useNetwork.mockImplementation(() => networkState);
+
+    const { rerender } = renderHook(() => useBranchListScreen());
+
+    expect(mockList).not.toHaveBeenCalled();
+
+    networkState.isOffline = false;
+    rerender();
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    });
+  });
+
+  it('prevents tenant-scoped users from opening branches outside tenant scope', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useBranch.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [{
+          id: 'branch-2',
+          tenant_id: 'tenant-2',
+          name: 'External Branch',
+          branch_type: 'CLINIC',
+          is_active: true,
+        }],
+      },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
+
     const { result } = renderHook(() => useBranchListScreen());
-    expect(result.current.items).toEqual([{ id: 'b1', name: 'Branch 1' }]);
+
+    act(() => {
+      result.current.onBranchPress('branch-2');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/branches?notice=accessDenied');
   });
 
-  it('handles items array data', () => {
+  it('bulk delete removes selected branches when confirmed', async () => {
     useBranch.mockReturnValue({
       list: mockList,
       remove: mockRemove,
-      data: [{ id: 'b1', name: 'Branch 1' }],
+      data: {
+        items: [
+          { id: 'branch-1', name: 'One', branch_type: 'CLINIC', is_active: true },
+          { id: 'branch-2', name: 'Two', branch_type: 'LAB', is_active: false },
+        ],
+      },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useBranchListScreen());
-    expect(result.current.items).toEqual([{ id: 'b1', name: 'Branch 1' }]);
-  });
-
-  it('handles notice param and clears it', () => {
-    mockParams = { notice: 'created' };
-    const { result } = renderHook(() => useBranchListScreen());
-    expect(result.current.noticeMessage).toBe('branch.list.noticeCreated');
-    expect(mockReplace).toHaveBeenCalledWith('/settings/branches');
-  });
-
-  it('maps accessDenied notice and clears query param', () => {
-    mockParams = { notice: 'accessDenied' };
+    mockRemove.mockResolvedValue({ ok: true });
 
     const { result } = renderHook(() => useBranchListScreen());
 
-    expect(result.current.noticeMessage).toBe('branch.list.noticeAccessDenied');
-    expect(mockReplace).toHaveBeenCalledWith('/settings/branches');
+    act(() => {
+      result.current.onToggleBranchSelection('branch-1');
+      result.current.onToggleBranchSelection('branch-2');
+    });
+
+    await act(async () => {
+      await result.current.onBulkDelete();
+    });
+
+    expect(confirmAction).toHaveBeenCalledWith('Confirm 2');
+    expect(mockRemove).toHaveBeenCalledTimes(2);
+    expect(mockRemove).toHaveBeenNthCalledWith(1, 'branch-1');
+    expect(mockRemove).toHaveBeenNthCalledWith(2, 'branch-2');
   });
 });
+

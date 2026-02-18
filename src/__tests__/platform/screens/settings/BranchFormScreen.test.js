@@ -91,6 +91,8 @@ const baseHook = {
   errorMessage: null,
   isOffline: false,
   branch: null,
+  lockedTenantDisplay: '',
+  tenantDisplayLabel: '',
   onSubmit: jest.fn(),
   onCancel: jest.fn(),
   onGoToTenants: jest.fn(),

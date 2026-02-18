@@ -38,6 +38,13 @@ const StyledSearchSlot = styled.View.withConfig({
   width: 100%;
 `;
 
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
+})`
+  width: 100%;
+`;
+
 const StyledToolbarActions = styled.View.withConfig({
   displayName: 'StyledToolbarActions',
   componentId: 'StyledToolbarActions',
@@ -97,24 +104,16 @@ const StyledList = styled.View.withConfig({
   width: 100%;
 `;
 
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'StyledSeparator',
-  componentId: 'StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 export {
   StyledContainer,
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
-  StyledSeparator,
 };

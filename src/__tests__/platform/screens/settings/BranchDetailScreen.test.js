@@ -30,10 +30,10 @@ const renderWithTheme = (c) => render(<ThemeProvider theme={lightTheme}>{c}</The
 const mockT = (key) => {
   const m = {
     'branch.detail.title': 'Branch Details',
-    'branch.detail.idLabel': 'Branch ID',
     'branch.detail.tenantLabel': 'Tenant',
     'branch.detail.facilityLabel': 'Facility',
     'branch.detail.nameLabel': 'Name',
+    'branch.detail.nameFallback': 'Unnamed branch',
     'branch.detail.activeLabel': 'Active',
     'branch.detail.createdLabel': 'Created',
     'branch.detail.updatedLabel': 'Updated',
@@ -149,9 +149,9 @@ describe('BranchDetailScreen', () => {
       useBranchDetailScreen.mockReturnValue({
         ...baseHook,
         branch: {
-          id: 'b1',
-          tenant_id: 't1',
-          facility_id: 'f1',
+          id: 'branch-1',
+          tenant_name: 'Acme Tenant',
+          facility_name: 'Main Facility',
           name: 'Main Branch',
           is_active: true,
           created_at: '2025-01-01T00:00:00Z',
@@ -160,7 +160,6 @@ describe('BranchDetailScreen', () => {
       });
       const { getByTestId } = renderWithTheme(<BranchDetailScreenWeb />);
       expect(getByTestId('branch-detail-card')).toBeTruthy();
-      expect(getByTestId('branch-detail-id')).toBeTruthy();
       expect(getByTestId('branch-detail-tenant')).toBeTruthy();
       expect(getByTestId('branch-detail-facility')).toBeTruthy();
       expect(getByTestId('branch-detail-name')).toBeTruthy();

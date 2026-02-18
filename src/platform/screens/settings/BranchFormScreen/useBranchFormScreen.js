@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useBranch, useFacility, useNetwork, useTenant, useTenantAccess } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 255;
 
@@ -78,22 +79,29 @@ const useBranchFormScreen = () => {
   const tenantOptions = useMemo(
     () => {
       if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+        return [{
+          value: normalizedScopedTenantId,
+          label: t('branch.form.currentTenantLabel'),
+        }];
       }
-      return tenantItems.map((tenant) => ({
+      return tenantItems.map((tenant, index) => ({
         value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+        label: humanizeIdentifier(tenant.name)
+          || humanizeIdentifier(tenant.slug)
+          || t('branch.form.tenantOptionFallback', { index: index + 1 }),
       }));
     },
-    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
+    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, t]
   );
   const facilityOptions = useMemo(
     () =>
-      facilityItems.map((facility) => ({
+      facilityItems.map((facility, index) => ({
         value: facility.id,
-        label: facility.name ?? facility.id ?? '',
+        label: humanizeIdentifier(facility.name)
+          || humanizeIdentifier(facility.slug)
+          || t('branch.form.facilityOptionFallback', { index: index + 1 }),
       })),
-    [facilityItems]
+    [facilityItems, t]
   );
 
   useEffect(() => {
@@ -239,10 +247,19 @@ const useBranchFormScreen = () => {
     return null;
   }, [isEdit, trimmedTenantId, t]);
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    return tenantOptions.find((option) => option.value === trimmedTenantId)?.label || '';
+  }, [tenantOptions, trimmedTenantId]);
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('branch.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || t('branch.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, isTenantLocked, selectedTenantLabel, lockedTenantDisplay, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -367,6 +384,7 @@ const useBranchFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,
