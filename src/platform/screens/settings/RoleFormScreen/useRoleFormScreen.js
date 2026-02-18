@@ -12,9 +12,11 @@ import {
   useFacility,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 120;
 const MAX_DESCRIPTION_LENGTH = 255;
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -61,6 +63,7 @@ const useRoleFormScreen = () => {
   const canManageRoles = canAccessTenantSettings;
   const canCreateRole = canManageRoles;
   const canEditRole = canManageRoles;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageRoles && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
     () => String(scopedTenantId ?? '').trim(),
@@ -88,21 +91,41 @@ const useRoleFormScreen = () => {
   const tenantOptions = useMemo(
     () => {
       if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+        return [{ value: normalizedScopedTenantId, label: t('role.form.currentTenantLabel') }];
       }
-      return tenantItems.map((tenant) => ({
+      return tenantItems.map((tenant, index) => ({
         value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+        label: humanizeIdentifier(tenant.name)
+          || humanizeIdentifier(tenant.slug)
+          || (canViewTechnicalIds ? String(tenant.id ?? '').trim() : '')
+          || t('role.form.tenantOptionFallback', { index: index + 1 }),
       }));
     },
-    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
+    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, canViewTechnicalIds, t]
   );
   const facilityOptions = useMemo(
-    () => facilityItems.map((facility) => ({
-      value: facility.id,
-      label: facility.name ?? facility.id ?? '',
-    })),
-    [facilityItems]
+    () => {
+      const options = facilityItems.map((facility, index) => ({
+        value: facility.id,
+        label: humanizeIdentifier(facility.name)
+          || humanizeIdentifier(facility.code)
+          || humanizeIdentifier(facility.slug)
+          || (canViewTechnicalIds ? String(facility.id ?? '').trim() : '')
+          || t('role.form.facilityOptionFallback', { index: index + 1 }),
+      }));
+
+      if (facilityId && !options.some((option) => option.value === facilityId)) {
+        const fallbackLabel = humanizeIdentifier(
+          role?.facility_name
+          ?? role?.facility?.name
+          ?? role?.facility_label
+        ) || (canViewTechnicalIds ? facilityId : t('role.form.currentFacilityLabel'));
+        return [{ value: facilityId, label: fallbackLabel }, ...options];
+      }
+
+      return options;
+    },
+    [facilityItems, canViewTechnicalIds, t, facilityId, role]
   );
 
   useEffect(() => {
@@ -148,7 +171,7 @@ const useRoleFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManageRoles,
@@ -201,7 +224,7 @@ const useRoleFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [isResolved, canManageRoles, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -295,11 +318,30 @@ const useRoleFormScreen = () => {
     if (!trimmedTenantId) return t('role.form.tenantRequired');
     return null;
   }, [isEdit, trimmedTenantId, t]);
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    const selectedOption = tenantOptions.find((option) => option.value === trimmedTenantId)?.label;
+    if (selectedOption) return selectedOption;
+
+    const readableTenant = humanizeIdentifier(
+      role?.tenant_name
+      ?? role?.tenant?.name
+      ?? role?.tenant_label
+    );
+    if (readableTenant) return readableTenant;
+    if (canViewTechnicalIds) return trimmedTenantId;
+    return t('role.form.currentTenantLabel');
+  }, [tenantOptions, trimmedTenantId, role, canViewTechnicalIds, t]);
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('role.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || t('role.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, isTenantLocked, selectedTenantLabel, lockedTenantDisplay, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -393,13 +435,14 @@ const useRoleFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant || undefined });
+    if (!trimmedTenant) return;
+    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [listFacilities, resetFacilities, tenantId]);
 
   return {
@@ -434,6 +477,7 @@ const useRoleFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

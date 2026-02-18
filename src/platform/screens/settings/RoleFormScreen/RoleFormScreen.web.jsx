@@ -63,6 +63,7 @@ const RoleFormScreenWeb = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -237,7 +238,7 @@ const RoleFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('role.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('role.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}

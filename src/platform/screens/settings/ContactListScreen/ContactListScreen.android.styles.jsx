@@ -1,6 +1,6 @@
 /**
- * AddressListScreen Android Styles
- * File: AddressListScreen.android.styles.jsx
+ * ContactListScreen Android Styles
+ * File: ContactListScreen.android.styles.jsx
  */
 import styled from 'styled-components/native';
 

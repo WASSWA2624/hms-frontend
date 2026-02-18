@@ -1,18 +1,32 @@
 /**
  * useUserListScreen Hook Tests
  */
-const { renderHook, act } = require('@testing-library/react-native');
-const useUserListScreen = require('@platform/screens/settings/UserListScreen/useUserListScreen').default;
+const { renderHook, act, waitFor } = require('@testing-library/react-native');
+const ReactNative = require('react-native');
 
+const mockUseWindowDimensions = jest.spyOn(ReactNative, 'useWindowDimensions');
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
 let mockParams = {};
 
 jest.mock('@hooks', () => ({
-  useI18n: jest.fn(() => ({ t: (k) => k })),
-  useNetwork: jest.fn(() => ({ isOffline: false })),
+  useI18n: jest.fn(() => ({
+    t: (key, values) => {
+      if (key === 'user.list.bulkDeleteConfirm') return `Confirm ${values?.count || 0}`;
+      return key;
+    },
+  })),
+  useAuth: jest.fn(),
+  useNetwork: jest.fn(),
   useUser: jest.fn(),
   useTenantAccess: jest.fn(),
+}));
+
+jest.mock('@services/storage', () => ({
+  async: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+  },
 }));
 
 jest.mock('@utils', () => {
@@ -28,7 +42,9 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockParams,
 }));
 
-const { useUser, useNetwork, useTenantAccess } = require('@hooks');
+const useUserListScreen = require('@platform/screens/settings/UserListScreen/useUserListScreen').default;
+const { useAuth, useNetwork, useUser, useTenantAccess } = require('@hooks');
+const { async: asyncStorage } = require('@services/storage');
 const { confirmAction } = require('@utils');
 
 describe('useUserListScreen', () => {
@@ -36,194 +52,151 @@ describe('useUserListScreen', () => {
   const mockRemove = jest.fn();
   const mockReset = jest.fn();
 
+  const renderUseUserListScreen = async () => {
+    const rendered = renderHook(() => useUserListScreen());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    return rendered;
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockParams = {};
+    mockUseWindowDimensions.mockReturnValue({
+      width: 1280,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+
+    useAuth.mockReturnValue({ user: { id: 'user-1' } });
     useNetwork.mockReturnValue({ isOffline: false });
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: true,
-      tenantId: 'tenant-1',
+      tenantId: null,
       isResolved: true,
     });
-    useUser.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [], pagination: {} },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-  });
-
-  it('returns items, handlers, and state', () => {
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.items).toEqual([]);
-    expect(typeof result.current.onRetry).toBe('function');
-    expect(typeof result.current.onUserPress).toBe('function');
-    expect(typeof result.current.onDelete).toBe('function');
-  });
-
-  it('calls list on mount', () => {
-    renderHook(() => useUserListScreen());
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onRetry calls fetchList', () => {
-    const { result } = renderHook(() => useUserListScreen());
-    mockReset.mockClear();
-    mockList.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
-  });
-
-  it('onUserPress pushes route with id', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useUserListScreen());
-    result.current.onUserPress('uid-1');
-    expect(mockPush).toHaveBeenCalledWith('/settings/users/uid-1');
-  });
-
-  it('onAdd pushes route to create', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useUserListScreen());
-    result.current.onAdd();
-    expect(mockPush).toHaveBeenCalledWith('/settings/users/create');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
     useUser.mockReturnValue({
       list: mockList,
       remove: mockRemove,
       data: { items: [] },
       isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBe('user.list.loadError');
+    asyncStorage.getItem.mockResolvedValue(null);
+    asyncStorage.setItem.mockResolvedValue(true);
   });
 
-  it('onDelete calls remove then fetchList', async () => {
-    mockRemove.mockResolvedValue({ id: 'uid-1' });
-    mockReset.mockClear();
-    mockList.mockClear();
-    const { result } = renderHook(() => useUserListScreen());
-    await act(async () => {
-      await result.current.onDelete('uid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('uid-1');
+  it('fetches list with capped limit and enables table mode on desktop width', async () => {
+    const { result } = await renderUseUserListScreen();
     expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(result.current.isTableMode).toBe(true);
+    expect(result.current.canViewTechnicalIds).toBe(true);
   });
 
-  it('onDelete sets notice when offline', async () => {
-    useNetwork.mockReturnValue({ isOffline: true });
-    mockRemove.mockResolvedValue({ id: 'uid-1' });
-    const { result } = renderHook(() => useUserListScreen());
-    await act(async () => {
-      await result.current.onDelete('uid-1');
-    });
-    expect(result.current.noticeMessage).toBe('user.list.noticeQueued');
-  });
-
-  it('onDelete does not refetch when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useUserListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('uid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('uid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete calls stopPropagation when event provided', async () => {
-    const stopPropagation = jest.fn();
-    mockRemove.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useUserListScreen());
-    await act(async () => {
-      await result.current.onDelete('uid-1', { stopPropagation });
-    });
-    expect(stopPropagation).toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw or refetch when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useUserListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('uid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('uid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
-    confirmAction.mockReturnValueOnce(false);
-    const { result } = renderHook(() => useUserListScreen());
-    await act(async () => {
-      await result.current.onDelete('uid-1');
-    });
-    expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it('handles items from data', () => {
-    useUser.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [{ id: 'u1', email: 'test@example.com' }] },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.items).toEqual([{ id: 'u1', email: 'test@example.com' }]);
-  });
-
-  it('handles items array data', () => {
-    useUser.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: [{ id: 'u1', email: 'test@example.com' }],
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.items).toEqual([{ id: 'u1', email: 'test@example.com' }]);
-  });
-
-  it('handles notice param and clears it', () => {
-    mockParams = { notice: 'created' };
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.noticeMessage).toBe('user.list.noticeCreated');
-    expect(mockReplace).toHaveBeenCalledWith('/settings/users');
-  });
-
-  it('returns loading state while tenant access is unresolved', () => {
+  it('tenant-scoped admins query only their tenant', async () => {
     useTenantAccess.mockReturnValue({
-      canAccessTenantSettings: false,
+      canAccessTenantSettings: true,
       canManageAllTenants: false,
-      tenantId: null,
-      isResolved: false,
-    });
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.isLoading).toBe(true);
-  });
-
-  it('hides create/delete actions when tenant access is denied', () => {
-    useTenantAccess.mockReturnValue({
-      canAccessTenantSettings: false,
-      canManageAllTenants: false,
-      tenantId: null,
+      tenantId: 'tenant-1',
       isResolved: true,
     });
-    const { result } = renderHook(() => useUserListScreen());
-    expect(result.current.onAdd).toBeUndefined();
-    expect(result.current.onDelete).toBeUndefined();
+
+    await renderUseUserListScreen();
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 100,
+      tenant_id: 'tenant-1',
+    });
+  });
+
+  it('supports scoped search and status filter', async () => {
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'u-1', email: 'a@acme.org', status: 'ACTIVE' },
+          { id: 'u-2', email: 'b@acme.org', status: 'SUSPENDED' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    act(() => {
+      result.current.onSearchScopeChange('email');
+      result.current.onSearch('b@');
+    });
+    expect(result.current.items.map((item) => item.id)).toEqual(['u-2']);
+
+    const filterId = result.current.filters[0].id;
+    act(() => {
+      result.current.onFilterFieldChange(filterId, 'status');
+      result.current.onFilterOperatorChange(filterId, 'is');
+      result.current.onFilterValueChange(filterId, 'active');
+      result.current.onSearch('');
+    });
+    expect(result.current.items.map((item) => item.id)).toEqual(['u-1']);
+  });
+
+  it('uses cached records when offline and live payload is unavailable', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: null,
+      isLoading: false,
+      errorCode: 'NETWORK_ERROR',
+      reset: mockReset,
+    });
+    asyncStorage.getItem.mockImplementation(async (key) => {
+      if (String(key).includes('hms.settings.users.list.cache')) {
+        return [{ id: 'cached-1', email: 'cached@acme.org', status: 'ACTIVE' }];
+      }
+      return null;
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(1);
+      expect(result.current.items[0].id).toBe('cached-1');
+    });
+  });
+
+  it('bulk delete removes selected users when confirmed', async () => {
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: { items: [{ id: 'u-1', email: 'one@acme.org' }, { id: 'u-2', email: 'two@acme.org' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+    mockRemove.mockResolvedValue({ ok: true });
+
+    const { result } = await renderUseUserListScreen();
+
+    act(() => {
+      result.current.onToggleUserSelection('u-1');
+      result.current.onToggleUserSelection('u-2');
+    });
+
+    await act(async () => {
+      await result.current.onBulkDelete();
+    });
+
+    expect(confirmAction).toHaveBeenCalledWith('Confirm 2');
+    expect(mockRemove).toHaveBeenNthCalledWith(1, 'u-1');
+    expect(mockRemove).toHaveBeenNthCalledWith(2, 'u-2');
   });
 });

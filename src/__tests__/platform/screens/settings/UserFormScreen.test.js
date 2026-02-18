@@ -1,6 +1,5 @@
 /**
  * UserFormScreen Component Tests
- * Per testing.mdc: render, loading, error, offline, a11y, interactions
  */
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react-native');
@@ -24,49 +23,49 @@ const UserFormScreenIndex = require('@platform/screens/settings/UserFormScreen/i
 
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
-const renderWithTheme = (c) => render(<ThemeProvider theme={lightTheme}>{c}</ThemeProvider>);
+const renderWithTheme = (component) => render(
+  <ThemeProvider theme={lightTheme}>{component}</ThemeProvider>
+);
 
 const mockT = (key) => {
-  const m = {
+  const dictionary = {
     'user.form.createTitle': 'Create User',
     'user.form.editTitle': 'Edit User',
     'user.form.loadError': 'Failed to load user for editing',
-    'user.form.emailLabel': 'Email',
-    'user.form.emailPlaceholder': 'name@example.com',
-    'user.form.emailHint': 'Required',
-    'user.form.phoneLabel': 'Phone',
-    'user.form.phonePlaceholder': 'e.g. +1 555 123 4567',
-    'user.form.phoneHint': 'Optional',
-    'user.form.passwordLabel': 'Password',
-    'user.form.passwordPlaceholder': 'Set a password',
-    'user.form.passwordHint': 'Required for new users',
-    'user.form.passwordEditHint': 'Leave blank to keep current password',
-    'user.form.statusLabel': 'Status',
-    'user.form.statusPlaceholder': 'Select status',
-    'user.form.statusHint': 'Required',
-    'user.form.tenantLabel': 'Tenant',
-    'user.form.tenantPlaceholder': 'Select tenant',
-    'user.form.tenantHint': 'Required for new users',
-    'user.form.tenantLockedHint': 'Tenant is fixed after creation',
-    'user.form.noTenantsMessage': 'No tenants available yet.',
-    'user.form.createTenantFirst': 'Create a tenant before adding users.',
-    'user.form.goToTenants': 'Go to Tenants',
-    'user.form.goToTenantsHint': 'Open tenant settings',
-    'user.form.facilityLabel': 'Facility',
-    'user.form.facilityPlaceholder': 'Select facility (optional)',
-    'user.form.facilityHint': 'Optional',
-    'user.form.noFacilitiesMessage': 'No facilities available for this tenant.',
-    'user.form.createFacilityRequired': 'Create a facility to link this user.',
-    'user.form.goToFacilities': 'Go to Facilities',
-    'user.form.goToFacilitiesHint': 'Open facility settings',
-    'user.form.selectTenantFirst': 'Select a tenant first',
-    'user.form.submitCreate': 'Create User',
-    'user.form.submitEdit': 'Save Changes',
     'user.form.submitErrorTitle': 'Unable to save user',
-    'user.form.tenantLoadErrorTitle': 'Unable to load tenants',
-    'user.form.facilityLoadErrorTitle': 'Unable to load facilities',
     'user.form.cancel': 'Cancel',
     'user.form.cancelHint': 'Return without saving',
+    'user.form.submitCreate': 'Create User',
+    'user.form.submitEdit': 'Save Changes',
+    'user.form.blockedMessage': 'Blocked',
+    'user.form.tenantLabel': 'Tenant',
+    'user.form.tenantHint': 'Tenant hint',
+    'user.form.tenantPlaceholder': 'Select tenant',
+    'user.form.tenantLockedHint': 'Tenant locked',
+    'user.form.tenantScopedHint': 'Tenant scoped',
+    'user.form.noTenantsMessage': 'No tenants',
+    'user.form.createTenantFirst': 'Create tenant first',
+    'user.form.goToTenants': 'Go to Tenants',
+    'user.form.goToTenantsHint': 'Open tenants',
+    'user.form.tenantLoadErrorTitle': 'Unable to load tenants',
+    'user.form.facilityLabel': 'Facility',
+    'user.form.facilityHint': 'Facility hint',
+    'user.form.facilityPlaceholder': 'Select facility',
+    'user.form.facilityLoadErrorTitle': 'Unable to load facilities',
+    'user.form.selectTenantFirst': 'Select tenant first',
+    'user.form.emailLabel': 'Email',
+    'user.form.emailHint': 'Email hint',
+    'user.form.emailPlaceholder': 'name@example.com',
+    'user.form.phoneLabel': 'Phone',
+    'user.form.phoneHint': 'Phone hint',
+    'user.form.phonePlaceholder': '+1',
+    'user.form.passwordLabel': 'Password',
+    'user.form.passwordHint': 'Password hint',
+    'user.form.passwordEditHint': 'Leave blank to keep password',
+    'user.form.passwordPlaceholder': 'Set password',
+    'user.form.statusLabel': 'Status',
+    'user.form.statusHint': 'Status hint',
+    'user.form.statusPlaceholder': 'Select status',
     'common.loading': 'Loading',
     'common.back': 'Back',
     'common.retry': 'Retry',
@@ -74,7 +73,7 @@ const mockT = (key) => {
     'shell.banners.offline.title': 'You are offline',
     'shell.banners.offline.message': 'Some features may be unavailable.',
   };
-  return m[key] || key;
+  return dictionary[key] || key;
 };
 
 const baseHook = {
@@ -91,12 +90,12 @@ const baseHook = {
   setPassword: jest.fn(),
   status: 'ACTIVE',
   setStatus: jest.fn(),
-  statusOptions: [{ label: 'Active', value: 'ACTIVE' }],
-  tenantOptions: [],
+  statusOptions: [{ value: 'ACTIVE', label: 'Active' }],
+  tenantOptions: [{ value: 'tenant-1', label: 'Tenant 1' }],
   tenantListLoading: false,
   tenantListError: false,
   tenantErrorMessage: null,
-  facilityOptions: [],
+  facilityOptions: [{ value: 'facility-1', label: 'Facility 1' }],
   facilityListLoading: false,
   facilityListError: false,
   facilityErrorMessage: null,
@@ -108,6 +107,14 @@ const baseHook = {
   errorMessage: null,
   isOffline: false,
   user: null,
+  emailError: null,
+  phoneError: null,
+  passwordError: null,
+  statusError: null,
+  tenantError: null,
+  isTenantLocked: false,
+  lockedTenantDisplay: '',
+  tenantDisplayLabel: '',
   onSubmit: jest.fn(),
   onCancel: jest.fn(),
   onGoToTenants: jest.fn(),
@@ -124,115 +131,76 @@ describe('UserFormScreen', () => {
     useUserFormScreen.mockReturnValue({ ...baseHook });
   });
 
-  describe('render', () => {
-    it('renders without error (Web)', () => {
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-card')).toBeTruthy();
-    });
-
-    it('renders without error (Android)', () => {
-      const { getByTestId } = renderWithTheme(<UserFormScreenAndroid />);
-      expect(getByTestId('user-form-card')).toBeTruthy();
-    });
-
-    it('renders without error (iOS)', () => {
-      const { getByTestId } = renderWithTheme(<UserFormScreenIOS />);
-      expect(getByTestId('user-form-card')).toBeTruthy();
-    });
+  it('renders web/android/ios variants', () => {
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-card')).toBeTruthy();
+    expect(renderWithTheme(<UserFormScreenAndroid />).getByTestId('user-form-card')).toBeTruthy();
+    expect(renderWithTheme(<UserFormScreenIOS />).getByTestId('user-form-card')).toBeTruthy();
   });
 
-  describe('loading', () => {
-    it('shows loading state (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        isEdit: true,
-        isLoading: true,
-        user: null,
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-loading')).toBeTruthy();
-    });
+  it('shows loading and load-error states in edit mode', () => {
+    useUserFormScreen.mockReturnValue({ ...baseHook, isEdit: true, isLoading: true, user: null });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-loading')).toBeTruthy();
+
+    useUserFormScreen.mockReturnValue({ ...baseHook, isEdit: true, hasError: true, user: null });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-load-error')).toBeTruthy();
   });
 
-  describe('load error', () => {
-    it('shows load error state (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        isEdit: true,
-        hasError: true,
-        user: null,
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-load-error')).toBeTruthy();
+  it('shows inline offline and submit-error states', () => {
+    useUserFormScreen.mockReturnValue({ ...baseHook, isOffline: true });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-offline')).toBeTruthy();
+
+    useUserFormScreen.mockReturnValue({
+      ...baseHook,
+      hasError: true,
+      errorMessage: 'submit failed',
+      user: { id: 'u1', email: 'user@acme.org' },
+      isEdit: true,
     });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-submit-error')).toBeTruthy();
   });
 
-  describe('inline states', () => {
-    it('shows offline state (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        isOffline: true,
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-offline')).toBeTruthy();
+  it('shows tenant and facility load errors', () => {
+    useUserFormScreen.mockReturnValue({
+      ...baseHook,
+      tenantListError: true,
+      tenantErrorMessage: 'tenant failed',
     });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-tenant-error')).toBeTruthy();
 
-    it('shows submit error state (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        hasError: true,
-        errorMessage: 'Submit failed',
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-submit-error')).toBeTruthy();
+    useUserFormScreen.mockReturnValue({
+      ...baseHook,
+      facilityListError: true,
+      facilityErrorMessage: 'facility failed',
     });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-facility-error')).toBeTruthy();
   });
 
-  describe('tenant states', () => {
-    it('shows tenant load error (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        tenantListError: true,
-        tenantErrorMessage: 'Unable to load tenants',
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-tenant-error')).toBeTruthy();
-    });
+  it('calls submit and cancel handlers', () => {
+    const onSubmit = jest.fn();
+    const onCancel = jest.fn();
+    useUserFormScreen.mockReturnValue({ ...baseHook, onSubmit, onCancel });
+
+    const screen = renderWithTheme(<UserFormScreenWeb />);
+    fireEvent.press(screen.getByTestId('user-form-submit'));
+    fireEvent.press(screen.getByTestId('user-form-cancel'));
+    expect(onSubmit).toHaveBeenCalled();
+    expect(onCancel).toHaveBeenCalled();
   });
 
-  describe('facility states', () => {
-    it('shows facility load error (Web)', () => {
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        facilityListError: true,
-        facilityErrorMessage: 'Unable to load facilities',
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      expect(getByTestId('user-form-facility-error')).toBeTruthy();
+  it('renders readonly tenant display for locked/edit paths', () => {
+    useUserFormScreen.mockReturnValue({
+      ...baseHook,
+      isEdit: true,
+      isTenantLocked: true,
+      lockedTenantDisplay: 'Tenant 1',
+      tenantDisplayLabel: 'Tenant 1',
+      user: { id: 'u1', email: 'user@acme.org' },
     });
+    expect(renderWithTheme(<UserFormScreenWeb />).getByTestId('user-form-tenant-readonly')).toBeTruthy();
   });
 
-  describe('actions', () => {
-    it('calls submit and cancel handlers (Web)', () => {
-      const onSubmit = jest.fn();
-      const onCancel = jest.fn();
-      useUserFormScreen.mockReturnValue({
-        ...baseHook,
-        onSubmit,
-        onCancel,
-      });
-      const { getByTestId } = renderWithTheme(<UserFormScreenWeb />);
-      fireEvent.press(getByTestId('user-form-submit'));
-      fireEvent.press(getByTestId('user-form-cancel'));
-      expect(onSubmit).toHaveBeenCalled();
-      expect(onCancel).toHaveBeenCalled();
-    });
-  });
-
-  describe('exports', () => {
-    it('exports component and hook from index', () => {
-      expect(UserFormScreenIndex.default).toBeDefined();
-      expect(UserFormScreenIndex.useUserFormScreen).toBeDefined();
-    });
+  it('exports component and hook from index', () => {
+    expect(UserFormScreenIndex.default).toBeDefined();
+    expect(UserFormScreenIndex.useUserFormScreen).toBeDefined();
   });
 });

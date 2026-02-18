@@ -9,23 +9,37 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
   StyledDetailGrid,
   StyledDetailItem,
   StyledInlineStates,
-  StyledActions,
 } from './RoleDetailScreen.android.styles';
 import useRoleDetailScreen from './useRoleDetailScreen';
+
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return String(normalized).trim();
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fallbackLabel) => {
+  if (readableValue) return readableValue;
+  if (canViewTechnicalIds) return String(technicalId ?? '').trim();
+  if (String(technicalId ?? '').trim()) return fallbackLabel;
+  return '';
+};
 
 const RoleDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
@@ -35,6 +49,7 @@ const RoleDetailScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -61,6 +76,7 @@ const RoleDetailScreenAndroid = () => {
       <StyledContainer>
         <StyledContent>
           <OfflineState
+            size={OfflineStateSizes.SMALL}
             title={t('shell.banners.offline.title')}
             description={t('shell.banners.offline.message')}
             action={(
@@ -70,7 +86,6 @@ const RoleDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -96,7 +111,6 @@ const RoleDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -124,7 +138,6 @@ const RoleDetailScreenAndroid = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('role.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="role-detail-back"
             >
               {t('common.back')}
@@ -137,10 +150,20 @@ const RoleDetailScreenAndroid = () => {
 
   const createdAt = formatDateTime(role.created_at, locale);
   const updatedAt = formatDateTime(role.updated_at, locale);
-  const tenantId = role?.tenant_id ?? '';
-  const facilityId = role?.facility_id ?? '';
-  const name = role?.name ?? '';
-  const description = role?.description ?? '';
+  const name = humanizeIdentifier(role?.name) || t('role.detail.currentRole');
+  const description = humanizeIdentifier(role?.description);
+  const tenantLabel = resolveContextValue(
+    resolveReadableValue(role?.tenant_name, role?.tenant?.name, role?.tenant_label),
+    role?.tenant_id,
+    canViewTechnicalIds,
+    t('role.detail.currentTenant')
+  );
+  const facilityLabel = resolveContextValue(
+    resolveReadableValue(role?.facility_name, role?.facility?.name, role?.facility_label),
+    role?.facility_id,
+    canViewTechnicalIds,
+    t('role.detail.currentFacility')
+  );
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -148,7 +171,6 @@ const RoleDetailScreenAndroid = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -181,25 +203,27 @@ const RoleDetailScreenAndroid = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('role.detail.title')} testID="role-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('role.detail.idLabel')}</Text>
-              <Text variant="body" testID="role-detail-id">
-                {role.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('role.detail.tenantLabel')}</Text>
-                <Text variant="body" testID="role-detail-tenant">
-                  {tenantId}
+                <Text variant="label">{t('role.detail.idLabel')}</Text>
+                <Text variant="body" testID="role-detail-id">
+                  {role.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {tenantLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('role.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="role-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('role.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="role-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -244,7 +268,6 @@ const RoleDetailScreenAndroid = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('role.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="role-detail-back"
             disabled={isLoading}
           >
@@ -257,7 +280,6 @@ const RoleDetailScreenAndroid = () => {
               onPress={onEdit}
               accessibilityLabel={t('role.detail.edit')}
               accessibilityHint={t('role.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="role-detail-edit"
               disabled={isLoading}
             >
@@ -272,7 +294,6 @@ const RoleDetailScreenAndroid = () => {
               loading={isLoading}
               accessibilityLabel={t('role.detail.delete')}
               accessibilityHint={t('role.detail.deleteHint')}
-              icon={<Icon glyph="✕" size="xs" decorative />}
               testID="role-detail-delete"
             >
               {t('common.remove')}

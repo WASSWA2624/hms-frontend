@@ -1,6 +1,6 @@
 /**
- * AddressListScreen Web Styles
- * File: AddressListScreen.web.styles.jsx
+ * ContactListScreen Web Styles
+ * File: ContactListScreen.web.styles.jsx
  */
 import styled from 'styled-components';
 

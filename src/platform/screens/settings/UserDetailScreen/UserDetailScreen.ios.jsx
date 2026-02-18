@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledActions,
   StyledContainer,
@@ -27,11 +27,26 @@ import {
 } from './UserDetailScreen.ios.styles';
 import useUserDetailScreen from './useUserDetailScreen';
 
-const resolveStatusLabel = (t, value) => {
+const resolveUserStatusLabel = (t, value) => {
   if (!value) return '';
   const key = `user.status.${value}`;
   const resolved = t(key);
   return resolved === key ? value : resolved;
+};
+
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return String(normalized).trim();
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fallbackLabel) => {
+  if (readableValue) return readableValue;
+  if (canViewTechnicalIds) return String(technicalId ?? '').trim();
+  if (String(technicalId ?? '').trim()) return fallbackLabel;
+  return '';
 };
 
 const UserDetailScreenIOS = () => {
@@ -42,6 +57,7 @@ const UserDetailScreenIOS = () => {
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -78,7 +94,7 @@ const UserDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="?" size="xs" decorative />}
+                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -104,7 +120,7 @@ const UserDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="?" size="xs" decorative />}
+                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -132,7 +148,7 @@ const UserDetailScreenIOS = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('user.detail.backHint')}
-              icon={<Icon glyph="?" size="xs" decorative />}
+              icon={<Icon glyph="←" size="xs" decorative />}
               testID="user-detail-back"
             >
               {t('common.back')}
@@ -147,10 +163,20 @@ const UserDetailScreenIOS = () => {
   const updatedAt = formatDateTime(user.updated_at, locale);
   const email = user?.email ?? '';
   const phone = user?.phone ?? '';
-  const status = user?.status ?? '';
-  const statusLabel = resolveStatusLabel(t, status);
-  const tenantId = user?.tenant_id ?? '';
-  const facilityId = user?.facility_id ?? '';
+  const status = String(user?.status ?? '').trim().toUpperCase();
+  const statusLabel = resolveUserStatusLabel(t, status);
+  const tenantLabel = resolveContextValue(
+    resolveReadableValue(user?.tenant_name, user?.tenant?.name, user?.tenant_label),
+    user?.tenant_id,
+    canViewTechnicalIds,
+    t('user.list.currentTenant')
+  );
+  const facilityLabel = resolveContextValue(
+    resolveReadableValue(user?.facility_name, user?.facility?.name, user?.facility_label),
+    user?.facility_id,
+    canViewTechnicalIds,
+    t('user.list.currentFacility')
+  );
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -158,7 +184,7 @@ const UserDetailScreenIOS = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
+      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -191,25 +217,27 @@ const UserDetailScreenIOS = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('user.detail.title')} testID="user-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('user.detail.idLabel')}</Text>
-              <Text variant="body" testID="user-detail-id">
-                {user.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('user.detail.tenantLabel')}</Text>
-                <Text variant="body" testID="user-detail-tenant">
-                  {tenantId}
+                <Text variant="label">{t('user.detail.idLabel')}</Text>
+                <Text variant="body" testID="user-detail-id">
+                  {user.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {tenantLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('user.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="user-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('user.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="user-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -229,7 +257,7 @@ const UserDetailScreenIOS = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {status ? (
+            {statusLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('user.detail.statusLabel')}</Text>
                 <Text variant="body" testID="user-detail-status">
@@ -262,7 +290,7 @@ const UserDetailScreenIOS = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('user.detail.backHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph="←" size="xs" decorative />}
             testID="user-detail-back"
             disabled={isLoading}
           >
@@ -275,7 +303,7 @@ const UserDetailScreenIOS = () => {
               onPress={onEdit}
               accessibilityLabel={t('user.detail.edit')}
               accessibilityHint={t('user.detail.editHint')}
-              icon={<Icon glyph="?" size="xs" decorative />}
+              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="user-detail-edit"
               disabled={isLoading}
             >
@@ -290,7 +318,7 @@ const UserDetailScreenIOS = () => {
               loading={isLoading}
               accessibilityLabel={t('user.detail.delete')}
               accessibilityHint={t('user.detail.deleteHint')}
-              icon={<Icon glyph="?" size="xs" decorative />}
+              icon={<Icon glyph="✕" size="xs" decorative />}
               testID="user-detail-delete"
             >
               {t('common.remove')}
@@ -303,3 +331,4 @@ const UserDetailScreenIOS = () => {
 };
 
 export default UserDetailScreenIOS;
+

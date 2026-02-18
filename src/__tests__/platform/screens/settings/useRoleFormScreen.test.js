@@ -209,4 +209,44 @@ describe('useRoleFormScreen', () => {
     expect(result.current.nameError).toBe('role.form.nameTooLong');
     expect(result.current.isSubmitDisabled).toBe(true);
   });
+
+  it('uses capped numeric list limits for tenant and facility lookups', () => {
+    const { result } = renderHook(() => useRoleFormScreen());
+
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+
+    act(() => {
+      result.current.setTenantId('tenant-1');
+    });
+
+    expect(mockListFacilities).toHaveBeenLastCalledWith({
+      page: 1,
+      limit: 100,
+      tenant_id: 'tenant-1',
+    });
+  });
+
+  it('retries tenant and facility lookups with capped pagination', () => {
+    const { result } = renderHook(() => useRoleFormScreen());
+
+    act(() => {
+      result.current.onRetryTenants();
+    });
+
+    expect(mockListTenants).toHaveBeenLastCalledWith({ page: 1, limit: 100 });
+
+    act(() => {
+      result.current.setTenantId('tenant-1');
+    });
+
+    act(() => {
+      result.current.onRetryFacilities();
+    });
+
+    expect(mockListFacilities).toHaveBeenLastCalledWith({
+      page: 1,
+      limit: 100,
+      tenant_id: 'tenant-1',
+    });
+  });
 });

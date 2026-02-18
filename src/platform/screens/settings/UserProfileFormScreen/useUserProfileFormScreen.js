@@ -12,9 +12,28 @@ import {
   useUser,
   useUserProfile,
 } from '@hooks';
-import { normalizeIsoDateTime, toDateInputValue } from '@utils';
+import { humanizeIdentifier, normalizeIsoDateTime, toDateInputValue } from '@utils';
 
 const MAX_NAME_LENGTH = 120;
+const MAX_FETCH_LIMIT = 100;
+
+const normalizeValue = (value) => String(value ?? '').trim();
+
+const resolveReadableValue = (...values) => {
+  for (const value of values) {
+    const normalized = normalizeValue(humanizeIdentifier(value));
+    if (normalized) return normalized;
+  }
+  return '';
+};
+
+const buildScopedListParams = (isTenantScopedAdmin, normalizedScopedTenantId) => {
+  const params = { page: 1, limit: MAX_FETCH_LIMIT };
+  if (isTenantScopedAdmin && normalizedScopedTenantId) {
+    params.tenant_id = normalizedScopedTenantId;
+  }
+  return params;
+};
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -61,9 +80,10 @@ const useUserProfileFormScreen = () => {
   const canManageUserProfiles = canAccessTenantSettings;
   const canCreateUserProfile = canManageUserProfiles;
   const canEditUserProfile = canManageUserProfiles;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageUserProfiles && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
-    () => String(scopedTenantId ?? '').trim(),
+    () => normalizeValue(scopedTenantId),
     [scopedTenantId]
   );
   const [userId, setUserId] = useState('');
@@ -85,26 +105,78 @@ const useUserProfileFormScreen = () => {
     () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
     [facilityData]
   );
+  const normalizedUserId = useMemo(() => normalizeValue(userId), [userId]);
+  const normalizedFacilityId = useMemo(() => normalizeValue(facilityId), [facilityId]);
   const userOptions = useMemo(() => {
-    const options = userItems.map((user) => ({
-      value: user.id,
-      label: user.email ?? user.phone ?? user.id ?? '',
-    }));
-    if (!isEdit && userId && !options.some((option) => option.value === userId)) {
-      return [{ value: userId, label: userId }, ...options];
+    const options = userItems
+      .map((user, index) => {
+        const optionValue = normalizeValue(user?.id ?? user?.user_id);
+        if (!optionValue) return null;
+        const optionLabel = normalizeValue(
+          user?.email
+          ?? user?.phone
+          ?? resolveReadableValue(user?.display_name, user?.name, `${user?.first_name ?? ''} ${user?.last_name ?? ''}`)
+        ) || (
+          canViewTechnicalIds
+            ? optionValue
+            : t('userProfile.form.userOptionFallback', { index: index + 1 })
+        );
+        return { value: optionValue, label: optionLabel };
+      })
+      .filter(Boolean);
+
+    if (normalizedUserId && !options.some((option) => option.value === normalizedUserId)) {
+      return [{
+        value: normalizedUserId,
+        label: canViewTechnicalIds ? normalizedUserId : t('userProfile.form.currentUser'),
+      }, ...options];
     }
     return options;
-  }, [userItems, isEdit, userId]);
+  }, [userItems, normalizedUserId, canViewTechnicalIds, t]);
   const facilityOptions = useMemo(() => {
-    const options = facilityItems.map((facility) => ({
-      value: facility.id,
-      label: facility.name ?? facility.id ?? '',
-    }));
-    if (facilityId && !options.some((option) => option.value === facilityId)) {
-      return [{ value: facilityId, label: facilityId }, ...options];
+    const options = facilityItems
+      .map((facility, index) => {
+        const optionValue = normalizeValue(facility?.id);
+        if (!optionValue) return null;
+        const optionLabel = resolveReadableValue(
+          facility?.name,
+          facility?.code,
+          facility?.slug
+        ) || (
+          canViewTechnicalIds
+            ? optionValue
+            : t('userProfile.form.facilityOptionFallback', { index: index + 1 })
+        );
+        return { value: optionValue, label: optionLabel };
+      })
+      .filter(Boolean);
+
+    if (normalizedFacilityId && !options.some((option) => option.value === normalizedFacilityId)) {
+      return [{
+        value: normalizedFacilityId,
+        label: canViewTechnicalIds ? normalizedFacilityId : t('userProfile.form.currentFacility'),
+      }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId]);
+  }, [facilityItems, normalizedFacilityId, canViewTechnicalIds, t]);
+  const userDisplayLabel = useMemo(() => {
+    const selectedOption = userOptions.find((option) => option.value === normalizedUserId);
+    if (selectedOption?.label) return selectedOption.label;
+
+    const profileUserLabel = normalizeValue(
+      profile?.user_email
+      ?? profile?.user?.email
+      ?? profile?.user_phone
+      ?? profile?.user?.phone
+      ?? resolveReadableValue(profile?.user?.display_name, profile?.user?.name)
+    );
+    if (profileUserLabel) return profileUserLabel;
+
+    if (normalizedUserId) {
+      return canViewTechnicalIds ? normalizedUserId : t('userProfile.form.currentUser');
+    }
+    return t('common.notAvailable');
+  }, [userOptions, normalizedUserId, profile, canViewTechnicalIds, t]);
   const genderOptions = useMemo(
     () => ([
       { label: t('userProfile.gender.MALE'), value: 'MALE' },
@@ -167,13 +239,11 @@ const useUserProfileFormScreen = () => {
   }, [isResolved, canManageUserProfiles, isEdit, profile, errorCode, router]);
 
   useEffect(() => {
-    if (!isResolved || !canManageUserProfiles || isEdit) return;
-    if (!canCreateUserProfile) return;
+    if (!isResolved || !canManageUserProfiles) return;
+    if (isEdit && !canEditUserProfile) return;
+    if (!isEdit && !canCreateUserProfile) return;
     if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
-    const params = { page: 1, limit: 200 };
-    if (isTenantScopedAdmin) {
-      params.tenant_id = normalizedScopedTenantId;
-    }
+    const params = buildScopedListParams(isTenantScopedAdmin, normalizedScopedTenantId);
     resetUsers();
     listUsers(params);
   }, [
@@ -181,6 +251,7 @@ const useUserProfileFormScreen = () => {
     canManageUserProfiles,
     isEdit,
     canCreateUserProfile,
+    canEditUserProfile,
     isTenantScopedAdmin,
     normalizedScopedTenantId,
     listUsers,
@@ -190,10 +261,7 @@ const useUserProfileFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageUserProfiles) return;
     if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
-    const params = { page: 1, limit: 200 };
-    if (isTenantScopedAdmin) {
-      params.tenant_id = normalizedScopedTenantId;
-    }
+    const params = buildScopedListParams(isTenantScopedAdmin, normalizedScopedTenantId);
     resetFacilities();
     listFacilities(params);
   }, [
@@ -222,7 +290,7 @@ const useUserProfileFormScreen = () => {
     if (userPrefillRef.current) return;
     const paramValue = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
     if (paramValue) {
-      setUserId(String(paramValue));
+      setUserId(normalizeValue(paramValue));
       userPrefillRef.current = true;
       return;
     }
@@ -237,7 +305,7 @@ const useUserProfileFormScreen = () => {
     if (facilityPrefillRef.current) return;
     const paramValue = Array.isArray(facilityIdParam) ? facilityIdParam[0] : facilityIdParam;
     if (paramValue) {
-      setFacilityId(String(paramValue));
+      setFacilityId(normalizeValue(paramValue));
       facilityPrefillRef.current = true;
       return;
     }
@@ -247,12 +315,12 @@ const useUserProfileFormScreen = () => {
     }
   }, [facilityIdParam, facilityOptions, facilityId, isEdit]);
 
-  const trimmedUserId = String(userId ?? '').trim();
-  const trimmedFacilityId = String(facilityId ?? '').trim();
+  const trimmedUserId = normalizedUserId;
+  const trimmedFacilityId = normalizedFacilityId;
   const trimmedFirstName = firstName.trim();
   const trimmedMiddleName = middleName.trim();
   const trimmedLastName = lastName.trim();
-  const trimmedGender = gender.trim();
+  const trimmedGender = normalizeValue(gender);
   const normalizedDateOfBirth = useMemo(
     () => normalizeIsoDateTime(dateOfBirth),
     [dateOfBirth]
@@ -409,18 +477,19 @@ const useUserProfileFormScreen = () => {
   }, [router]);
 
   const handleRetryUsers = useCallback(() => {
-    if (isEdit || !isResolved || !canManageUserProfiles) return;
+    if (!isResolved || !canManageUserProfiles) return;
+    if (isEdit && !canEditUserProfile) return;
+    if (!isEdit && !canCreateUserProfile) return;
     if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
-    const params = { page: 1, limit: 200 };
-    if (isTenantScopedAdmin) {
-      params.tenant_id = normalizedScopedTenantId;
-    }
+    const params = buildScopedListParams(isTenantScopedAdmin, normalizedScopedTenantId);
     resetUsers();
     listUsers(params);
   }, [
-    isEdit,
     isResolved,
     canManageUserProfiles,
+    isEdit,
+    canCreateUserProfile,
+    canEditUserProfile,
     isTenantScopedAdmin,
     normalizedScopedTenantId,
     listUsers,
@@ -430,10 +499,7 @@ const useUserProfileFormScreen = () => {
   const handleRetryFacilities = useCallback(() => {
     if (!isResolved || !canManageUserProfiles) return;
     if (isTenantScopedAdmin && !normalizedScopedTenantId) return;
-    const params = { page: 1, limit: 200 };
-    if (isTenantScopedAdmin) {
-      params.tenant_id = normalizedScopedTenantId;
-    }
+    const params = buildScopedListParams(isTenantScopedAdmin, normalizedScopedTenantId);
     resetFacilities();
     listFacilities(params);
   }, [
@@ -449,6 +515,7 @@ const useUserProfileFormScreen = () => {
     isEdit,
     userId,
     setUserId,
+    userDisplayLabel,
     facilityId,
     setFacilityId,
     firstName,
@@ -466,6 +533,7 @@ const useUserProfileFormScreen = () => {
     userListLoading,
     userListError: Boolean(userErrorCode),
     userErrorMessage,
+    canViewTechnicalIds,
     facilityOptions,
     facilityListLoading,
     facilityListError: Boolean(facilityErrorCode),

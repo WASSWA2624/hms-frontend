@@ -31,10 +31,15 @@ const UserProfileDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
   const {
     profile,
+    profileDisplayName,
+    profileUserDisplay,
+    profileFacilityDisplay,
+    profileGenderDisplay,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -139,19 +144,10 @@ const UserProfileDetailScreenAndroid = () => {
   const createdAt = formatDateTime(profile.created_at, locale);
   const updatedAt = formatDateTime(profile.updated_at, locale);
   const dateOfBirth = formatDate(profile.date_of_birth, locale);
-  const userId = profile?.user_id ?? '';
-  const facilityId = profile?.facility_id ?? '';
   const firstName = profile?.first_name ?? '';
   const middleName = profile?.middle_name ?? '';
   const lastName = profile?.last_name ?? '';
-  const gender = profile?.gender ?? '';
-  const resolveGenderLabel = (value) => {
-    if (!value) return '';
-    const key = `userProfile.gender.${value}`;
-    const resolved = t(key);
-    return resolved === key ? value : resolved;
-  };
-  const genderLabel = resolveGenderLabel(gender);
+  const genderLabel = profileGenderDisplay;
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -192,25 +188,35 @@ const UserProfileDetailScreenAndroid = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('userProfile.detail.title')} testID="user-profile-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('userProfile.detail.idLabel')}</Text>
-              <Text variant="body" testID="user-profile-detail-id">
-                {profile.id}
-              </Text>
-            </StyledDetailItem>
-            {userId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userProfile.detail.userIdLabel')}</Text>
-                <Text variant="body" testID="user-profile-detail-user">
-                  {userId}
+                <Text variant="label">{t('userProfile.detail.idLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-id">
+                  {profile.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {profileUserDisplay ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userProfile.detail.facilityIdLabel')}</Text>
+                <Text variant="label">{t('userProfile.detail.userLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-user">
+                  {profileUserDisplay}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {profileFacilityDisplay ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="user-profile-detail-facility">
-                  {facilityId}
+                  {profileFacilityDisplay}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {profileDisplayName ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userProfile.detail.profileNameLabel')}</Text>
+                <Text variant="body" testID="user-profile-detail-profile-name">
+                  {profileDisplayName}
                 </Text>
               </StyledDetailItem>
             ) : null}

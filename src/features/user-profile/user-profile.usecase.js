@@ -21,18 +21,23 @@ const execute = async (work) => {
   }
 };
 
+/** Backend response-format.mdc: success body is { status, message, data, meta }. Unwrap payload. */
+const getPayload = (response) =>
+  (response?.data?.data !== undefined ? response.data.data : response?.data);
+
 const listUserProfiles = async (params = {}) =>
   execute(async () => {
     const parsed = parseUserProfileListParams(params);
     const response = await userProfileApi.list(parsed);
-    return normalizeUserProfileList(response.data);
+    const payload = getPayload(response);
+    return normalizeUserProfileList(Array.isArray(payload) ? payload : []);
   });
 
 const getUserProfile = async (id) =>
   execute(async () => {
     const parsedId = parseUserProfileId(id);
     const response = await userProfileApi.get(parsedId);
-    return normalizeUserProfile(response.data);
+    return normalizeUserProfile(getPayload(response));
   });
 
 const createUserProfile = async (payload) =>
@@ -47,7 +52,7 @@ const createUserProfile = async (payload) =>
       return normalizeUserProfile(parsed);
     }
     const response = await userProfileApi.create(parsed);
-    return normalizeUserProfile(response.data);
+    return normalizeUserProfile(getPayload(response));
   });
 
 const updateUserProfile = async (id, payload) =>
@@ -63,7 +68,7 @@ const updateUserProfile = async (id, payload) =>
       return normalizeUserProfile({ id: parsedId, ...parsed });
     }
     const response = await userProfileApi.update(parsedId, parsed);
-    return normalizeUserProfile(response.data);
+    return normalizeUserProfile(getPayload(response));
   });
 
 const deleteUserProfile = async (id) =>
@@ -76,8 +81,8 @@ const deleteUserProfile = async (id) =>
     if (queued) {
       return normalizeUserProfile({ id: parsedId });
     }
-    const response = await userProfileApi.remove(parsedId);
-    return normalizeUserProfile(response.data);
+    await userProfileApi.remove(parsedId);
+    return normalizeUserProfile({ id: parsedId });
   });
 
 export {

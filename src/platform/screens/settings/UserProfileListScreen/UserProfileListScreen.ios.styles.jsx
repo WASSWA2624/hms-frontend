@@ -1,12 +1,12 @@
 /**
- * UserProfileListScreen iOS Styles
- * File: UserProfileListScreen.ios.styles.jsx
+ * UserListScreen iOS Styles
+ * File: UserListScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
 const StyledContainer = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledContainer',
-  componentId: 'UserProfileListScreen_StyledContainer',
+  displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
 })`
   flex: 1;
   width: 100%;
@@ -15,25 +15,39 @@ const StyledContainer = styled.View.withConfig({
 `;
 
 const StyledContent = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledContent',
-  componentId: 'UserProfileListScreen_StyledContent',
+  displayName: 'StyledContent',
+  componentId: 'StyledContent',
 })`
   flex: 1;
   width: 100%;
 `;
 
 const StyledToolbar = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledToolbar',
-  componentId: 'UserProfileListScreen_StyledToolbar',
+  displayName: 'StyledToolbar',
+  componentId: 'StyledToolbar',
 })`
   flex-direction: column;
   align-items: stretch;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledSearchSlot = styled.View.withConfig({
+  displayName: 'StyledSearchSlot',
+  componentId: 'StyledSearchSlot',
+})`
+  width: 100%;
+`;
+
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
+})`
+  width: 100%;
+`;
+
 const StyledToolbarActions = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledToolbarActions',
-  componentId: 'UserProfileListScreen_StyledToolbarActions',
+  displayName: 'StyledToolbarActions',
+  componentId: 'StyledToolbarActions',
 })`
   flex-direction: row;
   align-items: center;
@@ -42,8 +56,8 @@ const StyledToolbarActions = styled.View.withConfig({
 `;
 
 const StyledAddButton = styled.Pressable.withConfig({
-  displayName: 'UserProfileListScreen_StyledAddButton',
-  componentId: 'UserProfileListScreen_StyledAddButton',
+  displayName: 'StyledAddButton',
+  componentId: 'StyledAddButton',
 })`
   flex-direction: row;
   align-items: center;
@@ -57,8 +71,8 @@ const StyledAddButton = styled.Pressable.withConfig({
 `;
 
 const StyledAddLabel = styled.Text.withConfig({
-  displayName: 'UserProfileListScreen_StyledAddLabel',
-  componentId: 'UserProfileListScreen_StyledAddLabel',
+  displayName: 'StyledAddLabel',
+  componentId: 'StyledAddLabel',
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
@@ -67,8 +81,8 @@ const StyledAddLabel = styled.Text.withConfig({
 `;
 
 const StyledListBody = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledListBody',
-  componentId: 'UserProfileListScreen_StyledListBody',
+  displayName: 'StyledListBody',
+  componentId: 'StyledListBody',
 })`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md}px;
@@ -76,37 +90,31 @@ const StyledListBody = styled.View.withConfig({
 `;
 
 const StyledStateStack = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledStateStack',
-  componentId: 'UserProfileListScreen_StyledStateStack',
+  displayName: 'StyledStateStack',
+  componentId: 'StyledStateStack',
 })`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledList = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledList',
-  componentId: 'UserProfileListScreen_StyledList',
+  displayName: 'StyledList',
+  componentId: 'StyledList',
 })`
   width: 100%;
-`;
-
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'UserProfileListScreen_StyledSeparator',
-  componentId: 'UserProfileListScreen_StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 export {
   StyledContainer,
   StyledContent,
   StyledToolbar,
+  StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
-  StyledSeparator,
 };
+

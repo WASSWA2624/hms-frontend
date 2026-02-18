@@ -6,7 +6,40 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useRole, useTenantAccess } from '@hooks';
-import { confirmAction } from '@utils';
+import { confirmAction, humanizeIdentifier } from '@utils';
+
+const SEARCH_SCOPES = Object.freeze(['all', 'name', 'description']);
+
+const normalizeValue = (value) => String(value ?? '').trim();
+
+const normalizeLower = (value) => normalizeValue(value).toLowerCase();
+
+const resolveRoleName = (role) => normalizeValue(humanizeIdentifier(role?.name));
+
+const resolveRoleDescription = (role) => normalizeValue(humanizeIdentifier(role?.description));
+
+const sanitizeSearchScope = (value) => (
+  SEARCH_SCOPES.includes(value) ? value : 'all'
+);
+
+const matchesRoleSearch = (role, query, scope) => {
+  const normalizedQuery = normalizeLower(query);
+  if (!normalizedQuery) return true;
+
+  const normalizedScope = sanitizeSearchScope(scope);
+  const roleName = normalizeLower(resolveRoleName(role));
+  const roleDescription = normalizeLower(resolveRoleDescription(role));
+
+  if (normalizedScope === 'name') return roleName.includes(normalizedQuery);
+  if (normalizedScope === 'description') return roleDescription.includes(normalizedQuery);
+  return roleName.includes(normalizedQuery) || roleDescription.includes(normalizedQuery);
+};
+
+const compareText = (left, right) => String(left || '').localeCompare(
+  String(right || ''),
+  undefined,
+  { sensitivity: 'base', numeric: true }
+);
 
 const resolveErrorMessage = (t, errorCode, loadErrorKey) => {
   if (!errorCode) return null;
@@ -51,13 +84,40 @@ const useRoleListScreen = () => {
   } = useRole();
 
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const [search, setSearch] = useState('');
+  const [searchScope, setSearchScope] = useState('all');
+  const [sortField, setSortField] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
   const canManageRoles = canAccessTenantSettings;
   const canCreateRole = canManageRoles;
   const canDeleteRole = canManageRoles;
-  const items = useMemo(
+  const rawItems = useMemo(
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
+  );
+  const normalizedSearchScope = useMemo(
+    () => sanitizeSearchScope(searchScope),
+    [searchScope]
+  );
+  const filteredItems = useMemo(
+    () => rawItems.filter((roleItem) => matchesRoleSearch(roleItem, search, normalizedSearchScope)),
+    [rawItems, search, normalizedSearchScope]
+  );
+  const items = useMemo(() => {
+    const safeSortField = sortField === 'description' ? 'description' : 'name';
+    const leftSelector = safeSortField === 'description' ? resolveRoleDescription : resolveRoleName;
+    const directionMultiplier = sortDirection === 'desc' ? -1 : 1;
+
+    return [...filteredItems].sort((leftRole, rightRole) => {
+      const leftValue = leftSelector(leftRole);
+      const rightValue = leftSelector(rightRole);
+      return compareText(leftValue, rightValue) * directionMultiplier;
+    });
+  }, [filteredItems, sortField, sortDirection]);
+  const hasNoResults = useMemo(
+    () => normalizeValue(search).length > 0 && items.length === 0 && rawItems.length > 0,
+    [search, items.length, rawItems.length]
   );
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'role.list.loadError'),
@@ -123,10 +183,40 @@ const useRoleListScreen = () => {
     fetchList();
   }, [fetchList]);
 
+  const handleSearch = useCallback((value) => {
+    setSearch(value ?? '');
+  }, []);
+
+  const handleSearchScopeChange = useCallback((value) => {
+    setSearchScope(sanitizeSearchScope(value));
+  }, []);
+
+  const handleClearSearchAndFilters = useCallback(() => {
+    setSearch('');
+    setSearchScope('all');
+  }, []);
+
+  const handleSort = useCallback((field) => {
+    const nextField = field === 'description' ? 'description' : 'name';
+    setSortField((currentField) => {
+      if (currentField === nextField) {
+        setSortDirection((currentDirection) => (
+          currentDirection === 'asc' ? 'desc' : 'asc'
+        ));
+        return currentField;
+      }
+
+      setSortDirection('asc');
+      return nextField;
+    });
+  }, []);
+
   const handleItemPress = useCallback(
     (id) => {
       if (!canManageRoles) return;
-      router.push(`/settings/roles/${id}`);
+      const roleId = normalizeValue(id);
+      if (!roleId) return;
+      router.push(`/settings/roles/${roleId}`);
     },
     [canManageRoles, router]
   );
@@ -159,6 +249,16 @@ const useRoleListScreen = () => {
 
   return {
     items,
+    search,
+    searchScope: normalizedSearchScope,
+    searchScopeOptions: [
+      { value: 'all', label: t('role.list.searchScopeAll') },
+      { value: 'name', label: t('role.list.searchScopeName') },
+      { value: 'description', label: t('role.list.searchScopeDescription') },
+    ],
+    sortField,
+    sortDirection,
+    hasNoResults,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && !!errorCode,
     errorMessage,
@@ -166,6 +266,10 @@ const useRoleListScreen = () => {
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
+    onSearch: handleSearch,
+    onSearchScopeChange: handleSearchScopeChange,
+    onClearSearchAndFilters: handleClearSearchAndFilters,
+    onSort: handleSort,
     onItemPress: handleItemPress,
     onDelete: canDeleteRole ? handleDelete : undefined,
     onAdd: canCreateRole ? handleAdd : undefined,

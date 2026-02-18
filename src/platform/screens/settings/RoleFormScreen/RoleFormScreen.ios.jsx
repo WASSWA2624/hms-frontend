@@ -63,6 +63,7 @@ const RoleFormScreenIOS = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -232,7 +233,7 @@ const RoleFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('role.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('role.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}

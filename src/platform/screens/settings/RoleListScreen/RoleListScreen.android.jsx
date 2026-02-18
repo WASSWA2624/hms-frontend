@@ -15,10 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
-  Text,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -26,6 +28,7 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
   StyledSeparator,
   StyledStateStack,
@@ -34,10 +37,20 @@ import {
 } from './RoleListScreen.android.styles';
 import useRoleListScreen from './useRoleListScreen';
 
+const resolveRoleId = (roleItem) => String(roleItem?.id ?? '').trim();
+
+const resolveRoleName = (t, roleItem) => (
+  humanizeIdentifier(roleItem?.name) || t('role.list.unnamedRole')
+);
+
 const RoleListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
+    hasNoResults,
     isLoading,
     hasError,
     errorMessage,
@@ -45,6 +58,9 @@ const RoleListScreenAndroid = () => {
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onItemPress,
     onDelete,
     onAdd,
@@ -72,6 +88,24 @@ const RoleListScreenAndroid = () => {
     />
   );
 
+  const noResultsComponent = (
+    <EmptyState
+      title={t('role.list.noResultsTitle')}
+      description={t('role.list.noResultsMessage')}
+      action={(
+        <StyledAddButton
+          onPress={onClearSearchAndFilters}
+          accessibilityRole="button"
+          accessibilityLabel={t('role.list.clearSearchAndFilters')}
+          testID="role-list-clear-search"
+        >
+          <StyledAddLabel>{t('role.list.clearSearchAndFilters')}</StyledAddLabel>
+        </StyledAddButton>
+      )}
+      testID="role-list-no-results"
+    />
+  );
+
   const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
@@ -80,40 +114,42 @@ const RoleListScreenAndroid = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="role-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
-    const subtitle = item?.description ?? '';
+  const renderItem = ({ item: roleItem, index }) => {
+    const roleId = resolveRoleId(roleItem);
+    const itemKey = roleId || `role-${index}`;
+    const title = resolveRoleName(t, roleItem);
+    const subtitle = humanizeIdentifier(roleItem?.description);
     return (
       <ListItem
         title={title}
-        subtitle={subtitle}
-        onPress={() => onItemPress(item.id)}
-        actions={onDelete ? (
+        subtitle={subtitle || undefined}
+        onPress={roleId ? () => onItemPress(roleId) : undefined}
+        actions={onDelete && roleId ? (
           <Button
             variant="surface"
             size="small"
-            onPress={(e) => onDelete(item.id, e)}
+            onPress={(event) => onDelete(roleId, event)}
             accessibilityLabel={t('role.list.delete')}
             accessibilityHint={t('role.list.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID={`role-delete-${item.id}`}
+            testID={`role-delete-${itemKey}`}
           >
             {t('common.remove')}
           </Button>
         ) : undefined}
         accessibilityLabel={t('role.list.itemLabel', { name: title })}
-        testID={`role-item-${item.id}`}
+        testID={`role-item-${itemKey}`}
       />
     );
   };
@@ -133,10 +169,26 @@ const RoleListScreenAndroid = () => {
       <StyledContent>
         <StyledToolbar testID="role-list-toolbar">
           <StyledSearchSlot>
-            <Text variant="h2" accessibilityRole="header" testID="role-list-title">
-              {t('role.list.title')}
-            </Text>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('role.list.searchPlaceholder')}
+              accessibilityLabel={t('role.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="role-list-search"
+            />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('role.list.searchScopeLabel')}
+              compact
+              testID="role-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -177,16 +229,26 @@ const RoleListScreenAndroid = () => {
                   testID="role-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="role-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="role-list-loading" />
             )}
-            {showEmpty && emptyComponent}
+            {showEmpty ? emptyComponent : null}
+            {showNoResults ? noResultsComponent : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(roleItem, index) => resolveRoleId(roleItem) || `role-${index}`}
                   renderItem={renderItem}
                   ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}

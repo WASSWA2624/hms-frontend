@@ -33,47 +33,56 @@ import {
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
-} from '\./ContactListScreen\.ios\.styles';
+} from './ContactListScreen.ios.styles';
 import useContactListScreen from './useContactListScreen';
 
-const resolveContactTitle = (t, Contact) => {
-  const name = humanizeIdentifier(
-    Contact?.line1
-    ?? Contact?.name
+const resolveContactTitle = (t, contact) => {
+  const value = humanizeIdentifier(
+    contact?.value
+    ?? contact?.name
   );
-  if (name) return String(name).trim();
+  if (value) return String(value).trim();
   return t('contact.list.unnamed');
 };
 
-const resolveContactTenant = (t, Contact) => {
+const resolveContactTenant = (t, contact, canViewTechnicalIds = false) => {
   const value = humanizeIdentifier(
-    Contact?.tenant_name
-    ?? Contact?.tenant?.name
-    ?? Contact?.tenant_label
+    contact?.tenant_name
+    ?? contact?.tenant?.name
+    ?? contact?.tenant_label
   );
   if (value) return String(value).trim();
-  return t('common.notAvailable');
-};
-
-const resolveContactType = (t, Contact) => {
-  const value = humanizeIdentifier(
-    Contact?.facility_name
-    ?? Contact?.facility?.name
-    ?? Contact?.facility_label
-  );
-  if (value) return String(value).trim();
-  return t('common.notAvailable');
-};
-
-const resolveContactSubtitle = (t, Contact) => {
-  const tenant = resolveContactTenant(t, Contact);
-  const facility = resolveContactType(t, Contact);
-
-  if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
-    return t('contact.list.contextValue', { tenant, facility });
+  if (canViewTechnicalIds) {
+    const tenantId = String(contact?.tenant_id ?? '').trim();
+    if (tenantId) return tenantId;
   }
-  if (facility !== t('common.notAvailable')) {
-    return t('contact.list.facilityValue', { facility });
+  if (String(contact?.tenant_id ?? '').trim()) {
+    return t('contact.list.currentTenant');
+  }
+  return t('common.notAvailable');
+};
+
+const resolveContactType = (t, contact) => {
+  const rawType = humanizeIdentifier(
+    contact?.contact_type
+    ?? contact?.type
+    ?? contact?.contactType
+  );
+  if (!rawType) return t('common.notAvailable');
+  const typeKey = `contact.types.${rawType}`;
+  const translatedType = t(typeKey);
+  return translatedType === typeKey ? rawType : translatedType;
+};
+
+const resolveContactSubtitle = (t, contact, canViewTechnicalIds = false) => {
+  const tenant = resolveContactTenant(t, contact, canViewTechnicalIds);
+  const type = resolveContactType(t, contact);
+
+  if (type !== t('common.notAvailable') && tenant !== t('common.notAvailable')) {
+    return t('contact.list.contextValue', { type, tenant });
+  }
+  if (type !== t('common.notAvailable')) {
+    return t('contact.list.typeValue', { type });
   }
   if (tenant !== t('common.notAvailable')) {
     return t('contact.list.tenantValue', { tenant });
@@ -93,6 +102,7 @@ const ContactListScreenIOS = () => {
     errorMessage,
     isOffline,
     hasNoResults,
+    canViewTechnicalIds,
     noticeMessage,
     onDismissNotice,
     onRetry,
@@ -151,22 +161,22 @@ const ContactListScreenIOS = () => {
     const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
     const ContactId = Contact?.id;
     const itemKey = ContactId ?? `contact-${index}`;
-    const statusLabel = Contact?.is_active
-      ? t('contact.list.statusActive')
-      : t('contact.list.statusInactive');
-    const statusTone = Contact?.is_active ? 'success' : 'warning';
+    const statusLabel = Contact?.is_primary
+      ? t('contact.list.primaryStatePrimary')
+      : t('contact.list.primaryStateSecondary');
+    const statusTone = Contact?.is_primary ? 'success' : 'warning';
 
     return (
       <ListItem
         leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={resolveContactSubtitle(t, Contact)}
+        subtitle={resolveContactSubtitle(t, Contact, canViewTechnicalIds)}
         metadata={[]}
         status={{
           label: statusLabel,
           tone: statusTone,
           showDot: true,
-          accessibilityLabel: t('contact.list.statusLabel'),
+          accessibilityLabel: t('contact.list.primaryLabel'),
         }}
         density="compact"
         onPress={ContactId ? () => onContactPress(ContactId) : undefined}

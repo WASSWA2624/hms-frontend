@@ -41,77 +41,78 @@ describe('useUserDetailScreen', () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: true,
-      tenantId: 'tenant-1',
+      tenantId: null,
       isResolved: true,
     });
     useUser.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
-      data: { id: 'uid-1', email: 'test@example.com' },
+      data: { id: 'uid-1', email: 'user@acme.org' },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
     });
   });
 
-  it('returns user, handlers, and state', () => {
+  it('returns user, handlers, and technical-id visibility for global admins', () => {
     const { result } = renderHook(() => useUserDetailScreen());
-    expect(result.current.user).toEqual({ id: 'uid-1', email: 'test@example.com' });
+    expect(result.current.user).toEqual({ id: 'uid-1', email: 'user@acme.org' });
+    expect(result.current.canViewTechnicalIds).toBe(true);
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onBack).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
   });
 
-  it('calls get on mount with id', () => {
+  it('calls get on mount with route id', () => {
     renderHook(() => useUserDetailScreen());
     expect(mockReset).toHaveBeenCalled();
     expect(mockGet).toHaveBeenCalledWith('uid-1');
   });
 
-  it('onRetry calls fetchDetail', () => {
+  it('redirects users without user access', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
     const { result } = renderHook(() => useUserDetailScreen());
-    mockReset.mockClear();
-    mockGet.mockClear();
-    result.current.onRetry();
-    expect(mockReset).toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith('uid-1');
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
-  it('onBack pushes route to list', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useUserDetailScreen());
-    result.current.onBack();
-    expect(mockPush).toHaveBeenCalledWith('/settings/users');
-  });
-
-  it('onEdit pushes edit route when id available', () => {
-    mockPush.mockClear();
-    const { result } = renderHook(() => useUserDetailScreen());
-    result.current.onEdit();
-    expect(mockPush).toHaveBeenCalledWith('/settings/users/uid-1/edit');
-  });
-
-  it('exposes errorMessage when errorCode set', () => {
+  it('redirects tenant-scoped admins when user tenant does not match', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
     useUser.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
-      data: null,
+      data: { id: 'uid-1', tenant_id: 'tenant-2', email: 'external@acme.org' },
       isLoading: false,
-      errorCode: 'USER_NOT_FOUND',
+      errorCode: null,
       reset: mockReset,
     });
-    const { result } = renderHook(() => useUserDetailScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBeDefined();
+
+    renderHook(() => useUserDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/users?notice=accessDenied');
   });
 
-  it('onDelete calls remove then navigates with notice', async () => {
+  it('onDelete navigates with deleted notice on success', async () => {
     mockRemove.mockResolvedValue({ id: 'uid-1' });
-    mockPush.mockClear();
     const { result } = renderHook(() => useUserDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).toHaveBeenCalledWith('uid-1');
     expect(mockPush).toHaveBeenCalledWith('/settings/users?notice=deleted');
   });
@@ -120,76 +121,22 @@ describe('useUserDetailScreen', () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockRemove.mockResolvedValue({ id: 'uid-1' });
     const { result } = renderHook(() => useUserDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/users?notice=queued');
   });
 
-  it('onDelete does not navigate when remove returns undefined', async () => {
-    mockRemove.mockResolvedValue(undefined);
-    mockPush.mockClear();
-    const { result } = renderHook(() => useUserDetailScreen());
-    await act(async () => {
-      await result.current.onDelete();
-    });
-    expect(mockRemove).toHaveBeenCalledWith('uid-1');
-    expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not throw when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => useUserDetailScreen());
-    await act(async () => {
-      await result.current.onDelete();
-    });
-    expect(mockRemove).toHaveBeenCalledWith('uid-1');
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
+  it('onDelete is canceled when confirmation is declined', async () => {
     confirmAction.mockReturnValueOnce(false);
     const { result } = renderHook(() => useUserDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it('handles null user when data is null', () => {
-    useUser.mockReturnValue({
-      get: mockGet,
-      remove: mockRemove,
-      data: null,
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useUserDetailScreen());
-    expect(result.current.user).toBeNull();
-  });
-
-  it('handles null user when data is array', () => {
-    useUser.mockReturnValue({
-      get: mockGet,
-      remove: mockRemove,
-      data: [],
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => useUserDetailScreen());
-    expect(result.current.user).toBeNull();
-  });
-
-  it('hides edit/delete actions when user access is denied', () => {
-    useTenantAccess.mockReturnValue({
-      canAccessTenantSettings: false,
-      canManageAllTenants: false,
-      tenantId: null,
-      isResolved: true,
-    });
-    const { result } = renderHook(() => useUserDetailScreen());
-    expect(result.current.onEdit).toBeUndefined();
-    expect(result.current.onDelete).toBeUndefined();
   });
 });

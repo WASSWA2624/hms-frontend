@@ -1,6 +1,6 @@
 /**
- * AddressListScreen iOS Styles
- * File: AddressListScreen.ios.styles.jsx
+ * ContactListScreen iOS Styles
+ * File: ContactListScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 

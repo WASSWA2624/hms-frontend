@@ -279,13 +279,14 @@ const useContactListScreen = () => {
   const [density, setDensity] = useState(DEFAULT_DENSITY);
   const [selectedContactIds, setSelectedContactIds] = useState([]);
   const [isTableSettingsOpen, setIsTableSettingsOpen] = useState(false);
-  const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState(null);
   const [cachedContactItems, setCachedContactItems] = useState([]);
+  const isPreferencesLoadedRef = useRef(false);
   const canManageContacts = canAccessTenantSettings;
   const canCreateContact = canManageContacts;
   const canEditContact = canManageContacts;
   const canDeleteContact = canManageContacts;
+  const canViewTechnicalIds = canManageAllTenants;
   const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
 
   const preferenceSubject = useMemo(() => (
@@ -462,7 +463,7 @@ const useContactListScreen = () => {
         return;
       }
 
-      setCachedContactItems([]);
+      setCachedContactItems((previous) => (previous.length === 0 ? previous : []));
     };
 
     loadCachedContactItems();
@@ -474,7 +475,18 @@ const useContactListScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canManageContacts || !hasLiveContactPayload) return;
-    setCachedContactItems(liveItems);
+    setCachedContactItems((previous) => {
+      if (previous === liveItems) return previous;
+      if (
+        Array.isArray(previous)
+        && Array.isArray(liveItems)
+        && previous.length === 0
+        && liveItems.length === 0
+      ) {
+        return previous;
+      }
+      return liveItems;
+    });
     asyncStorage.setItem(contactDataCacheKey, liveItems);
   }, [
     isResolved,
@@ -851,7 +863,7 @@ const useContactListScreen = () => {
 
   useEffect(() => {
     let cancelled = false;
-    setIsPreferencesLoaded(false);
+    isPreferencesLoadedRef.current = false;
 
     const loadPreferences = async () => {
       const stored = await asyncStorage.getItem(preferenceKey);
@@ -877,18 +889,19 @@ const useContactListScreen = () => {
         setDensity(nextDensity);
         setFilters(nextFilters);
       }
-      setIsPreferencesLoaded(true);
+      isPreferencesLoadedRef.current = true;
     };
 
     loadPreferences();
 
     return () => {
       cancelled = true;
+      isPreferencesLoadedRef.current = false;
     };
   }, [preferenceKey, getNextFilterId]);
 
   useEffect(() => {
-    if (!isPreferencesLoaded) return;
+    if (!isPreferencesLoadedRef.current) return;
     asyncStorage.setItem(preferenceKey, {
       columnOrder,
       visibleColumns,
@@ -901,7 +914,6 @@ const useContactListScreen = () => {
       density,
     });
   }, [
-    isPreferencesLoaded,
     preferenceKey,
     columnOrder,
     visibleColumns,
@@ -997,6 +1009,7 @@ const useContactListScreen = () => {
     selectedContactIds,
     selectedOnPageCount,
     allPageSelected,
+    canViewTechnicalIds,
     isTableMode,
     isTableSettingsOpen,
     isLoading: !isResolved || isLoading,

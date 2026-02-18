@@ -34,6 +34,7 @@ const useRoleDetailScreen = () => {
   const canManageRoles = canAccessTenantSettings;
   const canEditRole = canManageRoles;
   const canDeleteRole = canManageRoles;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageRoles && !canManageAllTenants;
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
@@ -120,6 +121,7 @@ const useRoleDetailScreen = () => {
     hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry: handleRetry,
     onBack: handleBack,
     onEdit: canEditRole ? handleEdit : undefined,

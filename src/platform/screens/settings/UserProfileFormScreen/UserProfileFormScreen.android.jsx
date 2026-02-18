@@ -33,6 +33,7 @@ const UserProfileFormScreenAndroid = () => {
   const {
     isEdit,
     userId,
+    userDisplayLabel,
     setUserId,
     facilityId,
     setFacilityId,
@@ -231,7 +232,7 @@ const UserProfileFormScreenAndroid = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('userProfile.form.userLabel')}
-                    value={userId}
+                    value={userDisplayLabel}
                     accessibilityLabel={t('userProfile.form.userLabel')}
                     accessibilityHint={t('userProfile.form.userLockedHint')}
                     helperText={t('userProfile.form.userLockedHint')}

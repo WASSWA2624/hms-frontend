@@ -15,9 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -25,32 +28,109 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
-  StyledSeparator,
+  StyledScopeSlot,
+  StyledSearchSlot,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './UserListScreen.android.styles';
 import useUserListScreen from './useUserListScreen';
 
-const resolveStatusLabel = (t, value) => {
-  if (!value) return '';
-  const key = `user.status.${value}`;
+const resolveUserId = (userItem) => String(userItem?.id ?? userItem?.user_id ?? '').trim();
+
+const resolveUserEmail = (userItem) => String(userItem?.email ?? '').trim();
+
+const resolveUserPhone = (userItem) => String(userItem?.phone ?? '').trim();
+
+const resolveUserStatusValue = (userItem) => String(userItem?.status ?? '').trim().toUpperCase();
+
+const resolveUserStatusLabel = (t, userItem) => {
+  const status = resolveUserStatusValue(userItem);
+  if (!status) return t('common.notAvailable');
+  const key = `user.status.${status}`;
   const resolved = t(key);
-  return resolved === key ? value : resolved;
+  return resolved === key ? status : resolved;
+};
+
+const resolveUserTitle = (t, userItem) => {
+  const email = resolveUserEmail(userItem);
+  if (email) return email;
+  const phone = resolveUserPhone(userItem);
+  if (phone) return phone;
+  return t('user.list.unnamed');
+};
+
+const resolveUserTenant = (t, userItem, canViewTechnicalIds = false) => {
+  const value = humanizeIdentifier(
+    userItem?.tenant_name
+    ?? userItem?.tenant?.name
+    ?? userItem?.tenant_label
+  );
+  if (value) return String(value).trim();
+  if (canViewTechnicalIds) {
+    const tenantId = String(userItem?.tenant_id ?? '').trim();
+    if (tenantId) return tenantId;
+  }
+  if (String(userItem?.tenant_id ?? '').trim()) {
+    return t('user.list.currentTenant');
+  }
+  return t('common.notAvailable');
+};
+
+const resolveUserFacility = (t, userItem, canViewTechnicalIds = false) => {
+  const value = humanizeIdentifier(
+    userItem?.facility_name
+    ?? userItem?.facility?.name
+    ?? userItem?.facility_label
+  );
+  if (value) return String(value).trim();
+  if (canViewTechnicalIds) {
+    const facilityId = String(userItem?.facility_id ?? '').trim();
+    if (facilityId) return facilityId;
+  }
+  if (String(userItem?.facility_id ?? '').trim()) {
+    return t('user.list.currentFacility');
+  }
+  return t('common.notAvailable');
+};
+
+const resolveUserSubtitle = (t, userItem, canViewTechnicalIds = false) => {
+  const tenant = resolveUserTenant(t, userItem, canViewTechnicalIds);
+  const facility = resolveUserFacility(t, userItem, canViewTechnicalIds);
+
+  if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
+    return t('user.list.contextValue', { tenant, facility });
+  }
+  if (tenant !== t('common.notAvailable')) {
+    return t('user.list.tenantValue', { tenant });
+  }
+  if (facility !== t('common.notAvailable')) {
+    return t('user.list.facilityValue', { facility });
+  }
+  return undefined;
 };
 
 const UserListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
+    canViewTechnicalIds,
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onUserPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useUserListScreen();
@@ -77,53 +157,67 @@ const UserListScreenAndroid = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="user-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: user }) => {
-    const title = user?.email ?? user?.phone ?? user?.id ?? '';
-    const statusLabel = resolveStatusLabel(t, user?.status);
-    const subtitle = statusLabel ? `${t('user.list.statusLabel')}: ${statusLabel}` : '';
-    const actions = onDelete ? (
-      <Button
-        variant="surface"
-        size="small"
-        onPress={(e) => onDelete(user.id, e)}
-        accessibilityLabel={t('user.list.delete')}
-        accessibilityHint={t('user.list.deleteHint')}
-        icon={<Icon glyph="?" size="xs" decorative />}
-        testID={`user-delete-${user.id}`}
-      >
-        {t('common.remove')}
-      </Button>
-    ) : undefined;
+  const renderItem = ({ item: userItem, index }) => {
+    const title = resolveUserTitle(t, userItem);
+    const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+    const userId = resolveUserId(userItem);
+    const itemKey = userId ?? `user-${index}`;
+    const status = resolveUserStatusValue(userItem);
+    const statusLabel = resolveUserStatusLabel(t, userItem);
+    const statusTone = status === 'ACTIVE' ? 'success' : 'warning';
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onUserPress(user.id)}
-        actions={actions}
-        accessibilityLabel={t('user.list.itemLabel', {
-          name: title,
-        })}
+        subtitle={resolveUserSubtitle(t, userItem, canViewTechnicalIds)}
+        metadata={[]}
+        status={{
+          label: statusLabel,
+          tone: statusTone,
+          showDot: true,
+          accessibilityLabel: t('user.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={userId ? () => onUserPress(userId) : undefined}
+        onView={userId ? () => onUserPress(userId) : undefined}
+        onEdit={onEdit && userId ? (event) => onEdit(userId, event) : undefined}
+        onDelete={onDelete && userId ? (event) => onDelete(userId, event) : undefined}
+        viewLabel={t('user.list.view')}
+        viewHint={t('user.list.viewHint')}
+        editLabel={t('user.list.edit')}
+        editHint={t('user.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('user.list.deleteHint')}
+        onMore={userId ? () => onUserPress(userId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('user.list.viewHint')}
+        viewTestID={`user-view-${itemKey}`}
+        editTestID={`user-edit-${itemKey}`}
+        deleteTestID={`user-delete-${itemKey}`}
+        moreTestID={`user-more-${itemKey}`}
+        accessibilityLabel={t('user.list.itemLabel', { name: title })}
         accessibilityHint={t('user.list.itemHint', { name: title })}
-        testID={`user-item-${user.id}`}
+        testID={`user-item-${itemKey}`}
       />
     );
   };
@@ -142,6 +236,27 @@ const UserListScreenAndroid = () => {
       ) : null}
       <StyledContent>
         <StyledToolbar testID="user-list-toolbar">
+          <StyledSearchSlot>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('user.list.searchPlaceholder')}
+              accessibilityLabel={t('user.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="user-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('user.list.searchScopeLabel')}
+              compact
+              testID="user-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -182,18 +297,43 @@ const UserListScreenAndroid = () => {
                   testID="user-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('user.list.noResultsTitle')}
+                description={t('user.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('user.list.clearSearchAndFilters')}
+                    testID="user-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('user.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="user-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(user) => user.id}
+                  keyExtractor={(userItem, index) => resolveUserId(userItem) || `user-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('user.list.accessibilityLabel')}
                   testID="user-list-flatlist"
@@ -208,3 +348,5 @@ const UserListScreenAndroid = () => {
 };
 
 export default UserListScreenAndroid;
+
+

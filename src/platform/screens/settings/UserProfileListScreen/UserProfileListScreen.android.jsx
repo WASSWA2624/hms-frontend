@@ -15,7 +15,9 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -25,27 +27,43 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
-  StyledSeparator,
+  StyledScopeSlot,
+  StyledSearchSlot,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './UserProfileListScreen.android.styles';
 import useUserProfileListScreen from './useUserProfileListScreen';
 
+const resolveProfileId = (profileItem) => String(profileItem?.id ?? profileItem?.user_profile_id ?? '').trim();
+
 const UserProfileListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
-    onItemPress,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
+    onProfilePress,
+    onEdit,
     onDelete,
     onAdd,
+    resolveProfileDisplayName,
+    resolveProfileUserDisplay,
+    resolveProfileFacilityDisplay,
+    resolveProfileGenderDisplay,
+    resolveProfileDobDisplay,
   } = useUserProfileListScreen();
 
   const emptyComponent = (
@@ -70,54 +88,71 @@ const UserProfileListScreenAndroid = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="user-profile-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item }) => {
-    const fullName = [item?.first_name, item?.middle_name, item?.last_name].filter(Boolean).join(' ');
-    const title = fullName || item?.user_id || item?.id || '';
-    const subtitle = item?.user_id ? `${t('userProfile.list.userLabel')}: ${item.user_id}` : '';
+  const renderItem = ({ item: profileItem, index }) => {
+    const profileId = resolveProfileId(profileItem);
+    const itemKey = profileId || `user-profile-${index}`;
+    const title = resolveProfileDisplayName(profileItem);
+    const leadingGlyph = String(title || 'P').charAt(0).toUpperCase();
+    const userLabel = resolveProfileUserDisplay(profileItem);
+    const facilityLabel = resolveProfileFacilityDisplay(profileItem);
+    const genderLabel = resolveProfileGenderDisplay(profileItem);
+    const dobLabel = resolveProfileDobDisplay(profileItem);
+    const subtitle = [userLabel, facilityLabel]
+      .filter((value) => value && value !== t('common.notAvailable'))
+      .join(' | ');
+    const metadata = [
+      genderLabel ? { label: t('userProfile.list.genderLabel'), value: genderLabel } : null,
+      dobLabel && dobLabel !== t('common.notAvailable')
+        ? { label: t('userProfile.list.dobLabel'), value: dobLabel }
+        : null,
+    ].filter(Boolean);
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onItemPress(item.id)}
-        actions={onDelete ? (
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(item.id, e)}
-            accessibilityLabel={t('userProfile.list.delete')}
-            accessibilityHint={t('userProfile.list.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID={`user-profile-delete-${item.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        ) : undefined}
-        accessibilityLabel={t('userProfile.list.itemLabel', {
-          name: title,
-        })}
-        accessibilityHint={t('userProfile.list.itemHint', {
-          name: title,
-        })}
-        testID={`user-profile-item-${item.id}`}
+        subtitle={subtitle || undefined}
+        metadata={metadata}
+        density="compact"
+        onPress={profileId ? () => onProfilePress(profileId) : undefined}
+        onView={profileId ? () => onProfilePress(profileId) : undefined}
+        onEdit={onEdit && profileId ? (event) => onEdit(profileId, event) : undefined}
+        onDelete={onDelete && profileId ? (event) => onDelete(profileId, event) : undefined}
+        viewLabel={t('userProfile.list.view')}
+        viewHint={t('userProfile.list.viewHint')}
+        editLabel={t('userProfile.list.edit')}
+        editHint={t('userProfile.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('userProfile.list.deleteHint')}
+        onMore={profileId ? () => onProfilePress(profileId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('userProfile.list.viewHint')}
+        viewTestID={`user-profile-view-${itemKey}`}
+        editTestID={`user-profile-edit-${itemKey}`}
+        deleteTestID={`user-profile-delete-${itemKey}`}
+        moreTestID={`user-profile-more-${itemKey}`}
+        accessibilityLabel={t('userProfile.list.itemLabel', { name: title })}
+        accessibilityHint={t('userProfile.list.itemHint', { name: title })}
+        testID={`user-profile-item-${itemKey}`}
       />
     );
   };
@@ -136,6 +171,27 @@ const UserProfileListScreenAndroid = () => {
       ) : null}
       <StyledContent>
         <StyledToolbar testID="user-profile-list-toolbar">
+          <StyledSearchSlot>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('userProfile.list.searchPlaceholder')}
+              accessibilityLabel={t('userProfile.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="user-profile-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('userProfile.list.searchScopeLabel')}
+              compact
+              testID="user-profile-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -176,18 +232,43 @@ const UserProfileListScreenAndroid = () => {
                   testID="user-profile-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="user-profile-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="user-profile-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('userProfile.list.noResultsTitle')}
+                description={t('userProfile.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('userProfile.list.clearSearchAndFilters')}
+                    testID="user-profile-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('userProfile.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="user-profile-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(profileItem, index) => resolveProfileId(profileItem) || `user-profile-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('userProfile.list.accessibilityLabel')}
                   testID="user-profile-list-flatlist"

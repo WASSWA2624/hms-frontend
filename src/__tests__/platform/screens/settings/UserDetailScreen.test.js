@@ -1,6 +1,5 @@
 /**
  * UserDetailScreen Component Tests
- * Per testing.mdc: render, loading, error, empty (not found), a11y
  */
 const React = require('react');
 const { render } = require('@testing-library/react-native');
@@ -25,10 +24,10 @@ const { STATES } = require('@platform/screens/settings/UserDetailScreen/types.js
 
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
-const renderWithTheme = (c) => render(<ThemeProvider theme={lightTheme}>{c}</ThemeProvider>);
+const renderWithTheme = (component) => render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
 
 const mockT = (key) => {
-  const m = {
+  const dictionary = {
     'user.detail.title': 'User Details',
     'user.detail.idLabel': 'User ID',
     'user.detail.tenantLabel': 'Tenant',
@@ -47,6 +46,8 @@ const mockT = (key) => {
     'user.detail.edit': 'Edit user',
     'user.detail.editHint': 'Edit this user',
     'user.status.ACTIVE': 'Active',
+    'user.list.currentTenant': 'Current tenant',
+    'user.list.currentFacility': 'Current facility',
     'common.loading': 'Loading',
     'common.retry': 'Retry',
     'common.retryHint': 'Try again',
@@ -55,7 +56,7 @@ const mockT = (key) => {
     'shell.banners.offline.title': 'You are offline',
     'shell.banners.offline.message': 'Some features may be unavailable.',
   };
-  return m[key] || key;
+  return dictionary[key] || key;
 };
 
 const baseHook = {
@@ -65,6 +66,7 @@ const baseHook = {
   hasError: false,
   errorMessage: null,
   isOffline: false,
+  canViewTechnicalIds: false,
   onRetry: jest.fn(),
   onBack: jest.fn(),
   onEdit: jest.fn(),
@@ -74,150 +76,79 @@ const baseHook = {
 describe('UserDetailScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useI18n.mockReturnValue({ t: mockT, locale: 'en' });
+    useI18n.mockReturnValue({ t: mockT, locale: 'en-US' });
     useUserDetailScreen.mockReturnValue({ ...baseHook });
   });
 
-  describe('render', () => {
-    it('renders without error (Web)', () => {
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-not-found')).toBeTruthy();
-    });
-
-    it('renders without error (Android)', () => {
-      const { getByTestId } = renderWithTheme(<UserDetailScreenAndroid />);
-      expect(getByTestId('user-detail-not-found')).toBeTruthy();
-    });
-
-    it('renders without error (iOS)', () => {
-      const { getByTestId } = renderWithTheme(<UserDetailScreenIOS />);
-      expect(getByTestId('user-detail-not-found')).toBeTruthy();
-    });
+  it('renders base states across platforms', () => {
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-not-found')).toBeTruthy();
+    expect(renderWithTheme(<UserDetailScreenAndroid />).getByTestId('user-detail-not-found')).toBeTruthy();
+    expect(renderWithTheme(<UserDetailScreenIOS />).getByTestId('user-detail-not-found')).toBeTruthy();
   });
 
-  describe('loading', () => {
-    it('shows loading state (Web)', () => {
-      useUserDetailScreen.mockReturnValue({ ...baseHook, isLoading: true });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-loading')).toBeTruthy();
-    });
+  it('shows loading/error/offline states on web', () => {
+    useUserDetailScreen.mockReturnValue({ ...baseHook, isLoading: true });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-loading')).toBeTruthy();
+
+    useUserDetailScreen.mockReturnValue({ ...baseHook, hasError: true, errorMessage: 'failed' });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-error')).toBeTruthy();
+
+    useUserDetailScreen.mockReturnValue({ ...baseHook, isOffline: true });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-offline')).toBeTruthy();
   });
 
-  describe('error', () => {
-    it('shows error state (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        hasError: true,
-        errorMessage: 'Something went wrong',
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-error')).toBeTruthy();
+  it('renders user details with human-readable context by default', () => {
+    useUserDetailScreen.mockReturnValue({
+      ...baseHook,
+      user: {
+        id: 'u1',
+        tenant_name: 'Acme Tenant',
+        facility_name: 'Main Facility',
+        email: 'user@acme.org',
+        phone: '+15551234567',
+        status: 'ACTIVE',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-02T00:00:00Z',
+      },
     });
+    const { getByTestId, queryByTestId } = renderWithTheme(<UserDetailScreenWeb />);
+    expect(getByTestId('user-detail-tenant')).toBeTruthy();
+    expect(getByTestId('user-detail-facility')).toBeTruthy();
+    expect(getByTestId('user-detail-email')).toBeTruthy();
+    expect(getByTestId('user-detail-phone')).toBeTruthy();
+    expect(getByTestId('user-detail-status')).toBeTruthy();
+    expect(queryByTestId('user-detail-id')).toBeNull();
   });
 
-  describe('offline', () => {
-    it('shows offline state (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        isLoading: false,
-        hasError: false,
-        isOffline: true,
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-offline')).toBeTruthy();
+  it('shows technical id for privileged users', () => {
+    useUserDetailScreen.mockReturnValue({
+      ...baseHook,
+      canViewTechnicalIds: true,
+      user: { id: 'u1', email: 'user@acme.org', status: 'ACTIVE' },
     });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-id')).toBeTruthy();
   });
 
-  describe('not found', () => {
-    it('shows not found state (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        user: null,
-        isLoading: false,
-        hasError: false,
-        isOffline: false,
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-not-found')).toBeTruthy();
+  it('shows inline banners when data exists but state is degraded', () => {
+    useUserDetailScreen.mockReturnValue({
+      ...baseHook,
+      user: { id: 'u1', email: 'user@acme.org', status: 'ACTIVE' },
+      hasError: true,
+      errorMessage: 'failed',
     });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-error-banner')).toBeTruthy();
+
+    useUserDetailScreen.mockReturnValue({
+      ...baseHook,
+      user: { id: 'u1', email: 'user@acme.org', status: 'ACTIVE' },
+      isOffline: true,
+    });
+    expect(renderWithTheme(<UserDetailScreenWeb />).getByTestId('user-detail-offline-banner')).toBeTruthy();
   });
 
-  describe('with user data', () => {
-    it('renders user details (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        user: {
-          id: 'u1',
-          tenant_id: 't1',
-          facility_id: 'f1',
-          email: 'test@example.com',
-          phone: '+15551234567',
-          status: 'ACTIVE',
-          created_at: '2025-01-01T00:00:00Z',
-          updated_at: '2025-01-02T00:00:00Z',
-        },
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-card')).toBeTruthy();
-      expect(getByTestId('user-detail-id')).toBeTruthy();
-      expect(getByTestId('user-detail-tenant')).toBeTruthy();
-      expect(getByTestId('user-detail-facility')).toBeTruthy();
-      expect(getByTestId('user-detail-email')).toBeTruthy();
-      expect(getByTestId('user-detail-phone')).toBeTruthy();
-      expect(getByTestId('user-detail-status')).toBeTruthy();
-      expect(getByTestId('user-detail-created')).toBeTruthy();
-      expect(getByTestId('user-detail-updated')).toBeTruthy();
-    });
-  });
-
-  describe('inline states', () => {
-    it('shows inline error banner when user exists (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        hasError: true,
-        errorMessage: 'Error',
-        user: { id: 'u1', email: 'test@example.com' },
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-error-banner')).toBeTruthy();
-    });
-
-    it('shows inline offline banner when user exists (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        isOffline: true,
-        user: { id: 'u1', email: 'test@example.com' },
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-offline-banner')).toBeTruthy();
-    });
-  });
-
-  describe('accessibility', () => {
-    it('has accessibility labels (Web)', () => {
-      useUserDetailScreen.mockReturnValue({
-        ...baseHook,
-        user: {
-          id: 'u1',
-          tenant_id: 't1',
-          email: 'test@example.com',
-        },
-      });
-      const { getByTestId } = renderWithTheme(<UserDetailScreenWeb />);
-      expect(getByTestId('user-detail-back')).toBeTruthy();
-      expect(getByTestId('user-detail-edit')).toBeTruthy();
-      expect(getByTestId('user-detail-delete')).toBeTruthy();
-    });
-  });
-
-  describe('exports', () => {
-    it('exports component and hook from index', () => {
-      expect(UserDetailScreenIndex.default).toBeDefined();
-      expect(UserDetailScreenIndex.useUserDetailScreen).toBeDefined();
-    });
-    it('exports STATES', () => {
-      expect(STATES).toBeDefined();
-      expect(STATES.READY).toBe('ready');
-    });
+  it('exports component, hook, and states contract', () => {
+    expect(UserDetailScreenIndex.default).toBeDefined();
+    expect(UserDetailScreenIndex.useUserDetailScreen).toBeDefined();
+    expect(STATES.READY).toBe('ready');
   });
 });

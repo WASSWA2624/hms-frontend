@@ -159,4 +159,71 @@ describe('useRoleListScreen', () => {
 
     expect(mockRemove).not.toHaveBeenCalled();
   });
+
+  it('applies global and scoped search without mutating source records', () => {
+    useRole.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'role-1', name: 'Nurse', description: 'Clinical workflow' },
+          { id: 'role-2', name: 'Billing', description: 'Finance operations' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useRoleListScreen());
+
+    act(() => {
+      result.current.onSearch('billing');
+    });
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].id).toBe('role-2');
+
+    act(() => {
+      result.current.onSearchScopeChange('description');
+      result.current.onSearch('clinical');
+    });
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].id).toBe('role-1');
+    expect(result.current.hasNoResults).toBe(false);
+  });
+
+  it('reports no-results state and clears search filters', () => {
+    useRole.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'role-1', name: 'Nurse', description: 'Clinical workflow' },
+          { id: 'role-2', name: 'Billing', description: 'Finance operations' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useRoleListScreen());
+
+    act(() => {
+      result.current.onSearch('missing role');
+    });
+
+    expect(result.current.hasNoResults).toBe(true);
+    expect(result.current.items).toHaveLength(0);
+
+    act(() => {
+      result.current.onClearSearchAndFilters();
+    });
+
+    expect(result.current.search).toBe('');
+    expect(result.current.searchScope).toBe('all');
+    expect(result.current.items).toHaveLength(2);
+  });
 });
