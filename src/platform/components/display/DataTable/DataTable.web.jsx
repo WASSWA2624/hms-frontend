@@ -484,37 +484,40 @@ const DataTableWeb = ({
       style={style}
       data-testid={testID}
     >
-      {searchBarContent ? (
-        <StyledTopSection data-testid={testID ? `${testID}-search-bar` : undefined}>
-          {searchBarContent}
-        </StyledTopSection>
-      ) : null}
-
-      {filterBarContent ? (
-        <StyledTopSection data-testid={testID ? `${testID}-filter-bar` : undefined}>
-          {filterBarContent}
-        </StyledTopSection>
-      ) : null}
-
-      {bulkActionsContent ? (
-        <StyledTopSection data-testid={testID ? `${testID}-bulk-actions` : undefined}>
-          {bulkActionsContent}
-        </StyledTopSection>
-      ) : null}
-
-      {topContentNode ? (
-        <StyledTopSection data-testid={testID ? `${testID}-top-content` : undefined}>
-          {topContentNode}
-        </StyledTopSection>
-      ) : null}
-
-      {statusContentNode ? (
-        <StyledStatusSection data-testid={testID ? `${testID}-status` : undefined}>
-          {statusContentNode}
-        </StyledStatusSection>
-      ) : null}
-
       <StyledContainer data-testid={testID ? `${testID}-table-container` : undefined}>
+        {searchBarContent ? (
+          <StyledTopSection
+            $slot="search"
+            data-testid={testID ? `${testID}-search-bar` : undefined}
+          >
+            {searchBarContent}
+          </StyledTopSection>
+        ) : null}
+
+        {filterBarContent ? (
+          <StyledTopSection data-testid={testID ? `${testID}-filter-bar` : undefined}>
+            {filterBarContent}
+          </StyledTopSection>
+        ) : null}
+
+        {bulkActionsContent ? (
+          <StyledTopSection data-testid={testID ? `${testID}-bulk-actions` : undefined}>
+            {bulkActionsContent}
+          </StyledTopSection>
+        ) : null}
+
+        {topContentNode ? (
+          <StyledTopSection data-testid={testID ? `${testID}-top-content` : undefined}>
+            {topContentNode}
+          </StyledTopSection>
+        ) : null}
+
+        {statusContentNode ? (
+          <StyledStatusSection data-testid={testID ? `${testID}-status` : undefined}>
+            {statusContentNode}
+          </StyledStatusSection>
+        ) : null}
+
         <StyledScrollArea
           onScroll={handleScroll}
           $maxHeight={shouldVirtualize ? viewportHeight : null}
@@ -643,19 +646,19 @@ const DataTableWeb = ({
             </tbody>
           </StyledTable>
         </StyledScrollArea>
-      </StyledContainer>
 
-      {(paginationContent || tableNavigationContent || bottomContentNode) ? (
-        <StyledBottomBar>
-          <StyledBottomPrimary data-testid={testID ? `${testID}-pagination` : undefined}>
-            {paginationContent}
-          </StyledBottomPrimary>
-          <StyledBottomSecondary data-testid={testID ? `${testID}-navigation` : undefined}>
-            {tableNavigationContent}
-            {bottomContentNode}
-          </StyledBottomSecondary>
-        </StyledBottomBar>
-      ) : null}
+        {(paginationContent || tableNavigationContent || bottomContentNode) ? (
+          <StyledBottomBar>
+            <StyledBottomPrimary data-testid={testID ? `${testID}-pagination` : undefined}>
+              {paginationContent}
+            </StyledBottomPrimary>
+            <StyledBottomSecondary data-testid={testID ? `${testID}-navigation` : undefined}>
+              {tableNavigationContent}
+              {bottomContentNode}
+            </StyledBottomSecondary>
+          </StyledBottomBar>
+        ) : null}
+      </StyledContainer>
     </StyledScaffold>
   );
 };

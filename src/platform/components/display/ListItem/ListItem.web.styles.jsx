@@ -62,29 +62,33 @@ const StyledListItem = styled(Pressable).withConfig({
   flex-direction: row;
   align-items: flex-start;
   padding-left: ${({ theme, $density, $isWide }) => {
-    if ($isWide) return theme.spacing.lg;
+    if ($isWide) return theme.spacing.md;
     return $density === 'compact' ? theme.spacing.sm : theme.spacing.md;
   }}px;
   padding-right: ${({ theme, $density, $isWide }) => {
-    if ($isWide) return theme.spacing.lg;
+    if ($isWide) return theme.spacing.md;
     return $density === 'compact' ? theme.spacing.sm : theme.spacing.md;
   }}px;
   padding-top: ${({ theme, $density, $isWide }) => {
-    if ($isWide) return theme.spacing.md;
+    if ($isWide) return theme.spacing.sm + 2;
     return $density === 'compact' ? theme.spacing.sm : theme.spacing.md;
   }}px;
   padding-bottom: ${({ theme, $density, $isWide }) => {
-    if ($isWide) return theme.spacing.md;
+    if ($isWide) return theme.spacing.sm + 2;
     return $density === 'compact' ? theme.spacing.sm : theme.spacing.md;
   }}px;
+  min-height: ${({ $isWide }) => ($isWide ? 106 : 'auto')}px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme }) => theme.colors.border.light};
-  border-radius: ${({ theme, $isWide }) => ($isWide ? theme.radius.xl : theme.radius.lg)}px;
+  border-radius: ${({ theme, $isWide }) => ($isWide ? theme.radius.md : theme.radius.lg)}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  box-shadow: ${({ theme }) => {
+  box-shadow: ${({ theme, $isWide }) => {
+    if ($isWide) return 'none';
     const shadow = theme.shadows.sm;
-    return `${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px ${shadow.shadowRadius}px ${hexToRgba(shadow.shadowColor, shadow.shadowOpacity)}`;
+    return `${shadow.shadowOffset.width}px ${shadow.shadowOffset.height}px ${shadow.shadowRadius}px ${
+      hexToRgba(shadow.shadowColor, shadow.shadowOpacity)
+    }`;
   }};
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -110,7 +114,7 @@ const StyledLeadingSlot = styled(View).withConfig({
   shouldForwardProp: (prop) => !['$isWide'].includes(prop),
 })`
   display: flex;
-  margin-right: ${({ theme, $isWide }) => ($isWide ? theme.spacing.lg : theme.spacing.md)}px;
+  margin-right: ${({ theme, $isWide }) => ($isWide ? theme.spacing.md + 4 : theme.spacing.md)}px;
   padding-top: ${({ theme, $isWide }) => ($isWide ? 0 : theme.spacing.xs)}px;
 `;
 
@@ -121,10 +125,10 @@ const StyledLeadingSurface = styled(View).withConfig({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${({ $density, $isWide }) => ($isWide ? 56 : ($density === 'compact' ? 40 : 48))}px;
-  height: ${({ $density, $isWide }) => ($isWide ? 56 : ($density === 'compact' ? 40 : 48))}px;
-  border-radius: ${({ theme, $isWide }) => ($isWide ? theme.radius.xl : theme.radius.lg)}px;
-  border-width: 1px;
+  width: ${({ $density, $isWide }) => ($isWide ? 84 : ($density === 'compact' ? 40 : 48))}px;
+  height: ${({ $density, $isWide }) => ($isWide ? 84 : ($density === 'compact' ? 40 : 48))}px;
+  border-radius: ${({ theme, $isWide }) => ($isWide ? theme.radius.md : theme.radius.lg)}px;
+  border-width: ${({ $isWide }) => ($isWide ? 0 : 1)}px;
   border-style: solid;
   border-color: ${({ theme, $tone }) => hexToRgba(resolveLeadingColor(theme, $tone), 0.25)};
   background-color: ${({ theme, $tone, $backgroundTone, $backgroundColor }) => {
@@ -133,7 +137,8 @@ const StyledLeadingSurface = styled(View).withConfig({
       $backgroundColor || $backgroundTone || $tone,
       theme.colors.primary
     );
-    return $backgroundColor ? color : hexToRgba(color, 0.14);
+    if ($backgroundColor || $backgroundTone) return color;
+    return hexToRgba(color, 0.14);
   }};
 `;
 
@@ -155,6 +160,7 @@ const StyledTopRow = styled(View).withConfig({
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  gap: ${({ theme, $isWide }) => ($isWide ? theme.spacing.sm : 0)}px;
 `;
 
 const StyledHeaderContent = styled(View).withConfig({
@@ -164,6 +170,7 @@ const StyledHeaderContent = styled(View).withConfig({
   display: flex;
   flex: 1;
   min-width: 0;
+  justify-content: ${({ $isWide }) => ($isWide ? 'center' : 'flex-start')};
 `;
 
 const StyledTitleRow = styled(View).withConfig({
@@ -187,18 +194,19 @@ const StyledListItemActions = styled(View).withConfig({
   displayName: 'StyledListItemActions',
   shouldForwardProp: (prop) => !['$isWide', '$placement'].includes(prop),
 })`
-  display: flex;
-  flex-direction: row;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: ${({ $isWide, $placement }) => (($isWide || $placement === 'top') ? 'flex-end' : 'flex-start')};
   margin-left: ${({ theme, $isWide, $placement }) => {
-    if ($isWide) return theme.spacing.md;
+    if ($isWide) return theme.spacing.lg;
     if ($placement === 'mobile') return 0;
     return theme.spacing.sm;
   }}px;
   margin-top: ${({ theme, $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? theme.spacing.xs : 0)}px;
-  width: ${({ $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? '100%' : 'auto')};
+  width: auto;
+  align-self: ${({ $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? 'flex-start' : 'auto')};
   flex-shrink: 0;
 `;
 
@@ -206,15 +214,19 @@ const StyledActionSlot = styled(View).withConfig({
   displayName: 'StyledActionSlot',
   shouldForwardProp: (prop) => !['$separatorBefore', '$isWide'].includes(prop),
 })`
-  display: flex;
+  display: inline-flex !important;
   margin-left: ${({ theme, $separatorBefore, $isWide }) => {
-    if ($separatorBefore && $isWide) return theme.spacing.sm;
-    return theme.spacing.xs;
+    if ($separatorBefore && $isWide) return theme.spacing.md;
+    return $isWide ? theme.spacing.sm : theme.spacing.xs;
   }}px;
-  padding-left: ${({ theme, $separatorBefore, $isWide }) => (($separatorBefore && $isWide) ? theme.spacing.sm : 0)}px;
+  padding-left: ${({ theme, $separatorBefore, $isWide }) => (($separatorBefore && $isWide) ? theme.spacing.md : 0)}px;
   border-left-width: ${({ $separatorBefore, $isWide }) => (($separatorBefore && $isWide) ? 1 : 0)}px;
   border-left-style: solid;
   border-left-color: ${({ theme }) => theme.colors.border.light};
+
+  &:first-child {
+    margin-left: 0;
+  }
 `;
 
 const StyledActionButton = styled(Pressable).withConfig({
@@ -225,10 +237,10 @@ const StyledActionButton = styled(Pressable).withConfig({
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
+  min-height: ${({ $isWide }) => ($isWide ? 34 : 30)}px;
   min-width: ${({ $showLabel, $isWide }) => {
     if ($showLabel) return 'auto';
-    return $isWide ? '28px' : '30px';
+    return $isWide ? '34px' : '30px';
   }};
   padding-left: ${({ theme, $showLabel, $isWide }) => {
     if ($isWide) return theme.spacing.xs;
@@ -259,7 +271,7 @@ const StyledActionButton = styled(Pressable).withConfig({
     ${({ disabled, theme, $actionType, $tone, $showLabel, $isWide }) => {
       if (disabled) return '';
       if ($isWide) {
-        return `background-color: ${hexToRgba(theme.colors.text.tertiary, 0.1)};`;
+        return `background-color: ${hexToRgba(theme.colors.text.tertiary, 0.12)};`;
       }
       const base = resolveActionColor(theme, $actionType, $tone);
       const nextAlpha = $showLabel ? 0.2 : 0.16;
@@ -291,6 +303,14 @@ const StyledTitle = styled(Text).withConfig({
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text.primary};
   flex-shrink: 1;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.md * 1.28)}px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+    font-size: ${({ theme }) => theme.typography.fontSize.xxl}px;
+    line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xxl * 1.16)}px;
+    letter-spacing: 0.01em;
+  }
 `;
 
 const StyledSubtitle = styled(Text).withConfig({
@@ -300,6 +320,14 @@ const StyledSubtitle = styled(Text).withConfig({
   margin-top: ${({ theme, $isInline }) => ($isInline ? 0 : theme.spacing.xs)}px;
   color: ${({ theme }) => theme.colors.text.secondary};
   flex-shrink: 1;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.35)}px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+    margin-top: ${({ theme, $isInline }) => ($isInline ? 0 : theme.spacing.xs + 1)}px;
+    font-size: ${({ theme }) => theme.typography.fontSize.xl}px;
+    line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xl * 1.2)}px;
+  }
 `;
 
 const StyledMetaRow = styled(View).withConfig({
@@ -310,7 +338,7 @@ const StyledMetaRow = styled(View).withConfig({
   flex-direction: row;
   align-items: center;
   flex-wrap: ${({ $isWide }) => ($isWide ? 'nowrap' : 'wrap')};
-  margin-top: ${({ theme, $isWide }) => ($isWide ? theme.spacing.xs : theme.spacing.sm)}px;
+  margin-top: ${({ theme, $isWide }) => ($isWide ? theme.spacing.sm : theme.spacing.sm)}px;
   padding-top: ${({ theme, $isWide }) => ($isWide ? 0 : theme.spacing.sm)}px;
   border-top-width: ${({ $withDivider }) => ($withDivider ? 1 : 0)}px;
   border-top-style: solid;
@@ -325,11 +353,11 @@ const StyledMetaItem = styled(View).withConfig({
   flex-direction: row;
   align-items: center;
   margin-right: ${({ theme, $isWide, $isSubtitle }) => {
-    if ($isWide && $isSubtitle) return theme.spacing.lg;
-    if ($isWide) return theme.spacing.md;
+    if ($isWide && $isSubtitle) return theme.spacing.xl;
+    if ($isWide) return theme.spacing.lg;
     return theme.spacing.md;
   }}px;
-  margin-bottom: 2px;
+  margin-bottom: ${({ $isWide }) => ($isWide ? 0 : 2)}px;
   flex-shrink: ${({ $isSubtitle }) => ($isSubtitle ? 1 : 0)};
   min-width: ${({ $isSubtitle }) => ($isSubtitle ? 0 : 'auto')};
 `;
@@ -338,7 +366,7 @@ const StyledMetaIconSlot = styled(View).withConfig({
   displayName: 'StyledMetaIconSlot',
 })`
   display: flex;
-  margin-right: ${({ theme }) => theme.spacing.xs}px;
+  margin-right: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledMetaText = styled(Text).withConfig({
@@ -346,6 +374,13 @@ const StyledMetaText = styled(Text).withConfig({
   shouldForwardProp: (prop) => !['$tone'].includes(prop),
 })`
   color: ${({ theme, $tone }) => resolveThemeColor(theme, $tone || 'text.secondary', theme.colors.text.secondary)};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.3)}px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+    font-size: ${({ theme }) => theme.typography.fontSize.xxl - 6}px;
+    line-height: ${({ theme }) => Math.round((theme.typography.fontSize.xxl - 6) * 1.25)}px;
+  }
 `;
 
 const StyledStatusSlot = styled(View).withConfig({
@@ -364,10 +399,10 @@ const StyledStatusDot = styled(View).withConfig({
   displayName: 'StyledStatusDot',
   shouldForwardProp: (prop) => !['$tone'].includes(prop),
 })`
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
   border-radius: 999px;
-  margin-right: ${({ theme }) => theme.spacing.sm}px;
+  margin-right: ${({ theme }) => theme.spacing.sm + 1}px;
   background-color: ${({ theme, $tone }) => resolveStatusColor(theme, $tone)};
 `;
 
@@ -377,6 +412,13 @@ const StyledStatusLabel = styled(Text).withConfig({
 })`
   color: ${({ theme, $tone }) => resolveStatusColor(theme, $tone)};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.3)}px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+    font-size: ${({ theme }) => theme.typography.fontSize.xl}px;
+    line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xl * 1.15)}px;
+  }
 `;
 
 export {

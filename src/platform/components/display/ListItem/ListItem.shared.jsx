@@ -22,8 +22,8 @@ const ACTION_ICON_GLYPHS = {
 
 const ACTION_ICON_TONES = {
   view: 'primary',
-  edit: 'warning',
-  delete: 'error',
+  edit: 'muted',
+  delete: 'muted',
   more: 'muted',
 };
 
@@ -392,7 +392,7 @@ const createListItemComponent = ({
               <Icon
                 glyph={glyph}
                 tone={tone}
-                size="xs"
+                size={isWide ? 'sm' : 'xs'}
                 decorative
               />
               {showLabelForAction ? (

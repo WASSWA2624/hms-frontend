@@ -26,8 +26,16 @@ const StyledScaffold = styled.div.withConfig({
 const StyledTopSection = styled.div.withConfig({
   displayName: 'StyledTopSection',
   componentId: 'DataTableTopSection',
+  shouldForwardProp: (prop) => prop !== '$slot',
 })`
   width: 100%;
+  box-sizing: border-box;
+
+  ${({ $slot, theme }) => ($slot === 'search' ? `
+    background-color: ${theme.colors.background.secondary};
+    border-bottom: 1px solid ${theme.colors.border.light};
+    padding: ${theme.spacing.xs}px ${theme.spacing.sm}px;
+  ` : '')}
 `;
 
 const StyledStatusSection = styled.div.withConfig({
@@ -264,9 +272,13 @@ const StyledBottomBar = styled.div.withConfig({
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  box-sizing: border-box;
   align-items: center;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-top: 1px solid ${({ theme }) => theme.colors.border.light};
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledBottomPrimary = styled.div.withConfig({
