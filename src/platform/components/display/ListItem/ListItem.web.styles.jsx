@@ -194,8 +194,8 @@ const StyledListItemActions = styled(View).withConfig({
   displayName: 'StyledListItemActions',
   shouldForwardProp: (prop) => !['$isWide', '$placement'].includes(prop),
 })`
-  display: flex !important;
-  flex-direction: row !important;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: ${({ $isWide, $placement }) => (($isWide || $placement === 'top') ? 'flex-end' : 'flex-start')};
@@ -205,8 +205,8 @@ const StyledListItemActions = styled(View).withConfig({
     return theme.spacing.sm;
   }}px;
   margin-top: ${({ theme, $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? theme.spacing.xs : 0)}px;
-  width: auto;
-  align-self: ${({ $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? 'flex-start' : 'auto')};
+  width: ${({ $isWide, $placement }) => ((!$isWide && $placement === 'mobile') ? '100%' : 'auto')};
+  align-self: auto;
   flex-shrink: 0;
 `;
 
@@ -214,7 +214,9 @@ const StyledActionSlot = styled(View).withConfig({
   displayName: 'StyledActionSlot',
   shouldForwardProp: (prop) => !['$separatorBefore', '$isWide'].includes(prop),
 })`
-  display: inline-flex !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-left: ${({ theme, $separatorBefore, $isWide }) => {
     if ($separatorBefore && $isWide) return theme.spacing.md;
     return $isWide ? theme.spacing.sm : theme.spacing.xs;

@@ -15,6 +15,7 @@ Load and apply this file before any other prompt file in this folder tree (index
 
 - Every covered prompt file must include a `Shared Contract Enforcement (Mandatory)` section that references this contract.
 - The inheritance section in covered prompt files is declarative only; it does not supersede or rewrite this contract.
+- Every covered prompt file must treat the guide/help synchronization and responsive list-rendering rules in this contract as required acceptance criteria.
 
 ## Supplemental Tier Notes
 ## Concrete Parity Checklist for `11.10.12` (`(main)/hr/staff-positions`)
@@ -80,8 +81,9 @@ For any selected step that touches UI (components, screens, layouts, route prese
 ## Responsive List Presentation and Customizable Data Grid Contract (Mandatory)
 
 For any selected step that exposes a list/index route or collection view:
-- Desktop and tablet breakpoints must render list data in a searchable, customizable data table.
-- Mobile breakpoints must render the same records using compact shared list-item/card components optimized for minimal vertical space and thumb-friendly actions.
+- Desktop and tablet web breakpoints must always render list data using the shared `DataTable` component (or approved shared table wrapper built on `DataTable`).
+- Mobile breakpoints must always render the same records using shared `List` + `ListItem` patterns (or approved shared wrappers built on those components), optimized for compact vertical density and thumb-friendly actions.
+- Do not replace mobile list/list-item flows with desktop table grid layouts. Do not replace desktop/tablet table flows with mobile card-only layouts.
 - Use one shared data source and consistent RBAC policy across table/list variants so visible rows, counts, and allowed actions stay in sync on all platforms.
 - Table and mobile list item actions (view/create/edit/delete/restore/export/bulk operations) must be shown or hidden by role/permission and guarded in handlers to block unauthorized execution.
 - Provide global search plus field-scoped search so users can query every searchable business field exposed in the dataset contract.
@@ -141,6 +143,8 @@ For any selected step that touches UI (components, screens, layouts, route prese
 
 For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Every active route/screen must present a screen-specific primary title and a screen-specific in-app guide/help payload.
+- Any screen update (layout, controls, actions, copy, behavior, state handling, or workflow order) must include a guide/help review and update in the same change set so guidance stays accurate.
+- If a screen change does not require guide/help wording changes, explicitly confirm guide/help validation in the compliance report for that step.
 - Do not stack duplicated parent shell titles/subtitles with child-screen titles. Keep one primary title for the active screen context.
 - If a shared shell/header is used, derive the displayed title/help from the current child route and update it immediately on route change.
 - Title and guide text must use the active module/workflow name (for example, "Tenants", "Facilities", "User Roles") rather than generic route labels.
@@ -270,6 +274,7 @@ Return ONLY:
 3. i18n locale key updates required by selected step(s).
 4. Tests/check commands run and result summary.
 5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
+6. Explicit guide/help synchronization confirmation for every updated screen (updated text or validated-as-current statement), plus responsive list-mode confirmation (`DataTable` on desktop/tablet web and `List` + `ListItem` on mobile).
 
 Do NOT include files or logic outside selected step(s).
 
