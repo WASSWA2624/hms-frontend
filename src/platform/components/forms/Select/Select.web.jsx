@@ -126,6 +126,10 @@ const SelectWeb = ({
     width: 0,
     maxHeight: 240,
   });
+  const longestOptionLabelLength = useMemo(() => options.reduce((longest, option) => {
+    const raw = option?.label ?? option?.value ?? '';
+    return Math.max(longest, String(raw).length);
+  }, 0), [options]);
 
   const computeMenuPosition = useCallback(() => {
     if (!triggerRef.current) return;
@@ -138,19 +142,24 @@ const SelectWeb = ({
     const placement = spaceBelow >= spaceAbove ? 'bottom' : 'top';
     const availableHeight = placement === 'bottom' ? spaceBelow : spaceAbove;
     const maxHeight = availableHeight > 0 ? Math.min(320, availableHeight) : 240;
-    const longestLabelLength = sanitizedOptions.reduce(
-      (longest, option) => Math.max(longest, String(option?.label ?? '').length),
-      0
+    const measuredMenuWidth = menuRef.current?.scrollWidth ?? 0;
+    const estimatedLabelWidth = longestOptionLabelLength > 0
+      ? longestOptionLabelLength * 7.2 + 52
+      : rect.width;
+    const desiredWidth = Math.max(
+      rect.width,
+      Math.min(Math.max(measuredMenuWidth, estimatedLabelWidth), 420)
     );
-    const estimatedLabelWidth = longestLabelLength * 7.2 + 52;
-    const desiredWidth = Math.max(rect.width, Math.min(estimatedLabelWidth, 420));
     const maxWidth = Math.max(120, viewportWidth - gap * 2);
     const width = Math.min(desiredWidth, maxWidth);
 
     const measuredMenuHeight = menuRef.current ? menuRef.current.scrollHeight : 0;
+    const optionCount = menuRef.current
+      ? menuRef.current.querySelectorAll('[role="option"]').length
+      : 0;
     const estimatedOptionHeight = compact ? 36 : 44;
     const estimatedMenuHeight = measuredMenuHeight
-      || Math.max(estimatedOptionHeight, sanitizedOptions.length * estimatedOptionHeight);
+      || Math.max(estimatedOptionHeight, optionCount * estimatedOptionHeight);
     const menuHeight = Math.min(maxHeight, estimatedMenuHeight);
 
     const left = Math.min(Math.max(rect.left, gap), Math.max(gap, viewportWidth - width - gap));
@@ -167,7 +176,7 @@ const SelectWeb = ({
       width,
       maxHeight,
     });
-  }, [compact, sanitizedOptions]);
+  }, [compact, longestOptionLabelLength]);
 
   // Close on outside click
   useEffect(() => {

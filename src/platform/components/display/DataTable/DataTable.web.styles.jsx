@@ -13,6 +13,30 @@ const resolveHeaderJustify = (align) => {
   return 'flex-start';
 };
 
+const StyledScaffold = styled.div.withConfig({
+  displayName: 'StyledScaffold',
+  componentId: 'DataTableScaffold',
+})`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledTopSection = styled.div.withConfig({
+  displayName: 'StyledTopSection',
+  componentId: 'DataTableTopSection',
+})`
+  width: 100%;
+`;
+
+const StyledStatusSection = styled.div.withConfig({
+  displayName: 'StyledStatusSection',
+  componentId: 'DataTableStatusSection',
+})`
+  width: 100%;
+`;
+
 const StyledContainer = styled.div.withConfig({
   displayName: 'StyledContainer',
   componentId: 'DataTableContainer',
@@ -49,7 +73,7 @@ const StyledHeaderCell = styled.th.withConfig({
   componentId: 'DataTableHeaderCell',
 })`
   text-align: ${({ $align }) => $align || 'left'};
-  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.sm}px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
   background-color: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};
@@ -62,6 +86,9 @@ const StyledHeaderCell = styled.th.withConfig({
   z-index: 2;
   vertical-align: middle;
 
+  ${({ $isResizable, theme }) => ($isResizable
+    ? `padding-right: calc(${theme.spacing.sm}px + 12px);`
+    : '')}
   ${({ $width }) => ($width ? `width: ${$width};` : '')}
   ${({ $minWidth }) => ($minWidth ? `min-width: ${$minWidth};` : '')}
   ${({ $isSelection }) => ($isSelection
@@ -113,6 +140,56 @@ const StyledSortIndicator = styled.span.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
 `;
 
+const StyledResizeHandle = styled.button.withConfig({
+  displayName: 'StyledResizeHandle',
+  componentId: 'DataTableResizeHandle',
+})`
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 14px;
+  height: 100%;
+  border: none;
+  border-left: 1px solid ${({ theme, $active }) => (
+    $active ? theme.colors.primary : theme.colors.border.light
+  )};
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 3;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    border-radius: 999px;
+    background-color: ${({ theme, $active }) => (
+      $active ? theme.colors.primary : theme.colors.text.tertiary
+    )};
+    opacity: ${({ $active }) => ($active ? 0.95 : 0.78)};
+    transition: opacity 120ms ease-in-out;
+  }
+
+  &:hover {
+    border-left-color: ${({ theme }) => theme.colors.primary};
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: -2px;
+  }
+`;
+
 const StyledRow = styled.tr.withConfig({
   displayName: 'StyledRow',
   componentId: 'DataTableRow',
@@ -137,8 +214,8 @@ const StyledCell = styled.td.withConfig({
   displayName: 'StyledCell',
   componentId: 'DataTableCell',
 })`
-  padding: ${({ theme, $density }) => ($density === 'comfortable' ? theme.spacing.sm : theme.spacing.xs)}px
-    ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme, $density }) => ($density === 'comfortable' ? theme.spacing.xs : theme.spacing.xs / 2)}px
+    ${({ theme }) => theme.spacing.xs}px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
@@ -148,6 +225,8 @@ const StyledCell = styled.td.withConfig({
   overflow: ${({ $truncate }) => ($truncate === false ? 'visible' : 'hidden')};
   text-overflow: ${({ $truncate }) => ($truncate === false ? 'clip' : 'ellipsis')};
 
+  ${({ $width }) => ($width ? `width: ${$width};` : '')}
+  ${({ $minWidth }) => ($minWidth ? `min-width: ${$minWidth};` : '')}
   ${({ $isSelection }) => ($isSelection
     ? `width: ${SELECTION_COLUMN_WIDTH}px; min-width: ${SELECTION_COLUMN_WIDTH}px; max-width: ${SELECTION_COLUMN_WIDTH}px;`
     : '')}
@@ -165,15 +244,56 @@ const StyledSpacerCell = styled.td.withConfig({
   height: ${({ $height }) => `${$height}px`};
 `;
 
-const StyledEmptyCell = styled(StyledCell).withConfig({
+const StyledEmptyCell = styled.td.withConfig({
   displayName: 'StyledEmptyCell',
   componentId: 'DataTableEmptyCell',
 })`
+  padding: ${({ theme, $density }) => ($density === 'comfortable' ? theme.spacing.xs : theme.spacing.xs / 2)}px
+    ${({ theme }) => theme.spacing.xs}px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  vertical-align: middle;
   text-align: center;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
+const StyledBottomBar = styled.div.withConfig({
+  displayName: 'StyledBottomBar',
+  componentId: 'DataTableBottomBar',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledBottomPrimary = styled.div.withConfig({
+  displayName: 'StyledBottomPrimary',
+  componentId: 'DataTableBottomPrimary',
+})`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledBottomSecondary = styled.div.withConfig({
+  displayName: 'StyledBottomSecondary',
+  componentId: 'DataTableBottomSecondary',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 export {
+  StyledScaffold,
+  StyledTopSection,
+  StyledStatusSection,
   StyledContainer,
   StyledScrollArea,
   StyledTable,
@@ -181,9 +301,13 @@ export {
   StyledHeaderButton,
   StyledHeaderText,
   StyledSortIndicator,
+  StyledResizeHandle,
   StyledRow,
   StyledCell,
   StyledSpacerCell,
   StyledEmptyCell,
+  StyledBottomBar,
+  StyledBottomPrimary,
+  StyledBottomSecondary,
 };
 

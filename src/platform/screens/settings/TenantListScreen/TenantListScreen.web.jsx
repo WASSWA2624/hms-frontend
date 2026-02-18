@@ -2,7 +2,7 @@
  * TenantListScreen - Web
  * Desktop/tablet renders a customizable table; mobile web renders compact cards.
  */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -37,10 +37,15 @@ import {
   StyledDangerActionButton,
   StyledControlLabel,
   StyledFilterActions,
+  StyledFilterBody,
   StyledFilterButton,
+  StyledFilterHeader,
   StyledFilterPanel,
   StyledFilterRowActions,
   StyledFilterRow,
+  StyledFilterChevron,
+  StyledFilterTitle,
+  StyledFilterToggleButton,
   StyledListBody,
   StyledMobileList,
   StyledPrimaryCellText,
@@ -178,10 +183,12 @@ const TenantListScreenWeb = () => {
   } = useTenantListScreen();
 
   const rows = pagedItems;
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
   const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && totalItems === 0;
   const showList = !isLoading && !showError && !showOffline && rows.length > 0;
+  const showDesktopTable = isTableMode && !showError && !showOffline;
 
   const emptyComponent = (
     <EmptyState
@@ -341,74 +348,84 @@ const TenantListScreenWeb = () => {
     );
   }, [onTenantPress, onEdit, onDelete, t]);
 
-  return (
-    <StyledContainer role="main" aria-label={t('tenant.list.title')}>
-      {noticeMessage ? (
-        <Snackbar
-          visible={Boolean(noticeMessage)}
-          message={noticeMessage}
-          variant="success"
-          position="bottom"
-          onDismiss={onDismissNotice}
-          testID="tenant-list-notice"
+  const searchBarSection = (
+    <StyledToolbar data-testid="tenant-list-toolbar">
+      <StyledSearchSlot>
+        <TextField
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+          placeholder={t('tenant.list.searchPlaceholder')}
+          accessibilityLabel={t('tenant.list.searchLabel')}
+          density="compact"
+          type="search"
+          testID="tenant-list-search"
         />
-      ) : null}
+      </StyledSearchSlot>
 
-      <StyledContent>
-        <StyledToolbar data-testid="tenant-list-toolbar">
-          <StyledSearchSlot>
-            <TextField
-              value={search}
-              onChange={(e) => onSearch(e.target.value)}
-              placeholder={t('tenant.list.searchPlaceholder')}
-              accessibilityLabel={t('tenant.list.searchLabel')}
-              density="compact"
-              type="search"
-              testID="tenant-list-search"
-            />
-          </StyledSearchSlot>
+      <StyledScopeSlot>
+        <StyledControlLabel>{t('tenant.list.searchScopeLabel')}</StyledControlLabel>
+        <Select
+          value={searchScope}
+          onValueChange={onSearchScopeChange}
+          options={searchScopeOptions}
+          accessibilityLabel={t('tenant.list.searchScopeLabel')}
+          compact
+          testID="tenant-list-search-scope"
+        />
+      </StyledScopeSlot>
 
-          <StyledScopeSlot>
-            <StyledControlLabel>{t('tenant.list.searchScopeLabel')}</StyledControlLabel>
-            <Select
-              value={searchScope}
-              onValueChange={onSearchScopeChange}
-              options={searchScopeOptions}
-              accessibilityLabel={t('tenant.list.searchScopeLabel')}
-              compact
-              testID="tenant-list-search-scope"
-            />
-          </StyledScopeSlot>
+      <StyledToolbarActions>
+        {isTableMode ? (
+          <StyledTableSettingsButton
+            type="button"
+            onClick={onOpenTableSettings}
+            aria-label={t('tenant.list.tableSettings')}
+            data-testid="tenant-table-settings"
+          >
+            {t('tenant.list.tableSettings')}
+          </StyledTableSettingsButton>
+        ) : null}
 
-          <StyledToolbarActions>
-            {isTableMode ? (
-              <StyledTableSettingsButton
-                type="button"
-                onClick={onOpenTableSettings}
-                aria-label={t('tenant.list.tableSettings')}
-                data-testid="tenant-table-settings"
-              >
-                {t('tenant.list.tableSettings')}
-              </StyledTableSettingsButton>
-            ) : null}
+        {onAdd ? (
+          <StyledAddButton
+            type="button"
+            onClick={onAdd}
+            onPress={onAdd}
+            accessibilityLabel={t('tenant.list.addLabel')}
+            accessibilityHint={t('tenant.list.addHint')}
+            testID="tenant-list-add"
+          >
+            <Icon glyph="+" size="xs" decorative />
+            <StyledAddLabel>{t('tenant.list.addLabel')}</StyledAddLabel>
+          </StyledAddButton>
+        ) : null}
+      </StyledToolbarActions>
+    </StyledToolbar>
+  );
 
-            {onAdd ? (
-              <StyledAddButton
-                type="button"
-                onClick={onAdd}
-                onPress={onAdd}
-                accessibilityLabel={t('tenant.list.addLabel')}
-                accessibilityHint={t('tenant.list.addHint')}
-                testID="tenant-list-add"
-              >
-                <Icon glyph="+" size="xs" decorative />
-                <StyledAddLabel>{t('tenant.list.addLabel')}</StyledAddLabel>
-              </StyledAddButton>
-            ) : null}
-          </StyledToolbarActions>
-        </StyledToolbar>
+  const filterBarSection = (
+    <StyledFilterPanel>
+      <StyledFilterHeader>
+        <StyledFilterTitle>{t('common.filters')}</StyledFilterTitle>
+        <StyledFilterToggleButton
+          type="button"
+          onClick={() => setIsFilterPanelCollapsed((previous) => !previous)}
+          aria-label={isFilterPanelCollapsed
+            ? t('shell.sidebar.expandSectionLabel', { label: t('common.filters') })
+            : t('shell.sidebar.collapseSectionLabel', { label: t('common.filters') })}
+          title={isFilterPanelCollapsed
+            ? t('shell.sidebar.expandSectionLabel', { label: t('common.filters') })
+            : t('shell.sidebar.collapseSectionLabel', { label: t('common.filters') })}
+          data-testid="tenant-filter-toggle"
+        >
+          <StyledFilterChevron $collapsed={isFilterPanelCollapsed} aria-hidden="true">
+            {'\u25BE'}
+          </StyledFilterChevron>
+        </StyledFilterToggleButton>
+      </StyledFilterHeader>
 
-        <StyledFilterPanel>
+      {!isFilterPanelCollapsed ? (
+        <StyledFilterBody data-testid="tenant-filter-body">
           <Select
             value={filterLogic}
             onValueChange={onFilterLogicChange}
@@ -496,31 +513,118 @@ const TenantListScreenWeb = () => {
               {t('tenant.list.clearSearchAndFilters')}
             </StyledFilterButton>
           </StyledFilterActions>
-        </StyledFilterPanel>
+        </StyledFilterBody>
+      ) : null}
+    </StyledFilterPanel>
+  );
 
-        {onBulkDelete && selectedTenantIds.length > 0 ? (
-          <StyledBulkBar data-testid="tenant-bulk-bar">
-            <StyledBulkInfo>
-              {t('tenant.list.bulkSelectedCount', { count: selectedTenantIds.length })}
-            </StyledBulkInfo>
-            <StyledBulkActions>
-              <StyledActionButton
-                type="button"
-                onClick={onClearSelection}
-                data-testid="tenant-bulk-clear"
-              >
-                {t('tenant.list.clearSelection')}
-              </StyledActionButton>
-              <StyledDangerActionButton
-                type="button"
-                onClick={onBulkDelete}
-                data-testid="tenant-bulk-delete"
-              >
-                {t('tenant.list.bulkDelete')}
-              </StyledDangerActionButton>
-            </StyledBulkActions>
-          </StyledBulkBar>
-        ) : null}
+  const bulkActionsBar = onBulkDelete && selectedTenantIds.length > 0 ? (
+    <StyledBulkBar data-testid="tenant-bulk-bar">
+      <StyledBulkInfo>
+        {t('tenant.list.bulkSelectedCount', { count: selectedTenantIds.length })}
+      </StyledBulkInfo>
+      <StyledBulkActions>
+        <StyledActionButton
+          type="button"
+          onClick={onClearSelection}
+          data-testid="tenant-bulk-clear"
+        >
+          {t('tenant.list.clearSelection')}
+        </StyledActionButton>
+        <StyledDangerActionButton
+          type="button"
+          onClick={onBulkDelete}
+          data-testid="tenant-bulk-delete"
+        >
+          {t('tenant.list.bulkDelete')}
+        </StyledDangerActionButton>
+      </StyledBulkActions>
+    </StyledBulkBar>
+  ) : null;
+
+  const tableStatusContent = showEmpty ? emptyComponent : (hasNoResults ? noResultsComponent : null);
+
+  const paginationContent = showList ? (
+    <StyledPaginationInfo>
+      {t('tenant.list.pageSummary', { page, totalPages, total: totalItems })}
+    </StyledPaginationInfo>
+  ) : null;
+
+  const tableNavigationContent = showList ? (
+    <StyledPaginationActions>
+      <StyledPaginationNavButton
+        type="button"
+        onClick={() => onPageChange(page - 1)}
+        disabled={page <= 1}
+        aria-label={t('common.previous')}
+        title={t('common.previous')}
+        data-testid="tenant-page-prev"
+      >
+        {'<'}
+      </StyledPaginationNavButton>
+
+      <StyledPaginationControl>
+        <StyledPaginationControlLabel>
+          {t('tenant.list.pageSizeLabel')}
+        </StyledPaginationControlLabel>
+        <StyledPaginationSelectSlot>
+          <Select
+            value={String(pageSize)}
+            onValueChange={onPageSizeChange}
+            options={pageSizeOptions}
+            accessibilityLabel={t('tenant.list.pageSizeLabel')}
+            compact
+            testID="tenant-page-size"
+          />
+        </StyledPaginationSelectSlot>
+      </StyledPaginationControl>
+
+      <StyledPaginationControl>
+        <StyledPaginationControlLabel>
+          {t('tenant.list.densityLabel')}
+        </StyledPaginationControlLabel>
+        <StyledPaginationSelectSlot>
+          <Select
+            value={density}
+            onValueChange={onDensityChange}
+            options={densityOptions}
+            accessibilityLabel={t('tenant.list.densityLabel')}
+            compact
+            testID="tenant-density"
+          />
+        </StyledPaginationSelectSlot>
+      </StyledPaginationControl>
+
+      <StyledPaginationNavButton
+        type="button"
+        onClick={() => onPageChange(page + 1)}
+        disabled={page >= totalPages}
+        aria-label={t('common.next')}
+        title={t('common.next')}
+        data-testid="tenant-page-next"
+      >
+        {'>'}
+      </StyledPaginationNavButton>
+    </StyledPaginationActions>
+  ) : null;
+
+  return (
+    <StyledContainer role="main" aria-label={t('tenant.list.title')}>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant="success"
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="tenant-list-notice"
+        />
+      ) : null}
+
+      <StyledContent>
+        {!isTableMode ? searchBarSection : null}
+        {!isTableMode ? filterBarSection : null}
+        {!isTableMode ? bulkActionsBar : null}
 
         <Card
           variant="outlined"
@@ -559,10 +663,10 @@ const TenantListScreenWeb = () => {
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />
             ) : null}
 
-            {showEmpty ? emptyComponent : null}
-            {hasNoResults ? noResultsComponent : null}
+            {!isTableMode && showEmpty ? emptyComponent : null}
+            {!isTableMode && hasNoResults ? noResultsComponent : null}
 
-            {showList && isTableMode ? (
+            {showDesktopTable ? (
               <DataTable
                 columns={tableColumns}
                 rows={rows}
@@ -582,6 +686,13 @@ const TenantListScreenWeb = () => {
                   maxHeight: 560,
                   overscan: 10,
                 }}
+                searchBar={searchBarSection}
+                filterBar={filterBarSection}
+                bulkActionsBar={bulkActionsBar}
+                statusContent={tableStatusContent}
+                pagination={paginationContent}
+                tableNavigation={tableNavigationContent}
+                showDefaultEmptyRow={false}
                 minWidth={980}
                 testID="tenant-table"
               />
@@ -643,7 +754,7 @@ const TenantListScreenWeb = () => {
               </StyledMobileList>
             ) : null}
 
-            {showList ? (
+            {!isTableMode && showList ? (
               <StyledPagination>
                 <StyledPaginationInfo>
                   {t('tenant.list.pageSummary', { page, totalPages, total: totalItems })}

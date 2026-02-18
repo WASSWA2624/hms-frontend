@@ -161,6 +161,74 @@ const StyledFilterPanel = styled.div.withConfig({
   background-color: ${({ theme }) => theme.colors.background.secondary};
 `;
 
+const StyledFilterHeader = styled.div.withConfig({
+  displayName: 'StyledFilterHeader',
+  componentId: 'StyledFilterHeader',
+})`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFilterTitle = styled.span.withConfig({
+  displayName: 'StyledFilterTitle',
+  componentId: 'StyledFilterTitle',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledFilterToggleButton = styled.button.withConfig({
+  displayName: 'StyledFilterToggleButton',
+  componentId: 'StyledFilterToggleButton',
+})`
+  min-height: 28px;
+  min-width: 28px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: 1;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledFilterChevron = styled.span.withConfig({
+  displayName: 'StyledFilterChevron',
+  componentId: 'StyledFilterChevron',
+  shouldForwardProp: (prop) => prop !== '$collapsed',
+})`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+  transition: transform 0.2s ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
+
+const StyledFilterBody = styled.div.withConfig({
+  displayName: 'StyledFilterBody',
+  componentId: 'StyledFilterBody',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledFilterRow = styled.div.withConfig({
   displayName: 'StyledFilterRow',
   componentId: 'StyledFilterRow',
@@ -503,6 +571,11 @@ export {
   StyledAddButton,
   StyledAddLabel,
   StyledFilterPanel,
+  StyledFilterHeader,
+  StyledFilterTitle,
+  StyledFilterToggleButton,
+  StyledFilterChevron,
+  StyledFilterBody,
   StyledFilterRow,
   StyledFilterActions,
   StyledFilterRowActions,

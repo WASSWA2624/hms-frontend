@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import lightTheme from '@theme/light.theme';
 
@@ -265,6 +265,88 @@ describe('Select Component - Web', () => {
 
       expect(getByText('Not available')).toBeTruthy();
       expect(queryByText(technicalId)).toBeFalsy();
+    });
+
+    it('should expand menu width for long option labels on Web', async () => {
+      const previousWidth = window.innerWidth;
+      const previousHeight = window.innerHeight;
+      window.innerWidth = 900;
+      window.innerHeight = 700;
+
+      const longOptions = [
+        { label: 'Very long density option label that should not clip', value: 'long' },
+        { label: 'Short', value: 'short' },
+      ];
+
+      const { getByTestId } = renderWebWithProviders(
+        <SelectWeb testID="web-select" options={longOptions} value={undefined} onValueChange={() => {}} />
+      );
+
+      const trigger = getByTestId('web-select');
+      trigger.getBoundingClientRect = jest.fn(() => ({
+        top: 120,
+        left: 80,
+        bottom: 156,
+        right: 200,
+        width: 120,
+        height: 36,
+        x: 80,
+        y: 120,
+        toJSON: () => ({}),
+      }));
+
+      fireEvent.click(trigger);
+      const menu = getByTestId('web-select-menu');
+      Object.defineProperty(menu, 'scrollWidth', { configurable: true, value: 360 });
+      Object.defineProperty(menu, 'scrollHeight', { configurable: true, value: 96 });
+      fireEvent(window, new Event('resize'));
+
+      await waitFor(() => {
+        const width = Number(menu.getAttribute('data-width'));
+        expect(width).toBeGreaterThan(120);
+      });
+
+      window.innerWidth = previousWidth;
+      window.innerHeight = previousHeight;
+    });
+
+    it('should place menu above trigger near viewport bottom using content height on Web', async () => {
+      const previousWidth = window.innerWidth;
+      const previousHeight = window.innerHeight;
+      window.innerWidth = 960;
+      window.innerHeight = 720;
+
+      const { getByTestId } = renderWebWithProviders(
+        <SelectWeb testID="web-select" options={options} value={undefined} onValueChange={() => {}} />
+      );
+
+      const trigger = getByTestId('web-select');
+      trigger.getBoundingClientRect = jest.fn(() => ({
+        top: 650,
+        left: 760,
+        bottom: 686,
+        right: 880,
+        width: 120,
+        height: 36,
+        x: 760,
+        y: 650,
+        toJSON: () => ({}),
+      }));
+
+      fireEvent.click(trigger);
+      const menu = getByTestId('web-select-menu');
+      Object.defineProperty(menu, 'scrollHeight', { configurable: true, value: 88 });
+      Object.defineProperty(menu, 'scrollWidth', { configurable: true, value: 180 });
+      fireEvent(window, new Event('resize'));
+
+      await waitFor(() => {
+        expect(menu.getAttribute('data-placement')).toBe('top');
+        const top = Number(menu.getAttribute('data-top'));
+        expect(top).toBeGreaterThan(540);
+      });
+
+      window.innerWidth = previousWidth;
+      window.innerHeight = previousHeight;
     });
   });
 });
