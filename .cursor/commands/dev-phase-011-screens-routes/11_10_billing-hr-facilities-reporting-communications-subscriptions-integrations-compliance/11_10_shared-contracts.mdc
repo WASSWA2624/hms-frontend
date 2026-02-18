@@ -62,8 +62,24 @@ For any selected step that touches UI (components, screens, layouts, route prese
 - Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
-## Human-Readable Identity and Context Selection Contract (Mandatory)
+## Responsive List Presentation and Customizable Data Grid Contract (Mandatory)
 
+For any selected step that exposes a list/index route or collection view:
+- Desktop and tablet breakpoints must render list data in a searchable, customizable data table.
+- Mobile breakpoints must render the same records using compact shared list-item/card components optimized for minimal vertical space and thumb-friendly actions.
+- Use one shared data source and consistent RBAC policy across table/list variants so visible rows, counts, and allowed actions stay in sync on all platforms.
+- Table and mobile list item actions (view/create/edit/delete/restore/export/bulk operations) must be shown or hidden by role/permission and guarded in handlers to block unauthorized execution.
+- Provide global search plus field-scoped search so users can query every searchable business field exposed in the dataset contract.
+- Support advanced filters with multi-condition criteria (field, operator, value, AND/OR grouping) and clear reset behavior.
+- Support sortable columns with stable sort state and deterministic server/client fallback behavior.
+- Support column visibility toggles and drag/drop (or equivalent) column reordering on desktop/tablet tables.
+- Persist per-user table preferences (visible columns, order, sort, filters, density, and page size) when storage contracts exist; otherwise keep deterministic session defaults.
+- Keep row-level and bulk actions discoverable, compact, and horizontally aligned, with destructive actions visually differentiated.
+- Keep table/list states complete: loading, empty, no-search-results, permission-denied, offline, and recoverable error with actionable retry guidance.
+- Ensure accessibility parity for search, filters, column controls, row actions, and keyboard/screen-reader navigation on web and assistive flows.
+- Add/update tests for responsive rendering mode switching, all-field search behavior, advanced filtering, RBAC action visibility/guards, and column customization persistence.
+
+## Human-Readable Identity and Context Selection Contract (Mandatory)
 For any selected step that touches UI, onboarding, auth, or context selection:
 - Never display raw technical identifiers (UUID/GUID/internal primary keys) to non-super users.
 - Keep technical IDs internal to state, route params, and API payloads; do not render them in labels, inputs, tables, cards, helper text, or summaries for standard users.
@@ -241,4 +257,3 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
 Do NOT include files or logic outside this tier's selected step(s).
-
