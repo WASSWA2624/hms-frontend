@@ -15,6 +15,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
   TextField,
 } from '@platform/components';
@@ -28,6 +29,7 @@ import {
   StyledList,
   StyledListBody,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
@@ -74,14 +76,19 @@ const TenantListScreenIOS = () => {
   const {
     items,
     search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
     onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onTenantPress,
     onEdit,
     onDelete,
@@ -124,7 +131,8 @@ const TenantListScreenIOS = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
   const renderItem = ({ item: tenant, index }) => {
@@ -198,6 +206,16 @@ const TenantListScreenIOS = () => {
               testID="tenant-list-search"
             />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('tenant.list.searchScopeLabel')}
+              compact
+              testID="tenant-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -243,6 +261,23 @@ const TenantListScreenIOS = () => {
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="tenant-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('tenant.list.noResultsTitle')}
+                description={t('tenant.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('tenant.list.clearSearchAndFilters')}
+                    testID="tenant-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('tenant.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="tenant-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
