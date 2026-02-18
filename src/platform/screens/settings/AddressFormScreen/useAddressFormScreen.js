@@ -13,6 +13,7 @@ import {
   useBranch,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_LINE1_LENGTH = 255;
 const MAX_LINE2_LENGTH = 255;
@@ -20,6 +21,7 @@ const MAX_CITY_LENGTH = 120;
 const MAX_STATE_LENGTH = 120;
 const MAX_POSTAL_CODE_LENGTH = 40;
 const MAX_COUNTRY_LENGTH = 120;
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -113,30 +115,39 @@ const useAddressFormScreen = () => {
   const tenantOptions = useMemo(
     () => {
       if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+        return [{
+          value: normalizedScopedTenantId,
+          label: t('address.form.currentTenantLabel'),
+        }];
       }
-      return tenantItems.map((tenant) => ({
+      return tenantItems.map((tenant, index) => ({
         value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+        label: humanizeIdentifier(tenant.name)
+          || humanizeIdentifier(tenant.slug)
+          || t('address.form.tenantOptionFallback', { index: index + 1 }),
       }));
     },
-    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
+    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, t]
   );
   const facilityOptions = useMemo(
     () =>
-      facilityItems.map((facility) => ({
+      facilityItems.map((facility, index) => ({
         value: facility.id,
-        label: facility.name ?? facility.id ?? '',
+        label: humanizeIdentifier(facility.name)
+          || humanizeIdentifier(facility.slug)
+          || t('address.form.facilityOptionFallback', { index: index + 1 }),
       })),
-    [facilityItems]
+    [facilityItems, t]
   );
   const branchOptions = useMemo(
     () =>
-      branchItems.map((branch) => ({
+      branchItems.map((branch, index) => ({
         value: branch.id,
-        label: branch.name ?? branch.id ?? '',
+        label: humanizeIdentifier(branch.name)
+          || humanizeIdentifier(branch.slug)
+          || t('address.form.branchOptionFallback', { index: index + 1 }),
       })),
-    [branchItems]
+    [branchItems, t]
   );
   const addressTypeOptions = useMemo(() => ([
     { label: t('address.types.HOME'), value: 'HOME' },
@@ -190,7 +201,7 @@ const useAddressFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManageAddresses,
@@ -264,7 +275,7 @@ const useAddressFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [isResolved, canManageAddresses, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -275,7 +286,7 @@ const useAddressFormScreen = () => {
       resetBranches();
       return;
     }
-    const params = { page: 1, limit: 200, tenant_id: trimmedTenant };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant };
     if (trimmedFacility) {
       params.facility_id = trimmedFacility;
     }
@@ -386,10 +397,25 @@ const useAddressFormScreen = () => {
   const hasBranches = branchOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    const selected = tenantOptions.find((option) => option.value === trimmedTenantId)?.label;
+    if (selected) return selected;
+    return humanizeIdentifier(
+      address?.tenant_name
+      ?? address?.tenant?.name
+      ?? address?.tenant_label
+    ) || '';
+  }, [tenantOptions, trimmedTenantId, address]);
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('address.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || t('address.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, isTenantLocked, selectedTenantLabel, lockedTenantDisplay, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -508,14 +534,14 @@ const useAddressFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [tenantId, listFacilities, resetFacilities]);
 
   const handleRetryBranches = useCallback(() => {
@@ -523,7 +549,7 @@ const useAddressFormScreen = () => {
     const trimmedFacility = String(facilityId ?? '').trim();
     resetBranches();
     if (!trimmedTenant) return;
-    const params = { page: 1, limit: 200, tenant_id: trimmedTenant };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant };
     if (trimmedFacility) params.facility_id = trimmedFacility;
     listBranches(params);
   }, [tenantId, facilityId, listBranches, resetBranches]);
@@ -582,6 +608,7 @@ const useAddressFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

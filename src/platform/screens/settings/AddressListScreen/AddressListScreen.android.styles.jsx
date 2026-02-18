@@ -5,8 +5,8 @@
 import styled from 'styled-components/native';
 
 const StyledContainer = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledContainer',
-  componentId: 'AddressListScreen_StyledContainer',
+  displayName: 'StyledContainer',
+  componentId: 'StyledContainer',
 })`
   flex: 1;
   width: 100%;
@@ -15,16 +15,16 @@ const StyledContainer = styled.View.withConfig({
 `;
 
 const StyledContent = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledContent',
-  componentId: 'AddressListScreen_StyledContent',
+  displayName: 'StyledContent',
+  componentId: 'StyledContent',
 })`
   flex: 1;
   width: 100%;
 `;
 
 const StyledToolbar = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledToolbar',
-  componentId: 'AddressListScreen_StyledToolbar',
+  displayName: 'StyledToolbar',
+  componentId: 'StyledToolbar',
 })`
   flex-direction: column;
   align-items: stretch;
@@ -32,15 +32,22 @@ const StyledToolbar = styled.View.withConfig({
 `;
 
 const StyledSearchSlot = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledSearchSlot',
-  componentId: 'AddressListScreen_StyledSearchSlot',
+  displayName: 'StyledSearchSlot',
+  componentId: 'StyledSearchSlot',
+})`
+  width: 100%;
+`;
+
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
 })`
   width: 100%;
 `;
 
 const StyledToolbarActions = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledToolbarActions',
-  componentId: 'AddressListScreen_StyledToolbarActions',
+  displayName: 'StyledToolbarActions',
+  componentId: 'StyledToolbarActions',
 })`
   flex-direction: row;
   align-items: center;
@@ -49,8 +56,8 @@ const StyledToolbarActions = styled.View.withConfig({
 `;
 
 const StyledAddButton = styled.Pressable.withConfig({
-  displayName: 'AddressListScreen_StyledAddButton',
-  componentId: 'AddressListScreen_StyledAddButton',
+  displayName: 'StyledAddButton',
+  componentId: 'StyledAddButton',
 })`
   flex-direction: row;
   align-items: center;
@@ -64,8 +71,8 @@ const StyledAddButton = styled.Pressable.withConfig({
 `;
 
 const StyledAddLabel = styled.Text.withConfig({
-  displayName: 'AddressListScreen_StyledAddLabel',
-  componentId: 'AddressListScreen_StyledAddLabel',
+  displayName: 'StyledAddLabel',
+  componentId: 'StyledAddLabel',
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
@@ -74,8 +81,8 @@ const StyledAddLabel = styled.Text.withConfig({
 `;
 
 const StyledListBody = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledListBody',
-  componentId: 'AddressListScreen_StyledListBody',
+  displayName: 'StyledListBody',
+  componentId: 'StyledListBody',
 })`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md}px;
@@ -83,26 +90,18 @@ const StyledListBody = styled.View.withConfig({
 `;
 
 const StyledStateStack = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledStateStack',
-  componentId: 'AddressListScreen_StyledStateStack',
+  displayName: 'StyledStateStack',
+  componentId: 'StyledStateStack',
 })`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledList = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledList',
-  componentId: 'AddressListScreen_StyledList',
+  displayName: 'StyledList',
+  componentId: 'StyledList',
 })`
   width: 100%;
-`;
-
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'AddressListScreen_StyledSeparator',
-  componentId: 'AddressListScreen_StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 export {
@@ -110,11 +109,11 @@ export {
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
-  StyledSeparator,
 };

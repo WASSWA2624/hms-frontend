@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -147,9 +147,21 @@ const AddressDetailScreenWeb = () => {
   const addressType = address?.address_type ?? '';
   const typeLabel = addressType ? t(`address.types.${addressType}`) : '';
   const displayType = typeLabel && typeLabel !== `address.types.${addressType}` ? typeLabel : addressType;
-  const tenantId = address?.tenant_id ?? '';
-  const facilityId = address?.facility_id ?? '';
-  const branchId = address?.branch_id ?? '';
+  const tenantLabel = humanizeIdentifier(
+    address?.tenant_name
+    ?? address?.tenant?.name
+    ?? address?.tenant_label
+  );
+  const facilityLabel = humanizeIdentifier(
+    address?.facility_name
+    ?? address?.facility?.name
+    ?? address?.facility_label
+  );
+  const branchLabel = humanizeIdentifier(
+    address?.branch_name
+    ?? address?.branch?.name
+    ?? address?.branch_label
+  );
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -190,33 +202,27 @@ const AddressDetailScreenWeb = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('address.detail.title')} testID="address-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('address.detail.idLabel')}</Text>
-              <Text variant="body" testID="address-detail-id">
-                {address.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('address.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="address-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {facilityLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('address.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="address-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {branchId ? (
+            {branchLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('address.detail.branchLabel')}</Text>
                 <Text variant="body" testID="address-detail-branch">
-                  {branchId}
+                  {branchLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}

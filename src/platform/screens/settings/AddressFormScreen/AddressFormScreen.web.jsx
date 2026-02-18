@@ -84,6 +84,7 @@ const AddressFormScreenWeb = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -276,7 +277,7 @@ const AddressFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('address.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('address.form.tenantLabel')}
                     accessibilityHint={t('address.form.tenantLockedHint')}
                     helperText={t('address.form.tenantLockedHint')}
