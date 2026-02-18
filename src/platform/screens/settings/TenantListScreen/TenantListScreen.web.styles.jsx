@@ -240,84 +240,6 @@ const StyledBulkActions = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
-const StyledTableWrapper = styled.div.withConfig({
-  displayName: 'StyledTableWrapper',
-  componentId: 'StyledTableWrapper',
-})`
-  width: 100%;
-  overflow-x: auto;
-`;
-
-const StyledTable = styled.table.withConfig({
-  displayName: 'StyledTable',
-  componentId: 'StyledTable',
-})`
-  width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  min-width: 720px;
-`;
-
-const StyledTableHeaderCell = styled.th.withConfig({
-  displayName: 'StyledTableHeaderCell',
-  componentId: 'StyledTableHeaderCell',
-})`
-  text-align: left;
-  padding: ${({ theme }) => theme.spacing.sm}px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  white-space: nowrap;
-`;
-
-const StyledSortButton = styled.button.withConfig({
-  displayName: 'StyledSortButton',
-  componentId: 'StyledSortButton',
-})`
-  display: inline-flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  border: none;
-  background: none;
-  color: ${({ theme }) => theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  padding: 0;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
-`;
-
-const StyledTableRow = styled.tr.withConfig({
-  displayName: 'StyledTableRow',
-  componentId: 'StyledTableRow',
-})`
-  &:nth-child(odd) {
-    background-color: ${({ theme }) => theme.colors.background.primary};
-  }
-
-  &:nth-child(even) {
-    background-color: ${({ theme }) => theme.colors.background.secondary};
-  }
-`;
-
-const StyledTableCell = styled.td.withConfig({
-  displayName: 'StyledTableCell',
-  componentId: 'StyledTableCell',
-})`
-  padding: ${({ theme, $density }) => ($density === 'comfortable' ? theme.spacing.sm : theme.spacing.xs)}px
-    ${({ theme }) => theme.spacing.sm}px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  vertical-align: middle;
-`;
-
 const StyledStatusBadge = styled.span.withConfig({
   displayName: 'StyledStatusBadge',
   componentId: 'StyledStatusBadge',
@@ -498,12 +420,6 @@ export {
   StyledBulkBar,
   StyledBulkInfo,
   StyledBulkActions,
-  StyledTableWrapper,
-  StyledTable,
-  StyledTableHeaderCell,
-  StyledSortButton,
-  StyledTableRow,
-  StyledTableCell,
   StyledStatusBadge,
   StyledRowActions,
   StyledActionButton,
@@ -520,3 +436,4 @@ export {
   StyledMoveButton,
   StyledSettingsActions,
 };
+

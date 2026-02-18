@@ -2,11 +2,12 @@
  * TenantListScreen - Web
  * Desktop/tablet renders a customizable table; mobile web renders compact cards.
  */
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Card,
   Checkbox,
+  DataTable,
   EmptyState,
   ErrorState,
   ErrorStateSizes,
@@ -51,15 +52,9 @@ import {
   StyledSettingsBody,
   StyledSettingsSection,
   StyledSettingsTitle,
-  StyledSortButton,
   StyledStateStack,
   StyledStatusBadge,
-  StyledTable,
-  StyledTableCell,
-  StyledTableHeaderCell,
-  StyledTableRow,
   StyledTableSettingsButton,
-  StyledTableWrapper,
   StyledToolbar,
   StyledToolbarActions,
 } from './TenantListScreen.web.styles';
@@ -79,11 +74,6 @@ const resolveTenantSlug = (tenant) => humanizeIdentifier(tenant?.slug);
 const resolveTenantHumanId = (tenant) => humanizeIdentifier(
   tenant?.human_friendly_id ?? tenant?.humanFriendlyId
 );
-
-const resolveSortIndicator = (activeField, activeDirection, field) => {
-  if (activeField !== field) return '';
-  return activeDirection === 'desc' ? 'v' : '^';
-};
 
 const resolveColumnLabel = (t, column) => {
   if (column === 'name') return t('tenant.list.columnName');
@@ -231,6 +221,96 @@ const TenantListScreenWeb = () => {
       {t('common.retry')}
     </Button>
   ) : undefined;
+
+  const tableColumns = useMemo(
+    () => visibleColumns.map((column) => ({
+      id: column,
+      label: resolveColumnLabel(t, column),
+      sortable: true,
+      sortLabel: t('tenant.list.sortBy', { field: resolveColumnLabel(t, column) }),
+      renderCell: (tenant) => {
+        const value = resolveTenantCell(t, tenant, column);
+        if (column === 'status' && value && typeof value === 'object') {
+          return <StyledStatusBadge $tone={value.tone}>{value.label}</StyledStatusBadge>;
+        }
+        return value;
+      },
+      getCellTitle: (tenant) => {
+        const value = resolveTenantCell(t, tenant, column);
+        return typeof value === 'string' ? value : undefined;
+      },
+    })),
+    [visibleColumns, t]
+  );
+
+  const tableSelection = useMemo(() => {
+    if (!onBulkDelete) return undefined;
+    return {
+      enabled: true,
+      allSelected: allPageSelected,
+      onToggleAll: (checked) => onTogglePageSelection(Boolean(checked)),
+      isRowSelected: (tenant) => Boolean(tenant?.id) && selectedTenantIds.includes(tenant.id),
+      onToggleRow: (tenant) => onToggleTenantSelection(tenant?.id),
+      selectAllLabel: t('tenant.list.selectPage'),
+      selectRowLabel: (tenant) => t('tenant.list.selectTenant', {
+        name: resolveTenantTitle(t, tenant),
+      }),
+      headerCheckboxTestId: 'tenant-select-page',
+      rowCheckboxTestIdPrefix: 'tenant-select',
+    };
+  }, [
+    onBulkDelete,
+    allPageSelected,
+    onTogglePageSelection,
+    selectedTenantIds,
+    onToggleTenantSelection,
+    t,
+  ]);
+
+  const handleTableRowPress = useCallback((tenant) => {
+    if (!tenant?.id) return;
+    onTenantPress(tenant.id);
+  }, [onTenantPress]);
+
+  const renderTableRowActions = useCallback((tenant) => {
+    const tenantId = tenant?.id;
+    if (!tenantId) return null;
+
+    return (
+      <StyledRowActions>
+        <StyledActionButton
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onTenantPress(tenantId);
+          }}
+          data-testid={`tenant-view-${tenantId}`}
+        >
+          {t('tenant.list.view')}
+        </StyledActionButton>
+
+        {onEdit ? (
+          <StyledActionButton
+            type="button"
+            onClick={(event) => onEdit(tenantId, event)}
+            data-testid={`tenant-edit-${tenantId}`}
+          >
+            {t('tenant.list.edit')}
+          </StyledActionButton>
+        ) : null}
+
+        {onDelete ? (
+          <StyledDangerActionButton
+            type="button"
+            onClick={(event) => onDelete(tenantId, event)}
+            data-testid={`tenant-delete-${tenantId}`}
+          >
+            {t('common.remove')}
+          </StyledDangerActionButton>
+        ) : null}
+      </StyledRowActions>
+    );
+  }, [onTenantPress, onEdit, onDelete, t]);
 
   return (
     <StyledContainer role="main" aria-label={t('tenant.list.title')}>
@@ -454,113 +534,28 @@ const TenantListScreenWeb = () => {
             {hasNoResults ? noResultsComponent : null}
 
             {showList && isTableMode ? (
-              <StyledTableWrapper>
-                <StyledTable data-testid="tenant-table">
-                  <thead>
-                    <tr>
-                      {onBulkDelete ? (
-                        <StyledTableHeaderCell>
-                          <Checkbox
-                            checked={allPageSelected}
-                            onChange={(checked) => onTogglePageSelection(Boolean(checked))}
-                            accessibilityLabel={t('tenant.list.selectPage')}
-                            testID="tenant-select-page"
-                          />
-                        </StyledTableHeaderCell>
-                      ) : null}
-
-                      {visibleColumns.map((column) => (
-                        <StyledTableHeaderCell key={column}>
-                          <StyledSortButton
-                            type="button"
-                            onClick={() => onSort(column)}
-                            aria-label={t('tenant.list.sortBy', { field: resolveColumnLabel(t, column) })}
-                            data-testid={`tenant-sort-${column}`}
-                          >
-                            {resolveColumnLabel(t, column)}
-                            {resolveSortIndicator(sortField, sortDirection, column)}
-                          </StyledSortButton>
-                        </StyledTableHeaderCell>
-                      ))}
-
-                      <StyledTableHeaderCell>{t('tenant.list.columnActions')}</StyledTableHeaderCell>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {rows.map((tenant, index) => {
-                      const tenantId = tenant?.id;
-                      const itemKey = tenantId ?? tenant?.slug ?? `tenant-${index}`;
-                      return (
-                        <StyledTableRow key={itemKey}>
-                          {onBulkDelete ? (
-                            <StyledTableCell $density={density}>
-                              <Checkbox
-                                checked={Boolean(tenantId) && selectedTenantIds.includes(tenantId)}
-                                onChange={() => onToggleTenantSelection(tenantId)}
-                                accessibilityLabel={t('tenant.list.selectTenant', {
-                                  name: resolveTenantTitle(t, tenant),
-                                })}
-                                testID={`tenant-select-${itemKey}`}
-                              />
-                            </StyledTableCell>
-                          ) : null}
-
-                          {visibleColumns.map((column) => {
-                            const value = resolveTenantCell(t, tenant, column);
-                            if (column === 'status' && value && typeof value === 'object') {
-                              return (
-                                <StyledTableCell key={`${itemKey}-${column}`} $density={density}>
-                                  <StyledStatusBadge $tone={value.tone}>{value.label}</StyledStatusBadge>
-                                </StyledTableCell>
-                              );
-                            }
-                            return (
-                              <StyledTableCell key={`${itemKey}-${column}`} $density={density}>
-                                {value}
-                              </StyledTableCell>
-                            );
-                          })}
-
-                          <StyledTableCell $density={density}>
-                            <StyledRowActions>
-                              {tenantId ? (
-                                <StyledActionButton
-                                  type="button"
-                                  onClick={() => onTenantPress(tenantId)}
-                                  data-testid={`tenant-view-${itemKey}`}
-                                >
-                                  {t('tenant.list.view')}
-                                </StyledActionButton>
-                              ) : null}
-
-                              {onEdit && tenantId ? (
-                                <StyledActionButton
-                                  type="button"
-                                  onClick={(event) => onEdit(tenantId, event)}
-                                  data-testid={`tenant-edit-${itemKey}`}
-                                >
-                                  {t('tenant.list.edit')}
-                                </StyledActionButton>
-                              ) : null}
-
-                              {onDelete && tenantId ? (
-                                <StyledDangerActionButton
-                                  type="button"
-                                  onClick={(event) => onDelete(tenantId, event)}
-                                  data-testid={`tenant-delete-${itemKey}`}
-                                >
-                                  {t('common.remove')}
-                                </StyledDangerActionButton>
-                              ) : null}
-                            </StyledRowActions>
-                          </StyledTableCell>
-                        </StyledTableRow>
-                      );
-                    })}
-                  </tbody>
-                </StyledTable>
-              </StyledTableWrapper>
+              <DataTable
+                columns={tableColumns}
+                rows={rows}
+                getRowKey={(tenant, index) => tenant?.id ?? tenant?.slug ?? `tenant-${index}`}
+                rowDensity={density}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={onSort}
+                selection={tableSelection}
+                renderRowActions={renderTableRowActions}
+                rowActionsLabel={t('tenant.list.columnActions')}
+                onRowPress={handleTableRowPress}
+                virtualization={{
+                  enabled: true,
+                  threshold: 80,
+                  rowHeight: density === 'comfortable' ? 48 : 40,
+                  maxHeight: 560,
+                  overscan: 10,
+                }}
+                minWidth={720}
+                testID="tenant-table"
+              />
             ) : null}
 
             {showList && !isTableMode ? (
@@ -731,3 +726,4 @@ const TenantListScreenWeb = () => {
 };
 
 export default TenantListScreenWeb;
+

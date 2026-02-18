@@ -67,6 +67,7 @@ export { default as Chip } from './display/Chip';
 export { default as Card } from './display/Card';
 export { default as List } from './display/List';
 export { default as ListItem } from './display/ListItem';
+export { default as DataTable } from './display/DataTable';
 export { default as Accordion } from './display/Accordion';
 
 // Layout Components
@@ -84,3 +85,4 @@ export { default as ErrorState } from './states/ErrorState';
 export { SIZES as ErrorStateSizes } from './states/ErrorState';
 export { default as OfflineState } from './states/OfflineState';
 export { SIZES as OfflineStateSizes } from './states/OfflineState';
+
