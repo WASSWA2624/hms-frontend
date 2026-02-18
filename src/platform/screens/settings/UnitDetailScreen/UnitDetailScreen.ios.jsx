@@ -17,7 +17,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -138,10 +138,22 @@ const UnitDetailScreenIOS = () => {
 
   const createdAt = formatDateTime(unit.created_at, locale);
   const updatedAt = formatDateTime(unit.updated_at, locale);
-  const name = unit?.name ?? '';
-  const tenantId = unit?.tenant_id ?? '';
-  const facilityId = unit?.facility_id ?? '';
-  const departmentId = unit?.department_id ?? '';
+  const name = humanizeIdentifier(unit?.name) || t('unit.detail.nameFallback');
+  const tenantLabel = humanizeIdentifier(
+    unit?.tenant_name
+    ?? unit?.tenant?.name
+    ?? unit?.tenant_label
+  );
+  const facilityLabel = humanizeIdentifier(
+    unit?.facility_name
+    ?? unit?.facility?.name
+    ?? unit?.facility_label
+  );
+  const departmentLabel = humanizeIdentifier(
+    unit?.department_name
+    ?? unit?.department?.name
+    ?? unit?.department_label
+  );
   const isActive = unit?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -186,40 +198,32 @@ const UnitDetailScreenIOS = () => {
         <Card variant="outlined" accessibilityLabel={t('unit.detail.title')} testID="unit-detail-card">
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('unit.detail.idLabel')}</Text>
-              <Text variant="body" testID="unit-detail-id">
-                {unit.id}
+              <Text variant="label">{t('unit.detail.nameLabel')}</Text>
+              <Text variant="body" testID="unit-detail-name">
+                {name}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('unit.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="unit-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {facilityLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('unit.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="unit-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {departmentId ? (
+            {departmentLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('unit.detail.departmentLabel')}</Text>
                 <Text variant="body" testID="unit-detail-department">
-                  {departmentId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('unit.detail.nameLabel')}</Text>
-                <Text variant="body" testID="unit-detail-name">
-                  {name}
+                  {departmentLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}

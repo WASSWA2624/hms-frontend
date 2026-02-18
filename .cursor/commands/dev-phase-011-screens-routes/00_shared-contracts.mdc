@@ -77,7 +77,7 @@ For any selected step that reads list data, dashboard aggregates, or paginated r
 
 ## Mobile UI Parity and Compact UX Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
+UI applicability note for the contracts in this block: unless a section states otherwise, each applies to any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling).
 - Android and iOS must visually and behaviorally match mobile web for layout density, typography scale, component sizing, spacing, and interaction patterns.
 - Use shared-first implementations by default. Platform-specific override files are allowed only for hard platform/accessibility constraints and must preserve parity with mobile web.
 - Keep UI simple, modern, compact, stable, and fully responsive across phone, tablet, and web breakpoints.
@@ -122,7 +122,6 @@ For any selected step that touches UI, onboarding, auth, or context selection:
 
 ## Total UI Component and Sub-Component Compliance Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Review every impacted UI component and nested sub-component end-to-end, including conditional branches (tabs, modals, drawers, tables, cards, forms, field groups, action bars, empty/loading/error states).
 - Assess each element for full compliance with this UX target: elegant, intuitive, modern, simple, self-explanatory, role-aware, minimal, quick to use, and chronologically organized.
 - If any element is non-compliant, redesign it before completion (information hierarchy, interaction flow, copy, control placement, visual density, and component composition).
@@ -134,7 +133,6 @@ For any selected step that touches UI (components, screens, layouts, route prese
 ---
 ## Novice-First UX and Navigation Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Design for first-time users with minimal or no prior training; every primary action must be obvious from context.
 - Keep user journeys chronological and self-explanatory from start to completion; every next step must be clearly signposted.
 - Make navigation between related screens easy and predictable with consistent placement, labels, and back/next patterns.
@@ -153,7 +151,6 @@ For any selected step that touches UI (components, screens, layouts, route prese
 
 ## Screen-Specific Title and In-Screen Guide Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Every active route/screen must present a screen-specific primary title and a screen-specific in-app guide/help payload.
 - Any screen update (layout, controls, actions, copy, behavior, state handling, or workflow order) must include a guide/help review and update in the same change set so guidance stays accurate.
 - If a screen change does not require guide/help wording changes, explicitly confirm guide/help validation in the compliance report for that step.
@@ -167,7 +164,6 @@ For any selected step that touches UI (components, screens, layouts, route prese
 ---
 ## User-Friendly Errors and Recovery Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Display errors in plain language that users can understand without technical training.
 - Do not use ambiguous generic text such as "Something went wrong" or "Server error" without context.
 - Prefer specific, user-centered messages (for example, "We could not load facility data right now").
@@ -182,7 +178,6 @@ For any selected step that touches UI (components, screens, layouts, route prese
 
 ## Interconnected Functionality Coordination Contract (Mandatory)
 
-For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
 - Treat related screens and features as one coordinated workflow, not isolated pages.
 - Verify upstream and downstream dependencies so updates in one area correctly reflect in all linked areas.
 - Keep identifiers, statuses, timestamps, ownership fields, and state transitions consistent across connected modules.

@@ -68,6 +68,7 @@ const UnitFormScreenIOS = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -249,7 +250,7 @@ const UnitFormScreenIOS = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('unit.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('unit.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}

@@ -17,7 +17,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -27,7 +27,6 @@ import {
   StyledActions,
 } from './UnitDetailScreen.android.styles';
 import useUnitDetailScreen from './useUnitDetailScreen';
-import { humanizeIdentifier } from '@utils';
 
 const UnitDetailScreenAndroid = () => {
   const { t, locale } = useI18n();

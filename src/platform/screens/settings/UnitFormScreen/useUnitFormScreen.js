@@ -13,8 +13,10 @@ import {
   useUnit,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 255;
+const MAX_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -109,35 +111,51 @@ const useUnitFormScreen = () => {
 
   const tenantOptions = useMemo(() => {
     if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-      return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+      return [{ value: normalizedScopedTenantId, label: t('unit.form.currentTenantLabel') }];
     }
-    return tenantItems.map((tenant) => ({
+    return tenantItems.map((tenant, index) => ({
       value: tenant.id,
-      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+      label: humanizeIdentifier(tenant.name)
+        || humanizeIdentifier(tenant.slug)
+        || t('unit.form.tenantOptionFallback', { index: index + 1 }),
     }));
-  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]);
+  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, t]);
 
   const facilityOptions = useMemo(() => {
-    const options = facilityItems.map((facility) => ({
+    const options = facilityItems.map((facility, index) => ({
       value: facility.id,
-      label: facility.name ?? facility.id ?? '',
+      label: humanizeIdentifier(facility.name)
+        || humanizeIdentifier(facility.slug)
+        || t('unit.form.facilityOptionFallback', { index: index + 1 }),
     }));
     if (facilityId && !options.some((option) => option.value === facilityId)) {
-      return [{ value: facilityId, label: facilityId }, ...options];
+      const fallbackLabel = humanizeIdentifier(
+        unit?.facility_name
+        ?? unit?.facility?.name
+        ?? unit?.facility_label
+      ) || t('unit.form.currentFacilityLabel');
+      return [{ value: facilityId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId]);
+  }, [facilityItems, facilityId, unit, t]);
 
   const departmentOptions = useMemo(() => {
-    const options = departmentItems.map((department) => ({
+    const options = departmentItems.map((department, index) => ({
       value: department.id,
-      label: department.name ?? department.id ?? '',
+      label: humanizeIdentifier(department.name)
+        || humanizeIdentifier(department.slug)
+        || t('unit.form.departmentOptionFallback', { index: index + 1 }),
     }));
     if (departmentId && !options.some((option) => option.value === departmentId)) {
-      return [{ value: departmentId, label: departmentId }, ...options];
+      const fallbackLabel = humanizeIdentifier(
+        unit?.department_name
+        ?? unit?.department?.name
+        ?? unit?.department_label
+      ) || t('unit.form.currentDepartmentLabel');
+      return [{ value: departmentId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [departmentItems, departmentId]);
+  }, [departmentItems, departmentId, unit, t]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -182,7 +200,7 @@ const useUnitFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 100 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
   }, [
     isResolved,
     canManageUnits,
@@ -236,7 +254,7 @@ const useUnitFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 100, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [isResolved, canManageUnits, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -247,7 +265,7 @@ const useUnitFormScreen = () => {
       return;
     }
     const trimmedFacility = String(facilityId ?? '').trim();
-    const params = { page: 1, limit: 100, tenant_id: trimmedTenant };
+    const params = { page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant };
     if (trimmedFacility) {
       params.facility_id = trimmedFacility;
     }
@@ -379,10 +397,27 @@ const useUnitFormScreen = () => {
   }, [isEdit, trimmedTenantId, t]);
 
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    return tenantOptions.find((option) => option.value === trimmedTenantId)?.label || '';
+  }, [tenantOptions, trimmedTenantId]);
+  const unitTenantLabel = useMemo(
+    () => humanizeIdentifier(
+      unit?.tenant_name
+      ?? unit?.tenant?.name
+      ?? unit?.tenant_label
+    ),
+    [unit]
+  );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('unit.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || unitTenantLabel || t('unit.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, selectedTenantLabel, unitTenantLabel, isTenantLocked, lockedTenantDisplay, t]);
 
   const isSubmitDisabled =
     !isResolved ||
@@ -477,21 +512,21 @@ const useUnitFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 100 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: 100, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [tenantId, listFacilities, resetFacilities]);
 
   const handleRetryDepartments = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetDepartments();
     if (!trimmedTenant) return;
-    const params = { page: 1, limit: 100, tenant_id: trimmedTenant };
+    const params = { page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant };
     const trimmedFacility = String(facilityId ?? '').trim();
     if (trimmedFacility) params.facility_id = trimmedFacility;
     listDepartments(params);
@@ -534,6 +569,7 @@ const useUnitFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,
