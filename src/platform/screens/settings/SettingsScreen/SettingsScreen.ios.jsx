@@ -5,6 +5,8 @@
 import React, { useState } from 'react';
 import { Modal } from '@platform/components';
 import { useI18n } from '@hooks';
+import { SETTINGS_TABS } from './types';
+import resolveSettingsScreenCopy from './resolveScreenCopy';
 import {
   StyledContainer,
   StyledContent,
@@ -19,22 +21,23 @@ import {
   StyledTitle,
 } from './SettingsScreen.ios.styles';
 
-const SettingsScreenIOS = ({ children }) => {
+const SettingsScreenIOS = ({ children, screenKey = SETTINGS_TABS.GENERAL }) => {
   const { t } = useI18n();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const screenCopy = resolveSettingsScreenCopy(t, screenKey);
 
   return (
-    <StyledContainer testID="settings-screen" accessibilityLabel={t('settings.screen.label')}>
+    <StyledContainer testID="settings-screen" accessibilityLabel={screenCopy.screenTitle}>
       <StyledContent>
         <StyledHeader>
           <StyledHeaderCopy>
-            <StyledTitle>{t('settings.screen.title')}</StyledTitle>
-            <StyledDescription>{t('settings.screen.description')}</StyledDescription>
+            <StyledTitle>{screenCopy.screenTitle}</StyledTitle>
+            <StyledDescription>{screenCopy.screenDescription}</StyledDescription>
           </StyledHeaderCopy>
           <StyledHelpButton
             accessibilityRole="button"
-            accessibilityLabel={t('settings.screen.helpLabel')}
-            accessibilityHint={t('settings.screen.helpTooltip')}
+            accessibilityLabel={screenCopy.helpLabel}
+            accessibilityHint={screenCopy.helpTooltip}
             testID="settings-screen-help-trigger"
             onPress={() => setIsHelpOpen(true)}
           >
@@ -45,15 +48,15 @@ const SettingsScreenIOS = ({ children }) => {
           visible={isHelpOpen}
           onDismiss={() => setIsHelpOpen(false)}
           size="small"
-          accessibilityLabel={t('settings.screen.helpTitle')}
-          accessibilityHint={t('settings.screen.helpBody')}
+          accessibilityLabel={screenCopy.helpTitle}
+          accessibilityHint={screenCopy.helpBody}
           testID="settings-screen-help-modal"
         >
-          <StyledHelpModalTitle>{t('settings.screen.helpTitle')}</StyledHelpModalTitle>
-          <StyledHelpModalBody>{t('settings.screen.helpBody')}</StyledHelpModalBody>
-          <StyledHelpModalItem>{`- ${t('settings.screen.helpList.sequence')}`}</StyledHelpModalItem>
-          <StyledHelpModalItem>{`- ${t('settings.screen.helpList.context')}`}</StyledHelpModalItem>
-          <StyledHelpModalItem>{`- ${t('settings.screen.helpList.access')}`}</StyledHelpModalItem>
+          <StyledHelpModalTitle>{screenCopy.helpTitle}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{screenCopy.helpBody}</StyledHelpModalBody>
+          {screenCopy.helpItems.map((item) => (
+            <StyledHelpModalItem key={item}>{`- ${item}`}</StyledHelpModalItem>
+          ))}
         </Modal>
         {children}
       </StyledContent>

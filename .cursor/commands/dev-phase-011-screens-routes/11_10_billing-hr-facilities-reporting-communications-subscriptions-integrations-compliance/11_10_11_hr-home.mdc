@@ -1,5 +1,5 @@
 Step file for **11.10.11** - HR home.
-Load `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance_shared-contracts.mdc` first.
+Load `11_10_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.10.11`
@@ -19,7 +19,7 @@ Load `11_10_billing-hr-facilities-reporting-communications-subscriptions-integra
 - `src/__tests__/app/(main)/tier-10-routes.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `11_10_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.

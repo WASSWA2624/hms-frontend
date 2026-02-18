@@ -20,7 +20,6 @@ import {
 import useGeneralSettingsPanel from './useGeneralSettingsPanel';
 import {
   StyledPanel,
-  StyledHeader,
   StyledSection,
   StyledSectionHeader,
   StyledCard,
@@ -83,15 +82,6 @@ const GeneralSettingsPanelAndroid = () => {
 
   return (
     <StyledPanel testID="general-settings-panel" accessibilityLabel={t('settings.tabs.general')}>
-      <StyledHeader>
-        <Text variant="h1" accessibilityRole="header">
-          {t('settings.general.title')}
-        </Text>
-        <Text variant="body" color="text.secondary">
-          {t('settings.general.description')}
-        </Text>
-      </StyledHeader>
-
       {isLoading ? (
         <LoadingSpinner testID="general-settings-loading" accessibilityLabel={t('common.loading')} />
       ) : null}

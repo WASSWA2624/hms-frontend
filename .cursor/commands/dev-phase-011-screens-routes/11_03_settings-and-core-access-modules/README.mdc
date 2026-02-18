@@ -1,7 +1,7 @@
 Phase 011 Tier 3 is now folderized for step-level implementation clarity.
 
 Load order:
-1. `11_03_settings-and-core-access-modules_shared-contracts.mdc`
+1. `11_03_shared-contracts.mdc`
 2. One or more step files (`11_03_XX_*.mdc`)
 3. If Tier 3 is selected as a whole, execute all steps in numeric order.
 

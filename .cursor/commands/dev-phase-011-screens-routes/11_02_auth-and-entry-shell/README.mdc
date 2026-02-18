@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_02_auth-and-entry-shell.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_02_auth-and-entry-shell_shared-contracts.mdc`
+1. `11_02_shared-contracts.mdc`
 2. One or more step files (`11_02_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 

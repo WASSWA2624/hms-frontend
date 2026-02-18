@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_05_scheduling-availability-and-queues.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_05_scheduling-availability-and-queues_shared-contracts.mdc`
+1. `11_05_shared-contracts.mdc`
 2. One or more step files (`11_05_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 

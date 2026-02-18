@@ -20,9 +20,6 @@ import {
 import useGeneralSettingsPanel from './useGeneralSettingsPanel';
 import {
   StyledPanel,
-  StyledHeader,
-  StyledHeaderTitle,
-  StyledHeaderSubtitle,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
@@ -89,11 +86,6 @@ const GeneralSettingsPanelWeb = () => {
 
   return (
     <StyledPanel testID="general-settings-panel" role="region" aria-label={t('settings.tabs.general')}>
-      <StyledHeader>
-        <StyledHeaderTitle>{t('settings.general.title')}</StyledHeaderTitle>
-        <StyledHeaderSubtitle>{t('settings.general.description')}</StyledHeaderSubtitle>
-      </StyledHeader>
-
       {isLoading ? (
         <LoadingSpinner testID="general-settings-loading" accessibilityLabel={t('common.loading')} />
       ) : null}

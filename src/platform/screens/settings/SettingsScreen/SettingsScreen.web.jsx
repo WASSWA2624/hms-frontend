@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 import { Icon, Modal, Tooltip } from '@platform/components';
 import { useI18n } from '@hooks';
+import { SETTINGS_TABS } from './types';
+import resolveSettingsScreenCopy from './resolveScreenCopy';
 import {
   StyledContainer,
   StyledContent,
@@ -21,28 +23,29 @@ import {
   StyledTitle,
 } from './SettingsScreen.web.styles';
 
-const SettingsScreenWeb = ({ children }) => {
+const SettingsScreenWeb = ({ children, screenKey = SETTINGS_TABS.GENERAL }) => {
   const { t } = useI18n();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const screenCopy = resolveSettingsScreenCopy(t, screenKey);
 
   return (
     <StyledContainer
       testID="settings-screen"
       data-testid="settings-screen"
       role="main"
-      aria-label={t('settings.screen.label')}
+      aria-label={screenCopy.screenTitle}
     >
       <StyledContent>
         <StyledHeader>
           <StyledHeaderCopy>
-            <StyledTitle>{t('settings.screen.title')}</StyledTitle>
-            <StyledDescription>{t('settings.screen.description')}</StyledDescription>
+            <StyledTitle>{screenCopy.screenTitle}</StyledTitle>
+            <StyledDescription>{screenCopy.screenDescription}</StyledDescription>
           </StyledHeaderCopy>
           <StyledHelpAnchor>
             <StyledHelpButton
               type="button"
-              aria-label={t('settings.screen.helpLabel')}
+              aria-label={screenCopy.helpLabel}
               aria-describedby="settings-screen-help-tooltip"
               testID="settings-screen-help-trigger"
               data-testid="settings-screen-help-trigger"
@@ -58,7 +61,7 @@ const SettingsScreenWeb = ({ children }) => {
               id="settings-screen-help-tooltip"
               visible={isTooltipVisible && !isHelpOpen}
               position="bottom"
-              text={t('settings.screen.helpTooltip')}
+              text={screenCopy.helpTooltip}
               testID="settings-screen-help-tooltip"
             />
           </StyledHelpAnchor>
@@ -67,16 +70,16 @@ const SettingsScreenWeb = ({ children }) => {
           visible={isHelpOpen}
           onDismiss={() => setIsHelpOpen(false)}
           size="small"
-          accessibilityLabel={t('settings.screen.helpTitle')}
-          accessibilityHint={t('settings.screen.helpBody')}
+          accessibilityLabel={screenCopy.helpTitle}
+          accessibilityHint={screenCopy.helpBody}
           testID="settings-screen-help-modal"
         >
-          <StyledHelpModalTitle>{t('settings.screen.helpTitle')}</StyledHelpModalTitle>
-          <StyledHelpModalBody>{t('settings.screen.helpBody')}</StyledHelpModalBody>
+          <StyledHelpModalTitle>{screenCopy.helpTitle}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{screenCopy.helpBody}</StyledHelpModalBody>
           <StyledHelpChecklist>
-            <StyledHelpItem>{t('settings.screen.helpList.sequence')}</StyledHelpItem>
-            <StyledHelpItem>{t('settings.screen.helpList.context')}</StyledHelpItem>
-            <StyledHelpItem>{t('settings.screen.helpList.access')}</StyledHelpItem>
+            {screenCopy.helpItems.map((item) => (
+              <StyledHelpItem key={item}>{item}</StyledHelpItem>
+            ))}
           </StyledHelpChecklist>
         </Modal>
         {children}

@@ -1,5 +1,5 @@
 Step file for **11.8.15** - PACS links.
-Load `11_08_diagnostics-lab-and-radiology_shared-contracts.mdc` first.
+Load `11_08_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.8.15`
@@ -22,7 +22,7 @@ Load `11_08_diagnostics-lab-and-radiology_shared-contracts.mdc` first.
 - `src/__tests__/app/(main)/diagnostics-routes.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `11_08_diagnostics-lab-and-radiology_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `11_08_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.

@@ -17,6 +17,17 @@ const darkColors = {
     primary: '#0F1115',
     secondary: '#171A1F',
     tertiary: '#20242B',
+    surface: '#171A1F',
+  },
+  surface: {
+    primary: '#171A1F',
+    secondary: '#20242B',
+    tertiary: '#2A3039',
+  },
+  border: {
+    light: '#2E3540',
+    medium: '#3D4652',
+    strong: '#4FA3FF',
   },
   text: {
     primary: '#F3F3F3',

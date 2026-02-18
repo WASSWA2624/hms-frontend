@@ -1,5 +1,5 @@
 Step file for **11.1.6** - Welcome and activation summary.
-Load `11_01_public-entry-and-onboarding_shared-contracts.mdc` first.
+Load `11_01_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.1.6`
@@ -21,7 +21,7 @@ Load `11_01_public-entry-and-onboarding_shared-contracts.mdc` first.
 - `src/__tests__/app/onboarding-layout-guard.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `11_01_public-entry-and-onboarding_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `11_01_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.

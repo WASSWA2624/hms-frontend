@@ -4,6 +4,33 @@
  * File: colors.js
  */
 
+const background = {
+  primary: '#FFFFFF',
+  secondary: '#F2F2F7',
+  tertiary: '#E5E5EA',
+  // Neutral surface for controls/cards rendered on top of the page background.
+  surface: '#FFFFFF',
+};
+
+const surface = {
+  primary: '#FFFFFF',
+  secondary: '#F2F2F7',
+  tertiary: '#E5E5EA',
+};
+
+const border = {
+  light: '#E5E5EA',
+  medium: '#D1D1D6',
+  strong: '#0078D4',
+};
+
+const text = {
+  primary: '#000000',
+  secondary: '#3C3C43',
+  tertiary: '#8E8E93',
+  inverse: '#FFFFFF',
+};
+
 export default {
   primary: '#0078D4',
   onPrimary: '#FFFFFF',
@@ -11,17 +38,10 @@ export default {
   success: '#34C759',
   warning: '#FF9500',
   error: '#FF3B30',
-  background: {
-    primary: '#FFFFFF',
-    secondary: '#F2F2F7',
-    tertiary: '#E5E5EA',
-  },
-  text: {
-    primary: '#000000',
-    secondary: '#3C3C43',
-    tertiary: '#8E8E93',
-    inverse: '#FFFFFF',
-  },
+  background,
+  surface,
+  border,
+  text,
   // Convenience semantic aliases used throughout UI (avoid hardcoding in components)
   textPrimary: '#000000',
   textSecondary: '#3C3C43',

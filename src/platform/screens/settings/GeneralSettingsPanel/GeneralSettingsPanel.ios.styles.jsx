@@ -110,9 +110,9 @@ export const StyledAccessLinkButton = styled.Pressable.withConfig({
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border-width: 1px;
   border-color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary : theme.colors.background.tertiary};
+    $active ? theme.colors.border.strong : theme.colors.border.light};
   background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.background.primary : theme.colors.background.secondary};
+    $active ? theme.colors.background.primary : theme.colors.background.surface};
   align-items: center;
   justify-content: center;
 `;
