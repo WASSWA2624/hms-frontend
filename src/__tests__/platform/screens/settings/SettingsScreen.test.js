@@ -7,6 +7,7 @@ const { render } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
 const { Text } = require('react-native');
 const { useI18n } = require('@hooks');
+const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
@@ -15,15 +16,6 @@ jest.mock('@hooks', () => ({
 const SettingsScreenWeb = require('@platform/screens/settings/SettingsScreen/SettingsScreen.web').default;
 const SettingsScreenAndroid = require('@platform/screens/settings/SettingsScreen/SettingsScreen.android').default;
 const SettingsScreenIOS = require('@platform/screens/settings/SettingsScreen/SettingsScreen.ios').default;
-
-const lightTheme = {
-  colors: {
-    background: { primary: '#ffffff' },
-  },
-  spacing: {
-    lg: 24,
-  },
-};
 
 const renderWithTheme = (component) => render(
   <ThemeProvider theme={lightTheme}>
@@ -34,6 +26,15 @@ const renderWithTheme = (component) => render(
 const mockT = (key) => {
   const messages = {
     'settings.screen.label': 'Settings screen',
+    'settings.screen.title': 'Settings',
+    'settings.screen.description': 'Manage setup',
+    'settings.screen.helpLabel': 'Open settings guidance',
+    'settings.screen.helpTooltip': 'Open setup guidance',
+    'settings.screen.helpTitle': 'How to use settings',
+    'settings.screen.helpBody': 'Follow this order',
+    'settings.screen.helpList.sequence': 'Sequence',
+    'settings.screen.helpList.context': 'Context',
+    'settings.screen.helpList.access': 'Access',
   };
   return messages[key] || key;
 };
@@ -51,6 +52,7 @@ describe('SettingsScreen', () => {
       </SettingsScreenWeb>
     );
     expect(getByTestId('settings-screen')).toBeTruthy();
+    expect(getByTestId('settings-screen-help-trigger')).toBeTruthy();
     expect(getByText('Settings content')).toBeTruthy();
   });
 
@@ -61,6 +63,7 @@ describe('SettingsScreen', () => {
       </SettingsScreenAndroid>
     );
     expect(getByTestId('settings-screen')).toBeTruthy();
+    expect(getByTestId('settings-screen-help-trigger')).toBeTruthy();
     expect(getByText('Settings content')).toBeTruthy();
   });
 
@@ -71,6 +74,7 @@ describe('SettingsScreen', () => {
       </SettingsScreenIOS>
     );
     expect(getByTestId('settings-screen')).toBeTruthy();
+    expect(getByTestId('settings-screen-help-trigger')).toBeTruthy();
     expect(getByText('Settings content')).toBeTruthy();
   });
 });

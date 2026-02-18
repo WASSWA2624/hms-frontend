@@ -8,6 +8,7 @@ export { default as UserProfileListScreen } from './UserProfileListScreen';
 export { default as UserProfileDetailScreen } from './UserProfileDetailScreen';
 export { default as RoleListScreen } from './RoleListScreen';
 export { default as RoleDetailScreen } from './RoleDetailScreen';
+export { default as RoleFormScreen } from './RoleFormScreen';
 export { default as PermissionListScreen } from './PermissionListScreen';
 export { default as PermissionDetailScreen } from './PermissionDetailScreen';
 export { default as RolePermissionListScreen } from './RolePermissionListScreen';

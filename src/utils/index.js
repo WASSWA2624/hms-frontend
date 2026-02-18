@@ -13,4 +13,5 @@ export * from './crudModel';
 export * from './phone';
 export * from './confirmAction';
 export * from './date';
+export * from './displayIdentity';
 

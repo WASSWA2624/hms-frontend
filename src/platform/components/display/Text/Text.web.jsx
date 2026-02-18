@@ -6,6 +6,9 @@
 // 1. External dependencies
 import React from 'react';
 
+// 3. Hooks and utilities (absolute imports via aliases)
+import { humanizeIdentifier } from '@utils';
+
 // 4. Styles (relative import - platform-specific)
 import { StyledText } from './Text.web.styles';
 
@@ -55,6 +58,11 @@ const TextWeb = ({
           : 'span';
 
   const resolvedRole = getAccessibilityRole(variant, accessibilityRole);
+  const shouldSanitizeDetailValue = typeof testID === 'string' && testID.includes('-detail-');
+  const isPrimitiveChild = typeof children === 'string' || typeof children === 'number';
+  const resolvedChildren = shouldSanitizeDetailValue && isPrimitiveChild
+    ? humanizeIdentifier(children)
+    : children;
   const hasExplicitRole = typeof accessibilityRole === 'string' && accessibilityRole.length > 0;
   const resolveRole = () => {
     if (!hasExplicitRole) return undefined;
@@ -82,7 +90,7 @@ const TextWeb = ({
       style={style}
       {...rest}
     >
-      {children}
+      {resolvedChildren}
     </StyledText>
   );
 };

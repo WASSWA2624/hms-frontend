@@ -380,6 +380,16 @@ describe('Text Component', () => {
       );
       expect(getByTestId('test-text')).toBeTruthy();
     });
+
+    it('should sanitize technical identifiers for detail test ids', () => {
+      const technicalId = '123e4567-e89b-12d3-a456-426614174000';
+      const { getByTestId, queryByText } = renderWebWithTheme(THEMES.light,
+        <Text testID="facility-detail-id">{technicalId}</Text>
+      );
+      const text = getByTestId('facility-detail-id');
+      expect(text.props.children).toBe('');
+      expect(queryByText(technicalId)).toBeFalsy();
+    });
   });
 
   describe('Constants Export', () => {

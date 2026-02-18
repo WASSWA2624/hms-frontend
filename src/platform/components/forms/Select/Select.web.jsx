@@ -4,13 +4,14 @@
  * File: Select.web.jsx
  */
 // 1. External dependencies
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 // 2. Platform components (from barrel file) - N/A for Select
 
 // 3. Hooks and utilities (absolute imports via aliases)
 import { useI18n } from '@hooks';
+import { humanizeDisplayText, humanizeIdentifier } from '@utils';
 
 // 4. Styles (relative import - platform-specific)
 import {
@@ -82,6 +83,17 @@ const SelectWeb = ({
   const { t } = useI18n();
   const defaultPlaceholder = placeholder || t('common.selectPlaceholder');
   const compactAttr = compact ? 'true' : 'false';
+  const sanitizedOptions = useMemo(
+    () => options.map((option) => {
+      const sanitizedLabel = humanizeDisplayText(option?.label);
+      const valueFallback = humanizeIdentifier(option?.value);
+      return {
+        ...option,
+        label: sanitizedLabel || valueFallback || t('common.notAvailable'),
+      };
+    }),
+    [options, t]
+  );
   
   const {
     open,
@@ -95,7 +107,7 @@ const SelectWeb = ({
     handleFocus,
     handleBlur,
     handleSelect,
-  } = useSelect({ value, options, onValueChange, required, validate });
+  } = useSelect({ value, options: sanitizedOptions, onValueChange, required, validate });
 
   const finalValidationState = validationState || (disabled ? VALIDATION_STATES.DISABLED : internalValidationState);
   const finalErrorMessage = errorMessage || internalErrorMessage;
@@ -224,9 +236,9 @@ const SelectWeb = ({
   const handleMenuKeyDown = (e) => {
     if (disabled) return;
 
-    const enabledOptions = options.filter((opt) => !opt.disabled);
+    const enabledOptions = sanitizedOptions.filter((opt) => !opt.disabled);
     const currentIndex = enabledOptions.findIndex((opt, idx) => {
-      const optionIndex = options.indexOf(opt);
+      const optionIndex = sanitizedOptions.indexOf(opt);
       return optionIndex === focusedIndex;
     });
 
@@ -234,7 +246,7 @@ const SelectWeb = ({
       e.preventDefault();
       const nextIndex = currentIndex < enabledOptions.length - 1 ? currentIndex + 1 : 0;
       const nextOption = enabledOptions[nextIndex];
-      const nextOptionIndex = options.indexOf(nextOption);
+      const nextOptionIndex = sanitizedOptions.indexOf(nextOption);
       setFocusedIndex(nextOptionIndex);
       if (menuRef.current) {
         const optionElement = testID
@@ -248,7 +260,7 @@ const SelectWeb = ({
       e.preventDefault();
       const prevIndex = currentIndex > 0 ? currentIndex - 1 : enabledOptions.length - 1;
       const prevOption = enabledOptions[prevIndex];
-      const prevOptionIndex = options.indexOf(prevOption);
+      const prevOptionIndex = sanitizedOptions.indexOf(prevOption);
       setFocusedIndex(prevOptionIndex);
       if (menuRef.current) {
         const optionElement = testID
@@ -315,7 +327,7 @@ const SelectWeb = ({
         >
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden="true" data-compact={compactAttr}>▾</StyledChevron>
+        <StyledChevron aria-hidden="true" data-compact={compactAttr}>v</StyledChevron>
       </StyledTrigger>
 
       {open
@@ -331,7 +343,7 @@ const SelectWeb = ({
             data-width={String(menuPosition.width)}
             data-max-height={String(menuPosition.maxHeight)}
           >
-            {options.map((opt, index) => (
+            {sanitizedOptions.map((opt, index) => (
               <StyledOption
                 key={`${String(opt.value)}-${index}`}
                 disabled={!!opt.disabled}

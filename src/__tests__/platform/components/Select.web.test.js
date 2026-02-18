@@ -255,6 +255,17 @@ describe('Select Component - Web', () => {
       fireEvent.click(disabledOption);
       expect(onValueChange).not.toHaveBeenCalled();
     });
+
+    it('should mask technical identifier labels on Web', () => {
+      const technicalId = '123e4567-e89b-12d3-a456-426614174000';
+      const maskedOptions = [{ label: technicalId, value: technicalId }];
+      const { getByText, queryByText } = renderWebWithProviders(
+        <SelectWeb testID="web-select" options={maskedOptions} value={technicalId} onValueChange={() => {}} />
+      );
+
+      expect(getByText('Not available')).toBeTruthy();
+      expect(queryByText(technicalId)).toBeFalsy();
+    });
   });
 });
 

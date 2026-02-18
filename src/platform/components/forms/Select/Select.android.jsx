@@ -4,10 +4,11 @@
  * File: Select.android.jsx
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Modal } from 'react-native';
 import useSelect from './useSelect';
 import { useI18n } from '@hooks';
+import { humanizeDisplayText, humanizeIdentifier } from '@utils';
 import { VALIDATION_STATES } from './types';
 import {
   StyledContainer,
@@ -70,6 +71,17 @@ const SelectAndroid = ({
 }) => {
   const { t } = useI18n();
   const defaultPlaceholder = placeholder || t('common.selectPlaceholder');
+  const sanitizedOptions = useMemo(
+    () => options.map((option) => {
+      const sanitizedLabel = humanizeDisplayText(option?.label);
+      const valueFallback = humanizeIdentifier(option?.value);
+      return {
+        ...option,
+        label: sanitizedLabel || valueFallback || t('common.notAvailable'),
+      };
+    }),
+    [options, t]
+  );
   
   const {
     open,
@@ -82,7 +94,7 @@ const SelectAndroid = ({
     handleFocus,
     handleBlur,
     handleSelect,
-  } = useSelect({ value, options, onValueChange, required, validate });
+  } = useSelect({ value, options: sanitizedOptions, onValueChange, required, validate });
 
   const finalValidationState = validationState || (disabled ? VALIDATION_STATES.DISABLED : internalValidationState);
   const finalErrorMessage = errorMessage || internalErrorMessage;
@@ -172,7 +184,7 @@ const SelectAndroid = ({
         <StyledTriggerText disabled={disabled} isPlaceholder={!selectedOption} $compact={compact}>
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden $compact={compact}>▾</StyledChevron>
+        <StyledChevron aria-hidden $compact={compact}>v</StyledChevron>
       </StyledTrigger>
 
       {displayHelperText ? (
@@ -189,7 +201,7 @@ const SelectAndroid = ({
             $maxHeight={menuPosition.maxHeight}
           >
             <StyledOptionList>
-              {options.map((opt, index) => (
+              {sanitizedOptions.map((opt, index) => (
                 <StyledOption
                   key={`${String(opt.value)}-${index}`}
                   disabled={!!opt.disabled}

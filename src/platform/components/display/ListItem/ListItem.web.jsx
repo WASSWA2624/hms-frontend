@@ -6,6 +6,10 @@
 // 1. External dependencies
 import React from 'react';
 
+// 3. Hooks and utilities (absolute imports via aliases)
+import { useI18n } from '@hooks';
+import { humanizeDisplayText } from '@utils';
+
 // 2. Platform components (direct import to avoid require cycle)
 import Avatar from '@platform/components/display/Avatar';
 
@@ -45,6 +49,11 @@ const ListItemWeb = ({
   style,
   ...rest
 }) => {
+  const { t } = useI18n();
+  const resolvedTitle = humanizeDisplayText(title) || (title ? t('common.notAvailable') : '');
+  const resolvedSubtitle = humanizeDisplayText(subtitle);
+  const resolvedAccessibilityLabel = humanizeDisplayText(accessibilityLabel) || resolvedTitle;
+
   const content = children || (
     <>
       {avatar && (
@@ -55,8 +64,8 @@ const ListItemWeb = ({
         />
       )}
       <StyledListItemContent>
-        {title && <StyledTitle variant="body">{title}</StyledTitle>}
-        {subtitle && <StyledSubtitle variant="caption">{subtitle}</StyledSubtitle>}
+        {resolvedTitle && <StyledTitle variant="body">{resolvedTitle}</StyledTitle>}
+        {resolvedSubtitle && <StyledSubtitle variant="caption">{resolvedSubtitle}</StyledSubtitle>}
       </StyledListItemContent>
       {actions && <StyledListItemActions>{actions}</StyledListItemActions>}
     </>
@@ -67,7 +76,7 @@ const ListItemWeb = ({
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : 'listitem'}
-      accessibilityLabel={accessibilityLabel || title}
+      accessibilityLabel={resolvedAccessibilityLabel}
       testID={testID}
       className={className}
       style={style}

@@ -15,6 +15,9 @@ describe('utils/index.js (barrel export)', () => {
     expect(utils.normalizeWhitespace).toBeDefined();
     expect(utils.safeJsonParse).toBeDefined();
     expect(utils.BANNER_VARIANTS).toBeDefined();
+    expect(utils.isTechnicalIdentifier).toBeDefined();
+    expect(utils.humanizeIdentifier).toBeDefined();
+    expect(utils.humanizeDisplayText).toBeDefined();
   });
 
   test('should export formatter functions', () => {
@@ -32,6 +35,9 @@ describe('utils/index.js (barrel export)', () => {
     expect(typeof utils.clamp).toBe('function');
     expect(typeof utils.normalizeWhitespace).toBe('function');
     expect(typeof utils.safeJsonParse).toBe('function');
+    expect(typeof utils.isTechnicalIdentifier).toBe('function');
+    expect(typeof utils.humanizeIdentifier).toBe('function');
+    expect(typeof utils.humanizeDisplayText).toBe('function');
   });
 
   test('should have correct barrel export structure', () => {
@@ -45,6 +51,9 @@ describe('utils/index.js (barrel export)', () => {
       'normalizeWhitespace',
       'safeJsonParse',
       'BANNER_VARIANTS',
+      'isTechnicalIdentifier',
+      'humanizeIdentifier',
+      'humanizeDisplayText',
     ];
     expectedExports.forEach((exportName) => {
       expect(utils).toHaveProperty(exportName);

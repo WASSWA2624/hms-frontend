@@ -8,7 +8,8 @@ import React from 'react';
 
 // 2. Platform components (from barrel file) - N/A for Text
 
-// 3. Hooks and utilities (absolute imports via aliases) - N/A for Text
+// 3. Hooks and utilities (absolute imports via aliases)
+import { humanizeIdentifier } from '@utils';
 
 // 4. Styles (relative import - platform-specific)
 import { StyledText } from './Text.android.styles';
@@ -45,6 +46,11 @@ const TextAndroid = ({
   ...rest
 }) => {
   const resolvedRole = getAccessibilityRole(variant, accessibilityRole);
+  const shouldSanitizeDetailValue = typeof testID === 'string' && testID.includes('-detail-');
+  const isPrimitiveChild = typeof children === 'string' || typeof children === 'number';
+  const resolvedChildren = shouldSanitizeDetailValue && isPrimitiveChild
+    ? humanizeIdentifier(children)
+    : children;
 
   return (
     <StyledText
@@ -58,7 +64,7 @@ const TextAndroid = ({
       style={style}
       {...rest}
     >
-      {children}
+      {resolvedChildren}
     </StyledText>
   );
 };

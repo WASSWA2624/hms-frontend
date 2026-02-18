@@ -68,6 +68,7 @@ const TenantListScreenWeb = () => {
           <StyledAddButton
             type="button"
             onClick={onAdd}
+            onPress={onAdd}
             accessibilityLabel={t('tenant.list.addLabel')}
             accessibilityHint={t('tenant.list.addHint')}
             testID="tenant-list-empty-add"
@@ -127,6 +128,7 @@ const TenantListScreenWeb = () => {
               <StyledAddButton
                 type="button"
                 onClick={onAdd}
+                onPress={onAdd}
                 accessibilityLabel={t('tenant.list.addLabel')}
                 accessibilityHint={t('tenant.list.addHint')}
                 testID="tenant-list-add"
@@ -142,7 +144,12 @@ const TenantListScreenWeb = () => {
           accessibilityLabel={t('tenant.list.accessibilityLabel')}
           testID="tenant-list-card"
         >
-          <StyledListBody role="region" aria-label={t('tenant.list.accessibilityLabel')} data-testid="tenant-list">
+          <StyledListBody
+            role="region"
+            aria-label={t('tenant.list.accessibilityLabel')}
+            data-testid="tenant-list"
+            testID="tenant-list"
+          >
             <StyledStateStack>
               {showError && (
                 <ErrorState

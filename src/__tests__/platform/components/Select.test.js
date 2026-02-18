@@ -321,6 +321,16 @@ describe('Select Component', () => {
       expect(getByText('First')).toBeTruthy();
     });
 
+    it('should mask technical identifier labels', () => {
+      const technicalId = '123e4567-e89b-12d3-a456-426614174000';
+      const maskedOptions = [{ label: technicalId, value: technicalId }];
+      const { getByText, queryByText } = renderWithProviders(
+        <SelectAndroid options={maskedOptions} value={technicalId} onValueChange={() => {}} />
+      );
+      expect(getByText('Not available')).toBeTruthy();
+      expect(queryByText(technicalId)).toBeFalsy();
+    });
+
     it('should handle required field with empty string', async () => {
       const { getByTestId, findByText } = renderWithProviders(
         <SelectAndroid testID="select" options={options} value="" onValueChange={() => {}} required />
