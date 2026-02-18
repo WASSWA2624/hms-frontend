@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WardDetailScreen - Web
  * File: WardDetailScreen.web.jsx
  */
@@ -31,6 +31,11 @@ const WardDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
     ward,
+    wardName,
+    tenantLabel,
+    facilityLabel,
+    wardTypeLabel,
+    isActive,
     isLoading,
     hasError,
     errorMessage,
@@ -47,10 +52,7 @@ const WardDetailScreenWeb = () => {
     return (
       <StyledContainer role="main" aria-label={t('ward.detail.title')}>
         <StyledContent>
-          <LoadingSpinner
-            accessibilityLabel={t('common.loading')}
-            testID="ward-detail-loading"
-          />
+          <LoadingSpinner accessibilityLabel={t('common.loading')} testID="ward-detail-loading" />
         </StyledContent>
       </StyledContainer>
     );
@@ -137,11 +139,11 @@ const WardDetailScreenWeb = () => {
 
   const createdAt = formatDateTime(ward.created_at, locale);
   const updatedAt = formatDateTime(ward.updated_at, locale);
-  const name = ward?.name ?? '';
-  const wardType = ward?.ward_type ?? '';
-  const isActive = ward?.is_active ?? false;
-  const tenantId = ward?.tenant_id ?? '';
-  const facilityId = ward?.facility_id ?? '';
+  const name = wardName || t('common.notAvailable');
+  const tenant = tenantLabel || t('common.notAvailable');
+  const facility = facilityLabel || t('common.notAvailable');
+  const wardType = wardTypeLabel || t('common.notAvailable');
+  const activeLabel = isActive === null ? t('common.notAvailable') : (isActive ? t('common.on') : t('common.off'));
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -183,47 +185,33 @@ const WardDetailScreenWeb = () => {
         <Card variant="outlined" accessibilityLabel={t('ward.detail.title')} testID="ward-detail-card">
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('ward.detail.idLabel')}</Text>
-              <Text variant="body" testID="ward-detail-id">
-                {ward.id}
+              <Text variant="label">{t('ward.detail.nameLabel')}</Text>
+              <Text variant="body" testID="ward-detail-name">
+                {name}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('ward.detail.tenantLabel')}</Text>
-                <Text variant="body" testID="ward-detail-tenant">
-                  {tenantId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {facilityId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('ward.detail.facilityLabel')}</Text>
-                <Text variant="body" testID="ward-detail-facility">
-                  {facilityId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('ward.detail.nameLabel')}</Text>
-                <Text variant="body" testID="ward-detail-name">
-                  {name}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {wardType ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('ward.detail.typeLabel')}</Text>
-                <Text variant="body" testID="ward-detail-type">
-                  {wardType}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('ward.detail.tenantLabel')}</Text>
+              <Text variant="body" testID="ward-detail-tenant">
+                {tenant}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('ward.detail.facilityLabel')}</Text>
+              <Text variant="body" testID="ward-detail-facility">
+                {facility}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('ward.detail.typeLabel')}</Text>
+              <Text variant="body" testID="ward-detail-type">
+                {wardType}
+              </Text>
+            </StyledDetailItem>
             <StyledDetailItem>
               <Text variant="label">{t('ward.detail.activeLabel')}</Text>
               <Text variant="body" testID="ward-detail-active">
-                {isActive ? t('common.on') : t('common.off')}
+                {activeLabel}
               </Text>
             </StyledDetailItem>
             {createdAt ? (
@@ -271,18 +259,20 @@ const WardDetailScreenWeb = () => {
               {t('ward.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('ward.detail.delete')}
-            accessibilityHint={t('ward.detail.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="ward-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('ward.detail.delete')}
+              accessibilityHint={t('ward.detail.deleteHint')}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="ward-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>
@@ -290,3 +280,4 @@ const WardDetailScreenWeb = () => {
 };
 
 export default WardDetailScreenWeb;
+

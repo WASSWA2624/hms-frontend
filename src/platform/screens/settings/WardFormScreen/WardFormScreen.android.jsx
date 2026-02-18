@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WardFormScreen - Android
  */
 import React from 'react';
@@ -60,6 +60,14 @@ const WardFormScreenAndroid = () => {
     errorMessage,
     isOffline,
     ward,
+    nameError,
+    typeError,
+    tenantError,
+    facilityError,
+    isTenantLocked,
+    lockedTenantDisplay,
+    tenantDisplayLabel,
+    facilityDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -139,6 +147,11 @@ const WardFormScreenAndroid = () => {
     ? t('ward.form.facilityBlockedMessage')
     : t('ward.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('ward.form.nameHint'));
+  const typeHelperText = typeError || (showCreateBlocked ? blockedMessage : t('ward.form.typeHint'));
+  const tenantHelperText = tenantError || t('ward.form.tenantHint');
+  const facilityHelperText = facilityError || t('ward.form.facilityHint');
+  const tenantLockedHint = isEdit ? t('ward.form.tenantLockedHint') : t('ward.form.tenantScopedHint');
 
   return (
     <StyledContainer>
@@ -167,7 +180,7 @@ const WardFormScreenAndroid = () => {
 
         <Card variant="outlined" accessibilityLabel={t('ward.form.nameLabel')} testID="ward-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -212,7 +225,8 @@ const WardFormScreenAndroid = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('ward.form.tenantLabel')}
                       accessibilityHint={t('ward.form.tenantHint')}
-                      helperText={t('ward.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       disabled={isFormDisabled}
                       testID="ward-form-tenant"
@@ -225,10 +239,10 @@ const WardFormScreenAndroid = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('ward.form.tenantLabel')}
-                    value={tenantId}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('ward.form.tenantLabel')}
-                    accessibilityHint={t('ward.form.tenantLockedHint')}
-                    helperText={t('ward.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="ward-form-tenant-readonly"
                   />
@@ -294,7 +308,9 @@ const WardFormScreenAndroid = () => {
                       onValueChange={setFacilityId}
                       accessibilityLabel={t('ward.form.facilityLabel')}
                       accessibilityHint={t('ward.form.facilityHint')}
-                      helperText={t('ward.form.facilityHint')}
+                      errorMessage={facilityError}
+                      helperText={facilityHelperText}
+                      required
                       disabled={isFormDisabled}
                       testID="ward-form-facility"
                     />
@@ -306,7 +322,7 @@ const WardFormScreenAndroid = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('ward.form.facilityLabel')}
-                    value={facilityId}
+                    value={facilityDisplayLabel}
                     accessibilityLabel={t('ward.form.facilityLabel')}
                     accessibilityHint={t('ward.form.facilityLockedHint')}
                     helperText={t('ward.form.facilityLockedHint')}
@@ -325,9 +341,11 @@ const WardFormScreenAndroid = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('ward.form.nameLabel')}
                 accessibilityHint={t('ward.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('ward.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
                 density="compact"
+                maxLength={255}
                 disabled={isFormDisabled}
                 testID="ward-form-name"
               />
@@ -341,8 +359,10 @@ const WardFormScreenAndroid = () => {
                 onChangeText={setWardType}
                 accessibilityLabel={t('ward.form.typeLabel')}
                 accessibilityHint={t('ward.form.typeHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('ward.form.typeHint')}
+                errorMessage={typeError}
+                helperText={typeHelperText}
                 density="compact"
+                maxLength={100}
                 disabled={isFormDisabled}
                 testID="ward-form-type"
               />

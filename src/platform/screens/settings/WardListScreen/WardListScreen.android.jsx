@@ -35,16 +35,18 @@ import {
 } from './WardListScreen.android.styles';
 import useWardListScreen from './useWardListScreen';
 
-const resolveFloorMeta = (t, floorValue) => {
-  const normalized = String(floorValue ?? '').trim();
-  if (normalized) {
-    return { label: normalized, tone: 'info' };
+const resolveActiveMeta = (t, activeValue) => {
+  if (activeValue === 'active') {
+    return { label: t('common.on'), tone: 'success' };
+  }
+  if (activeValue === 'inactive') {
+    return { label: t('common.off'), tone: 'warning' };
   }
   return { label: t('common.notAvailable'), tone: 'warning' };
 };
 
-const resolveWardSubtitle = (t, tenant, facility, ward) => {
-  const available = [tenant, facility, ward].filter((value) => (
+const resolveWardSubtitle = (t, tenant, facility, wardType) => {
+  const available = [tenant, facility, wardType].filter((value) => (
     value && value !== t('common.notAvailable')
   ));
   if (available.length === 0) return undefined;
@@ -52,7 +54,7 @@ const resolveWardSubtitle = (t, tenant, facility, ward) => {
     return t('ward.list.contextValue', {
       tenant: available[0],
       facility: available[1],
-      ward: available[2],
+      type: available[2],
     });
   }
   if (available.length === 2) {
@@ -86,8 +88,8 @@ const WardListScreenAndroid = () => {
     resolveWardNameText,
     resolveWardTenantText,
     resolveWardFacilityText,
-    resolveWardWardText,
-    resolveWardFloorText,
+    resolveWardTypeText,
+    resolveWardActiveText,
     onWardPress,
     onEdit,
     onDelete,
@@ -140,22 +142,22 @@ const WardListScreenAndroid = () => {
     const leadingGlyph = String(title || 'R').charAt(0).toUpperCase();
     const wardId = ward?.id;
     const itemKey = wardId ?? `ward-${index}`;
-    const floorMeta = resolveFloorMeta(t, resolveWardFloorText(ward));
+    const activeMeta = resolveActiveMeta(t, resolveWardActiveText(ward));
     const tenant = resolveWardTenantText(ward);
     const facility = resolveWardFacilityText(ward);
-    const ward = resolveWardWardText(ward);
+    const wardType = resolveWardTypeText(ward);
 
     return (
       <ListItem
         leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={resolveWardSubtitle(t, tenant, facility, ward)}
+        subtitle={resolveWardSubtitle(t, tenant, facility, wardType)}
         metadata={[]}
         status={{
-          label: floorMeta.label,
-          tone: floorMeta.tone,
+          label: activeMeta.label,
+          tone: activeMeta.tone,
           showDot: true,
-          accessibilityLabel: t('ward.list.floorLabel'),
+          accessibilityLabel: t('ward.list.activeLabel'),
         }}
         density="compact"
         onPress={wardId ? () => onWardPress(wardId) : undefined}

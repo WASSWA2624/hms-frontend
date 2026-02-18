@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WardFormScreen - Web
  */
 import React from 'react';
@@ -60,6 +60,14 @@ const WardFormScreenWeb = () => {
     errorMessage,
     isOffline,
     ward,
+    nameError,
+    typeError,
+    tenantError,
+    facilityError,
+    isTenantLocked,
+    lockedTenantDisplay,
+    tenantDisplayLabel,
+    facilityDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -71,7 +79,7 @@ const WardFormScreenWeb = () => {
 
   if (isEdit && !ward && isLoading) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('ward.form.editTitle')}>
         <StyledContent>
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="ward-form-loading" />
         </StyledContent>
@@ -81,15 +89,22 @@ const WardFormScreenWeb = () => {
 
   if (isEdit && hasError && !ward) {
     return (
-      <StyledContainer>
+      <StyledContainer role="main" aria-label={t('ward.form.editTitle')}>
         <StyledContent>
           <ErrorState
             title={t('ward.form.loadError')}
-            action={
-              <Button variant="primary" onPress={onCancel} accessibilityLabel={t('common.back')}>
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCancel}
+                accessibilityLabel={t('common.back')}
+                accessibilityHint={t('ward.form.cancelHint')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
                 {t('common.back')}
               </Button>
-            }
+            )}
             testID="ward-form-load-error"
           />
         </StyledContent>
@@ -132,6 +147,11 @@ const WardFormScreenWeb = () => {
     ? t('ward.form.facilityBlockedMessage')
     : t('ward.form.blockedMessage');
   const showFacilityEmpty = Boolean(tenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+  const nameHelperText = nameError || (showCreateBlocked ? blockedMessage : t('ward.form.nameHint'));
+  const typeHelperText = typeError || (showCreateBlocked ? blockedMessage : t('ward.form.typeHint'));
+  const tenantHelperText = tenantError || t('ward.form.tenantHint');
+  const facilityHelperText = facilityError || t('ward.form.facilityHint');
+  const tenantLockedHint = isEdit ? t('ward.form.tenantLockedHint') : t('ward.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('ward.form.editTitle') : t('ward.form.createTitle')}>
@@ -161,7 +181,7 @@ const WardFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('ward.form.nameLabel')} testID="ward-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && !isTenantLocked ? (
               <StyledFullRow>
                 <StyledFieldGroup>
                   {tenantListLoading ? (
@@ -206,7 +226,8 @@ const WardFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('ward.form.tenantLabel')}
                       accessibilityHint={t('ward.form.tenantHint')}
-                      helperText={t('ward.form.tenantHint')}
+                      errorMessage={tenantError}
+                      helperText={tenantHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -220,10 +241,10 @@ const WardFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('ward.form.tenantLabel')}
-                    value={tenantId}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('ward.form.tenantLabel')}
-                    accessibilityHint={t('ward.form.tenantLockedHint')}
-                    helperText={t('ward.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="ward-form-tenant-readonly"
                   />
@@ -290,7 +311,8 @@ const WardFormScreenWeb = () => {
                       onValueChange={setFacilityId}
                       accessibilityLabel={t('ward.form.facilityLabel')}
                       accessibilityHint={t('ward.form.facilityHint')}
-                      helperText={t('ward.form.facilityHint')}
+                      errorMessage={facilityError}
+                      helperText={facilityHelperText}
                       required
                       compact
                       disabled={isFormDisabled}
@@ -304,7 +326,7 @@ const WardFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('ward.form.facilityLabel')}
-                    value={facilityId}
+                    value={facilityDisplayLabel}
                     accessibilityLabel={t('ward.form.facilityLabel')}
                     accessibilityHint={t('ward.form.facilityLockedHint')}
                     helperText={t('ward.form.facilityLockedHint')}
@@ -323,8 +345,10 @@ const WardFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('ward.form.nameLabel')}
                 accessibilityHint={t('ward.form.nameHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('ward.form.nameHint')}
+                errorMessage={nameError}
+                helperText={nameHelperText}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="ward-form-name"
@@ -339,7 +363,9 @@ const WardFormScreenWeb = () => {
                 onChange={(e) => setWardType(e.target.value)}
                 accessibilityLabel={t('ward.form.typeLabel')}
                 accessibilityHint={t('ward.form.typeHint')}
-                helperText={showCreateBlocked ? blockedMessage : t('ward.form.typeHint')}
+                errorMessage={typeError}
+                helperText={typeHelperText}
+                maxLength={100}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="ward-form-type"

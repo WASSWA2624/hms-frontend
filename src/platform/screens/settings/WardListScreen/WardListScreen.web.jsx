@@ -76,29 +76,31 @@ const resolveColumnLabel = (t, column) => {
   if (column === 'name') return t('ward.list.columnName');
   if (column === 'tenant') return t('ward.list.columnTenant');
   if (column === 'facility') return t('ward.list.columnFacility');
-  if (column === 'ward') return t('ward.list.columnWard');
-  if (column === 'floor') return t('ward.list.columnFloor');
+  if (column === 'type') return t('ward.list.columnType');
+  if (column === 'active') return t('ward.list.columnActive');
   return column;
 };
 
 const TABLE_COLUMN_LAYOUT = {
-  name: { width: 230, minWidth: 190, align: 'left' },
+  name: { width: 260, minWidth: 220, align: 'left' },
   tenant: { width: 210, minWidth: 170, align: 'left' },
   facility: { width: 200, minWidth: 170, align: 'left' },
-  ward: { width: 190, minWidth: 160, align: 'left' },
-  floor: { width: 150, minWidth: 120, align: 'left' },
+  type: { width: 180, minWidth: 150, align: 'left' },
+  active: { width: 130, minWidth: 112, align: 'center', truncate: false },
 };
 
-const resolveFloorMeta = (t, floorValue) => {
-  const normalized = String(floorValue ?? '').trim();
-  if (normalized) {
-    return { label: normalized, tone: 'info' };
+const resolveActiveMeta = (t, activeValue) => {
+  if (activeValue === 'active') {
+    return { label: t('common.on'), tone: 'success' };
+  }
+  if (activeValue === 'inactive') {
+    return { label: t('common.off'), tone: 'warning' };
   }
   return { label: t('common.notAvailable'), tone: 'warning' };
 };
 
-const resolveMobileSubtitle = (t, tenant, facility, ward) => {
-  const available = [tenant, facility, ward].filter((value) => (
+const resolveMobileSubtitle = (t, tenant, facility, wardType) => {
+  const available = [tenant, facility, wardType].filter((value) => (
     value && value !== t('common.notAvailable')
   ));
   if (available.length === 0) return undefined;
@@ -106,7 +108,7 @@ const resolveMobileSubtitle = (t, tenant, facility, ward) => {
     return t('ward.list.contextValue', {
       tenant: available[0],
       facility: available[1],
-      ward: available[2],
+      type: available[2],
     });
   }
   if (available.length === 2) {
@@ -181,8 +183,8 @@ const WardListScreenWeb = () => {
     resolveWardNameText,
     resolveWardTenantText,
     resolveWardFacilityText,
-    resolveWardWardText,
-    resolveWardFloorText,
+    resolveWardTypeText,
+    resolveWardActiveText,
     onWardPress,
     onEdit,
     onDelete,
@@ -275,12 +277,12 @@ const WardListScreenWeb = () => {
           if (column === 'facility') {
             return <StyledCodeCellText>{resolveWardFacilityText(ward)}</StyledCodeCellText>;
           }
-          if (column === 'ward') {
-            return <StyledCodeCellText>{resolveWardWardText(ward)}</StyledCodeCellText>;
+          if (column === 'type') {
+            return <StyledCodeCellText>{resolveWardTypeText(ward)}</StyledCodeCellText>;
           }
-          if (column === 'floor') {
-            const floorMeta = resolveFloorMeta(t, resolveWardFloorText(ward));
-            return <StyledStatusBadge $tone={floorMeta.tone}>{floorMeta.label}</StyledStatusBadge>;
+          if (column === 'active') {
+            const activeMeta = resolveActiveMeta(t, resolveWardActiveText(ward));
+            return <StyledStatusBadge $tone={activeMeta.tone}>{activeMeta.label}</StyledStatusBadge>;
           }
           return t('common.notAvailable');
         },
@@ -289,8 +291,8 @@ const WardListScreenWeb = () => {
           if (column === 'name') value = resolveWardNameText(ward);
           else if (column === 'tenant') value = resolveWardTenantText(ward);
           else if (column === 'facility') value = resolveWardFacilityText(ward);
-          else if (column === 'ward') value = resolveWardWardText(ward);
-          else if (column === 'floor') value = resolveFloorMeta(t, resolveWardFloorText(ward)).label;
+          else if (column === 'type') value = resolveWardTypeText(ward);
+          else if (column === 'active') value = resolveActiveMeta(t, resolveWardActiveText(ward)).label;
           return typeof value === 'string' ? value : undefined;
         },
       };
@@ -301,8 +303,8 @@ const WardListScreenWeb = () => {
       resolveWardNameText,
       resolveWardTenantText,
       resolveWardFacilityText,
-      resolveWardWardText,
-      resolveWardFloorText,
+      resolveWardTypeText,
+      resolveWardActiveText,
     ]
   );
 
@@ -728,22 +730,22 @@ const WardListScreenWeb = () => {
                   const leadingGlyph = String(title || 'R').charAt(0).toUpperCase();
                   const wardId = ward?.id;
                   const itemKey = wardId ?? `ward-${index}`;
-                  const floorMeta = resolveFloorMeta(t, resolveWardFloorText(ward));
+                  const activeMeta = resolveActiveMeta(t, resolveWardActiveText(ward));
                   const tenant = resolveWardTenantText(ward);
                   const facility = resolveWardFacilityText(ward);
-                  const ward = resolveWardWardText(ward);
+                  const wardType = resolveWardTypeText(ward);
                   return (
                     <li key={itemKey} role="listitem">
                       <ListItem
                         leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
                         title={title}
-                        subtitle={resolveMobileSubtitle(t, tenant, facility, ward)}
+                        subtitle={resolveMobileSubtitle(t, tenant, facility, wardType)}
                         metadata={[]}
                         status={{
-                          label: floorMeta.label,
-                          tone: floorMeta.tone,
+                          label: activeMeta.label,
+                          tone: activeMeta.tone,
                           showDot: true,
-                          accessibilityLabel: t('ward.list.floorLabel'),
+                          accessibilityLabel: t('ward.list.activeLabel'),
                         }}
                         density="compact"
                         onPress={wardId ? () => onWardPress(wardId) : undefined}
