@@ -8,11 +8,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useTenant, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
-const resolveErrorMessage = (t, errorCode) => {
+const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
+  if (errorCode === 'UNKNOWN_ERROR' || errorCode === 'NETWORK_ERROR') {
+    return t(fallbackKey);
+  }
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
-  return resolved === key ? t('errors.codes.UNKNOWN_ERROR') : resolved;
+  return resolved === key ? t(fallbackKey) : resolved;
 };
 
 const useTenantDetailScreen = () => {
@@ -41,7 +44,7 @@ const useTenantDetailScreen = () => {
   }, [canManageAllTenants, requestedTenantId, tenantId]);
   const tenant = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
-    () => resolveErrorMessage(t, errorCode),
+    () => resolveErrorMessage(t, errorCode, 'tenant.detail.errorMessage'),
     [t, errorCode]
   );
 

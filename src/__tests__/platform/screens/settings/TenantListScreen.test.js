@@ -1,6 +1,6 @@
 /**
  * TenantListScreen Component Tests
- * Native-focused coverage for tenant list states and action visibility.
+ * Coverage for tenant list states, action visibility, and responsive web mode.
  */
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react-native');
@@ -63,6 +63,7 @@ jest.mock('@platform/screens/settings/TenantListScreen/useTenantListScreen', () 
 }));
 
 const useTenantListScreen = require('@platform/screens/settings/TenantListScreen/useTenantListScreen').default;
+const TenantListScreenWeb = require('@platform/screens/settings/TenantListScreen/TenantListScreen.web').default;
 const TenantListScreenAndroid = require('@platform/screens/settings/TenantListScreen/TenantListScreen.android').default;
 const TenantListScreenIOS = require('@platform/screens/settings/TenantListScreen/TenantListScreen.ios').default;
 const TenantListScreenIndex = require('@platform/screens/settings/TenantListScreen/index.js');
@@ -129,6 +130,69 @@ const baseHook = {
   onSearch: jest.fn(),
   onSearchScopeChange: jest.fn(),
   onClearSearchAndFilters: jest.fn(),
+  onTenantPress: jest.fn(),
+  onEdit: jest.fn(),
+  onDelete: jest.fn(),
+  onAdd: jest.fn(),
+};
+
+const baseWebHook = {
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
+  search: '',
+  searchScope: 'all',
+  searchScopeOptions: [{ value: 'all', label: 'All fields' }],
+  filters: [{ id: 'f1', field: 'name', operator: 'contains', value: '' }],
+  filterFieldOptions: [{ value: 'name', label: 'Name' }],
+  filterLogic: 'AND',
+  filterLogicOptions: [{ value: 'AND', label: 'AND' }],
+  canAddFilter: true,
+  hasNoResults: false,
+  sortField: 'name',
+  sortDirection: 'asc',
+  columnOrder: ['name', 'slug', 'humanId', 'status'],
+  visibleColumns: ['name', 'slug', 'humanId', 'status'],
+  selectedTenantIds: [],
+  allPageSelected: false,
+  isTableMode: true,
+  isTableSettingsOpen: false,
+  isLoading: false,
+  hasError: false,
+  errorMessage: null,
+  isOffline: false,
+  noticeMessage: null,
+  onDismissNotice: jest.fn(),
+  onRetry: jest.fn(),
+  onSearch: jest.fn(),
+  onSearchScopeChange: jest.fn(),
+  onFilterLogicChange: jest.fn(),
+  onFilterFieldChange: jest.fn(),
+  onFilterOperatorChange: jest.fn(),
+  onFilterValueChange: jest.fn(),
+  onAddFilter: jest.fn(),
+  onRemoveFilter: jest.fn(),
+  onClearSearchAndFilters: jest.fn(),
+  onSort: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
+  onToggleColumnVisibility: jest.fn(),
+  onMoveColumnLeft: jest.fn(),
+  onMoveColumnRight: jest.fn(),
+  onOpenTableSettings: jest.fn(),
+  onCloseTableSettings: jest.fn(),
+  onResetTablePreferences: jest.fn(),
+  onToggleTenantSelection: jest.fn(),
+  onTogglePageSelection: jest.fn(),
+  onClearSelection: jest.fn(),
+  onBulkDelete: undefined,
+  resolveFilterOperatorOptions: jest.fn(() => [{ value: 'contains', label: 'Contains' }]),
   onTenantPress: jest.fn(),
   onEdit: jest.fn(),
   onDelete: jest.fn(),
@@ -205,6 +269,31 @@ describe('TenantListScreen', () => {
     });
     const { queryByTestId, getByTestId } = renderWithTheme(<TenantListScreenAndroid />);
     expect(queryByTestId('tenant-list-offline')).toBeNull();
+    expect(getByTestId('tenant-list-offline-banner')).toBeTruthy();
+    expect(getByTestId('tenant-item-tenant-1')).toBeTruthy();
+  });
+
+  it('renders DataTable on web for desktop/tablet mode', () => {
+    useTenantListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'tenant-1', name: 'Tenant 1', slug: 'tenant-1', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
+    expect(getByTestId('tenant-table')).toBeTruthy();
+  });
+
+  it('renders list items on web for mobile mode', () => {
+    useTenantListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: false,
+      pagedItems: [{ id: 'tenant-1', name: 'Tenant 1', slug: 'tenant-1', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
     expect(getByTestId('tenant-item-tenant-1')).toBeTruthy();
   });
 

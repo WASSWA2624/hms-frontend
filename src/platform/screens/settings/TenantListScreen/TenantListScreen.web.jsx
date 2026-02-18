@@ -186,6 +186,7 @@ const TenantListScreenWeb = () => {
   const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && rows.length > 0;
   const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && totalItems === 0;
   const showList = !isLoading && !showError && !showOffline && rows.length > 0;
   const showDesktopTable = isTableMode && !showError && !showOffline;
@@ -655,6 +656,16 @@ const TenantListScreenWeb = () => {
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
                   testID="tenant-list-offline"
+                />
+              ) : null}
+
+              {showOfflineBanner ? (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="tenant-list-offline-banner"
                 />
               ) : null}
             </StyledStateStack>

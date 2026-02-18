@@ -112,6 +112,20 @@ describe('useTenantDetailScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/settings');
   });
 
+  it('uses tenant detail fallback message for unknown and network failures', () => {
+    useTenant.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: null,
+      isLoading: false,
+      errorCode: 'NETWORK_ERROR',
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useTenantDetailScreen());
+    expect(result.current.errorMessage).toBe('tenant.detail.errorMessage');
+  });
+
   it('deletes and redirects with notice for global admins', async () => {
     mockRemove.mockResolvedValue({ id: 'tenant-1' });
 

@@ -3914,6 +3914,7 @@
       "createdLabel": "Created",
       "updatedLabel": "Updated",
       "errorTitle": "Failed to load tenant",
+      "errorMessage": "We could not load tenant details right now. Check your connection and try again.",
       "notFoundTitle": "Tenant not found",
       "notFoundMessage": "This tenant may have been deleted.",
       "backHint": "Return to tenants list",

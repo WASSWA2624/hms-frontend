@@ -131,6 +131,7 @@ const TenantListScreenAndroid = () => {
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
   const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
   const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
@@ -254,6 +255,15 @@ const TenantListScreenAndroid = () => {
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
                   testID="tenant-list-offline"
+                />
+              )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="tenant-list-offline-banner"
                 />
               )}
             </StyledStateStack>
