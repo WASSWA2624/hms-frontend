@@ -12,6 +12,7 @@ import { confirmAction } from '@utils';
 
 const TABLE_MODE_BREAKPOINT = 768;
 const PREFS_STORAGE_PREFIX = 'hms.settings.tenants.list.preferences';
+const TENANT_CACHE_STORAGE_PREFIX = 'hms.settings.tenants.list.cache';
 const TABLE_COLUMNS = Object.freeze(['name', 'slug', 'humanId', 'status']);
 const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
@@ -268,6 +269,7 @@ const useTenantListScreen = () => {
   const [isTableSettingsOpen, setIsTableSettingsOpen] = useState(false);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const [cachedTenantItems, setCachedTenantItems] = useState([]);
   const preferenceSubject = useMemo(() => (
     normalizeValue(user?.id)
     || normalizeValue(user?.user_id)
@@ -279,6 +281,12 @@ const useTenantListScreen = () => {
     () => `${PREFS_STORAGE_PREFIX}.${preferenceSubject}`,
     [preferenceSubject]
   );
+  const tenantDataCacheKey = useMemo(() => {
+    const scope = canManageAllTenants
+      ? 'all'
+      : (normalizeValue(tenantId) || 'self');
+    return `${TENANT_CACHE_STORAGE_PREFIX}.${preferenceSubject}.${scope}`;
+  }, [canManageAllTenants, tenantId, preferenceSubject]);
   const isTableMode = Number(width) >= TABLE_MODE_BREAKPOINT;
 
   const getNextFilterId = useCallback(() => {
@@ -286,13 +294,26 @@ const useTenantListScreen = () => {
     return `tenant-filter-${filterCounterRef.current}`;
   }, []);
 
-  const baseItems = useMemo(() => {
+  const liveItems = useMemo(() => {
     if (canManageAllTenants) {
       return Array.isArray(data) ? data : (data?.items ?? []);
     }
     const ownTenant = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
     return ownTenant ? [ownTenant] : [];
   }, [canManageAllTenants, data]);
+
+  const hasLiveTenantPayload = useMemo(() => {
+    if (canManageAllTenants) {
+      return Array.isArray(data) || Array.isArray(data?.items);
+    }
+    return Boolean(data && typeof data === 'object' && !Array.isArray(data));
+  }, [canManageAllTenants, data]);
+
+  const baseItems = useMemo(() => {
+    if (liveItems.length > 0) return liveItems;
+    if (isOffline && cachedTenantItems.length > 0) return cachedTenantItems;
+    return liveItems;
+  }, [liveItems, isOffline, cachedTenantItems]);
 
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
@@ -390,20 +411,61 @@ const useTenantListScreen = () => {
       router.replace('/settings');
       return;
     }
+    if (isOffline) return;
     fetchOwnTenant();
   }, [
     isResolved,
     canAccessTenantSettings,
     canManageAllTenants,
     tenantId,
+    isOffline,
     fetchOwnTenant,
     router,
   ]);
 
   useEffect(() => {
-    if (!isResolved || !canAccessTenantSettings || !canManageAllTenants) return;
+    if (!isResolved || !canAccessTenantSettings || !canManageAllTenants || isOffline) return;
     fetchList();
-  }, [isResolved, canAccessTenantSettings, canManageAllTenants, fetchList]);
+  }, [isResolved, canAccessTenantSettings, canManageAllTenants, isOffline, fetchList]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCachedTenantItems = async () => {
+      const stored = await asyncStorage.getItem(tenantDataCacheKey);
+      if (cancelled) return;
+
+      if (Array.isArray(stored)) {
+        setCachedTenantItems(stored);
+        return;
+      }
+
+      if (Array.isArray(stored?.items)) {
+        setCachedTenantItems(stored.items);
+        return;
+      }
+
+      setCachedTenantItems([]);
+    };
+
+    loadCachedTenantItems();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tenantDataCacheKey]);
+
+  useEffect(() => {
+    if (!isResolved || !canAccessTenantSettings || !hasLiveTenantPayload) return;
+    setCachedTenantItems(liveItems);
+    asyncStorage.setItem(tenantDataCacheKey, liveItems);
+  }, [
+    isResolved,
+    canAccessTenantSettings,
+    hasLiveTenantPayload,
+    tenantDataCacheKey,
+    liveItems,
+  ]);
 
   useEffect(() => {
     if (!noticeValue) return;

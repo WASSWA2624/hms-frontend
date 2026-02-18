@@ -121,10 +121,8 @@ const SelectWeb = ({
   const resolvedHelperId = testID ? `${testID}-helper` : helperId;
   const [menuPosition, setMenuPosition] = useState({
     placement: 'bottom',
-    align: 'left',
     top: 0,
     left: 0,
-    right: undefined,
     width: 0,
     maxHeight: 240,
   });
@@ -135,40 +133,41 @@ const SelectWeb = ({
     const gap = 8;
     const viewportWidth = window.innerWidth || 0;
     const viewportHeight = window.innerHeight || 0;
-    const spaceBelow = viewportHeight - rect.bottom;
-    const spaceAbove = rect.top;
-    const spaceRight = viewportWidth - rect.left;
-    const spaceLeft = rect.right;
+    const spaceBelow = Math.max(0, viewportHeight - rect.bottom - gap);
+    const spaceAbove = Math.max(0, rect.top - gap);
     const placement = spaceBelow >= spaceAbove ? 'bottom' : 'top';
     const availableHeight = placement === 'bottom' ? spaceBelow : spaceAbove;
-    const maxHeight = Math.min(240, Math.max(availableHeight - gap, 120));
-    const width = Math.min(rect.width, viewportWidth - gap * 2);
-    const align = spaceRight >= spaceLeft ? 'left' : 'right';
-    let left;
-    let right;
-    if (align === 'left') {
-      left = Math.min(Math.max(rect.left, gap), viewportWidth - width - gap);
-    } else {
-      right = Math.min(Math.max(viewportWidth - rect.right, gap), viewportWidth - width - gap);
-    }
-    let top = placement === 'bottom' ? rect.bottom + gap : rect.top - maxHeight - gap;
-    if (top < gap) {
-      top = gap;
-    }
-    if (top + maxHeight > viewportHeight - gap) {
-      top = Math.max(gap, viewportHeight - maxHeight - gap);
-    }
+    const maxHeight = availableHeight > 0 ? Math.min(320, availableHeight) : 240;
+    const longestLabelLength = sanitizedOptions.reduce(
+      (longest, option) => Math.max(longest, String(option?.label ?? '').length),
+      0
+    );
+    const estimatedLabelWidth = longestLabelLength * 7.2 + 52;
+    const desiredWidth = Math.max(rect.width, Math.min(estimatedLabelWidth, 420));
+    const maxWidth = Math.max(120, viewportWidth - gap * 2);
+    const width = Math.min(desiredWidth, maxWidth);
+
+    const measuredMenuHeight = menuRef.current ? menuRef.current.scrollHeight : 0;
+    const estimatedOptionHeight = compact ? 36 : 44;
+    const estimatedMenuHeight = measuredMenuHeight
+      || Math.max(estimatedOptionHeight, sanitizedOptions.length * estimatedOptionHeight);
+    const menuHeight = Math.min(maxHeight, estimatedMenuHeight);
+
+    const left = Math.min(Math.max(rect.left, gap), Math.max(gap, viewportWidth - width - gap));
+    let top = placement === 'bottom'
+      ? rect.bottom + gap
+      : rect.top - menuHeight - gap;
+    const maxTop = Math.max(gap, viewportHeight - menuHeight - gap);
+    top = Math.min(Math.max(top, gap), maxTop);
 
     setMenuPosition({
       placement,
-      align,
       top,
       left,
-      right,
       width,
       maxHeight,
     });
-  }, []);
+  }, [compact, sanitizedOptions]);
 
   // Close on outside click
   useEffect(() => {
@@ -208,10 +207,27 @@ const SelectWeb = ({
   useEffect(() => {
     if (!open) return;
     computeMenuPosition();
+    let rafId;
+    let timeoutId;
+    if (typeof window.requestAnimationFrame === 'function') {
+      rafId = window.requestAnimationFrame(() => {
+        computeMenuPosition();
+      });
+    } else {
+      timeoutId = window.setTimeout(() => {
+        computeMenuPosition();
+      }, 0);
+    }
     const handleResize = () => computeMenuPosition();
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleResize, true);
     return () => {
+      if (rafId != null && typeof window.cancelAnimationFrame === 'function') {
+        window.cancelAnimationFrame(rafId);
+      }
+      if (timeoutId != null) {
+        window.clearTimeout(timeoutId);
+      }
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleResize, true);
     };
@@ -341,9 +357,9 @@ const SelectWeb = ({
             role="listbox"
             onKeyDown={handleMenuKeyDown}
             data-testid={testID ? `${testID}-menu` : undefined}
+            data-placement={menuPosition.placement}
             data-top={String(menuPosition.top)}
             data-left={menuPosition.left != null ? String(menuPosition.left) : undefined}
-            data-right={menuPosition.right != null ? String(menuPosition.right) : undefined}
             data-width={String(menuPosition.width)}
             data-max-height={String(menuPosition.maxHeight)}
           >

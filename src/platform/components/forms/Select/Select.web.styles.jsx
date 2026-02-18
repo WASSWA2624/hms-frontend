@@ -99,6 +99,10 @@ const StyledTriggerText = styled.span.withConfig({
     return theme.colors.text.primary;
   }};
   display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const StyledChevron = styled.span.withConfig({
@@ -148,8 +152,9 @@ const StyledMenu = styled.div.withConfig({
   border-style: solid;
   border-color: ${({ theme }) => theme.colors.background.tertiary};
   border-radius: ${({ theme }) => theme.radius.md}px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
   z-index: 2000;
-  overflow: hidden;
+  overflow-x: hidden;
   max-height: ${({ 'data-max-height': maxHeight }) => (maxHeight ? `${maxHeight}px` : '240px')};
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -166,6 +171,9 @@ const StyledOption = styled.button.withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border: none;
   text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
 
   &:hover {
     ${({ disabled, theme }) => (disabled ? '' : `background-color: ${theme.colors.background.secondary};`)}
@@ -189,6 +197,9 @@ const StyledOptionText = styled.span.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   color: ${({ theme }) => theme.colors.text.primary};
   display: block;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
 `;
 
 const StyledHelperText = styled.span.withConfig({

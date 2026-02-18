@@ -197,6 +197,17 @@ describe('TenantListScreen', () => {
     expect(getByTestId('tenant-list-offline')).toBeTruthy();
   });
 
+  it('hides offline state when tenant rows are available', () => {
+    useTenantListScreen.mockReturnValue({
+      ...baseHook,
+      isOffline: true,
+      items: [{ id: 'tenant-1', name: 'Cached Tenant', slug: 'cached-tenant', is_active: true }],
+    });
+    const { queryByTestId, getByTestId } = renderWithTheme(<TenantListScreenAndroid />);
+    expect(queryByTestId('tenant-list-offline')).toBeNull();
+    expect(getByTestId('tenant-item-tenant-1')).toBeTruthy();
+  });
+
   it('shows notice message (Android)', () => {
     useTenantListScreen.mockReturnValue({
       ...baseHook,

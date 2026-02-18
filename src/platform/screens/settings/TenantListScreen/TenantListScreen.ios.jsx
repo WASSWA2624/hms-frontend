@@ -130,7 +130,7 @@ const TenantListScreenIOS = () => {
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
+  const showOffline = !isLoading && isOffline && items.length === 0;
   const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
   const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;

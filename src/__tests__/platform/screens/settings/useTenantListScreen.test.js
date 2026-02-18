@@ -277,4 +277,50 @@ describe('useTenantListScreen', () => {
 
     expect(mockRemove).not.toHaveBeenCalled();
   });
+
+  it('uses cached tenants when offline and list data is unavailable', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+    useTenant.mockReturnValue({
+      list: mockList,
+      get: mockGet,
+      remove: mockRemove,
+      data: null,
+      isLoading: false,
+      errorCode: 'NETWORK_ERROR',
+    });
+    asyncStorage.getItem.mockImplementation(async (key) => {
+      if (String(key).includes('hms.settings.tenants.list.cache')) {
+        return [{
+          id: 'tenant-cached-1',
+          name: 'Cached Tenant',
+          slug: 'cached-tenant',
+          is_active: true,
+        }];
+      }
+      return null;
+    });
+
+    const { result } = renderHook(() => useTenantListScreen());
+
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(1);
+      expect(result.current.items[0].id).toBe('tenant-cached-1');
+    });
+  });
+
+  it('refreshes tenant list automatically when connection is restored', async () => {
+    const networkState = { isOffline: true };
+    useNetwork.mockImplementation(() => networkState);
+
+    const { rerender } = renderHook(() => useTenantListScreen());
+
+    expect(mockList).not.toHaveBeenCalled();
+
+    networkState.isOffline = false;
+    rerender();
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
+    });
+  });
 });

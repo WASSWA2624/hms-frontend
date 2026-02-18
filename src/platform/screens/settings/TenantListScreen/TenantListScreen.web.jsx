@@ -179,7 +179,7 @@ const TenantListScreenWeb = () => {
 
   const rows = pagedItems;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
+  const showOffline = !isLoading && isOffline && rows.length === 0;
   const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && totalItems === 0;
   const showList = !isLoading && !showError && !showOffline && rows.length > 0;
 
