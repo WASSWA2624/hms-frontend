@@ -44,8 +44,8 @@ const StyledToolbar = styled.div.withConfig({
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) minmax(170px, 220px) auto auto;
-    align-items: center;
+    grid-template-columns: minmax(300px, 1fr) minmax(180px, 220px) auto;
+    align-items: end;
   }
 `;
 
@@ -60,7 +60,20 @@ const StyledScopeSlot = styled.div.withConfig({
   displayName: 'StyledScopeSlot',
   componentId: 'StyledScopeSlot',
 })`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
   width: 100%;
+`;
+
+const StyledControlLabel = styled.span.withConfig({
+  displayName: 'StyledControlLabel',
+  componentId: 'StyledControlLabel',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: 1.2;
 `;
 
 const StyledToolbarActions = styled.div.withConfig({
@@ -68,7 +81,7 @@ const StyledToolbarActions = styled.div.withConfig({
   componentId: 'StyledToolbarActions',
 })`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
   gap: ${({ theme }) => theme.spacing.sm}px;
   flex-wrap: wrap;
@@ -171,11 +184,20 @@ const StyledFilterActions = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledFilterRowActions = styled.div.withConfig({
+  displayName: 'StyledFilterRowActions',
+  componentId: 'StyledFilterRowActions',
+})`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+`;
+
 const StyledFilterButton = styled.button.withConfig({
   displayName: 'StyledFilterButton',
   componentId: 'StyledFilterButton',
 })`
-  min-height: 32px;
+  min-height: 36px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
   background-color: ${({ theme }) => theme.colors.background.primary};
@@ -345,7 +367,33 @@ const StyledPaginationActions = styled.div.withConfig({
 })`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPaginationControl = styled.div.withConfig({
+  displayName: 'StyledPaginationControl',
+  componentId: 'StyledPaginationControl',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPaginationControlLabel = styled.span.withConfig({
+  displayName: 'StyledPaginationControlLabel',
+  componentId: 'StyledPaginationControlLabel',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledPaginationSelectSlot = styled.div.withConfig({
+  displayName: 'StyledPaginationSelectSlot',
+  componentId: 'StyledPaginationSelectSlot',
+})`
+  min-width: 86px;
 `;
 
 const StyledMobileList = styled.ul.withConfig({
@@ -438,6 +486,7 @@ export {
   StyledToolbar,
   StyledSearchSlot,
   StyledScopeSlot,
+  StyledControlLabel,
   StyledToolbarActions,
   StyledTableSettingsButton,
   StyledAddButton,
@@ -445,6 +494,7 @@ export {
   StyledFilterPanel,
   StyledFilterRow,
   StyledFilterActions,
+  StyledFilterRowActions,
   StyledFilterButton,
   StyledListBody,
   StyledStateStack,
@@ -460,6 +510,9 @@ export {
   StyledPagination,
   StyledPaginationInfo,
   StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationControlLabel,
+  StyledPaginationSelectSlot,
   StyledMobileList,
   StyledSettingsBody,
   StyledSettingsSection,

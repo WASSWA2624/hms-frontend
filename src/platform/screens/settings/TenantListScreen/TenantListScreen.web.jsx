@@ -35,9 +35,11 @@ import {
   StyledContainer,
   StyledContent,
   StyledDangerActionButton,
+  StyledControlLabel,
   StyledFilterActions,
   StyledFilterButton,
   StyledFilterPanel,
+  StyledFilterRowActions,
   StyledFilterRow,
   StyledListBody,
   StyledMobileList,
@@ -45,7 +47,10 @@ import {
   StyledMoveButton,
   StyledPagination,
   StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationControlLabel,
   StyledPaginationInfo,
+  StyledPaginationSelectSlot,
   StyledRowActions,
   StyledCodeCellText,
   StyledScopeSlot,
@@ -86,10 +91,10 @@ const resolveColumnLabel = (t, column) => {
 };
 
 const TABLE_COLUMN_LAYOUT = {
-  name: { width: '28%', minWidth: 180, align: 'left' },
-  slug: { width: '22%', minWidth: 150, align: 'left' },
-  humanId: { width: '18%', minWidth: 140, align: 'left' },
-  status: { width: '14%', minWidth: 112, align: 'center', truncate: false },
+  name: { width: 240, minWidth: 200, align: 'left' },
+  slug: { width: 190, minWidth: 160, align: 'left' },
+  humanId: { width: 150, minWidth: 130, align: 'left' },
+  status: { width: 130, minWidth: 112, align: 'center', truncate: false },
 };
 
 const resolveTenantCell = (t, tenant, column) => {
@@ -363,29 +368,29 @@ const TenantListScreenWeb = () => {
           </StyledSearchSlot>
 
           <StyledScopeSlot>
+            <StyledControlLabel>{t('tenant.list.searchScopeLabel')}</StyledControlLabel>
             <Select
               value={searchScope}
               onValueChange={onSearchScopeChange}
               options={searchScopeOptions}
-              label={t('tenant.list.searchScopeLabel')}
               accessibilityLabel={t('tenant.list.searchScopeLabel')}
               compact
               testID="tenant-list-search-scope"
             />
           </StyledScopeSlot>
 
-          {isTableMode ? (
-            <StyledTableSettingsButton
-              type="button"
-              onClick={onOpenTableSettings}
-              aria-label={t('tenant.list.tableSettings')}
-              data-testid="tenant-table-settings"
-            >
-              {t('tenant.list.tableSettings')}
-            </StyledTableSettingsButton>
-          ) : null}
-
           <StyledToolbarActions>
+            {isTableMode ? (
+              <StyledTableSettingsButton
+                type="button"
+                onClick={onOpenTableSettings}
+                aria-label={t('tenant.list.tableSettings')}
+                data-testid="tenant-table-settings"
+              >
+                {t('tenant.list.tableSettings')}
+              </StyledTableSettingsButton>
+            ) : null}
+
             {onAdd ? (
               <StyledAddButton
                 type="button"
@@ -459,7 +464,7 @@ const TenantListScreenWeb = () => {
                   />
                 )}
 
-                <StyledFilterActions>
+                <StyledFilterRowActions>
                   <StyledFilterButton
                     type="button"
                     onClick={() => onRemoveFilter(filter.id)}
@@ -468,7 +473,7 @@ const TenantListScreenWeb = () => {
                   >
                     {t('common.remove')}
                   </StyledFilterButton>
-                </StyledFilterActions>
+                </StyledFilterRowActions>
               </StyledFilterRow>
             );
           })}
@@ -576,7 +581,7 @@ const TenantListScreenWeb = () => {
                   maxHeight: 560,
                   overscan: 10,
                 }}
-                minWidth={860}
+                minWidth={980}
                 testID="tenant-table"
               />
             ) : null}
@@ -653,23 +658,37 @@ const TenantListScreenWeb = () => {
                     {t('common.previous')}
                   </StyledActionButton>
 
-                  <Select
-                    value={String(pageSize)}
-                    onValueChange={onPageSizeChange}
-                    options={pageSizeOptions}
-                    label={t('tenant.list.pageSizeLabel')}
-                    compact
-                    testID="tenant-page-size"
-                  />
+                  <StyledPaginationControl>
+                    <StyledPaginationControlLabel>
+                      {t('tenant.list.pageSizeLabel')}
+                    </StyledPaginationControlLabel>
+                    <StyledPaginationSelectSlot>
+                      <Select
+                        value={String(pageSize)}
+                        onValueChange={onPageSizeChange}
+                        options={pageSizeOptions}
+                        accessibilityLabel={t('tenant.list.pageSizeLabel')}
+                        compact
+                        testID="tenant-page-size"
+                      />
+                    </StyledPaginationSelectSlot>
+                  </StyledPaginationControl>
 
-                  <Select
-                    value={density}
-                    onValueChange={onDensityChange}
-                    options={densityOptions}
-                    label={t('tenant.list.densityLabel')}
-                    compact
-                    testID="tenant-density"
-                  />
+                  <StyledPaginationControl>
+                    <StyledPaginationControlLabel>
+                      {t('tenant.list.densityLabel')}
+                    </StyledPaginationControlLabel>
+                    <StyledPaginationSelectSlot>
+                      <Select
+                        value={density}
+                        onValueChange={onDensityChange}
+                        options={densityOptions}
+                        accessibilityLabel={t('tenant.list.densityLabel')}
+                        compact
+                        testID="tenant-density"
+                      />
+                    </StyledPaginationSelectSlot>
+                  </StyledPaginationControl>
 
                   <StyledActionButton
                     type="button"

@@ -4,6 +4,9 @@
  */
 import styled from 'styled-components';
 
+const SELECTION_COLUMN_WIDTH = 48;
+const ACTIONS_COLUMN_WIDTH = 220;
+
 const resolveHeaderJustify = (align) => {
   if (align === 'right') return 'flex-end';
   if (align === 'center') return 'center';
@@ -61,8 +64,12 @@ const StyledHeaderCell = styled.th.withConfig({
 
   ${({ $width }) => ($width ? `width: ${$width};` : '')}
   ${({ $minWidth }) => ($minWidth ? `min-width: ${$minWidth};` : '')}
-  ${({ $isSelection }) => ($isSelection ? 'width: 52px; min-width: 52px; max-width: 52px;' : '')}
-  ${({ $isActions }) => ($isActions ? 'width: 180px; min-width: 180px;' : '')}
+  ${({ $isSelection }) => ($isSelection
+    ? `width: ${SELECTION_COLUMN_WIDTH}px; min-width: ${SELECTION_COLUMN_WIDTH}px; max-width: ${SELECTION_COLUMN_WIDTH}px;`
+    : '')}
+  ${({ $isActions }) => ($isActions
+    ? `width: ${ACTIONS_COLUMN_WIDTH}px; min-width: ${ACTIONS_COLUMN_WIDTH}px;`
+    : '')}
 `;
 
 const StyledHeaderButton = styled.button.withConfig({
@@ -141,8 +148,12 @@ const StyledCell = styled.td.withConfig({
   overflow: ${({ $truncate }) => ($truncate === false ? 'visible' : 'hidden')};
   text-overflow: ${({ $truncate }) => ($truncate === false ? 'clip' : 'ellipsis')};
 
-  ${({ $isSelection }) => ($isSelection ? 'width: 52px; min-width: 52px; max-width: 52px;' : '')}
-  ${({ $isActions }) => ($isActions ? 'width: 180px; min-width: 180px;' : '')}
+  ${({ $isSelection }) => ($isSelection
+    ? `width: ${SELECTION_COLUMN_WIDTH}px; min-width: ${SELECTION_COLUMN_WIDTH}px; max-width: ${SELECTION_COLUMN_WIDTH}px;`
+    : '')}
+  ${({ $isActions }) => ($isActions
+    ? `width: ${ACTIONS_COLUMN_WIDTH}px; min-width: ${ACTIONS_COLUMN_WIDTH}px;`
+    : '')}
 `;
 
 const StyledSpacerCell = styled.td.withConfig({
