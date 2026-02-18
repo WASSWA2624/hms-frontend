@@ -76,7 +76,7 @@ import useUnitListScreen from './useUnitListScreen';
 const resolveUnitTitle = (t, Unit) => {
   const name = humanizeIdentifier(Unit?.name);
   if (name) return String(name).trim();
-  return t('Unit.list.unnamed');
+  return t('unit.list.unnamed');
 };
 
 const resolveUnitTenantLabel = (t, Unit) => {
@@ -84,7 +84,6 @@ const resolveUnitTenantLabel = (t, Unit) => {
     Unit?.tenant_name
     ?? Unit?.tenant?.name
     ?? Unit?.tenant_label
-    ?? Unit?.tenant_id
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
@@ -95,24 +94,35 @@ const resolveUnitFacilityLabel = (t, Unit) => {
     Unit?.facility_name
     ?? Unit?.facility?.name
     ?? Unit?.facility_label
-    ?? Unit?.facility_id
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveUnitDepartmentLabel = (t, Unit) => {
+  const value = humanizeIdentifier(
+    Unit?.department_name
+    ?? Unit?.department?.name
+    ?? Unit?.department_label
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
 };
 
 const resolveColumnLabel = (t, column) => {
-  if (column === 'name') return t('Unit.list.columnName');
-  if (column === 'tenant') return t('Unit.list.columnTenant');
-  if (column === 'facility') return t('Unit.list.columnFacility');
-  if (column === 'status') return t('Unit.list.columnStatus');
+  if (column === 'name') return t('unit.list.columnName');
+  if (column === 'tenant') return t('unit.list.columnTenant');
+  if (column === 'facility') return t('unit.list.columnFacility');
+  if (column === 'department') return t('unit.list.columnDepartment');
+  if (column === 'status') return t('unit.list.columnStatus');
   return column;
 };
 
 const TABLE_COLUMN_LAYOUT = {
   name: { width: 240, minWidth: 200, align: 'left' },
-  tenant: { width: 220, minWidth: 180, align: 'left' },
-  facility: { width: 220, minWidth: 180, align: 'left' },
+  tenant: { width: 210, minWidth: 170, align: 'left' },
+  facility: { width: 210, minWidth: 170, align: 'left' },
+  department: { width: 210, minWidth: 170, align: 'left' },
   status: { width: 130, minWidth: 112, align: 'center', truncate: false },
 };
 
@@ -120,10 +130,11 @@ const resolveUnitCell = (t, Unit, column) => {
   if (column === 'name') return resolveUnitTitle(t, Unit);
   if (column === 'tenant') return resolveUnitTenantLabel(t, Unit);
   if (column === 'facility') return resolveUnitFacilityLabel(t, Unit);
+  if (column === 'department') return resolveUnitDepartmentLabel(t, Unit);
   if (column === 'status') {
     const isActive = Boolean(Unit?.is_active);
     return {
-      label: isActive ? t('Unit.list.statusActive') : t('Unit.list.statusInactive'),
+      label: isActive ? t('unit.list.statusActive') : t('unit.list.statusInactive'),
       tone: isActive ? 'success' : 'warning',
     };
   }
@@ -133,15 +144,32 @@ const resolveUnitCell = (t, Unit, column) => {
 const resolveMobileSubtitle = (t, Unit) => {
   const tenant = resolveUnitTenantLabel(t, Unit);
   const facility = resolveUnitFacilityLabel(t, Unit);
+  const department = resolveUnitDepartmentLabel(t, Unit);
 
+  if (
+    tenant !== t('common.notAvailable')
+    && facility !== t('common.notAvailable')
+    && department !== t('common.notAvailable')
+  ) {
+    return t('unit.list.contextValue', { tenant, facility, department });
+  }
+  if (facility !== t('common.notAvailable') && department !== t('common.notAvailable')) {
+    return t('unit.list.facilityDepartmentValue', { facility, department });
+  }
   if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
-    return t('Unit.list.contextValue', { tenant, facility });
+    return t('unit.list.tenantFacilityValue', { tenant, facility });
+  }
+  if (tenant !== t('common.notAvailable') && department !== t('common.notAvailable')) {
+    return t('unit.list.tenantDepartmentValue', { tenant, department });
+  }
+  if (department !== t('common.notAvailable')) {
+    return t('unit.list.departmentValue', { department });
   }
   if (facility !== t('common.notAvailable')) {
-    return t('Unit.list.facilityValue', { facility });
+    return t('unit.list.facilityValue', { facility });
   }
   if (tenant !== t('common.notAvailable')) {
-    return t('Unit.list.tenantValue', { tenant });
+    return t('unit.list.tenantValue', { tenant });
   }
   return undefined;
 };
@@ -222,42 +250,42 @@ const UnitListScreenWeb = () => {
 
   const emptyComponent = (
     <EmptyState
-      title={t('Unit.list.emptyTitle')}
-      description={t('Unit.list.emptyMessage')}
+      title={t('unit.list.emptyTitle')}
+      description={t('unit.list.emptyMessage')}
       action={
         onAdd ? (
           <StyledAddButton
             type="button"
             onClick={onAdd}
             onPress={onAdd}
-            accessibilityLabel={t('Unit.list.addLabel')}
-            accessibilityHint={t('Unit.list.addHint')}
-            testID="Unit-list-empty-add"
+            accessibilityLabel={t('unit.list.addLabel')}
+            accessibilityHint={t('unit.list.addHint')}
+            testID="unit-list-empty-add"
           >
             <Icon glyph="+" size="xs" decorative />
-            <StyledAddLabel>{t('Unit.list.addLabel')}</StyledAddLabel>
+            <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
           </StyledAddButton>
         ) : undefined
       }
-      testID="Unit-list-empty-state"
+      testID="unit-list-empty-state"
     />
   );
 
   const noResultsComponent = (
     <EmptyState
-      title={t('Unit.list.noResultsTitle')}
-      description={t('Unit.list.noResultsMessage')}
+      title={t('unit.list.noResultsTitle')}
+      description={t('unit.list.noResultsMessage')}
       action={
         <StyledFilterButton
           type="button"
           onClick={onClearSearchAndFilters}
-          testID="Unit-list-clear-search"
-          aria-label={t('Unit.list.clearSearchAndFilters')}
+          testID="unit-list-clear-search"
+          aria-label={t('unit.list.clearSearchAndFilters')}
         >
-          {t('Unit.list.clearSearchAndFilters')}
+          {t('unit.list.clearSearchAndFilters')}
         </StyledFilterButton>
       }
-      testID="Unit-list-no-results"
+      testID="unit-list-no-results"
     />
   );
 
@@ -268,7 +296,7 @@ const UnitListScreenWeb = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      testID="Unit-list-retry"
+      testID="unit-list-retry"
     >
       {t('common.retry')}
     </Button>
@@ -282,7 +310,7 @@ const UnitListScreenWeb = () => {
         id: column,
         label: resolveColumnLabel(t, column),
         sortable: true,
-        sortLabel: t('Unit.list.sortBy', { field: resolveColumnLabel(t, column) }),
+        sortLabel: t('unit.list.sortBy', { field: resolveColumnLabel(t, column) }),
         width: columnLayout.width,
         minWidth: columnLayout.minWidth,
         align: columnLayout.align,
@@ -295,7 +323,7 @@ const UnitListScreenWeb = () => {
           if (column === 'name') {
             return <StyledPrimaryCellText>{value}</StyledPrimaryCellText>;
           }
-          if (column === 'tenant' || column === 'facility') {
+          if (column === 'tenant' || column === 'facility' || column === 'department') {
             return <StyledCodeCellText>{value}</StyledCodeCellText>;
           }
           return value;
@@ -317,12 +345,12 @@ const UnitListScreenWeb = () => {
       onToggleAll: (checked) => onTogglePageSelection(Boolean(checked)),
       isRowSelected: (Unit) => Boolean(Unit?.id) && selectedUnitIds.includes(Unit.id),
       onToggleRow: (Unit) => onToggleUnitSelection(Unit?.id),
-      selectAllLabel: t('Unit.list.selectPage'),
-      selectRowLabel: (Unit) => t('Unit.list.selectUnit', {
+      selectAllLabel: t('unit.list.selectPage'),
+      selectRowLabel: (Unit) => t('unit.list.selectUnit', {
         name: resolveUnitTitle(t, Unit),
       }),
-      headerCheckboxTestId: 'Unit-select-page',
-      rowCheckboxTestIdPrefix: 'Unit-select',
+      headerCheckboxTestId: 'unit-select-page',
+      rowCheckboxTestIdPrefix: 'unit-select',
     };
   }, [
     onBulkDelete,
@@ -350,18 +378,18 @@ const UnitListScreenWeb = () => {
             event.stopPropagation();
             onUnitPress(UnitId);
           }}
-          data-testid={`Unit-view-${UnitId}`}
+          data-testid={`unit-view-${UnitId}`}
         >
-          {t('Unit.list.view')}
+          {t('unit.list.view')}
         </StyledActionButton>
 
         {onEdit ? (
           <StyledActionButton
             type="button"
             onClick={(event) => onEdit(UnitId, event)}
-            data-testid={`Unit-edit-${UnitId}`}
+            data-testid={`unit-edit-${UnitId}`}
           >
-            {t('Unit.list.edit')}
+            {t('unit.list.edit')}
           </StyledActionButton>
         ) : null}
 
@@ -369,7 +397,7 @@ const UnitListScreenWeb = () => {
           <StyledDangerActionButton
             type="button"
             onClick={(event) => onDelete(UnitId, event)}
-            data-testid={`Unit-delete-${UnitId}`}
+            data-testid={`unit-delete-${UnitId}`}
           >
             {t('common.remove')}
           </StyledDangerActionButton>
@@ -379,28 +407,28 @@ const UnitListScreenWeb = () => {
   }, [onUnitPress, onEdit, onDelete, t]);
 
   const searchBarSection = (
-    <StyledToolbar data-testid="Unit-list-toolbar">
+    <StyledToolbar data-testid="unit-list-toolbar">
       <StyledSearchSlot>
         <TextField
           value={search}
           onChange={(e) => onSearch(e.target.value)}
-          placeholder={t('Unit.list.searchPlaceholder')}
-          accessibilityLabel={t('Unit.list.searchLabel')}
+          placeholder={t('unit.list.searchPlaceholder')}
+          accessibilityLabel={t('unit.list.searchLabel')}
           density="compact"
           type="search"
-          testID="Unit-list-search"
+          testID="unit-list-search"
         />
       </StyledSearchSlot>
 
       <StyledScopeSlot>
-        <StyledControlLabel>{t('Unit.list.searchScopeLabel')}</StyledControlLabel>
+        <StyledControlLabel>{t('unit.list.searchScopeLabel')}</StyledControlLabel>
         <Select
           value={searchScope}
           onValueChange={onSearchScopeChange}
           options={searchScopeOptions}
-          accessibilityLabel={t('Unit.list.searchScopeLabel')}
+          accessibilityLabel={t('unit.list.searchScopeLabel')}
           compact
-          testID="Unit-list-search-scope"
+          testID="unit-list-search-scope"
         />
       </StyledScopeSlot>
 
@@ -409,10 +437,10 @@ const UnitListScreenWeb = () => {
           <StyledTableSettingsButton
             type="button"
             onClick={onOpenTableSettings}
-            aria-label={t('Unit.list.tableSettings')}
-            data-testid="Unit-table-settings"
+            aria-label={t('unit.list.tableSettings')}
+            data-testid="unit-table-settings"
           >
-            {t('Unit.list.tableSettings')}
+            {t('unit.list.tableSettings')}
           </StyledTableSettingsButton>
         ) : null}
 
@@ -421,12 +449,12 @@ const UnitListScreenWeb = () => {
             type="button"
             onClick={onAdd}
             onPress={onAdd}
-            accessibilityLabel={t('Unit.list.addLabel')}
-            accessibilityHint={t('Unit.list.addHint')}
-            testID="Unit-list-add"
+            accessibilityLabel={t('unit.list.addLabel')}
+            accessibilityHint={t('unit.list.addHint')}
+            testID="unit-list-add"
           >
             <Icon glyph="+" size="xs" decorative />
-            <StyledAddLabel>{t('Unit.list.addLabel')}</StyledAddLabel>
+            <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
           </StyledAddButton>
         ) : null}
       </StyledToolbarActions>
@@ -446,7 +474,7 @@ const UnitListScreenWeb = () => {
           title={isFilterPanelCollapsed
             ? t('shell.sidebar.expandSectionLabel', { label: t('common.filters') })
             : t('shell.sidebar.collapseSectionLabel', { label: t('common.filters') })}
-          data-testid="Unit-filter-toggle"
+          data-testid="unit-filter-toggle"
         >
           <StyledFilterChevron $collapsed={isFilterPanelCollapsed} aria-hidden="true">
             {'\u25BE'}
@@ -455,15 +483,15 @@ const UnitListScreenWeb = () => {
       </StyledFilterHeader>
 
       {!isFilterPanelCollapsed ? (
-        <StyledFilterBody data-testid="Unit-filter-body">
+        <StyledFilterBody data-testid="unit-filter-body">
           <Select
             value={filterLogic}
             onValueChange={onFilterLogicChange}
             options={filterLogicOptions}
-            label={t('Unit.list.filterLogicLabel')}
-            accessibilityLabel={t('Unit.list.filterLogicLabel')}
+            label={t('unit.list.filterLogicLabel')}
+            accessibilityLabel={t('unit.list.filterLogicLabel')}
             compact
-            testID="Unit-filter-logic"
+            testID="unit-filter-logic"
           />
 
           {filters.map((filter, index) => {
@@ -475,18 +503,18 @@ const UnitListScreenWeb = () => {
                   value={filter.field}
                   onValueChange={(value) => onFilterFieldChange(filter.id, value)}
                   options={filterFieldOptions}
-                  label={t('Unit.list.filterFieldLabel')}
+                  label={t('unit.list.filterFieldLabel')}
                   compact
-                  testID={`Unit-filter-field-${index}`}
+                  testID={`unit-filter-field-${index}`}
                 />
 
                 <Select
                   value={filter.operator}
                   onValueChange={(value) => onFilterOperatorChange(filter.id, value)}
                   options={operatorOptions}
-                  label={t('Unit.list.filterOperatorLabel')}
+                  label={t('unit.list.filterOperatorLabel')}
                   compact
-                  testID={`Unit-filter-operator-${index}`}
+                  testID={`unit-filter-operator-${index}`}
                 />
 
                 {isStatusFilter ? (
@@ -494,21 +522,21 @@ const UnitListScreenWeb = () => {
                     value={filter.value || 'active'}
                     onValueChange={(value) => onFilterValueChange(filter.id, value)}
                     options={[
-                      { value: 'active', label: t('Unit.list.statusActive') },
-                      { value: 'inactive', label: t('Unit.list.statusInactive') },
+                      { value: 'active', label: t('unit.list.statusActive') },
+                      { value: 'inactive', label: t('unit.list.statusInactive') },
                     ]}
-                    label={t('Unit.list.filterValueLabel')}
+                    label={t('unit.list.filterValueLabel')}
                     compact
-                    testID={`Unit-filter-value-${index}`}
+                    testID={`unit-filter-value-${index}`}
                   />
                 ) : (
                   <TextField
                     value={filter.value}
                     onChange={(event) => onFilterValueChange(filter.id, event.target.value)}
-                    label={t('Unit.list.filterValueLabel')}
-                    placeholder={t('Unit.list.filterValuePlaceholder')}
+                    label={t('unit.list.filterValueLabel')}
+                    placeholder={t('unit.list.filterValuePlaceholder')}
                     density="compact"
-                    testID={`Unit-filter-value-${index}`}
+                    testID={`unit-filter-value-${index}`}
                   />
                 )}
 
@@ -516,8 +544,8 @@ const UnitListScreenWeb = () => {
                   <StyledFilterButton
                     type="button"
                     onClick={() => onRemoveFilter(filter.id)}
-                    aria-label={t('Unit.list.removeFilter')}
-                    testID={`Unit-filter-remove-${index}`}
+                    aria-label={t('unit.list.removeFilter')}
+                    testID={`unit-filter-remove-${index}`}
                   >
                     {t('common.remove')}
                   </StyledFilterButton>
@@ -531,16 +559,16 @@ const UnitListScreenWeb = () => {
               type="button"
               onClick={onAddFilter}
               disabled={!canAddFilter}
-              testID="Unit-filter-add"
+              testID="unit-filter-add"
             >
-              {t('Unit.list.addFilter')}
+              {t('unit.list.addFilter')}
             </StyledFilterButton>
             <StyledFilterButton
               type="button"
               onClick={onClearSearchAndFilters}
-              testID="Unit-filter-clear"
+              testID="unit-filter-clear"
             >
-              {t('Unit.list.clearSearchAndFilters')}
+              {t('unit.list.clearSearchAndFilters')}
             </StyledFilterButton>
           </StyledFilterActions>
         </StyledFilterBody>
@@ -549,24 +577,24 @@ const UnitListScreenWeb = () => {
   );
 
   const bulkActionsBar = onBulkDelete && selectedUnitIds.length > 0 ? (
-    <StyledBulkBar data-testid="Unit-bulk-bar">
+    <StyledBulkBar data-testid="unit-bulk-bar">
       <StyledBulkInfo>
-        {t('Unit.list.bulkSelectedCount', { count: selectedUnitIds.length })}
+        {t('unit.list.bulkSelectedCount', { count: selectedUnitIds.length })}
       </StyledBulkInfo>
       <StyledBulkActions>
         <StyledActionButton
           type="button"
           onClick={onClearSelection}
-          data-testid="Unit-bulk-clear"
+          data-testid="unit-bulk-clear"
         >
-          {t('Unit.list.clearSelection')}
+          {t('unit.list.clearSelection')}
         </StyledActionButton>
         <StyledDangerActionButton
           type="button"
           onClick={onBulkDelete}
-          data-testid="Unit-bulk-delete"
+          data-testid="unit-bulk-delete"
         >
-          {t('Unit.list.bulkDelete')}
+          {t('unit.list.bulkDelete')}
         </StyledDangerActionButton>
       </StyledBulkActions>
     </StyledBulkBar>
@@ -576,7 +604,7 @@ const UnitListScreenWeb = () => {
 
   const paginationContent = showList ? (
     <StyledPaginationInfo>
-      {t('Unit.list.pageSummary', { page, totalPages, total: totalItems })}
+      {t('unit.list.pageSummary', { page, totalPages, total: totalItems })}
     </StyledPaginationInfo>
   ) : null;
 
@@ -588,39 +616,39 @@ const UnitListScreenWeb = () => {
         disabled={page <= 1}
         aria-label={t('common.previous')}
         title={t('common.previous')}
-        data-testid="Unit-page-prev"
+        data-testid="unit-page-prev"
       >
         {'<'}
       </StyledPaginationNavButton>
 
       <StyledPaginationControl>
         <StyledPaginationControlLabel>
-          {t('Unit.list.pageSizeLabel')}
+          {t('unit.list.pageSizeLabel')}
         </StyledPaginationControlLabel>
         <StyledPaginationSelectSlot>
           <Select
             value={String(pageSize)}
             onValueChange={onPageSizeChange}
             options={pageSizeOptions}
-            accessibilityLabel={t('Unit.list.pageSizeLabel')}
+            accessibilityLabel={t('unit.list.pageSizeLabel')}
             compact
-            testID="Unit-page-size"
+            testID="unit-page-size"
           />
         </StyledPaginationSelectSlot>
       </StyledPaginationControl>
 
       <StyledPaginationControl>
         <StyledPaginationControlLabel>
-          {t('Unit.list.densityLabel')}
+          {t('unit.list.densityLabel')}
         </StyledPaginationControlLabel>
         <StyledPaginationSelectSlot>
           <Select
             value={density}
             onValueChange={onDensityChange}
             options={densityOptions}
-            accessibilityLabel={t('Unit.list.densityLabel')}
+            accessibilityLabel={t('unit.list.densityLabel')}
             compact
-            testID="Unit-density"
+            testID="unit-density"
           />
         </StyledPaginationSelectSlot>
       </StyledPaginationControl>
@@ -631,7 +659,7 @@ const UnitListScreenWeb = () => {
         disabled={page >= totalPages}
         aria-label={t('common.next')}
         title={t('common.next')}
-        data-testid="Unit-page-next"
+        data-testid="unit-page-next"
       >
         {'>'}
       </StyledPaginationNavButton>
@@ -639,7 +667,7 @@ const UnitListScreenWeb = () => {
   ) : null;
 
   return (
-    <StyledContainer role="main" aria-label={t('Unit.list.title')}>
+    <StyledContainer role="main" aria-label={t('unit.list.title')}>
       {noticeMessage ? (
         <Snackbar
           visible={Boolean(noticeMessage)}
@@ -647,7 +675,7 @@ const UnitListScreenWeb = () => {
           variant="success"
           position="bottom"
           onDismiss={onDismissNotice}
-          testID="Unit-list-notice"
+          testID="unit-list-notice"
         />
       ) : null}
 
@@ -658,14 +686,14 @@ const UnitListScreenWeb = () => {
 
         <Card
           variant="outlined"
-          accessibilityLabel={t('Unit.list.accessibilityLabel')}
-          testID="Unit-list-card"
+          accessibilityLabel={t('unit.list.accessibilityLabel')}
+          testID="unit-list-card"
         >
           <StyledListBody
             role="region"
-            aria-label={t('Unit.list.accessibilityLabel')}
-            data-testid="Unit-list"
-            testID="Unit-list"
+            aria-label={t('unit.list.accessibilityLabel')}
+            data-testid="unit-list"
+            testID="unit-list"
           >
             <StyledStateStack>
               {showError ? (
@@ -674,7 +702,7 @@ const UnitListScreenWeb = () => {
                   title={t('listScaffold.errorState.title')}
                   description={errorMessage}
                   action={retryAction}
-                  testID="Unit-list-error"
+                  testID="unit-list-error"
                 />
               ) : null}
 
@@ -684,7 +712,7 @@ const UnitListScreenWeb = () => {
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="Unit-list-offline"
+                  testID="unit-list-offline"
                 />
               ) : null}
 
@@ -694,13 +722,13 @@ const UnitListScreenWeb = () => {
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="Unit-list-offline-banner"
+                  testID="unit-list-offline-banner"
                 />
               ) : null}
             </StyledStateStack>
 
             {isLoading ? (
-              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="Unit-list-loading" />
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="unit-list-loading" />
             ) : null}
 
             {!isTableMode && showEmpty ? emptyComponent : null}
@@ -710,14 +738,14 @@ const UnitListScreenWeb = () => {
               <DataTable
                 columns={tableColumns}
                 rows={rows}
-                getRowKey={(Unit, index) => Unit?.id ?? `Unit-${index}`}
+                getRowKey={(Unit, index) => Unit?.id ?? `unit-${index}`}
                 rowDensity={density}
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSort={onSort}
                 selection={tableSelection}
                 renderRowActions={renderTableRowActions}
-                rowActionsLabel={t('Unit.list.columnActions')}
+                rowActionsLabel={t('unit.list.columnActions')}
                 onRowPress={handleTableRowPress}
                 virtualization={{
                   enabled: true,
@@ -734,7 +762,7 @@ const UnitListScreenWeb = () => {
                 tableNavigation={tableNavigationContent}
                 showDefaultEmptyRow={false}
                 minWidth={980}
-                testID="Unit-table"
+                testID="unit-table"
               />
             ) : null}
 
@@ -742,12 +770,12 @@ const UnitListScreenWeb = () => {
               <StyledMobileList role="list">
                 {rows.map((Unit, index) => {
                   const title = resolveUnitTitle(t, Unit);
-                  const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+                  const leadingGlyph = String(title || 'U').charAt(0).toUpperCase();
                   const UnitId = Unit?.id;
-                  const itemKey = UnitId ?? `Unit-${index}`;
+                  const itemKey = UnitId ?? `unit-${index}`;
                   const statusLabel = Unit?.is_active
-                    ? t('Unit.list.statusActive')
-                    : t('Unit.list.statusInactive');
+                    ? t('unit.list.statusActive')
+                    : t('unit.list.statusInactive');
                   const statusTone = Unit?.is_active ? 'success' : 'warning';
                   return (
                     <li key={itemKey} role="listitem">
@@ -760,29 +788,29 @@ const UnitListScreenWeb = () => {
                           label: statusLabel,
                           tone: statusTone,
                           showDot: true,
-                          accessibilityLabel: t('Unit.list.statusLabel'),
+                          accessibilityLabel: t('unit.list.statusLabel'),
                         }}
                         density="compact"
                         onPress={UnitId ? () => onUnitPress(UnitId) : undefined}
                         onView={UnitId ? () => onUnitPress(UnitId) : undefined}
                         onEdit={onEdit && UnitId ? (event) => onEdit(UnitId, event) : undefined}
                         onDelete={onDelete && UnitId ? (event) => onDelete(UnitId, event) : undefined}
-                        viewLabel={t('Unit.list.view')}
-                        viewHint={t('Unit.list.viewHint')}
-                        editLabel={t('Unit.list.edit')}
-                        editHint={t('Unit.list.editHint')}
+                        viewLabel={t('unit.list.view')}
+                        viewHint={t('unit.list.viewHint')}
+                        editLabel={t('unit.list.edit')}
+                        editHint={t('unit.list.editHint')}
                         deleteLabel={t('common.remove')}
-                        deleteHint={t('Unit.list.deleteHint')}
+                        deleteHint={t('unit.list.deleteHint')}
                         onMore={UnitId ? () => onUnitPress(UnitId) : undefined}
                         moreLabel={t('common.more')}
-                        moreHint={t('Unit.list.viewHint')}
-                        viewTestID={`Unit-view-${itemKey}`}
-                        editTestID={`Unit-edit-${itemKey}`}
-                        deleteTestID={`Unit-delete-${itemKey}`}
-                        moreTestID={`Unit-more-${itemKey}`}
-                        accessibilityLabel={t('Unit.list.itemLabel', { name: title })}
-                        accessibilityHint={t('Unit.list.itemHint', { name: title })}
-                        testID={`Unit-item-${itemKey}`}
+                        moreHint={t('unit.list.viewHint')}
+                        viewTestID={`unit-view-${itemKey}`}
+                        editTestID={`unit-edit-${itemKey}`}
+                        deleteTestID={`unit-delete-${itemKey}`}
+                        moreTestID={`unit-more-${itemKey}`}
+                        accessibilityLabel={t('unit.list.itemLabel', { name: title })}
+                        accessibilityHint={t('unit.list.itemHint', { name: title })}
+                        testID={`unit-item-${itemKey}`}
                       />
                     </li>
                   );
@@ -793,7 +821,7 @@ const UnitListScreenWeb = () => {
             {!isTableMode && showList ? (
               <StyledPagination>
                 <StyledPaginationInfo>
-                  {t('Unit.list.pageSummary', { page, totalPages, total: totalItems })}
+                  {t('unit.list.pageSummary', { page, totalPages, total: totalItems })}
                 </StyledPaginationInfo>
 
                 <StyledPaginationActions>
@@ -803,39 +831,39 @@ const UnitListScreenWeb = () => {
                     disabled={page <= 1}
                     aria-label={t('common.previous')}
                     title={t('common.previous')}
-                    data-testid="Unit-page-prev"
+                    data-testid="unit-page-prev"
                   >
                     {'<'}
                   </StyledPaginationNavButton>
 
                   <StyledPaginationControl>
                     <StyledPaginationControlLabel>
-                      {t('Unit.list.pageSizeLabel')}
+                      {t('unit.list.pageSizeLabel')}
                     </StyledPaginationControlLabel>
                     <StyledPaginationSelectSlot>
                       <Select
                         value={String(pageSize)}
                         onValueChange={onPageSizeChange}
                         options={pageSizeOptions}
-                        accessibilityLabel={t('Unit.list.pageSizeLabel')}
+                        accessibilityLabel={t('unit.list.pageSizeLabel')}
                         compact
-                        testID="Unit-page-size"
+                        testID="unit-page-size"
                       />
                     </StyledPaginationSelectSlot>
                   </StyledPaginationControl>
 
                   <StyledPaginationControl>
                     <StyledPaginationControlLabel>
-                      {t('Unit.list.densityLabel')}
+                      {t('unit.list.densityLabel')}
                     </StyledPaginationControlLabel>
                     <StyledPaginationSelectSlot>
                       <Select
                         value={density}
                         onValueChange={onDensityChange}
                         options={densityOptions}
-                        accessibilityLabel={t('Unit.list.densityLabel')}
+                        accessibilityLabel={t('unit.list.densityLabel')}
                         compact
-                        testID="Unit-density"
+                        testID="unit-density"
                       />
                     </StyledPaginationSelectSlot>
                   </StyledPaginationControl>
@@ -846,7 +874,7 @@ const UnitListScreenWeb = () => {
                     disabled={page >= totalPages}
                     aria-label={t('common.next')}
                     title={t('common.next')}
-                    data-testid="Unit-page-next"
+                    data-testid="unit-page-next"
                   >
                     {'>'}
                   </StyledPaginationNavButton>
@@ -860,41 +888,41 @@ const UnitListScreenWeb = () => {
           visible={Boolean(isTableMode && isTableSettingsOpen)}
           onDismiss={onCloseTableSettings}
           size="small"
-          accessibilityLabel={t('Unit.list.tableSettings')}
-          testID="Unit-table-settings-modal"
+          accessibilityLabel={t('unit.list.tableSettings')}
+          testID="unit-table-settings-modal"
         >
           <StyledSettingsBody>
             <StyledSettingsSection>
-              <StyledSettingsTitle>{t('Unit.list.visibleColumns')}</StyledSettingsTitle>
+              <StyledSettingsTitle>{t('unit.list.visibleColumns')}</StyledSettingsTitle>
               {columnOrder.map((column) => (
                 <StyledColumnRow key={column}>
                   <Checkbox
                     checked={visibleColumns.includes(column)}
                     onChange={() => onToggleColumnVisibility(column)}
                     label={resolveColumnLabel(t, column)}
-                    testID={`Unit-column-visible-${column}`}
+                    testID={`unit-column-visible-${column}`}
                   />
 
                   <StyledColumnMoveControls>
                     <StyledMoveButton
                       type="button"
                       onClick={() => onMoveColumnLeft(column)}
-                      aria-label={t('Unit.list.moveColumnLeft', {
+                      aria-label={t('unit.list.moveColumnLeft', {
                         column: resolveColumnLabel(t, column),
                       })}
                       disabled={columnOrder.indexOf(column) === 0}
-                      data-testid={`Unit-column-left-${column}`}
+                      data-testid={`unit-column-left-${column}`}
                     >
                       {'<'}
                     </StyledMoveButton>
                     <StyledMoveButton
                       type="button"
                       onClick={() => onMoveColumnRight(column)}
-                      aria-label={t('Unit.list.moveColumnRight', {
+                      aria-label={t('unit.list.moveColumnRight', {
                         column: resolveColumnLabel(t, column),
                       })}
                       disabled={columnOrder.indexOf(column) === columnOrder.length - 1}
-                      data-testid={`Unit-column-right-${column}`}
+                      data-testid={`unit-column-right-${column}`}
                     >
                       {'>'}
                     </StyledMoveButton>
@@ -907,9 +935,9 @@ const UnitListScreenWeb = () => {
               <StyledFilterButton
                 type="button"
                 onClick={onResetTablePreferences}
-                data-testid="Unit-table-settings-reset"
+                data-testid="unit-table-settings-reset"
               >
-                {t('Unit.list.resetTablePreferences')}
+                {t('unit.list.resetTablePreferences')}
               </StyledFilterButton>
             </StyledSettingsActions>
           </StyledSettingsBody>

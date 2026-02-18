@@ -63,6 +63,18 @@ You must ensure 100% compliance with:
 
 Only implement what is required for selected step(s).
 
+## Pagination Limit Safety and Type Contract (Mandatory)
+
+For any selected step that reads list data, dashboard aggregates, or paginated resources:
+- Frontend request pagination must always align with backend limits defined in `hms-backend/src/config/constants.js` (`MAX_PAGE_LIMIT`, currently `100`).
+- Do not send list/query `limit` values above backend `MAX_PAGE_LIMIT` under any workflow, including dashboards, preload batches, and reference lookups.
+- Do not hardcode oversized values (for example `200`, `250`, `500`) in list/query calls; use shared capped constants or helpers only.
+- Coerce pagination params to numbers before API calls, then clamp to `[1, MAX_PAGE_LIMIT]`; never pass string values to data-layer pagination inputs.
+- When user preferences or URL params contain invalid values, fail safe by applying default bounded values instead of forwarding raw input.
+- Keep one shared pagination normalization path per screen family/module to prevent drift across web, iOS, and Android variants.
+- Add/update tests that assert outbound list params are numeric and capped at `MAX_PAGE_LIMIT` for all touched list/dashboard hooks.
+- Treat repeated backend validation errors for `limit` (400/Zod) or Prisma `take` type mismatches as blocking defects; fix source params/contracts before completion.
+
 ## Mobile UI Parity and Compact UX Contract (Mandatory)
 
 For any selected step that touches UI (components, screens, layouts, route presentation, copy, interactions, or styling):
