@@ -78,8 +78,14 @@ const StyledKeyboardAvoidingView = styled.KeyboardAvoidingView.withConfig({
 const StyledScrollViewContent = styled.View.withConfig({
   displayName: 'StyledScrollViewContent',
   componentId: 'StyledScrollViewContent',
+  shouldForwardProp: (prop) => prop !== '$hasCloseButton',
 })`
   padding: ${({ theme }) => theme.spacing.md}px;
+  padding-right: ${({ theme, $hasCloseButton }) => (
+    $hasCloseButton
+      ? theme.spacing.md + theme.spacing.xxl + theme.spacing.sm
+      : theme.spacing.md
+  )}px;
 `;
 
 const scrollContentContainerStyle = StyleSheet.create({

@@ -1,5 +1,5 @@
 Step file for **11.7.7** - Discharge summaries.
-Load `00_shared-contracts.mdc` first.
+Load `11_07_ipd-icu-theatre-and-emergency_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.7.7`
@@ -22,7 +22,7 @@ Load `00_shared-contracts.mdc` first.
 - `src/__tests__/app/(main)/ipd-icu-theatre-emergency-routes.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `11_07_ipd-icu-theatre-and-emergency_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.

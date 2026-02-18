@@ -84,7 +84,7 @@ const ModalIOS = ({
               alwaysBounceHorizontal={false}
               contentContainerStyle={scrollContentContainerStyle}
             >
-              <StyledScrollViewContent>
+              <StyledScrollViewContent $hasCloseButton={showCloseButton && Boolean(onDismiss)}>
                 {children}
               </StyledScrollViewContent>
             </ScrollView>

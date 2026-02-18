@@ -38,6 +38,24 @@ describe('Microsoft Fluent Design Compliance (P009 Step 9.8)', () => {
       expect(lightTheme.colors.warning).toEqual(expect.any(String));
       expect(lightTheme.colors.error).toEqual(expect.any(String));
     });
+
+    it('should expose semantic surface and border token groups', () => {
+      const lightTheme = getCjsOrEsmDefault(require('@theme/light.theme'));
+      expect(lightTheme.colors.surface).toEqual(
+        expect.objectContaining({
+          primary: expect.any(String),
+          secondary: expect.any(String),
+          tertiary: expect.any(String),
+        })
+      );
+      expect(lightTheme.colors.border).toEqual(
+        expect.objectContaining({
+          light: expect.any(String),
+          medium: expect.any(String),
+          strong: expect.any(String),
+        })
+      );
+    });
   });
 
   describe('Radius (2–4px typical per theme-design.mdc)', () => {
@@ -113,6 +131,17 @@ describe('Microsoft Fluent Design Compliance (P009 Step 9.8)', () => {
       expect(darkTheme.colors.primary).toBe('#0078D4');
       expect(darkTheme.breakpoints.mobile).toBe(320);
       expect(darkTheme.radius.sm).toBe(lightTheme.radius.sm);
+    });
+
+    it('should preserve surface and border token structure in dark mode', () => {
+      const lightTheme = getCjsOrEsmDefault(require('@theme/light.theme'));
+      const darkTheme = getCjsOrEsmDefault(require('@theme/dark.theme'));
+      expect(Object.keys(darkTheme.colors.surface).sort()).toEqual(
+        Object.keys(lightTheme.colors.surface).sort()
+      );
+      expect(Object.keys(darkTheme.colors.border).sort()).toEqual(
+        Object.keys(lightTheme.colors.border).sort()
+      );
     });
   });
 });

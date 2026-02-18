@@ -139,8 +139,14 @@ const StyledCloseButton = styled.button.withConfig({
 const StyledContent = styled.div.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
+  shouldForwardProp: (prop) => prop !== '$hasCloseButton',
 })`
   padding: ${({ theme }) => theme.spacing.lg}px;
+  padding-right: ${({ theme, $hasCloseButton }) => (
+    $hasCloseButton
+      ? theme.spacing.lg + theme.spacing.xxl + theme.spacing.sm
+      : theme.spacing.lg
+  )}px;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 100%;

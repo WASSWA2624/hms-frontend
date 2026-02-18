@@ -23,7 +23,7 @@ const StyledSummary = styled.div.withConfig({
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.sm}px;
-  border-radius: ${({ theme }) => theme.borderRadius.md}px;
+  border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.surface.secondary};
 `;
 
@@ -69,4 +69,3 @@ export {
   StyledStatus,
   StyledSummary,
 };
-

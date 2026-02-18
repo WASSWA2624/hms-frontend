@@ -800,13 +800,21 @@
       "title": "Settings",
       "description": "Manage organization setup, access control, and operational defaults.",
       "helpLabel": "Open settings guidance",
+      "helpLabelForModule": "Open {{module}} guidance",
       "helpTooltip": "Open setup guidance and recommended order.",
+      "helpTooltipForModule": "Open setup guidance for {{module}}.",
       "helpTitle": "How to use settings",
+      "helpTitleForModule": "How to use {{module}}",
       "helpBody": "Follow this order to avoid setup and permission conflicts.",
+      "helpBodyForModule": "Use this checklist to manage {{module}} clearly and safely.",
+      "moduleDescription": "Manage {{module}} setup, access, and operational defaults.",
       "helpList": {
         "sequence": "Create tenant and facility context first, then structure modules like branches, departments, and units.",
         "context": "Choose readable names from lists; technical IDs stay hidden in standard workflows.",
-        "access": "Role and permission modules control what users can see and do in every settings route."
+        "access": "Role and permission modules control what users can see and do in every settings route.",
+        "moduleReview": "Review current {{module}} records before making changes.",
+        "moduleActions": "Use only actions that match your role for {{module}} workflows.",
+        "moduleAccess": "If something is hidden or disabled in {{module}}, confirm your role permissions first."
       }
     },
     "tabs": {

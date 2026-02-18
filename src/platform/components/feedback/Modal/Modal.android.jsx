@@ -83,7 +83,7 @@ const ModalAndroid = ({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={scrollContentContainerStyle}
             >
-              <StyledScrollViewContent>
+              <StyledScrollViewContent $hasCloseButton={showCloseButton && Boolean(onDismiss)}>
                 {children}
               </StyledScrollViewContent>
             </ScrollView>

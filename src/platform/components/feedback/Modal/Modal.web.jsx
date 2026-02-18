@@ -138,7 +138,7 @@ const ModalWeb = ({
             {accessibilityHint}
           </StyledDescription>
         )}
-        <StyledContent>
+        <StyledContent $hasCloseButton={showCloseButton && Boolean(onDismiss)}>
           {children}
         </StyledContent>
       </StyledModalContainer>

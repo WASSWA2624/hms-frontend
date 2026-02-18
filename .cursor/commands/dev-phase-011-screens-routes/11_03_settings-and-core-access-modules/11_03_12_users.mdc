@@ -1,5 +1,5 @@
 Step file for **11.3.12** - Users.
-Load `00_shared-contracts.mdc` first.
+Load `11_03_settings-and-core-access-modules_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.3.12`
@@ -28,7 +28,7 @@ Load `00_shared-contracts.mdc` first.
 - `src/__tests__/app/(main)/settings-routes.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `11_03_settings-and-core-access-modules_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.

@@ -17,7 +17,7 @@ const StyledSummary = styled.View.withConfig({
   componentId: 'FacilitySelectionScreen_StyledSummary',
 })`
   padding: ${({ theme }) => theme.spacing.sm}px;
-  border-radius: ${({ theme }) => theme.borderRadius.md}px;
+  border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.surface.secondary};
   margin-bottom: ${({ theme }) => theme.spacing.sm}px;
 `;
@@ -58,4 +58,3 @@ export {
   StyledStatus,
   StyledSummary,
 };
-

@@ -207,6 +207,9 @@ describe('Tier 3 Settings Layout Route', () => {
 
   it('settings layout wraps Slot with SettingsScreen and keys children by pathname', () => {
     mockUsePathname.mockReturnValue('/settings/tenants');
+    if (!mockScreens.SettingsScreen) {
+      mockScreens.SettingsScreen = jest.fn(() => null);
+    }
     mockScreens.SettingsScreen.mockImplementation(({ children }) => children || null);
 
     const layoutModule = require('../../../app/(main)/settings/_layout');
@@ -220,6 +223,7 @@ describe('Tier 3 Settings Layout Route', () => {
     const settingsProps = mockScreens.SettingsScreen.mock.calls[0][0];
     expect(settingsProps.children).toBeDefined();
     expect(settingsProps.children.key).toBe('/settings/tenants');
+    expect(settingsProps.screenKey).toBe('tenant');
   });
 });
 
