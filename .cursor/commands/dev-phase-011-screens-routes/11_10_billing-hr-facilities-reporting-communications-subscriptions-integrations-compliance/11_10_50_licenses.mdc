@@ -1,0 +1,39 @@
+Step file for **11.10.50** - Licenses.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.10.50`
+- Route: `(main)/subscriptions/licenses`
+- Backend module: `license`
+- Action mode: Full route surface (list/detail/create/edit).
+
+## Mounted Route Surface
+- `src/app/(main)/subscriptions/licenses/index.jsx`
+- `src/app/(main)/subscriptions/licenses/[id].jsx`
+- `src/app/(main)/subscriptions/licenses/create.jsx`
+- `src/app/(main)/subscriptions/licenses/[id]/edit.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/clinical/ClinicalResourceListScreen/**`
+- `src/platform/screens/clinical/ClinicalResourceDetailScreen/**`
+- `src/platform/screens/clinical/ClinicalResourceFormScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(main)/tier-10-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- List route (`index`): compact toolbar/actions and deterministic loading/empty/error/offline states.
+- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
+- Form routes (`create` / `[id]/edit` where mounted): enforce validation, role-aware submit, and clear cancel/back handoff.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.

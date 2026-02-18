@@ -1,0 +1,47 @@
+Step file for **11.3.2** - Tenants.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.3.2`
+- Route: `(main)/settings/tenants`
+- Backend module: `tenant`
+- Action mode: Full route surface (list/detail/create/edit).
+
+## Mounted Route Surface
+- `src/app/(main)/settings/tenants/index.jsx`
+- `src/app/(main)/settings/tenants/[id].jsx`
+- `src/app/(main)/settings/tenants/create.jsx`
+- `src/app/(main)/settings/tenants/[id]/edit.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/settings/TenantListScreen/**`
+- `src/platform/screens/settings/TenantDetailScreen/**`
+- `src/platform/screens/settings/TenantFormScreen/**`
+
+## Test Surface
+- `src/__tests__/platform/screens/settings/TenantListScreen.test.js`
+- `src/__tests__/platform/screens/settings/TenantDetailScreen.test.js`
+- `src/__tests__/platform/screens/settings/TenantFormScreen.test.js`
+- `src/__tests__/platform/screens/settings/useTenantListScreen.test.js`
+- `src/__tests__/platform/screens/settings/useTenantDetailScreen.test.js`
+- `src/__tests__/platform/screens/settings/useTenantFormScreen.test.js`
+- `src/__tests__/app/(main)/settings-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- List route (`index`): compact toolbar/actions, search/filter if applicable, and deterministic empty/error/offline states.
+- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
+- Form route (`create` / `[id]/edit`): enforce validation, human-readable context fields, role-guarded submit actions, and clear cancel/back handoff.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.
+
+

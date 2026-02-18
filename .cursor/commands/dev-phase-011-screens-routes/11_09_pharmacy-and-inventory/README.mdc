@@ -1,0 +1,28 @@
+Phase 011 tier folderized from `11_09_pharmacy-and-inventory.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_09_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_09_01_pharmacy-home.mdc` -> **11.9.1** Pharmacy home (`(main)/pharmacy`)
+- `11_09_02_drugs.mdc` -> **11.9.2** Drugs (`(main)/pharmacy/drugs`)
+- `11_09_03_drug-batches.mdc` -> **11.9.3** Drug batches (`(main)/pharmacy/drug-batches`)
+- `11_09_04_formulary-items.mdc` -> **11.9.4** Formulary items (`(main)/pharmacy/formulary-items`)
+- `11_09_05_pharmacy-orders.mdc` -> **11.9.5** Pharmacy orders (`(main)/pharmacy/pharmacy-orders`)
+- `11_09_06_pharmacy-order-items.mdc` -> **11.9.6** Pharmacy order items (`(main)/pharmacy/pharmacy-order-items`)
+- `11_09_07_dispense-logs.mdc` -> **11.9.7** Dispense logs (`(main)/pharmacy/dispense-logs`)
+- `11_09_08_adverse-events.mdc` -> **11.9.8** Adverse events (`(main)/pharmacy/adverse-events`)
+- `11_09_09_inventory-home.mdc` -> **11.9.9** Inventory home (`(main)/inventory`)
+- `11_09_10_inventory-items.mdc` -> **11.9.10** Inventory items (`(main)/inventory/inventory-items`)
+- `11_09_11_inventory-stocks.mdc` -> **11.9.11** Inventory stocks (`(main)/inventory/inventory-stocks`)
+- `11_09_12_stock-movements.mdc` -> **11.9.12** Stock movements (`(main)/inventory/stock-movements`)
+- `11_09_13_suppliers.mdc` -> **11.9.13** Suppliers (`(main)/inventory/suppliers`)
+- `11_09_14_purchase-requests.mdc` -> **11.9.14** Purchase requests (`(main)/inventory/purchase-requests`)
+- `11_09_15_purchase-orders.mdc` -> **11.9.15** Purchase orders (`(main)/inventory/purchase-orders`)
+- `11_09_16_goods-receipts.mdc` -> **11.9.16** Goods receipts (`(main)/inventory/goods-receipts`)
+- `11_09_17_stock-adjustments.mdc` -> **11.9.17** Stock adjustments (`(main)/inventory/stock-adjustments`)
+
+
+

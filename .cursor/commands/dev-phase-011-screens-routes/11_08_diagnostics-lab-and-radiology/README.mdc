@@ -1,0 +1,26 @@
+Phase 011 tier folderized from `11_08_diagnostics-lab-and-radiology.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_08_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_08_01_lab-home.mdc` -> **11.8.1** Lab home (`(main)/diagnostics/lab`)
+- `11_08_02_lab-tests.mdc` -> **11.8.2** Lab tests (`(main)/diagnostics/lab/lab-tests`)
+- `11_08_03_lab-panels.mdc` -> **11.8.3** Lab panels (`(main)/diagnostics/lab/lab-panels`)
+- `11_08_04_lab-orders.mdc` -> **11.8.4** Lab orders (`(main)/diagnostics/lab/lab-orders`)
+- `11_08_05_lab-order-items.mdc` -> **11.8.5** Lab order items (`(main)/diagnostics/lab/lab-order-items`)
+- `11_08_06_lab-samples.mdc` -> **11.8.6** Lab samples (`(main)/diagnostics/lab/lab-samples`)
+- `11_08_07_lab-results.mdc` -> **11.8.7** Lab results (`(main)/diagnostics/lab/lab-results`)
+- `11_08_08_lab-qc-logs.mdc` -> **11.8.8** Lab QC logs (`(main)/diagnostics/lab/lab-qc-logs`)
+- `11_08_09_radiology-home.mdc` -> **11.8.9** Radiology home (`(main)/diagnostics/radiology`)
+- `11_08_10_radiology-tests.mdc` -> **11.8.10** Radiology tests (`(main)/diagnostics/radiology/radiology-tests`)
+- `11_08_11_radiology-orders.mdc` -> **11.8.11** Radiology orders (`(main)/diagnostics/radiology/radiology-orders`)
+- `11_08_12_radiology-results.mdc` -> **11.8.12** Radiology results (`(main)/diagnostics/radiology/radiology-results`)
+- `11_08_13_imaging-studies.mdc` -> **11.8.13** Imaging studies (`(main)/diagnostics/radiology/imaging-studies`)
+- `11_08_14_imaging-assets.mdc` -> **11.8.14** Imaging assets (`(main)/diagnostics/radiology/imaging-assets`)
+- `11_08_15_pacs-links.mdc` -> **11.8.15** PACS links (`(main)/diagnostics/radiology/pacs-links`)
+
+
+

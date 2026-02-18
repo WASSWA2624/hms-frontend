@@ -2,6 +2,13 @@ const React = require('react');
 const { render } = require('@testing-library/react-native');
 
 const mockScreens = {};
+const mockSlot = jest.fn(() => null);
+const mockUsePathname = jest.fn(() => '/settings');
+
+jest.mock('expo-router', () => ({
+  Slot: (props) => mockSlot(props),
+  usePathname: () => mockUsePathname(),
+}));
 
 jest.mock('@platform/screens', () =>
   new Proxy(
@@ -179,6 +186,7 @@ const READ_ONLY_ROUTE_CASES = [
 describe('Tier 3 Settings Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUsePathname.mockReturnValue('/settings');
   });
 
   test.each(SETTINGS_ROUTE_CASES)('$routePath renders $screenKey', ({ routePath, screenKey }) => {
@@ -188,6 +196,30 @@ describe('Tier 3 Settings Routes', () => {
 
     render(React.createElement(routeModule.default));
     expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Tier 3 Settings Layout Route', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUsePathname.mockReturnValue('/settings');
+  });
+
+  it('settings layout wraps Slot with SettingsScreen and keys children by pathname', () => {
+    mockUsePathname.mockReturnValue('/settings/tenants');
+    mockScreens.SettingsScreen.mockImplementation(({ children }) => children || null);
+
+    const layoutModule = require('../../../app/(main)/settings/_layout');
+    expect(layoutModule.default).toBeDefined();
+    render(React.createElement(layoutModule.default));
+
+    expect(mockUsePathname).toHaveBeenCalledTimes(1);
+    expect(mockScreens.SettingsScreen).toHaveBeenCalledTimes(1);
+    expect(mockSlot).toHaveBeenCalledTimes(1);
+
+    const settingsProps = mockScreens.SettingsScreen.mock.calls[0][0];
+    expect(settingsProps.children).toBeDefined();
+    expect(settingsProps.children.key).toBe('/settings/tenants');
   });
 });
 

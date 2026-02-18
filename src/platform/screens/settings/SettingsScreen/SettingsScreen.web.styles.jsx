@@ -88,8 +88,8 @@ export const StyledHelpButton = styled.button.withConfig({
   displayName: 'StyledHelpButton',
   componentId: 'SettingsScreen_StyledHelpButton',
 })`
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   background-color: ${({ theme }) => theme.colors.background.secondary};

@@ -188,6 +188,7 @@ export const StyledAccessLinkButton = styled.button.withConfig({
   displayName: 'StyledAccessLinkButton',
   componentId: 'GeneralSettingsPanel_StyledAccessLinkButton',
 })`
+  min-height: 44px;
   border: 1px solid ${({ theme, $active }) =>
     $active ? theme?.colors?.border?.strong ?? '#0078d4' : theme?.colors?.border?.light ?? '#d1d1d6'};
   background-color: ${({ theme, $active }) =>
@@ -198,6 +199,9 @@ export const StyledAccessLinkButton = styled.button.withConfig({
   font-size: ${({ theme }) => theme?.typography?.fontSize?.sm ?? 14}px;
   line-height: 1.3;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     border-color: ${({ theme }) => theme?.colors?.border?.strong ?? '#0078d4'};
@@ -207,4 +211,14 @@ export const StyledAccessLinkButton = styled.button.withConfig({
     outline: 2px solid ${({ theme }) => theme?.colors?.border?.strong ?? '#0078d4'};
     outline-offset: 1px;
   }
+`;
+
+export const StyledStateActionRow = styled.div.withConfig({
+  displayName: 'StyledStateActionRow',
+  componentId: 'GeneralSettingsPanel_StyledStateActionRow',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${({ theme }) => theme?.spacing?.sm ?? 12}px;
 `;

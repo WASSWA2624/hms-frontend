@@ -1,6 +1,6 @@
 /**
- * Settings default route – General settings (theme, language, footer).
- * (main)/settings → General panel.
+ * Settings default route -> General settings (theme, language, footer).
+ * (main)/settings -> General panel.
  */
 import { GeneralSettingsPanel } from '@platform/screens';
 

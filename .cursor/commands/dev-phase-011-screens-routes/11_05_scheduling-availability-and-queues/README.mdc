@@ -1,0 +1,18 @@
+Phase 011 tier folderized from `11_05_scheduling-availability-and-queues.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_05_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_05_01_scheduling-home.mdc` -> **11.5.1** Scheduling home (`(main)/scheduling`)
+- `11_05_02_appointments.mdc` -> **11.5.2** Appointments (`(main)/scheduling/appointments`)
+- `11_05_03_appointment-participants.mdc` -> **11.5.3** Appointment participants (`(main)/scheduling/appointment-participants`)
+- `11_05_04_appointment-reminders.mdc` -> **11.5.4** Appointment reminders (`(main)/scheduling/appointment-reminders`)
+- `11_05_05_provider-schedules.mdc` -> **11.5.5** Provider schedules (`(main)/scheduling/provider-schedules`)
+- `11_05_06_availability-slots.mdc` -> **11.5.6** Availability slots (`(main)/scheduling/availability-slots`)
+- `11_05_07_visit-queues.mdc` -> **11.5.7** Visit queues (`(main)/scheduling/visit-queues`)
+
+
+

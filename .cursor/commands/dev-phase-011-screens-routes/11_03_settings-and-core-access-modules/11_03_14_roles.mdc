@@ -1,0 +1,44 @@
+Step file for **11.3.14** - Roles.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.3.14`
+- Route: `(main)/settings/roles`
+- Backend module: `role`
+- Action mode: Full route surface (list/detail/create/edit).
+
+## Mounted Route Surface
+- `src/app/(main)/settings/roles/index.jsx`
+- `src/app/(main)/settings/roles/[id].jsx`
+- `src/app/(main)/settings/roles/create.jsx`
+- `src/app/(main)/settings/roles/[id]/edit.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/settings/RoleListScreen/**`
+- `src/platform/screens/settings/RoleDetailScreen/**`
+- `src/platform/screens/settings/RoleFormScreen/**`
+
+## Test Surface
+- `src/__tests__/platform/screens/settings/useRoleListScreen.test.js`
+- `src/__tests__/platform/screens/settings/useRoleDetailScreen.test.js`
+- `src/__tests__/platform/screens/settings/useRoleFormScreen.test.js`
+- `src/__tests__/app/(main)/settings-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- List route (`index`): compact toolbar/actions, search/filter if applicable, and deterministic empty/error/offline states.
+- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
+- Form route (`create` / `[id]/edit`): enforce validation, human-readable context fields, role-guarded submit actions, and clear cancel/back handoff.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.
+
+

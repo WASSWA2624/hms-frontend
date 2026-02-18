@@ -1,0 +1,36 @@
+Step file for **11.1.7** - Facility checklist.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.1.7`
+- Route: `(onboarding)/checklist`
+- Backend module: resolve from mounted onboarding/auth contracts.
+- Action mode: Checklist progression flow.
+
+## Mounted Route Surface
+- `src/app/(onboarding)/_layout.jsx`
+- `src/app/(onboarding)/checklist.jsx`
+
+## Platform Screen Surface
+- `src/app/(onboarding)/checklist.jsx (route-local screen implementation)`
+- `src/platform/components/**`
+- `src/app/shared/withRouteTermsAcceptance.jsx`
+
+## Test Surface
+- `src/__tests__/app/onboarding-route-group.test.js`
+- `src/__tests__/app/onboarding-layout-guard.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- Checklist route: maintain compact task progression, persisted completion, and clear continuation controls.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.

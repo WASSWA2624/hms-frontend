@@ -1,0 +1,33 @@
+Step file for **11.11.1** - Patient portal home.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.11.1`
+- Route: `(patient)/portal`
+- Backend module: resolve from route/module contracts.
+- Action mode: Home/overview route surface.
+
+## Mounted Route Surface
+- `src/app/(patient)/portal/index.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/**/*PortalOverviewScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(patient)/patient-portal-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- Home route: ensure overview, nav handoff, and role-aware summaries are compact and deterministic.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.
+

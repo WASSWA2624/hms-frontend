@@ -1,0 +1,39 @@
+Phase 011 Tier 3 is now folderized for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_03_XX_*.mdc`)
+3. If Tier 3 is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_03_01_settings-home.mdc` -> **11.3.1** Settings home (`(main)/settings`)
+- `11_03_02_tenants.mdc` -> **11.3.2** Tenants (`(main)/settings/tenants`)
+- `11_03_03_facilities.mdc` -> **11.3.3** Facilities (`(main)/settings/facilities`)
+- `11_03_04_branches.mdc` -> **11.3.4** Branches (`(main)/settings/branches`)
+- `11_03_05_departments.mdc` -> **11.3.5** Departments (`(main)/settings/departments`)
+- `11_03_06_units.mdc` -> **11.3.6** Units (`(main)/settings/units`)
+- `11_03_07_rooms.mdc` -> **11.3.7** Rooms (`(main)/settings/rooms`)
+- `11_03_08_wards.mdc` -> **11.3.8** Wards (`(main)/settings/wards`)
+- `11_03_09_beds.mdc` -> **11.3.9** Beds (`(main)/settings/beds`)
+- `11_03_10_addresses.mdc` -> **11.3.10** Addresses (`(main)/settings/addresses`)
+- `11_03_11_contacts.mdc` -> **11.3.11** Contacts (`(main)/settings/contacts`)
+- `11_03_12_users.mdc` -> **11.3.12** Users (`(main)/settings/users`)
+- `11_03_13_user-profiles.mdc` -> **11.3.13** User profiles (`(main)/settings/user-profiles`)
+- `11_03_14_roles.mdc` -> **11.3.14** Roles (`(main)/settings/roles`)
+- `11_03_15_permissions.mdc` -> **11.3.15** Permissions (`(main)/settings/permissions`)
+- `11_03_16_role-permissions.mdc` -> **11.3.16** Role permissions (`(main)/settings/role-permissions`)
+- `11_03_17_user-roles.mdc` -> **11.3.17** User roles (`(main)/settings/user-roles`)
+- `11_03_18_api-keys.mdc` -> **11.3.18** API keys (`(main)/settings/api-keys`)
+- `11_03_19_api-key-permissions.mdc` -> **11.3.19** API key permissions (`(main)/settings/api-key-permissions`)
+- `11_03_20_user-mfa.mdc` -> **11.3.20** User MFA (`(main)/settings/user-mfas`)
+- `11_03_21_user-sessions.mdc` -> **11.3.21** User sessions (`(main)/settings/user-sessions`)
+- `11_03_22_oauth-accounts.mdc` -> **11.3.22** OAuth accounts (`(main)/settings/oauth-accounts`)
+
+Notes:
+- Per-step files include mounted route surface, screen/test touchpoints, and action-mode specificity (full CRUD vs read-only).
+- Use only backend actions mounted in `hms-backend/src/app/router.js`; keep read-only UX where action routes are absent.
+
+
+
+
+

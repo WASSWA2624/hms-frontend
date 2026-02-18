@@ -1,17 +1,17 @@
 Phase folder: dev-phase-011-screens-routes
 
 Canonical tier prompt files:
-- `11_01_public-entry-and-onboarding.mdc`
-- `11_02_auth-and-entry-shell.mdc`
-- `11_03_settings-and-core-access-modules.mdc`
-- `11_04_patient-registry-and-consent.mdc`
-- `11_05_scheduling-availability-and-queues.mdc`
-- `11_06_encounters-and-clinical-documentation.mdc`
-- `11_07_ipd-icu-theatre-and-emergency.mdc`
-- `11_08_diagnostics-lab-and-radiology.mdc`
-- `11_09_pharmacy-and-inventory.mdc`
-- `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance.mdc`
-- `11_11_patient-portal.mdc`
+- `11_01_public-entry-and-onboarding/README.mdc`
+- `11_02_auth-and-entry-shell/README.mdc`
+- `11_03_settings-and-core-access-modules/README.mdc`
+- `11_04_patient-registry-and-consent/README.mdc`
+- `11_05_scheduling-availability-and-queues/README.mdc`
+- `11_06_encounters-and-clinical-documentation/README.mdc`
+- `11_07_ipd-icu-theatre-and-emergency/README.mdc`
+- `11_08_diagnostics-lab-and-radiology/README.mdc`
+- `11_09_pharmacy-and-inventory/README.mdc`
+- `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance/README.mdc`
+- `11_11_patient-portal/README.mdc`
 
 Phase coverage:
 - Steps `11.1.1` through `11.11.5` from `hms-frontend/dev-plan/P011_screens-routes.md` (full route/screen parity surface).
@@ -28,3 +28,5 @@ Global UX baseline enforced in each tier prompt:
 - Total UI component/sub-component compliance review with redesign required for non-compliant UI.
 - Interconnected functionality coordination contract.
 - Strict role-based visibility and execution controls across routes, nav items, functions/actions, UI components, screens, and screen sections, with main and nested nav items rendered only for roles in the logged-in user's authorized role set.
+
+

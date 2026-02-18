@@ -1,0 +1,21 @@
+Phase 011 tier folderized from `11_06_encounters-and-clinical-documentation.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_06_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_06_01_clinical-home.mdc` -> **11.6.1** Clinical home (`(main)/clinical`)
+- `11_06_02_encounters.mdc` -> **11.6.2** Encounters (`(main)/clinical/encounters`)
+- `11_06_03_clinical-notes.mdc` -> **11.6.3** Clinical notes (`(main)/clinical/clinical-notes`)
+- `11_06_04_diagnoses.mdc` -> **11.6.4** Diagnoses (`(main)/clinical/diagnoses`)
+- `11_06_05_procedures.mdc` -> **11.6.5** Procedures (`(main)/clinical/procedures`)
+- `11_06_06_vital-signs.mdc` -> **11.6.6** Vital signs (`(main)/clinical/vital-signs`)
+- `11_06_07_care-plans.mdc` -> **11.6.7** Care plans (`(main)/clinical/care-plans`)
+- `11_06_08_clinical-alerts.mdc` -> **11.6.8** Clinical alerts (`(main)/clinical/clinical-alerts`)
+- `11_06_09_referrals.mdc` -> **11.6.9** Referrals (`(main)/clinical/referrals`)
+- `11_06_10_follow-ups.mdc` -> **11.6.10** Follow-ups (`(main)/clinical/follow-ups`)
+
+
+

@@ -1,0 +1,16 @@
+Phase 011 tier folderized from `11_11_patient-portal.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_11_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_11_01_patient-portal-home.mdc` -> **11.11.1** Patient portal home (`(patient)/portal`)
+- `11_11_02_patient-appointments.mdc` -> **11.11.2** Patient appointments (`(patient)/appointments`)
+- `11_11_03_patient-results.mdc` -> **11.11.3** Patient results (`(patient)/results`)
+- `11_11_04_patient-prescriptions.mdc` -> **11.11.4** Patient prescriptions (`(patient)/prescriptions`)
+- `11_11_05_patient-billing.mdc` -> **11.11.5** Patient billing (`(patient)/billing`)
+
+
+

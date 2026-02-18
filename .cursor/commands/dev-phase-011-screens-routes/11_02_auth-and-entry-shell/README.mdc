@@ -1,0 +1,19 @@
+Phase 011 tier folderized from `11_02_auth-and-entry-shell.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_02_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_02_01_login.mdc` -> **11.2.1** Login (`(auth)/login`)
+- `11_02_02_forgot-password.mdc` -> **11.2.2** Forgot password (`(auth)/forgot-password`)
+- `11_02_03_reset-password.mdc` -> **11.2.3** Reset password (`(auth)/reset-password`)
+- `11_02_04_verify-email.mdc` -> **11.2.4** Verify email (`(auth)/verify-email`)
+- `11_02_05_verify-phone.mdc` -> **11.2.5** Verify phone (`(auth)/verify-phone`)
+- `11_02_06_tenant-selection.mdc` -> **11.2.6** Tenant selection (`(auth)/tenant-selection`)
+- `11_02_07_facility-selection.mdc` -> **11.2.7** Facility selection (`(auth)/facility-selection`)
+- `11_02_08_dashboard.mdc` -> **11.2.8** Dashboard (`(main)/dashboard`)
+
+
+

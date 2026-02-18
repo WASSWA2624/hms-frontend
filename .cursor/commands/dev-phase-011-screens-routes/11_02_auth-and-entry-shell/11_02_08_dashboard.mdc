@@ -1,0 +1,32 @@
+Step file for **11.2.8** - Dashboard.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.2.8`
+- Route: `(main)/dashboard`
+- Backend module: resolve from mounted dashboard and role-scoped summary contracts.
+- Action mode: Authenticated dashboard home route.
+
+## Mounted Route Surface
+- `src/app/(main)/dashboard.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/main/DashboardScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(main)/dashboard.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- Dashboard route: keep role-scoped widgets/actions concise with deterministic loading and denied-access handling.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.

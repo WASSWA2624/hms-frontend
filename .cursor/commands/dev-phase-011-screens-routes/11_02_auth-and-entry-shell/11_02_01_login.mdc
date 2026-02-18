@@ -1,0 +1,35 @@
+Step file for **11.2.1** - Login.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.2.1`
+- Route: `(auth)/login`
+- Backend module: `auth`
+- Action mode: Auth login form flow.
+
+## Mounted Route Surface
+- `src/app/(auth)/_layout.jsx`
+- `src/app/(auth)/login.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/auth/LoginScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(auth)/entry-shell-routes.test.js`
+- `src/__tests__/app/auth-route-group.test.js`
+- `src/__tests__/app/auth-layout-guard.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- Login route: enforce credential validation, role-aware redirects, and clear recovery options.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.

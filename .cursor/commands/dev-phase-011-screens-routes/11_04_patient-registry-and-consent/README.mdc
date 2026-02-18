@@ -1,0 +1,21 @@
+Phase 011 tier folderized from `11_04_patient-registry-and-consent.mdc` for step-level implementation clarity.
+
+Load order:
+1. `00_shared-contracts.mdc`
+2. One or more step files (`11_04_XX_*.mdc`)
+3. If the tier is selected as a whole, execute all steps in numeric order.
+
+Step files:
+- `11_04_01_patients-home.mdc` -> **11.4.1** Patients home (`(main)/patients`)
+- `11_04_02_patients.mdc` -> **11.4.2** Patients (`(main)/patients/patients`)
+- `11_04_03_patient-identifiers.mdc` -> **11.4.3** Patient identifiers (`(main)/patients/patient-identifiers`)
+- `11_04_04_patient-contacts.mdc` -> **11.4.4** Patient contacts (`(main)/patients/patient-contacts`)
+- `11_04_05_patient-guardians.mdc` -> **11.4.5** Patient guardians (`(main)/patients/patient-guardians`)
+- `11_04_06_patient-allergies.mdc` -> **11.4.6** Patient allergies (`(main)/patients/patient-allergies`)
+- `11_04_07_patient-medical-histories.mdc` -> **11.4.7** Patient medical histories (`(main)/patients/patient-medical-histories`)
+- `11_04_08_patient-documents.mdc` -> **11.4.8** Patient documents (`(main)/patients/patient-documents`)
+- `11_04_09_consents.mdc` -> **11.4.9** Consents (`(main)/patients/consents`)
+- `11_04_10_terms-acceptances.mdc` -> **11.4.10** Terms acceptances (`(main)/patients/terms-acceptances`)
+
+
+

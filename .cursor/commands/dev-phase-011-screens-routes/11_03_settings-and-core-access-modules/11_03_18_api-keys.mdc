@@ -1,0 +1,38 @@
+Step file for **11.3.18** - API keys.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.3.18`
+- Route: `(main)/settings/api-keys`
+- Backend module: `api-key`
+- Action mode: Read-only route surface (list/detail only).
+
+## Mounted Route Surface
+- `src/app/(main)/settings/api-keys/index.jsx`
+- `src/app/(main)/settings/api-keys/[id].jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/settings/ApiKeyListScreen/**`
+- `src/platform/screens/settings/ApiKeyDetailScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(main)/settings-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- List route (`index`): compact toolbar/actions, search/filter if applicable, and deterministic empty/error/offline states.
+- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
+- Form routes are not mounted for this step: keep role-aware read-only/informational UX and block unsupported write actions.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.
+
+

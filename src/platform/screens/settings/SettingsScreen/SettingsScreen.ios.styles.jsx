@@ -65,8 +65,8 @@ export const StyledHelpButton = styled.Pressable.withConfig({
   displayName: 'StyledHelpButton',
   componentId: 'SettingsScreen_StyledHelpButton',
 })`
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.background.tertiary};

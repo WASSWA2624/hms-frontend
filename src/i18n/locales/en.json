@@ -796,7 +796,18 @@
   "settings": {
     "title": "Settings",
     "screen": {
-      "label": "Settings screen"
+      "label": "Settings workspace",
+      "title": "Settings",
+      "description": "Manage organization setup, access control, and operational defaults.",
+      "helpLabel": "Open settings guidance",
+      "helpTooltip": "Open setup guidance and recommended order.",
+      "helpTitle": "How to use settings",
+      "helpBody": "Follow this order to avoid setup and permission conflicts.",
+      "helpList": {
+        "sequence": "Create tenant and facility context first, then structure modules like branches, departments, and units.",
+        "context": "Choose readable names from lists; technical IDs stay hidden in standard workflows.",
+        "access": "Role and permission modules control what users can see and do in every settings route."
+      }
     },
     "tabs": {
       "accessibilityLabel": "Settings tabs navigation",
@@ -844,12 +855,26 @@
       },
       "footer": {
         "title": "Footer visibility",
-        "description": "Show or hide the footer in desktop layouts."
+        "description": "Show or hide the footer in desktop layouts.",
+        "blockedMessage": "You do not have permission to change footer visibility.",
+        "blockedHint": "Footer visibility is read-only for your current role."
       },
       "access": {
         "title": "Accessible settings",
         "description": "Only settings available to your role and enabled features are listed here.",
-        "empty": "No settings are available for your current access level."
+        "empty": "No settings are available for your current access level.",
+        "emptyTitle": "No accessible settings modules",
+        "openModule": "Open {{module}} settings"
+      },
+      "offline": {
+        "title": "You are offline",
+        "description": "Settings are available, but updates from connected modules may be delayed."
+      },
+      "errors": {
+        "title": "Settings access unavailable",
+        "accessDenied": "You do not have permission to open this settings workspace.",
+        "goToDashboard": "Go to dashboard",
+        "goToDashboardHint": "Return to the dashboard where your role has access."
       }
     },
     "theme": {

@@ -1,0 +1,40 @@
+Step file for **11.8.5** - Lab order items.
+Load `00_shared-contracts.mdc` first.
+
+## Step Metadata
+- Step ID: `11.8.5`
+- Route: `(main)/diagnostics/lab/lab-order-items`
+- Backend module: `lab-order-item`
+- Action mode: Full route surface (list/detail/create/edit).
+
+## Mounted Route Surface
+- `src/app/(main)/diagnostics/lab/lab-order-items/index.jsx`
+- `src/app/(main)/diagnostics/lab/lab-order-items/[id].jsx`
+- `src/app/(main)/diagnostics/lab/lab-order-items/create.jsx`
+- `src/app/(main)/diagnostics/lab/lab-order-items/[id]/edit.jsx`
+
+## Platform Screen Surface
+- `src/platform/screens/**/*LaborderitemsListScreen/**`
+- `src/platform/screens/**/*LaborderitemsDetailScreen/**`
+- `src/platform/screens/**/*LaborderitemsFormScreen/**`
+
+## Test Surface
+- `src/__tests__/app/(main)/diagnostics-routes.test.js`
+
+## Implementation Granularity
+- Apply all mandatory contracts from `00_shared-contracts.mdc` with no omissions.
+- Implement only this step route surface unless explicitly selecting additional step IDs.
+- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
+- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
+- List route (`index`): compact toolbar/actions and deterministic loading/empty/error/offline states.
+- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
+- Form routes (`create` / `[id]/edit` where mounted): enforce validation, role-aware submit, and clear cancel/back handoff.
+- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+
+## Completion Checklist
+- [ ] Route wiring and guards are correct for this step only.
+- [ ] Loading, empty, error, offline, and recovery states are covered.
+- [ ] UI is compact, novice-first, and role-aware with contextual help support.
+- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
+- [ ] Tests are updated for allowed and denied/read-only paths.
+
