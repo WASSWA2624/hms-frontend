@@ -1070,7 +1070,7 @@ const useWardListScreen = () => {
 
   const resolveWardTypeText = useCallback((ward) => (
     resolveWardType(ward) || t('common.notAvailable')
-  ), [lookupMaps, t]);
+  ), [t]);
 
   const resolveWardActiveText = useCallback((ward) => (resolveWardActive(ward) ? 'active' : 'inactive'), []);
 
