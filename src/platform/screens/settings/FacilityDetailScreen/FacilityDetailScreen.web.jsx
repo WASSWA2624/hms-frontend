@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -26,13 +26,6 @@ import {
   StyledActions,
 } from './FacilityDetailScreen.web.styles';
 import useFacilityDetailScreen from './useFacilityDetailScreen';
-
-const resolveFacilityTypeLabel = (t, value) => {
-  if (!value) return '';
-  const key = `facility.form.type${value}`;
-  const resolved = t(key);
-  return resolved === key ? value : resolved;
-};
 
 const FacilityDetailScreenWeb = () => {
   const { t, locale } = useI18n();
@@ -139,9 +132,20 @@ const FacilityDetailScreenWeb = () => {
 
   const createdAt = formatDateTime(facility.created_at, locale);
   const updatedAt = formatDateTime(facility.updated_at, locale);
-  const name = facility?.name ?? '';
-  const tenantId = facility?.tenant_id ?? '';
-  const facilityType = resolveFacilityTypeLabel(t, facility?.facility_type);
+  const displayName = humanizeIdentifier(facility?.name) || t('facility.detail.nameFallback');
+  const facilityTypeValue = String(facility?.facility_type ?? '').trim();
+  const facilityTypeLabel = (() => {
+    if (!facilityTypeValue) return '';
+    const key = `facility.form.type${facilityTypeValue}`;
+    const resolved = t(key);
+    return resolved === key ? facilityTypeValue : resolved;
+  })();
+  const tenantLabel = humanizeIdentifier(
+    facility?.tenant_name
+    ?? facility?.tenant?.name
+    ?? facility?.tenant_label
+    ?? facility?.tenant_id
+  );
   const isActive = facility?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -189,32 +193,24 @@ const FacilityDetailScreenWeb = () => {
         >
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('facility.detail.idLabel')}</Text>
-              <Text variant="body" testID="facility-detail-id">
-                {facility.id}
+              <Text variant="label">{t('facility.detail.nameLabel')}</Text>
+              <Text variant="body" testID="facility-detail-name">
+                {displayName}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('facility.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="facility-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('facility.detail.nameLabel')}</Text>
-                <Text variant="body" testID="facility-detail-name">
-                  {name}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {facilityType ? (
+            {facilityTypeLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('facility.detail.typeLabel')}</Text>
                 <Text variant="body" testID="facility-detail-type">
-                  {facilityType}
+                  {facilityTypeLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -275,8 +271,8 @@ const FacilityDetailScreenWeb = () => {
           {onDelete && (
             <Button
               variant="primary"
-              size="small"
               onPress={onDelete}
+              size="small"
               loading={isLoading}
               accessibilityLabel={t('facility.detail.delete')}
               accessibilityHint={t('facility.detail.deleteHint')}
@@ -292,3 +288,4 @@ const FacilityDetailScreenWeb = () => {
 };
 
 export default FacilityDetailScreenWeb;
+

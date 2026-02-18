@@ -1,6 +1,6 @@
 /**
- * FacilityDetailScreen Web Styles
- * File: FacilityDetailScreen.web.styles.jsx
+ * TenantDetailScreen Web Styles
+ * File: TenantDetailScreen.web.styles.jsx
  */
 import styled from 'styled-components';
 

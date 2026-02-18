@@ -65,20 +65,27 @@ describe('useFacilityFormScreen', () => {
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
   });
 
-  it('locks tenant for tenant-scoped create and skips tenant list fetch', () => {
+  it('locks tenant for tenant-scoped create and resolves readable tenant label', () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: false,
       tenantId: 'tenant-1',
       isResolved: true,
     });
+    useTenant.mockReturnValue({
+      list: mockListTenants,
+      data: { items: [{ id: 'tenant-1', name: 'Tenant 1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetTenants,
+    });
 
     const { result } = renderHook(() => useFacilityFormScreen());
 
     expect(result.current.isTenantLocked).toBe(true);
     expect(result.current.tenantId).toBe('tenant-1');
-    expect(result.current.lockedTenantDisplay).toBe('tenant-1');
-    expect(mockListTenants).not.toHaveBeenCalled();
+    expect(result.current.lockedTenantDisplay).toBe('Tenant 1');
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
   });
 
   it('redirects unauthorized users to settings', () => {

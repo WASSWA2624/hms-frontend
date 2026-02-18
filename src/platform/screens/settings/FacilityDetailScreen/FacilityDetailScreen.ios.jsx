@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -26,13 +26,6 @@ import {
   StyledActions,
 } from './FacilityDetailScreen.ios.styles';
 import useFacilityDetailScreen from './useFacilityDetailScreen';
-
-const resolveFacilityTypeLabel = (t, value) => {
-  if (!value) return '';
-  const key = `facility.form.type${value}`;
-  const resolved = t(key);
-  return resolved === key ? value : resolved;
-};
 
 const FacilityDetailScreenIOS = () => {
   const { t, locale } = useI18n();
@@ -52,7 +45,7 @@ const FacilityDetailScreenIOS = () => {
 
   if (isLoading && !hasFacility) {
     return (
-      <StyledContainer accessibilityLabel={t('facility.detail.title')} testID="facility-detail-screen">
+      <StyledContainer>
         <StyledContent>
           <LoadingSpinner
             accessibilityLabel={t('common.loading')}
@@ -65,7 +58,7 @@ const FacilityDetailScreenIOS = () => {
 
   if (isOffline && !hasFacility) {
     return (
-      <StyledContainer accessibilityLabel={t('facility.detail.title')} testID="facility-detail-screen">
+      <StyledContainer>
         <StyledContent>
           <OfflineState
             title={t('shell.banners.offline.title')}
@@ -89,7 +82,7 @@ const FacilityDetailScreenIOS = () => {
 
   if (hasError && !hasFacility) {
     return (
-      <StyledContainer accessibilityLabel={t('facility.detail.title')} testID="facility-detail-screen">
+      <StyledContainer>
         <StyledContent>
           <ErrorState
             title={t('facility.detail.errorTitle')}
@@ -113,7 +106,7 @@ const FacilityDetailScreenIOS = () => {
 
   if (!facility) {
     return (
-      <StyledContainer accessibilityLabel={t('facility.detail.title')} testID="facility-detail-screen">
+      <StyledContainer>
         <StyledContent>
           <EmptyState
             title={t('facility.detail.notFoundTitle')}
@@ -139,9 +132,20 @@ const FacilityDetailScreenIOS = () => {
 
   const createdAt = formatDateTime(facility.created_at, locale);
   const updatedAt = formatDateTime(facility.updated_at, locale);
-  const name = facility?.name ?? '';
-  const tenantId = facility?.tenant_id ?? '';
-  const facilityType = resolveFacilityTypeLabel(t, facility?.facility_type);
+  const displayName = humanizeIdentifier(facility?.name) || t('facility.detail.nameFallback');
+  const facilityTypeValue = String(facility?.facility_type ?? '').trim();
+  const facilityTypeLabel = (() => {
+    if (!facilityTypeValue) return '';
+    const key = `facility.form.type${facilityTypeValue}`;
+    const resolved = t(key);
+    return resolved === key ? facilityTypeValue : resolved;
+  })();
+  const tenantLabel = humanizeIdentifier(
+    facility?.tenant_name
+    ?? facility?.tenant?.name
+    ?? facility?.tenant_label
+    ?? facility?.tenant_id
+  );
   const isActive = facility?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -160,7 +164,7 @@ const FacilityDetailScreenIOS = () => {
   const showInlineOffline = hasFacility && isOffline;
 
   return (
-    <StyledContainer accessibilityLabel={t('facility.detail.title')} testID="facility-detail-screen">
+    <StyledContainer>
       <StyledContent>
         <StyledInlineStates>
           {showInlineError && (
@@ -189,32 +193,24 @@ const FacilityDetailScreenIOS = () => {
         >
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('facility.detail.idLabel')}</Text>
-              <Text variant="body" testID="facility-detail-id">
-                {facility.id}
+              <Text variant="label">{t('facility.detail.nameLabel')}</Text>
+              <Text variant="body" testID="facility-detail-name">
+                {displayName}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('facility.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="facility-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('facility.detail.nameLabel')}</Text>
-                <Text variant="body" testID="facility-detail-name">
-                  {name}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {facilityType ? (
+            {facilityTypeLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('facility.detail.typeLabel')}</Text>
                 <Text variant="body" testID="facility-detail-type">
-                  {facilityType}
+                  {facilityTypeLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -292,3 +288,4 @@ const FacilityDetailScreenIOS = () => {
 };
 
 export default FacilityDetailScreenIOS;
+

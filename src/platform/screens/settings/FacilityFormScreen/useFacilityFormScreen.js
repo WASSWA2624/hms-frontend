@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useFacility, useNetwork, useTenant, useTenantAccess } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import { FACILITY_TYPES } from './types';
 
 const MAX_NAME_LENGTH = 255;
@@ -62,18 +63,19 @@ const useFacilityFormScreen = () => {
   const facility = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
 
   const tenantItems = useMemo(
-    () => (isTenantScopedAdmin || isEdit
+    () => (isEdit
       ? []
       : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
-    [tenantData, isTenantScopedAdmin, isEdit]
+    [tenantData, isEdit]
   );
   const tenantOptions = useMemo(
-    () =>
-      tenantItems.map((tenant) => ({
+    () => tenantItems.map((tenant, index) => ({
         value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+        label: humanizeIdentifier(tenant.name)
+          || humanizeIdentifier(tenant.slug)
+          || t('facility.form.tenantOptionFallback', { index: index + 1 }),
       })),
-    [tenantItems]
+    [tenantItems, t]
   );
 
   useEffect(() => {
@@ -107,19 +109,18 @@ const useFacilityFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageFacilities || !isEdit || !routeFacilityId) return;
     if (!canEditFacility) return;
-      reset();
+    reset();
     get(routeFacilityId);
   }, [isResolved, canManageFacilities, isEdit, routeFacilityId, canEditFacility, get, reset]);
 
   useEffect(() => {
     if (!isResolved || !canManageFacilities || isEdit) return;
     if (!canCreateFacility) return;
-    if (isTenantScopedAdmin) {
-      setTenantIdValue(normalizedScopedTenantId);
-      return;
-    }
     resetTenants();
     listTenants({ page: 1, limit: 200 });
+    if (isTenantScopedAdmin) {
+      setTenantIdValue(normalizedScopedTenantId);
+    }
   }, [
     isResolved,
     canManageFacilities,
@@ -176,8 +177,10 @@ const useFacilityFormScreen = () => {
   const trimmedName = name.trim();
   const trimmedFacilityType = String(facilityType ?? '').trim();
   const trimmedTenantId = String(tenantIdValue ?? '').trim();
-  const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
-  const isCreateBlocked = !isEdit && !isTenantScopedAdmin && !hasTenants;
+  const hasTenants = isTenantScopedAdmin
+    ? Boolean(trimmedTenantId) || tenantOptions.length > 0
+    : tenantOptions.length > 0;
+  const isCreateBlocked = !isEdit && !hasTenants;
   const nameError = useMemo(() => {
     if (!trimmedName) return t('facility.form.nameRequired');
     if (trimmedName.length > MAX_NAME_LENGTH) {
@@ -196,10 +199,14 @@ const useFacilityFormScreen = () => {
     return null;
   }, [isEdit, trimmedTenantId, t]);
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    return tenantOptions.find((option) => option.value === trimmedTenantId)?.label || '';
+  }, [tenantOptions, trimmedTenantId]);
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('facility.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -239,7 +246,7 @@ const useFacilityFormScreen = () => {
         const result = await create({
           tenant_id: trimmedTenantId,
           name: trimmedName,
-          facility_type: facilityType,
+          facility_type: trimmedFacilityType,
           is_active: isActive,
         });
         if (!result) return;

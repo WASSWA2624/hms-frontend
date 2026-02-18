@@ -1,6 +1,6 @@
 /**
- * FacilityDetailScreen Android Styles
- * File: FacilityDetailScreen.android.styles.jsx
+ * TenantDetailScreen Android Styles
+ * File: TenantDetailScreen.android.styles.jsx
  */
 import styled from 'styled-components/native';
 

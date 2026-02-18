@@ -160,7 +160,6 @@ describe('FacilityDetailScreen', () => {
       });
       const { getByTestId } = renderWithTheme(<FacilityDetailScreenWeb />);
       expect(getByTestId('facility-detail-card')).toBeTruthy();
-      expect(getByTestId('facility-detail-id')).toBeTruthy();
       expect(getByTestId('facility-detail-tenant')).toBeTruthy();
       expect(getByTestId('facility-detail-name')).toBeTruthy();
       expect(getByTestId('facility-detail-type')).toBeTruthy();

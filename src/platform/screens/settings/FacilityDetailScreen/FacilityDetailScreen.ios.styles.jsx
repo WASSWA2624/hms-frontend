@@ -1,6 +1,6 @@
 /**
- * FacilityDetailScreen iOS Styles
- * File: FacilityDetailScreen.ios.styles.jsx
+ * TenantDetailScreen iOS Styles
+ * File: TenantDetailScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
