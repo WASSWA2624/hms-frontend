@@ -247,10 +247,12 @@ const StyledStatusBadge = styled.span.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 76px;
-  border-radius: ${({ theme }) => theme.radius.sm}px;
-  padding: 2px ${({ theme }) => theme.spacing.sm}px;
+  min-width: 88px;
+  border-radius: 999px;
+  padding: 3px ${({ theme }) => theme.spacing.sm}px;
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  white-space: nowrap;
   background-color: ${({ theme, $tone }) => ($tone === 'success' ? `${theme.colors.success}22` : `${theme.colors.warning}22`)};
   color: ${({ theme, $tone }) => ($tone === 'success' ? theme.colors.success : theme.colors.warning)};
 `;
@@ -260,9 +262,12 @@ const StyledRowActions = styled.div.withConfig({
   componentId: 'StyledRowActions',
 })`
   display: inline-flex;
+  width: 100%;
+  justify-content: flex-end;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 `;
 
 const StyledActionButton = styled.button.withConfig({
@@ -276,7 +281,13 @@ const StyledActionButton = styled.button.withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  white-space: nowrap;
   cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+  }
 `;
 
 const StyledDangerActionButton = styled(StyledActionButton).withConfig({
@@ -285,6 +296,26 @@ const StyledDangerActionButton = styled(StyledActionButton).withConfig({
 })`
   border-color: ${({ theme }) => `${theme.colors.error}66`};
   color: ${({ theme }) => theme.colors.error};
+
+  &:hover {
+    background-color: ${({ theme }) => `${theme.colors.error}12`};
+  }
+`;
+
+const StyledPrimaryCellText = styled.span.withConfig({
+  displayName: 'StyledPrimaryCellText',
+  componentId: 'StyledPrimaryCellText',
+})`
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const StyledCodeCellText = styled.span.withConfig({
+  displayName: 'StyledCodeCellText',
+  componentId: 'StyledCodeCellText',
+})`
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
 const StyledPagination = styled.div.withConfig({
@@ -421,6 +452,8 @@ export {
   StyledBulkInfo,
   StyledBulkActions,
   StyledStatusBadge,
+  StyledPrimaryCellText,
+  StyledCodeCellText,
   StyledRowActions,
   StyledActionButton,
   StyledDangerActionButton,

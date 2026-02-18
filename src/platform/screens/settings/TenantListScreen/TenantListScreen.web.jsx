@@ -41,11 +41,13 @@ import {
   StyledFilterRow,
   StyledListBody,
   StyledMobileList,
+  StyledPrimaryCellText,
   StyledMoveButton,
   StyledPagination,
   StyledPaginationActions,
   StyledPaginationInfo,
   StyledRowActions,
+  StyledCodeCellText,
   StyledScopeSlot,
   StyledSearchSlot,
   StyledSettingsActions,
@@ -81,6 +83,13 @@ const resolveColumnLabel = (t, column) => {
   if (column === 'humanId') return t('tenant.list.columnHumanId');
   if (column === 'status') return t('tenant.list.columnStatus');
   return column;
+};
+
+const TABLE_COLUMN_LAYOUT = {
+  name: { width: '28%', minWidth: 180, align: 'left' },
+  slug: { width: '22%', minWidth: 150, align: 'left' },
+  humanId: { width: '18%', minWidth: 140, align: 'left' },
+  status: { width: '14%', minWidth: 112, align: 'center', truncate: false },
 };
 
 const resolveTenantCell = (t, tenant, column) => {
@@ -223,23 +232,37 @@ const TenantListScreenWeb = () => {
   ) : undefined;
 
   const tableColumns = useMemo(
-    () => visibleColumns.map((column) => ({
-      id: column,
-      label: resolveColumnLabel(t, column),
-      sortable: true,
-      sortLabel: t('tenant.list.sortBy', { field: resolveColumnLabel(t, column) }),
-      renderCell: (tenant) => {
-        const value = resolveTenantCell(t, tenant, column);
-        if (column === 'status' && value && typeof value === 'object') {
-          return <StyledStatusBadge $tone={value.tone}>{value.label}</StyledStatusBadge>;
-        }
-        return value;
-      },
-      getCellTitle: (tenant) => {
-        const value = resolveTenantCell(t, tenant, column);
-        return typeof value === 'string' ? value : undefined;
-      },
-    })),
+    () => visibleColumns.map((column) => {
+      const columnLayout = TABLE_COLUMN_LAYOUT[column] || {};
+
+      return {
+        id: column,
+        label: resolveColumnLabel(t, column),
+        sortable: true,
+        sortLabel: t('tenant.list.sortBy', { field: resolveColumnLabel(t, column) }),
+        width: columnLayout.width,
+        minWidth: columnLayout.minWidth,
+        align: columnLayout.align,
+        truncate: columnLayout.truncate,
+        renderCell: (tenant) => {
+          const value = resolveTenantCell(t, tenant, column);
+          if (column === 'status' && value && typeof value === 'object') {
+            return <StyledStatusBadge $tone={value.tone}>{value.label}</StyledStatusBadge>;
+          }
+          if (column === 'name') {
+            return <StyledPrimaryCellText>{value}</StyledPrimaryCellText>;
+          }
+          if (column === 'slug' || column === 'humanId') {
+            return <StyledCodeCellText>{value}</StyledCodeCellText>;
+          }
+          return value;
+        },
+        getCellTitle: (tenant) => {
+          const value = resolveTenantCell(t, tenant, column);
+          return typeof value === 'string' ? value : undefined;
+        },
+      };
+    }),
     [visibleColumns, t]
   );
 
@@ -553,7 +576,7 @@ const TenantListScreenWeb = () => {
                   maxHeight: 560,
                   overscan: 10,
                 }}
-                minWidth={720}
+                minWidth={860}
                 testID="tenant-table"
               />
             ) : null}

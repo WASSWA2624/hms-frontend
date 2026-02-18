@@ -79,6 +79,10 @@ const DataTableRow = React.memo(({
       {selection?.enabled ? (
         <StyledCell
           $density={rowDensity}
+          $align="center"
+          $isSelection
+          $allowOverflow
+          $truncate={false}
           onClick={(event) => event.stopPropagation()}
         >
           <Checkbox
@@ -97,6 +101,7 @@ const DataTableRow = React.memo(({
           key={`${rowKey}-${column.id}`}
           $density={rowDensity}
           $align={column.align}
+          $truncate={column.truncate !== false}
           title={typeof column.getCellTitle === 'function'
             ? column.getCellTitle(row, rowIndex)
             : undefined}
@@ -108,6 +113,10 @@ const DataTableRow = React.memo(({
       {typeof renderRowActions === 'function' ? (
         <StyledCell
           $density={rowDensity}
+          $align="right"
+          $isActions
+          $allowOverflow
+          $truncate={false}
           onClick={(event) => event.stopPropagation()}
         >
           {renderRowActions(row, rowIndex)}
@@ -225,7 +234,7 @@ const DataTableWeb = ({
           <thead>
             <tr>
               {selection?.enabled ? (
-                <StyledHeaderCell>
+                <StyledHeaderCell $align="center" $isSelection>
                   <Checkbox
                     checked={Boolean(selection?.allSelected)}
                     onChange={(checked) => selection?.onToggleAll?.(Boolean(checked))}
@@ -255,6 +264,7 @@ const DataTableWeb = ({
                         type="button"
                         onClick={() => onSort(column.id)}
                         aria-label={column.sortLabel || `Sort by ${column.label}`}
+                        $align={column.align}
                         data-testid={headerTestId}
                       >
                         <StyledHeaderText>{headerContent}</StyledHeaderText>
@@ -268,7 +278,9 @@ const DataTableWeb = ({
               })}
 
               {typeof renderRowActions === 'function' ? (
-                <StyledHeaderCell>{rowActionsLabel || t('common.actions')}</StyledHeaderCell>
+                <StyledHeaderCell $align="right" $isActions>
+                  {rowActionsLabel || t('common.actions')}
+                </StyledHeaderCell>
               ) : null}
             </tr>
           </thead>
