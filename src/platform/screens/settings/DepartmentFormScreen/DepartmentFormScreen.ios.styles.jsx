@@ -1,5 +1,6 @@
-/**
+﻿/**
  * DepartmentFormScreen iOS Styles
+ * File: DepartmentFormScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
@@ -51,6 +52,14 @@ const StyledFullRow = styled.View.withConfig({
   componentId: 'DepartmentFormScreen_StyledFullRow',
 })``;
 
+const StyledHelperStack = styled.View.withConfig({
+  displayName: 'DepartmentFormScreen_StyledHelperStack',
+  componentId: 'DepartmentFormScreen_StyledHelperStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledActions = styled.View.withConfig({
   displayName: 'DepartmentFormScreen_StyledActions',
   componentId: 'DepartmentFormScreen_StyledActions',
@@ -67,5 +76,6 @@ export {
   StyledFormGrid,
   StyledFieldGroup,
   StyledFullRow,
+  StyledHelperStack,
   StyledActions,
 };

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DepartmentListScreen - iOS
  * File: DepartmentListScreen.ios.jsx
  */
@@ -15,10 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
-  Text,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -27,25 +29,65 @@ import {
   StyledList,
   StyledListBody,
   StyledSearchSlot,
-  StyledSeparator,
+  StyledScopeSlot,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './DepartmentListScreen.ios.styles';
 import useDepartmentListScreen from './useDepartmentListScreen';
 
+const resolveDepartmentTitle = (t, department) => {
+  const name = humanizeIdentifier(department?.name);
+  if (name) return String(name).trim();
+  return t('department.list.unnamed');
+};
+
+const resolveDepartmentTypeValue = (department) => String(department?.department_type ?? '').trim();
+const resolveDepartmentShortName = (department) => String(department?.short_name ?? '').trim();
+const resolveDepartmentTypeLabel = (t, department) => {
+  const value = resolveDepartmentTypeValue(department);
+  if (!value) return '';
+  const key = `department.form.type${value}`;
+  const resolved = t(key);
+  return resolved === key ? value : resolved;
+};
+const resolveDepartmentSubtitle = (t, department) => {
+  const shortName = resolveDepartmentShortName(department);
+  const typeLabel = resolveDepartmentTypeLabel(t, department);
+  if (shortName && typeLabel) return t('department.list.subtitleTypeAndShort', { type: typeLabel, shortName });
+  if (shortName) return t('department.list.shortNameValue', { shortName });
+  if (typeLabel) return t('department.list.typeValue', { type: typeLabel });
+  return undefined;
+};
+
+const resolveDepartmentMetadata = () => [];
+
+const resolveDepartmentLeadingGlyph = (title) => {
+  const normalized = String(title || '').trim();
+  if (!normalized) return 'D';
+  return normalized.charAt(0).toUpperCase();
+};
+
 const DepartmentListScreenIOS = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onDepartmentPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useDepartmentListScreen();
@@ -72,48 +114,67 @@ const DepartmentListScreenIOS = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="department-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: department }) => {
-    const title = department?.name ?? department?.id ?? '';
-    const subtitle = department?.department_type ? `${t('department.list.typeLabel')}: ${department.department_type}` : '';
+  const renderItem = ({ item: department, index }) => {
+    const title = resolveDepartmentTitle(t, department);
+    const leadingGlyph = resolveDepartmentLeadingGlyph(title);
+    const departmentId = department?.id;
+    const itemKey = departmentId ?? `department-${index}`;
+    const statusLabel = department?.is_active
+      ? t('department.list.statusActive')
+      : t('department.list.statusInactive');
+    const statusTone = department?.is_active ? 'success' : 'warning';
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onDepartmentPress(department.id)}
-        actions={
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(department.id, e)}
-            accessibilityLabel={t('department.list.delete')}
-            accessibilityHint={t('department.list.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID={`department-delete-${department.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        }
+        subtitle={resolveDepartmentSubtitle(t, department)}
+        metadata={resolveDepartmentMetadata(t, department)}
+        status={{
+          label: statusLabel,
+          tone: statusTone,
+          showDot: true,
+          accessibilityLabel: t('department.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={departmentId ? () => onDepartmentPress(departmentId) : undefined}
+        onView={departmentId ? () => onDepartmentPress(departmentId) : undefined}
+        onEdit={onEdit && departmentId ? (event) => onEdit(departmentId, event) : undefined}
+        onDelete={onDelete && departmentId ? (event) => onDelete(departmentId, event) : undefined}
+        viewLabel={t('department.list.view')}
+        viewHint={t('department.list.viewHint')}
+        editLabel={t('department.list.edit')}
+        editHint={t('department.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('department.list.deleteHint')}
+        onMore={departmentId ? () => onDepartmentPress(departmentId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('department.list.viewHint')}
+        viewTestID={`department-view-${itemKey}`}
+        editTestID={`department-edit-${itemKey}`}
+        deleteTestID={`department-delete-${itemKey}`}
+        moreTestID={`department-more-${itemKey}`}
         accessibilityLabel={t('department.list.itemLabel', { name: title })}
-        testID={`department-item-${department.id}`}
+        accessibilityHint={t('department.list.itemHint', { name: title })}
+        testID={`department-item-${itemKey}`}
       />
     );
   };
@@ -133,10 +194,26 @@ const DepartmentListScreenIOS = () => {
       <StyledContent>
         <StyledToolbar testID="department-list-toolbar">
           <StyledSearchSlot>
-            <Text variant="h2" accessibilityRole="header" testID="department-list-title">
-              {t('department.list.title')}
-            </Text>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('department.list.searchPlaceholder')}
+              accessibilityLabel={t('department.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="department-list-search"
+            />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('department.list.searchScopeLabel')}
+              compact
+              testID="department-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -177,18 +254,43 @@ const DepartmentListScreenIOS = () => {
                   testID="department-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="department-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="department-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('department.list.noResultsTitle')}
+                description={t('department.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('department.list.clearSearchAndFilters')}
+                    testID="department-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('department.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="department-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(d) => d.id}
+                  keyExtractor={(department, index) => department?.id ?? `department-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('department.list.accessibilityLabel')}
                   testID="department-list-flatlist"
@@ -203,3 +305,4 @@ const DepartmentListScreenIOS = () => {
 };
 
 export default DepartmentListScreenIOS;
+

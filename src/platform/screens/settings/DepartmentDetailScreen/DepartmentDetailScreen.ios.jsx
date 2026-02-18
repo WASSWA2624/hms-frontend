@@ -10,14 +10,13 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -71,7 +70,6 @@ const DepartmentDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -97,7 +95,6 @@ const DepartmentDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -125,7 +122,6 @@ const DepartmentDetailScreenIOS = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('department.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="department-detail-back"
             >
               {t('common.back')}
@@ -138,9 +134,30 @@ const DepartmentDetailScreenIOS = () => {
 
   const createdAt = formatDateTime(department.created_at, locale);
   const updatedAt = formatDateTime(department.updated_at, locale);
-  const name = department?.name ?? '';
-  const shortName = department?.short_name ?? '';
-  const departmentType = department?.department_type ?? '';
+  const displayName = humanizeIdentifier(department?.name) || t('department.detail.nameFallback');
+  const shortName = String(department?.short_name ?? '').trim();
+  const typeValue = String(department?.department_type ?? '').trim();
+  const typeLabel = (() => {
+    if (!typeValue) return '';
+    const key = `department.form.type${typeValue}`;
+    const resolved = t(key);
+    return resolved === key ? typeValue : resolved;
+  })();
+  const tenantLabel = humanizeIdentifier(
+    department?.tenant_name
+    ?? department?.tenant?.name
+    ?? department?.tenant_label
+  );
+  const facilityLabel = humanizeIdentifier(
+    department?.facility_name
+    ?? department?.facility?.name
+    ?? department?.facility_label
+  );
+  const branchLabel = humanizeIdentifier(
+    department?.branch_name
+    ?? department?.branch?.name
+    ?? department?.branch_label
+  );
   const isActive = department?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -151,7 +168,6 @@ const DepartmentDetailScreenIOS = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -185,16 +201,32 @@ const DepartmentDetailScreenIOS = () => {
         <Card variant="outlined" accessibilityLabel={t('department.detail.title')} testID="department-detail-card">
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('department.detail.idLabel')}</Text>
-              <Text variant="body" testID="department-detail-id">
-                {department.id}
+              <Text variant="label">{t('department.detail.nameLabel')}</Text>
+              <Text variant="body" testID="department-detail-name">
+                {displayName}
               </Text>
             </StyledDetailItem>
-            {name ? (
+            {tenantLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('department.detail.nameLabel')}</Text>
-                <Text variant="body" testID="department-detail-name">
-                  {name}
+                <Text variant="label">{t('department.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="department-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {facilityLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('department.detail.facilityLabel')}</Text>
+                <Text variant="body" testID="department-detail-facility">
+                  {facilityLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {branchLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('department.detail.branchLabel')}</Text>
+                <Text variant="body" testID="department-detail-branch">
+                  {branchLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -206,11 +238,11 @@ const DepartmentDetailScreenIOS = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {departmentType ? (
+            {typeLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('department.detail.typeLabel')}</Text>
                 <Text variant="body" testID="department-detail-type">
-                  {departmentType}
+                  {typeLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -250,7 +282,6 @@ const DepartmentDetailScreenIOS = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('department.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="department-detail-back"
             disabled={isLoading}
           >
@@ -263,25 +294,25 @@ const DepartmentDetailScreenIOS = () => {
               onPress={onEdit}
               accessibilityLabel={t('department.detail.edit')}
               accessibilityHint={t('department.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="department-detail-edit"
               disabled={isLoading}
             >
               {t('department.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('department.detail.delete')}
-            accessibilityHint={t('department.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="department-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete && (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('department.detail.delete')}
+              accessibilityHint={t('department.detail.deleteHint')}
+              testID="department-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          )}
         </StyledActions>
       </StyledContent>
     </StyledContainer>
@@ -289,3 +320,4 @@ const DepartmentDetailScreenIOS = () => {
 };
 
 export default DepartmentDetailScreenIOS;
+

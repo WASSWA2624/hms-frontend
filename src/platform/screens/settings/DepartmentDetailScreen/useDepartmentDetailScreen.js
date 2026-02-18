@@ -1,11 +1,11 @@
-/**
+﻿/**
  * useDepartmentDetailScreen Hook
  * Shared logic for DepartmentDetailScreen across platforms.
  * File: useDepartmentDetailScreen.js
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useI18n, useNetwork, useDepartment } from '@hooks';
+import { useI18n, useNetwork, useDepartment, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
@@ -20,7 +20,22 @@ const useDepartmentDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { isOffline } = useNetwork();
+  const {
+    canAccessTenantSettings,
+    canManageAllTenants,
+    tenantId,
+    isResolved,
+  } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = useDepartment();
+  const departmentId = useMemo(() => {
+    if (Array.isArray(id)) return id[0] || null;
+    return id || null;
+  }, [id]);
+  const canManageDepartments = canAccessTenantSettings;
+  const canEditDepartment = canManageDepartments;
+  const canDeleteDepartment = canManageDepartments;
+  const isTenantScopedAdmin = canManageDepartments && !canManageAllTenants;
+  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const department = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -29,14 +44,48 @@ const useDepartmentDetailScreen = () => {
   );
 
   const fetchDetail = useCallback(() => {
-    if (!id) return;
+    if (!isResolved || !canManageDepartments || !departmentId) return;
     reset();
-    get(id);
-  }, [id, get, reset]);
+    get(departmentId);
+  }, [isResolved, canManageDepartments, departmentId, get, reset]);
+
+  useEffect(() => {
+    if (!isResolved) return;
+    if (!canManageDepartments) {
+      router.replace('/settings');
+      return;
+    }
+    if (isTenantScopedAdmin && !normalizedTenantId) {
+      router.replace('/settings');
+    }
+  }, [isResolved, canManageDepartments, isTenantScopedAdmin, normalizedTenantId, router]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageDepartments || !isTenantScopedAdmin || !department) return;
+    const departmentTenantId = String(department.tenant_id ?? '').trim();
+    if (!departmentTenantId || departmentTenantId !== normalizedTenantId) {
+      router.replace('/settings/departments?notice=accessDenied');
+    }
+  }, [
+    isResolved,
+    canManageDepartments,
+    isTenantScopedAdmin,
+    department,
+    normalizedTenantId,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !canManageDepartments) return;
+    if (department) return;
+    if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
+      router.replace('/settings/departments?notice=accessDenied');
+    }
+  }, [isResolved, canManageDepartments, department, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -47,33 +96,34 @@ const useDepartmentDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (id) router.push(`/settings/departments/${id}/edit`);
-  }, [id, router]);
+    if (!canEditDepartment || !departmentId) return;
+    router.push(`/settings/departments/${departmentId}/edit`);
+  }, [canEditDepartment, departmentId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id) return;
+    if (!canDeleteDepartment || !departmentId) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
-      const result = await remove(id);
+      const result = await remove(departmentId);
       if (!result) return;
       const noticeKey = isOffline ? 'queued' : 'deleted';
       router.push(`/settings/departments?notice=${noticeKey}`);
     } catch {
       /* error handled by hook */
     }
-  }, [id, remove, isOffline, router, t]);
+  }, [canDeleteDepartment, departmentId, remove, isOffline, router, t]);
 
   return {
-    id,
+    id: departmentId,
     department,
-    isLoading,
-    hasError: Boolean(errorCode),
+    isLoading: !isResolved || isLoading,
+    hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
+    onEdit: canEditDepartment ? handleEdit : undefined,
+    onDelete: canDeleteDepartment ? handleDelete : undefined,
   };
 };
 

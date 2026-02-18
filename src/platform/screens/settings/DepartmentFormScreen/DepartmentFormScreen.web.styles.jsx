@@ -1,7 +1,10 @@
-/**
+﻿/**
  * DepartmentFormScreen Web Styles
+ * File: DepartmentFormScreen.web.styles.jsx
  */
 import styled from 'styled-components';
+
+const getTablet = (theme) => theme.breakpoints?.tablet ?? 768;
 
 const StyledContainer = styled.main.withConfig({
   displayName: 'DepartmentFormScreen_StyledContainer',
@@ -27,7 +30,7 @@ const StyledContent = styled.div.withConfig({
   margin-right: auto;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledInlineStates = styled.div.withConfig({
@@ -44,11 +47,11 @@ const StyledFormGrid = styled.div.withConfig({
   componentId: 'DepartmentFormScreen_StyledFormGrid',
 })`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: ${({ theme }) => theme.spacing.md}px;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
-    grid-template-columns: 1fr;
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
@@ -68,6 +71,15 @@ const StyledFullRow = styled.div.withConfig({
   grid-column: 1 / -1;
 `;
 
+const StyledHelperStack = styled.div.withConfig({
+  displayName: 'DepartmentFormScreen_StyledHelperStack',
+  componentId: 'DepartmentFormScreen_StyledHelperStack',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledActions = styled.div.withConfig({
   displayName: 'DepartmentFormScreen_StyledActions',
   componentId: 'DepartmentFormScreen_StyledActions',
@@ -84,5 +96,6 @@ export {
   StyledFormGrid,
   StyledFieldGroup,
   StyledFullRow,
+  StyledHelperStack,
   StyledActions,
 };

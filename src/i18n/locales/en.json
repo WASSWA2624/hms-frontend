@@ -65,18 +65,201 @@
     "shortName": "{{app_short_name}}"
   },
   "settings": {
+    "title": "Settings",
     "screen": {
       "label": "Settings workspace",
       "title": "Settings",
       "description": "Manage organization setup, access control, and operational defaults.",
       "helpLabel": "Open settings guidance",
+      "helpLabelForModule": "Open {{module}} guidance",
       "helpTooltip": "Open setup guidance and recommended order.",
+      "helpTooltipForModule": "Open setup guidance for {{module}}.",
       "helpTitle": "How to use settings",
+      "helpTitleForModule": "How to use {{module}}",
       "helpBody": "Follow this order to avoid setup and permission conflicts.",
+      "helpBodyForModule": "Use this checklist to manage {{module}} clearly and safely.",
+      "moduleDescription": "Manage {{module}} setup, access, and operational defaults.",
+      "titleForCreate": "Create {{moduleItem}}",
+      "titleForEdit": "Edit {{moduleItem}}",
+      "titleForDetail": "{{moduleItem}} details",
+      "descriptionForList": "Review and manage {{module}} with aligned search, filters, table controls, and role-aware actions.",
+      "descriptionForDetail": "Review full {{moduleItem}} details and use only actions your role allows.",
+      "descriptionForCreate": "Provide required details to add a new {{moduleItem}} safely.",
+      "descriptionForEdit": "Update {{moduleItem}} details and save changes with clear validation.",
+      "screenType": {
+        "overview": "overview",
+        "list": "list",
+        "detail": "detail",
+        "create": "create",
+        "edit": "edit"
+      },
+      "helpLabelForContext": "Open {{screenType}} guidance",
+      "helpTooltipForContext": "Open guidance for this {{screenType}} screen.",
+      "helpTitleForContext": "How to use this {{screenType}} screen",
+      "helpBodyForList": "Use search, scoped filters, table settings, and pagination arrows to find records and open the right next action.",
+      "helpBodyForDetail": "Use this detail workflow to confirm record accuracy before editing or deleting.",
+      "helpBodyForCreate": "Use this create workflow to complete prerequisites, required fields, and save checks.",
+      "helpBodyForEdit": "Use this edit workflow to update only what is needed and confirm changes after saving.",
       "helpList": {
         "sequence": "Create tenant and facility context first, then structure modules like branches, departments, and units.",
         "context": "Choose readable names from lists; technical IDs stay hidden in standard workflows.",
-        "access": "Role and permission modules control what users can see and do in every settings route."
+        "access": "Role and permission modules control what users can see and do in every settings route.",
+        "moduleReview": "Review current {{module}} records before making changes.",
+        "moduleActions": "Use only actions that match your role for {{module}} workflows.",
+        "moduleAccess": "If something is hidden or disabled in {{module}}, confirm your role permissions first."
+      },
+      "helpListByMode": {
+        "list": {
+          "review": "Scan list rows first, then narrow results with Search field and Filter logic controls.",
+          "actions": "Use table settings, row actions, and arrow navigation controls to move through records quickly.",
+          "access": "Only actions allowed by your role appear; hidden or disabled controls require additional permission.",
+          "recovery": "If data fails to load, use Retry and verify your network, tenant scope, and permissions."
+        },
+        "detail": {
+          "verify": "Verify key fields and status before changing or deleting this record.",
+          "actions": "Use edit or delete only when allowed and when downstream modules are ready.",
+          "access": "If controls are disabled, your role is read-only for this record.",
+          "recovery": "Use back and retry options when data is stale or temporarily unavailable."
+        },
+        "create": {
+          "prerequisites": "Confirm required parent context (tenant, facility, or role scope) before saving.",
+          "fields": "Complete required fields and use readable names so teams can find records quickly.",
+          "submit": "Submit once and wait for confirmation before leaving the screen.",
+          "recovery": "If save fails, correct highlighted fields, retry, or return to list and try again."
+        },
+        "edit": {
+          "baseline": "Review current values first so you only change what is necessary.",
+          "changes": "Apply minimal updates to avoid unexpected impact on connected workflows.",
+          "submit": "Save changes and verify the updated record details immediately.",
+          "recovery": "If update fails, retry after checking permissions, required fields, and network state."
+        }
+      }
+    },
+    "tabs": {
+      "accessibilityLabel": "Settings tabs navigation",
+      "general": "General",
+      "facility": "Facilities",
+      "tenant": "Tenants",
+      "branch": "Branches",
+      "department": "Departments",
+      "unit": "Units",
+      "room": "Rooms",
+      "ward": "Wards",
+      "bed": "Beds",
+      "address": "Addresses",
+      "contact": "Contacts",
+      "user": "Users",
+      "user-profile": "User Profiles",
+      "role": "Roles",
+      "permission": "Permissions",
+      "role-permission": "Role Permissions",
+      "user-role": "User Roles",
+      "user-session": "User Sessions",
+      "api-key": "API Keys",
+      "api-key-permission": "API Key Permissions",
+      "user-mfa": "MFA Settings",
+      "oauth-account": "OAuth Accounts"
+    },
+    "tabsSingular": {
+      "facility": "Facility",
+      "tenant": "Tenant",
+      "branch": "Branch",
+      "department": "Department",
+      "unit": "Unit",
+      "room": "Room",
+      "ward": "Ward",
+      "bed": "Bed",
+      "address": "Address",
+      "contact": "Contact",
+      "user": "User",
+      "user-profile": "User profile",
+      "role": "Role",
+      "permission": "Permission",
+      "role-permission": "Role permission",
+      "user-role": "User role",
+      "user-session": "User session",
+      "api-key": "API key",
+      "api-key-permission": "API key permission",
+      "user-mfa": "MFA setting",
+      "oauth-account": "OAuth account"
+    },
+    "general": {
+      "title": "General settings",
+      "description": "Personalize language, appearance, and layout preferences.",
+      "appearance": {
+        "title": "Appearance & language",
+        "description": "Choose how the app looks and which language it uses."
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select the language for menus, labels, and messages."
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Switch between system, light, and dark modes."
+      },
+      "layout": {
+        "title": "Layout",
+        "description": "Control layout preferences for this device."
+      },
+      "footer": {
+        "title": "Footer visibility",
+        "description": "Show or hide the footer in desktop layouts.",
+        "blockedMessage": "You do not have permission to change footer visibility.",
+        "blockedHint": "Footer visibility is read-only for your current role."
+      },
+      "access": {
+        "title": "Accessible settings",
+        "description": "Only settings available to your role and enabled features are listed here.",
+        "empty": "No settings are available for your current access level.",
+        "emptyTitle": "No accessible settings modules",
+        "openModule": "Open {{module}} settings"
+      },
+      "offline": {
+        "title": "You are offline",
+        "description": "Settings are available, but updates from connected modules may be delayed."
+      },
+      "errors": {
+        "title": "Settings access unavailable",
+        "accessDenied": "You do not have permission to open this settings workspace.",
+        "goToDashboard": "Go to dashboard",
+        "goToDashboardHint": "Return to the dashboard where your role has access."
+      }
+    },
+    "theme": {
+      "label": "Theme",
+      "accessibilityLabel": "Theme selector",
+      "hint": "Change the application theme",
+      "options": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark",
+        "highContrast": "High contrast"
+      }
+    },
+    "language": {
+      "label": "Language",
+      "accessibilityLabel": "Language selector",
+      "hint": "Change the application language",
+      "options": {
+        "en": "English"
+      }
+    },
+    "footerVisible": {
+      "label": "Show footer",
+      "accessibilityLabel": "Toggle footer visibility",
+      "hint": "Show or hide the footer at the bottom of the layout (desktop only)"
+    },
+    "sidebar": {
+      "resize": "Resize settings sidebar",
+      "menu": "Settings menu",
+      "menuOpen": "Open settings menu",
+      "menuClose": "Close settings menu",
+      "groups": {
+        "general": "General",
+        "organization": "Organization",
+        "usersAndAccess": "Users & access",
+        "security": "Security"
       }
     }
   },
@@ -797,205 +980,6 @@
         "REJECTED": "Rejected",
         "PAID": "Paid",
         "CANCELLED": "Cancelled"
-      }
-    }
-  },
-  "settings": {
-    "title": "Settings",
-    "screen": {
-      "label": "Settings workspace",
-      "title": "Settings",
-      "description": "Manage organization setup, access control, and operational defaults.",
-      "helpLabel": "Open settings guidance",
-      "helpLabelForModule": "Open {{module}} guidance",
-      "helpTooltip": "Open setup guidance and recommended order.",
-      "helpTooltipForModule": "Open setup guidance for {{module}}.",
-      "helpTitle": "How to use settings",
-      "helpTitleForModule": "How to use {{module}}",
-      "helpBody": "Follow this order to avoid setup and permission conflicts.",
-      "helpBodyForModule": "Use this checklist to manage {{module}} clearly and safely.",
-      "moduleDescription": "Manage {{module}} setup, access, and operational defaults.",
-      "titleForCreate": "Create {{moduleItem}}",
-      "titleForEdit": "Edit {{moduleItem}}",
-      "titleForDetail": "{{moduleItem}} details",
-      "descriptionForList": "Review and manage {{module}} with aligned search, filters, table controls, and role-aware actions.",
-      "descriptionForDetail": "Review full {{moduleItem}} details and use only actions your role allows.",
-      "descriptionForCreate": "Provide required details to add a new {{moduleItem}} safely.",
-      "descriptionForEdit": "Update {{moduleItem}} details and save changes with clear validation.",
-      "screenType": {
-        "overview": "overview",
-        "list": "list",
-        "detail": "detail",
-        "create": "create",
-        "edit": "edit"
-      },
-      "helpLabelForContext": "Open {{screenType}} guidance",
-      "helpTooltipForContext": "Open guidance for this {{screenType}} screen.",
-      "helpTitleForContext": "How to use this {{screenType}} screen",
-      "helpBodyForList": "Use search, scoped filters, table settings, and pagination arrows to find records and open the right next action.",
-      "helpBodyForDetail": "Use this detail workflow to confirm record accuracy before editing or deleting.",
-      "helpBodyForCreate": "Use this create workflow to complete prerequisites, required fields, and save checks.",
-      "helpBodyForEdit": "Use this edit workflow to update only what is needed and confirm changes after saving.",
-      "helpList": {
-        "sequence": "Create tenant and facility context first, then structure modules like branches, departments, and units.",
-        "context": "Choose readable names from lists; technical IDs stay hidden in standard workflows.",
-        "access": "Role and permission modules control what users can see and do in every settings route.",
-        "moduleReview": "Review current {{module}} records before making changes.",
-        "moduleActions": "Use only actions that match your role for {{module}} workflows.",
-        "moduleAccess": "If something is hidden or disabled in {{module}}, confirm your role permissions first."
-      },
-      "helpListByMode": {
-        "list": {
-          "review": "Scan list rows first, then narrow results with Search field and Filter logic controls.",
-          "actions": "Use table settings, row actions, and arrow navigation controls to move through records quickly.",
-          "access": "Only actions allowed by your role appear; hidden or disabled controls require additional permission.",
-          "recovery": "If data fails to load, use Retry and verify your network, tenant scope, and permissions."
-        },
-        "detail": {
-          "verify": "Verify key fields and status before changing or deleting this record.",
-          "actions": "Use edit or delete only when allowed and when downstream modules are ready.",
-          "access": "If controls are disabled, your role is read-only for this record.",
-          "recovery": "Use back and retry options when data is stale or temporarily unavailable."
-        },
-        "create": {
-          "prerequisites": "Confirm required parent context (tenant, facility, or role scope) before saving.",
-          "fields": "Complete required fields and use readable names so teams can find records quickly.",
-          "submit": "Submit once and wait for confirmation before leaving the screen.",
-          "recovery": "If save fails, correct highlighted fields, retry, or return to list and try again."
-        },
-        "edit": {
-          "baseline": "Review current values first so you only change what is necessary.",
-          "changes": "Apply minimal updates to avoid unexpected impact on connected workflows.",
-          "submit": "Save changes and verify the updated record details immediately.",
-          "recovery": "If update fails, retry after checking permissions, required fields, and network state."
-        }
-      }
-    },
-    "tabs": {
-      "accessibilityLabel": "Settings tabs navigation",
-      "general": "General",
-      "facility": "Facilities",
-      "tenant": "Tenants",
-      "branch": "Branches",
-      "department": "Departments",
-      "unit": "Units",
-      "room": "Rooms",
-      "ward": "Wards",
-      "bed": "Beds",
-      "address": "Addresses",
-      "contact": "Contacts",
-      "user": "Users",
-      "user-profile": "User Profiles",
-      "role": "Roles",
-      "permission": "Permissions",
-      "role-permission": "Role Permissions",
-      "user-role": "User Roles",
-      "user-session": "User Sessions",
-      "api-key": "API Keys",
-      "api-key-permission": "API Key Permissions",
-      "user-mfa": "MFA Settings",
-      "oauth-account": "OAuth Accounts"
-    },
-    "tabsSingular": {
-      "facility": "Facility",
-      "tenant": "Tenant",
-      "branch": "Branch",
-      "department": "Department",
-      "unit": "Unit",
-      "room": "Room",
-      "ward": "Ward",
-      "bed": "Bed",
-      "address": "Address",
-      "contact": "Contact",
-      "user": "User",
-      "user-profile": "User profile",
-      "role": "Role",
-      "permission": "Permission",
-      "role-permission": "Role permission",
-      "user-role": "User role",
-      "user-session": "User session",
-      "api-key": "API key",
-      "api-key-permission": "API key permission",
-      "user-mfa": "MFA setting",
-      "oauth-account": "OAuth account"
-    },
-    "general": {
-      "title": "General settings",
-      "description": "Personalize language, appearance, and layout preferences.",
-      "appearance": {
-        "title": "Appearance & language",
-        "description": "Choose how the app looks and which language it uses."
-      },
-      "language": {
-        "title": "Language",
-        "description": "Select the language for menus, labels, and messages."
-      },
-      "theme": {
-        "title": "Theme",
-        "description": "Switch between system, light, and dark modes."
-      },
-      "layout": {
-        "title": "Layout",
-        "description": "Control layout preferences for this device."
-      },
-      "footer": {
-        "title": "Footer visibility",
-        "description": "Show or hide the footer in desktop layouts.",
-        "blockedMessage": "You do not have permission to change footer visibility.",
-        "blockedHint": "Footer visibility is read-only for your current role."
-      },
-      "access": {
-        "title": "Accessible settings",
-        "description": "Only settings available to your role and enabled features are listed here.",
-        "empty": "No settings are available for your current access level.",
-        "emptyTitle": "No accessible settings modules",
-        "openModule": "Open {{module}} settings"
-      },
-      "offline": {
-        "title": "You are offline",
-        "description": "Settings are available, but updates from connected modules may be delayed."
-      },
-      "errors": {
-        "title": "Settings access unavailable",
-        "accessDenied": "You do not have permission to open this settings workspace.",
-        "goToDashboard": "Go to dashboard",
-        "goToDashboardHint": "Return to the dashboard where your role has access."
-      }
-    },
-    "theme": {
-      "label": "Theme",
-      "accessibilityLabel": "Theme selector",
-      "hint": "Change the application theme",
-      "options": {
-        "system": "System",
-        "light": "Light",
-        "dark": "Dark",
-        "highContrast": "High contrast"
-      }
-    },
-    "language": {
-      "label": "Language",
-      "accessibilityLabel": "Language selector",
-      "hint": "Change the application language",
-      "options": {
-        "en": "English"
-      }
-    },
-    "footerVisible": {
-      "label": "Show footer",
-      "accessibilityLabel": "Toggle footer visibility",
-      "hint": "Show or hide the footer at the bottom of the layout (desktop only)"
-    },
-    "sidebar": {
-      "resize": "Resize settings sidebar",
-      "menu": "Settings menu",
-      "menuOpen": "Open settings menu",
-      "menuClose": "Close settings menu",
-      "groups": {
-        "general": "General",
-        "organization": "Organization",
-        "usersAndAccess": "Users & access",
-        "security": "Security"
       }
     }
   },
@@ -3221,24 +3205,90 @@
     "list": {
       "title": "Departments",
       "accessibilityLabel": "Departments list",
+      "searchPlaceholder": "Search departments",
+      "searchLabel": "Search departments",
+      "searchScopeLabel": "Search field",
+      "searchScopeAll": "All fields",
+      "searchScopeName": "Name",
+      "searchScopeShortName": "Short name",
+      "searchScopeType": "Type",
+      "searchScopeStatus": "Status",
       "emptyTitle": "No departments",
       "emptyMessage": "You have no departments.",
+      "noResultsTitle": "No matching departments",
+      "noResultsMessage": "Try changing your search text or filters.",
+      "clearSearchAndFilters": "Clear search and filters",
       "loadError": "Unable to load departments. Check your connection and try again.",
       "typeLabel": "Type",
+      "typeValue": "Type: {{type}}",
+      "shortNameValue": "Short name: {{shortName}}",
+      "subtitleTypeAndShort": "Type: {{type}} - {{shortName}}",
       "delete": "Delete department",
       "deleteHint": "Delete this department",
       "itemLabel": "Department {{name}}",
+      "itemHint": "View details for {{name}}",
+      "unnamed": "Unnamed department",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "statusLabel": "Department status",
+      "columnName": "Name",
+      "columnShortName": "Short name",
+      "columnType": "Type",
+      "columnStatus": "Status",
+      "columnActions": "Actions",
+      "sortBy": "Sort by {{field}}",
+      "filterLogicLabel": "Filter logic",
+      "filterLogicAnd": "Match all (AND)",
+      "filterLogicOr": "Match any (OR)",
+      "filterFieldLabel": "Field",
+      "filterFieldName": "Name",
+      "filterFieldShortName": "Short name",
+      "filterFieldType": "Type",
+      "filterFieldStatus": "Status",
+      "filterOperatorcontains": "Contains",
+      "filterOperatorequals": "Equals",
+      "filterOperatorstartsWith": "Starts with",
+      "filterOperatoris": "Is",
+      "filterValueLabel": "Value",
+      "filterValuePlaceholder": "Enter value",
+      "addFilter": "Add filter",
+      "removeFilter": "Remove filter",
+      "bulkSelectedCount": "{{count}} selected",
+      "bulkDelete": "Remove selected",
+      "bulkDeleteConfirm": "Remove {{count}} selected departments?",
+      "clearSelection": "Clear selection",
+      "selectPage": "Select all departments on this page",
+      "selectDepartment": "Select {{name}}",
+      "pageSummary": "Page {{page}} of {{totalPages}} - {{total}} departments",
+      "pageSizeLabel": "Rows",
+      "densityLabel": "Density",
+      "densityCompact": "Compact",
+      "densityComfortable": "Comfortable",
+      "tableSettings": "Table settings",
+      "visibleColumns": "Visible columns and order",
+      "moveColumnLeft": "Move {{column}} left",
+      "moveColumnRight": "Move {{column}} right",
+      "resetTablePreferences": "Reset table preferences",
       "addLabel": "Add department",
       "addHint": "Create a new department",
+      "view": "View",
+      "viewHint": "Open department details",
+      "edit": "Edit",
+      "editHint": "Open department editor",
       "noticeCreated": "Department created.",
       "noticeUpdated": "Department updated.",
       "noticeDeleted": "Department removed.",
-      "noticeQueued": "Changes queued. We'll sync when you're back online."
+      "noticeQueued": "Changes queued. We'll sync when you're back online.",
+      "noticeAccessDenied": "You do not have access to that department.",
+      "filterOperatorLabel": "Operator"
     },
     "detail": {
       "title": "Department Details",
-      "idLabel": "Department ID",
+      "tenantLabel": "Tenant",
+      "facilityLabel": "Facility",
+      "branchLabel": "Branch",
       "nameLabel": "Name",
+      "nameFallback": "Unnamed department",
       "shortNameLabel": "Short name",
       "typeLabel": "Type",
       "activeLabel": "Active",
@@ -3259,12 +3309,23 @@
       "nameLabel": "Name",
       "namePlaceholder": "Enter department name",
       "nameHint": "Display name for the department",
+      "nameRequired": "Department name is required.",
+      "nameTooLong": "Department name must be at most {{max}} characters.",
       "shortNameLabel": "Short name",
       "shortNamePlaceholder": "e.g. ICU",
       "shortNameHint": "Optional short label for the department",
+      "shortNameTooLong": "Short name must be at most {{max}} characters.",
+      "blockedMessage": "Add a tenant to enable department details.",
       "typeLabel": "Type",
-      "typePlaceholder": "Enter department type (e.g. CLINICAL, ADMIN)",
-      "typeHint": "Department type (e.g. CLINICAL, ADMIN)",
+      "typePlaceholder": "Select type",
+      "typeHint": "Choose department category",
+      "typeRequired": "Department type is required.",
+      "typeInvalid": "Select a valid department type.",
+      "typeCLINICAL": "Clinical",
+      "typeADMINISTRATIVE": "Administrative",
+      "typeSUPPORT": "Support",
+      "typeDIAGNOSTICS": "Diagnostics",
+      "typeOTHER": "Other",
       "typeOptions": {
         "clinical": "Clinical",
         "administrative": "Administrative",
@@ -3281,11 +3342,11 @@
       "tenantLabel": "Tenant",
       "tenantPlaceholder": "Select tenant",
       "tenantHint": "Tenant that owns this department",
-      "tenantIdLabel": "Tenant ID",
-      "tenantIdPlaceholder": "Enter tenant UUID (required for new department)",
-      "tenantIdHint": "Required when creating a department",
-      "tenantLockedHint": "Tenant is set when the department is created.",
-      "tenantRequiredMessage": "Select a tenant to enable department details.",
+      "tenantOptionFallback": "Tenant {{index}}",
+      "tenantRequired": "Tenant is required when creating a department.",
+      "tenantLockedLabel": "Tenant",
+      "tenantLockedHint": "Tenant is fixed to your assigned tenant.",
+      "currentTenantLabel": "Current tenant",
       "noTenantsMessage": "There are no tenants.",
       "createTenantFirst": "Create a tenant first to add a department.",
       "goToTenants": "Go to Tenants",
@@ -3295,6 +3356,9 @@
       "cancel": "Cancel",
       "cancelHint": "Return without saving",
       "loadError": "Failed to load department for editing"
+    },
+    "access": {
+      "deniedMessage": "You do not have permission to access this department."
     }
   },
   "unit": {

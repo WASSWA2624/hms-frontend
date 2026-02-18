@@ -1,5 +1,6 @@
-/**
+﻿/**
  * DepartmentFormScreen - Android
+ * Create/edit department form.
  */
 import React from 'react';
 import {
@@ -7,7 +8,6 @@ import {
   Card,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -24,6 +24,7 @@ import {
   StyledFieldGroup,
   StyledFormGrid,
   StyledFullRow,
+  StyledHelperStack,
   StyledInlineStates,
 } from './DepartmentFormScreen.android.styles';
 import useDepartmentFormScreen from './useDepartmentFormScreen';
@@ -46,9 +47,14 @@ const DepartmentFormScreenAndroid = () => {
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    nameError,
+    shortNameError,
+    typeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     hasTenants,
     isCreateBlocked,
-    typeOptions,
     isLoading,
     hasError,
     errorMessage,
@@ -58,6 +64,7 @@ const DepartmentFormScreenAndroid = () => {
     onCancel,
     onGoToTenants,
     onRetryTenants,
+    typeOptions,
     isSubmitDisabled,
   } = useDepartmentFormScreen();
 
@@ -77,18 +84,17 @@ const DepartmentFormScreenAndroid = () => {
         <StyledContent>
           <ErrorState
             title={t('department.form.loadError')}
-            action={(
+            action={
               <Button
-                variant="surface"
+                variant="primary"
                 size="small"
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
                 accessibilityHint={t('department.form.cancelHint')}
-                icon={<Icon glyph="←" size="xs" decorative />}
               >
                 {t('common.back')}
               </Button>
-            )}
+            }
             testID="department-form-load-error"
           />
         </StyledContent>
@@ -96,27 +102,30 @@ const DepartmentFormScreenAndroid = () => {
     );
   }
 
-  const showInlineError = hasError && (!isEdit || Boolean(department));
-  const isFormDisabled = isLoading;
-  const showCreateBlocked = !isEdit && isCreateBlocked;
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
   const retryTenantsAction = onRetryTenants ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetryTenants}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="department-form-tenant-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const showInlineError = hasError && (!isEdit || Boolean(department));
+  const showCreateBlocked = !isEdit && isCreateBlocked;
 
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h2" accessibilityRole="header" testID="department-form-title">
+        <Text
+          variant="h2"
+          accessibilityRole="header"
+          testID="department-form-title"
+        >
           {isEdit ? t('department.form.editTitle') : t('department.form.createTitle')}
         </Text>
         <StyledInlineStates>
@@ -140,10 +149,23 @@ const DepartmentFormScreenAndroid = () => {
 
         <Card variant="outlined" accessibilityLabel={t('department.form.nameLabel')} testID="department-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && (
               <StyledFullRow>
                 <StyledFieldGroup>
-                  {tenantListLoading ? (
+                  {isTenantLocked ? (
+                    <TextField
+                      label={t('department.form.tenantLockedLabel')}
+                      value={lockedTenantDisplay}
+                      accessibilityLabel={t('department.form.tenantLockedLabel')}
+                      accessibilityHint={t('department.form.tenantLockedHint')}
+                      helperText={tenantError || t('department.form.tenantLockedHint')}
+                      errorMessage={tenantError || undefined}
+                      required
+                      density="compact"
+                      disabled
+                      testID="department-form-tenant-locked"
+                    />
+                  ) : tenantListLoading ? (
                     <LoadingSpinner
                       accessibilityLabel={t('common.loading')}
                       testID="department-form-tenant-loading"
@@ -157,21 +179,24 @@ const DepartmentFormScreenAndroid = () => {
                       testID="department-form-tenant-error"
                     />
                   ) : !hasTenants ? (
-                    <>
+                    <StyledHelperStack
+                      accessibilityLabel={t('department.form.tenantLabel')}
+                      accessibilityRole="summary"
+                      testID="department-form-no-tenants"
+                    >
                       <Text variant="body">{t('department.form.noTenantsMessage')}</Text>
                       <Text variant="body">{t('department.form.createTenantFirst')}</Text>
                       <Button
-                        variant="surface"
+                        variant="primary"
                         size="small"
                         onPress={onGoToTenants}
                         accessibilityLabel={t('department.form.goToTenants')}
                         accessibilityHint={t('department.form.goToTenantsHint')}
-                        icon={<Icon glyph="→" size="xs" decorative />}
                         testID="department-form-go-to-tenants"
                       >
                         {t('department.form.goToTenants')}
                       </Button>
-                    </>
+                    </StyledHelperStack>
                   ) : (
                     <Select
                       label={t('department.form.tenantLabel')}
@@ -181,26 +206,13 @@ const DepartmentFormScreenAndroid = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('department.form.tenantLabel')}
                       accessibilityHint={t('department.form.tenantHint')}
-                      helperText={t('department.form.tenantHint')}
+                      helperText={tenantError || t('department.form.tenantHint')}
+                      errorMessage={tenantError || undefined}
                       required
-                      disabled={isFormDisabled || isCreateBlocked}
+                      disabled={isFormDisabled}
                       testID="department-form-tenant"
                     />
                   )}
-                </StyledFieldGroup>
-              </StyledFullRow>
-            ) : (
-              <StyledFullRow>
-                <StyledFieldGroup>
-                  <TextField
-                    label={t('department.form.tenantIdLabel')}
-                    value={tenantId}
-                    accessibilityLabel={t('department.form.tenantIdLabel')}
-                    accessibilityHint={t('department.form.tenantLockedHint')}
-                    helperText={t('department.form.tenantLockedHint')}
-                    disabled
-                    testID="department-form-tenant-readonly"
-                  />
                 </StyledFieldGroup>
               </StyledFullRow>
             )}
@@ -213,8 +225,11 @@ const DepartmentFormScreenAndroid = () => {
                 onChangeText={setName}
                 accessibilityLabel={t('department.form.nameLabel')}
                 accessibilityHint={t('department.form.nameHint')}
-                helperText={showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.nameHint')}
+                helperText={nameError || (showCreateBlocked ? t('department.form.blockedMessage') : t('department.form.nameHint'))}
+                errorMessage={nameError || undefined}
                 required
+                maxLength={255}
+                density="compact"
                 disabled={isFormDisabled}
                 testID="department-form-name"
               />
@@ -228,7 +243,10 @@ const DepartmentFormScreenAndroid = () => {
                 onChangeText={setShortName}
                 accessibilityLabel={t('department.form.shortNameLabel')}
                 accessibilityHint={t('department.form.shortNameHint')}
-                helperText={t('department.form.shortNameHint')}
+                helperText={shortNameError || t('department.form.shortNameHint')}
+                errorMessage={shortNameError || undefined}
+                maxLength={50}
+                density="compact"
                 disabled={isFormDisabled}
                 testID="department-form-short-name"
               />
@@ -243,7 +261,9 @@ const DepartmentFormScreenAndroid = () => {
                 onValueChange={setDepartmentType}
                 accessibilityLabel={t('department.form.typeLabel')}
                 accessibilityHint={t('department.form.typeHint')}
-                helperText={t('department.form.typeHint')}
+                helperText={typeError || t('department.form.typeHint')}
+                errorMessage={typeError || undefined}
+                required
                 disabled={isFormDisabled}
                 testID="department-form-type"
               />
@@ -261,7 +281,7 @@ const DepartmentFormScreenAndroid = () => {
                   testID="department-form-active"
                 />
                 <Text variant="caption">
-                  {showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.activeHint')}
+                  {showCreateBlocked ? t('department.form.blockedMessage') : t('department.form.activeHint')}
                 </Text>
               </StyledFieldGroup>
             </StyledFullRow>
@@ -270,26 +290,24 @@ const DepartmentFormScreenAndroid = () => {
 
         <StyledActions>
           <Button
-            variant="surface"
+            variant="ghost"
             size="small"
             onPress={onCancel}
             accessibilityLabel={t('department.form.cancel')}
             accessibilityHint={t('department.form.cancelHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="department-form-cancel"
             disabled={isLoading}
           >
             {t('department.form.cancel')}
           </Button>
           <Button
-            variant="surface"
+            variant="primary"
             size="small"
             onPress={onSubmit}
             loading={isLoading}
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
             accessibilityHint={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
-            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="department-form-submit"
           >
             {isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}

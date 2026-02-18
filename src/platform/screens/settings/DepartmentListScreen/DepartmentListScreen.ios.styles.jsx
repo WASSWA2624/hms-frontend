@@ -1,6 +1,6 @@
-/**
- * DepartmentListScreen iOS Styles
- * File: DepartmentListScreen.ios.styles.jsx
+﻿/**
+ * TenantListScreen iOS Styles
+ * File: TenantListScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
@@ -18,8 +18,8 @@ const StyledContent = styled.View.withConfig({
   displayName: 'StyledContent',
   componentId: 'StyledContent',
 })`
-  width: 100%;
   flex: 1;
+  width: 100%;
 `;
 
 const StyledToolbar = styled.View.withConfig({
@@ -34,6 +34,13 @@ const StyledToolbar = styled.View.withConfig({
 const StyledSearchSlot = styled.View.withConfig({
   displayName: 'StyledSearchSlot',
   componentId: 'StyledSearchSlot',
+})`
+  width: 100%;
+`;
+
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
 })`
   width: 100%;
 `;
@@ -97,24 +104,16 @@ const StyledList = styled.View.withConfig({
   width: 100%;
 `;
 
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'StyledSeparator',
-  componentId: 'StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 export {
   StyledContainer,
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
-  StyledSeparator,
 };

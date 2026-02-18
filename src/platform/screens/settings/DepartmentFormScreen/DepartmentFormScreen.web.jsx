@@ -1,5 +1,6 @@
-/**
+﻿/**
  * DepartmentFormScreen - Web
+ * Create/edit department form.
  */
 import React from 'react';
 import {
@@ -7,7 +8,6 @@ import {
   Card,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -24,6 +24,7 @@ import {
   StyledFieldGroup,
   StyledFormGrid,
   StyledFullRow,
+  StyledHelperStack,
   StyledInlineStates,
 } from './DepartmentFormScreen.web.styles';
 import useDepartmentFormScreen from './useDepartmentFormScreen';
@@ -46,9 +47,14 @@ const DepartmentFormScreenWeb = () => {
     tenantListLoading,
     tenantListError,
     tenantErrorMessage,
+    nameError,
+    shortNameError,
+    typeError,
+    tenantError,
+    isTenantLocked,
+    lockedTenantDisplay,
     hasTenants,
     isCreateBlocked,
-    typeOptions,
     isLoading,
     hasError,
     errorMessage,
@@ -58,6 +64,7 @@ const DepartmentFormScreenWeb = () => {
     onCancel,
     onGoToTenants,
     onRetryTenants,
+    typeOptions,
     isSubmitDisabled,
   } = useDepartmentFormScreen();
 
@@ -84,7 +91,6 @@ const DepartmentFormScreenWeb = () => {
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
                 accessibilityHint={t('department.form.cancelHint')}
-                icon={<Icon glyph="←" size="xs" decorative />}
               >
                 {t('common.back')}
               </Button>
@@ -96,9 +102,7 @@ const DepartmentFormScreenWeb = () => {
     );
   }
 
-  const showInlineError = hasError && (!isEdit || Boolean(department));
-  const isFormDisabled = isLoading;
-  const showCreateBlocked = !isEdit && isCreateBlocked;
+  const isFormDisabled = isLoading || (!isEdit && isCreateBlocked);
   const retryTenantsAction = onRetryTenants ? (
     <Button
       variant="surface"
@@ -106,20 +110,24 @@ const DepartmentFormScreenWeb = () => {
       onPress={onRetryTenants}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="department-form-tenant-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
+  const showInlineError = hasError && (!isEdit || Boolean(department));
+  const showCreateBlocked = !isEdit && isCreateBlocked;
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('department.form.editTitle') : t('department.form.createTitle')}>
       <StyledContent>
-        <Text variant="h2" accessibilityRole="header" testID="department-form-title">
+        <Text
+          variant="h2"
+          accessibilityRole="header"
+          testID="department-form-title"
+        >
           {isEdit ? t('department.form.editTitle') : t('department.form.createTitle')}
         </Text>
-
         <StyledInlineStates>
           {isOffline && (
             <OfflineState
@@ -141,10 +149,23 @@ const DepartmentFormScreenWeb = () => {
 
         <Card variant="outlined" accessibilityLabel={t('department.form.nameLabel')} testID="department-form-card">
           <StyledFormGrid>
-            {!isEdit ? (
+            {!isEdit && (
               <StyledFullRow>
                 <StyledFieldGroup>
-                  {tenantListLoading ? (
+                  {isTenantLocked ? (
+                    <TextField
+                      label={t('department.form.tenantLockedLabel')}
+                      value={lockedTenantDisplay}
+                      accessibilityLabel={t('department.form.tenantLockedLabel')}
+                      accessibilityHint={t('department.form.tenantLockedHint')}
+                      helperText={tenantError || t('department.form.tenantLockedHint')}
+                      errorMessage={tenantError || undefined}
+                      required
+                      density="compact"
+                      disabled
+                      testID="department-form-tenant-locked"
+                    />
+                  ) : tenantListLoading ? (
                     <LoadingSpinner
                       accessibilityLabel={t('common.loading')}
                       testID="department-form-tenant-loading"
@@ -158,7 +179,11 @@ const DepartmentFormScreenWeb = () => {
                       testID="department-form-tenant-error"
                     />
                   ) : !hasTenants ? (
-                    <>
+                    <StyledHelperStack
+                      role="region"
+                      aria-label={t('department.form.tenantLabel')}
+                      data-testid="department-form-no-tenants"
+                    >
                       <Text variant="body">{t('department.form.noTenantsMessage')}</Text>
                       <Text variant="body">{t('department.form.createTenantFirst')}</Text>
                       <Button
@@ -167,12 +192,11 @@ const DepartmentFormScreenWeb = () => {
                         onPress={onGoToTenants}
                         accessibilityLabel={t('department.form.goToTenants')}
                         accessibilityHint={t('department.form.goToTenantsHint')}
-                        icon={<Icon glyph="→" size="xs" decorative />}
                         testID="department-form-go-to-tenants"
                       >
                         {t('department.form.goToTenants')}
                       </Button>
-                    </>
+                    </StyledHelperStack>
                   ) : (
                     <Select
                       label={t('department.form.tenantLabel')}
@@ -182,27 +206,14 @@ const DepartmentFormScreenWeb = () => {
                       onValueChange={setTenantId}
                       accessibilityLabel={t('department.form.tenantLabel')}
                       accessibilityHint={t('department.form.tenantHint')}
-                      helperText={t('department.form.tenantHint')}
+                      helperText={tenantError || t('department.form.tenantHint')}
+                      errorMessage={tenantError || undefined}
                       required
                       compact
-                      disabled={isFormDisabled || isCreateBlocked}
+                      disabled={isFormDisabled}
                       testID="department-form-tenant"
                     />
                   )}
-                </StyledFieldGroup>
-              </StyledFullRow>
-            ) : (
-              <StyledFullRow>
-                <StyledFieldGroup>
-                  <TextField
-                    label={t('department.form.tenantIdLabel')}
-                    value={tenantId}
-                    accessibilityLabel={t('department.form.tenantIdLabel')}
-                    accessibilityHint={t('department.form.tenantLockedHint')}
-                    helperText={t('department.form.tenantLockedHint')}
-                    disabled
-                    testID="department-form-tenant-readonly"
-                  />
                 </StyledFieldGroup>
               </StyledFullRow>
             )}
@@ -215,8 +226,10 @@ const DepartmentFormScreenWeb = () => {
                 onChange={(e) => setName(e.target.value)}
                 accessibilityLabel={t('department.form.nameLabel')}
                 accessibilityHint={t('department.form.nameHint')}
-                helperText={showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.nameHint')}
+                helperText={nameError || (showCreateBlocked ? t('department.form.blockedMessage') : t('department.form.nameHint'))}
+                errorMessage={nameError || undefined}
                 required
+                maxLength={255}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="department-form-name"
@@ -231,7 +244,9 @@ const DepartmentFormScreenWeb = () => {
                 onChange={(e) => setShortName(e.target.value)}
                 accessibilityLabel={t('department.form.shortNameLabel')}
                 accessibilityHint={t('department.form.shortNameHint')}
-                helperText={t('department.form.shortNameHint')}
+                helperText={shortNameError || t('department.form.shortNameHint')}
+                errorMessage={shortNameError || undefined}
+                maxLength={50}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="department-form-short-name"
@@ -247,7 +262,9 @@ const DepartmentFormScreenWeb = () => {
                 onValueChange={setDepartmentType}
                 accessibilityLabel={t('department.form.typeLabel')}
                 accessibilityHint={t('department.form.typeHint')}
-                helperText={t('department.form.typeHint')}
+                helperText={typeError || t('department.form.typeHint')}
+                errorMessage={typeError || undefined}
+                required
                 compact
                 disabled={isFormDisabled}
                 testID="department-form-type"
@@ -266,7 +283,7 @@ const DepartmentFormScreenWeb = () => {
                   testID="department-form-active"
                 />
                 <Text variant="caption">
-                  {showCreateBlocked ? t('department.form.tenantRequiredMessage') : t('department.form.activeHint')}
+                  {showCreateBlocked ? t('department.form.blockedMessage') : t('department.form.activeHint')}
                 </Text>
               </StyledFieldGroup>
             </StyledFullRow>
@@ -280,7 +297,6 @@ const DepartmentFormScreenWeb = () => {
             onPress={onCancel}
             accessibilityLabel={t('department.form.cancel')}
             accessibilityHint={t('department.form.cancelHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="department-form-cancel"
             disabled={isLoading}
           >
@@ -294,7 +310,6 @@ const DepartmentFormScreenWeb = () => {
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
             accessibilityHint={isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
-            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="department-form-submit"
           >
             {isEdit ? t('department.form.submitEdit') : t('department.form.submitCreate')}
