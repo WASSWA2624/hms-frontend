@@ -64,14 +64,13 @@ describe('useTenantListScreen', () => {
   it('global admin path enables list/create/delete', () => {
     const { result } = renderHook(() => useTenantListScreen());
 
-    expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
   });
 
-  it('global admin search filters local items and syncs backend query', () => {
+  it('global admin search filters local items without re-querying backend', () => {
     useTenant.mockReturnValue({
       list: mockList,
       get: mockGet,
@@ -93,7 +92,8 @@ describe('useTenantListScreen', () => {
     });
 
     expect(result.current.items).toEqual([{ id: 'tenant-2', name: 'Beta Clinic', slug: 'beta' }]);
-    expect(mockList).toHaveBeenLastCalledWith({ page: 1, limit: 20, search: 'beta' });
+    expect(mockList).toHaveBeenCalledTimes(1);
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
   it('global admin search matches human readable tenant id', () => {
@@ -120,7 +120,8 @@ describe('useTenantListScreen', () => {
     expect(result.current.items).toEqual([
       { id: 'tenant-2', name: 'Beta Clinic', slug: 'beta', human_friendly_id: 'TEN0000002' },
     ]);
-    expect(mockList).toHaveBeenLastCalledWith({ page: 1, limit: 20, search: 'TEN0000002' });
+    expect(mockList).toHaveBeenCalledTimes(1);
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
   it('tenant-scoped admin path loads own tenant only and hides create/delete actions', () => {

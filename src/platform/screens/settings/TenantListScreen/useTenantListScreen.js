@@ -64,7 +64,6 @@ const useTenantListScreen = () => {
     data,
     isLoading,
     errorCode,
-    reset,
   } = useTenant();
 
   const [search, setSearch] = useState('');
@@ -89,14 +88,12 @@ const useTenantListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
-    reset();
     list({ page: 1, limit: 20, ...params });
-  }, [list, reset]);
+  }, [list]);
   const fetchOwnTenant = useCallback(() => {
     if (!tenantId) return;
-    reset();
     get(tenantId);
-  }, [tenantId, get, reset]);
+  }, [tenantId, get]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -121,9 +118,8 @@ const useTenantListScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canAccessTenantSettings || !canManageAllTenants) return;
-    const trimmed = search.trim();
-    fetchList(trimmed ? { search: trimmed } : {});
-  }, [isResolved, canAccessTenantSettings, canManageAllTenants, fetchList, search]);
+    fetchList();
+  }, [isResolved, canAccessTenantSettings, canManageAllTenants, fetchList]);
 
   useEffect(() => {
     if (!noticeValue) return;
@@ -148,8 +144,7 @@ const useTenantListScreen = () => {
   const handleRetry = useCallback(() => {
     if (!isResolved || !canAccessTenantSettings) return;
     if (canManageAllTenants) {
-      const trimmed = search.trim();
-      fetchList(trimmed ? { search: trimmed } : {});
+      fetchList();
       return;
     }
     fetchOwnTenant();
@@ -159,7 +154,6 @@ const useTenantListScreen = () => {
     canManageAllTenants,
     fetchList,
     fetchOwnTenant,
-    search,
   ]);
 
   const handleSearch = useCallback((value) => {
@@ -201,8 +195,7 @@ const useTenantListScreen = () => {
       try {
         const result = await remove(id);
         if (!result) return;
-        const trimmed = search.trim();
-        fetchList(trimmed ? { search: trimmed } : {});
+        fetchList();
         const noticeKey = isOffline ? 'queued' : 'deleted';
         const message = resolveNoticeMessage(t, noticeKey);
         if (message) {
@@ -212,7 +205,7 @@ const useTenantListScreen = () => {
         /* error handled by hook */
       }
     },
-    [canDeleteTenant, remove, fetchList, t, search, isOffline]
+    [canDeleteTenant, remove, fetchList, t, isOffline]
   );
 
   return {

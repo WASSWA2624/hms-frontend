@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_08_diagnostics-lab-and-radiology.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_08_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_08_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
@@ -21,6 +21,7 @@ Step files:
 - `11_08_13_imaging-studies.mdc` -> **11.8.13** Imaging studies (`(main)/diagnostics/radiology/imaging-studies`)
 - `11_08_14_imaging-assets.mdc` -> **11.8.14** Imaging assets (`(main)/diagnostics/radiology/imaging-assets`)
 - `11_08_15_pacs-links.mdc` -> **11.8.15** PACS links (`(main)/diagnostics/radiology/pacs-links`)
+
 
 
 

@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_10_billing-hr-facilities-reporting-communications-subscriptions-integrations-compliance.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_10_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_10_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
@@ -84,7 +84,8 @@ Step files:
 - `11_10_76_equipment-utilization-snapshots.mdc` -> **11.10.76** Equipment utilization snapshots (`(main)/housekeeping/biomedical/equipment-utilization-snapshots`)
 
 Supplemental notes from source:
-- Preserved in `11_10_shared-contracts.mdc` under `Supplemental Tier Notes`.
+- Preserved in `../00_shared-contracts.mdc` under `Supplemental Tier Notes`.
+
 
 
 

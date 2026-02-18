@@ -1,12 +1,39 @@
-﻿Shared contracts for Phase 011 tier extracted from `11_11_patient-portal.mdc`.
+Global shared contracts for Phase 011 screens/routes.
 Load and apply this file before any per-step file in this folder.
 
-Specific implementation scope for this tier:
-- Implement selected screen/route wiring and interactions for this tier only.
-- Ensure end-to-end backend linkage for enabled actions and read-only fallbacks for unsupported actions.
+## Supplemental Tier Notes
+## Concrete Parity Checklist for `11.10.12` (`(main)/hr/staff-positions`)
+
+Run this after `11.10.11` is complete.
+
+- [ ] Create route files:
+  - `src/app/(main)/hr/staff-positions/index.jsx`
+  - `src/app/(main)/hr/staff-positions/create.jsx`
+  - `src/app/(main)/hr/staff-positions/[id].jsx`
+  - `src/app/(main)/hr/staff-positions/[id]/edit.jsx`
+- [ ] Use generic resource wrappers with `resourceId="staff-positions"`:
+  - list -> `ClinicalResourceListScreen`
+  - create -> `ClinicalResourceFormScreen`
+  - detail -> `ClinicalResourceDetailScreen`
+  - edit -> `ClinicalResourceFormScreen`
+- [ ] Confirm shared wiring:
+  - `src/config/sideMenu.js` includes `/hr/staff-positions`
+  - `src/i18n/locales/en.json` includes `main-nav.hr-staff-positions`
+  - `src/platform/screens/clinical/ClinicalResourceConfigs.js` includes `staff-positions`
+  - `src/platform/screens/clinical/useClinicalResourceCrud.js` maps `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS`
+- [ ] Update route coverage:
+  - `src/__tests__/app/(main)/tier-10-routes.test.js` add `'staff-positions'` in `RESOURCES_WITH_EDIT.hr`
+- [ ] Verify:
+  - `npm run test -- "src/__tests__/app/(main)/tier-10-routes.test.js"`
+  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
+  - navigate `/hr/staff-positions`, `/hr/staff-positions/create`, `/hr/staff-positions/:id`, `/hr/staff-positions/:id/edit`
+
+Specific implementation scope for this selected scope:
+- Implement selected screen/route wiring and interactions for selected tier/step IDs only.
+- Ensure end-to-end backend linkage for enabled actions and role-aware fallbacks when API contract or entitlement blocks an action.
 - Apply route/action access control, accessibility semantics, and resilient loading/error/offline states.
 
-Review and implement all missing and non-compliant aspects of this selected tier per:
+Review and implement all missing and non-compliant aspects of this selected scope per:
 - hms-frontend/dev-plan/P011_screens-routes.md
 
 You must ensure 100% compliance with:
@@ -14,11 +41,11 @@ You must ensure 100% compliance with:
 - hms-frontend/write-up.md
 - Contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and selected module route files are source of truth.
-- Use only mounted backend resources/actions from `hms-backend/src/app/router.js`; if an action is absent in contract, keep role-aware read-only/informational UX.
+- Use only mounted backend resources/actions from `hms-backend/src/app/router.js`; do not invent unsupported endpoints.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
 - Actual repository architecture and conventions already in hms-frontend/src/**
 
-Only implement what is required for this tier's selected step(s).
+Only implement what is required for selected step(s).
 
 ## Mobile UI Parity and Compact UX Contract (Mandatory)
 
@@ -182,34 +209,34 @@ Before coding, read and apply:
 
 ## Tier Step Selection Contract (Mandatory)
 
-- This file covers only the listed step IDs for Phase 011 Tier 11.
-- If specific step IDs from this tier are selected, implement only those IDs.
-- If the tier is selected as a whole, implement all listed step IDs in order.
-- If shared prerequisite wiring is required, implement only the minimum required for this tier.
-- Do NOT implement unselected sibling tiers or out-of-tier steps.
+- This file applies to all tier folders under `dev-phase-011-screens-routes`.
+- If specific step IDs are selected, implement only those IDs.
+- If an entire tier folder is selected, implement all steps in that tier in numeric order.
+- If shared prerequisite wiring is required, implement only the minimum required for the selected scope.
+- Do NOT implement unselected sibling tiers or out-of-scope steps.
 
 ---
 
 ## Implementation Areas
 
-Primary areas for this tier:
-- `src/app/**` route files and group layouts for selected tier step(s)
+Primary areas for selected scope:
+- `src/app/**` route files and group layouts for selected step(s)
 - Selected `src/features/**`, `src/hooks/**`, and form components required by tier screens
-- Tests under `src/__tests__/**` covering selected tier routes, actions, and edge states
+- Tests under `src/__tests__/**` covering selected routes, actions, and edge states
 
 ---
 
-## Tier Constraints (Mandatory)
+## Scope Constraints (Mandatory)
 
-- Do NOT implement steps from other tiers unless minimal prerequisite wiring is required.
+- Do NOT implement steps from unselected tiers unless minimal prerequisite wiring is required.
 - Do NOT call non-mounted backend endpoints or invent shortcut routes.
 - Do NOT bypass route-level auth/role guards.
 
 ---
 
-## Tier Gate Checklist
+## Scope Gate Checklist
 
-1. Implement/fix only selected step(s) within this tier.
+1. Implement/fix only selected step(s) within selected scope.
 2. Enforce i18n/accessibility/rules compliance.
 3. Add/update tests and edge-path coverage for selected step(s).
 4. Run relevant checks/tests and report results.
@@ -223,10 +250,11 @@ Primary areas for this tier:
 
 Return ONLY:
 
-1. Implementation files changed for selected step(s) in this tier.
+1. Implementation files changed for selected step(s).
 2. Related exports/wiring updates required by selected step(s) only.
 3. i18n locale key updates required by selected step(s).
 4. Tests/check commands run and result summary.
 5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 
-Do NOT include files or logic outside this tier's selected step(s).
+Do NOT include files or logic outside selected step(s).
+

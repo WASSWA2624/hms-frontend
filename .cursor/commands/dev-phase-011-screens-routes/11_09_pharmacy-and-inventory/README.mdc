@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_09_pharmacy-and-inventory.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_09_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_09_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
@@ -23,6 +23,7 @@ Step files:
 - `11_09_15_purchase-orders.mdc` -> **11.9.15** Purchase orders (`(main)/inventory/purchase-orders`)
 - `11_09_16_goods-receipts.mdc` -> **11.9.16** Goods receipts (`(main)/inventory/goods-receipts`)
 - `11_09_17_stock-adjustments.mdc` -> **11.9.17** Stock adjustments (`(main)/inventory/stock-adjustments`)
+
 
 
 

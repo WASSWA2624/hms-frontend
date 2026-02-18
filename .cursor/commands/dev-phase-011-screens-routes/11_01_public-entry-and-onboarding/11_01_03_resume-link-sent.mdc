@@ -1,5 +1,5 @@
 Step file for **11.1.3** - Resume link sent.
-Load `11_01_shared-contracts.mdc` first.
+Load `../00_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.1.3`
@@ -21,7 +21,7 @@ Load `11_01_shared-contracts.mdc` first.
 - `src/__tests__/app/auth-route-group.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `11_01_shared-contracts.mdc` with no omissions.
+- Apply all mandatory contracts from `../00_shared-contracts.mdc` with no omissions.
 - Implement only this step route surface unless explicitly selecting additional step IDs.
 - Use mounted backend actions only; do not invent endpoints or unsupported write flows.
 - Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
@@ -34,3 +34,4 @@ Load `11_01_shared-contracts.mdc` first.
 - [ ] UI is compact, novice-first, and role-aware with contextual help support.
 - [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
 - [ ] Tests are updated for allowed and denied/read-only paths.
+

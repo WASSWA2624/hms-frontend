@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_07_ipd-icu-theatre-and-emergency.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_07_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_07_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
@@ -29,6 +29,7 @@ Step files:
 - `11_07_21_ambulances.mdc` -> **11.7.21** Ambulances (`(main)/emergency/ambulances`)
 - `11_07_22_ambulance-dispatches.mdc` -> **11.7.22** Ambulance dispatches (`(main)/emergency/ambulance-dispatches`)
 - `11_07_23_ambulance-trips.mdc` -> **11.7.23** Ambulance trips (`(main)/emergency/ambulance-trips`)
+
 
 
 

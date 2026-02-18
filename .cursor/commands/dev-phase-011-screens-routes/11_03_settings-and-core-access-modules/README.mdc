@@ -1,7 +1,7 @@
 Phase 011 Tier 3 is now folderized for step-level implementation clarity.
 
 Load order:
-1. `11_03_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_03_XX_*.mdc`)
 3. If Tier 3 is selected as a whole, execute all steps in numeric order.
 
@@ -32,6 +32,7 @@ Step files:
 Notes:
 - Per-step files include mounted route surface, screen/test touchpoints, and action-mode specificity (full CRUD vs read-only).
 - Use only backend actions mounted in `hms-backend/src/app/router.js`; keep read-only UX where action routes are absent.
+
 
 
 

@@ -48,14 +48,24 @@ const resolveTenantHumanId = (tenant) => humanizeIdentifier(
   tenant?.human_friendly_id ?? tenant?.humanFriendlyId
 );
 const resolveTenantSubtitle = (t, tenant) => {
-  const humanId = resolveTenantHumanId(tenant);
   const slug = resolveTenantSlug(tenant);
-  if (humanId && slug) {
-    return `${t('tenant.list.idValue', { id: humanId })} · ${t('tenant.list.slugValue', { slug })}`;
-  }
-  if (humanId) return t('tenant.list.idValue', { id: humanId });
   if (slug) return t('tenant.list.slugValue', { slug });
   return undefined;
+};
+
+const resolveTenantMetadata = (t, tenant) => {
+  const humanId = resolveTenantHumanId(tenant);
+  if (!humanId) return [];
+  return [{
+    key: 'tenant-human-id',
+    text: t('tenant.list.idValue', { id: humanId }),
+  }];
+};
+
+const resolveTenantLeadingGlyph = (title) => {
+  const normalized = String(title || '').trim();
+  if (!normalized) return 'T';
+  return normalized.charAt(0).toUpperCase();
 };
 
 const TenantListScreenWeb = () => {
@@ -196,21 +206,24 @@ const TenantListScreenWeb = () => {
               <StyledList role="list">
                 {items.map((tenant, index) => {
                   const title = resolveTenantTitle(t, tenant);
+                  const leadingGlyph = resolveTenantLeadingGlyph(title);
                   const tenantId = tenant?.id;
                   const itemKey = tenantId ?? tenant?.slug ?? `tenant-${index}`;
                   const statusLabel = tenant?.is_active
                     ? t('tenant.list.statusActive')
                     : t('tenant.list.statusInactive');
-                  const statusVariant = tenant?.is_active ? 'success' : 'warning';
+                  const statusTone = tenant?.is_active ? 'success' : 'warning';
                   return (
                     <li key={itemKey} role="listitem">
                       <ListItem
+                        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
                         title={title}
                         subtitle={resolveTenantSubtitle(t, tenant)}
-                        badge={{
+                        metadata={resolveTenantMetadata(t, tenant)}
+                        status={{
                           label: statusLabel,
-                          variant: statusVariant,
-                          size: 'small',
+                          tone: statusTone,
+                          showDot: true,
                           accessibilityLabel: t('tenant.list.statusLabel'),
                         }}
                         density="compact"
@@ -224,9 +237,13 @@ const TenantListScreenWeb = () => {
                         editHint={t('tenant.list.editHint')}
                         deleteLabel={t('common.remove')}
                         deleteHint={t('tenant.list.deleteHint')}
+                        onMore={tenantId ? () => onTenantPress(tenantId) : undefined}
+                        moreLabel={t('common.more')}
+                        moreHint={t('tenant.list.viewHint')}
                         viewTestID={`tenant-view-${itemKey}`}
                         editTestID={`tenant-edit-${itemKey}`}
                         deleteTestID={`tenant-delete-${itemKey}`}
+                        moreTestID={`tenant-more-${itemKey}`}
                         accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
                         accessibilityHint={t('tenant.list.itemHint', { name: title })}
                         testID={`tenant-item-${itemKey}`}

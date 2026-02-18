@@ -1,7 +1,7 @@
 Phase 011 tier folderized from `11_01_public-entry-and-onboarding.mdc` for step-level implementation clarity.
 
 Load order:
-1. `11_01_shared-contracts.mdc`
+1. `../00_shared-contracts.mdc`
 2. One or more step files (`11_01_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
@@ -20,6 +20,7 @@ Step files:
 - `11_01_12_billing-cycle-selection.mdc` -> **11.1.12** Billing cycle selection (`(onboarding)/billing-cycle`)
 - `11_01_13_payment-checkout.mdc` -> **11.1.13** Payment checkout (`(onboarding)/payment`)
 - `11_01_14_payment-success-and-activation.mdc` -> **11.1.14** Payment success and activation (`(onboarding)/payment-success`)
+
 
 
 
