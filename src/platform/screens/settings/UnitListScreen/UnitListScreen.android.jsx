@@ -15,10 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
-  Text,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -26,93 +28,166 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
-  StyledSeparator,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './UnitListScreen.android.styles';
 import useUnitListScreen from './useUnitListScreen';
 
+const resolveUnitTitle = (t, Unit) => {
+  const name = humanizeIdentifier(Unit?.name);
+  if (name) return String(name).trim();
+  return t('Unit.list.unnamed');
+};
+
+const resolveUnitTenant = (t, Unit) => {
+  const value = humanizeIdentifier(
+    Unit?.tenant_name
+    ?? Unit?.tenant?.name
+    ?? Unit?.tenant_label
+    ?? Unit?.tenant_id
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveUnitFacility = (t, Unit) => {
+  const value = humanizeIdentifier(
+    Unit?.facility_name
+    ?? Unit?.facility?.name
+    ?? Unit?.facility_label
+    ?? Unit?.facility_id
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveUnitSubtitle = (t, Unit) => {
+  const tenant = resolveUnitTenant(t, Unit);
+  const facility = resolveUnitFacility(t, Unit);
+
+  if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
+    return t('Unit.list.contextValue', { tenant, facility });
+  }
+  if (facility !== t('common.notAvailable')) {
+    return t('Unit.list.facilityValue', { facility });
+  }
+  if (tenant !== t('common.notAvailable')) {
+    return t('Unit.list.tenantValue', { tenant });
+  }
+  return undefined;
+};
+
 const UnitListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onUnitPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useUnitListScreen();
 
   const emptyComponent = (
     <EmptyState
-      title={t('unit.list.emptyTitle')}
-      description={t('unit.list.emptyMessage')}
+      title={t('Unit.list.emptyTitle')}
+      description={t('Unit.list.emptyMessage')}
       action={
         onAdd ? (
           <StyledAddButton
             onPress={onAdd}
             accessibilityRole="button"
-            accessibilityLabel={t('unit.list.addLabel')}
-            accessibilityHint={t('unit.list.addHint')}
-            testID="unit-list-empty-add"
+            accessibilityLabel={t('Unit.list.addLabel')}
+            accessibilityHint={t('Unit.list.addHint')}
+            testID="Unit-list-empty-add"
           >
             <Icon glyph="+" size="xs" decorative />
-            <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
+            <StyledAddLabel>{t('Unit.list.addLabel')}</StyledAddLabel>
           </StyledAddButton>
         ) : undefined
       }
-      testID="unit-list-empty-state"
+      testID="Unit-list-empty-state"
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
-      testID="unit-list-retry"
+      testID="Unit-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: unit }) => {
-    const title = unit?.name ?? unit?.id ?? '';
+  const renderItem = ({ item: Unit, index }) => {
+    const title = resolveUnitTitle(t, Unit);
+    const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+    const UnitId = Unit?.id;
+    const itemKey = UnitId ?? `Unit-${index}`;
+    const statusLabel = Unit?.is_active
+      ? t('Unit.list.statusActive')
+      : t('Unit.list.statusInactive');
+    const statusTone = Unit?.is_active ? 'success' : 'warning';
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        onPress={() => onUnitPress(unit.id)}
-        actions={onDelete ? (
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(unit.id, e)}
-            accessibilityLabel={t('unit.list.delete')}
-            accessibilityHint={t('unit.list.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID={`unit-delete-${unit.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        ) : undefined}
-        accessibilityLabel={t('unit.list.itemLabel', { name: title })}
-        accessibilityHint={t('unit.list.itemHint', { name: title })}
-        testID={`unit-item-${unit.id}`}
+        subtitle={resolveUnitSubtitle(t, Unit)}
+        metadata={[]}
+        status={{
+          label: statusLabel,
+          tone: statusTone,
+          showDot: true,
+          accessibilityLabel: t('Unit.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={UnitId ? () => onUnitPress(UnitId) : undefined}
+        onView={UnitId ? () => onUnitPress(UnitId) : undefined}
+        onEdit={onEdit && UnitId ? (event) => onEdit(UnitId, event) : undefined}
+        onDelete={onDelete && UnitId ? (event) => onDelete(UnitId, event) : undefined}
+        viewLabel={t('Unit.list.view')}
+        viewHint={t('Unit.list.viewHint')}
+        editLabel={t('Unit.list.edit')}
+        editHint={t('Unit.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('Unit.list.deleteHint')}
+        onMore={UnitId ? () => onUnitPress(UnitId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('Unit.list.viewHint')}
+        viewTestID={`Unit-view-${itemKey}`}
+        editTestID={`Unit-edit-${itemKey}`}
+        deleteTestID={`Unit-delete-${itemKey}`}
+        moreTestID={`Unit-more-${itemKey}`}
+        accessibilityLabel={t('Unit.list.itemLabel', { name: title })}
+        accessibilityHint={t('Unit.list.itemHint', { name: title })}
+        testID={`Unit-item-${itemKey}`}
       />
     );
   };
@@ -126,35 +201,51 @@ const UnitListScreenAndroid = () => {
           variant="success"
           position="bottom"
           onDismiss={onDismissNotice}
-          testID="unit-list-notice"
+          testID="Unit-list-notice"
         />
       ) : null}
       <StyledContent>
-        <StyledToolbar testID="unit-list-toolbar">
+        <StyledToolbar testID="Unit-list-toolbar">
           <StyledSearchSlot>
-            <Text variant="h2" accessibilityRole="header" testID="unit-list-title">
-              {t('unit.list.title')}
-            </Text>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('Unit.list.searchPlaceholder')}
+              accessibilityLabel={t('Unit.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="Unit-list-search"
+            />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('Unit.list.searchScopeLabel')}
+              compact
+              testID="Unit-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
                 onPress={onAdd}
                 accessibilityRole="button"
-                accessibilityLabel={t('unit.list.addLabel')}
-                accessibilityHint={t('unit.list.addHint')}
-                testID="unit-list-add"
+                accessibilityLabel={t('Unit.list.addLabel')}
+                accessibilityHint={t('Unit.list.addHint')}
+                testID="Unit-list-add"
               >
                 <Icon glyph="+" size="xs" decorative />
-                <StyledAddLabel>{t('unit.list.addLabel')}</StyledAddLabel>
+                <StyledAddLabel>{t('Unit.list.addLabel')}</StyledAddLabel>
               </StyledAddButton>
             )}
           </StyledToolbarActions>
         </StyledToolbar>
         <Card
           variant="outlined"
-          accessibilityLabel={t('unit.list.accessibilityLabel')}
-          testID="unit-list-card"
+          accessibilityLabel={t('Unit.list.accessibilityLabel')}
+          testID="Unit-list-card"
         >
           <StyledListBody>
             <StyledStateStack>
@@ -164,7 +255,7 @@ const UnitListScreenAndroid = () => {
                   title={t('listScaffold.errorState.title')}
                   description={errorMessage}
                   action={retryAction}
-                  testID="unit-list-error"
+                  testID="Unit-list-error"
                 />
               )}
               {showOffline && (
@@ -173,24 +264,49 @@ const UnitListScreenAndroid = () => {
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="unit-list-offline"
+                  testID="Unit-list-offline"
+                />
+              )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="Unit-list-offline-banner"
                 />
               )}
             </StyledStateStack>
             {isLoading && (
-              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="unit-list-loading" />
+              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="Unit-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('Unit.list.noResultsTitle')}
+                description={t('Unit.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('Unit.list.clearSearchAndFilters')}
+                    testID="Unit-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('Unit.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="Unit-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(u) => u.id}
+                  keyExtractor={(Unit, index) => Unit?.id ?? `Unit-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
-                  accessibilityLabel={t('unit.list.accessibilityLabel')}
-                  testID="unit-list-flatlist"
+                  accessibilityLabel={t('Unit.list.accessibilityLabel')}
+                  testID="Unit-list-flatlist"
                 />
               </StyledList>
             ) : null}
@@ -202,3 +318,5 @@ const UnitListScreenAndroid = () => {
 };
 
 export default UnitListScreenAndroid;
+
+

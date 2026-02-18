@@ -15,7 +15,7 @@ import {
 } from '@features';
 import { normalizeRoleKey } from '@hooks/roleUtils';
 
-const FETCH_LIMIT = 250;
+const FETCH_LIMIT = 100;
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const TREND_DAYS = 7;
 
