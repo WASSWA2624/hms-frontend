@@ -14,7 +14,8 @@ Step files:
 - `11_02_06_tenant-selection.mdc` -> **11.2.6** Tenant selection (`(auth)/tenant-selection`)
 - `11_02_07_facility-selection.mdc` -> **11.2.7** Facility selection (`(auth)/facility-selection`)
 - `11_02_08_dashboard.mdc` -> **11.2.8** Dashboard (`(main)/dashboard`)
-
-
-
-
+## Shared Contract Enforcement (Mandatory)
+- This file inherits and must fully comply with ../00_shared-contracts.mdc.
+- All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
+- ../00_shared-contracts.mdc has precedence over this file; if instructions conflict, the shared contract wins.
+- A task is complete only when this file and every mandatory requirement in ../00_shared-contracts.mdc are satisfied.

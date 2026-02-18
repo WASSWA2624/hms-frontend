@@ -23,7 +23,8 @@ Step files:
 - `11_09_15_purchase-orders.mdc` -> **11.9.15** Purchase orders (`(main)/inventory/purchase-orders`)
 - `11_09_16_goods-receipts.mdc` -> **11.9.16** Goods receipts (`(main)/inventory/goods-receipts`)
 - `11_09_17_stock-adjustments.mdc` -> **11.9.17** Stock adjustments (`(main)/inventory/stock-adjustments`)
-
-
-
-
+## Shared Contract Enforcement (Mandatory)
+- This file inherits and must fully comply with ../00_shared-contracts.mdc.
+- All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
+- ../00_shared-contracts.mdc has precedence over this file; if instructions conflict, the shared contract wins.
+- A task is complete only when this file and every mandatory requirement in ../00_shared-contracts.mdc are satisfied.

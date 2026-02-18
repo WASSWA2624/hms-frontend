@@ -1,5 +1,20 @@
 Global shared contracts for Phase 011 screens/routes.
-Load and apply this file before any per-step file in this folder.
+Load and apply this file before any other prompt file in this folder tree (index, tier README, or step file).
+
+## Global Applicability and Precedence (Mandatory)
+
+- This contract applies automatically to every `.mdc` prompt under `hms-frontend/.cursor/commands/dev-phase-011-screens-routes/**`.
+- Covered files include `index-screens-routes.mdc`, all tier `README.mdc` files, and all step prompt files (`11_**_**_*.mdc`).
+- Any task initiated from any covered prompt is invalid unless this contract is loaded and enforced first.
+- This contract is normative and non-overridable for Phase 011 prompts in this folder tree.
+- If any covered prompt conflicts with this contract, this contract takes precedence.
+- Covered prompts may narrow selected scope, but may not relax, remove, or bypass any mandatory requirement in this contract.
+- Completion for any selected scope requires explicit compliance with every mandatory section in this contract.
+
+## Prompt Inheritance Enforcement (Mandatory)
+
+- Every covered prompt file must include a `Shared Contract Enforcement (Mandatory)` section that references this contract.
+- The inheritance section in covered prompt files is declarative only; it does not supersede or rewrite this contract.
 
 ## Supplemental Tier Notes
 ## Concrete Parity Checklist for `11.10.12` (`(main)/hr/staff-positions`)

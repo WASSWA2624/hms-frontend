@@ -11,7 +11,8 @@ Step files:
 - `11_11_03_patient-results.mdc` -> **11.11.3** Patient results (`(patient)/results`)
 - `11_11_04_patient-prescriptions.mdc` -> **11.11.4** Patient prescriptions (`(patient)/prescriptions`)
 - `11_11_05_patient-billing.mdc` -> **11.11.5** Patient billing (`(patient)/billing`)
-
-
-
-
+## Shared Contract Enforcement (Mandatory)
+- This file inherits and must fully comply with ../00_shared-contracts.mdc.
+- All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
+- ../00_shared-contracts.mdc has precedence over this file; if instructions conflict, the shared contract wins.
+- A task is complete only when this file and every mandatory requirement in ../00_shared-contracts.mdc are satisfied.

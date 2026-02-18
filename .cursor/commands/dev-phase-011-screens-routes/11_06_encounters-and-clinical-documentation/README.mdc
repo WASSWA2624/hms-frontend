@@ -16,7 +16,8 @@ Step files:
 - `11_06_08_clinical-alerts.mdc` -> **11.6.8** Clinical alerts (`(main)/clinical/clinical-alerts`)
 - `11_06_09_referrals.mdc` -> **11.6.9** Referrals (`(main)/clinical/referrals`)
 - `11_06_10_follow-ups.mdc` -> **11.6.10** Follow-ups (`(main)/clinical/follow-ups`)
-
-
-
-
+## Shared Contract Enforcement (Mandatory)
+- This file inherits and must fully comply with ../00_shared-contracts.mdc.
+- All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
+- ../00_shared-contracts.mdc has precedence over this file; if instructions conflict, the shared contract wins.
+- A task is complete only when this file and every mandatory requirement in ../00_shared-contracts.mdc are satisfied.

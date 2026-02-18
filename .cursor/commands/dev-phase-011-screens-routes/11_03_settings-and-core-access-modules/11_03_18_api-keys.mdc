@@ -34,6 +34,8 @@ Load `../00_shared-contracts.mdc` first.
 - [ ] UI is compact, novice-first, and role-aware with contextual help support.
 - [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
 - [ ] Tests are updated for allowed and denied/read-only paths.
-
-
-
+## Shared Contract Enforcement (Mandatory)
+- This file inherits and must fully comply with ../00_shared-contracts.mdc.
+- All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
+- ../00_shared-contracts.mdc has precedence over this file; if instructions conflict, the shared contract wins.
+- A task is complete only when this file and every mandatory requirement in ../00_shared-contracts.mdc are satisfied.
