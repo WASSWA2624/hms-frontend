@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WardListScreen - Android
  * File: WardListScreen.android.jsx
  */
@@ -15,6 +15,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
   TextField,
 } from '@platform/components';
@@ -26,28 +27,69 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
-  StyledSeparator,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './WardListScreen.android.styles';
 import useWardListScreen from './useWardListScreen';
 
+const resolveFloorMeta = (t, floorValue) => {
+  const normalized = String(floorValue ?? '').trim();
+  if (normalized) {
+    return { label: normalized, tone: 'info' };
+  }
+  return { label: t('common.notAvailable'), tone: 'warning' };
+};
+
+const resolveWardSubtitle = (t, tenant, facility, ward) => {
+  const available = [tenant, facility, ward].filter((value) => (
+    value && value !== t('common.notAvailable')
+  ));
+  if (available.length === 0) return undefined;
+  if (available.length === 3) {
+    return t('ward.list.contextValue', {
+      tenant: available[0],
+      facility: available[1],
+      ward: available[2],
+    });
+  }
+  if (available.length === 2) {
+    return t('ward.list.partialContextValue', {
+      first: available[0],
+      second: available[1],
+    });
+  }
+  if (available.length === 1) return available[0];
+  return undefined;
+};
+
 const WardListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
     search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
     onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
+    resolveWardNameText,
+    resolveWardTenantText,
+    resolveWardFacilityText,
+    resolveWardWardText,
+    resolveWardFloorText,
     onWardPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useWardListScreen();
@@ -74,49 +116,68 @@ const WardListScreenAndroid = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="ward-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: ward }) => {
-    const title = ward?.name ?? ward?.id ?? '';
-    const subtitle = ward?.ward_type ? `${t('ward.list.typeLabel')}: ${ward.ward_type}` : '';
+  const renderItem = ({ item: ward, index }) => {
+    const title = resolveWardNameText(ward);
+    const leadingGlyph = String(title || 'R').charAt(0).toUpperCase();
+    const wardId = ward?.id;
+    const itemKey = wardId ?? `ward-${index}`;
+    const floorMeta = resolveFloorMeta(t, resolveWardFloorText(ward));
+    const tenant = resolveWardTenantText(ward);
+    const facility = resolveWardFacilityText(ward);
+    const ward = resolveWardWardText(ward);
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onWardPress(ward.id)}
-        actions={
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(ward.id, e)}
-            accessibilityLabel={t('ward.list.delete')}
-            accessibilityHint={t('ward.list.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID={`ward-delete-${ward.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        }
+        subtitle={resolveWardSubtitle(t, tenant, facility, ward)}
+        metadata={[]}
+        status={{
+          label: floorMeta.label,
+          tone: floorMeta.tone,
+          showDot: true,
+          accessibilityLabel: t('ward.list.floorLabel'),
+        }}
+        density="compact"
+        onPress={wardId ? () => onWardPress(wardId) : undefined}
+        onView={wardId ? () => onWardPress(wardId) : undefined}
+        onEdit={onEdit && wardId ? (event) => onEdit(wardId, event) : undefined}
+        onDelete={onDelete && wardId ? (event) => onDelete(wardId, event) : undefined}
+        viewLabel={t('ward.list.view')}
+        viewHint={t('ward.list.viewHint')}
+        editLabel={t('ward.list.edit')}
+        editHint={t('ward.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('ward.list.deleteHint')}
+        onMore={wardId ? () => onWardPress(wardId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('ward.list.viewHint')}
+        viewTestID={`ward-view-${itemKey}`}
+        editTestID={`ward-edit-${itemKey}`}
+        deleteTestID={`ward-delete-${itemKey}`}
+        moreTestID={`ward-more-${itemKey}`}
         accessibilityLabel={t('ward.list.itemLabel', { name: title })}
         accessibilityHint={t('ward.list.itemHint', { name: title })}
-        testID={`ward-item-${ward.id}`}
+        testID={`ward-item-${itemKey}`}
       />
     );
   };
@@ -142,9 +203,20 @@ const WardListScreenAndroid = () => {
               placeholder={t('ward.list.searchPlaceholder')}
               accessibilityLabel={t('ward.list.searchLabel')}
               density="compact"
+              type="search"
               testID="ward-list-search"
             />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('ward.list.searchScopeLabel')}
+              compact
+              testID="ward-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -185,18 +257,43 @@ const WardListScreenAndroid = () => {
                   testID="ward-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="ward-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="ward-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('ward.list.noResultsTitle')}
+                description={t('ward.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('ward.list.clearSearchAndFilters')}
+                    testID="ward-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('ward.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="ward-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(ward) => ward.id}
+                  keyExtractor={(ward, index) => ward?.id ?? `ward-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('ward.list.accessibilityLabel')}
                   testID="ward-list-flatlist"
@@ -211,3 +308,4 @@ const WardListScreenAndroid = () => {
 };
 
 export default WardListScreenAndroid;
+

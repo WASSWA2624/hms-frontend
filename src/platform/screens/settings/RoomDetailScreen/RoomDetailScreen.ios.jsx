@@ -27,10 +27,20 @@ import {
 } from './RoomDetailScreen.ios.styles';
 import useRoomDetailScreen from './useRoomDetailScreen';
 
+const resolveFloorLabel = (t, floorValue) => {
+  const normalized = String(floorValue ?? '').trim();
+  return normalized || t('common.notAvailable');
+};
+
 const RoomDetailScreenIOS = () => {
   const { t, locale } = useI18n();
   const {
     room,
+    roomName,
+    tenantLabel,
+    facilityLabel,
+    wardLabel,
+    floorLabel,
     isLoading,
     hasError,
     errorMessage,
@@ -47,10 +57,7 @@ const RoomDetailScreenIOS = () => {
     return (
       <StyledContainer>
         <StyledContent>
-          <LoadingSpinner
-            accessibilityLabel={t('common.loading')}
-            testID="room-detail-loading"
-          />
+          <LoadingSpinner accessibilityLabel={t('common.loading')} testID="room-detail-loading" />
         </StyledContent>
       </StyledContainer>
     );
@@ -137,11 +144,11 @@ const RoomDetailScreenIOS = () => {
 
   const createdAt = formatDateTime(room.created_at, locale);
   const updatedAt = formatDateTime(room.updated_at, locale);
-  const name = room?.name ?? '';
-  const floor = room?.floor ?? '';
-  const tenantId = room?.tenant_id ?? '';
-  const facilityId = room?.facility_id ?? '';
-  const wardId = room?.ward_id ?? '';
+  const name = roomName || t('common.notAvailable');
+  const tenant = tenantLabel || t('common.notAvailable');
+  const facility = facilityLabel || t('common.notAvailable');
+  const ward = wardLabel || t('common.notAvailable');
+  const floor = resolveFloorLabel(t, floorLabel);
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -183,51 +190,35 @@ const RoomDetailScreenIOS = () => {
         <Card variant="outlined" accessibilityLabel={t('room.detail.title')} testID="room-detail-card">
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('room.detail.idLabel')}</Text>
-              <Text variant="body" testID="room-detail-id">
-                {room.id}
+              <Text variant="label">{t('room.detail.nameLabel')}</Text>
+              <Text variant="body" testID="room-detail-name">
+                {name}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('room.detail.tenantLabel')}</Text>
-                <Text variant="body" testID="room-detail-tenant">
-                  {tenantId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {facilityId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('room.detail.facilityLabel')}</Text>
-                <Text variant="body" testID="room-detail-facility">
-                  {facilityId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {wardId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('room.detail.wardLabel')}</Text>
-                <Text variant="body" testID="room-detail-ward">
-                  {wardId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('room.detail.nameLabel')}</Text>
-                <Text variant="body" testID="room-detail-name">
-                  {name}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {floor ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('room.detail.floorLabel')}</Text>
-                <Text variant="body" testID="room-detail-floor">
-                  {floor}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('room.detail.tenantLabel')}</Text>
+              <Text variant="body" testID="room-detail-tenant">
+                {tenant}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('room.detail.facilityLabel')}</Text>
+              <Text variant="body" testID="room-detail-facility">
+                {facility}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('room.detail.wardLabel')}</Text>
+              <Text variant="body" testID="room-detail-ward">
+                {ward}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('room.detail.floorLabel')}</Text>
+              <Text variant="body" testID="room-detail-floor">
+                {floor}
+              </Text>
+            </StyledDetailItem>
             {createdAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('room.detail.createdLabel')}</Text>

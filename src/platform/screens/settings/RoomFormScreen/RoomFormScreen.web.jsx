@@ -70,6 +70,8 @@ const RoomFormScreenWeb = () => {
     facilityError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
+    facilityDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -170,7 +172,7 @@ const RoomFormScreenWeb = () => {
   const tenantHelperText = tenantError || t('room.form.tenantHint');
   const facilityHelperText = facilityError || t('room.form.facilityHint');
   const wardHelperText = t('room.form.wardHint');
-  const tenantLockedHint = t('room.form.tenantLockedHint');
+  const tenantLockedHint = isEdit ? t('room.form.tenantLockedHint') : t('room.form.tenantScopedHint');
 
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('room.form.editTitle') : t('room.form.createTitle')}>
@@ -260,7 +262,7 @@ const RoomFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('room.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('room.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}
@@ -345,7 +347,7 @@ const RoomFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('room.form.facilityLabel')}
-                    value={facilityId}
+                    value={facilityDisplayLabel}
                     accessibilityLabel={t('room.form.facilityLabel')}
                     accessibilityHint={t('room.form.facilityLockedHint')}
                     helperText={t('room.form.facilityLockedHint')}
