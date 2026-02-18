@@ -32,7 +32,12 @@ const resolveNoticeMessage = (t, notice) => {
 const matchesTenantSearch = (tenant, query) => {
   const normalizedQuery = String(query || '').trim().toLowerCase();
   if (!normalizedQuery) return true;
-  const fields = [tenant?.name, tenant?.slug, tenant?.id];
+  const fields = [
+    tenant?.name,
+    tenant?.slug,
+    tenant?.human_friendly_id,
+    tenant?.humanFriendlyId,
+  ];
   return fields.some((field) =>
     String(field || '').toLowerCase().includes(normalizedQuery)
   );
@@ -47,6 +52,7 @@ const useTenantListScreen = () => {
     canAccessTenantSettings,
     canManageAllTenants,
     canCreateTenant,
+    canEditTenant,
     canDeleteTenant,
     tenantId,
     isResolved,
@@ -71,9 +77,8 @@ const useTenantListScreen = () => {
     return ownTenant ? [ownTenant] : [];
   }, [canManageAllTenants, data]);
   const items = useMemo(() => {
-    if (canManageAllTenants) return baseItems;
     return baseItems.filter((tenant) => matchesTenantSearch(tenant, search));
-  }, [canManageAllTenants, baseItems, search]);
+  }, [baseItems, search]);
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'tenant.list.loadError'),
     [t, errorCode]
@@ -177,6 +182,17 @@ const useTenantListScreen = () => {
     router.push('/settings/tenants/create');
   }, [router]);
 
+  const handleEdit = useCallback(
+    (id, e) => {
+      if (!canEditTenant) return;
+      if (e?.stopPropagation) e.stopPropagation();
+      const targetId = canManageAllTenants ? id : tenantId;
+      if (!targetId) return;
+      router.push(`/settings/tenants/${targetId}/edit`);
+    },
+    [canEditTenant, canManageAllTenants, tenantId, router]
+  );
+
   const handleDelete = useCallback(
     async (id, e) => {
       if (!canDeleteTenant) return;
@@ -212,6 +228,7 @@ const useTenantListScreen = () => {
     onSearch: handleSearch,
     onTenantPress: handleTenantPress,
     onAdd: canCreateTenant ? handleAdd : undefined,
+    onEdit: canEditTenant ? handleEdit : undefined,
     onDelete: canDeleteTenant ? handleDelete : undefined,
   };
 };

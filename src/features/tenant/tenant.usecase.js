@@ -7,7 +7,12 @@ import { handleError } from '@errors';
 import { queueRequestIfOffline } from '@offline/request';
 import { tenantApi } from './tenant.api';
 import { normalizeTenant, normalizeTenantList } from './tenant.model';
-import { parseTenantId, parseTenantListParams, parseTenantPayload } from './tenant.rules';
+import {
+  parseTenantCreatePayload,
+  parseTenantId,
+  parseTenantListParams,
+  parseTenantUpdatePayload,
+} from './tenant.rules';
 
 const execute = async (work) => {
   try {
@@ -21,11 +26,17 @@ const execute = async (work) => {
 const getPayload = (response) =>
   (response?.data?.data !== undefined ? response.data.data : response?.data);
 
+const normalizeTenantCollection = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  return [];
+};
+
 const listTenants = async (params = {}) =>
   execute(async () => {
     const parsed = parseTenantListParams(params);
     const response = await tenantApi.list(parsed);
-    return normalizeTenantList(getPayload(response) ?? []);
+    return normalizeTenantList(normalizeTenantCollection(getPayload(response)));
   });
 
 const getTenant = async (id) =>
@@ -37,7 +48,7 @@ const getTenant = async (id) =>
 
 const createTenant = async (payload) =>
   execute(async () => {
-    const parsed = parseTenantPayload(payload);
+    const parsed = parseTenantCreatePayload(payload);
     const queued = await queueRequestIfOffline({
       url: endpoints.TENANTS.CREATE,
       method: 'POST',
@@ -53,7 +64,7 @@ const createTenant = async (payload) =>
 const updateTenant = async (id, payload) =>
   execute(async () => {
     const parsedId = parseTenantId(id);
-    const parsed = parseTenantPayload(payload);
+    const parsed = parseTenantUpdatePayload(payload);
     const queued = await queueRequestIfOffline({
       url: endpoints.TENANTS.UPDATE(parsedId),
       method: 'PUT',

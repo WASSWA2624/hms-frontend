@@ -40,4 +40,29 @@ describe('tenant.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('normalizes paginated list payload shape from backend', async () => {
+    tenantApi.list.mockResolvedValueOnce({
+      data: {
+        data: {
+          items: [{ id: 'tenant-1' }, { id: 'tenant-2' }],
+        },
+      },
+    });
+
+    await expect(listTenants({ page: 1 })).resolves.toEqual([
+      { id: 'tenant-1' },
+      { id: 'tenant-2' },
+    ]);
+  });
+
+  it('normalizes create and update payload fields before API calls', async () => {
+    queueRequestIfOffline.mockResolvedValue(false);
+
+    await createTenant({ name: '  Acme  ', slug: '   ' });
+    expect(tenantApi.create).toHaveBeenCalledWith({ name: 'Acme' });
+
+    await updateTenant('1', { name: '  Acme  ', slug: '   ' });
+    expect(tenantApi.update).toHaveBeenCalledWith('1', { name: 'Acme', slug: null });
+  });
 });

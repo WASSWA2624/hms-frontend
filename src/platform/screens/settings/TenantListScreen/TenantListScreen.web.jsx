@@ -18,6 +18,7 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -32,13 +33,29 @@ import {
 } from './TenantListScreen.web.styles';
 import useTenantListScreen from './useTenantListScreen';
 
+const resolveTenantTitle = (t, tenant) => {
+  const name = String(tenant?.name ?? '').trim();
+  if (name) return name;
+
+  const slug = resolveTenantSlug(tenant);
+  if (slug) return slug;
+
+  return t('tenant.list.unnamed');
+};
+
+const resolveTenantSlug = (tenant) => humanizeIdentifier(tenant?.slug);
+const resolveTenantHumanId = (tenant) => humanizeIdentifier(
+  tenant?.human_friendly_id ?? tenant?.humanFriendlyId
+);
 const resolveTenantSubtitle = (t, tenant) => {
-  const parts = [];
-  if (tenant?.slug) {
-    parts.push(t('tenant.list.slugValue', { slug: tenant.slug }));
+  const humanId = resolveTenantHumanId(tenant);
+  const slug = resolveTenantSlug(tenant);
+  if (humanId && slug) {
+    return `${t('tenant.list.idValue', { id: humanId })} · ${t('tenant.list.slugValue', { slug })}`;
   }
-  parts.push(tenant?.is_active ? t('tenant.list.statusActive') : t('tenant.list.statusInactive'));
-  return parts.join(' • ');
+  if (humanId) return t('tenant.list.idValue', { id: humanId });
+  if (slug) return t('tenant.list.slugValue', { slug });
+  return undefined;
 };
 
 const TenantListScreenWeb = () => {
@@ -55,6 +72,7 @@ const TenantListScreenWeb = () => {
     onRetry,
     onSearch,
     onTenantPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useTenantListScreen();
@@ -176,30 +194,42 @@ const TenantListScreenWeb = () => {
             {showEmpty && emptyComponent}
             {showList && (
               <StyledList role="list">
-                {items.map((tenant) => {
-                  const title = tenant?.name ?? tenant?.slug ?? tenant?.id ?? '';
-                  const subtitle = resolveTenantSubtitle(t, tenant);
+                {items.map((tenant, index) => {
+                  const title = resolveTenantTitle(t, tenant);
+                  const tenantId = tenant?.id;
+                  const itemKey = tenantId ?? tenant?.slug ?? `tenant-${index}`;
+                  const statusLabel = tenant?.is_active
+                    ? t('tenant.list.statusActive')
+                    : t('tenant.list.statusInactive');
+                  const statusVariant = tenant?.is_active ? 'success' : 'warning';
                   return (
-                    <li key={tenant.id} role="listitem">
+                    <li key={itemKey} role="listitem">
                       <ListItem
                         title={title}
-                        subtitle={subtitle}
-                        onPress={() => onTenantPress(tenant.id)}
-                        actions={onDelete ? (
-                          <Button
-                            variant="surface"
-                            size="small"
-                            onPress={(e) => onDelete(tenant.id, e)}
-                            accessibilityLabel={t('tenant.list.delete')}
-                            accessibilityHint={t('tenant.list.deleteHint')}
-                            testID={`tenant-delete-${tenant.id}`}
-                          >
-                            {t('common.remove')}
-                          </Button>
-                        ) : undefined}
+                        subtitle={resolveTenantSubtitle(t, tenant)}
+                        badge={{
+                          label: statusLabel,
+                          variant: statusVariant,
+                          size: 'small',
+                          accessibilityLabel: t('tenant.list.statusLabel'),
+                        }}
+                        density="compact"
+                        onPress={tenantId ? () => onTenantPress(tenantId) : undefined}
+                        onView={tenantId ? () => onTenantPress(tenantId) : undefined}
+                        onEdit={onEdit && tenantId ? (event) => onEdit(tenantId, event) : undefined}
+                        onDelete={onDelete && tenantId ? (event) => onDelete(tenantId, event) : undefined}
+                        viewLabel={t('tenant.list.view')}
+                        viewHint={t('tenant.list.viewHint')}
+                        editLabel={t('tenant.list.edit')}
+                        editHint={t('tenant.list.editHint')}
+                        deleteLabel={t('common.remove')}
+                        deleteHint={t('tenant.list.deleteHint')}
+                        viewTestID={`tenant-view-${itemKey}`}
+                        editTestID={`tenant-edit-${itemKey}`}
+                        deleteTestID={`tenant-delete-${itemKey}`}
                         accessibilityLabel={t('tenant.list.itemLabel', { name: title })}
                         accessibilityHint={t('tenant.list.itemHint', { name: title })}
-                        testID={`tenant-item-${tenant.id}`}
+                        testID={`tenant-item-${itemKey}`}
                       />
                     </li>
                   );

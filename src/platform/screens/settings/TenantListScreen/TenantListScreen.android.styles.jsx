@@ -97,14 +97,6 @@ const StyledList = styled.View.withConfig({
   width: 100%;
 `;
 
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'StyledSeparator',
-  componentId: 'StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 export {
   StyledContainer,
   StyledContent,
@@ -116,5 +108,4 @@ export {
   StyledListBody,
   StyledStateStack,
   StyledList,
-  StyledSeparator,
 };

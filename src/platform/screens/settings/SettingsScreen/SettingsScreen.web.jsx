@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { Icon, Modal, Tooltip } from '@platform/components';
 import { useI18n } from '@hooks';
-import { SETTINGS_TABS } from './types';
+import { SETTINGS_SCREEN_MODES, SETTINGS_TABS } from './types';
 import resolveSettingsScreenCopy from './resolveScreenCopy';
 import {
   StyledContainer,
@@ -23,11 +23,15 @@ import {
   StyledTitle,
 } from './SettingsScreen.web.styles';
 
-const SettingsScreenWeb = ({ children, screenKey = SETTINGS_TABS.GENERAL }) => {
+const SettingsScreenWeb = ({
+  children,
+  screenKey = SETTINGS_TABS.GENERAL,
+  screenMode = SETTINGS_SCREEN_MODES.OVERVIEW,
+}) => {
   const { t } = useI18n();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-  const screenCopy = resolveSettingsScreenCopy(t, screenKey);
+  const screenCopy = resolveSettingsScreenCopy(t, screenKey, screenMode);
 
   return (
     <StyledContainer

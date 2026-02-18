@@ -205,7 +205,7 @@ describe('Tier 3 Settings Layout Route', () => {
     mockUsePathname.mockReturnValue('/settings');
   });
 
-  it('settings layout wraps Slot with SettingsScreen and keys children by pathname', () => {
+  it('settings layout wraps Slot with SettingsScreen and resolves list context', () => {
     mockUsePathname.mockReturnValue('/settings/tenants');
     if (!mockScreens.SettingsScreen) {
       mockScreens.SettingsScreen = jest.fn(() => null);
@@ -224,6 +224,37 @@ describe('Tier 3 Settings Layout Route', () => {
     expect(settingsProps.children).toBeDefined();
     expect(settingsProps.children.key).toBe('/settings/tenants');
     expect(settingsProps.screenKey).toBe('tenant');
+    expect(settingsProps.screenMode).toBe('list');
+  });
+
+  it('settings layout resolves detail context', () => {
+    mockUsePathname.mockReturnValue('/settings/tenants/tenant-123');
+    if (!mockScreens.SettingsScreen) {
+      mockScreens.SettingsScreen = jest.fn(() => null);
+    }
+    mockScreens.SettingsScreen.mockImplementation(({ children }) => children || null);
+
+    const layoutModule = require('../../../app/(main)/settings/_layout');
+    render(React.createElement(layoutModule.default));
+
+    const settingsProps = mockScreens.SettingsScreen.mock.calls[0][0];
+    expect(settingsProps.screenKey).toBe('tenant');
+    expect(settingsProps.screenMode).toBe('detail');
+  });
+
+  it('settings layout resolves edit context', () => {
+    mockUsePathname.mockReturnValue('/settings/tenants/tenant-123/edit');
+    if (!mockScreens.SettingsScreen) {
+      mockScreens.SettingsScreen = jest.fn(() => null);
+    }
+    mockScreens.SettingsScreen.mockImplementation(({ children }) => children || null);
+
+    const layoutModule = require('../../../app/(main)/settings/_layout');
+    render(React.createElement(layoutModule.default));
+
+    const settingsProps = mockScreens.SettingsScreen.mock.calls[0][0];
+    expect(settingsProps.screenKey).toBe('tenant');
+    expect(settingsProps.screenMode).toBe('edit');
   });
 });
 

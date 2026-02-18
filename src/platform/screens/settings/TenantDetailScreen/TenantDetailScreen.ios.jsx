@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -133,8 +133,9 @@ const TenantDetailScreenIOS = () => {
 
   const createdAt = formatDateTime(tenant.created_at, locale);
   const updatedAt = formatDateTime(tenant.updated_at, locale);
-  const name = tenant?.name ?? '';
-  const slug = tenant?.slug ?? '';
+  const name = String(tenant?.name ?? '').trim();
+  const readableSlug = humanizeIdentifier(tenant?.slug);
+  const displayName = name || readableSlug || t('tenant.detail.nameFallback');
   const isActive = tenant?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
@@ -182,24 +183,16 @@ const TenantDetailScreenIOS = () => {
         >
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('tenant.detail.idLabel')}</Text>
-              <Text variant="body" testID="tenant-detail-id">
-                {tenant.id}
+              <Text variant="label">{t('tenant.detail.nameLabel')}</Text>
+              <Text variant="body" testID="tenant-detail-name">
+                {displayName}
               </Text>
             </StyledDetailItem>
-            {name ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('tenant.detail.nameLabel')}</Text>
-                <Text variant="body" testID="tenant-detail-name">
-                  {name}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {slug ? (
+            {readableSlug && readableSlug !== displayName ? (
               <StyledDetailItem>
                 <Text variant="label">{t('tenant.detail.slugLabel')}</Text>
                 <Text variant="body" testID="tenant-detail-slug">
-                  {slug}
+                  {readableSlug}
                 </Text>
               </StyledDetailItem>
             ) : null}

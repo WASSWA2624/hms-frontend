@@ -5,11 +5,15 @@
     "confirmDelete": "Are you sure you want to delete this item?",
     "delete": "Delete",
     "edit": "Edit",
+    "view": "View",
     "search": "Search",
     "submit": "Submit",
     "loading": "Loading...",
     "retry": "Retry",
     "retryHint": "Try again",
+    "viewHint": "Open item details",
+    "editHint": "Edit this item",
+    "deleteHint": "Remove this item",
     "back": "Back",
     "backHint": "Return to the previous page",
     "next": "Next",
@@ -808,6 +812,27 @@
       "helpBody": "Follow this order to avoid setup and permission conflicts.",
       "helpBodyForModule": "Use this checklist to manage {{module}} clearly and safely.",
       "moduleDescription": "Manage {{module}} setup, access, and operational defaults.",
+      "titleForCreate": "Create {{moduleItem}}",
+      "titleForEdit": "Edit {{moduleItem}}",
+      "titleForDetail": "{{moduleItem}} details",
+      "descriptionForList": "Review and manage {{module}} records with search and role-aware actions.",
+      "descriptionForDetail": "Review full {{moduleItem}} details and use only actions your role allows.",
+      "descriptionForCreate": "Provide required details to add a new {{moduleItem}} safely.",
+      "descriptionForEdit": "Update {{moduleItem}} details and save changes with clear validation.",
+      "screenType": {
+        "overview": "overview",
+        "list": "list",
+        "detail": "detail",
+        "create": "create",
+        "edit": "edit"
+      },
+      "helpLabelForContext": "Open {{screenType}} guidance",
+      "helpTooltipForContext": "Open guidance for this {{screenType}} screen.",
+      "helpTitleForContext": "How to use this {{screenType}} screen",
+      "helpBodyForList": "Use this list workflow to find records, review status, and open the right next action.",
+      "helpBodyForDetail": "Use this detail workflow to confirm record accuracy before editing or deleting.",
+      "helpBodyForCreate": "Use this create workflow to complete prerequisites, required fields, and save checks.",
+      "helpBodyForEdit": "Use this edit workflow to update only what is needed and confirm changes after saving.",
       "helpList": {
         "sequence": "Create tenant and facility context first, then structure modules like branches, departments, and units.",
         "context": "Choose readable names from lists; technical IDs stay hidden in standard workflows.",
@@ -815,6 +840,32 @@
         "moduleReview": "Review current {{module}} records before making changes.",
         "moduleActions": "Use only actions that match your role for {{module}} workflows.",
         "moduleAccess": "If something is hidden or disabled in {{module}}, confirm your role permissions first."
+      },
+      "helpListByMode": {
+        "list": {
+          "review": "Scan the list first to confirm the record you want before opening actions.",
+          "actions": "Use search, filters, and row actions to navigate to details, create, or edit flows.",
+          "access": "Only actions allowed by your role are shown; hidden actions require higher permissions.",
+          "recovery": "If data fails to load, retry and confirm your network or access scope."
+        },
+        "detail": {
+          "verify": "Verify key fields and status before changing or deleting this record.",
+          "actions": "Use edit or delete only when allowed and when downstream modules are ready.",
+          "access": "If controls are disabled, your role is read-only for this record.",
+          "recovery": "Use back and retry options when data is stale or temporarily unavailable."
+        },
+        "create": {
+          "prerequisites": "Confirm required parent context (tenant, facility, or role scope) before saving.",
+          "fields": "Complete required fields and use readable names so teams can find records quickly.",
+          "submit": "Submit once and wait for confirmation before leaving the screen.",
+          "recovery": "If save fails, correct highlighted fields, retry, or return to list and try again."
+        },
+        "edit": {
+          "baseline": "Review current values first so you only change what is necessary.",
+          "changes": "Apply minimal updates to avoid unexpected impact on connected workflows.",
+          "submit": "Save changes and verify the updated record details immediately.",
+          "recovery": "If update fails, retry after checking permissions, required fields, and network state."
+        }
       }
     },
     "tabs": {
@@ -841,6 +892,29 @@
       "api-key-permission": "API Key Permissions",
       "user-mfa": "MFA Settings",
       "oauth-account": "OAuth Accounts"
+    },
+    "tabsSingular": {
+      "facility": "Facility",
+      "tenant": "Tenant",
+      "branch": "Branch",
+      "department": "Department",
+      "unit": "Unit",
+      "room": "Room",
+      "ward": "Ward",
+      "bed": "Bed",
+      "address": "Address",
+      "contact": "Contact",
+      "user": "User",
+      "user-profile": "User profile",
+      "role": "Role",
+      "permission": "Permission",
+      "role-permission": "Role permission",
+      "user-role": "User role",
+      "user-session": "User session",
+      "api-key": "API key",
+      "api-key-permission": "API key permission",
+      "user-mfa": "MFA setting",
+      "oauth-account": "OAuth account"
     },
     "general": {
       "title": "General settings",
@@ -3762,11 +3836,18 @@
       "deleteHint": "Delete this tenant",
       "itemLabel": "Tenant {{name}}",
       "itemHint": "View details for {{name}}",
+      "idValue": "ID: {{id}}",
       "slugValue": "Slug: {{slug}}",
+      "unnamed": "Unnamed tenant",
       "statusActive": "Active",
       "statusInactive": "Inactive",
+      "statusLabel": "Tenant status",
       "addLabel": "Add tenant",
       "addHint": "Create a new tenant",
+      "view": "View",
+      "viewHint": "Open tenant details",
+      "edit": "Edit",
+      "editHint": "Open tenant editor",
       "noticeCreated": "Tenant created.",
       "noticeUpdated": "Tenant updated.",
       "noticeDeleted": "Tenant removed.",
@@ -3777,6 +3858,7 @@
       "idLabel": "Tenant ID",
       "nameLabel": "Name",
       "slugLabel": "Slug",
+      "nameFallback": "Unnamed tenant",
       "activeLabel": "Active",
       "createdLabel": "Created",
       "updatedLabel": "Updated",

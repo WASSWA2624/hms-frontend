@@ -147,6 +147,8 @@ describe('useSettingsScreen Hook', () => {
     it('handles various pathname patterns', () => {
       const testCases = [
         { pathname: '/settings/tenants' },
+        { pathname: '/settings/tenants/tenant-123' },
+        { pathname: '/settings/tenants/tenant-123/edit' },
         { pathname: '/settings/roles' },
         { pathname: '/settings/users' },
       ];
@@ -158,6 +160,16 @@ describe('useSettingsScreen Hook', () => {
         expect(hookResult).toBeDefined();
         expect(hookResult.selectedTab).toBeDefined();
       });
+    });
+
+    it('keeps tenant tab selected on detail and edit paths', () => {
+      usePathname.mockReturnValue('/settings/tenants/tenant-123');
+      let hookResult = renderHook();
+      expect(hookResult.selectedTab).toBe(SETTINGS_TABS.TENANT);
+
+      usePathname.mockReturnValue('/settings/tenants/tenant-123/edit');
+      hookResult = renderHook();
+      expect(hookResult.selectedTab).toBe(SETTINGS_TABS.TENANT);
     });
 
     it('falls back to a visible tab when pathname tab is hidden', () => {

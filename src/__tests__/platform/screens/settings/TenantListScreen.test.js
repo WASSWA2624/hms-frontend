@@ -7,6 +7,51 @@ const { render, fireEvent } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
 const { useI18n } = require('@hooks');
 
+jest.mock('@platform/components', () => {
+  const React = require('react');
+  const { View, Text } = require('react-native');
+  const actual = jest.requireActual('@platform/components');
+
+  const MockListItem = ({
+    children,
+    title,
+    subtitle,
+    onView,
+    onEdit,
+    onDelete,
+    viewTestID,
+    editTestID,
+    deleteTestID,
+    testID,
+    ...rest
+  }) => (
+    <View testID={testID} title={title} {...rest}>
+      {children}
+      {subtitle ? <Text>{subtitle}</Text> : null}
+      {onView ? (
+        <actual.Button testID={viewTestID} onPress={onView}>
+          view
+        </actual.Button>
+      ) : null}
+      {onEdit ? (
+        <actual.Button testID={editTestID} onPress={onEdit}>
+          edit
+        </actual.Button>
+      ) : null}
+      {onDelete ? (
+        <actual.Button testID={deleteTestID} onPress={onDelete}>
+          delete
+        </actual.Button>
+      ) : null}
+    </View>
+  );
+
+  return {
+    ...actual,
+    ListItem: MockListItem,
+  };
+});
+
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
 }));
@@ -39,13 +84,20 @@ const mockT = (key) => {
     'tenant.list.deleteHint': 'Delete this tenant',
     'tenant.list.itemLabel': 'Tenant {{name}}',
     'tenant.list.itemHint': 'View details for {{name}}',
+    'tenant.list.idValue': 'ID: {{id}}',
     'tenant.list.slugValue': 'Slug: {{slug}}',
+    'tenant.list.unnamed': 'Unnamed tenant',
     'tenant.list.addLabel': 'Add tenant',
     'tenant.list.addHint': 'Create a new tenant',
+    'tenant.list.view': 'View',
+    'tenant.list.viewHint': 'Open tenant details',
+    'tenant.list.edit': 'Edit',
+    'tenant.list.editHint': 'Open tenant editor',
     'tenant.list.noticeCreated': 'Tenant created.',
     'tenant.list.noticeUpdated': 'Tenant updated.',
     'tenant.list.noticeDeleted': 'Tenant removed.',
     'tenant.list.noticeQueued': 'Changes queued.',
+    'tenant.list.statusLabel': 'Status',
     'common.remove': 'Remove',
     'listScaffold.loading': 'Loading',
     'listScaffold.empty': 'Empty',
@@ -70,6 +122,7 @@ const baseHook = {
   onRetry: jest.fn(),
   onSearch: jest.fn(),
   onTenantPress: jest.fn(),
+  onEdit: jest.fn(),
   onDelete: jest.fn(),
   onAdd: jest.fn(),
 };
@@ -201,6 +254,27 @@ describe('TenantListScreen', () => {
       });
       const { queryByTestId } = renderWithTheme(<TenantListScreenWeb />);
       expect(queryByTestId('tenant-delete-1')).toBeNull();
+    });
+
+    it('shows tenant CRUD controls when handlers are available (Web)', () => {
+      useTenantListScreen.mockReturnValue({
+        ...baseHook,
+        items: [{ id: '1', name: 'Tenant 1', slug: 'tenant-1', is_active: true }],
+      });
+      const { getByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      expect(getByTestId('tenant-view-1')).toBeTruthy();
+      expect(getByTestId('tenant-edit-1')).toBeTruthy();
+      expect(getByTestId('tenant-delete-1')).toBeTruthy();
+    });
+
+    it('hides edit action when onEdit is undefined (Web)', () => {
+      useTenantListScreen.mockReturnValue({
+        ...baseHook,
+        onEdit: undefined,
+        items: [{ id: '1', name: 'Tenant 1', slug: 'tenant-1' }],
+      });
+      const { queryByTestId } = renderWithTheme(<TenantListScreenWeb />);
+      expect(queryByTestId('tenant-edit-1')).toBeNull();
     });
   });
 

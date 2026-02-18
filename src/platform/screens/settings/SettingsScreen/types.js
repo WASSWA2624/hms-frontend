@@ -29,6 +29,14 @@ export const SETTINGS_TABS = {
   OAUTH_ACCOUNT: 'oauth-account',
 };
 
+export const SETTINGS_SCREEN_MODES = {
+  OVERVIEW: 'overview',
+  LIST: 'list',
+  DETAIL: 'detail',
+  CREATE: 'create',
+  EDIT: 'edit',
+};
+
 /** Tab id → icon key (from @config/sideMenu MENU_ICON_GLYPHS) */
 export const SETTINGS_TAB_ICONS = {
   [SETTINGS_TABS.GENERAL]: 'settings-outline',

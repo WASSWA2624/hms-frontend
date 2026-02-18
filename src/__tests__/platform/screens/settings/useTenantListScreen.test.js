@@ -45,6 +45,7 @@ describe('useTenantListScreen', () => {
       canAccessTenantSettings: true,
       canManageAllTenants: true,
       canCreateTenant: true,
+      canEditTenant: true,
       canDeleteTenant: true,
       tenantId: null,
       isResolved: true,
@@ -66,7 +67,60 @@ describe('useTenantListScreen', () => {
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
     expect(typeof result.current.onAdd).toBe('function');
+    expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
+  });
+
+  it('global admin search filters local items and syncs backend query', () => {
+    useTenant.mockReturnValue({
+      list: mockList,
+      get: mockGet,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'tenant-1', name: 'Acme Hospital', slug: 'acme' },
+          { id: 'tenant-2', name: 'Beta Clinic', slug: 'beta' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+    const { result } = renderHook(() => useTenantListScreen());
+
+    act(() => {
+      result.current.onSearch('beta');
+    });
+
+    expect(result.current.items).toEqual([{ id: 'tenant-2', name: 'Beta Clinic', slug: 'beta' }]);
+    expect(mockList).toHaveBeenLastCalledWith({ page: 1, limit: 20, search: 'beta' });
+  });
+
+  it('global admin search matches human readable tenant id', () => {
+    useTenant.mockReturnValue({
+      list: mockList,
+      get: mockGet,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'tenant-1', name: 'Acme Hospital', slug: 'acme', human_friendly_id: 'TEN0000001' },
+          { id: 'tenant-2', name: 'Beta Clinic', slug: 'beta', human_friendly_id: 'TEN0000002' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+    const { result } = renderHook(() => useTenantListScreen());
+
+    act(() => {
+      result.current.onSearch('TEN0000002');
+    });
+
+    expect(result.current.items).toEqual([
+      { id: 'tenant-2', name: 'Beta Clinic', slug: 'beta', human_friendly_id: 'TEN0000002' },
+    ]);
+    expect(mockList).toHaveBeenLastCalledWith({ page: 1, limit: 20, search: 'TEN0000002' });
   });
 
   it('tenant-scoped admin path loads own tenant only and hides create/delete actions', () => {
@@ -74,6 +128,7 @@ describe('useTenantListScreen', () => {
       canAccessTenantSettings: true,
       canManageAllTenants: false,
       canCreateTenant: false,
+      canEditTenant: true,
       canDeleteTenant: false,
       tenantId: 'tenant-1',
       isResolved: true,
@@ -94,7 +149,36 @@ describe('useTenantListScreen', () => {
     expect(mockList).not.toHaveBeenCalled();
     expect(result.current.items).toEqual([{ id: 'tenant-1', name: 'Acme' }]);
     expect(result.current.onAdd).toBeUndefined();
+    expect(typeof result.current.onEdit).toBe('function');
     expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('tenant-scoped edit action always routes to own tenant', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      canCreateTenant: false,
+      canEditTenant: true,
+      canDeleteTenant: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useTenant.mockReturnValue({
+      list: mockList,
+      get: mockGet,
+      remove: mockRemove,
+      data: { id: 'tenant-1', name: 'Acme Hospital', slug: 'acme' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useTenantListScreen());
+    act(() => {
+      result.current.onEdit('tenant-99');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/tenants/tenant-1/edit');
   });
 
   it('tenant-scoped search is local against own tenant', () => {
@@ -102,6 +186,7 @@ describe('useTenantListScreen', () => {
       canAccessTenantSettings: true,
       canManageAllTenants: false,
       canCreateTenant: false,
+      canEditTenant: true,
       canDeleteTenant: false,
       tenantId: 'tenant-1',
       isResolved: true,
@@ -134,6 +219,7 @@ describe('useTenantListScreen', () => {
       canAccessTenantSettings: false,
       canManageAllTenants: false,
       canCreateTenant: false,
+      canEditTenant: false,
       canDeleteTenant: false,
       tenantId: null,
       isResolved: true,

@@ -33,6 +33,7 @@ const mockT = (key) => {
     'tenant.detail.idLabel': 'Tenant ID',
     'tenant.detail.nameLabel': 'Name',
     'tenant.detail.slugLabel': 'Slug',
+    'tenant.detail.nameFallback': 'Unnamed tenant',
     'tenant.detail.activeLabel': 'Active',
     'tenant.detail.createdLabel': 'Created',
     'tenant.detail.updatedLabel': 'Updated',
@@ -159,14 +160,14 @@ describe('TenantDetailScreen', () => {
           updated_at: '2025-01-02T00:00:00Z',
         },
       });
-      const { getByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
+      const { getByTestId, queryByTestId } = renderWithTheme(<TenantDetailScreenWeb />);
       expect(getByTestId('tenant-detail-card')).toBeTruthy();
-      expect(getByTestId('tenant-detail-id')).toBeTruthy();
       expect(getByTestId('tenant-detail-name')).toBeTruthy();
       expect(getByTestId('tenant-detail-slug')).toBeTruthy();
       expect(getByTestId('tenant-detail-active')).toBeTruthy();
       expect(getByTestId('tenant-detail-created')).toBeTruthy();
       expect(getByTestId('tenant-detail-updated')).toBeTruthy();
+      expect(queryByTestId('tenant-detail-id')).toBeNull();
     });
   });
 

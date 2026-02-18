@@ -16,8 +16,8 @@ import {
   SETTINGS_SIDEBAR_GROUPS,
   SETTINGS_TAB_ICONS,
   SETTINGS_TAB_ROUTES,
-  SETTINGS_SEGMENT_TO_TAB,
 } from './types';
+import resolveSettingsRouteContext from './routeContext';
 
 const SETTINGS_NAV_ID = 'settings';
 
@@ -66,32 +66,11 @@ const useSettingsScreen = () => {
 
   const visibleTabSet = useMemo(() => new Set(visibleTabIds), [visibleTabIds]);
 
-  // Extract current tab from pathname
-  // E.g., /settings/users -> USER; /settings/tenants/create -> TENANT; /settings/facilities/[id]/edit -> FACILITY
-  const getCurrentTab = useCallback(() => {
-    const parts = pathname.split('/').filter(Boolean);
-    const lastPart = parts[parts.length - 1];
-
-    if (lastPart === 'create' && parts.length >= 2) {
-      const segment = parts[parts.length - 2];
-      return SETTINGS_SEGMENT_TO_TAB[segment] ?? SETTINGS_TABS.GENERAL;
-    }
-    if (lastPart === 'edit' && parts.length >= 3) {
-      const segment = parts[parts.length - 3];
-      return SETTINGS_SEGMENT_TO_TAB[segment] ?? SETTINGS_TABS.GENERAL;
-    }
-
-    const tabMap = {
-      '': SETTINGS_TABS.GENERAL,
-      'general': SETTINGS_TABS.GENERAL,
-      'settings': SETTINGS_TABS.GENERAL,
-      ...SETTINGS_SEGMENT_TO_TAB,
-    };
-    return tabMap[lastPart] ?? SETTINGS_TABS.GENERAL;
-  }, [pathname]);
-
   const fallbackTab = visibleTabIds[0] ?? SETTINGS_TABS.GENERAL;
-  const detectedTab = getCurrentTab();
+  const detectedTab = useMemo(
+    () => resolveSettingsRouteContext(pathname).screenKey,
+    [pathname]
+  );
   const selectedTab = visibleTabSet.has(detectedTab) ? detectedTab : fallbackTab;
   const currentTabId = selectedTab;
 
