@@ -32,9 +32,9 @@ import {
 } from './ListItem.ios.styles';
 
 const ACTION_ICON_GLYPHS = {
-  view: '👁',
-  edit: '✎',
-  delete: '🗑',
+  view: '\u{1F441}',
+  edit: '\u270E',
+  delete: '\u{1F5D1}',
 };
 
 const ACTION_ICON_TONES = {
