@@ -18,6 +18,7 @@ const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
+const MAX_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'type', 'status']);
@@ -389,7 +390,7 @@ const useFacilityListScreen = () => {
     if (!isResolved || !canManageFacilities || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_FETCH_LIMIT };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }

@@ -86,7 +86,7 @@ describe('useFacilityListScreen', () => {
     const { result } = renderHook(() => useFacilityListScreen());
 
     expect(mockReset).toHaveBeenCalled();
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(result.current.isTableMode).toBe(true);
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
@@ -202,7 +202,7 @@ describe('useFacilityListScreen', () => {
 
     const { result } = renderHook(() => useFacilityListScreen());
 
-    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 200, tenant_id: 'tenant-1' });
+    expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
@@ -316,7 +316,7 @@ describe('useFacilityListScreen', () => {
     rerender();
 
     await waitFor(() => {
-      expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 200 });
+      expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
     });
   });
 

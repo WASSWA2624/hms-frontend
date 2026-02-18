@@ -62,7 +62,7 @@ describe('useFacilityFormScreen', () => {
   it('loads tenant options for global create', () => {
     renderHook(() => useFacilityFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('locks tenant for tenant-scoped create and resolves readable tenant label', () => {
@@ -85,7 +85,7 @@ describe('useFacilityFormScreen', () => {
     expect(result.current.isTenantLocked).toBe(true);
     expect(result.current.tenantId).toBe('tenant-1');
     expect(result.current.lockedTenantDisplay).toBe('Tenant 1');
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('redirects unauthorized users to settings', () => {

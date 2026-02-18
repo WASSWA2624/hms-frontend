@@ -10,6 +10,7 @@ import { humanizeIdentifier } from '@utils';
 import { FACILITY_TYPES } from './types';
 
 const MAX_NAME_LENGTH = 255;
+const MAX_FETCH_LIMIT = 100;
 const FACILITY_TYPE_VALUES = new Set(FACILITY_TYPES.map(({ value }) => value));
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
@@ -117,7 +118,7 @@ const useFacilityFormScreen = () => {
     if (!isResolved || !canManageFacilities || isEdit) return;
     if (!canCreateFacility) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
     if (isTenantScopedAdmin) {
       setTenantIdValue(normalizedScopedTenantId);
     }
@@ -290,7 +291,7 @@ const useFacilityFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
