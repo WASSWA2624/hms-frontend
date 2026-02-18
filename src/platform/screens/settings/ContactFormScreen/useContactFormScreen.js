@@ -5,8 +5,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useContact, useTenant, useTenantAccess } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_VALUE_LENGTH = 255;
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 const CONTACT_TYPES = ['PHONE', 'EMAIL', 'FAX', 'OTHER'];
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
@@ -68,13 +70,15 @@ const useContactFormScreen = () => {
   );
   const tenantOptions = useMemo(() => {
     if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-      return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+      return [{ value: normalizedScopedTenantId, label: t('contact.form.currentTenantLabel') }];
     }
-    return tenantItems.map((tenant) => ({
+    return tenantItems.map((tenant, index) => ({
       value: tenant.id,
-      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+      label: humanizeIdentifier(tenant.name)
+        || humanizeIdentifier(tenant.slug)
+        || t('contact.form.tenantOptionFallback', { index: index + 1 }),
     }));
-  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]);
+  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, t]);
   const contactTypeOptions = useMemo(
     () => CONTACT_TYPES.map((type) => ({ label: t(`contact.types.${type}`), value: type })),
     [t]
@@ -124,7 +128,7 @@ const useContactFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManageContacts,
@@ -215,10 +219,25 @@ const useContactFormScreen = () => {
   const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    const selectedOption = tenantOptions.find((option) => option.value === trimmedTenantId)?.label;
+    if (selectedOption) return selectedOption;
+    return humanizeIdentifier(
+      contact?.tenant_name
+      ?? contact?.tenant?.name
+      ?? contact?.tenant_label
+    ) || '';
+  }, [tenantOptions, trimmedTenantId, contact]);
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('contact.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || t('contact.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, isTenantLocked, selectedTenantLabel, lockedTenantDisplay, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -296,7 +315,7 @@ const useContactFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
@@ -326,6 +345,7 @@ const useContactFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

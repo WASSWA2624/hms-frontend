@@ -53,6 +53,7 @@ const ContactFormScreenWeb = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     isLoading,
     hasError,
     errorMessage,
@@ -209,7 +210,7 @@ const ContactFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('contact.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={isEdit ? tenantDisplayLabel : lockedTenantDisplay}
                     accessibilityLabel={t('contact.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}

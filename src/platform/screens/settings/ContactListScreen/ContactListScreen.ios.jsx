@@ -15,9 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -25,32 +28,79 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
-  StyledSeparator,
+  StyledScopeSlot,
+  StyledSearchSlot,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
-} from './ContactListScreen.ios.styles';
+} from '\./ContactListScreen\.ios\.styles';
 import useContactListScreen from './useContactListScreen';
 
-const resolveContactTypeLabel = (t, value) => {
-  if (!value) return '';
-  const key = `contact.types.${value}`;
-  const resolved = t(key);
-  return resolved === key ? value : resolved;
+const resolveContactTitle = (t, Contact) => {
+  const name = humanizeIdentifier(
+    Contact?.line1
+    ?? Contact?.name
+  );
+  if (name) return String(name).trim();
+  return t('contact.list.unnamed');
+};
+
+const resolveContactTenant = (t, Contact) => {
+  const value = humanizeIdentifier(
+    Contact?.tenant_name
+    ?? Contact?.tenant?.name
+    ?? Contact?.tenant_label
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveContactType = (t, Contact) => {
+  const value = humanizeIdentifier(
+    Contact?.facility_name
+    ?? Contact?.facility?.name
+    ?? Contact?.facility_label
+  );
+  if (value) return String(value).trim();
+  return t('common.notAvailable');
+};
+
+const resolveContactSubtitle = (t, Contact) => {
+  const tenant = resolveContactTenant(t, Contact);
+  const facility = resolveContactType(t, Contact);
+
+  if (tenant !== t('common.notAvailable') && facility !== t('common.notAvailable')) {
+    return t('contact.list.contextValue', { tenant, facility });
+  }
+  if (facility !== t('common.notAvailable')) {
+    return t('contact.list.facilityValue', { facility });
+  }
+  if (tenant !== t('common.notAvailable')) {
+    return t('contact.list.tenantValue', { tenant });
+  }
+  return undefined;
 };
 
 const ContactListScreenIOS = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onContactPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useContactListScreen();
@@ -77,50 +127,68 @@ const ContactListScreenIOS = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="contact-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: contact }) => {
-    const title = contact?.value ?? contact?.id ?? '';
-    const typeLabel = resolveContactTypeLabel(t, contact?.contact_type);
-    const subtitle = typeLabel ? `${t('contact.list.typeLabel')}: ${typeLabel}` : '';
+  const renderItem = ({ item: Contact, index }) => {
+    const title = resolveContactTitle(t, Contact);
+    const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+    const ContactId = Contact?.id;
+    const itemKey = ContactId ?? `contact-${index}`;
+    const statusLabel = Contact?.is_active
+      ? t('contact.list.statusActive')
+      : t('contact.list.statusInactive');
+    const statusTone = Contact?.is_active ? 'success' : 'warning';
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onContactPress(contact.id)}
-        actions={onDelete ? (
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(contact.id, e)}
-            accessibilityLabel={t('contact.list.delete')}
-            accessibilityHint={t('contact.list.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID={`contact-delete-${contact.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        ) : undefined}
+        subtitle={resolveContactSubtitle(t, Contact)}
+        metadata={[]}
+        status={{
+          label: statusLabel,
+          tone: statusTone,
+          showDot: true,
+          accessibilityLabel: t('contact.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={ContactId ? () => onContactPress(ContactId) : undefined}
+        onView={ContactId ? () => onContactPress(ContactId) : undefined}
+        onEdit={onEdit && ContactId ? (event) => onEdit(ContactId, event) : undefined}
+        onDelete={onDelete && ContactId ? (event) => onDelete(ContactId, event) : undefined}
+        viewLabel={t('contact.list.view')}
+        viewHint={t('contact.list.viewHint')}
+        editLabel={t('contact.list.edit')}
+        editHint={t('contact.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('contact.list.deleteHint')}
+        onMore={ContactId ? () => onContactPress(ContactId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('contact.list.viewHint')}
+        viewTestID={`contact-view-${itemKey}`}
+        editTestID={`contact-edit-${itemKey}`}
+        deleteTestID={`contact-delete-${itemKey}`}
+        moreTestID={`contact-more-${itemKey}`}
         accessibilityLabel={t('contact.list.itemLabel', { name: title })}
         accessibilityHint={t('contact.list.itemHint', { name: title })}
-        testID={`contact-item-${contact.id}`}
+        testID={`contact-item-${itemKey}`}
       />
     );
   };
@@ -139,6 +207,27 @@ const ContactListScreenIOS = () => {
       ) : null}
       <StyledContent>
         <StyledToolbar testID="contact-list-toolbar">
+          <StyledSearchSlot>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('contact.list.searchPlaceholder')}
+              accessibilityLabel={t('contact.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="contact-list-search"
+            />
+          </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('contact.list.searchScopeLabel')}
+              compact
+              testID="contact-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -179,18 +268,43 @@ const ContactListScreenIOS = () => {
                   testID="contact-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="contact-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="contact-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('contact.list.noResultsTitle')}
+                description={t('contact.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('contact.list.clearSearchAndFilters')}
+                    testID="contact-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('contact.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="contact-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(contact) => contact.id}
+                  keyExtractor={(Contact, index) => Contact?.id ?? `contact-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('contact.list.accessibilityLabel')}
                   testID="contact-list-flatlist"

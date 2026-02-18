@@ -34,6 +34,7 @@ const useContactDetailScreen = () => {
   const canManageContacts = canAccessTenantSettings;
   const canEditContact = canManageContacts;
   const canDeleteContact = canManageContacts;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageContacts && !canManageAllTenants;
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
@@ -120,6 +121,7 @@ const useContactDetailScreen = () => {
     hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry: handleRetry,
     onBack: handleBack,
     onEdit: canEditContact ? handleEdit : undefined,

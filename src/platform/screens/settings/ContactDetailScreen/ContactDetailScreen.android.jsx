@@ -16,7 +16,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledActions,
   StyledContainer,
@@ -34,6 +34,20 @@ const resolveContactTypeLabel = (t, value) => {
   return resolved === key ? value : resolved;
 };
 
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return String(normalized).trim();
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds) => {
+  if (readableValue) return readableValue;
+  if (canViewTechnicalIds) return String(technicalId ?? '').trim();
+  return '';
+};
+
 const ContactDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
   const {
@@ -42,6 +56,7 @@ const ContactDetailScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -150,13 +165,59 @@ const ContactDetailScreenAndroid = () => {
   const contactTypeLabel = resolveContactTypeLabel(t, contactType);
   const displayType = contactTypeLabel || contactType;
   const isPrimary = contact?.is_primary ?? false;
-  const tenantId = contact?.tenant_id ?? '';
-  const facilityId = contact?.facility_id ?? '';
-  const branchId = contact?.branch_id ?? '';
-  const patientId = contact?.patient_id ?? '';
-  const userProfileId = contact?.user_profile_id ?? '';
-  const staffProfileId = contact?.staff_profile_id ?? '';
-  const supplierId = contact?.supplier_id ?? '';
+  const tenantLabel = resolveContextValue(
+    resolveReadableValue(contact?.tenant_name, contact?.tenant?.name, contact?.tenant_label),
+    contact?.tenant_id,
+    canViewTechnicalIds
+  );
+  const facilityLabel = resolveContextValue(
+    resolveReadableValue(contact?.facility_name, contact?.facility?.name, contact?.facility_label),
+    contact?.facility_id,
+    canViewTechnicalIds
+  );
+  const branchLabel = resolveContextValue(
+    resolveReadableValue(contact?.branch_name, contact?.branch?.name, contact?.branch_label),
+    contact?.branch_id,
+    canViewTechnicalIds
+  );
+  const patientLabel = resolveContextValue(
+    resolveReadableValue(
+      contact?.patient_name,
+      contact?.patient_full_name,
+      contact?.patient?.full_name,
+      contact?.patient?.name,
+      contact?.patient_label
+    ),
+    contact?.patient_id,
+    canViewTechnicalIds
+  );
+  const userProfileLabel = resolveContextValue(
+    resolveReadableValue(
+      contact?.user_profile_name,
+      contact?.user_profile_full_name,
+      contact?.user_profile?.full_name,
+      contact?.user_profile?.name,
+      contact?.user_profile_label
+    ),
+    contact?.user_profile_id,
+    canViewTechnicalIds
+  );
+  const staffProfileLabel = resolveContextValue(
+    resolveReadableValue(
+      contact?.staff_profile_name,
+      contact?.staff_profile_full_name,
+      contact?.staff_profile?.full_name,
+      contact?.staff_profile?.name,
+      contact?.staff_profile_label
+    ),
+    contact?.staff_profile_id,
+    canViewTechnicalIds
+  );
+  const supplierLabel = resolveContextValue(
+    resolveReadableValue(contact?.supplier_name, contact?.supplier?.name, contact?.supplier_label),
+    contact?.supplier_id,
+    canViewTechnicalIds
+  );
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -197,65 +258,67 @@ const ContactDetailScreenAndroid = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('contact.detail.title')} testID="contact-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('contact.detail.idLabel')}</Text>
-              <Text variant="body" testID="contact-detail-id">
-                {contact.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {canViewTechnicalIds ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('contact.detail.idLabel')}</Text>
+                <Text variant="body" testID="contact-detail-id">
+                  {contact.id}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="contact-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+            {facilityLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="contact-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {branchId ? (
+            {branchLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.branchLabel')}</Text>
                 <Text variant="body" testID="contact-detail-branch">
-                  {branchId}
+                  {branchLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {patientId ? (
+            {patientLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.patientLabel')}</Text>
                 <Text variant="body" testID="contact-detail-patient">
-                  {patientId}
+                  {patientLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {userProfileId ? (
+            {userProfileLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.userProfileLabel')}</Text>
                 <Text variant="body" testID="contact-detail-user-profile">
-                  {userProfileId}
+                  {userProfileLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {staffProfileId ? (
+            {staffProfileLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.staffProfileLabel')}</Text>
                 <Text variant="body" testID="contact-detail-staff-profile">
-                  {staffProfileId}
+                  {staffProfileLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {supplierId ? (
+            {supplierLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('contact.detail.supplierLabel')}</Text>
                 <Text variant="body" testID="contact-detail-supplier">
-                  {supplierId}
+                  {supplierLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
