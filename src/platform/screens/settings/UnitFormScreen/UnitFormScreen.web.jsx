@@ -169,10 +169,6 @@ const UnitFormScreenWeb = () => {
   return (
     <StyledContainer role="main" aria-label={isEdit ? t('unit.form.editTitle') : t('unit.form.createTitle')}>
       <StyledContent>
-        <Text variant="h2" accessibilityRole="header" testID="unit-form-title">
-          {isEdit ? t('unit.form.editTitle') : t('unit.form.createTitle')}
-        </Text>
-
         <StyledInlineStates>
           {isOffline && (
             <OfflineState

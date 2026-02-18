@@ -14,9 +14,14 @@ import {
   useRoom,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_LABEL_LENGTH = 50;
+const MAX_FETCH_LIMIT = 100;
 const BED_STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'OUT_OF_SERVICE'];
+
+const normalizeValue = (value) => String(value ?? '').trim();
+const resolveListItems = (value) => (Array.isArray(value) ? value : (value?.items ?? []));
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -27,6 +32,8 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
 };
+
+const resolveReadableLabel = (value) => normalizeValue(humanizeIdentifier(value));
 
 const useBedFormScreen = () => {
   const { t } = useI18n();
@@ -85,15 +92,17 @@ const useBedFormScreen = () => {
   const canEditBed = canManageBeds;
   const isTenantScopedAdmin = canManageBeds && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
-    () => String(scopedTenantId ?? '').trim(),
+    () => normalizeValue(scopedTenantId),
     [scopedTenantId]
   );
+
   const [label, setLabel] = useState('');
   const [status, setStatus] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [facilityId, setFacilityId] = useState('');
   const [wardId, setWardId] = useState('');
   const [roomId, setRoomId] = useState('');
+
   const tenantPrefillRef = useRef(false);
   const facilityPrefillRef = useRef(false);
   const wardPrefillRef = useRef(false);
@@ -104,75 +113,87 @@ const useBedFormScreen = () => {
 
   const bed = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const tenantItems = useMemo(
-    () =>
-      (isTenantScopedAdmin || isEdit
+    () => (
+      isTenantScopedAdmin || isEdit
         ? []
-        : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+        : resolveListItems(tenantData)
+    ),
     [tenantData, isTenantScopedAdmin, isEdit]
   );
   const facilityItems = useMemo(
-    () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
+    () => resolveListItems(facilityData),
     [facilityData]
   );
   const wardItems = useMemo(
-    () => (Array.isArray(wardData) ? wardData : (wardData?.items ?? [])),
+    () => resolveListItems(wardData),
     [wardData]
   );
   const roomItems = useMemo(
-    () => (Array.isArray(roomData) ? roomData : (roomData?.items ?? [])),
+    () => resolveListItems(roomData),
     [roomData]
   );
-  const tenantOptions = useMemo(
-    () => {
-      if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-        return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
-      }
-      return tenantItems.map((tenant) => ({
-        value: tenant.id,
-        label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
-      }));
-    },
-    [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]
-  );
-  const facilityOptions = useMemo(
-    () => {
-      const options = facilityItems.map((facility) => ({
-        value: facility.id,
-        label: facility.name ?? facility.id ?? '',
-      }));
-      if (facilityId && !options.some((option) => option.value === facilityId)) {
-        return [{ value: facilityId, label: facilityId }, ...options];
-      }
-      return options;
-    },
-    [facilityItems, facilityId]
-  );
-  const wardOptions = useMemo(
-    () => {
-      const options = wardItems.map((ward) => ({
-        value: ward.id,
-        label: ward.name ?? ward.id ?? '',
-      }));
-      if (wardId && !options.some((option) => option.value === wardId)) {
-        return [{ value: wardId, label: wardId }, ...options];
-      }
-      return options;
-    },
-    [wardItems, wardId]
-  );
-  const roomOptions = useMemo(
-    () => {
-      const options = roomItems.map((room) => ({
-        value: room.id,
-        label: room.name ?? room.id ?? '',
-      }));
-      if (roomId && !options.some((option) => option.value === roomId)) {
-        return [{ value: roomId, label: roomId }, ...options];
-      }
-      return options;
-    },
-    [roomItems, roomId]
-  );
+
+  const tenantOptions = useMemo(() => {
+    if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
+      return [{ value: normalizedScopedTenantId, label: t('bed.form.currentTenantLabel') }];
+    }
+    return tenantItems.map((tenant, index) => ({
+      value: tenant.id,
+      label: resolveReadableLabel(tenant.name ?? tenant.slug)
+        || t('bed.form.tenantOptionFallback', { index: index + 1 }),
+    }));
+  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId, t]);
+
+  const facilityOptions = useMemo(() => {
+    const options = facilityItems.map((facility, index) => ({
+      value: facility.id,
+      label: resolveReadableLabel(facility.name ?? facility.slug)
+        || t('bed.form.facilityOptionFallback', { index: index + 1 }),
+    }));
+    if (facilityId && !options.some((option) => option.value === facilityId)) {
+      const fallbackLabel = resolveReadableLabel(
+        bed?.facility_name
+          ?? bed?.facility?.name
+          ?? bed?.facility_label
+      ) || t('bed.form.currentFacilityLabel');
+      return [{ value: facilityId, label: fallbackLabel }, ...options];
+    }
+    return options;
+  }, [facilityItems, facilityId, bed, t]);
+
+  const wardOptions = useMemo(() => {
+    const options = wardItems.map((ward, index) => ({
+      value: ward.id,
+      label: resolveReadableLabel(ward.name ?? ward.slug)
+        || t('bed.form.wardOptionFallback', { index: index + 1 }),
+    }));
+    if (wardId && !options.some((option) => option.value === wardId)) {
+      const fallbackLabel = resolveReadableLabel(
+        bed?.ward_name
+          ?? bed?.ward?.name
+          ?? bed?.ward_label
+      ) || t('bed.form.currentWardLabel');
+      return [{ value: wardId, label: fallbackLabel }, ...options];
+    }
+    return options;
+  }, [wardItems, wardId, bed, t]);
+
+  const roomOptions = useMemo(() => {
+    const options = roomItems.map((room, index) => ({
+      value: room.id,
+      label: resolveReadableLabel(room.name ?? room.slug)
+        || t('bed.form.roomOptionFallback', { index: index + 1 }),
+    }));
+    if (roomId && !options.some((option) => option.value === roomId)) {
+      const fallbackLabel = resolveReadableLabel(
+        bed?.room_name
+          ?? bed?.room?.name
+          ?? bed?.room_label
+      ) || t('bed.form.currentRoomLabel');
+      return [{ value: roomId, label: fallbackLabel }, ...options];
+    }
+    return options;
+  }, [roomItems, roomId, bed, t]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -217,7 +238,7 @@ const useBedFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
   }, [
     isResolved,
     canManageBeds,
@@ -232,17 +253,17 @@ const useBedFormScreen = () => {
   useEffect(() => {
     if (bed) {
       setLabel(bed.label ?? '');
-      setStatus(bed.status ?? '');
-      setTenantId(String(bed.tenant_id ?? normalizedScopedTenantId ?? ''));
-      setFacilityId(bed.facility_id ?? '');
-      setWardId(bed.ward_id ?? '');
-      setRoomId(bed.room_id ?? '');
+      setStatus(normalizeValue(bed.status).toUpperCase());
+      setTenantId(normalizeValue(bed.tenant_id ?? normalizedScopedTenantId));
+      setFacilityId(normalizeValue(bed.facility_id));
+      setWardId(normalizeValue(bed.ward_id));
+      setRoomId(normalizeValue(bed.room_id));
     }
   }, [bed, normalizedScopedTenantId]);
 
   useEffect(() => {
     if (!isResolved || !canManageBeds || !isTenantScopedAdmin || !isEdit || !bed) return;
-    const bedTenantId = String(bed.tenant_id ?? '').trim();
+    const bedTenantId = normalizeValue(bed.tenant_id);
     if (!bedTenantId || bedTenantId !== normalizedScopedTenantId) {
       router.replace('/settings/beds?notice=accessDenied');
     }
@@ -265,34 +286,32 @@ const useBedFormScreen = () => {
   }, [isResolved, canManageBeds, isEdit, bed, errorCode, router]);
 
   useEffect(() => {
-    if (!isResolved || !canManageBeds || isEdit) return;
-    if (isEdit) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
+    if (!isResolved || !canManageBeds) return;
+    const trimmedTenant = normalizeValue(tenantId);
     if (!trimmedTenant) {
       resetFacilities();
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
-  }, [isResolved, canManageBeds, tenantId, isEdit, listFacilities, resetFacilities]);
+    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+  }, [isResolved, canManageBeds, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
-    if (!isResolved || !canManageBeds || isEdit) return;
-    if (isEdit) return;
-    const trimmedFacility = String(facilityId ?? '').trim();
+    if (!isResolved || !canManageBeds) return;
+    const trimmedFacility = normalizeValue(facilityId);
     if (!trimmedFacility) {
       resetWards();
       return;
     }
     resetWards();
-    listWards({ page: 1, limit: 200, facility_id: trimmedFacility });
-  }, [isResolved, canManageBeds, facilityId, isEdit, listWards, resetWards]);
+    listWards({ page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility });
+  }, [isResolved, canManageBeds, facilityId, listWards, resetWards]);
 
   useEffect(() => {
     if (!isResolved || !canManageBeds) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
-    const trimmedFacility = String(facilityId ?? '').trim();
-    const trimmedWard = String(wardId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
+    const trimmedFacility = normalizeValue(facilityId);
+    const trimmedWard = normalizeValue(wardId);
     if (!trimmedTenant || !trimmedFacility) {
       resetRooms();
       return;
@@ -300,7 +319,7 @@ const useBedFormScreen = () => {
     resetRooms();
     listRooms({
       page: 1,
-      limit: 200,
+      limit: MAX_FETCH_LIMIT,
       tenant_id: trimmedTenant,
       facility_id: trimmedFacility,
       ward_id: trimmedWard || undefined,
@@ -309,7 +328,7 @@ const useBedFormScreen = () => {
 
   useEffect(() => {
     if (isEdit) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
     if (previousTenantRef.current && previousTenantRef.current !== trimmedTenant) {
       setFacilityId('');
       setWardId('');
@@ -323,7 +342,7 @@ const useBedFormScreen = () => {
 
   useEffect(() => {
     if (isEdit) return;
-    const trimmedFacility = String(facilityId ?? '').trim();
+    const trimmedFacility = normalizeValue(facilityId);
     if (previousFacilityRef.current && previousFacilityRef.current !== trimmedFacility) {
       setWardId('');
       setRoomId('');
@@ -335,7 +354,7 @@ const useBedFormScreen = () => {
 
   useEffect(() => {
     if (isEdit) return;
-    const trimmedWard = String(wardId ?? '').trim();
+    const trimmedWard = normalizeValue(wardId);
     if (previousWardRef.current && previousWardRef.current !== trimmedWard) {
       setRoomId('');
       roomPrefillRef.current = false;
@@ -416,11 +435,12 @@ const useBedFormScreen = () => {
   }, [isEdit, roomIdParam, roomOptions, roomId]);
 
   const trimmedLabel = label.trim();
-  const trimmedStatus = String(status ?? '').trim().toUpperCase();
-  const trimmedTenantId = String(tenantId ?? '').trim();
-  const trimmedFacilityId = String(facilityId ?? '').trim();
-  const trimmedWardId = String(wardId ?? '').trim();
-  const trimmedRoomId = String(roomId ?? '').trim();
+  const trimmedStatus = normalizeValue(status).toUpperCase();
+  const trimmedTenantId = normalizeValue(tenantId);
+  const trimmedFacilityId = normalizeValue(facilityId);
+  const trimmedWardId = normalizeValue(wardId);
+  const trimmedRoomId = normalizeValue(roomId);
+
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'bed.form.submitErrorMessage'),
     [t, errorCode]
@@ -441,6 +461,7 @@ const useBedFormScreen = () => {
     () => resolveErrorMessage(t, roomErrorCode, 'bed.form.roomLoadErrorMessage'),
     [t, roomErrorCode]
   );
+
   const tenantListError = Boolean(tenantErrorCode);
   const facilityListError = Boolean(facilityErrorCode);
   const wardListError = Boolean(wardErrorCode);
@@ -455,9 +476,18 @@ const useBedFormScreen = () => {
   const requiresStatus = !isEdit;
   const isCreateBlocked = requiresTenant && !hasTenants;
   const isFacilityBlocked =
-    requiresFacility && Boolean(trimmedTenantId) && !facilityListLoading && !facilityListError && !hasFacilities;
+    requiresFacility
+    && Boolean(trimmedTenantId)
+    && !facilityListLoading
+    && !facilityListError
+    && !hasFacilities;
   const isWardBlocked =
-    requiresWard && Boolean(trimmedFacilityId) && !wardListLoading && !wardListError && !hasWards;
+    requiresWard
+    && Boolean(trimmedFacilityId)
+    && !wardListLoading
+    && !wardListError
+    && !hasWards;
+
   const labelError = useMemo(() => {
     if (!trimmedLabel) return t('bed.form.labelRequired');
     if (trimmedLabel.length > MAX_LABEL_LENGTH) {
@@ -489,15 +519,86 @@ const useBedFormScreen = () => {
     if (!trimmedWardId) return t('bed.form.wardRequired');
     return null;
   }, [isEdit, trimmedWardId, t]);
+
   const statusOptions = useMemo(
     () => BED_STATUSES.map((value) => ({ value, label: t(`bed.form.statusOptions.${value}`) })),
     [t]
   );
+
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    return tenantOptions.find((option) => option.value === trimmedTenantId)?.label || '';
+  }, [tenantOptions, trimmedTenantId]);
+  const bedTenantLabel = useMemo(
+    () => resolveReadableLabel(
+      bed?.tenant_name
+        ?? bed?.tenant?.name
+        ?? bed?.tenant_label
+    ),
+    [bed]
+  );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('bed.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || bedTenantLabel || t('bed.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, selectedTenantLabel, bedTenantLabel, isTenantLocked, lockedTenantDisplay, t]);
+
+  const selectedFacilityLabel = useMemo(() => {
+    if (!trimmedFacilityId) return '';
+    return facilityOptions.find((option) => option.value === trimmedFacilityId)?.label || '';
+  }, [facilityOptions, trimmedFacilityId]);
+  const bedFacilityLabel = useMemo(
+    () => resolveReadableLabel(
+      bed?.facility_name
+        ?? bed?.facility?.name
+        ?? bed?.facility_label
+    ),
+    [bed]
+  );
+  const facilityDisplayLabel = useMemo(() => {
+    if (!isEdit) return selectedFacilityLabel;
+    return selectedFacilityLabel || bedFacilityLabel || t('bed.form.currentFacilityLabel');
+  }, [isEdit, selectedFacilityLabel, bedFacilityLabel, t]);
+
+  const selectedWardLabel = useMemo(() => {
+    if (!trimmedWardId) return '';
+    return wardOptions.find((option) => option.value === trimmedWardId)?.label || '';
+  }, [wardOptions, trimmedWardId]);
+  const bedWardLabel = useMemo(
+    () => resolveReadableLabel(
+      bed?.ward_name
+        ?? bed?.ward?.name
+        ?? bed?.ward_label
+    ),
+    [bed]
+  );
+  const wardDisplayLabel = useMemo(() => {
+    if (!isEdit) return selectedWardLabel;
+    return selectedWardLabel || bedWardLabel || t('bed.form.currentWardLabel');
+  }, [isEdit, selectedWardLabel, bedWardLabel, t]);
+
+  const selectedRoomLabel = useMemo(() => {
+    if (!trimmedRoomId) return '';
+    return roomOptions.find((option) => option.value === trimmedRoomId)?.label || '';
+  }, [roomOptions, trimmedRoomId]);
+  const bedRoomLabel = useMemo(
+    () => resolveReadableLabel(
+      bed?.room_name
+        ?? bed?.room?.name
+        ?? bed?.room_label
+    ),
+    [bed]
+  );
+  const roomDisplayLabel = useMemo(() => {
+    if (!trimmedRoomId) return '';
+    return selectedRoomLabel || bedRoomLabel || t('bed.form.currentRoomLabel');
+  }, [trimmedRoomId, selectedRoomLabel, bedRoomLabel, t]);
+
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -523,7 +624,7 @@ const useBedFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const bedTenantId = String(bed?.tenant_id ?? '').trim();
+        const bedTenantId = normalizeValue(bed?.tenant_id);
         if (!bedTenantId || bedTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/beds?notice=accessDenied');
           return;
@@ -601,32 +702,32 @@ const useBedFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
-    const trimmedTenant = String(tenantId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
   }, [listFacilities, resetFacilities, tenantId]);
 
   const handleRetryWards = useCallback(() => {
-    const trimmedFacility = String(facilityId ?? '').trim();
+    const trimmedFacility = normalizeValue(facilityId);
     resetWards();
     if (!trimmedFacility) return;
-    listWards({ page: 1, limit: 200, facility_id: trimmedFacility });
+    listWards({ page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility });
   }, [listWards, resetWards, facilityId]);
 
   const handleRetryRooms = useCallback(() => {
-    const trimmedTenant = String(tenantId ?? '').trim();
-    const trimmedFacility = String(facilityId ?? '').trim();
-    const trimmedWard = String(wardId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
+    const trimmedFacility = normalizeValue(facilityId);
+    const trimmedWard = normalizeValue(wardId);
     resetRooms();
     if (!trimmedTenant || !trimmedFacility) return;
     listRooms({
       page: 1,
-      limit: 200,
+      limit: MAX_FETCH_LIMIT,
       tenant_id: trimmedTenant,
       facility_id: trimmedFacility,
       ward_id: trimmedWard || undefined,
@@ -683,6 +784,10 @@ const useBedFormScreen = () => {
     wardError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
+    facilityDisplayLabel,
+    wardDisplayLabel,
+    roomDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

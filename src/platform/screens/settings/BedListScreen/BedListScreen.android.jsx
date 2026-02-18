@@ -15,6 +15,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
   TextField,
 } from '@platform/components';
@@ -26,20 +27,58 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
-  StyledSeparator,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
 } from './BedListScreen.android.styles';
 import useBedListScreen from './useBedListScreen';
 
-const resolveBedStatusLabel = (t, status) => {
-  const normalizedStatus = String(status ?? '').trim();
-  if (!normalizedStatus) return '';
-  const key = `bed.form.statusOptions.${normalizedStatus}`;
-  const resolved = t(key);
-  return resolved === key ? normalizedStatus : resolved;
+const resolveStatusMeta = (t, statusValue) => {
+  if (statusValue === 'AVAILABLE') {
+    return { label: t('bed.list.statusAvailable'), tone: 'success' };
+  }
+  if (statusValue === 'OCCUPIED') {
+    return { label: t('bed.list.statusOccupied'), tone: 'warning' };
+  }
+  if (statusValue === 'RESERVED') {
+    return { label: t('bed.list.statusReserved'), tone: 'info' };
+  }
+  if (statusValue === 'OUT_OF_SERVICE') {
+    return { label: t('bed.list.statusOutOfService'), tone: 'error' };
+  }
+  return { label: t('common.notAvailable'), tone: 'warning' };
+};
+
+const resolveBedSubtitle = (t, tenant, facility, ward, room) => {
+  const available = [tenant, facility, ward, room].filter((value) => (
+    value && value !== t('common.notAvailable')
+  ));
+  if (available.length === 0) return undefined;
+  if (available.length === 4) {
+    return t('bed.list.contextValue', {
+      tenant: available[0],
+      facility: available[1],
+      ward: available[2],
+      room: available[3],
+    });
+  }
+  if (available.length === 3) {
+    return t('bed.list.partialContextValue', {
+      tenant: available[0],
+      facility: available[1],
+      ward: available[2],
+    });
+  }
+  if (available.length === 2) {
+    return t('bed.list.shortContextValue', {
+      first: available[0],
+      second: available[1],
+    });
+  }
+  if (available.length === 1) return available[0];
+  return undefined;
 };
 
 const BedListScreenAndroid = () => {
@@ -47,15 +86,27 @@ const BedListScreenAndroid = () => {
   const {
     items,
     search,
+    searchScope,
+    searchScopeOptions,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    hasNoResults,
     noticeMessage,
     onDismissNotice,
     onRetry,
     onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
+    resolveBedLabelText,
+    resolveBedTenantText,
+    resolveBedFacilityText,
+    resolveBedWardText,
+    resolveBedRoomText,
+    resolveBedStatusText,
     onBedPress,
+    onEdit,
     onDelete,
     onAdd,
   } = useBedListScreen();
@@ -82,50 +133,69 @@ const BedListScreenAndroid = () => {
     />
   );
 
-  const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
-      variant="surface"
+      variant="primary"
       size="small"
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="bed-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item: bed }) => {
-    const title = bed?.label ?? bed?.id ?? '';
-    const statusLabel = resolveBedStatusLabel(t, bed?.status);
-    const subtitle = statusLabel ? `${t('bed.list.statusLabel')}: ${statusLabel}` : '';
+  const renderItem = ({ item: bed, index }) => {
+    const title = resolveBedLabelText(bed);
+    const leadingGlyph = String(title || 'B').charAt(0).toUpperCase();
+    const bedId = bed?.id;
+    const itemKey = bedId ?? `bed-${index}`;
+    const statusMeta = resolveStatusMeta(t, resolveBedStatusText(bed));
+    const tenant = resolveBedTenantText(bed);
+    const facility = resolveBedFacilityText(bed);
+    const ward = resolveBedWardText(bed);
+    const room = resolveBedRoomText(bed);
+
     return (
       <ListItem
+        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
         title={title}
-        subtitle={subtitle}
-        onPress={() => onBedPress(bed.id)}
-        actions={onDelete ? (
-          <Button
-            variant="surface"
-            size="small"
-            onPress={(e) => onDelete(bed.id, e)}
-            accessibilityLabel={t('bed.list.delete')}
-            accessibilityHint={t('bed.list.deleteHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID={`bed-delete-${bed.id}`}
-          >
-            {t('common.remove')}
-          </Button>
-        ) : undefined}
+        subtitle={resolveBedSubtitle(t, tenant, facility, ward, room)}
+        metadata={[]}
+        status={{
+          label: statusMeta.label,
+          tone: statusMeta.tone,
+          showDot: true,
+          accessibilityLabel: t('bed.list.statusLabel'),
+        }}
+        density="compact"
+        onPress={bedId ? () => onBedPress(bedId) : undefined}
+        onView={bedId ? () => onBedPress(bedId) : undefined}
+        onEdit={onEdit && bedId ? (event) => onEdit(bedId, event) : undefined}
+        onDelete={onDelete && bedId ? (event) => onDelete(bedId, event) : undefined}
+        viewLabel={t('bed.list.view')}
+        viewHint={t('bed.list.viewHint')}
+        editLabel={t('bed.list.edit')}
+        editHint={t('bed.list.editHint')}
+        deleteLabel={t('common.remove')}
+        deleteHint={t('bed.list.deleteHint')}
+        onMore={bedId ? () => onBedPress(bedId) : undefined}
+        moreLabel={t('common.more')}
+        moreHint={t('bed.list.viewHint')}
+        viewTestID={`bed-view-${itemKey}`}
+        editTestID={`bed-edit-${itemKey}`}
+        deleteTestID={`bed-delete-${itemKey}`}
+        moreTestID={`bed-more-${itemKey}`}
         accessibilityLabel={t('bed.list.itemLabel', { name: title })}
         accessibilityHint={t('bed.list.itemHint', { name: title })}
-        testID={`bed-item-${bed.id}`}
+        testID={`bed-item-${itemKey}`}
       />
     );
   };
@@ -151,9 +221,20 @@ const BedListScreenAndroid = () => {
               placeholder={t('bed.list.searchPlaceholder')}
               accessibilityLabel={t('bed.list.searchLabel')}
               density="compact"
+              type="search"
               testID="bed-list-search"
             />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('bed.list.searchScopeLabel')}
+              compact
+              testID="bed-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -194,18 +275,43 @@ const BedListScreenAndroid = () => {
                   testID="bed-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="bed-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="bed-list-loading" />
             )}
             {showEmpty && emptyComponent}
+            {showNoResults ? (
+              <EmptyState
+                title={t('bed.list.noResultsTitle')}
+                description={t('bed.list.noResultsMessage')}
+                action={(
+                  <StyledAddButton
+                    onPress={onClearSearchAndFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('bed.list.clearSearchAndFilters')}
+                    testID="bed-list-clear-search"
+                  >
+                    <StyledAddLabel>{t('bed.list.clearSearchAndFilters')}</StyledAddLabel>
+                  </StyledAddButton>
+                )}
+                testID="bed-list-no-results"
+              />
+            ) : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(bed) => bed.id}
+                  keyExtractor={(Bed, index) => Bed?.id ?? `bed-${index}`}
                   renderItem={renderItem}
-                  ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
                   accessibilityLabel={t('bed.list.accessibilityLabel')}
                   testID="bed-list-flatlist"
@@ -220,3 +326,6 @@ const BedListScreenAndroid = () => {
 };
 
 export default BedListScreenAndroid;
+
+
+

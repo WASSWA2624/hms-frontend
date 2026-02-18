@@ -80,6 +80,9 @@ const BedFormScreenWeb = () => {
     wardError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
+    facilityDisplayLabel,
+    wardDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -199,6 +202,7 @@ const BedFormScreenWeb = () => {
   const tenantHelperText = tenantError || t('bed.form.tenantHint');
   const facilityHelperText = facilityError || t('bed.form.facilityHint');
   const wardHelperText = wardError || t('bed.form.wardHint');
+  const tenantLockedHint = isEdit ? t('bed.form.tenantLockedHint') : t('bed.form.tenantScopedHint');
   const roomSelectOptions = [{ value: '', label: t('bed.form.roomNone') }, ...roomOptions];
 
   return (
@@ -289,10 +293,10 @@ const BedFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('bed.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('bed.form.tenantLabel')}
-                    accessibilityHint={t('bed.form.tenantLockedHint')}
-                    helperText={t('bed.form.tenantLockedHint')}
+                    accessibilityHint={tenantLockedHint}
+                    helperText={tenantLockedHint}
                     disabled
                     testID="bed-form-tenant-readonly"
                   />
@@ -374,7 +378,7 @@ const BedFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('bed.form.facilityLabel')}
-                    value={facilityId}
+                    value={facilityDisplayLabel}
                     accessibilityLabel={t('bed.form.facilityLabel')}
                     accessibilityHint={t('bed.form.facilityLockedHint')}
                     helperText={t('bed.form.facilityLockedHint')}
@@ -459,7 +463,7 @@ const BedFormScreenWeb = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('bed.form.wardLabel')}
-                    value={wardId}
+                    value={wardDisplayLabel}
                     accessibilityLabel={t('bed.form.wardLabel')}
                     accessibilityHint={t('bed.form.wardLockedHint')}
                     helperText={t('bed.form.wardLockedHint')}

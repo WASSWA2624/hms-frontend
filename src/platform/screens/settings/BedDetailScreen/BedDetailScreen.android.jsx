@@ -27,9 +27,9 @@ import {
 } from './BedDetailScreen.android.styles';
 import useBedDetailScreen from './useBedDetailScreen';
 
-const resolveBedStatusLabel = (t, status) => {
-  const normalizedStatus = String(status ?? '').trim();
-  if (!normalizedStatus) return '';
+const resolveBedStatusLabel = (t, statusValue) => {
+  const normalizedStatus = String(statusValue ?? '').trim();
+  if (!normalizedStatus) return t('common.notAvailable');
   const key = `bed.form.statusOptions.${normalizedStatus}`;
   const resolved = t(key);
   return resolved === key ? normalizedStatus : resolved;
@@ -39,6 +39,12 @@ const BedDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
   const {
     bed,
+    bedLabel,
+    tenantLabel,
+    facilityLabel,
+    wardLabel,
+    roomLabel,
+    statusValue,
     isLoading,
     hasError,
     errorMessage,
@@ -145,12 +151,12 @@ const BedDetailScreenAndroid = () => {
 
   const createdAt = formatDateTime(bed.created_at, locale);
   const updatedAt = formatDateTime(bed.updated_at, locale);
-  const label = bed?.label ?? '';
-  const status = resolveBedStatusLabel(t, bed?.status);
-  const tenantId = bed?.tenant_id ?? '';
-  const facilityId = bed?.facility_id ?? '';
-  const wardId = bed?.ward_id ?? '';
-  const roomId = bed?.room_id ?? '';
+  const label = bedLabel || t('bed.detail.labelFallback');
+  const status = resolveBedStatusLabel(t, statusValue);
+  const tenant = tenantLabel || t('common.notAvailable');
+  const facility = facilityLabel || t('common.notAvailable');
+  const ward = wardLabel || t('common.notAvailable');
+  const room = roomLabel || t('common.notAvailable');
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -192,59 +198,41 @@ const BedDetailScreenAndroid = () => {
         <Card variant="outlined" accessibilityLabel={t('bed.detail.title')} testID="bed-detail-card">
           <StyledDetailGrid>
             <StyledDetailItem>
-              <Text variant="label">{t('bed.detail.idLabel')}</Text>
-              <Text variant="body" testID="bed-detail-id">
-                {bed.id}
+              <Text variant="label">{t('bed.detail.labelLabel')}</Text>
+              <Text variant="body" testID="bed-detail-label">
+                {label}
               </Text>
             </StyledDetailItem>
-            {tenantId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.tenantLabel')}</Text>
-                <Text variant="body" testID="bed-detail-tenant">
-                  {tenantId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {facilityId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.facilityLabel')}</Text>
-                <Text variant="body" testID="bed-detail-facility">
-                  {facilityId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {wardId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.wardLabel')}</Text>
-                <Text variant="body" testID="bed-detail-ward">
-                  {wardId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {roomId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.roomLabel')}</Text>
-                <Text variant="body" testID="bed-detail-room">
-                  {roomId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {label ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.labelLabel')}</Text>
-                <Text variant="body" testID="bed-detail-label">
-                  {label}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {status ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('bed.detail.statusLabel')}</Text>
-                <Text variant="body" testID="bed-detail-status">
-                  {status}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('bed.detail.tenantLabel')}</Text>
+              <Text variant="body" testID="bed-detail-tenant">
+                {tenant}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('bed.detail.facilityLabel')}</Text>
+              <Text variant="body" testID="bed-detail-facility">
+                {facility}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('bed.detail.wardLabel')}</Text>
+              <Text variant="body" testID="bed-detail-ward">
+                {ward}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('bed.detail.roomLabel')}</Text>
+              <Text variant="body" testID="bed-detail-room">
+                {room}
+              </Text>
+            </StyledDetailItem>
+            <StyledDetailItem>
+              <Text variant="label">{t('bed.detail.statusLabel')}</Text>
+              <Text variant="body" testID="bed-detail-status">
+                {status}
+              </Text>
+            </StyledDetailItem>
             {createdAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('bed.detail.createdLabel')}</Text>

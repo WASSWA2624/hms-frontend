@@ -169,10 +169,6 @@ const UnitFormScreenAndroid = () => {
   return (
     <StyledContainer>
       <StyledContent>
-        <Text variant="h2" accessibilityRole="header" testID="unit-form-title">
-          {isEdit ? t('unit.form.editTitle') : t('unit.form.createTitle')}
-        </Text>
-
         <StyledInlineStates>
           {isOffline && (
             <OfflineState
