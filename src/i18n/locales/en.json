@@ -16,7 +16,9 @@
     "deleteHint": "Remove this item",
     "back": "Back",
     "backHint": "Return to the previous page",
+    "previous": "Previous",
     "next": "Next",
+    "actions": "Actions",
     "continue": "Continue",
     "close": "Close",
     "select": "Select",
@@ -30,6 +32,7 @@
     "searchPlaceholder": "Search...",
     "searchIcon": "Search icon",
     "clearSearch": "Clear search",
+    "more": "More",
     "on": "On",
     "off": "Off",
     "switch": "Switch",
@@ -815,7 +818,7 @@
       "titleForCreate": "Create {{moduleItem}}",
       "titleForEdit": "Edit {{moduleItem}}",
       "titleForDetail": "{{moduleItem}} details",
-      "descriptionForList": "Review and manage {{module}} records with search and role-aware actions.",
+      "descriptionForList": "Review and manage {{module}} with aligned search, filters, table controls, and role-aware actions.",
       "descriptionForDetail": "Review full {{moduleItem}} details and use only actions your role allows.",
       "descriptionForCreate": "Provide required details to add a new {{moduleItem}} safely.",
       "descriptionForEdit": "Update {{moduleItem}} details and save changes with clear validation.",
@@ -829,7 +832,7 @@
       "helpLabelForContext": "Open {{screenType}} guidance",
       "helpTooltipForContext": "Open guidance for this {{screenType}} screen.",
       "helpTitleForContext": "How to use this {{screenType}} screen",
-      "helpBodyForList": "Use this list workflow to find records, review status, and open the right next action.",
+      "helpBodyForList": "Use search, scoped filters, table settings, and pagination arrows to find records and open the right next action.",
       "helpBodyForDetail": "Use this detail workflow to confirm record accuracy before editing or deleting.",
       "helpBodyForCreate": "Use this create workflow to complete prerequisites, required fields, and save checks.",
       "helpBodyForEdit": "Use this edit workflow to update only what is needed and confirm changes after saving.",
@@ -843,10 +846,10 @@
       },
       "helpListByMode": {
         "list": {
-          "review": "Scan the list first to confirm the record you want before opening actions.",
-          "actions": "Use search, filters, and row actions to navigate to details, create, or edit flows.",
-          "access": "Only actions allowed by your role are shown; hidden actions require higher permissions.",
-          "recovery": "If data fails to load, retry and confirm your network or access scope."
+          "review": "Scan list rows first, then narrow results with Search field and Filter logic controls.",
+          "actions": "Use table settings, row actions, and arrow navigation controls to move through records quickly.",
+          "access": "Only actions allowed by your role appear; hidden or disabled controls require additional permission.",
+          "recovery": "If data fails to load, use Retry and verify your network, tenant scope, and permissions."
         },
         "detail": {
           "verify": "Verify key fields and status before changing or deleting this record.",

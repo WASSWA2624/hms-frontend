@@ -50,6 +50,7 @@ import {
   StyledPaginationControl,
   StyledPaginationControlLabel,
   StyledPaginationInfo,
+  StyledPaginationNavButton,
   StyledPaginationSelectSlot,
   StyledRowActions,
   StyledCodeCellText,
@@ -649,14 +650,16 @@ const TenantListScreenWeb = () => {
                 </StyledPaginationInfo>
 
                 <StyledPaginationActions>
-                  <StyledActionButton
+                  <StyledPaginationNavButton
                     type="button"
                     onClick={() => onPageChange(page - 1)}
                     disabled={page <= 1}
+                    aria-label={t('common.previous')}
+                    title={t('common.previous')}
                     data-testid="tenant-page-prev"
                   >
-                    {t('common.previous')}
-                  </StyledActionButton>
+                    {'<'}
+                  </StyledPaginationNavButton>
 
                   <StyledPaginationControl>
                     <StyledPaginationControlLabel>
@@ -690,14 +693,16 @@ const TenantListScreenWeb = () => {
                     </StyledPaginationSelectSlot>
                   </StyledPaginationControl>
 
-                  <StyledActionButton
+                  <StyledPaginationNavButton
                     type="button"
                     onClick={() => onPageChange(page + 1)}
                     disabled={page >= totalPages}
+                    aria-label={t('common.next')}
+                    title={t('common.next')}
                     data-testid="tenant-page-next"
                   >
-                    {t('common.next')}
-                  </StyledActionButton>
+                    {'>'}
+                  </StyledPaginationNavButton>
                 </StyledPaginationActions>
               </StyledPagination>
             ) : null}

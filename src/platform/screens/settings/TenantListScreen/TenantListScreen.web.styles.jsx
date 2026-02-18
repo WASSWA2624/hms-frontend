@@ -312,6 +312,17 @@ const StyledActionButton = styled.button.withConfig({
   }
 `;
 
+const StyledPaginationNavButton = styled(StyledActionButton).withConfig({
+  displayName: 'StyledPaginationNavButton',
+  componentId: 'StyledPaginationNavButton',
+})`
+  min-width: 36px;
+  padding: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: 1;
+`;
+
 const StyledDangerActionButton = styled(StyledActionButton).withConfig({
   displayName: 'StyledDangerActionButton',
   componentId: 'StyledDangerActionButton',
@@ -506,6 +517,7 @@ export {
   StyledCodeCellText,
   StyledRowActions,
   StyledActionButton,
+  StyledPaginationNavButton,
   StyledDangerActionButton,
   StyledPagination,
   StyledPaginationInfo,

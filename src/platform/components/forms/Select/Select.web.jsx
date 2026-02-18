@@ -327,7 +327,11 @@ const SelectWeb = ({
         >
           {selectedOption ? selectedOption.label : defaultPlaceholder}
         </StyledTriggerText>
-        <StyledChevron aria-hidden="true" data-compact={compactAttr}>v</StyledChevron>
+        <StyledChevron
+          aria-hidden="true"
+          data-compact={compactAttr}
+          data-open={open ? 'true' : 'false'}
+        />
       </StyledTrigger>
 
       {open

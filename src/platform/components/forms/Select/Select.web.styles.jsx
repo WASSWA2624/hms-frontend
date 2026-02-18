@@ -107,10 +107,30 @@ const StyledChevron = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$compact',
 })`
   margin-left: ${({ theme }) => theme.spacing.sm}px;
-  font-size: ${({ theme, 'data-compact': compact }) =>
-    compact === 'true' ? theme.typography.fontSize.sm : theme.typography.fontSize.md}px;
+  width: ${({ 'data-compact': compact }) => (compact === 'true' ? '16px' : '18px')};
+  height: ${({ 'data-compact': compact }) => (compact === 'true' ? '16px' : '18px')};
+  border-radius: 999px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 120ms ease-in-out;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+    transition: transform 120ms ease-in-out;
+  }
+
+  &[data-open='true']::before {
+    transform: rotate(-135deg) translateY(-1px);
+  }
 `;
 
 const StyledMenu = styled.div.withConfig({
