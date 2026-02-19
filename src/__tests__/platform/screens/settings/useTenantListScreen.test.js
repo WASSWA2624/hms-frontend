@@ -96,6 +96,18 @@ describe('useTenantListScreen', () => {
     });
   });
 
+  it('sends numeric and capped pagination params to tenant list API', () => {
+    renderHook(() => useTenantListScreen());
+
+    expect(mockList).toHaveBeenCalled();
+    const firstCall = mockList.mock.calls[0][0];
+    expect(typeof firstCall.page).toBe('number');
+    expect(firstCall.page).toBeGreaterThanOrEqual(1);
+    expect(typeof firstCall.limit).toBe('number');
+    expect(firstCall.limit).toBeGreaterThanOrEqual(1);
+    expect(firstCall.limit).toBeLessThanOrEqual(100);
+  });
+
   it('uses compact mobile list mode below table breakpoint', () => {
     mockUseWindowDimensions.mockReturnValue({
       width: 420,

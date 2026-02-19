@@ -285,6 +285,18 @@ describe('TenantListScreen', () => {
     expect(getByTestId('tenant-table')).toBeTruthy();
   });
 
+  it('starts with advanced filters collapsed on web desktop/tablet mode', () => {
+    useTenantListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'tenant-1', name: 'Tenant 1', slug: 'tenant-1', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { queryByTestId } = renderWithTheme(<TenantListScreenWeb />);
+    expect(queryByTestId('tenant-filter-body')).toBeNull();
+  });
+
   it('renders list items on web for mobile mode', () => {
     useTenantListScreen.mockReturnValue({
       ...baseWebHook,

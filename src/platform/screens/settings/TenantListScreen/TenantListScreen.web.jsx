@@ -183,7 +183,7 @@ const TenantListScreenWeb = () => {
   } = useTenantListScreen();
 
   const rows = pagedItems;
-  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(() => isTableMode);
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
   const showOfflineBanner = !isLoading && isOffline && rows.length > 0;

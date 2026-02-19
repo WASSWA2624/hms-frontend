@@ -18,6 +18,9 @@ const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
+const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 20;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'slug', 'humanId', 'status']);
@@ -85,6 +88,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -392,7 +407,11 @@ const useTenantListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback((params = {}) => {
-    list({ page: 1, limit: 20, ...params });
+    list({
+      ...params,
+      page: normalizeFetchPage(params?.page),
+      limit: normalizeFetchLimit(params?.limit),
+    });
   }, [list]);
 
   const fetchOwnTenant = useCallback(() => {
