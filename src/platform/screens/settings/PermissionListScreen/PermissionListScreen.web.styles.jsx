@@ -30,7 +30,7 @@ const StyledContent = styled.div.withConfig({
   margin-right: auto;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
 const StyledToolbar = styled.div.withConfig({
@@ -43,9 +43,9 @@ const StyledToolbar = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) minmax(180px, 220px) auto;
+    align-items: end;
   }
 `;
 
@@ -53,16 +53,14 @@ const StyledSearchSlot = styled.div.withConfig({
   displayName: 'StyledSearchSlot',
   componentId: 'StyledSearchSlot',
 })`
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 `;
 
 const StyledScopeSlot = styled.div.withConfig({
   displayName: 'StyledScopeSlot',
   componentId: 'StyledScopeSlot',
 })`
-  width: 200px;
-  max-width: 100%;
+  width: 100%;
 `;
 
 const StyledToolbarActions = styled.div.withConfig({
@@ -70,10 +68,35 @@ const StyledToolbarActions = styled.div.withConfig({
   componentId: 'StyledToolbarActions',
 })`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
   gap: ${({ theme }) => theme.spacing.sm}px;
   flex-wrap: wrap;
+`;
+
+const StyledTableSettingsButton = styled.button.withConfig({
+  displayName: 'StyledTableSettingsButton',
+  componentId: 'StyledTableSettingsButton',
+})`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  min-height: 36px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
 `;
 
 const StyledAddButton = styled.button.withConfig({
@@ -84,7 +107,7 @@ const StyledAddButton = styled.button.withConfig({
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
-  min-height: 32px;
+  min-height: 36px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
   background-color: ${({ theme }) => theme.colors.background.secondary};
@@ -110,6 +133,78 @@ const StyledAddLabel = styled.span.withConfig({
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
   color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const StyledFilterPanel = styled.div.withConfig({
+  displayName: 'StyledFilterPanel',
+  componentId: 'StyledFilterPanel',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledFilterBody = styled.div.withConfig({
+  displayName: 'StyledFilterBody',
+  componentId: 'StyledFilterBody',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFilterRow = styled.div.withConfig({
+  displayName: 'StyledFilterRow',
+  componentId: 'StyledFilterRow',
+})`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: minmax(120px, 1fr) minmax(110px, 150px) minmax(180px, 2fr) auto;
+    align-items: end;
+  }
+`;
+
+const StyledFilterActions = styled.div.withConfig({
+  displayName: 'StyledFilterActions',
+  componentId: 'StyledFilterActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFilterRowActions = styled.div.withConfig({
+  displayName: 'StyledFilterRowActions',
+  componentId: 'StyledFilterRowActions',
+})`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+`;
+
+const StyledFilterButton = styled.button.withConfig({
+  displayName: 'StyledFilterButton',
+  componentId: 'StyledFilterButton',
+})`
+  min-height: 36px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  padding: 0 ${({ theme }) => theme.spacing.sm}px;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
 
 const StyledListBody = styled.div.withConfig({
@@ -140,6 +235,7 @@ const StyledList = styled.ul.withConfig({
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: 0;
 `;
 
 const StyledRowActions = styled.div.withConfig({
@@ -147,60 +243,219 @@ const StyledRowActions = styled.div.withConfig({
   componentId: 'StyledRowActions',
 })`
   display: inline-flex;
+  width: 100%;
+  justify-content: flex-end;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const baseActionButtonStyles = `
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  border-radius: ${({ theme }) => theme.radius.sm}px;
-  border: 1px solid ${({ theme }) => theme.colors.border?.default ?? theme.colors.background.tertiary};
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  color: ${({ theme }) => theme.colors.text.primary};
-  padding: 0 ${({ theme }) => theme.spacing.sm}px;
-  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
+  flex-wrap: nowrap;
+  white-space: nowrap;
 `;
 
 const StyledActionButton = styled.button.withConfig({
   displayName: 'StyledActionButton',
   componentId: 'StyledActionButton',
 })`
-  ${baseActionButtonStyles}
+  min-height: 30px;
+  padding: 0 ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+  }
 `;
 
-const StyledDangerActionButton = styled.button.withConfig({
+const StyledPaginationNavButton = styled(StyledActionButton).withConfig({
+  displayName: 'StyledPaginationNavButton',
+  componentId: 'StyledPaginationNavButton',
+})`
+  min-width: 36px;
+  padding: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: 1;
+`;
+
+const StyledDangerActionButton = styled(StyledActionButton).withConfig({
   displayName: 'StyledDangerActionButton',
   componentId: 'StyledDangerActionButton',
 })`
-  ${baseActionButtonStyles}
+  border-color: ${({ theme }) => `${theme.colors.error}66`};
   color: ${({ theme }) => theme.colors.error};
-  border-color: ${({ theme }) => theme.colors.error};
+
+  &:hover {
+    background-color: ${({ theme }) => `${theme.colors.error}12`};
+  }
+`;
+
+const StyledPagination = styled.div.withConfig({
+  displayName: 'StyledPagination',
+  componentId: 'StyledPagination',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  border-top: 1px solid ${({ theme }) => theme.colors.border.light};
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledPaginationInfo = styled.span.withConfig({
+  displayName: 'StyledPaginationInfo',
+  componentId: 'StyledPaginationInfo',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+`;
+
+const StyledPaginationActions = styled.div.withConfig({
+  displayName: 'StyledPaginationActions',
+  componentId: 'StyledPaginationActions',
+})`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPaginationControl = styled.div.withConfig({
+  displayName: 'StyledPaginationControl',
+  componentId: 'StyledPaginationControl',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPaginationControlLabel = styled.span.withConfig({
+  displayName: 'StyledPaginationControlLabel',
+  componentId: 'StyledPaginationControlLabel',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledPaginationSelectSlot = styled.div.withConfig({
+  displayName: 'StyledPaginationSelectSlot',
+  componentId: 'StyledPaginationSelectSlot',
+})`
+  min-width: 86px;
+`;
+
+const StyledSettingsBody = styled.div.withConfig({
+  displayName: 'StyledSettingsBody',
+  componentId: 'StyledSettingsBody',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledSettingsSection = styled.section.withConfig({
+  displayName: 'StyledSettingsSection',
+  componentId: 'StyledSettingsSection',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSettingsTitle = styled.h3.withConfig({
+  displayName: 'StyledSettingsTitle',
+  componentId: 'StyledSettingsTitle',
+})`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const StyledColumnRow = styled.div.withConfig({
+  displayName: 'StyledColumnRow',
+  componentId: 'StyledColumnRow',
+})`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledColumnMoveControls = styled.div.withConfig({
+  displayName: 'StyledColumnMoveControls',
+  componentId: 'StyledColumnMoveControls',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledMoveButton = styled.button.withConfig({
+  displayName: 'StyledMoveButton',
+  componentId: 'StyledMoveButton',
+})`
+  min-height: 28px;
+  min-width: 28px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+`;
+
+const StyledSettingsActions = styled.div.withConfig({
+  displayName: 'StyledSettingsActions',
+  componentId: 'StyledSettingsActions',
+})`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 export {
   StyledActionButton,
   StyledAddButton,
   StyledAddLabel,
+  StyledColumnMoveControls,
+  StyledColumnRow,
   StyledContainer,
   StyledContent,
   StyledDangerActionButton,
+  StyledFilterActions,
+  StyledFilterBody,
+  StyledFilterButton,
+  StyledFilterPanel,
+  StyledFilterRow,
+  StyledFilterRowActions,
   StyledList,
   StyledListBody,
+  StyledMoveButton,
+  StyledPagination,
+  StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationControlLabel,
+  StyledPaginationInfo,
+  StyledPaginationNavButton,
+  StyledPaginationSelectSlot,
   StyledRowActions,
   StyledScopeSlot,
   StyledSearchSlot,
+  StyledSettingsActions,
+  StyledSettingsBody,
+  StyledSettingsSection,
+  StyledSettingsTitle,
   StyledStateStack,
+  StyledTableSettingsButton,
   StyledToolbar,
   StyledToolbarActions,
 };

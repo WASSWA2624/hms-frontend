@@ -27,6 +27,14 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledPagination,
+  StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationControlLabel,
+  StyledPaginationInfo,
+  StyledPaginationNavButton,
+  StyledPaginationNavLabel,
+  StyledPaginationSelectSlot,
   StyledScopeSlot,
   StyledSearchSlot,
   StyledStateStack,
@@ -41,6 +49,14 @@ const UserProfileListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    pagedItems,
+    totalItems,
+    totalPages,
+    page,
+    pageSize,
+    pageSizeOptions,
+    density,
+    densityOptions,
     search,
     searchScope,
     searchScopeOptions,
@@ -55,6 +71,9 @@ const UserProfileListScreenAndroid = () => {
     onSearch,
     onSearchScopeChange,
     onClearSearchAndFilters,
+    onPageChange,
+    onPageSizeChange,
+    onDensityChange,
     onProfilePress,
     onEdit,
     onDelete,
@@ -65,6 +84,14 @@ const UserProfileListScreenAndroid = () => {
     resolveProfileGenderDisplay,
     resolveProfileDobDisplay,
   } = useUserProfileListScreen();
+
+  const rows = Array.isArray(pagedItems) ? pagedItems : items;
+  const resolvedTotalItems = Number.isFinite(Number(totalItems))
+    ? Number(totalItems)
+    : rows.length;
+  const resolvedTotalPages = Number.isFinite(Number(totalPages))
+    ? Number(totalPages)
+    : Math.max(1, Math.ceil((resolvedTotalItems || 1) / Math.max(1, Number(pageSize) || 1)));
 
   const emptyComponent = (
     <EmptyState
@@ -101,11 +128,11 @@ const UserProfileListScreenAndroid = () => {
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline && items.length === 0;
-  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
-  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showOffline = !isLoading && isOffline && rows.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && rows.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && resolvedTotalItems === 0;
   const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
-  const showList = items.length > 0;
+  const showList = rows.length > 0;
 
   const renderItem = ({ item: profileItem, index }) => {
     const profileId = resolveProfileId(profileItem);
@@ -266,7 +293,7 @@ const UserProfileListScreenAndroid = () => {
             {showList ? (
               <StyledList>
                 <FlatList
-                  data={items}
+                  data={rows}
                   keyExtractor={(profileItem, index) => resolveProfileId(profileItem) || `user-profile-${index}`}
                   renderItem={renderItem}
                   scrollEnabled={false}
@@ -274,6 +301,72 @@ const UserProfileListScreenAndroid = () => {
                   testID="user-profile-list-flatlist"
                 />
               </StyledList>
+            ) : null}
+
+            {showList ? (
+              <StyledPagination>
+                <StyledPaginationInfo>
+                  {t('userProfile.list.pageSummary', {
+                    page,
+                    totalPages: resolvedTotalPages,
+                    total: resolvedTotalItems,
+                  })}
+                </StyledPaginationInfo>
+
+                <StyledPaginationActions>
+                  <StyledPaginationNavButton
+                    onPress={() => onPageChange(page - 1)}
+                    disabled={page <= 1}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common.previous')}
+                    testID="user-profile-page-prev"
+                  >
+                    <StyledPaginationNavLabel>{'<'}</StyledPaginationNavLabel>
+                  </StyledPaginationNavButton>
+
+                  <StyledPaginationControl>
+                    <StyledPaginationControlLabel>
+                      {t('userProfile.list.pageSizeLabel')}
+                    </StyledPaginationControlLabel>
+                    <StyledPaginationSelectSlot>
+                      <Select
+                        value={String(pageSize)}
+                        onValueChange={onPageSizeChange}
+                        options={pageSizeOptions}
+                        accessibilityLabel={t('userProfile.list.pageSizeLabel')}
+                        compact
+                        testID="user-profile-page-size"
+                      />
+                    </StyledPaginationSelectSlot>
+                  </StyledPaginationControl>
+
+                  <StyledPaginationControl>
+                    <StyledPaginationControlLabel>
+                      {t('userProfile.list.densityLabel')}
+                    </StyledPaginationControlLabel>
+                    <StyledPaginationSelectSlot>
+                      <Select
+                        value={density}
+                        onValueChange={onDensityChange}
+                        options={densityOptions}
+                        accessibilityLabel={t('userProfile.list.densityLabel')}
+                        compact
+                        testID="user-profile-density"
+                      />
+                    </StyledPaginationSelectSlot>
+                  </StyledPaginationControl>
+
+                  <StyledPaginationNavButton
+                    onPress={() => onPageChange(page + 1)}
+                    disabled={page >= resolvedTotalPages}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('common.next')}
+                    testID="user-profile-page-next"
+                  >
+                    <StyledPaginationNavLabel>{'>'}</StyledPaginationNavLabel>
+                  </StyledPaginationNavButton>
+                </StyledPaginationActions>
+              </StyledPagination>
             ) : null}
           </StyledListBody>
         </Card>

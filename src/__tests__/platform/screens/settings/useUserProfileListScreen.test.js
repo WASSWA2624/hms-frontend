@@ -125,7 +125,7 @@ describe('useUserProfileListScreen', () => {
     expect(result.current.canViewTechnicalIds).toBe(true);
   });
 
-  it('tenant-scoped admins keep profile list unscoped while lookups stay tenant-scoped', async () => {
+  it('tenant-scoped admins query profile and lookup lists using tenant scope', async () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: false,
@@ -135,9 +135,45 @@ describe('useUserProfileListScreen', () => {
 
     await renderUseUserProfileListScreen();
 
-    expect(mockListProfiles).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(mockListProfiles).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+  });
+
+  it('tenant-scoped admins only render profiles in their tenant scope', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUserProfile.mockReturnValue({
+      list: mockListProfiles,
+      remove: mockRemoveProfile,
+      data: {
+        items: [
+          { id: 'profile-1', first_name: 'One', user_id: 'u-1' },
+          { id: 'profile-2', first_name: 'Two', user_id: 'u-2' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetProfiles,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: {
+        items: [
+          { id: 'u-1', email: 'one@acme.org', tenant_id: 'tenant-1' },
+          { id: 'u-2', email: 'two@acme.org', tenant_id: 'tenant-2' },
+        ],
+      },
+      reset: mockResetUsers,
+    });
+
+    const { result } = await renderUseUserProfileListScreen();
+
+    expect(result.current.items.map((item) => item.id)).toEqual(['profile-1']);
   });
 
   it('supports scoped search and gender filter', async () => {
@@ -251,5 +287,90 @@ describe('useUserProfileListScreen', () => {
     await renderUseUserProfileListScreen();
 
     expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('redirects tenant-scoped users without tenant context', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    await renderUseUserProfileListScreen();
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
+  it('prevents tenant-scoped users from opening profiles outside tenant scope', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUserProfile.mockReturnValue({
+      list: mockListProfiles,
+      remove: mockRemoveProfile,
+      data: {
+        items: [
+          { id: 'profile-2', first_name: 'Two', user_id: 'u-2' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetProfiles,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: {
+        items: [{ id: 'u-2', email: 'two@acme.org', tenant_id: 'tenant-2' }],
+      },
+      reset: mockResetUsers,
+    });
+
+    const { result } = await renderUseUserProfileListScreen();
+
+    act(() => {
+      result.current.onProfilePress('profile-2');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/user-profiles?notice=accessDenied');
+  });
+
+  it('prevents tenant-scoped users from opening profiles missing from scoped rows', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUserProfile.mockReturnValue({
+      list: mockListProfiles,
+      remove: mockRemoveProfile,
+      data: {
+        items: [
+          { id: 'profile-1', first_name: 'One', user_id: 'u-1' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetProfiles,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: {
+        items: [{ id: 'u-1', email: 'one@acme.org', tenant_id: 'tenant-1' }],
+      },
+      reset: mockResetUsers,
+    });
+
+    const { result } = await renderUseUserProfileListScreen();
+
+    act(() => {
+      result.current.onProfilePress('missing-profile-id');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/user-profiles?notice=accessDenied');
   });
 });

@@ -12,11 +12,16 @@ import React, {
 } from 'react';
 
 import { useI18n } from '@hooks';
+import Button from '../../forms/Button';
 import Checkbox from '../../forms/Checkbox';
+import Select from '../../forms/Select';
+import TextField from '../../forms/TextField';
+import Modal from '../../feedback/Modal';
 import { DEFAULT_VIRTUALIZATION, ROW_DENSITIES } from './types';
 import {
   StyledScaffold,
   StyledTopSection,
+  StyledUtilityBar,
   StyledStatusSection,
   StyledContainer,
   StyledScrollArea,
@@ -33,6 +38,15 @@ import {
   StyledBottomBar,
   StyledBottomPrimary,
   StyledBottomSecondary,
+  StyledExportModalTitle,
+  StyledExportModalSubtitle,
+  StyledExportSummary,
+  StyledExportGrid,
+  StyledExportField,
+  StyledExportFieldLabel,
+  StyledExportOptions,
+  StyledExportActions,
+  StyledExportStatus,
 } from './DataTable.web.styles';
 
 const resolveSortIndicator = (sortField, sortDirection, field) => {
@@ -86,9 +100,502 @@ const resolveSlotContent = (slot, context) => (
   typeof slot === 'function' ? slot(context) : slot
 );
 
+const SEARCH_SCOPE_TEST_ID_SEGMENT = 'search-scope';
+const CONTROL_LABEL_COMPONENT_ID = 'styledcontrollabel';
+
+const hasSearchScopeTestId = (props = {}) => {
+  const testIds = [props.testID, props['data-testid']];
+  return testIds.some((value) => (
+    typeof value === 'string'
+    && value.toLowerCase().includes(SEARCH_SCOPE_TEST_ID_SEGMENT)
+  ));
+};
+
+const isSearchScopeControlLabel = (node) => {
+  if (!React.isValidElement(node)) return false;
+  const styledComponentId = node.type?.styledComponentId;
+  return typeof styledComponentId === 'string'
+    && styledComponentId.toLowerCase().includes(CONTROL_LABEL_COMPONENT_ID);
+};
+
+const normalizeSearchBarSlotNode = (node) => {
+  if (!React.isValidElement(node)) {
+    return { node, changed: false };
+  }
+
+  if (isSearchScopeControlLabel(node)) {
+    return { node: null, changed: true };
+  }
+
+  let changed = false;
+  const nextProps = {};
+  const props = node.props || {};
+
+  if (
+    hasSearchScopeTestId(props)
+    && Object.prototype.hasOwnProperty.call(props, 'label')
+  ) {
+    nextProps.label = undefined;
+    changed = true;
+  }
+
+  if (props.children !== undefined) {
+    let hasChildChanges = false;
+    const normalizedChildren = React.Children.map(props.children, (child) => {
+      const normalizedChild = normalizeSearchBarSlotNode(child);
+      if (normalizedChild.changed) hasChildChanges = true;
+      return normalizedChild.node;
+    });
+
+    if (hasChildChanges) {
+      nextProps.children = normalizedChildren;
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    return { node, changed: false };
+  }
+
+  return {
+    node: React.cloneElement(node, nextProps),
+    changed: true,
+  };
+};
+
+const normalizeSearchBarSlotContent = (slotContent) => {
+  let changed = false;
+  const normalizedChildren = React.Children.map(slotContent, (child) => {
+    const normalized = normalizeSearchBarSlotNode(child);
+    if (normalized.changed) changed = true;
+    return normalized.node;
+  });
+
+  if (!changed) {
+    return slotContent;
+  }
+
+  const childCount = React.Children.count(slotContent);
+  if (childCount === 1 && Array.isArray(normalizedChildren)) {
+    return normalizedChildren[0] ?? null;
+  }
+
+  return normalizedChildren;
+};
+
+const EXPORT_FORMATS = {
+  CSV: 'csv',
+  EXCEL: 'excel',
+  PDF: 'pdf',
+  PRINT: 'print',
+};
+
+const EXPORT_SCOPES = {
+  FILTERED: 'filtered',
+  VISIBLE: 'visible',
+  SELECTED: 'selected',
+};
+
+const EXPORT_PAGE_SIZES = {
+  A4: 'a4',
+  LETTER: 'letter',
+};
+
+const EXPORT_ORIENTATIONS = {
+  PORTRAIT: 'portrait',
+  LANDSCAPE: 'landscape',
+};
+
+const CSV_DELIMITERS = {
+  COMMA: ',',
+  SEMICOLON: ';',
+  TAB: '\t',
+};
+
+const PAGE_DIMENSIONS = {
+  [EXPORT_PAGE_SIZES.A4]: {
+    [EXPORT_ORIENTATIONS.PORTRAIT]: { width: 595, height: 842 },
+    [EXPORT_ORIENTATIONS.LANDSCAPE]: { width: 842, height: 595 },
+  },
+  [EXPORT_PAGE_SIZES.LETTER]: {
+    [EXPORT_ORIENTATIONS.PORTRAIT]: { width: 612, height: 792 },
+    [EXPORT_ORIENTATIONS.LANDSCAPE]: { width: 792, height: 612 },
+  },
+};
+
+const DEFAULT_EXPORT_FILE_NAME = 'data-table-export';
+
+const sanitizeFileName = (value, fallback = DEFAULT_EXPORT_FILE_NAME) => {
+  const normalized = String(value || '')
+    .trim()
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[^a-zA-Z0-9 _-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^[-_.]+|[-_.]+$/g, '');
+
+  return normalized || fallback;
+};
+
+const formatExportTimestamp = (date = new Date()) => {
+  const pad = (number) => String(number).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}_${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`;
+};
+
+const escapeCsvValue = (value, delimiter) => {
+  const raw = String(value ?? '');
+  if (raw.includes('"')) {
+    return `"${raw.replace(/"/g, '""')}"`;
+  }
+  if (raw.includes(delimiter) || raw.includes('\n') || raw.includes('\r')) {
+    return `"${raw}"`;
+  }
+  return raw;
+};
+
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const normalizeExportValue = (value) => {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map((entry) => normalizeExportValue(entry)).join(', ');
+  if (typeof value === 'object') {
+    if (typeof value.label === 'string') return value.label;
+    if (typeof value.name === 'string') return value.name;
+    try {
+      return JSON.stringify(value);
+    } catch (_) {
+      return String(value);
+    }
+  }
+  return String(value);
+};
+
+const resolveExportCellRawValue = (row, rowIndex, column) => {
+  if (typeof column.exportAccessor === 'function') {
+    return column.exportAccessor(row, rowIndex, column);
+  }
+
+  if (typeof column.exportAccessor === 'string') {
+    return row?.[column.exportAccessor];
+  }
+
+  if (typeof column.accessor === 'function') {
+    return column.accessor(row, rowIndex);
+  }
+
+  if (typeof column.accessor === 'string') {
+    return row?.[column.accessor];
+  }
+
+  return row?.[column.id];
+};
+
+const resolveExportCellValue = (row, rowIndex, column) => {
+  const rawValue = resolveExportCellRawValue(row, rowIndex, column);
+  if (typeof column.exportFormatter === 'function') {
+    return normalizeExportValue(column.exportFormatter(rawValue, row, rowIndex, column));
+  }
+  return normalizeExportValue(rawValue);
+};
+
+const resolveExportMatrix = ({
+  records,
+  columns,
+  includeHeaders,
+  includeRowNumbers,
+}) => {
+  const headerCells = [];
+  if (includeRowNumbers) {
+    headerCells.push('#');
+  }
+  headerCells.push(...columns.map((column) => column.label || column.id));
+
+  const rows = records.map(({ row, rowIndex }) => {
+    const cells = [];
+    if (includeRowNumbers) {
+      cells.push(String(rowIndex + 1));
+    }
+    columns.forEach((column) => {
+      cells.push(resolveExportCellValue(row, rowIndex, column));
+    });
+    return cells;
+  });
+
+  return {
+    headers: includeHeaders ? headerCells : [],
+    rows,
+  };
+};
+
+const resolveExportFileExtension = (format) => {
+  if (format === EXPORT_FORMATS.CSV) return 'csv';
+  if (format === EXPORT_FORMATS.EXCEL) return 'xls';
+  if (format === EXPORT_FORMATS.PDF) return 'pdf';
+  return 'txt';
+};
+
+const buildCsvContent = ({
+  headers,
+  rows,
+  delimiter,
+  includeMetadata,
+  metadataLines,
+}) => {
+  const lines = [];
+
+  if (includeMetadata) {
+    metadataLines.forEach((line) => {
+      lines.push(`# ${line}`);
+    });
+    if (metadataLines.length > 0) {
+      lines.push('');
+    }
+  }
+
+  if (headers.length > 0) {
+    lines.push(headers.map((cell) => escapeCsvValue(cell, delimiter)).join(delimiter));
+  }
+
+  rows.forEach((cells) => {
+    lines.push(cells.map((cell) => escapeCsvValue(cell, delimiter)).join(delimiter));
+  });
+
+  return lines.join('\r\n');
+};
+
+const buildExcelDocument = ({
+  title,
+  headers,
+  rows,
+  includeMetadata,
+  metadataLines,
+}) => {
+  const metadataHtml = includeMetadata && metadataLines.length > 0
+    ? `<div style="margin-bottom: 12px;">${metadataLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>`
+    : '';
+  const headerHtml = headers.length > 0
+    ? `<thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>`
+    : '';
+  const bodyHtml = rows.length > 0
+    ? rows.map((cells) => `<tr>${cells.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')
+    : '<tr><td>(No rows)</td></tr>';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #d1d1d6; padding: 6px 8px; font-size: 12px; text-align: left; }
+    th { background: #f2f2f7; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h3>${escapeHtml(title)}</h3>
+  ${metadataHtml}
+  <table>
+    ${headerHtml}
+    <tbody>
+      ${bodyHtml}
+    </tbody>
+  </table>
+</body>
+</html>`;
+};
+
+const sanitizePdfText = (value) => String(value ?? '')
+  .replace(/[^\x20-\x7E]/g, ' ')
+  .replace(/\\/g, '\\\\')
+  .replace(/\(/g, '\\(')
+  .replace(/\)/g, '\\)');
+
+const wrapPdfLine = (line, maxChars) => {
+  const text = String(line ?? '');
+  if (text.length <= maxChars) return [text];
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [''];
+
+  const wrapped = [];
+  let current = '';
+
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= maxChars) {
+      current = candidate;
+      return;
+    }
+
+    if (current) {
+      wrapped.push(current);
+      current = '';
+    }
+
+    if (word.length > maxChars) {
+      for (let index = 0; index < word.length; index += maxChars) {
+        wrapped.push(word.slice(index, index + maxChars));
+      }
+      return;
+    }
+
+    current = word;
+  });
+
+  if (current) {
+    wrapped.push(current);
+  }
+
+  return wrapped;
+};
+
+const buildPdfBytes = ({
+  lines,
+  pageSize,
+  orientation,
+}) => {
+  const dimensions = PAGE_DIMENSIONS[pageSize]?.[orientation]
+    || PAGE_DIMENSIONS[EXPORT_PAGE_SIZES.A4][EXPORT_ORIENTATIONS.LANDSCAPE];
+  const pageWidth = dimensions.width;
+  const pageHeight = dimensions.height;
+  const margin = 36;
+  const lineHeight = 12;
+  const maxChars = Math.max(40, Math.floor((pageWidth - margin * 2) / 5.5));
+  const maxLinesPerPage = Math.max(20, Math.floor((pageHeight - margin * 2) / lineHeight));
+
+  const wrappedLines = [];
+  lines.forEach((line) => {
+    wrappedLines.push(...wrapPdfLine(line, maxChars));
+  });
+
+  const pages = [];
+  for (let index = 0; index < wrappedLines.length; index += maxLinesPerPage) {
+    pages.push(wrappedLines.slice(index, index + maxLinesPerPage));
+  }
+  if (pages.length === 0) {
+    pages.push(['(No rows)']);
+  }
+
+  const objects = [];
+  const addObject = (content) => {
+    objects.push(content);
+    return objects.length;
+  };
+
+  const fontObjectId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  const contentObjectIds = pages.map((pageLines) => {
+    const streamLines = ['BT', '/F1 10 Tf'];
+    let y = pageHeight - margin;
+    pageLines.forEach((line) => {
+      streamLines.push(`1 0 0 1 ${margin} ${y} Tm (${sanitizePdfText(line)}) Tj`);
+      y -= lineHeight;
+    });
+    streamLines.push('ET');
+    const stream = streamLines.join('\n');
+    return addObject(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+  });
+
+  const pagesObjectId = addObject('<< /Type /Pages /Kids [] /Count 0 >>');
+  const pageObjectIds = contentObjectIds.map((contentObjectId) => addObject(
+    `<< /Type /Page /Parent ${pagesObjectId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 ${fontObjectId} 0 R >> >> /Contents ${contentObjectId} 0 R >>`
+  ));
+  objects[pagesObjectId - 1] = `<< /Type /Pages /Kids [${pageObjectIds.map((objectId) => `${objectId} 0 R`).join(' ')}] /Count ${pageObjectIds.length} >>`;
+  const catalogObjectId = addObject(`<< /Type /Catalog /Pages ${pagesObjectId} 0 R >>`);
+
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((content, index) => {
+    offsets[index + 1] = pdf.length;
+    pdf += `${index + 1} 0 obj\n${content}\nendobj\n`;
+  });
+
+  const xrefStart = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += '0000000000 65535 f \n';
+  for (let index = 1; index <= objects.length; index += 1) {
+    pdf += `${String(offsets[index]).padStart(10, '0')} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogObjectId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+
+  return new TextEncoder().encode(pdf);
+};
+
+const triggerDownload = (blob, fileName) => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return false;
+  }
+  if (typeof window.URL?.createObjectURL !== 'function') {
+    return false;
+  }
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+  return true;
+};
+
+const buildPrintHtml = ({
+  title,
+  headers,
+  rows,
+  includeMetadata,
+  metadataLines,
+  pageSize,
+  orientation,
+}) => {
+  const metadataHtml = includeMetadata && metadataLines.length > 0
+    ? `<div class="meta">${metadataLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>`
+    : '';
+  const headerHtml = headers.length > 0
+    ? `<thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>`
+    : '';
+  const bodyHtml = rows.length > 0
+    ? rows.map((cells) => `<tr>${cells.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')
+    : '<tr><td>(No rows)</td></tr>';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    @page { size: ${pageSize} ${orientation}; margin: 12mm; }
+    body { font-family: Arial, sans-serif; margin: 0; color: #000; }
+    h2 { margin: 0 0 8px 0; font-size: 18px; }
+    .meta { margin-bottom: 10px; font-size: 12px; color: #333; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #d1d1d6; padding: 5px 7px; text-align: left; font-size: 11px; }
+    th { background: #f2f2f7; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h2>${escapeHtml(title)}</h2>
+  ${metadataHtml}
+  <table>
+    ${headerHtml}
+    <tbody>${bodyHtml}</tbody>
+  </table>
+</body>
+</html>`;
+};
+
 const DataTableRow = React.memo(({
   row,
   rowIndex,
+  rowNumber,
   rowKey,
   columns,
   rowDensity,
@@ -113,6 +620,14 @@ const DataTableRow = React.memo(({
       $stripeIndex={rowIndex}
       data-testid={rowTestIdPrefix ? `${rowTestIdPrefix}-${rowKey}` : undefined}
     >
+      <StyledCell
+        $density={rowDensity}
+        $align="center"
+        $isRowNumber
+      >
+        {rowNumber}
+      </StyledCell>
+
       {selection?.enabled ? (
         <StyledCell
           $density={rowDensity}
@@ -194,6 +709,8 @@ const DataTableWeb = ({
   tableNavigation,
   bottomContent,
   columnResize,
+  tableTitle,
+  exportConfig,
   testID,
   className,
   style,
@@ -202,6 +719,18 @@ const DataTableWeb = ({
   const [scrollTop, setScrollTop] = useState(0);
   const [columnWidths, setColumnWidths] = useState({});
   const [activeResizeColumnId, setActiveResizeColumnId] = useState(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState(EXPORT_FORMATS.CSV);
+  const [exportScope, setExportScope] = useState(EXPORT_SCOPES.FILTERED);
+  const [exportFileName, setExportFileName] = useState('');
+  const [includeHeaders, setIncludeHeaders] = useState(true);
+  const [includeRowNumbers, setIncludeRowNumbers] = useState(true);
+  const [includeMetadata, setIncludeMetadata] = useState(true);
+  const [includeTimestamp, setIncludeTimestamp] = useState(true);
+  const [csvDelimiter, setCsvDelimiter] = useState(CSV_DELIMITERS.COMMA);
+  const [pageSize, setPageSize] = useState(EXPORT_PAGE_SIZES.A4);
+  const [orientation, setOrientation] = useState(EXPORT_ORIENTATIONS.LANDSCAPE);
+  const [exportStatus, setExportStatus] = useState(null);
   const tableRef = useRef(null);
   const headerCellRefs = useRef({});
   const resizeCleanupRef = useRef(null);
@@ -255,6 +784,16 @@ const DataTableWeb = ({
     [virtualization]
   );
 
+  const normalizedExportConfig = useMemo(() => ({
+    enabled: exportConfig?.enabled !== false,
+    defaultFileName: sanitizeFileName(
+      exportConfig?.defaultFileName
+        || tableTitle
+        || testID
+        || DEFAULT_EXPORT_FILE_NAME
+    ),
+  }), [exportConfig?.defaultFileName, exportConfig?.enabled, tableTitle, testID]);
+
   const resolvedDensity = rowDensity === ROW_DENSITIES.COMFORTABLE
     ? ROW_DENSITIES.COMFORTABLE
     : ROW_DENSITIES.COMPACT;
@@ -289,7 +828,31 @@ const DataTableWeb = ({
     ? Math.max(0, (totalRows - endIndex) * rowHeight)
     : 0;
 
+  const selectedRecords = useMemo(() => {
+    if (!selection?.enabled || typeof selection?.isRowSelected !== 'function') {
+      return [];
+    }
+
+    return normalizedRows.reduce((accumulator, row, rowIndex) => {
+      if (selection.isRowSelected(row, rowIndex)) {
+        accumulator.push({ row, rowIndex });
+      }
+      return accumulator;
+    }, []);
+  }, [normalizedRows, selection]);
+
+  const filteredRecords = useMemo(
+    () => normalizedRows.map((row, rowIndex) => ({ row, rowIndex })),
+    [normalizedRows]
+  );
+
+  const visibleRecords = useMemo(
+    () => renderedRows.map((row, index) => ({ row, rowIndex: startIndex + index })),
+    [renderedRows, startIndex]
+  );
+
   const columnSpan = tableColumns.length
+    + 1
     + (selection?.enabled ? 1 : 0)
     + (typeof renderRowActions === 'function' ? 1 : 0);
 
@@ -301,7 +864,9 @@ const DataTableWeb = ({
     rowDensity: resolvedDensity,
   }), [tableColumns, normalizedRows, sortField, sortDirection, resolvedDensity]);
 
-  const searchBarContent = resolveSlotContent(searchBar, slotContext);
+  const searchBarContent = normalizeSearchBarSlotContent(
+    resolveSlotContent(searchBar, slotContext)
+  );
   const filterBarContent = resolveSlotContent(filterBar, slotContext);
   const bulkActionsContent = resolveSlotContent(bulkActionsBar, slotContext);
   const topContentNode = resolveSlotContent(topContent, slotContext);
@@ -309,6 +874,64 @@ const DataTableWeb = ({
   const paginationContent = resolveSlotContent(pagination, slotContext);
   const tableNavigationContent = resolveSlotContent(tableNavigation, slotContext);
   const bottomContentNode = resolveSlotContent(bottomContent, slotContext);
+
+  const exportFormatOptions = useMemo(() => [
+    { label: 'CSV (.csv)', value: EXPORT_FORMATS.CSV },
+    { label: 'Excel (.xls)', value: EXPORT_FORMATS.EXCEL },
+    { label: 'PDF (.pdf)', value: EXPORT_FORMATS.PDF },
+    { label: 'Print', value: EXPORT_FORMATS.PRINT },
+  ], []);
+
+  const csvDelimiterOptions = useMemo(() => [
+    { label: 'Comma (,)', value: CSV_DELIMITERS.COMMA },
+    { label: 'Semicolon (;)', value: CSV_DELIMITERS.SEMICOLON },
+    { label: 'Tab', value: CSV_DELIMITERS.TAB },
+  ], []);
+
+  const pageSizeOptions = useMemo(() => [
+    { label: 'A4', value: EXPORT_PAGE_SIZES.A4 },
+    { label: 'Letter', value: EXPORT_PAGE_SIZES.LETTER },
+  ], []);
+
+  const orientationOptions = useMemo(() => [
+    { label: 'Landscape', value: EXPORT_ORIENTATIONS.LANDSCAPE },
+    { label: 'Portrait', value: EXPORT_ORIENTATIONS.PORTRAIT },
+  ], []);
+
+  const exportScopeOptions = useMemo(() => {
+    const options = [
+      {
+        label: `Filtered rows (${filteredRecords.length})`,
+        value: EXPORT_SCOPES.FILTERED,
+      },
+      {
+        label: `Visible viewport rows (${visibleRecords.length})`,
+        value: EXPORT_SCOPES.VISIBLE,
+      },
+    ];
+
+    if (selectedRecords.length > 0) {
+      options.push({
+        label: `Selected rows (${selectedRecords.length})`,
+        value: EXPORT_SCOPES.SELECTED,
+      });
+    }
+
+    return options;
+  }, [filteredRecords.length, visibleRecords.length, selectedRecords.length]);
+
+  const exportRecords = useMemo(() => {
+    if (exportScope === EXPORT_SCOPES.SELECTED && selectedRecords.length > 0) {
+      return selectedRecords;
+    }
+    if (exportScope === EXPORT_SCOPES.VISIBLE) {
+      return visibleRecords;
+    }
+    return filteredRecords;
+  }, [exportScope, selectedRecords, visibleRecords, filteredRecords]);
+
+  const isPrintMode = exportFormat === EXPORT_FORMATS.PRINT;
+  const isPdfLikeFormat = exportFormat === EXPORT_FORMATS.PDF || exportFormat === EXPORT_FORMATS.PRINT;
 
   const resolveRowKey = useCallback((row, rowIndex) => {
     if (typeof getRowKey === 'function') {
@@ -341,7 +964,7 @@ const DataTableWeb = ({
     const table = tableRef.current;
     if (!headerCell || !table) return undefined;
 
-    const columnOffset = selection?.enabled ? 1 : 0;
+    const columnOffset = 1 + (selection?.enabled ? 1 : 0);
     const fallbackColumnIndex = tableColumns.findIndex((current) => current.id === column.id);
     const columnIndex = Number.isInteger(headerCell.cellIndex) && headerCell.cellIndex >= 0
       ? headerCell.cellIndex
@@ -387,6 +1010,19 @@ const DataTableWeb = ({
       resizeCleanupRef.current = null;
     }
   }, []);
+
+  useEffect(() => {
+    if (exportFileName) return;
+    setExportFileName(normalizedExportConfig.defaultFileName);
+  }, [exportFileName, normalizedExportConfig.defaultFileName]);
+
+  useEffect(() => {
+    const allowedScopes = exportScopeOptions.map((option) => option.value);
+    if (allowedScopes.includes(exportScope)) return;
+    if (allowedScopes.length > 0) {
+      setExportScope(allowedScopes[0]);
+    }
+  }, [exportScopeOptions, exportScope]);
 
   const handleColumnResizeStart = useCallback((event, column) => {
     if (!normalizedColumnResize.enabled || column.resizable === false) return;
@@ -478,6 +1114,155 @@ const DataTableWeb = ({
     emitColumnResize(column.id, nextWidth);
   }, [normalizedColumnResize.enabled, resolveAutoFitWidth, emitColumnResize]);
 
+  const resolveExportMetadataLines = useCallback((generatedAt) => {
+    const lines = [
+      `Rows: ${exportRecords.length}`,
+      `Scope: ${exportScope}`,
+    ];
+
+    if (includeTimestamp) {
+      lines.push(`Generated: ${generatedAt.toLocaleString()}`);
+    }
+
+    return lines;
+  }, [exportRecords.length, exportScope, includeTimestamp]);
+
+  const handleOpenExportModal = useCallback(() => {
+    setExportStatus(null);
+    setIsExportModalOpen(true);
+  }, []);
+
+  const handleCloseExportModal = useCallback(() => {
+    setIsExportModalOpen(false);
+    setExportStatus(null);
+  }, []);
+
+  const handleRunExportAction = useCallback(() => {
+    const title = tableTitle || 'Data Table Export';
+    const generatedAt = new Date();
+    const matrix = resolveExportMatrix({
+      records: exportRecords,
+      columns: tableColumns,
+      includeHeaders,
+      includeRowNumbers,
+    });
+    const metadataLines = resolveExportMetadataLines(generatedAt);
+    const safeBaseFileName = sanitizeFileName(
+      exportFileName || normalizedExportConfig.defaultFileName
+    );
+    const timestampSuffix = includeTimestamp ? `-${formatExportTimestamp(generatedAt)}` : '';
+
+    if (isPrintMode) {
+      if (typeof window === 'undefined') {
+        setExportStatus({ type: 'error', message: 'Printing is unavailable in this environment.' });
+        return;
+      }
+
+      const printWindow = window.open('', '_blank', 'noopener,noreferrer');
+      if (!printWindow || !printWindow.document) {
+        setExportStatus({ type: 'error', message: 'Unable to open print preview. Please allow pop-ups and retry.' });
+        return;
+      }
+
+      const printHtml = buildPrintHtml({
+        title,
+        headers: matrix.headers,
+        rows: matrix.rows,
+        includeMetadata,
+        metadataLines,
+        pageSize,
+        orientation,
+      });
+      printWindow.document.open();
+      printWindow.document.write(printHtml);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      setExportStatus({ type: 'success', message: 'Print dialog opened.' });
+      return;
+    }
+
+    const extension = resolveExportFileExtension(exportFormat);
+    const fileName = `${safeBaseFileName}${timestampSuffix}.${extension}`;
+    let blob;
+
+    if (exportFormat === EXPORT_FORMATS.CSV) {
+      const csvContent = buildCsvContent({
+        headers: matrix.headers,
+        rows: matrix.rows,
+        delimiter: csvDelimiter,
+        includeMetadata,
+        metadataLines,
+      });
+      blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
+    } else if (exportFormat === EXPORT_FORMATS.EXCEL) {
+      const excelContent = buildExcelDocument({
+        title,
+        headers: matrix.headers,
+        rows: matrix.rows,
+        includeMetadata,
+        metadataLines,
+      });
+      blob = new Blob([excelContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    } else if (exportFormat === EXPORT_FORMATS.PDF) {
+      const pdfLines = [title, ''];
+      if (includeMetadata) {
+        pdfLines.push(...metadataLines, '');
+      }
+      if (matrix.headers.length > 0) {
+        pdfLines.push(matrix.headers.join(' | '));
+        pdfLines.push(matrix.headers.map((header) => '-'.repeat(Math.max(3, Math.min(22, String(header).length)))).join('-+-'));
+      }
+      if (matrix.rows.length === 0) {
+        pdfLines.push('(No rows)');
+      } else {
+        matrix.rows.forEach((cells) => {
+          pdfLines.push(cells.join(' | '));
+        });
+      }
+
+      const pdfBytes = buildPdfBytes({
+        lines: pdfLines,
+        pageSize,
+        orientation,
+      });
+      blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    } else {
+      setExportStatus({ type: 'error', message: 'Unsupported export format selected.' });
+      return;
+    }
+
+    const wasDownloaded = triggerDownload(blob, fileName);
+    if (!wasDownloaded) {
+      setExportStatus({
+        type: 'error',
+        message: 'Unable to start download in this browser environment.',
+      });
+      return;
+    }
+
+    setExportStatus({
+      type: 'success',
+      message: `Exported ${exportRecords.length} row(s) as ${extension.toUpperCase()}.`,
+    });
+  }, [
+    tableTitle,
+    exportRecords,
+    tableColumns,
+    includeHeaders,
+    includeRowNumbers,
+    resolveExportMetadataLines,
+    exportFileName,
+    normalizedExportConfig.defaultFileName,
+    includeTimestamp,
+    isPrintMode,
+    includeMetadata,
+    pageSize,
+    orientation,
+    exportFormat,
+    csvDelimiter,
+  ]);
+
   return (
     <StyledScaffold
       className={className}
@@ -485,6 +1270,20 @@ const DataTableWeb = ({
       data-testid={testID}
     >
       <StyledContainer data-testid={testID ? `${testID}-table-container` : undefined}>
+        {normalizedExportConfig.enabled ? (
+          <StyledUtilityBar data-testid={testID ? `${testID}-utility-bar` : undefined}>
+            <Button
+              variant="text"
+              size="small"
+              onPress={handleOpenExportModal}
+              testID={testID ? `${testID}-export-trigger` : 'data-table-export-trigger'}
+              accessibilityLabel="Open export and print options"
+            >
+              Export
+            </Button>
+          </StyledUtilityBar>
+        ) : null}
+
         {searchBarContent ? (
           <StyledTopSection
             $slot="search"
@@ -526,6 +1325,10 @@ const DataTableWeb = ({
           <StyledTable ref={tableRef} $minWidth={resolveSizeValue(minWidth)}>
             <thead>
               <tr>
+                <StyledHeaderCell $align="center" $isRowNumber>
+                  #
+                </StyledHeaderCell>
+
                 {selection?.enabled ? (
                   <StyledHeaderCell $align="center" $isSelection>
                     <Checkbox
@@ -619,6 +1422,7 @@ const DataTableWeb = ({
                     key={rowKey}
                     row={row}
                     rowIndex={absoluteIndex}
+                    rowNumber={absoluteIndex + 1}
                     rowKey={rowKey}
                     columns={tableColumns}
                     rowDensity={resolvedDensity}
@@ -659,6 +1463,153 @@ const DataTableWeb = ({
           </StyledBottomBar>
         ) : null}
       </StyledContainer>
+
+      {normalizedExportConfig.enabled ? (
+        <Modal
+          visible={isExportModalOpen}
+          onDismiss={handleCloseExportModal}
+          size="medium"
+          accessibilityLabel="Export and print options"
+          testID={testID ? `${testID}-export-modal` : 'data-table-export-modal'}
+        >
+          <StyledExportModalTitle>Export and Print</StyledExportModalTitle>
+          <StyledExportModalSubtitle>
+            Configure format, scope, and layout. Exports use the table&apos;s current filtered dataset.
+          </StyledExportModalSubtitle>
+
+          <StyledExportSummary>
+            {`Filtered rows: ${filteredRecords.length} | Visible viewport rows: ${visibleRecords.length} | Selected rows: ${selectedRecords.length}`}
+          </StyledExportSummary>
+
+          <StyledExportGrid>
+            <StyledExportField>
+              <StyledExportFieldLabel>Output format</StyledExportFieldLabel>
+              <Select
+                value={exportFormat}
+                onValueChange={setExportFormat}
+                options={exportFormatOptions}
+                compact
+                testID={testID ? `${testID}-export-format` : 'data-table-export-format'}
+              />
+            </StyledExportField>
+
+            <StyledExportField>
+              <StyledExportFieldLabel>Rows scope</StyledExportFieldLabel>
+              <Select
+                value={exportScope}
+                onValueChange={setExportScope}
+                options={exportScopeOptions}
+                compact
+                testID={testID ? `${testID}-export-scope` : 'data-table-export-scope'}
+              />
+            </StyledExportField>
+
+            {!isPrintMode ? (
+              <StyledExportField>
+                <StyledExportFieldLabel>File name</StyledExportFieldLabel>
+                <TextField
+                  value={exportFileName}
+                  onChange={(event) => setExportFileName(event.target.value)}
+                  placeholder={normalizedExportConfig.defaultFileName}
+                  density="compact"
+                  testID={testID ? `${testID}-export-file-name` : 'data-table-export-file-name'}
+                />
+              </StyledExportField>
+            ) : null}
+
+            {exportFormat === EXPORT_FORMATS.CSV ? (
+              <StyledExportField>
+                <StyledExportFieldLabel>CSV delimiter</StyledExportFieldLabel>
+                <Select
+                  value={csvDelimiter}
+                  onValueChange={setCsvDelimiter}
+                  options={csvDelimiterOptions}
+                  compact
+                  testID={testID ? `${testID}-export-delimiter` : 'data-table-export-delimiter'}
+                />
+              </StyledExportField>
+            ) : null}
+
+            {isPdfLikeFormat ? (
+              <StyledExportField>
+                <StyledExportFieldLabel>Page size</StyledExportFieldLabel>
+                <Select
+                  value={pageSize}
+                  onValueChange={setPageSize}
+                  options={pageSizeOptions}
+                  compact
+                  testID={testID ? `${testID}-export-page-size` : 'data-table-export-page-size'}
+                />
+              </StyledExportField>
+            ) : null}
+
+            {isPdfLikeFormat ? (
+              <StyledExportField>
+                <StyledExportFieldLabel>Orientation</StyledExportFieldLabel>
+                <Select
+                  value={orientation}
+                  onValueChange={setOrientation}
+                  options={orientationOptions}
+                  compact
+                  testID={testID ? `${testID}-export-orientation` : 'data-table-export-orientation'}
+                />
+              </StyledExportField>
+            ) : null}
+          </StyledExportGrid>
+
+          <StyledExportOptions>
+            <Checkbox
+              checked={includeHeaders}
+              onChange={(checked) => setIncludeHeaders(Boolean(checked))}
+              label="Include column headers"
+              testID={testID ? `${testID}-export-include-headers` : 'data-table-export-include-headers'}
+            />
+            <Checkbox
+              checked={includeRowNumbers}
+              onChange={(checked) => setIncludeRowNumbers(Boolean(checked))}
+              label="Include row numbers"
+              testID={testID ? `${testID}-export-include-row-numbers` : 'data-table-export-include-row-numbers'}
+            />
+            <Checkbox
+              checked={includeTimestamp}
+              onChange={(checked) => setIncludeTimestamp(Boolean(checked))}
+              label="Include generated timestamp"
+              testID={testID ? `${testID}-export-include-timestamp` : 'data-table-export-include-timestamp'}
+            />
+            <Checkbox
+              checked={includeMetadata}
+              onChange={(checked) => setIncludeMetadata(Boolean(checked))}
+              label="Include metadata summary"
+              testID={testID ? `${testID}-export-include-metadata` : 'data-table-export-include-metadata'}
+            />
+          </StyledExportOptions>
+
+          {exportStatus ? (
+            <StyledExportStatus $type={exportStatus.type}>
+              {exportStatus.message}
+            </StyledExportStatus>
+          ) : null}
+
+          <StyledExportActions>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={handleCloseExportModal}
+              testID={testID ? `${testID}-export-cancel` : 'data-table-export-cancel'}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="small"
+              onPress={handleRunExportAction}
+              testID={testID ? `${testID}-export-apply` : 'data-table-export-apply'}
+            >
+              {isPrintMode ? 'Print' : 'Export'}
+            </Button>
+          </StyledExportActions>
+        </Modal>
+      ) : null}
     </StyledScaffold>
   );
 };

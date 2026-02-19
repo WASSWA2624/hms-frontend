@@ -30,6 +30,7 @@ const StyledHeaderText = styled.Text.withConfig({
   color: ${({ theme }) => theme.colors.text.secondary};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  text-align: ${({ $align }) => $align || 'left'};
 `;
 
 const StyledRow = styled.View.withConfig({
@@ -64,6 +65,7 @@ const StyledCellText = styled.Text.withConfig({
 })`
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  text-align: ${({ $align }) => $align || 'left'};
 `;
 
 const StyledEmptyText = styled.Text.withConfig({

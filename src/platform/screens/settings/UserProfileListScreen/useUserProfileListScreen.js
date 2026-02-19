@@ -27,6 +27,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'profile', 'user', 'facility', 'gender', 'dob']);
@@ -96,6 +98,18 @@ const sanitizeFilterOperator = (field, operator) => {
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
 
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
+
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
     return [DEFAULT_FILTER(getNextFilterId())];
@@ -146,6 +160,14 @@ const resolveProfileUserId = (profileItem) => normalizeValue(profileItem?.user_i
 const resolveProfileFacilityId = (profileItem) => normalizeValue(
   profileItem?.facility_id ?? profileItem?.facility?.id
 );
+const resolveProfileTenantId = (profileItem, userLookup) => {
+  const directTenantId = normalizeValue(profileItem?.tenant_id ?? profileItem?.user?.tenant_id);
+  if (directTenantId) return directTenantId;
+
+  const profileUserId = resolveProfileUserId(profileItem);
+  if (!profileUserId || !userLookup) return '';
+  return normalizeValue(userLookup.get(profileUserId)?.tenantId);
+};
 
 const resolveProfileName = (t, profileItem) => {
   const nameSegments = [
@@ -511,6 +533,14 @@ const useUserProfileListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedProfileItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((profileItem) => (
+      resolveProfileTenantId(profileItem, userLookup) === normalizedTenantId
+    ));
+  }, [canManageAllTenants, normalizedTenantId, baseItems, userLookup]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -530,7 +560,7 @@ const useUserProfileListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((profileItem) => {
+    return scopedItems.filter((profileItem) => {
       if (hasSearch && !matchesProfileSearch(
         t,
         profileItem,
@@ -559,7 +589,7 @@ const useUserProfileListScreen = () => {
     });
   }, [
     t,
-    baseItems,
+    scopedItems,
     search,
     normalizedSearchScope,
     activeFilters,
@@ -609,7 +639,7 @@ const useUserProfileListScreen = () => {
     && selectedOnPageCount === currentPageProfileIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'userProfile.list.loadError'),
@@ -625,8 +655,16 @@ const useUserProfileListScreen = () => {
     if (!isResolved || !canManageUserProfiles || isOffline) return;
     if (isTenantScopedAdmin && !normalizedTenantId) return;
 
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
+    if (isTenantScopedAdmin) {
+      params.tenant_id = normalizedTenantId;
+    }
+
     reset();
-    list({ page: 1, limit: MAX_FETCH_LIMIT });
+    list(params);
   }, [
     isResolved,
     canManageUserProfiles,
@@ -641,7 +679,10 @@ const useUserProfileListScreen = () => {
     if (!isResolved || !canManageUserProfiles || isOffline) return;
     if (isTenantScopedAdmin && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedTenantId;
     }
@@ -662,7 +703,10 @@ const useUserProfileListScreen = () => {
     if (!isResolved || !canManageUserProfiles || isOffline) return;
     if (isTenantScopedAdmin && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedTenantId;
     }
@@ -982,11 +1026,9 @@ const useUserProfileListScreen = () => {
     if (!profileItem) return false;
     if (canManageAllTenants) return true;
 
-    const profileUserId = resolveProfileUserId(profileItem);
-    if (!profileUserId || !normalizedTenantId) return true;
-    const linkedTenantId = userLookup.get(profileUserId)?.tenantId;
-    if (!linkedTenantId) return true;
-    return linkedTenantId === normalizedTenantId;
+    const profileTenantId = resolveProfileTenantId(profileItem, userLookup);
+    if (!profileTenantId || !normalizedTenantId) return false;
+    return profileTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId, userLookup]);
 
   const handleProfilePress = useCallback(
@@ -995,14 +1037,14 @@ const useUserProfileListScreen = () => {
       if (!normalizedId) return;
 
       const targetProfile = resolveProfileById(normalizedId);
-      if (targetProfile && !canAccessProfileRecord(targetProfile)) {
+      if (!canManageAllTenants && (!targetProfile || !canAccessProfileRecord(targetProfile))) {
         router.push('/settings/user-profiles?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/user-profiles/${normalizedId}`);
     },
-    [resolveProfileById, canAccessProfileRecord, router]
+    [canManageAllTenants, resolveProfileById, canAccessProfileRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -1018,14 +1060,14 @@ const useUserProfileListScreen = () => {
       if (!normalizedId) return;
 
       const targetProfile = resolveProfileById(normalizedId);
-      if (targetProfile && !canAccessProfileRecord(targetProfile)) {
+      if (!canManageAllTenants && (!targetProfile || !canAccessProfileRecord(targetProfile))) {
         router.push('/settings/user-profiles?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/user-profiles/${normalizedId}/edit`);
     },
-    [canEditUserProfile, resolveProfileById, canAccessProfileRecord, router]
+    [canEditUserProfile, canManageAllTenants, resolveProfileById, canAccessProfileRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -1037,7 +1079,7 @@ const useUserProfileListScreen = () => {
       if (!normalizedId) return;
 
       const targetProfile = resolveProfileById(normalizedId);
-      if (targetProfile && !canAccessProfileRecord(targetProfile)) {
+      if (!canManageAllTenants && (!targetProfile || !canAccessProfileRecord(targetProfile))) {
         router.push('/settings/user-profiles?notice=accessDenied');
         return;
       }
@@ -1059,6 +1101,7 @@ const useUserProfileListScreen = () => {
     },
     [
       canDeleteUserProfile,
+      canManageAllTenants,
       resolveProfileById,
       canAccessProfileRecord,
       router,
@@ -1078,7 +1121,7 @@ const useUserProfileListScreen = () => {
     let removedCount = 0;
     for (const profileIdValue of selectedProfileIds) {
       const targetProfile = resolveProfileById(profileIdValue);
-      if (targetProfile && !canAccessProfileRecord(targetProfile)) {
+      if (!canManageAllTenants && (!targetProfile || !canAccessProfileRecord(targetProfile))) {
         continue;
       }
 
@@ -1100,6 +1143,7 @@ const useUserProfileListScreen = () => {
     setSelectedProfileIds([]);
   }, [
     canDeleteUserProfile,
+    canManageAllTenants,
     selectedProfileIds,
     t,
     resolveProfileById,

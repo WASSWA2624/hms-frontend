@@ -65,6 +65,108 @@ describe('DataTable Component - Web', () => {
     expect(getByText('Prev Next')).toBeTruthy();
   });
 
+  it('opens export modal with comprehensive controls', () => {
+    const { getByTestId, getByText } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={rows}
+      />
+    );
+
+    fireEvent.click(getByTestId('tenant-table-export-trigger'));
+
+    expect(getByTestId('tenant-table-export-modal')).toBeTruthy();
+    expect(getByText('Export and Print')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-format')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-scope')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-file-name')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-include-headers')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-include-row-numbers')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-include-metadata')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-apply')).toBeTruthy();
+  });
+
+  it('supports printing from export modal', () => {
+    const mockPrintWindow = {
+      document: {
+        open: jest.fn(),
+        write: jest.fn(),
+        close: jest.fn(),
+      },
+      focus: jest.fn(),
+      print: jest.fn(),
+    };
+    const windowOpenSpy = jest.spyOn(window, 'open').mockReturnValue(mockPrintWindow);
+
+    try {
+      const { getByTestId } = renderWebWithProviders(
+        <DataTableWeb
+          testID="tenant-table"
+          columns={columns}
+          rows={rows}
+        />
+      );
+
+      fireEvent.click(getByTestId('tenant-table-export-trigger'));
+      fireEvent.click(getByTestId('tenant-table-export-format'));
+      fireEvent.click(getByTestId('tenant-table-export-format-option-3'));
+      fireEvent.click(getByTestId('tenant-table-export-apply'));
+
+      expect(windowOpenSpy).toHaveBeenCalled();
+      expect(mockPrintWindow.document.write).toHaveBeenCalled();
+      expect(mockPrintWindow.print).toHaveBeenCalled();
+    } finally {
+      windowOpenSpy.mockRestore();
+    }
+  });
+
+  it('removes search scope labels from searchBar slot content', () => {
+    const MockControlLabel = ({ children }) => <span>{children}</span>;
+    MockControlLabel.styledComponentId = 'StyledControlLabel';
+
+    const MockSearchScopeSelect = ({ label }) => (
+      <div data-testid="mock-search-scope-label">{label || 'label-removed'}</div>
+    );
+
+    const { queryByText, getByTestId } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={rows}
+        searchBar={(
+          <div>
+            <MockControlLabel>Search field</MockControlLabel>
+            <MockSearchScopeSelect
+              label="Search field"
+              testID="tenant-list-search-scope"
+            />
+          </div>
+        )}
+      />
+    );
+
+    expect(queryByText('Search field')).toBeNull();
+    expect(getByTestId('mock-search-scope-label').textContent).toBe('label-removed');
+  });
+
+  it('renders row numbers for each table row', () => {
+    const { getByText, getAllByText } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={[
+          { id: 'tenant-1', name: 'Demo Tenant', slug: 'demo-tenant' },
+          { id: 'tenant-2', name: 'Second Tenant', slug: 'second-tenant' },
+        ]}
+      />
+    );
+
+    expect(getByText('#')).toBeTruthy();
+    expect(getAllByText('1').length).toBeGreaterThan(0);
+    expect(getAllByText('2').length).toBeGreaterThan(0);
+  });
+
   it('supports render-function slots and can suppress default empty row', () => {
     const statusRenderer = jest.fn(({ rows: renderedRows }) => (
       <div>{`Custom status (${renderedRows.length})`}</div>

@@ -8,6 +8,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, usePermission, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
+const normalizeValue = (value) => String(value ?? '').trim();
+
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
   const key = `errors.codes.${errorCode}`;
@@ -28,15 +30,16 @@ const usePermissionDetailScreen = () => {
   } = useTenantAccess();
   const { get, remove, data, isLoading, errorCode, reset } = usePermission();
   const permissionId = useMemo(() => {
-    if (Array.isArray(id)) return id[0] || null;
-    return id || null;
+    const rawId = Array.isArray(id) ? id[0] : id;
+    const normalizedId = normalizeValue(rawId);
+    return normalizedId || null;
   }, [id]);
   const canManagePermissions = canAccessTenantSettings;
   const canEditPermission = canManagePermissions;
   const canDeletePermission = canManagePermissions;
   const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManagePermissions && !canManageAllTenants;
-  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
 
   const permission = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
@@ -46,9 +49,26 @@ const usePermissionDetailScreen = () => {
 
   const fetchDetail = useCallback(() => {
     if (!isResolved || !canManagePermissions || !permissionId) return;
+    if (isTenantScopedAdmin && !normalizedTenantId) return;
     reset();
     get(permissionId);
-  }, [isResolved, canManagePermissions, permissionId, get, reset]);
+  }, [
+    isResolved,
+    canManagePermissions,
+    permissionId,
+    isTenantScopedAdmin,
+    normalizedTenantId,
+    get,
+    reset,
+  ]);
+
+  const isPermissionInScope = useCallback((permissionRecord) => {
+    if (!permissionRecord) return false;
+    if (!isTenantScopedAdmin) return true;
+    const permissionTenantId = normalizeValue(permissionRecord.tenant_id);
+    if (!permissionTenantId || !normalizedTenantId) return false;
+    return permissionTenantId === normalizedTenantId;
+  }, [isTenantScopedAdmin, normalizedTenantId]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -67,8 +87,7 @@ const usePermissionDetailScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canManagePermissions || !isTenantScopedAdmin || !permission) return;
-    const permissionTenantId = String(permission.tenant_id ?? '').trim();
-    if (!permissionTenantId || permissionTenantId !== normalizedTenantId) {
+    if (!isPermissionInScope(permission)) {
       router.replace('/settings/permissions?notice=accessDenied');
     }
   }, [
@@ -77,6 +96,7 @@ const usePermissionDetailScreen = () => {
     isTenantScopedAdmin,
     permission,
     normalizedTenantId,
+    isPermissionInScope,
     router,
   ]);
 
@@ -98,11 +118,19 @@ const usePermissionDetailScreen = () => {
 
   const handleEdit = useCallback(() => {
     if (!canEditPermission || !permissionId) return;
+    if (isTenantScopedAdmin && !isPermissionInScope(permission)) {
+      router.replace('/settings/permissions?notice=accessDenied');
+      return;
+    }
     router.push(`/settings/permissions/${permissionId}/edit`);
-  }, [canEditPermission, permissionId, router]);
+  }, [canEditPermission, permissionId, isTenantScopedAdmin, isPermissionInScope, permission, router]);
 
   const handleDelete = useCallback(async () => {
     if (!canDeletePermission || !permissionId) return;
+    if (isTenantScopedAdmin && !isPermissionInScope(permission)) {
+      router.replace('/settings/permissions?notice=accessDenied');
+      return;
+    }
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(permissionId);
@@ -112,7 +140,17 @@ const usePermissionDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeletePermission, permissionId, remove, isOffline, router, t]);
+  }, [
+    canDeletePermission,
+    permissionId,
+    isTenantScopedAdmin,
+    isPermissionInScope,
+    permission,
+    remove,
+    isOffline,
+    router,
+    t,
+  ]);
 
   return {
     id: permissionId,

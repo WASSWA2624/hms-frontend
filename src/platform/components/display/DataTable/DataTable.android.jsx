@@ -67,6 +67,10 @@ const DataTableAndroid = ({
   return (
     <StyledContainer testID={testID}>
       <StyledHeaderRow>
+        <StyledCell $flex={0.3}>
+          <StyledHeaderText $align="center">#</StyledHeaderText>
+        </StyledCell>
+
         {selection?.enabled ? (
           <StyledCell $flex={0.35}>
             <Checkbox
@@ -102,6 +106,10 @@ const DataTableAndroid = ({
           return (
             <Pressable onPress={onPress}>
               <StyledRow $density={rowDensity} $stripeIndex={index}>
+                <StyledCell $flex={0.3}>
+                  <StyledCellText $align="center">{index + 1}</StyledCellText>
+                </StyledCell>
+
                 {selection?.enabled ? (
                   <StyledCell $flex={0.35}>
                     <Checkbox

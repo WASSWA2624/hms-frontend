@@ -17,6 +17,7 @@ import {
   OfflineStateSizes,
   Select,
   Snackbar,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -26,8 +27,17 @@ import {
   StyledAddLabel,
   StyledContainer,
   StyledContent,
+  StyledFilterActions,
+  StyledFilterBody,
+  StyledFilterPanel,
+  StyledFilterRow,
+  StyledFilterRowActions,
   StyledList,
   StyledListBody,
+  StyledPagination,
+  StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationInfo,
   StyledScopeSlot,
   StyledSearchSlot,
   StyledSeparator,
@@ -63,10 +73,22 @@ const resolvePermissionTenant = (t, permissionItem, canViewTechnicalIds) => {
 const PermissionListScreenAndroid = () => {
   const { t } = useI18n();
   const {
-    items,
+    pagedItems,
+    totalItems,
+    totalPages,
+    page,
+    pageSize,
+    pageSizeOptions,
+    density,
+    densityOptions,
     search,
     searchScope,
     searchScopeOptions,
+    filters,
+    filterFieldOptions,
+    filterLogic,
+    filterLogicOptions,
+    canAddFilter,
     hasNoResults,
     isLoading,
     hasError,
@@ -78,12 +100,23 @@ const PermissionListScreenAndroid = () => {
     onRetry,
     onSearch,
     onSearchScopeChange,
+    onFilterLogicChange,
+    onFilterFieldChange,
+    onFilterOperatorChange,
+    onFilterValueChange,
+    onAddFilter,
+    onRemoveFilter,
     onClearSearchAndFilters,
+    onPageChange,
+    onPageSizeChange,
+    onDensityChange,
+    resolveFilterOperatorOptions,
     onItemPress,
     onDelete,
     onAdd,
   } = usePermissionListScreen();
 
+  const rows = pagedItems;
   const emptyComponent = (
     <EmptyState
       title={t('permission.list.emptyTitle')}
@@ -138,11 +171,11 @@ const PermissionListScreenAndroid = () => {
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline && items.length === 0;
-  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
-  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showOffline = !isLoading && isOffline && rows.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && rows.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && totalItems === 0;
   const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
-  const showList = items.length > 0;
+  const showList = rows.length > 0;
 
   const renderItem = ({ item: permissionItem, index }) => {
     const permissionId = resolvePermissionId(permissionItem);
@@ -225,6 +258,84 @@ const PermissionListScreenAndroid = () => {
             )}
           </StyledToolbarActions>
         </StyledToolbar>
+
+        <StyledFilterPanel>
+          <StyledFilterBody>
+            <Select
+              value={filterLogic}
+              onValueChange={onFilterLogicChange}
+              options={filterLogicOptions}
+              label={t('permission.list.filterLogicLabel')}
+              compact
+              testID="permission-filter-logic"
+            />
+
+            {filters.map((filter, index) => (
+              <StyledFilterRow key={filter.id}>
+                <Select
+                  value={filter.field}
+                  onValueChange={(value) => onFilterFieldChange(filter.id, value)}
+                  options={filterFieldOptions}
+                  label={t('permission.list.filterFieldLabel')}
+                  compact
+                  testID={`permission-filter-field-${index}`}
+                />
+
+                <Select
+                  value={filter.operator}
+                  onValueChange={(value) => onFilterOperatorChange(filter.id, value)}
+                  options={resolveFilterOperatorOptions(filter.field)}
+                  label={t('permission.list.filterOperatorLabel')}
+                  compact
+                  testID={`permission-filter-operator-${index}`}
+                />
+
+                <TextField
+                  value={filter.value}
+                  onChangeText={(value) => onFilterValueChange(filter.id, value)}
+                  label={t('permission.list.filterValueLabel')}
+                  placeholder={t('permission.list.filterValuePlaceholder')}
+                  density="compact"
+                  testID={`permission-filter-value-${index}`}
+                />
+
+                <StyledFilterRowActions>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onRemoveFilter(filter.id)}
+                    accessibilityLabel={t('permission.list.removeFilter')}
+                    testID={`permission-filter-remove-${index}`}
+                  >
+                    {t('common.remove')}
+                  </Button>
+                </StyledFilterRowActions>
+              </StyledFilterRow>
+            ))}
+
+            <StyledFilterActions>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onAddFilter}
+                disabled={!canAddFilter}
+                testID="permission-filter-add"
+              >
+                {t('permission.list.addFilter')}
+              </Button>
+
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onClearSearchAndFilters}
+                testID="permission-filter-clear"
+              >
+                {t('permission.list.clearSearchAndFilters')}
+              </Button>
+            </StyledFilterActions>
+          </StyledFilterBody>
+        </StyledFilterPanel>
+
         <Card
           variant="outlined"
           accessibilityLabel={t('permission.list.accessibilityLabel')}
@@ -268,7 +379,7 @@ const PermissionListScreenAndroid = () => {
             {showList ? (
               <StyledList>
                 <FlatList
-                  data={items}
+                  data={rows}
                   keyExtractor={(permissionItem, index) => resolvePermissionId(permissionItem) || `permission-${index}`}
                   renderItem={renderItem}
                   ItemSeparatorComponent={ItemSeparator}
@@ -277,6 +388,62 @@ const PermissionListScreenAndroid = () => {
                   testID="permission-list-flatlist"
                 />
               </StyledList>
+            ) : null}
+
+            {showList ? (
+              <StyledPagination>
+                <StyledPaginationInfo>
+                  <Text variant="body">
+                    {t('permission.list.pageSummary', { page, totalPages, total: totalItems })}
+                  </Text>
+                </StyledPaginationInfo>
+
+                <StyledPaginationActions>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onPageChange(page - 1)}
+                    disabled={page <= 1}
+                    accessibilityLabel={t('common.previous')}
+                    testID="permission-page-prev"
+                  >
+                    {t('common.previous')}
+                  </Button>
+
+                  <StyledPaginationControl>
+                    <Select
+                      value={String(pageSize)}
+                      onValueChange={onPageSizeChange}
+                      options={pageSizeOptions}
+                      label={t('permission.list.pageSizeLabel')}
+                      compact
+                      testID="permission-page-size"
+                    />
+                  </StyledPaginationControl>
+
+                  <StyledPaginationControl>
+                    <Select
+                      value={density}
+                      onValueChange={onDensityChange}
+                      options={densityOptions}
+                      label={t('permission.list.densityLabel')}
+                      compact
+                      testID="permission-density"
+                    />
+                  </StyledPaginationControl>
+
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onPageChange(page + 1)}
+                    disabled={page >= totalPages}
+                    accessibilityLabel={t('common.next')}
+                    testID="permission-page-next"
+                  >
+                    {t('common.next')}
+                  </Button>
+                </StyledPaginationActions>
+              </StyledPagination>
             ) : null}
           </StyledListBody>
         </Card>

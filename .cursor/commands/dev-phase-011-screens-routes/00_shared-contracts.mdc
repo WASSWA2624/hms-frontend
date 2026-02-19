@@ -98,6 +98,9 @@ For any selected step that exposes a list/index route or collection view:
 - Do not replace mobile list/list-item flows with desktop table grid layouts. Do not replace desktop/tablet table flows with mobile card-only layouts.
 - Use one shared data source and consistent RBAC policy across table/list variants so visible rows, counts, and allowed actions stay in sync on all platforms.
 - Table and mobile list item actions (view/create/edit/delete/restore/export/bulk operations) must be shown or hidden by role/permission and guarded in handlers to block unauthorized execution.
+- Desktop/tablet `DataTable` implementations must always include a built-in export + print capability at component level (not per-screen duplication), with a minimal trigger button that opens a comprehensive modal for export/print configuration.
+- The shared `DataTable` export modal must support at least CSV, Excel-compatible export, PDF export, and print output; this requirement is mandatory for all list/index routes that render `DataTable`.
+- `DataTable` exports and prints must be filter-aware by default: output must reflect the currently active filtered dataset (and any selected scope options) rather than unfiltered source rows.
 - Provide global search plus field-scoped search so users can query every searchable business field exposed in the dataset contract.
 - Support advanced filters with multi-condition criteria (field, operator, value, AND/OR grouping) and clear reset behavior.
 - On desktop/tablet table views, keep the advanced filter section collapsed by default and reveal it only on explicit user toggle.

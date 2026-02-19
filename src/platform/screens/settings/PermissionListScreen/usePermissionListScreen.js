@@ -16,6 +16,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'description', 'tenant']);
@@ -83,6 +85,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -271,6 +285,14 @@ const usePermissionListScreen = () => {
     [data]
   );
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return rawItems;
+    if (!normalizedTenantId) return [];
+    return rawItems.filter(
+      (permission) => normalizeValue(permission?.tenant_id) === normalizedTenantId
+    );
+  }, [canManageAllTenants, normalizedTenantId, rawItems]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -291,7 +313,7 @@ const usePermissionListScreen = () => {
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
 
-    return rawItems.filter((permission) => {
+    return scopedItems.filter((permission) => {
       if (hasSearch && !matchesPermissionSearch(permission, normalizedSearch, normalizedSearchScope)) {
         return false;
       }
@@ -303,7 +325,7 @@ const usePermissionListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [rawItems, search, normalizedSearchScope, activeFilters, filterLogic]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -324,7 +346,7 @@ const usePermissionListScreen = () => {
   }, [items, page, pageSize]);
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && rawItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'permission.list.loadError'),
@@ -337,10 +359,13 @@ const usePermissionListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
-    if (!isResolved || !canManagePermissions) return;
+    if (!isResolved || !canManagePermissions || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -350,6 +375,7 @@ const usePermissionListScreen = () => {
   }, [
     isResolved,
     canManagePermissions,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     reset,
@@ -635,7 +661,7 @@ const usePermissionListScreen = () => {
   }, [getNextFilterId]);
 
   const resolvePermissionById = useCallback((permissionIdValue) => (
-    items.find((permission) => permission?.id === permissionIdValue) ?? null
+    items.find((permission) => normalizeValue(permission?.id) === permissionIdValue) ?? null
   ), [items]);
 
   const canAccessPermissionRecord = useCallback((permission) => {
@@ -643,7 +669,7 @@ const usePermissionListScreen = () => {
     if (canManageAllTenants) return true;
 
     const permissionTenantId = normalizeValue(permission?.tenant_id);
-    if (!permissionTenantId || !normalizedTenantId) return true;
+    if (!permissionTenantId || !normalizedTenantId) return false;
     return permissionTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -653,13 +679,19 @@ const usePermissionListScreen = () => {
     if (!permissionId) return;
 
     const targetPermission = resolvePermissionById(permissionId);
-    if (targetPermission && !canAccessPermissionRecord(targetPermission)) {
+    if (!canManageAllTenants && (!targetPermission || !canAccessPermissionRecord(targetPermission))) {
       router.push('/settings/permissions?notice=accessDenied');
       return;
     }
 
     router.push(`/settings/permissions/${permissionId}`);
-  }, [canManagePermissions, resolvePermissionById, canAccessPermissionRecord, router]);
+  }, [
+    canManagePermissions,
+    canManageAllTenants,
+    resolvePermissionById,
+    canAccessPermissionRecord,
+    router,
+  ]);
 
   const handleDelete = useCallback(
     async (id, e) => {
@@ -670,7 +702,7 @@ const usePermissionListScreen = () => {
       if (!permissionId) return;
 
       const targetPermission = resolvePermissionById(permissionId);
-      if (targetPermission && !canAccessPermissionRecord(targetPermission)) {
+      if (!canManageAllTenants && (!targetPermission || !canAccessPermissionRecord(targetPermission))) {
         router.push('/settings/permissions?notice=accessDenied');
         return;
       }
@@ -691,6 +723,7 @@ const usePermissionListScreen = () => {
     },
     [
       canDeletePermission,
+      canManageAllTenants,
       resolvePermissionById,
       canAccessPermissionRecord,
       router,

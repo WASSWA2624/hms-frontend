@@ -124,6 +124,63 @@ describe('usePermissionDetailScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=accessDenied');
   });
 
+  it('blocks edit and delete handlers for out-of-scope tenant-scoped permissions', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    usePermission.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: { id: 'pid-1', tenant_id: 'tenant-2', name: 'Permission' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePermissionDetailScreen());
+
+    act(() => {
+      result.current.onEdit();
+    });
+
+    await act(async () => {
+      await result.current.onDelete();
+    });
+
+    expect(mockPush).not.toHaveBeenCalledWith('/settings/permissions/pid-1/edit');
+    expect(mockRemove).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=accessDenied');
+  });
+
+  it('blocks delete handler for tenant-scoped users when permission record is missing', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    usePermission.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: null,
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePermissionDetailScreen());
+
+    await act(async () => {
+      await result.current.onDelete();
+    });
+
+    expect(mockRemove).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=accessDenied');
+  });
+
   it('redirects to list with accessDenied when backend returns forbidden', () => {
     usePermission.mockReturnValue({
       get: mockGet,

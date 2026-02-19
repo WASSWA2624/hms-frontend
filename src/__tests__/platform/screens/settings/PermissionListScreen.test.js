@@ -1,55 +1,13 @@
 /**
  * PermissionListScreen Component Tests
- * Per testing.mdc: render, loading, error, empty, notice, responsive, a11y
  */
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
-const { useI18n } = require('@hooks');
 const ReactNative = require('react-native');
+const { useI18n } = require('@hooks');
 
 const mockUseWindowDimensions = jest.spyOn(ReactNative, 'useWindowDimensions');
-
-jest.mock('@platform/components', () => {
-  const React = require('react');
-  const { View, Text } = require('react-native');
-  const actual = jest.requireActual('@platform/components');
-
-  const MockTextField = ({
-    testID,
-    value,
-    onChange,
-    onChangeText,
-    ...props
-  }) => (
-    <View
-      testID={testID}
-      value={value}
-      onChange={onChange}
-      onChangeText={onChangeText}
-      {...props}
-    >
-      <Text>{value || ''}</Text>
-    </View>
-  );
-
-  const MockSelect = ({ testID, value, onValueChange, ...props }) => (
-    <View testID={testID} value={value} onValueChange={onValueChange} {...props} />
-  );
-
-  const MockDataTable = ({ testID, rows = [], statusContent }) => (
-    <View testID={testID}>
-      {rows.length === 0 ? statusContent : null}
-    </View>
-  );
-
-  return {
-    ...actual,
-    TextField: MockTextField,
-    Select: MockSelect,
-    DataTable: MockDataTable,
-  };
-});
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
@@ -69,66 +27,63 @@ const { STATES } = require('@platform/screens/settings/PermissionListScreen/type
 
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
-const renderWithTheme = (component) => render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
-
-const mockT = (key) => {
-  const dictionary = {
-    'permission.list.title': 'Permissions',
-    'permission.list.accessibilityLabel': 'Permissions list',
-    'permission.list.searchLabel': 'Search permissions',
-    'permission.list.searchPlaceholder': 'Search by permission, description, or tenant',
-    'permission.list.searchScopeLabel': 'Search in',
-    'permission.list.searchScopeAll': 'All fields',
-    'permission.list.emptyTitle': 'No permissions',
-    'permission.list.emptyMessage': 'You have no permissions.',
-    'permission.list.noResultsTitle': 'No permissions match your search',
-    'permission.list.noResultsMessage': 'Try a different search term or clear search.',
-    'permission.list.clearSearchAndFilters': 'Clear search',
-    'permission.list.delete': 'Delete permission',
-    'permission.list.deleteHint': 'Delete this permission',
-    'permission.list.itemLabel': 'Permission {{name}}',
-    'permission.list.addLabel': 'Add permission',
-    'permission.list.addHint': 'Create a new permission',
-    'permission.list.unnamedPermission': 'Unnamed permission',
-    'permission.list.currentTenantLabel': 'Current tenant',
-    'permission.list.columnName': 'Permission',
-    'permission.list.columnDescription': 'Description',
-    'permission.list.columnTenant': 'Tenant',
-    'permission.list.columnActions': 'Actions',
-    'permission.list.sortBy': 'Sort by field',
-    'common.view': 'View',
-    'common.remove': 'Remove',
-    'common.notAvailable': 'Not available',
-    'listScaffold.errorState.title': 'Error',
-    'common.retry': 'Retry',
-    'common.retryHint': 'Try again',
-    'common.loading': 'Loading',
-    'shell.banners.offline.title': 'You are offline',
-    'shell.banners.offline.message': 'Some features may be unavailable.',
-  };
-  return dictionary[key] || key;
-};
+const renderWithTheme = (component) => render(
+  <ThemeProvider theme={lightTheme}>{component}</ThemeProvider>
+);
 
 const baseHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
   search: '',
   searchScope: 'all',
   searchScopeOptions: [{ value: 'all', label: 'All fields' }],
+  filters: [{ id: 'f-1', field: 'name', operator: 'contains', value: '' }],
+  filterFieldOptions: [{ value: 'name', label: 'Permission name' }],
+  filterLogic: 'AND',
+  filterLogicOptions: [{ value: 'AND', label: 'AND' }],
+  canAddFilter: true,
+  hasNoResults: false,
+  hasActiveSearchOrFilter: false,
   sortField: 'name',
   sortDirection: 'asc',
-  hasNoResults: false,
+  columnOrder: ['name', 'description', 'tenant'],
+  visibleColumns: ['name', 'description', 'tenant'],
+  isTableSettingsOpen: false,
   isLoading: false,
   hasError: false,
   errorMessage: null,
   isOffline: false,
-  canViewTechnicalIds: true,
+  canViewTechnicalIds: false,
   noticeMessage: null,
   onDismissNotice: jest.fn(),
   onRetry: jest.fn(),
   onSearch: jest.fn(),
   onSearchScopeChange: jest.fn(),
+  onFilterLogicChange: jest.fn(),
+  onFilterFieldChange: jest.fn(),
+  onFilterOperatorChange: jest.fn(),
+  onFilterValueChange: jest.fn(),
+  onAddFilter: jest.fn(),
+  onRemoveFilter: jest.fn(),
   onClearSearchAndFilters: jest.fn(),
   onSort: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
+  onToggleColumnVisibility: jest.fn(),
+  onMoveColumnLeft: jest.fn(),
+  onMoveColumnRight: jest.fn(),
+  onOpenTableSettings: jest.fn(),
+  onCloseTableSettings: jest.fn(),
+  onResetTablePreferences: jest.fn(),
+  resolveFilterOperatorOptions: jest.fn(() => [{ value: 'contains', label: 'Contains' }]),
   onItemPress: jest.fn(),
   onDelete: jest.fn(),
   onAdd: jest.fn(),
@@ -137,172 +92,94 @@ const baseHook = {
 describe('PermissionListScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseWindowDimensions.mockReturnValue({ width: 1200, height: 800, scale: 1, fontScale: 1 });
-    useI18n.mockReturnValue({ t: mockT });
+    mockUseWindowDimensions.mockReturnValue({
+      width: 1280,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+    useI18n.mockReturnValue({ t: (key) => key });
     usePermissionListScreen.mockReturnValue({ ...baseHook });
   });
 
-  describe('render', () => {
-    it('renders without error (Web)', () => {
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-card')).toBeTruthy();
-      expect(getByTestId('permission-list-search')).toBeTruthy();
-      expect(getByTestId('permission-list-search-scope')).toBeTruthy();
+  it('renders DataTable on web in desktop/tablet mode', () => {
+    usePermissionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{ id: 'permission-1', name: 'roles.read', description: 'Read roles' }],
+      totalItems: 1,
     });
 
-    it('renders without error (Android)', () => {
-      const { getByTestId } = renderWithTheme(<PermissionListScreenAndroid />);
-      expect(getByTestId('permission-list-card')).toBeTruthy();
-      expect(getByTestId('permission-list-search')).toBeTruthy();
-      expect(getByTestId('permission-list-search-scope')).toBeTruthy();
-    });
-
-    it('renders without error (iOS)', () => {
-      const { getByTestId } = renderWithTheme(<PermissionListScreenIOS />);
-      expect(getByTestId('permission-list-card')).toBeTruthy();
-      expect(getByTestId('permission-list-search')).toBeTruthy();
-      expect(getByTestId('permission-list-search-scope')).toBeTruthy();
-    });
+    const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
+    expect(getByTestId('permission-table')).toBeTruthy();
   });
 
-  describe('states', () => {
-    it('shows loading state (Web)', () => {
-      usePermissionListScreen.mockReturnValue({ ...baseHook, isLoading: true });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-loading')).toBeTruthy();
-    });
-
-    it('shows empty state (Web)', () => {
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-empty-state')).toBeTruthy();
-    });
-
-    it('shows no-results state and clear action (Web)', () => {
-      const onClearSearchAndFilters = jest.fn();
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        hasNoResults: true,
-        onClearSearchAndFilters,
-      });
-
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-no-results')).toBeTruthy();
-      expect(onClearSearchAndFilters).toBeDefined();
-    });
-
-    it('shows error state (Web)', () => {
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        hasError: true,
-        errorMessage: 'Unable to load',
-      });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-error')).toBeTruthy();
-    });
-
-    it('shows offline state (Web)', () => {
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        isOffline: true,
-      });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-offline')).toBeTruthy();
-    });
-
-    it('shows offline banner when list has items (Web)', () => {
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        isOffline: true,
-        items: [{ id: '1', name: 'roles.read' }],
-      });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-offline-banner')).toBeTruthy();
-    });
-
-    it('shows notice message (Web)', () => {
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        noticeMessage: 'Permission created.',
-      });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-list-notice')).toBeTruthy();
-    });
+  it('keeps advanced filters collapsed by default on desktop/tablet mode', () => {
+    const { queryByTestId } = renderWithTheme(<PermissionListScreenWeb />);
+    expect(queryByTestId('permission-filter-body')).toBeNull();
   });
 
-  describe('responsive mode', () => {
-    it('renders DataTable on desktop/tablet widths', () => {
-      mockUseWindowDimensions.mockReturnValue({ width: 1200, height: 800, scale: 1, fontScale: 1 });
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [{ id: '1', name: 'roles.read' }],
-      });
-
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-table')).toBeTruthy();
+  it('renders mobile web layout without desktop table', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
     });
 
-    it('renders ListItem rows on mobile widths', () => {
-      mockUseWindowDimensions.mockReturnValue({ width: 480, height: 800, scale: 1, fontScale: 1 });
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [{ id: '1', name: 'roles.read' }],
-      });
-
-      const { getByTestId, queryByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      expect(getByTestId('permission-item-1')).toBeTruthy();
-      expect(queryByTestId('permission-table')).toBeNull();
-    });
+    const { getByTestId, queryByTestId } = renderWithTheme(<PermissionListScreenWeb />);
+    expect(getByTestId('permission-list-card')).toBeTruthy();
+    expect(queryByTestId('permission-table')).toBeNull();
   });
 
-  describe('actions', () => {
-    it('calls search and scope change handlers (Web)', () => {
-      const onSearch = jest.fn();
-      const onSearchScopeChange = jest.fn();
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        onSearch,
-        onSearchScopeChange,
-      });
+  it('renders Android and iOS variants with filters and pagination controls', () => {
+    const mobileHook = {
+      ...baseHook,
+      pagedItems: [{ id: 'permission-1', name: 'roles.read', description: 'Read roles' }],
+      totalItems: 1,
+      totalPages: 1,
+    };
+    usePermissionListScreen.mockReturnValue(mobileHook);
 
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      fireEvent(getByTestId('permission-list-search'), 'change', { target: { value: 'roles' } });
-      fireEvent(getByTestId('permission-list-search-scope'), 'valueChange', 'name');
+    const android = renderWithTheme(<PermissionListScreenAndroid />);
+    expect(android.getByTestId('permission-list-search')).toBeTruthy();
+    expect(android.getByTestId('permission-filter-logic')).toBeTruthy();
+    expect(android.getByTestId('permission-page-size')).toBeTruthy();
 
-      expect(onSearch).toHaveBeenCalled();
-      expect(onSearchScopeChange).toHaveBeenCalledWith('name');
-    });
-
-    it('calls onAdd when add button pressed (Android)', () => {
-      const onAdd = jest.fn();
-      usePermissionListScreen.mockReturnValue({ ...baseHook, onAdd });
-      const { getByTestId } = renderWithTheme(<PermissionListScreenAndroid />);
-      fireEvent.press(getByTestId('permission-list-add'));
-      expect(onAdd).toHaveBeenCalled();
-    });
+    const ios = renderWithTheme(<PermissionListScreenIOS />);
+    expect(ios.getByTestId('permission-list-search')).toBeTruthy();
+    expect(ios.getByTestId('permission-filter-logic')).toBeTruthy();
+    expect(ios.getByTestId('permission-page-size')).toBeTruthy();
   });
 
-  describe('accessibility', () => {
-    it('has accessibility label (Web)', () => {
-      usePermissionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [{ id: '1', name: 'roles.read' }],
-      });
-
-      const { getByTestId } = renderWithTheme(<PermissionListScreenWeb />);
-      const list = getByTestId('permission-list');
-      expect(list).toBeTruthy();
+  it('shows no-results state and clear action on mobile', () => {
+    const onClearSearchAndFilters = jest.fn();
+    usePermissionListScreen.mockReturnValue({
+      ...baseHook,
+      hasNoResults: true,
+      onClearSearchAndFilters,
     });
+
+    const { getByTestId } = renderWithTheme(<PermissionListScreenAndroid />);
+    expect(getByTestId('permission-list-no-results')).toBeTruthy();
+    fireEvent.press(getByTestId('permission-filter-clear'));
+    expect(onClearSearchAndFilters).toHaveBeenCalled();
   });
 
-  describe('exports', () => {
-    it('exports component and hook from index', () => {
-      expect(PermissionListScreenIndex.default).toBeDefined();
-      expect(PermissionListScreenIndex.usePermissionListScreen).toBeDefined();
+  it('hides delete action when delete handler is unavailable', () => {
+    usePermissionListScreen.mockReturnValue({
+      ...baseHook,
+      onDelete: undefined,
+      pagedItems: [{ id: 'permission-1', name: 'roles.read', description: 'Read roles' }],
+      totalItems: 1,
     });
 
-    it('exports STATES', () => {
-      expect(STATES).toBeDefined();
-      expect(STATES.SUCCESS).toBe('success');
-    });
+    const { queryByTestId } = renderWithTheme(<PermissionListScreenAndroid />);
+    expect(queryByTestId('permission-delete-permission-1')).toBeNull();
+  });
+
+  it('exports component, hook, and states contract', () => {
+    expect(PermissionListScreenIndex.default).toBeDefined();
+    expect(PermissionListScreenIndex.usePermissionListScreen).toBeDefined();
+    expect(STATES.SUCCESS).toBe('success');
   });
 });

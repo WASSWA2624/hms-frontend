@@ -119,6 +119,8 @@ const mockT = (key, values = {}) => {
     'common.loading': 'Loading',
     'common.remove': 'Remove',
     'common.more': 'More',
+    'common.previous': 'Previous',
+    'common.next': 'Next',
     'common.notAvailable': 'Not available',
     'listScaffold.errorState.title': 'Error',
     'shell.banners.offline.title': 'Offline',
@@ -129,6 +131,14 @@ const mockT = (key, values = {}) => {
 
 const baseMobileHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
   search: '',
   searchScope: 'all',
   searchScopeOptions: [{ value: 'all', label: 'All fields' }],
@@ -143,6 +153,9 @@ const baseMobileHook = {
   onSearch: jest.fn(),
   onSearchScopeChange: jest.fn(),
   onClearSearchAndFilters: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
   onProfilePress: jest.fn(),
   onEdit: jest.fn(),
   onDelete: jest.fn(),
@@ -242,6 +255,16 @@ describe('UserProfileListScreen', () => {
       totalItems: 1,
     });
     expect(renderWithTheme(<UserProfileListScreenWeb />).getByTestId('user-profile-table')).toBeTruthy();
+  });
+
+  it('keeps advanced filters collapsed by default in desktop/tablet mode', () => {
+    useUserProfileListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'profile-1', first_name: 'Jane' }],
+      totalItems: 1,
+    });
+    expect(renderWithTheme(<UserProfileListScreenWeb />).queryByTestId('user-profile-filter-body')).toBeNull();
   });
 
   it('renders mobile list on web when not in table mode', () => {

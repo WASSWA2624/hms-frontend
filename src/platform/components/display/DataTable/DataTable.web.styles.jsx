@@ -5,6 +5,7 @@
 import styled from 'styled-components';
 
 const SELECTION_COLUMN_WIDTH = 48;
+const ROW_NUMBER_COLUMN_WIDTH = 56;
 const ACTIONS_COLUMN_WIDTH = 220;
 
 const resolveHeaderJustify = (align) => {
@@ -36,6 +37,21 @@ const StyledTopSection = styled.div.withConfig({
     border-bottom: 1px solid ${theme.colors.border.light};
     padding: ${theme.spacing.xs}px ${theme.spacing.sm}px;
   ` : '')}
+`;
+
+const StyledUtilityBar = styled.div.withConfig({
+  displayName: 'StyledUtilityBar',
+  componentId: 'DataTableUtilityBar',
+})`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  box-sizing: border-box;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.sm}px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
 `;
 
 const StyledStatusSection = styled.div.withConfig({
@@ -101,6 +117,9 @@ const StyledHeaderCell = styled.th.withConfig({
   ${({ $minWidth }) => ($minWidth ? `min-width: ${$minWidth};` : '')}
   ${({ $isSelection }) => ($isSelection
     ? `width: ${SELECTION_COLUMN_WIDTH}px; min-width: ${SELECTION_COLUMN_WIDTH}px; max-width: ${SELECTION_COLUMN_WIDTH}px;`
+    : '')}
+  ${({ $isRowNumber }) => ($isRowNumber
+    ? `width: ${ROW_NUMBER_COLUMN_WIDTH}px; min-width: ${ROW_NUMBER_COLUMN_WIDTH}px; max-width: ${ROW_NUMBER_COLUMN_WIDTH}px;`
     : '')}
   ${({ $isActions }) => ($isActions
     ? `width: ${ACTIONS_COLUMN_WIDTH}px; min-width: ${ACTIONS_COLUMN_WIDTH}px;`
@@ -238,6 +257,9 @@ const StyledCell = styled.td.withConfig({
   ${({ $isSelection }) => ($isSelection
     ? `width: ${SELECTION_COLUMN_WIDTH}px; min-width: ${SELECTION_COLUMN_WIDTH}px; max-width: ${SELECTION_COLUMN_WIDTH}px;`
     : '')}
+  ${({ $isRowNumber }) => ($isRowNumber
+    ? `width: ${ROW_NUMBER_COLUMN_WIDTH}px; min-width: ${ROW_NUMBER_COLUMN_WIDTH}px; max-width: ${ROW_NUMBER_COLUMN_WIDTH}px;`
+    : '')}
   ${({ $isActions }) => ($isActions
     ? `width: ${ACTIONS_COLUMN_WIDTH}px; min-width: ${ACTIONS_COLUMN_WIDTH}px;`
     : '')}
@@ -302,9 +324,124 @@ const StyledBottomSecondary = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledExportModalTitle = styled.h3.withConfig({
+  displayName: 'StyledExportModalTitle',
+  componentId: 'DataTableExportModalTitle',
+})`
+  margin: 0 0 ${({ theme }) => theme.spacing.xs}px 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledExportModalSubtitle = styled.p.withConfig({
+  displayName: 'StyledExportModalSubtitle',
+  componentId: 'DataTableExportModalSubtitle',
+})`
+  margin: 0 0 ${({ theme }) => theme.spacing.sm}px 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  line-height: 1.45;
+`;
+
+const StyledExportSummary = styled.div.withConfig({
+  displayName: 'StyledExportSummary',
+  componentId: 'DataTableExportSummary',
+})`
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+`;
+
+const StyledExportGrid = styled.div.withConfig({
+  displayName: 'StyledExportGrid',
+  componentId: 'DataTableExportGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.sm}px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StyledExportField = styled.div.withConfig({
+  displayName: 'StyledExportField',
+  componentId: 'DataTableExportField',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
+  min-width: 0;
+`;
+
+const StyledExportFieldLabel = styled.span.withConfig({
+  displayName: 'StyledExportFieldLabel',
+  componentId: 'DataTableExportFieldLabel',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledExportOptions = styled.div.withConfig({
+  displayName: 'StyledExportOptions',
+  componentId: 'DataTableExportOptions',
+})`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StyledExportActions = styled.div.withConfig({
+  displayName: 'StyledExportActions',
+  componentId: 'DataTableExportActions',
+})`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledExportStatus = styled.div.withConfig({
+  displayName: 'StyledExportStatus',
+  componentId: 'DataTableExportStatus',
+  shouldForwardProp: (prop) => prop !== '$type',
+})`
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  border: 1px solid ${({ theme, $type }) => (
+    $type === 'error' ? theme.colors.error : theme.colors.success
+  )};
+  background-color: ${({ theme, $type }) => (
+    $type === 'error'
+      ? (theme.colors.status?.error?.background || theme.colors.background.secondary)
+      : theme.colors.background.secondary
+  )};
+  color: ${({ theme, $type }) => (
+    $type === 'error'
+      ? (theme.colors.status?.error?.text || theme.colors.error)
+      : theme.colors.success
+  )};
+`;
+
 export {
   StyledScaffold,
   StyledTopSection,
+  StyledUtilityBar,
   StyledStatusSection,
   StyledContainer,
   StyledScrollArea,
@@ -321,5 +458,14 @@ export {
   StyledBottomBar,
   StyledBottomPrimary,
   StyledBottomSecondary,
+  StyledExportModalTitle,
+  StyledExportModalSubtitle,
+  StyledExportSummary,
+  StyledExportGrid,
+  StyledExportField,
+  StyledExportFieldLabel,
+  StyledExportOptions,
+  StyledExportActions,
+  StyledExportStatus,
 };
 
