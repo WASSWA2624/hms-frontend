@@ -5,9 +5,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, usePermission, useTenant, useTenantAccess } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 120;
 const MAX_DESCRIPTION_LENGTH = 255;
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -47,6 +49,7 @@ const usePermissionFormScreen = () => {
   const canManagePermissions = canAccessTenantSettings;
   const canCreatePermission = canManagePermissions;
   const canEditPermission = canManagePermissions;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManagePermissions && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
     () => String(scopedTenantId ?? '').trim(),
@@ -67,13 +70,24 @@ const usePermissionFormScreen = () => {
   );
   const tenantOptions = useMemo(() => {
     if (isTenantScopedAdmin && !isEdit && normalizedScopedTenantId) {
-      return [{ value: normalizedScopedTenantId, label: normalizedScopedTenantId }];
+      return [{ value: normalizedScopedTenantId, label: t('permission.form.currentTenantLabel') }];
     }
-    return tenantItems.map((tenant) => ({
+
+    return tenantItems.map((tenant, index) => ({
       value: tenant.id,
-      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+      label: humanizeIdentifier(tenant.name)
+        || humanizeIdentifier(tenant.slug)
+        || (canViewTechnicalIds ? String(tenant.id ?? '').trim() : '')
+        || t('permission.form.tenantOptionFallback', { index: index + 1 }),
     }));
-  }, [tenantItems, isTenantScopedAdmin, isEdit, normalizedScopedTenantId]);
+  }, [
+    tenantItems,
+    isTenantScopedAdmin,
+    isEdit,
+    normalizedScopedTenantId,
+    canViewTechnicalIds,
+    t,
+  ]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -143,7 +157,7 @@ const usePermissionFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManagePermissions,
@@ -213,11 +227,30 @@ const usePermissionFormScreen = () => {
   const tenantListError = Boolean(tenantErrorCode);
   const hasTenants = isTenantScopedAdmin ? Boolean(trimmedTenantId) : tenantOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasTenants;
+  const selectedTenantLabel = useMemo(() => {
+    if (!trimmedTenantId) return '';
+    const selectedOption = tenantOptions.find((option) => option.value === trimmedTenantId)?.label;
+    if (selectedOption) return selectedOption;
+
+    const readableTenant = humanizeIdentifier(
+      permission?.tenant_name
+      ?? permission?.tenant?.name
+      ?? permission?.tenant_label
+    );
+    if (readableTenant) return readableTenant;
+    if (canViewTechnicalIds) return trimmedTenantId;
+    return t('permission.form.currentTenantLabel');
+  }, [tenantOptions, trimmedTenantId, permission, canViewTechnicalIds, t]);
   const isTenantLocked = !isEdit && isTenantScopedAdmin;
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
-    return trimmedTenantId || normalizedScopedTenantId;
-  }, [isTenantLocked, trimmedTenantId, normalizedScopedTenantId]);
+    return selectedTenantLabel || t('permission.form.currentTenantLabel');
+  }, [isTenantLocked, selectedTenantLabel, t]);
+  const tenantDisplayLabel = useMemo(() => {
+    if (isEdit) return selectedTenantLabel || t('permission.form.currentTenantLabel');
+    if (isTenantLocked) return lockedTenantDisplay;
+    return selectedTenantLabel;
+  }, [isEdit, isTenantLocked, selectedTenantLabel, lockedTenantDisplay, t]);
   const isSubmitDisabled =
     !isResolved ||
     isLoading ||
@@ -299,7 +332,7 @@ const usePermissionFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   return {
@@ -326,6 +359,7 @@ const usePermissionFormScreen = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit: handleSubmit,
     onCancel: handleCancel,
     onGoToTenants: handleGoToTenants,

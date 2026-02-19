@@ -84,6 +84,7 @@ describe('usePermissionFormScreen', () => {
     const { result } = renderHook(() => usePermissionFormScreen());
 
     expect(result.current.tenantId).toBe('tenant-1');
+    expect(result.current.tenantDisplayLabel).toBe('permission.form.currentTenantLabel');
     expect(result.current.tenantListLoading).toBe(false);
     expect(mockListTenants).not.toHaveBeenCalled();
   });
@@ -100,14 +101,16 @@ describe('usePermissionFormScreen', () => {
   it('calls get on mount when editing', () => {
     mockParams = { id: 'pid-1' };
     renderHook(() => usePermissionFormScreen());
+
     expect(mockReset).toHaveBeenCalled();
     expect(mockGet).toHaveBeenCalledWith('pid-1');
   });
 
-  it('lists tenants on mount when creating', () => {
+  it('lists tenants on mount with capped numeric limit', () => {
     renderHook(() => usePermissionFormScreen());
+
     expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('hydrates form state from permission data', () => {
@@ -125,7 +128,9 @@ describe('usePermissionFormScreen', () => {
       errorCode: null,
       reset: mockReset,
     });
+
     const { result } = renderHook(() => usePermissionFormScreen());
+
     expect(result.current.tenantId).toBe('t1');
     expect(result.current.name).toBe('Permission 1');
     expect(result.current.description).toBe('Desc');
@@ -144,7 +149,9 @@ describe('usePermissionFormScreen', () => {
       errorCode: 'UNKNOWN_ERROR',
       reset: mockReset,
     });
+
     const { result } = renderHook(() => usePermissionFormScreen());
+
     expect(result.current.hasError).toBe(true);
     expect(result.current.errorMessage).toBe('Fallback message');
   });
@@ -160,7 +167,9 @@ describe('usePermissionFormScreen', () => {
       errorCode: 'UNKNOWN_ERROR',
       reset: mockResetTenants,
     });
+
     const { result } = renderHook(() => usePermissionFormScreen());
+
     expect(result.current.tenantListError).toBe(true);
     expect(result.current.tenantErrorMessage).toBe('Tenant fallback');
   });
@@ -175,14 +184,17 @@ describe('usePermissionFormScreen', () => {
     });
     mockCreate.mockResolvedValue({ id: 'p1' });
     const { result } = renderHook(() => usePermissionFormScreen());
+
     act(() => {
       result.current.setTenantId(' t1 ');
       result.current.setName('  Permission 1  ');
       result.current.setDescription('  ');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockCreate).toHaveBeenCalledWith({
       tenant_id: 't1',
       name: 'Permission 1',
@@ -194,13 +206,16 @@ describe('usePermissionFormScreen', () => {
     mockParams = { id: 'pid-1' };
     mockUpdate.mockResolvedValue({ id: 'pid-1' });
     const { result } = renderHook(() => usePermissionFormScreen());
+
     act(() => {
       result.current.setName('  Permission Updated  ');
       result.current.setDescription('');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockUpdate).toHaveBeenCalledWith('pid-1', {
       name: 'Permission Updated',
       description: null,
@@ -219,13 +234,16 @@ describe('usePermissionFormScreen', () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockCreate.mockResolvedValue({ id: 'p1' });
     const { result } = renderHook(() => usePermissionFormScreen());
+
     act(() => {
       result.current.setTenantId('t1');
       result.current.setName('Permission 1');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=queued');
   });
 
@@ -239,40 +257,57 @@ describe('usePermissionFormScreen', () => {
     });
     mockCreate.mockResolvedValue(undefined);
     const { result } = renderHook(() => usePermissionFormScreen());
+
     act(() => {
       result.current.setTenantId('t1');
       result.current.setName('Permission 1');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it('does not submit when required fields are missing', async () => {
     const { result } = renderHook(() => usePermissionFormScreen());
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
   it('onCancel navigates back to list', () => {
     const { result } = renderHook(() => usePermissionFormScreen());
-    result.current.onCancel();
+
+    act(() => {
+      result.current.onCancel();
+    });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions');
   });
 
   it('onGoToTenants navigates to tenants list', () => {
     const { result } = renderHook(() => usePermissionFormScreen());
-    result.current.onGoToTenants();
+
+    act(() => {
+      result.current.onGoToTenants();
+    });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/tenants');
   });
 
-  it('onRetryTenants reloads tenant list', () => {
+  it('onRetryTenants reloads tenant list with capped pagination', () => {
     const { result } = renderHook(() => usePermissionFormScreen());
-    result.current.onRetryTenants();
+
+    act(() => {
+      result.current.onRetryTenants();
+    });
+
     expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 });

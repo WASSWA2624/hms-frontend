@@ -1,6 +1,6 @@
 /**
- * RolePermissionListScreen iOS Styles
- * File: RolePermissionListScreen.ios.styles.jsx
+ * PermissionListScreen iOS Styles
+ * File: PermissionListScreen.ios.styles.jsx
  */
 import styled from 'styled-components/native';
 
@@ -34,6 +34,13 @@ const StyledToolbar = styled.View.withConfig({
 const StyledSearchSlot = styled.View.withConfig({
   displayName: 'StyledSearchSlot',
   componentId: 'StyledSearchSlot',
+})`
+  width: 100%;
+`;
+
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
 })`
   width: 100%;
 `;
@@ -110,6 +117,7 @@ export {
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,

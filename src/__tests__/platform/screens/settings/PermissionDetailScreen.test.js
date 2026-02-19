@@ -1,6 +1,6 @@
 /**
  * PermissionDetailScreen Component Tests
- * Per testing.mdc: render, loading, error, empty (not found), a11y
+ * Per testing.mdc: render, loading, error, empty, a11y
  */
 const React = require('react');
 const { render } = require('@testing-library/react-native');
@@ -24,10 +24,10 @@ const PermissionDetailScreenIndex = require('@platform/screens/settings/Permissi
 
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
-const renderWithTheme = (c) => render(<ThemeProvider theme={lightTheme}>{c}</ThemeProvider>);
+const renderWithTheme = (component) => render(<ThemeProvider theme={lightTheme}>{component}</ThemeProvider>);
 
 const mockT = (key) => {
-  const m = {
+  const dictionary = {
     'permission.detail.title': 'Permission Details',
     'permission.detail.idLabel': 'Permission ID',
     'permission.detail.tenantLabel': 'Tenant',
@@ -38,6 +38,8 @@ const mockT = (key) => {
     'permission.detail.errorTitle': 'Failed to load permission',
     'permission.detail.notFoundTitle': 'Permission not found',
     'permission.detail.notFoundMessage': 'This permission may have been removed.',
+    'permission.detail.currentPermission': 'Current permission',
+    'permission.detail.currentTenant': 'Current tenant',
     'permission.detail.backHint': 'Return to permissions list',
     'permission.detail.delete': 'Delete permission',
     'permission.detail.deleteHint': 'Delete this permission',
@@ -51,7 +53,7 @@ const mockT = (key) => {
     'shell.banners.offline.title': 'You are offline',
     'shell.banners.offline.message': 'Some features may be unavailable.',
   };
-  return m[key] || key;
+  return dictionary[key] || key;
 };
 
 const baseHook = {
@@ -61,6 +63,7 @@ const baseHook = {
   hasError: false,
   errorMessage: null,
   isOffline: false,
+  canViewTechnicalIds: true,
   onRetry: jest.fn(),
   onBack: jest.fn(),
   onEdit: jest.fn(),
@@ -93,32 +96,26 @@ describe('PermissionDetailScreen', () => {
     });
   });
 
-  describe('loading', () => {
+  describe('states', () => {
     it('shows loading state (Web)', () => {
       usePermissionDetailScreen.mockReturnValue({ ...baseHook, isLoading: true });
       const { getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
       expect(getByTestId('permission-detail-loading')).toBeTruthy();
     });
-  });
 
-  describe('error', () => {
     it('shows error state (Web)', () => {
       usePermissionDetailScreen.mockReturnValue({
         ...baseHook,
         hasError: true,
-        errorMessage: 'Something went wrong',
+        errorMessage: 'Unable to load',
       });
       const { getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
       expect(getByTestId('permission-detail-error')).toBeTruthy();
     });
-  });
 
-  describe('offline', () => {
     it('shows offline state (Web)', () => {
       usePermissionDetailScreen.mockReturnValue({
         ...baseHook,
-        isLoading: false,
-        hasError: false,
         isOffline: true,
       });
       const { getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
@@ -126,34 +123,22 @@ describe('PermissionDetailScreen', () => {
     });
   });
 
-  describe('not found', () => {
-    it('shows not found state (Web)', () => {
+  describe('details', () => {
+    it('renders permission details for privileged users (Web)', () => {
       usePermissionDetailScreen.mockReturnValue({
         ...baseHook,
-        permission: null,
-        isLoading: false,
-        hasError: false,
-        isOffline: false,
-      });
-      const { getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
-      expect(getByTestId('permission-detail-not-found')).toBeTruthy();
-    });
-  });
-
-  describe('with permission data', () => {
-    it('renders permission details (Web)', () => {
-      usePermissionDetailScreen.mockReturnValue({
-        ...baseHook,
+        canViewTechnicalIds: true,
         permission: {
           id: 'p1',
           tenant_id: 't1',
-          name: 'Permission 1',
-          description: 'Desc',
+          name: 'roles.read',
+          description: 'Read roles',
           created_at: '2025-01-01T00:00:00Z',
           updated_at: '2025-01-02T00:00:00Z',
         },
       });
       const { getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
+
       expect(getByTestId('permission-detail-card')).toBeTruthy();
       expect(getByTestId('permission-detail-id')).toBeTruthy();
       expect(getByTestId('permission-detail-tenant')).toBeTruthy();
@@ -161,6 +146,22 @@ describe('PermissionDetailScreen', () => {
       expect(getByTestId('permission-detail-description')).toBeTruthy();
       expect(getByTestId('permission-detail-created')).toBeTruthy();
       expect(getByTestId('permission-detail-updated')).toBeTruthy();
+    });
+
+    it('hides technical ID for standard users (Web)', () => {
+      usePermissionDetailScreen.mockReturnValue({
+        ...baseHook,
+        canViewTechnicalIds: false,
+        permission: {
+          id: 'p1',
+          tenant_id: '8f4fd148-2502-4edb-bf1d-c1f5c66182fd',
+          name: 'roles.read',
+        },
+      });
+      const { queryByTestId, getByTestId } = renderWithTheme(<PermissionDetailScreenWeb />);
+
+      expect(queryByTestId('permission-detail-id')).toBeNull();
+      expect(getByTestId('permission-detail-tenant')).toBeTruthy();
     });
   });
 

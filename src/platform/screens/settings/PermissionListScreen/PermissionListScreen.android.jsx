@@ -15,10 +15,12 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Select,
   Snackbar,
-  Text,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
@@ -26,6 +28,7 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledScopeSlot,
   StyledSearchSlot,
   StyledSeparator,
   StyledStateStack,
@@ -34,17 +37,48 @@ import {
 } from './PermissionListScreen.android.styles';
 import usePermissionListScreen from './usePermissionListScreen';
 
+const resolvePermissionId = (permissionItem) => String(permissionItem?.id ?? '').trim();
+
+const resolvePermissionName = (t, permissionItem) => (
+  humanizeIdentifier(permissionItem?.name) || t('permission.list.unnamedPermission')
+);
+
+const resolvePermissionDescription = (t, permissionItem) => (
+  humanizeIdentifier(permissionItem?.description) || t('common.notAvailable')
+);
+
+const resolvePermissionTenant = (t, permissionItem, canViewTechnicalIds) => {
+  const readableTenant = humanizeIdentifier(permissionItem?.tenant_name)
+    || humanizeIdentifier(permissionItem?.tenant?.name)
+    || humanizeIdentifier(permissionItem?.tenant_label);
+
+  if (readableTenant) return readableTenant;
+
+  const technicalTenantId = String(permissionItem?.tenant_id ?? '').trim();
+  if (technicalTenantId && canViewTechnicalIds) return technicalTenantId;
+  if (technicalTenantId) return t('permission.list.currentTenantLabel');
+  return t('common.notAvailable');
+};
+
 const PermissionListScreenAndroid = () => {
   const { t } = useI18n();
   const {
     items,
+    search,
+    searchScope,
+    searchScopeOptions,
+    hasNoResults,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch,
+    onSearchScopeChange,
+    onClearSearchAndFilters,
     onItemPress,
     onDelete,
     onAdd,
@@ -72,6 +106,24 @@ const PermissionListScreenAndroid = () => {
     />
   );
 
+  const noResultsComponent = (
+    <EmptyState
+      title={t('permission.list.noResultsTitle')}
+      description={t('permission.list.noResultsMessage')}
+      action={(
+        <StyledAddButton
+          onPress={onClearSearchAndFilters}
+          accessibilityRole="button"
+          accessibilityLabel={t('permission.list.clearSearchAndFilters')}
+          testID="permission-list-clear-search"
+        >
+          <StyledAddLabel>{t('permission.list.clearSearchAndFilters')}</StyledAddLabel>
+        </StyledAddButton>
+      )}
+      testID="permission-list-no-results"
+    />
+  );
+
   const ItemSeparator = () => <StyledSeparator />;
   const retryAction = onRetry ? (
     <Button
@@ -80,42 +132,45 @@ const PermissionListScreenAndroid = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="permission-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
   const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && items.length === 0;
+  const showOffline = !isLoading && isOffline && items.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
   const showList = items.length > 0;
 
-  const renderItem = ({ item }) => {
-    const title = item?.name ?? item?.id ?? '';
-    const subtitle = item?.description ?? '';
+  const renderItem = ({ item: permissionItem, index }) => {
+    const permissionId = resolvePermissionId(permissionItem);
+    const itemKey = permissionId || `permission-${index}`;
+    const title = resolvePermissionName(t, permissionItem);
+    const description = resolvePermissionDescription(t, permissionItem);
+    const tenant = resolvePermissionTenant(t, permissionItem, canViewTechnicalIds);
+    const subtitle = [description, tenant].filter(Boolean).join(' - ');
+
     return (
       <ListItem
         title={title}
-        subtitle={subtitle}
-        onPress={() => onItemPress(item.id)}
-        actions={onDelete ? (
+        subtitle={subtitle || undefined}
+        onPress={permissionId ? () => onItemPress(permissionId) : undefined}
+        actions={onDelete && permissionId ? (
           <Button
             variant="surface"
             size="small"
-            onPress={(e) => onDelete(item.id, e)}
+            onPress={(event) => onDelete(permissionId, event)}
             accessibilityLabel={t('permission.list.delete')}
             accessibilityHint={t('permission.list.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID={`permission-delete-${item.id}`}
+            testID={`permission-delete-${itemKey}`}
           >
             {t('common.remove')}
           </Button>
         ) : undefined}
-        accessibilityLabel={t('permission.list.itemLabel', {
-          name: title,
-        })}
-        testID={`permission-item-${item.id}`}
+        accessibilityLabel={t('permission.list.itemLabel', { name: title })}
+        testID={`permission-item-${itemKey}`}
       />
     );
   };
@@ -135,10 +190,26 @@ const PermissionListScreenAndroid = () => {
       <StyledContent>
         <StyledToolbar testID="permission-list-toolbar">
           <StyledSearchSlot>
-            <Text variant="h2" accessibilityRole="header" testID="permission-list-title">
-              {t('permission.list.title')}
-            </Text>
+            <TextField
+              value={search}
+              onChangeText={onSearch}
+              placeholder={t('permission.list.searchPlaceholder')}
+              accessibilityLabel={t('permission.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="permission-list-search"
+            />
           </StyledSearchSlot>
+          <StyledScopeSlot>
+            <Select
+              value={searchScope}
+              onValueChange={onSearchScopeChange}
+              options={searchScopeOptions}
+              label={t('permission.list.searchScopeLabel')}
+              compact
+              testID="permission-list-search-scope"
+            />
+          </StyledScopeSlot>
           <StyledToolbarActions>
             {onAdd && (
               <StyledAddButton
@@ -179,16 +250,26 @@ const PermissionListScreenAndroid = () => {
                   testID="permission-list-offline"
                 />
               )}
+              {showOfflineBanner && (
+                <OfflineState
+                  size={OfflineStateSizes.SMALL}
+                  title={t('shell.banners.offline.title')}
+                  description={t('shell.banners.offline.message')}
+                  action={retryAction}
+                  testID="permission-list-offline-banner"
+                />
+              )}
             </StyledStateStack>
             {isLoading && (
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="permission-list-loading" />
             )}
-            {showEmpty && emptyComponent}
+            {showEmpty ? emptyComponent : null}
+            {showNoResults ? noResultsComponent : null}
             {showList ? (
               <StyledList>
                 <FlatList
                   data={items}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(permissionItem, index) => resolvePermissionId(permissionItem) || `permission-${index}`}
                   renderItem={renderItem}
                   ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}

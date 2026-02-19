@@ -9,23 +9,37 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
   StyledDetailGrid,
   StyledDetailItem,
   StyledInlineStates,
-  StyledActions,
 } from './PermissionDetailScreen.android.styles';
 import usePermissionDetailScreen from './usePermissionDetailScreen';
+
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return String(normalized).trim();
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fallbackLabel) => {
+  if (readableValue) return readableValue;
+  if (canViewTechnicalIds) return String(technicalId ?? '').trim();
+  if (String(technicalId ?? '').trim()) return fallbackLabel;
+  return '';
+};
 
 const PermissionDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
@@ -35,6 +49,7 @@ const PermissionDetailScreenAndroid = () => {
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -61,6 +76,7 @@ const PermissionDetailScreenAndroid = () => {
       <StyledContainer>
         <StyledContent>
           <OfflineState
+            size={OfflineStateSizes.SMALL}
             title={t('shell.banners.offline.title')}
             description={t('shell.banners.offline.message')}
             action={(
@@ -70,7 +86,6 @@ const PermissionDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="â†»" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -96,7 +111,6 @@ const PermissionDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="â†»" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -124,7 +138,6 @@ const PermissionDetailScreenAndroid = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('permission.detail.backHint')}
-              icon={<Icon glyph="â†" size="xs" decorative />}
               testID="permission-detail-back"
             >
               {t('common.back')}
@@ -137,9 +150,14 @@ const PermissionDetailScreenAndroid = () => {
 
   const createdAt = formatDateTime(permission.created_at, locale);
   const updatedAt = formatDateTime(permission.updated_at, locale);
-  const tenantId = permission?.tenant_id ?? '';
-  const name = permission?.name ?? '';
-  const description = permission?.description ?? '';
+  const name = humanizeIdentifier(permission?.name) || t('permission.detail.currentPermission');
+  const description = humanizeIdentifier(permission?.description);
+  const tenantLabel = resolveContextValue(
+    resolveReadableValue(permission?.tenant_name, permission?.tenant?.name, permission?.tenant_label),
+    permission?.tenant_id,
+    canViewTechnicalIds,
+    t('permission.detail.currentTenant')
+  );
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -147,7 +165,6 @@ const PermissionDetailScreenAndroid = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="â†»" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -180,17 +197,19 @@ const PermissionDetailScreenAndroid = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('permission.detail.title')} testID="permission-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('permission.detail.idLabel')}</Text>
-              <Text variant="body" testID="permission-detail-id">
-                {permission.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {canViewTechnicalIds ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('permission.detail.idLabel')}</Text>
+                <Text variant="body" testID="permission-detail-id">
+                  {permission.id}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {tenantLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('permission.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="permission-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -235,7 +254,6 @@ const PermissionDetailScreenAndroid = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('permission.detail.backHint')}
-            icon={<Icon glyph="â†" size="xs" decorative />}
             testID="permission-detail-back"
             disabled={isLoading}
           >
@@ -248,7 +266,6 @@ const PermissionDetailScreenAndroid = () => {
               onPress={onEdit}
               accessibilityLabel={t('permission.detail.edit')}
               accessibilityHint={t('permission.detail.editHint')}
-              icon={<Icon glyph="âœŽ" size="xs" decorative />}
               testID="permission-detail-edit"
               disabled={isLoading}
             >
@@ -263,7 +280,6 @@ const PermissionDetailScreenAndroid = () => {
               loading={isLoading}
               accessibilityLabel={t('permission.detail.delete')}
               accessibilityHint={t('permission.detail.deleteHint')}
-              icon={<Icon glyph="âœ•" size="xs" decorative />}
               testID="permission-detail-delete"
             >
               {t('common.remove')}

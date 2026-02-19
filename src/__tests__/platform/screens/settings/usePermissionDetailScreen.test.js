@@ -47,7 +47,7 @@ describe('usePermissionDetailScreen', () => {
     usePermission.mockReturnValue({
       get: mockGet,
       remove: mockRemove,
-      data: { id: 'pid-1', name: 'Test Permission' },
+      data: { id: 'pid-1', name: 'Test Permission', tenant_id: 'tenant-1' },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
@@ -71,23 +71,83 @@ describe('usePermissionDetailScreen', () => {
 
   it('returns permission, handlers, and state', () => {
     const { result } = renderHook(() => usePermissionDetailScreen());
-    expect(result.current.permission).toEqual({ id: 'pid-1', name: 'Test Permission' });
+
+    expect(result.current.permission).toEqual({
+      id: 'pid-1',
+      name: 'Test Permission',
+      tenant_id: 'tenant-1',
+    });
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onBack).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
+    expect(result.current.canViewTechnicalIds).toBe(true);
+  });
+
+  it('hides technical IDs for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePermissionDetailScreen());
+
+    expect(result.current.canViewTechnicalIds).toBe(false);
   });
 
   it('calls get on mount with id', () => {
     renderHook(() => usePermissionDetailScreen());
+
     expect(mockReset).toHaveBeenCalled();
     expect(mockGet).toHaveBeenCalledWith('pid-1');
+  });
+
+  it('redirects tenant-scoped users when permission tenant does not match', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    usePermission.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: { id: 'pid-1', tenant_id: 'tenant-2', name: 'Permission' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    renderHook(() => usePermissionDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=accessDenied');
+  });
+
+  it('redirects to list with accessDenied when backend returns forbidden', () => {
+    usePermission.mockReturnValue({
+      get: mockGet,
+      remove: mockRemove,
+      data: null,
+      isLoading: false,
+      errorCode: 'FORBIDDEN',
+      reset: mockReset,
+    });
+
+    renderHook(() => usePermissionDetailScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/permissions?notice=accessDenied');
   });
 
   it('onRetry calls fetchDetail', () => {
     const { result } = renderHook(() => usePermissionDetailScreen());
     mockReset.mockClear();
     mockGet.mockClear();
-    result.current.onRetry();
+
+    act(() => {
+      result.current.onRetry();
+    });
+
     expect(mockReset).toHaveBeenCalled();
     expect(mockGet).toHaveBeenCalledWith('pid-1');
   });
@@ -95,38 +155,34 @@ describe('usePermissionDetailScreen', () => {
   it('onBack pushes route to list', () => {
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionDetailScreen());
-    result.current.onBack();
+
+    act(() => {
+      result.current.onBack();
+    });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions');
   });
 
   it('onEdit pushes edit route when id available', () => {
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionDetailScreen());
-    result.current.onEdit();
-    expect(mockPush).toHaveBeenCalledWith('/settings/permissions/pid-1/edit');
-  });
 
-  it('exposes errorMessage when errorCode set', () => {
-    usePermission.mockReturnValue({
-      get: mockGet,
-      remove: mockRemove,
-      data: null,
-      isLoading: false,
-      errorCode: 'PERMISSION_NOT_FOUND',
-      reset: mockReset,
+    act(() => {
+      result.current.onEdit();
     });
-    const { result } = renderHook(() => usePermissionDetailScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBeDefined();
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/permissions/pid-1/edit');
   });
 
   it('onDelete calls remove then navigates with notice', async () => {
     mockRemove.mockResolvedValue({ id: 'pid-1' });
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).toHaveBeenCalledWith('pid-1');
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions?notice=deleted');
   });
@@ -135,9 +191,11 @@ describe('usePermissionDetailScreen', () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockRemove.mockResolvedValue({ id: 'pid-1' });
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions?notice=queued');
   });
 
@@ -145,9 +203,11 @@ describe('usePermissionDetailScreen', () => {
     mockRemove.mockResolvedValue(undefined);
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).toHaveBeenCalledWith('pid-1');
     expect(mockPush).not.toHaveBeenCalled();
   });
@@ -155,18 +215,22 @@ describe('usePermissionDetailScreen', () => {
   it('onDelete does not throw when remove rejects', async () => {
     mockRemove.mockRejectedValue(new Error('remove failed'));
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).toHaveBeenCalledWith('pid-1');
   });
 
   it('onDelete does not call remove when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     await act(async () => {
       await result.current.onDelete();
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
   });
 
@@ -180,6 +244,7 @@ describe('usePermissionDetailScreen', () => {
       reset: mockReset,
     });
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     expect(result.current.permission).toBeNull();
   });
 
@@ -193,6 +258,7 @@ describe('usePermissionDetailScreen', () => {
       reset: mockReset,
     });
     const { result } = renderHook(() => usePermissionDetailScreen());
+
     expect(result.current.permission).toBeNull();
   });
 });

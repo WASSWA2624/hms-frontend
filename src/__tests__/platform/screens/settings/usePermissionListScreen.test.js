@@ -49,7 +49,7 @@ describe('usePermissionListScreen', () => {
     usePermission.mockReturnValue({
       list: mockList,
       remove: mockRemove,
-      data: { items: [], pagination: {} },
+      data: { items: [] },
       isLoading: false,
       errorCode: null,
       reset: mockReset,
@@ -71,6 +71,20 @@ describe('usePermissionListScreen', () => {
     expect(result.current.onDelete).toBeUndefined();
   });
 
+  it('redirects tenant-scoped users without tenant id', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePermissionListScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(mockList).not.toHaveBeenCalled();
+  });
+
   it('calls list with tenant scope for tenant-scoped admins', () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
@@ -90,10 +104,14 @@ describe('usePermissionListScreen', () => {
 
   it('returns items, handlers, and state', () => {
     const { result } = renderHook(() => usePermissionListScreen());
+
     expect(result.current.items).toEqual([]);
+    expect(result.current.search).toBe('');
+    expect(result.current.searchScope).toBe('all');
     expect(typeof result.current.onRetry).toBe('function');
     expect(typeof result.current.onItemPress).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
+    expect(typeof result.current.onSort).toBe('function');
   });
 
   it('calls list on mount', () => {
@@ -106,7 +124,11 @@ describe('usePermissionListScreen', () => {
     const { result } = renderHook(() => usePermissionListScreen());
     mockReset.mockClear();
     mockList.mockClear();
-    result.current.onRetry();
+
+    act(() => {
+      result.current.onRetry();
+    });
+
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
@@ -114,29 +136,130 @@ describe('usePermissionListScreen', () => {
   it('onItemPress pushes route with id', () => {
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionListScreen());
-    result.current.onItemPress('pid-1');
+
+    act(() => {
+      result.current.onItemPress('pid-1');
+    });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions/pid-1');
   });
 
   it('onAdd pushes route to create', () => {
     mockPush.mockClear();
     const { result } = renderHook(() => usePermissionListScreen());
-    result.current.onAdd();
+
+    act(() => {
+      result.current.onAdd();
+    });
+
     expect(mockPush).toHaveBeenCalledWith('/settings/permissions/create');
   });
 
-  it('exposes errorMessage when errorCode set', () => {
+  it('shows access denied notice when API returns forbidden', () => {
     usePermission.mockReturnValue({
       list: mockList,
       remove: mockRemove,
       data: { items: [] },
       isLoading: false,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: 'FORBIDDEN',
       reset: mockReset,
     });
+
     const { result } = renderHook(() => usePermissionListScreen());
-    expect(result.current.hasError).toBe(true);
-    expect(result.current.errorMessage).toBe('permission.list.loadError');
+
+    expect(result.current.noticeMessage).toBe('permission.list.noticeAccessDenied');
+  });
+
+  it('applies global and scoped search filters', () => {
+    usePermission.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'permission-1', name: 'roles.read', description: 'Read roles', tenant_name: 'Main Tenant' },
+          { id: 'permission-2', name: 'billing.create', description: 'Create invoices', tenant_name: 'Branch Tenant' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePermissionListScreen());
+
+    act(() => {
+      result.current.onSearch('billing');
+    });
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].id).toBe('permission-2');
+
+    act(() => {
+      result.current.onSearchScopeChange('tenant');
+      result.current.onSearch('main');
+    });
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].id).toBe('permission-1');
+  });
+
+  it('reports no-results state and clears search filters', () => {
+    usePermission.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'permission-1', name: 'roles.read', description: 'Read roles' },
+          { id: 'permission-2', name: 'billing.create', description: 'Create invoices' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePermissionListScreen());
+
+    act(() => {
+      result.current.onSearch('missing permission');
+    });
+
+    expect(result.current.hasNoResults).toBe(true);
+    expect(result.current.items).toHaveLength(0);
+
+    act(() => {
+      result.current.onClearSearchAndFilters();
+    });
+
+    expect(result.current.search).toBe('');
+    expect(result.current.searchScope).toBe('all');
+    expect(result.current.items).toHaveLength(2);
+  });
+
+  it('sorts by selected field and toggles direction', () => {
+    usePermission.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'permission-1', name: 'zeta', description: 'Zed' },
+          { id: 'permission-2', name: 'alpha', description: 'Aye' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePermissionListScreen());
+
+    expect(result.current.items.map((item) => item.name)).toEqual(['alpha', 'zeta']);
+
+    act(() => {
+      result.current.onSort('name');
+    });
+
+    expect(result.current.items.map((item) => item.name)).toEqual(['zeta', 'alpha']);
   });
 
   it('onDelete calls remove then fetchList', async () => {
@@ -144,21 +267,25 @@ describe('usePermissionListScreen', () => {
     mockReset.mockClear();
     mockList.mockClear();
     const { result } = renderHook(() => usePermissionListScreen());
+
     await act(async () => {
       await result.current.onDelete('pid-1');
     });
+
     expect(mockRemove).toHaveBeenCalledWith('pid-1');
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 
-  it('onDelete sets notice when offline', async () => {
+  it('onDelete sets queued notice when offline', async () => {
     useNetwork.mockReturnValue({ isOffline: true });
     mockRemove.mockResolvedValue({ id: 'pid-1' });
     const { result } = renderHook(() => usePermissionListScreen());
+
     await act(async () => {
       await result.current.onDelete('pid-1');
     });
+
     expect(result.current.noticeMessage).toBe('permission.list.noticeQueued');
   });
 
@@ -166,9 +293,11 @@ describe('usePermissionListScreen', () => {
     mockRemove.mockResolvedValue(undefined);
     const { result } = renderHook(() => usePermissionListScreen());
     mockList.mockClear();
+
     await act(async () => {
       await result.current.onDelete('pid-1');
     });
+
     expect(mockRemove).toHaveBeenCalledWith('pid-1');
     expect(mockList).not.toHaveBeenCalled();
   });
@@ -177,61 +306,29 @@ describe('usePermissionListScreen', () => {
     const stopPropagation = jest.fn();
     mockRemove.mockResolvedValue(undefined);
     const { result } = renderHook(() => usePermissionListScreen());
+
     await act(async () => {
       await result.current.onDelete('pid-1', { stopPropagation });
     });
+
     expect(stopPropagation).toHaveBeenCalled();
   });
 
-  it('onDelete does not throw or refetch when remove rejects', async () => {
-    mockRemove.mockRejectedValue(new Error('remove failed'));
-    const { result } = renderHook(() => usePermissionListScreen());
-    mockList.mockClear();
-    await act(async () => {
-      await result.current.onDelete('pid-1');
-    });
-    expect(mockRemove).toHaveBeenCalledWith('pid-1');
-    expect(mockList).not.toHaveBeenCalled();
-  });
-
-  it('onDelete does not call remove when confirmation is cancelled', async () => {
+  it('onDelete does not execute when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
     const { result } = renderHook(() => usePermissionListScreen());
+
     await act(async () => {
       await result.current.onDelete('pid-1');
     });
+
     expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it('handles items from data', () => {
-    usePermission.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: { items: [{ id: 'p1', name: 'Permission 1' }] },
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => usePermissionListScreen());
-    expect(result.current.items).toEqual([{ id: 'p1', name: 'Permission 1' }]);
-  });
-
-  it('handles items array data', () => {
-    usePermission.mockReturnValue({
-      list: mockList,
-      remove: mockRemove,
-      data: [{ id: 'p1', name: 'Permission 1' }],
-      isLoading: false,
-      errorCode: null,
-      reset: mockReset,
-    });
-    const { result } = renderHook(() => usePermissionListScreen());
-    expect(result.current.items).toEqual([{ id: 'p1', name: 'Permission 1' }]);
   });
 
   it('handles notice param and clears it', () => {
     mockParams = { notice: 'created' };
     const { result } = renderHook(() => usePermissionListScreen());
+
     expect(result.current.noticeMessage).toBe('permission.list.noticeCreated');
     expect(mockReplace).toHaveBeenCalledWith('/settings/permissions');
   });

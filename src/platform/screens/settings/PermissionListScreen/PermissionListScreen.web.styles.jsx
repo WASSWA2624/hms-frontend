@@ -57,6 +57,14 @@ const StyledSearchSlot = styled.div.withConfig({
   min-width: 0;
 `;
 
+const StyledScopeSlot = styled.div.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
+})`
+  width: 200px;
+  max-width: 100%;
+`;
+
 const StyledToolbarActions = styled.div.withConfig({
   displayName: 'StyledToolbarActions',
   componentId: 'StyledToolbarActions',
@@ -134,15 +142,65 @@ const StyledList = styled.ul.withConfig({
   flex-direction: column;
 `;
 
+const StyledRowActions = styled.div.withConfig({
+  displayName: 'StyledRowActions',
+  componentId: 'StyledRowActions',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const baseActionButtonStyles = `
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border?.default ?? theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  padding: 0 ${({ theme }) => theme.spacing.sm}px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledActionButton = styled.button.withConfig({
+  displayName: 'StyledActionButton',
+  componentId: 'StyledActionButton',
+})`
+  ${baseActionButtonStyles}
+`;
+
+const StyledDangerActionButton = styled.button.withConfig({
+  displayName: 'StyledDangerActionButton',
+  componentId: 'StyledDangerActionButton',
+})`
+  ${baseActionButtonStyles}
+  color: ${({ theme }) => theme.colors.error};
+  border-color: ${({ theme }) => theme.colors.error};
+`;
+
 export {
-  StyledContainer,
-  StyledContent,
-  StyledToolbar,
-  StyledSearchSlot,
-  StyledToolbarActions,
+  StyledActionButton,
   StyledAddButton,
   StyledAddLabel,
-  StyledListBody,
-  StyledStateStack,
+  StyledContainer,
+  StyledContent,
+  StyledDangerActionButton,
   StyledList,
+  StyledListBody,
+  StyledRowActions,
+  StyledScopeSlot,
+  StyledSearchSlot,
+  StyledStateStack,
+  StyledToolbar,
+  StyledToolbarActions,
 };

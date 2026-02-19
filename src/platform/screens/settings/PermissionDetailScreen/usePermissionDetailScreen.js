@@ -34,6 +34,7 @@ const usePermissionDetailScreen = () => {
   const canManagePermissions = canAccessTenantSettings;
   const canEditPermission = canManagePermissions;
   const canDeletePermission = canManagePermissions;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManagePermissions && !canManageAllTenants;
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
@@ -120,6 +121,7 @@ const usePermissionDetailScreen = () => {
     hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry: handleRetry,
     onBack: handleBack,
     onEdit: canEditPermission ? handleEdit : undefined,

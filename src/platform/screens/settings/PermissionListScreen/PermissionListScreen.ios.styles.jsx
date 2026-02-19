@@ -38,6 +38,13 @@ const StyledSearchSlot = styled.View.withConfig({
   width: 100%;
 `;
 
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
+})`
+  width: 100%;
+`;
+
 const StyledToolbarActions = styled.View.withConfig({
   displayName: 'StyledToolbarActions',
   componentId: 'StyledToolbarActions',
@@ -110,6 +117,7 @@ export {
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,

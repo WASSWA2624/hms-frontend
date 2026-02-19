@@ -55,6 +55,7 @@ const PermissionFormScreenAndroid = () => {
     tenantError,
     isTenantLocked,
     lockedTenantDisplay,
+    tenantDisplayLabel,
     onSubmit,
     onCancel,
     onGoToTenants,
@@ -206,7 +207,7 @@ const PermissionFormScreenAndroid = () => {
                 <StyledFieldGroup>
                   <TextField
                     label={t('permission.form.tenantLabel')}
-                    value={isEdit ? tenantId : lockedTenantDisplay}
+                    value={tenantDisplayLabel || lockedTenantDisplay}
                     accessibilityLabel={t('permission.form.tenantLabel')}
                     accessibilityHint={tenantLockedHint}
                     helperText={tenantLockedHint}
