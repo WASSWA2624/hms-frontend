@@ -284,6 +284,18 @@ describe('FacilityListScreen', () => {
     expect(getByTestId('facility-table')).toBeTruthy();
   });
 
+  it('starts with advanced filters collapsed on web desktop/tablet mode', () => {
+    useFacilityListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'facility-1', name: 'Facility 1', facility_type: 'HOSPITAL', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { queryByTestId } = renderWithTheme(<FacilityListScreenWeb />);
+    expect(queryByTestId('facility-filter-body')).toBeNull();
+  });
+
   it('renders list items on web for mobile mode', () => {
     useFacilityListScreen.mockReturnValue({
       ...baseWebHook,

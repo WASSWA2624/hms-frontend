@@ -144,8 +144,7 @@ const FacilityDetailScreenAndroid = () => {
     facility?.tenant_name
     ?? facility?.tenant?.name
     ?? facility?.tenant_label
-    ?? facility?.tenant_id
-  );
+  ) || (facility?.tenant_id ? t('common.notAvailable') : '');
   const isActive = facility?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');
   const statusVariant = isActive ? 'success' : 'warning';
