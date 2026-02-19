@@ -5,6 +5,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useTenantAccess, useUser, useUserMfa } from '@hooks';
+import { humanizeIdentifier } from '@utils';
+
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -15,6 +18,8 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
 };
+
+const normalizeValue = (value) => String(value ?? '').trim();
 
 const useUserMfaFormScreen = () => {
   const { t } = useI18n();
@@ -44,9 +49,10 @@ const useUserMfaFormScreen = () => {
   const canManageUserMfas = canAccessTenantSettings;
   const canCreateUserMfa = canManageUserMfas;
   const canEditUserMfa = canManageUserMfas;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageUserMfas && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
-    () => String(scopedTenantId ?? '').trim(),
+    () => normalizeValue(scopedTenantId),
     [scopedTenantId]
   );
   const [userId, setUserId] = useState('');
@@ -62,12 +68,27 @@ const useUserMfaFormScreen = () => {
   );
   const userOptions = useMemo(
     () =>
-      userItems.map((user) => ({
-        value: user.id,
-        label: user.email ?? user.phone ?? user.id ?? '',
+      userItems.map((userItem, index) => ({
+        value: userItem.id,
+        label: humanizeIdentifier(userItem?.name)
+          || humanizeIdentifier(userItem?.full_name)
+          || humanizeIdentifier(userItem?.email)
+          || humanizeIdentifier(userItem?.phone)
+          || humanizeIdentifier(userItem?.human_friendly_id)
+          || (canViewTechnicalIds ? normalizeValue(userItem?.id) : '')
+          || t('userMfa.form.userOptionFallback', { index: index + 1 }),
       })),
-    [userItems]
+    [userItems, canViewTechnicalIds, t]
   );
+  const userTenantLookup = useMemo(() => {
+    const map = new Map();
+    userItems.forEach((userItem) => {
+      const mappedUserId = normalizeValue(userItem?.id);
+      if (!mappedUserId) return;
+      map.set(mappedUserId, normalizeValue(userItem?.tenant_id || userItem?.tenant?.id));
+    });
+    return map;
+  }, [userItems]);
   const channelOptions = useMemo(() => ([
     { label: t('userMfa.channel.EMAIL'), value: 'EMAIL' },
     { label: t('userMfa.channel.SMS'), value: 'SMS' },
@@ -124,7 +145,7 @@ const useUserMfaFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageUserMfas) return;
     resetUsers();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -148,7 +169,7 @@ const useUserMfaFormScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canManageUserMfas || !isTenantScopedAdmin || !isEdit || !userMfa) return;
-    const recordTenantId = String(userMfa?.tenant_id ?? '').trim();
+    const recordTenantId = normalizeValue(userMfa?.tenant_id);
     if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
       router.replace('/settings/user-mfas?notice=accessDenied');
     }
@@ -183,9 +204,13 @@ const useUserMfaFormScreen = () => {
     router.replace('/settings/user-mfas?notice=accessDenied');
   }, [isResolved, canManageUserMfas, errorCode, router]);
 
-  const trimmedUserId = String(userId ?? '').trim();
-  const trimmedChannel = String(channel ?? '').trim();
-  const trimmedSecret = String(secret ?? '').trim();
+  const trimmedUserId = normalizeValue(userId);
+  const trimmedChannel = normalizeValue(channel);
+  const trimmedSecret = normalizeValue(secret);
+  const selectedUserTenantId = useMemo(
+    () => normalizeValue(userTenantLookup.get(trimmedUserId)),
+    [userTenantLookup, trimmedUserId]
+  );
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'userMfa.form.submitErrorMessage'),
@@ -199,11 +224,12 @@ const useUserMfaFormScreen = () => {
   const hasUsers = userOptions.length > 0;
   const isCreateBlocked = !isEdit && !hasUsers;
   const isSubmitDisabled =
-    isLoading ||
-    isCreateBlocked ||
-    !trimmedUserId ||
-    !trimmedChannel ||
-    (!isEdit && !trimmedSecret);
+    !isResolved
+    || isLoading
+    || isCreateBlocked
+    || !trimmedUserId
+    || !trimmedChannel
+    || (!isEdit && !trimmedSecret);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -216,6 +242,15 @@ const useUserMfaFormScreen = () => {
         router.replace('/settings/user-mfas?notice=accessDenied');
         return;
       }
+      if (
+        isTenantScopedAdmin
+        && selectedUserTenantId
+        && selectedUserTenantId !== normalizedScopedTenantId
+      ) {
+        router.replace('/settings/user-mfas?notice=accessDenied');
+        return;
+      }
+
       const noticeKey = isOffline ? 'queued' : (isEdit ? 'updated' : 'created');
       const payload = {
         channel: trimmedChannel,
@@ -240,17 +275,20 @@ const useUserMfaFormScreen = () => {
     }
   }, [
     isSubmitDisabled,
-    isOffline,
     isEdit,
-    trimmedChannel,
-    trimmedUserId,
-    trimmedSecret,
-    isEnabled,
     canCreateUserMfa,
     canEditUserMfa,
+    isTenantScopedAdmin,
+    selectedUserTenantId,
+    normalizedScopedTenantId,
+    isOffline,
+    trimmedChannel,
+    isEnabled,
+    trimmedUserId,
+    trimmedSecret,
     routeUserMfaId,
-    create,
     update,
+    create,
     router,
   ]);
 
@@ -265,7 +303,7 @@ const useUserMfaFormScreen = () => {
   const handleRetryUsers = useCallback(() => {
     if (!isResolved || !canManageUserMfas) return;
     resetUsers();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }

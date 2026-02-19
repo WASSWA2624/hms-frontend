@@ -31,6 +31,8 @@ const UserMfaDetailScreenAndroid = () => {
   const { t, locale } = useI18n();
   const {
     userMfa,
+    mfaLabel,
+    userLabel,
     isLoading,
     hasError,
     errorMessage,
@@ -71,7 +73,7 @@ const UserMfaDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
+                icon={<Icon glyph="R" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -97,7 +99,7 @@ const UserMfaDetailScreenAndroid = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
+                icon={<Icon glyph="R" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -125,7 +127,7 @@ const UserMfaDetailScreenAndroid = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('userMfa.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
+              icon={<Icon glyph="<" size="xs" decorative />}
               testID="user-mfa-detail-back"
             >
               {t('common.back')}
@@ -139,7 +141,6 @@ const UserMfaDetailScreenAndroid = () => {
   const createdAt = formatDateTime(userMfa.created_at, locale);
   const updatedAt = formatDateTime(userMfa.updated_at, locale);
   const lastUsedAt = formatDateTime(userMfa.last_used_at, locale);
-  const userId = userMfa?.user_id ?? '';
   const channel = userMfa?.channel ?? '';
   const isEnabled = userMfa?.is_enabled ?? false;
   const channelKey = channel ? `userMfa.channel.${channel}` : '';
@@ -152,7 +153,7 @@ const UserMfaDetailScreenAndroid = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
+      icon={<Icon glyph="R" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -185,17 +186,19 @@ const UserMfaDetailScreenAndroid = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('userMfa.detail.title')} testID="user-mfa-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('userMfa.detail.idLabel')}</Text>
-              <Text variant="body" testID="user-mfa-detail-id">
-                {userMfa.id}
-              </Text>
-            </StyledDetailItem>
-            {userId ? (
+            {mfaLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userMfa.detail.idLabel')}</Text>
+                <Text variant="body" testID="user-mfa-detail-id">
+                  {mfaLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {userLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('userMfa.detail.userIdLabel')}</Text>
                 <Text variant="body" testID="user-mfa-detail-user">
-                  {userId}
+                  {userLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -246,7 +249,7 @@ const UserMfaDetailScreenAndroid = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('userMfa.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
+            icon={<Icon glyph="<" size="xs" decorative />}
             testID="user-mfa-detail-back"
             disabled={isLoading}
           >
@@ -259,25 +262,27 @@ const UserMfaDetailScreenAndroid = () => {
               onPress={onEdit}
               accessibilityLabel={t('userMfa.detail.edit')}
               accessibilityHint={t('userMfa.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
+              icon={<Icon glyph="E" size="xs" decorative />}
               testID="user-mfa-detail-edit"
               disabled={isLoading}
             >
               {t('userMfa.detail.edit')}
             </Button>
           )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('userMfa.detail.delete')}
-            accessibilityHint={t('userMfa.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="user-mfa-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          {onDelete ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('userMfa.detail.delete')}
+              accessibilityHint={t('userMfa.detail.deleteHint')}
+              icon={<Icon glyph="X" size="xs" decorative />}
+              testID="user-mfa-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>
