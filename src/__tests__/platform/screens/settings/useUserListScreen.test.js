@@ -115,6 +115,32 @@ describe('useUserListScreen', () => {
     });
   });
 
+  it('tenant-scoped admins only render records in their tenant scope', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'u-1', tenant_id: 'tenant-1', email: 'one@acme.org', status: 'ACTIVE' },
+          { id: 'u-2', tenant_id: 'tenant-2', email: 'two@acme.org', status: 'ACTIVE' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    expect(result.current.items.map((item) => item.id)).toEqual(['u-1']);
+  });
+
   it('supports scoped search and status filter', async () => {
     useUser.mockReturnValue({
       list: mockList,
@@ -173,6 +199,35 @@ describe('useUserListScreen', () => {
     });
   });
 
+  it('redirects unauthorized users to settings after role resolution', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('redirects tenant-scoped users without tenant context', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    await renderUseUserListScreen();
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+  });
+
   it('bulk delete removes selected users when confirmed', async () => {
     useUser.mockReturnValue({
       list: mockList,
@@ -198,5 +253,63 @@ describe('useUserListScreen', () => {
     expect(confirmAction).toHaveBeenCalledWith('Confirm 2');
     expect(mockRemove).toHaveBeenNthCalledWith(1, 'u-1');
     expect(mockRemove).toHaveBeenNthCalledWith(2, 'u-2');
+  });
+
+  it('prevents tenant-scoped users from opening users outside tenant scope', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'u-2', tenant_id: 'tenant-2', email: 'outside@acme.org', status: 'ACTIVE' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    act(() => {
+      result.current.onUserPress('u-2');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/users?notice=accessDenied');
+  });
+
+  it('prevents tenant-scoped users from opening users missing from scoped rows', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUser.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'u-1', tenant_id: 'tenant-1', email: 'inside@acme.org', status: 'ACTIVE' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = await renderUseUserListScreen();
+
+    act(() => {
+      result.current.onUserPress('missing-user-id');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/users?notice=accessDenied');
   });
 });

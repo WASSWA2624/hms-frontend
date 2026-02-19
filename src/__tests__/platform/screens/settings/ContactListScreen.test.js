@@ -136,6 +136,8 @@ const mockT = (key, values = {}) => {
     'common.loading': 'Loading',
     'common.remove': 'Remove',
     'common.more': 'More',
+    'common.previous': 'Previous',
+    'common.next': 'Next',
     'common.notAvailable': 'Not available',
     'shell.banners.offline.title': 'Offline',
     'shell.banners.offline.message': 'No connection',
@@ -145,6 +147,14 @@ const mockT = (key, values = {}) => {
 
 const baseHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
   search: '',
   searchScope: 'all',
   searchScopeOptions: [{ value: 'all', label: 'All fields' }],
@@ -160,6 +170,9 @@ const baseHook = {
   onSearch: jest.fn(),
   onSearchScopeChange: jest.fn(),
   onClearSearchAndFilters: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
   onContactPress: jest.fn(),
   onEdit: jest.fn(),
   onDelete: jest.fn(),
@@ -297,6 +310,8 @@ describe('ContactListScreen', () => {
       ...baseHook,
       isOffline: true,
       items: [{ id: 'contact-1', value: 'cached@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      pagedItems: [{ id: 'contact-1', value: 'cached@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      totalItems: 1,
     });
     const { queryByTestId, getByTestId } = renderWithTheme(<ContactListScreenAndroid />);
     expect(queryByTestId('contact-list-offline')).toBeNull();
@@ -314,6 +329,18 @@ describe('ContactListScreen', () => {
 
     const { getByTestId } = renderWithTheme(<ContactListScreenWeb />);
     expect(getByTestId('contact-table')).toBeTruthy();
+  });
+
+  it('keeps advanced filters collapsed by default in desktop/tablet mode', () => {
+    useContactListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'contact-1', value: 'contact@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      totalItems: 1,
+    });
+
+    const { queryByTestId } = renderWithTheme(<ContactListScreenWeb />);
+    expect(queryByTestId('contact-filter-body')).toBeNull();
   });
 
   it('renders list items on web for mobile mode', () => {
@@ -350,6 +377,8 @@ describe('ContactListScreen', () => {
       ...baseHook,
       onDelete: undefined,
       items: [{ id: 'contact-1', value: 'contact@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      pagedItems: [{ id: 'contact-1', value: 'contact@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      totalItems: 1,
     });
     const { queryByTestId } = renderWithTheme(<ContactListScreenAndroid />);
     expect(queryByTestId('contact-delete-contact-1')).toBeNull();
@@ -359,6 +388,8 @@ describe('ContactListScreen', () => {
     useContactListScreen.mockReturnValue({
       ...baseHook,
       items: [{ id: 'contact-1', value: 'contact@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      pagedItems: [{ id: 'contact-1', value: 'contact@acme.org', contact_type: 'EMAIL', is_primary: true }],
+      totalItems: 1,
     });
     const { getByTestId } = renderWithTheme(<ContactListScreenAndroid />);
     expect(getByTestId('contact-view-contact-1')).toBeTruthy();

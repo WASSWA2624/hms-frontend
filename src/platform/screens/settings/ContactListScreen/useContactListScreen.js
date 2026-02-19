@@ -19,6 +19,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'value', 'type', 'tenant', 'primary']);
@@ -86,6 +88,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -329,6 +343,12 @@ const useContactListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedContactItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((contact) => normalizeValue(contact?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, baseItems]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -348,7 +368,7 @@ const useContactListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((contact) => {
+    return scopedItems.filter((contact) => {
       if (hasSearch && !matchesContactSearch(contact, normalizedSearch, normalizedSearchScope)) {
         return false;
       }
@@ -360,7 +380,7 @@ const useContactListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [baseItems, search, normalizedSearchScope, activeFilters, filterLogic]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -393,7 +413,7 @@ const useContactListScreen = () => {
     && selectedOnPageCount === currentPageContactIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'contact.list.loadError'),
@@ -409,7 +429,10 @@ const useContactListScreen = () => {
     if (!isResolved || !canManageContacts || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -724,7 +747,7 @@ const useContactListScreen = () => {
     if (canManageAllTenants) return true;
 
     const contactTenantId = normalizeValue(contact?.tenant_id);
-    if (!contactTenantId || !normalizedTenantId) return true;
+    if (!contactTenantId || !normalizedTenantId) return false;
     return contactTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -734,14 +757,14 @@ const useContactListScreen = () => {
       if (!normalizedId) return;
 
       const targetContact = resolveContactById(normalizedId);
-      if (targetContact && !canAccessContactRecord(targetContact)) {
+      if (!canManageAllTenants && (!targetContact || !canAccessContactRecord(targetContact))) {
         router.push('/settings/contacts?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/contacts/${normalizedId}`);
     },
-    [resolveContactById, canAccessContactRecord, router]
+    [canManageAllTenants, resolveContactById, canAccessContactRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -757,14 +780,14 @@ const useContactListScreen = () => {
       if (!normalizedId) return;
 
       const targetContact = resolveContactById(normalizedId);
-      if (targetContact && !canAccessContactRecord(targetContact)) {
+      if (!canManageAllTenants && (!targetContact || !canAccessContactRecord(targetContact))) {
         router.push('/settings/contacts?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/contacts/${normalizedId}/edit`);
     },
-    [canEditContact, resolveContactById, canAccessContactRecord, router]
+    [canEditContact, canManageAllTenants, resolveContactById, canAccessContactRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -776,7 +799,7 @@ const useContactListScreen = () => {
       if (!normalizedId) return;
 
       const targetContact = resolveContactById(normalizedId);
-      if (targetContact && !canAccessContactRecord(targetContact)) {
+      if (!canManageAllTenants && (!targetContact || !canAccessContactRecord(targetContact))) {
         router.push('/settings/contacts?notice=accessDenied');
         return;
       }
@@ -798,6 +821,7 @@ const useContactListScreen = () => {
     },
     [
       canDeleteContact,
+      canManageAllTenants,
       resolveContactById,
       canAccessContactRecord,
       router,
@@ -817,7 +841,7 @@ const useContactListScreen = () => {
     let removedCount = 0;
     for (const contactIdValue of selectedContactIds) {
       const targetContact = resolveContactById(contactIdValue);
-      if (targetContact && !canAccessContactRecord(targetContact)) {
+      if (!canManageAllTenants && (!targetContact || !canAccessContactRecord(targetContact))) {
         continue;
       }
 
@@ -839,6 +863,7 @@ const useContactListScreen = () => {
     setSelectedContactIds([]);
   }, [
     canDeleteContact,
+    canManageAllTenants,
     selectedContactIds,
     t,
     resolveContactById,

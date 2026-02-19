@@ -360,6 +360,39 @@ describe('useContactListScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/settings/contacts?notice=accessDenied');
   });
 
+  it('prevents tenant-scoped users from opening contacts missing from the scoped list', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useContact.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [{
+          id: 'contact-1',
+          tenant_id: 'tenant-1',
+          value: 'tenant@acme.org',
+          contact_type: 'EMAIL',
+          is_primary: true,
+        }],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = await renderUseContactListScreen();
+
+    act(() => {
+      result.current.onContactPress('missing-contact-id');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/contacts?notice=accessDenied');
+  });
+
   it('bulk delete removes selected contacts when confirmed', async () => {
     useContact.mockReturnValue({
       list: mockList,

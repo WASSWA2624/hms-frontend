@@ -123,6 +123,8 @@ const mockT = (key, values = {}) => {
     'common.loading': 'Loading',
     'common.remove': 'Remove',
     'common.more': 'More',
+    'common.previous': 'Previous',
+    'common.next': 'Next',
     'common.notAvailable': 'Not available',
     'shell.banners.offline.title': 'Offline',
     'shell.banners.offline.message': 'No connection',
@@ -132,6 +134,14 @@ const mockT = (key, values = {}) => {
 
 const baseMobileHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
   search: '',
   searchScope: 'all',
   searchScopeOptions: [{ value: 'all', label: 'All fields' }],
@@ -147,6 +157,9 @@ const baseMobileHook = {
   onSearch: jest.fn(),
   onSearchScopeChange: jest.fn(),
   onClearSearchAndFilters: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
   onUserPress: jest.fn(),
   onEdit: jest.fn(),
   onDelete: jest.fn(),
@@ -237,6 +250,16 @@ describe('UserListScreen', () => {
       totalItems: 1,
     });
     expect(renderWithTheme(<UserListScreenWeb />).getByTestId('user-table')).toBeTruthy();
+  });
+
+  it('keeps advanced filters collapsed by default in desktop/tablet mode', () => {
+    useUserListScreen.mockReturnValue({
+      ...baseWebHook,
+      isTableMode: true,
+      pagedItems: [{ id: 'u-1', email: 'user@acme.org', status: 'ACTIVE' }],
+      totalItems: 1,
+    });
+    expect(renderWithTheme(<UserListScreenWeb />).queryByTestId('user-filter-body')).toBeNull();
   });
 
   it('renders mobile list on web when not in table mode', () => {

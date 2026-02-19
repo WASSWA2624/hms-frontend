@@ -19,6 +19,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'email', 'phone', 'status', 'tenant', 'facility']);
@@ -87,6 +89,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -332,6 +346,12 @@ const useUserListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedUserItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((userItem) => normalizeValue(userItem?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, baseItems]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -351,7 +371,7 @@ const useUserListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((User) => {
+    return scopedItems.filter((User) => {
       if (hasSearch && !matchesUserSearch(User, normalizedSearch, normalizedSearchScope)) {
         return false;
       }
@@ -363,7 +383,7 @@ const useUserListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [baseItems, search, normalizedSearchScope, activeFilters, filterLogic]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -396,7 +416,7 @@ const useUserListScreen = () => {
     && selectedOnPageCount === currentPageUserIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'user.list.loadError'),
@@ -412,7 +432,10 @@ const useUserListScreen = () => {
     if (!isResolved || !canManageUsers || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -727,7 +750,7 @@ const useUserListScreen = () => {
     if (canManageAllTenants) return true;
 
     const userTenantId = normalizeValue(userItem?.tenant_id);
-    if (!userTenantId || !normalizedTenantId) return true;
+    if (!userTenantId || !normalizedTenantId) return false;
     return userTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -737,14 +760,14 @@ const useUserListScreen = () => {
       if (!normalizedId) return;
 
       const targetUser = resolveUserById(normalizedId);
-      if (targetUser && !canAccessUserRecord(targetUser)) {
+      if (!canManageAllTenants && (!targetUser || !canAccessUserRecord(targetUser))) {
         router.push('/settings/users?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/users/${normalizedId}`);
     },
-    [resolveUserById, canAccessUserRecord, router]
+    [canManageAllTenants, resolveUserById, canAccessUserRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -760,14 +783,14 @@ const useUserListScreen = () => {
       if (!normalizedId) return;
 
       const targetUser = resolveUserById(normalizedId);
-      if (targetUser && !canAccessUserRecord(targetUser)) {
+      if (!canManageAllTenants && (!targetUser || !canAccessUserRecord(targetUser))) {
         router.push('/settings/users?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/users/${normalizedId}/edit`);
     },
-    [canEditUser, resolveUserById, canAccessUserRecord, router]
+    [canEditUser, canManageAllTenants, resolveUserById, canAccessUserRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -779,7 +802,7 @@ const useUserListScreen = () => {
       if (!normalizedId) return;
 
       const targetUser = resolveUserById(normalizedId);
-      if (targetUser && !canAccessUserRecord(targetUser)) {
+      if (!canManageAllTenants && (!targetUser || !canAccessUserRecord(targetUser))) {
         router.push('/settings/users?notice=accessDenied');
         return;
       }
@@ -801,6 +824,7 @@ const useUserListScreen = () => {
     },
     [
       canDeleteUser,
+      canManageAllTenants,
       resolveUserById,
       canAccessUserRecord,
       router,
@@ -820,7 +844,7 @@ const useUserListScreen = () => {
     let removedCount = 0;
     for (const userIdValue of selectedUserIds) {
       const targetUser = resolveUserById(userIdValue);
-      if (targetUser && !canAccessUserRecord(targetUser)) {
+      if (!canManageAllTenants && (!targetUser || !canAccessUserRecord(targetUser))) {
         continue;
       }
 
@@ -842,6 +866,7 @@ const useUserListScreen = () => {
     setSelectedUserIds([]);
   }, [
     canDeleteUser,
+    canManageAllTenants,
     selectedUserIds,
     t,
     resolveUserById,
