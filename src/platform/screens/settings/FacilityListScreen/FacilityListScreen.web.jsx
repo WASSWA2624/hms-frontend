@@ -135,6 +135,7 @@ const FacilityListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -704,6 +705,7 @@ const FacilityListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -899,5 +901,4 @@ const FacilityListScreenWeb = () => {
 };
 
 export default FacilityListScreenWeb;
-
 

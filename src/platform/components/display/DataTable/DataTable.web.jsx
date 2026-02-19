@@ -21,7 +21,10 @@ import { DEFAULT_VIRTUALIZATION, ROW_DENSITIES } from './types';
 import {
   StyledScaffold,
   StyledTopSection,
-  StyledUtilityBar,
+  StyledFilterToolsToggle,
+  StyledFilterToolsHeader,
+  StyledFilterToolsTitle,
+  StyledFilterToolsActions,
   StyledStatusSection,
   StyledContainer,
   StyledScrollArea,
@@ -41,6 +44,9 @@ import {
   StyledExportModalTitle,
   StyledExportModalSubtitle,
   StyledExportSummary,
+  StyledExportSection,
+  StyledExportSectionTitle,
+  StyledExportAdvancedToggle,
   StyledExportGrid,
   StyledExportField,
   StyledExportFieldLabel,
@@ -711,6 +717,7 @@ const DataTableWeb = ({
   columnResize,
   tableTitle,
   exportConfig,
+  hasActiveFilters = false,
   testID,
   className,
   style,
@@ -719,7 +726,9 @@ const DataTableWeb = ({
   const [scrollTop, setScrollTop] = useState(0);
   const [columnWidths, setColumnWidths] = useState({});
   const [activeResizeColumnId, setActiveResizeColumnId] = useState(null);
+  const [isFilterToolsVisible, setIsFilterToolsVisible] = useState(() => Boolean(hasActiveFilters));
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExportAdvancedVisible, setIsExportAdvancedVisible] = useState(false);
   const [exportFormat, setExportFormat] = useState(EXPORT_FORMATS.CSV);
   const [exportScope, setExportScope] = useState(EXPORT_SCOPES.FILTERED);
   const [exportFileName, setExportFileName] = useState('');
@@ -874,51 +883,56 @@ const DataTableWeb = ({
   const paginationContent = resolveSlotContent(pagination, slotContext);
   const tableNavigationContent = resolveSlotContent(tableNavigation, slotContext);
   const bottomContentNode = resolveSlotContent(bottomContent, slotContext);
+  const hasFilterToolsSection = Boolean(
+    searchBarContent
+    || filterBarContent
+    || normalizedExportConfig.enabled
+  );
 
   const exportFormatOptions = useMemo(() => [
-    { label: 'CSV (.csv)', value: EXPORT_FORMATS.CSV },
-    { label: 'Excel (.xls)', value: EXPORT_FORMATS.EXCEL },
-    { label: 'PDF (.pdf)', value: EXPORT_FORMATS.PDF },
-    { label: 'Print', value: EXPORT_FORMATS.PRINT },
-  ], []);
+    { label: t('common.dataTable.export.formatOptionCsv'), value: EXPORT_FORMATS.CSV },
+    { label: t('common.dataTable.export.formatOptionExcel'), value: EXPORT_FORMATS.EXCEL },
+    { label: t('common.dataTable.export.formatOptionPdf'), value: EXPORT_FORMATS.PDF },
+    { label: t('common.dataTable.export.formatOptionPrint'), value: EXPORT_FORMATS.PRINT },
+  ], [t]);
 
   const csvDelimiterOptions = useMemo(() => [
-    { label: 'Comma (,)', value: CSV_DELIMITERS.COMMA },
-    { label: 'Semicolon (;)', value: CSV_DELIMITERS.SEMICOLON },
-    { label: 'Tab', value: CSV_DELIMITERS.TAB },
-  ], []);
+    { label: t('common.dataTable.export.delimiterComma'), value: CSV_DELIMITERS.COMMA },
+    { label: t('common.dataTable.export.delimiterSemicolon'), value: CSV_DELIMITERS.SEMICOLON },
+    { label: t('common.dataTable.export.delimiterTab'), value: CSV_DELIMITERS.TAB },
+  ], [t]);
 
   const pageSizeOptions = useMemo(() => [
-    { label: 'A4', value: EXPORT_PAGE_SIZES.A4 },
-    { label: 'Letter', value: EXPORT_PAGE_SIZES.LETTER },
-  ], []);
+    { label: t('common.dataTable.export.pageSizeA4'), value: EXPORT_PAGE_SIZES.A4 },
+    { label: t('common.dataTable.export.pageSizeLetter'), value: EXPORT_PAGE_SIZES.LETTER },
+  ], [t]);
 
   const orientationOptions = useMemo(() => [
-    { label: 'Landscape', value: EXPORT_ORIENTATIONS.LANDSCAPE },
-    { label: 'Portrait', value: EXPORT_ORIENTATIONS.PORTRAIT },
-  ], []);
+    { label: t('common.dataTable.export.orientationLandscape'), value: EXPORT_ORIENTATIONS.LANDSCAPE },
+    { label: t('common.dataTable.export.orientationPortrait'), value: EXPORT_ORIENTATIONS.PORTRAIT },
+  ], [t]);
 
   const exportScopeOptions = useMemo(() => {
     const options = [
       {
-        label: `Filtered rows (${filteredRecords.length})`,
+        label: t('common.dataTable.export.scopeOptionFiltered', { count: filteredRecords.length }),
         value: EXPORT_SCOPES.FILTERED,
       },
       {
-        label: `Visible viewport rows (${visibleRecords.length})`,
+        label: t('common.dataTable.export.scopeOptionVisible', { count: visibleRecords.length }),
         value: EXPORT_SCOPES.VISIBLE,
       },
     ];
 
     if (selectedRecords.length > 0) {
       options.push({
-        label: `Selected rows (${selectedRecords.length})`,
+        label: t('common.dataTable.export.scopeOptionSelected', { count: selectedRecords.length }),
         value: EXPORT_SCOPES.SELECTED,
       });
     }
 
     return options;
-  }, [filteredRecords.length, visibleRecords.length, selectedRecords.length]);
+  }, [filteredRecords.length, visibleRecords.length, selectedRecords.length, t]);
 
   const exportRecords = useMemo(() => {
     if (exportScope === EXPORT_SCOPES.SELECTED && selectedRecords.length > 0) {
@@ -929,6 +943,11 @@ const DataTableWeb = ({
     }
     return filteredRecords;
   }, [exportScope, selectedRecords, visibleRecords, filteredRecords]);
+
+  const activeExportScopeLabel = useMemo(
+    () => exportScopeOptions.find((option) => option.value === exportScope)?.label || exportScope,
+    [exportScopeOptions, exportScope]
+  );
 
   const isPrintMode = exportFormat === EXPORT_FORMATS.PRINT;
   const isPdfLikeFormat = exportFormat === EXPORT_FORMATS.PDF || exportFormat === EXPORT_FORMATS.PRINT;
@@ -1024,6 +1043,16 @@ const DataTableWeb = ({
     }
   }, [exportScopeOptions, exportScope]);
 
+  useEffect(() => {
+    if (!hasActiveFilters) return;
+    setIsFilterToolsVisible(true);
+  }, [hasActiveFilters]);
+
+  useEffect(() => {
+    if (hasFilterToolsSection || !isFilterToolsVisible) return;
+    setIsFilterToolsVisible(false);
+  }, [hasFilterToolsSection, isFilterToolsVisible]);
+
   const handleColumnResizeStart = useCallback((event, column) => {
     if (!normalizedColumnResize.enabled || column.resizable === false) return;
     if (event.button !== 0) return;
@@ -1116,19 +1145,32 @@ const DataTableWeb = ({
 
   const resolveExportMetadataLines = useCallback((generatedAt) => {
     const lines = [
-      `Rows: ${exportRecords.length}`,
-      `Scope: ${exportScope}`,
+      t('common.dataTable.export.metadataRows', { count: exportRecords.length }),
+      t('common.dataTable.export.metadataScope', { scope: activeExportScopeLabel }),
     ];
 
     if (includeTimestamp) {
-      lines.push(`Generated: ${generatedAt.toLocaleString()}`);
+      lines.push(
+        t('common.dataTable.export.metadataGenerated', {
+          value: generatedAt.toLocaleString(),
+        })
+      );
     }
 
     return lines;
-  }, [exportRecords.length, exportScope, includeTimestamp]);
+  }, [exportRecords.length, activeExportScopeLabel, includeTimestamp, t]);
+
+  const handleShowFilterTools = useCallback(() => {
+    setIsFilterToolsVisible(true);
+  }, []);
+
+  const handleToggleFilterTools = useCallback(() => {
+    setIsFilterToolsVisible((previous) => !previous);
+  }, []);
 
   const handleOpenExportModal = useCallback(() => {
     setExportStatus(null);
+    setIsExportAdvancedVisible(false);
     setIsExportModalOpen(true);
   }, []);
 
@@ -1137,8 +1179,12 @@ const DataTableWeb = ({
     setExportStatus(null);
   }, []);
 
+  const handleToggleExportAdvanced = useCallback(() => {
+    setIsExportAdvancedVisible((previous) => !previous);
+  }, []);
+
   const handleRunExportAction = useCallback(() => {
-    const title = tableTitle || 'Data Table Export';
+    const title = tableTitle || t('common.dataTable.export.defaultTitle');
     const generatedAt = new Date();
     const matrix = resolveExportMatrix({
       records: exportRecords,
@@ -1154,13 +1200,19 @@ const DataTableWeb = ({
 
     if (isPrintMode) {
       if (typeof window === 'undefined') {
-        setExportStatus({ type: 'error', message: 'Printing is unavailable in this environment.' });
+        setExportStatus({
+          type: 'error',
+          message: t('common.dataTable.export.status.printUnavailable'),
+        });
         return;
       }
 
       const printWindow = window.open('', '_blank', 'noopener,noreferrer');
       if (!printWindow || !printWindow.document) {
-        setExportStatus({ type: 'error', message: 'Unable to open print preview. Please allow pop-ups and retry.' });
+        setExportStatus({
+          type: 'error',
+          message: t('common.dataTable.export.status.printPopupBlocked'),
+        });
         return;
       }
 
@@ -1178,7 +1230,10 @@ const DataTableWeb = ({
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
-      setExportStatus({ type: 'success', message: 'Print dialog opened.' });
+      setExportStatus({
+        type: 'success',
+        message: t('common.dataTable.export.status.printOpened'),
+      });
       return;
     }
 
@@ -1214,7 +1269,7 @@ const DataTableWeb = ({
         pdfLines.push(matrix.headers.map((header) => '-'.repeat(Math.max(3, Math.min(22, String(header).length)))).join('-+-'));
       }
       if (matrix.rows.length === 0) {
-        pdfLines.push('(No rows)');
+        pdfLines.push(t('common.dataTable.export.noRowsFallback'));
       } else {
         matrix.rows.forEach((cells) => {
           pdfLines.push(cells.join(' | '));
@@ -1228,7 +1283,10 @@ const DataTableWeb = ({
       });
       blob = new Blob([pdfBytes], { type: 'application/pdf' });
     } else {
-      setExportStatus({ type: 'error', message: 'Unsupported export format selected.' });
+      setExportStatus({
+        type: 'error',
+        message: t('common.dataTable.export.status.unsupportedFormat'),
+      });
       return;
     }
 
@@ -1236,14 +1294,17 @@ const DataTableWeb = ({
     if (!wasDownloaded) {
       setExportStatus({
         type: 'error',
-        message: 'Unable to start download in this browser environment.',
+        message: t('common.dataTable.export.status.downloadFailed'),
       });
       return;
     }
 
     setExportStatus({
       type: 'success',
-      message: `Exported ${exportRecords.length} row(s) as ${extension.toUpperCase()}.`,
+      message: t('common.dataTable.export.status.exported', {
+        count: exportRecords.length,
+        format: extension.toUpperCase(),
+      }),
     });
   }, [
     tableTitle,
@@ -1261,6 +1322,7 @@ const DataTableWeb = ({
     orientation,
     exportFormat,
     csvDelimiter,
+    t,
   ]);
 
   return (
@@ -1270,33 +1332,63 @@ const DataTableWeb = ({
       data-testid={testID}
     >
       <StyledContainer data-testid={testID ? `${testID}-table-container` : undefined}>
-        {normalizedExportConfig.enabled ? (
-          <StyledUtilityBar data-testid={testID ? `${testID}-utility-bar` : undefined}>
+        {hasFilterToolsSection && !isFilterToolsVisible ? (
+          <StyledFilterToolsToggle data-testid={testID ? `${testID}-filter-tools-toggle` : undefined}>
             <Button
               variant="text"
               size="small"
-              onPress={handleOpenExportModal}
-              testID={testID ? `${testID}-export-trigger` : 'data-table-export-trigger'}
-              accessibilityLabel="Open export and print options"
+              onPress={handleShowFilterTools}
+              testID={testID ? `${testID}-filter-tools-show` : 'data-table-filter-tools-show'}
+              accessibilityLabel={t('common.dataTable.controls.showFiltersA11y')}
             >
-              Export
+              {t('common.dataTable.controls.showFilters')}
             </Button>
-          </StyledUtilityBar>
+          </StyledFilterToolsToggle>
         ) : null}
 
-        {searchBarContent ? (
-          <StyledTopSection
-            $slot="search"
-            data-testid={testID ? `${testID}-search-bar` : undefined}
-          >
-            {searchBarContent}
-          </StyledTopSection>
-        ) : null}
+        {hasFilterToolsSection && isFilterToolsVisible ? (
+          <>
+            <StyledFilterToolsHeader data-testid={testID ? `${testID}-filter-tools-header` : undefined}>
+              <StyledFilterToolsTitle>{t('common.dataTable.controls.filtersTitle')}</StyledFilterToolsTitle>
+              <StyledFilterToolsActions>
+                {normalizedExportConfig.enabled ? (
+                  <Button
+                    variant="text"
+                    size="small"
+                    onPress={handleOpenExportModal}
+                    testID={testID ? `${testID}-export-trigger` : 'data-table-export-trigger'}
+                    accessibilityLabel={t('common.dataTable.controls.exportA11y')}
+                  >
+                    {t('common.dataTable.controls.export')}
+                  </Button>
+                ) : null}
+                <Button
+                  variant="text"
+                  size="small"
+                  onPress={handleToggleFilterTools}
+                  testID={testID ? `${testID}-filter-tools-collapse` : 'data-table-filter-tools-collapse'}
+                  accessibilityLabel={t('common.dataTable.controls.hideFiltersA11y')}
+                >
+                  {t('common.dataTable.controls.hideFilters')}
+                </Button>
+              </StyledFilterToolsActions>
+            </StyledFilterToolsHeader>
 
-        {filterBarContent ? (
-          <StyledTopSection data-testid={testID ? `${testID}-filter-bar` : undefined}>
-            {filterBarContent}
-          </StyledTopSection>
+            {searchBarContent ? (
+              <StyledTopSection
+                $slot="search"
+                data-testid={testID ? `${testID}-search-bar` : undefined}
+              >
+                {searchBarContent}
+              </StyledTopSection>
+            ) : null}
+
+            {filterBarContent ? (
+              <StyledTopSection data-testid={testID ? `${testID}-filter-bar` : undefined}>
+                {filterBarContent}
+              </StyledTopSection>
+            ) : null}
+          </>
         ) : null}
 
         {bulkActionsContent ? (
@@ -1334,7 +1426,7 @@ const DataTableWeb = ({
                     <Checkbox
                       checked={Boolean(selection?.allSelected)}
                       onChange={(checked) => selection?.onToggleAll?.(Boolean(checked))}
-                      accessibilityLabel={selection?.selectAllLabel || 'Select all rows'}
+                      accessibilityLabel={selection?.selectAllLabel || t('common.dataTable.controls.selectAllRows')}
                       testID={selection?.headerCheckboxTestId}
                     />
                   </StyledHeaderCell>
@@ -1469,120 +1561,154 @@ const DataTableWeb = ({
           visible={isExportModalOpen}
           onDismiss={handleCloseExportModal}
           size="medium"
-          accessibilityLabel="Export and print options"
+          accessibilityLabel={t('common.dataTable.exportModal.accessibilityLabel')}
           testID={testID ? `${testID}-export-modal` : 'data-table-export-modal'}
         >
-          <StyledExportModalTitle>Export and Print</StyledExportModalTitle>
+          <StyledExportModalTitle>{t('common.dataTable.exportModal.title')}</StyledExportModalTitle>
           <StyledExportModalSubtitle>
-            Configure format, scope, and layout. Exports use the table&apos;s current filtered dataset.
+            {t('common.dataTable.exportModal.subtitle')}
           </StyledExportModalSubtitle>
 
           <StyledExportSummary>
-            {`Filtered rows: ${filteredRecords.length} | Visible viewport rows: ${visibleRecords.length} | Selected rows: ${selectedRecords.length}`}
+            {t('common.dataTable.export.summary', {
+              filtered: filteredRecords.length,
+              visible: visibleRecords.length,
+              selected: selectedRecords.length,
+            })}
           </StyledExportSummary>
 
-          <StyledExportGrid>
-            <StyledExportField>
-              <StyledExportFieldLabel>Output format</StyledExportFieldLabel>
-              <Select
-                value={exportFormat}
-                onValueChange={setExportFormat}
-                options={exportFormatOptions}
-                compact
-                testID={testID ? `${testID}-export-format` : 'data-table-export-format'}
-              />
-            </StyledExportField>
-
-            <StyledExportField>
-              <StyledExportFieldLabel>Rows scope</StyledExportFieldLabel>
-              <Select
-                value={exportScope}
-                onValueChange={setExportScope}
-                options={exportScopeOptions}
-                compact
-                testID={testID ? `${testID}-export-scope` : 'data-table-export-scope'}
-              />
-            </StyledExportField>
-
-            {!isPrintMode ? (
+          <StyledExportSection>
+            <StyledExportSectionTitle>
+              {t('common.dataTable.export.basicSectionTitle')}
+            </StyledExportSectionTitle>
+            <StyledExportGrid>
               <StyledExportField>
-                <StyledExportFieldLabel>File name</StyledExportFieldLabel>
-                <TextField
-                  value={exportFileName}
-                  onChange={(event) => setExportFileName(event.target.value)}
-                  placeholder={normalizedExportConfig.defaultFileName}
-                  density="compact"
-                  testID={testID ? `${testID}-export-file-name` : 'data-table-export-file-name'}
-                />
-              </StyledExportField>
-            ) : null}
-
-            {exportFormat === EXPORT_FORMATS.CSV ? (
-              <StyledExportField>
-                <StyledExportFieldLabel>CSV delimiter</StyledExportFieldLabel>
+                <StyledExportFieldLabel>{t('common.dataTable.export.labelFormat')}</StyledExportFieldLabel>
                 <Select
-                  value={csvDelimiter}
-                  onValueChange={setCsvDelimiter}
-                  options={csvDelimiterOptions}
+                  value={exportFormat}
+                  onValueChange={setExportFormat}
+                  options={exportFormatOptions}
                   compact
-                  testID={testID ? `${testID}-export-delimiter` : 'data-table-export-delimiter'}
+                  testID={testID ? `${testID}-export-format` : 'data-table-export-format'}
                 />
               </StyledExportField>
-            ) : null}
 
-            {isPdfLikeFormat ? (
               <StyledExportField>
-                <StyledExportFieldLabel>Page size</StyledExportFieldLabel>
+                <StyledExportFieldLabel>{t('common.dataTable.export.labelScope')}</StyledExportFieldLabel>
                 <Select
-                  value={pageSize}
-                  onValueChange={setPageSize}
-                  options={pageSizeOptions}
+                  value={exportScope}
+                  onValueChange={setExportScope}
+                  options={exportScopeOptions}
                   compact
-                  testID={testID ? `${testID}-export-page-size` : 'data-table-export-page-size'}
+                  testID={testID ? `${testID}-export-scope` : 'data-table-export-scope'}
                 />
               </StyledExportField>
-            ) : null}
+            </StyledExportGrid>
+          </StyledExportSection>
 
-            {isPdfLikeFormat ? (
-              <StyledExportField>
-                <StyledExportFieldLabel>Orientation</StyledExportFieldLabel>
-                <Select
-                  value={orientation}
-                  onValueChange={setOrientation}
-                  options={orientationOptions}
-                  compact
-                  testID={testID ? `${testID}-export-orientation` : 'data-table-export-orientation'}
+          <StyledExportAdvancedToggle>
+            <Button
+              variant="text"
+              size="small"
+              onPress={handleToggleExportAdvanced}
+              testID={testID ? `${testID}-export-advanced-toggle` : 'data-table-export-advanced-toggle'}
+              accessibilityLabel={isExportAdvancedVisible
+                ? t('common.dataTable.export.hideAdvancedA11y')
+                : t('common.dataTable.export.showAdvancedA11y')}
+            >
+              {isExportAdvancedVisible
+                ? t('common.dataTable.export.hideAdvanced')
+                : t('common.dataTable.export.showAdvanced')}
+            </Button>
+          </StyledExportAdvancedToggle>
+
+          {isExportAdvancedVisible ? (
+            <StyledExportSection data-testid={testID ? `${testID}-export-advanced-section` : 'data-table-export-advanced-section'}>
+              <StyledExportSectionTitle>
+                {t('common.dataTable.export.advancedSectionTitle')}
+              </StyledExportSectionTitle>
+              <StyledExportGrid>
+                {!isPrintMode ? (
+                  <StyledExportField>
+                    <StyledExportFieldLabel>{t('common.dataTable.export.labelFileName')}</StyledExportFieldLabel>
+                    <TextField
+                      value={exportFileName}
+                      onChange={(event) => setExportFileName(event.target.value)}
+                      placeholder={normalizedExportConfig.defaultFileName}
+                      density="compact"
+                      testID={testID ? `${testID}-export-file-name` : 'data-table-export-file-name'}
+                    />
+                  </StyledExportField>
+                ) : null}
+
+                {exportFormat === EXPORT_FORMATS.CSV ? (
+                  <StyledExportField>
+                    <StyledExportFieldLabel>{t('common.dataTable.export.labelDelimiter')}</StyledExportFieldLabel>
+                    <Select
+                      value={csvDelimiter}
+                      onValueChange={setCsvDelimiter}
+                      options={csvDelimiterOptions}
+                      compact
+                      testID={testID ? `${testID}-export-delimiter` : 'data-table-export-delimiter'}
+                    />
+                  </StyledExportField>
+                ) : null}
+
+                {isPdfLikeFormat ? (
+                  <StyledExportField>
+                    <StyledExportFieldLabel>{t('common.dataTable.export.labelPageSize')}</StyledExportFieldLabel>
+                    <Select
+                      value={pageSize}
+                      onValueChange={setPageSize}
+                      options={pageSizeOptions}
+                      compact
+                      testID={testID ? `${testID}-export-page-size` : 'data-table-export-page-size'}
+                    />
+                  </StyledExportField>
+                ) : null}
+
+                {isPdfLikeFormat ? (
+                  <StyledExportField>
+                    <StyledExportFieldLabel>{t('common.dataTable.export.labelOrientation')}</StyledExportFieldLabel>
+                    <Select
+                      value={orientation}
+                      onValueChange={setOrientation}
+                      options={orientationOptions}
+                      compact
+                      testID={testID ? `${testID}-export-orientation` : 'data-table-export-orientation'}
+                    />
+                  </StyledExportField>
+                ) : null}
+              </StyledExportGrid>
+
+              <StyledExportOptions>
+                <Checkbox
+                  checked={includeHeaders}
+                  onChange={(checked) => setIncludeHeaders(Boolean(checked))}
+                  label={t('common.dataTable.export.includeHeaders')}
+                  testID={testID ? `${testID}-export-include-headers` : 'data-table-export-include-headers'}
                 />
-              </StyledExportField>
-            ) : null}
-          </StyledExportGrid>
-
-          <StyledExportOptions>
-            <Checkbox
-              checked={includeHeaders}
-              onChange={(checked) => setIncludeHeaders(Boolean(checked))}
-              label="Include column headers"
-              testID={testID ? `${testID}-export-include-headers` : 'data-table-export-include-headers'}
-            />
-            <Checkbox
-              checked={includeRowNumbers}
-              onChange={(checked) => setIncludeRowNumbers(Boolean(checked))}
-              label="Include row numbers"
-              testID={testID ? `${testID}-export-include-row-numbers` : 'data-table-export-include-row-numbers'}
-            />
-            <Checkbox
-              checked={includeTimestamp}
-              onChange={(checked) => setIncludeTimestamp(Boolean(checked))}
-              label="Include generated timestamp"
-              testID={testID ? `${testID}-export-include-timestamp` : 'data-table-export-include-timestamp'}
-            />
-            <Checkbox
-              checked={includeMetadata}
-              onChange={(checked) => setIncludeMetadata(Boolean(checked))}
-              label="Include metadata summary"
-              testID={testID ? `${testID}-export-include-metadata` : 'data-table-export-include-metadata'}
-            />
-          </StyledExportOptions>
+                <Checkbox
+                  checked={includeRowNumbers}
+                  onChange={(checked) => setIncludeRowNumbers(Boolean(checked))}
+                  label={t('common.dataTable.export.includeRowNumbers')}
+                  testID={testID ? `${testID}-export-include-row-numbers` : 'data-table-export-include-row-numbers'}
+                />
+                <Checkbox
+                  checked={includeTimestamp}
+                  onChange={(checked) => setIncludeTimestamp(Boolean(checked))}
+                  label={t('common.dataTable.export.includeTimestamp')}
+                  testID={testID ? `${testID}-export-include-timestamp` : 'data-table-export-include-timestamp'}
+                />
+                <Checkbox
+                  checked={includeMetadata}
+                  onChange={(checked) => setIncludeMetadata(Boolean(checked))}
+                  label={t('common.dataTable.export.includeMetadata')}
+                  testID={testID ? `${testID}-export-include-metadata` : 'data-table-export-include-metadata'}
+                />
+              </StyledExportOptions>
+            </StyledExportSection>
+          ) : null}
 
           {exportStatus ? (
             <StyledExportStatus $type={exportStatus.type}>
@@ -1597,7 +1723,7 @@ const DataTableWeb = ({
               onPress={handleCloseExportModal}
               testID={testID ? `${testID}-export-cancel` : 'data-table-export-cancel'}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -1605,7 +1731,9 @@ const DataTableWeb = ({
               onPress={handleRunExportAction}
               testID={testID ? `${testID}-export-apply` : 'data-table-export-apply'}
             >
-              {isPrintMode ? 'Print' : 'Export'}
+              {isPrintMode
+                ? t('common.dataTable.controls.print')
+                : t('common.dataTable.controls.export')}
             </Button>
           </StyledExportActions>
         </Modal>

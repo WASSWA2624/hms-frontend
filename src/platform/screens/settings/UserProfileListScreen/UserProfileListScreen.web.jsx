@@ -110,6 +110,7 @@ const UserProfileListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -689,6 +690,7 @@ const UserProfileListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -884,6 +886,5 @@ const UserProfileListScreenWeb = () => {
 };
 
 export default UserProfileListScreenWeb;
-
 
 

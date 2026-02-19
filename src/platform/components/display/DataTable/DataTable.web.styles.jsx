@@ -39,9 +39,9 @@ const StyledTopSection = styled.div.withConfig({
   ` : '')}
 `;
 
-const StyledUtilityBar = styled.div.withConfig({
-  displayName: 'StyledUtilityBar',
-  componentId: 'DataTableUtilityBar',
+const StyledFilterToolsToggle = styled.div.withConfig({
+  displayName: 'StyledFilterToolsToggle',
+  componentId: 'DataTableFilterToolsToggle',
 })`
   width: 100%;
   display: flex;
@@ -52,6 +52,40 @@ const StyledUtilityBar = styled.div.withConfig({
   padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.sm}px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
   background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledFilterToolsHeader = styled.div.withConfig({
+  displayName: 'StyledFilterToolsHeader',
+  componentId: 'DataTableFilterToolsHeader',
+})`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  box-sizing: border-box;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.sm}px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledFilterToolsTitle = styled.span.withConfig({
+  displayName: 'StyledFilterToolsTitle',
+  componentId: 'DataTableFilterToolsTitle',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  letter-spacing: 0.02em;
+`;
+
+const StyledFilterToolsActions = styled.div.withConfig({
+  displayName: 'StyledFilterToolsActions',
+  componentId: 'DataTableFilterToolsActions',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
 const StyledStatusSection = styled.div.withConfig({
@@ -357,6 +391,38 @@ const StyledExportSummary = styled.div.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
 `;
 
+const StyledExportSection = styled.div.withConfig({
+  displayName: 'StyledExportSection',
+  componentId: 'DataTableExportSection',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+  border-top: 1px solid ${({ theme }) => theme.colors.border.light};
+`;
+
+const StyledExportSectionTitle = styled.h4.withConfig({
+  displayName: 'StyledExportSectionTitle',
+  componentId: 'DataTableExportSectionTitle',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledExportAdvancedToggle = styled.div.withConfig({
+  displayName: 'StyledExportAdvancedToggle',
+  componentId: 'DataTableExportAdvancedToggle',
+})`
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
 const StyledExportGrid = styled.div.withConfig({
   displayName: 'StyledExportGrid',
   componentId: 'DataTableExportGrid',
@@ -441,7 +507,10 @@ const StyledExportStatus = styled.div.withConfig({
 export {
   StyledScaffold,
   StyledTopSection,
-  StyledUtilityBar,
+  StyledFilterToolsToggle,
+  StyledFilterToolsHeader,
+  StyledFilterToolsTitle,
+  StyledFilterToolsActions,
   StyledStatusSection,
   StyledContainer,
   StyledScrollArea,
@@ -461,6 +530,9 @@ export {
   StyledExportModalTitle,
   StyledExportModalSubtitle,
   StyledExportSummary,
+  StyledExportSection,
+  StyledExportSectionTitle,
+  StyledExportAdvancedToggle,
   StyledExportGrid,
   StyledExportField,
   StyledExportFieldLabel,

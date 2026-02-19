@@ -157,6 +157,7 @@ const BedListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -759,6 +760,7 @@ const BedListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -952,6 +954,5 @@ const BedListScreenWeb = () => {
 };
 
 export default BedListScreenWeb;
-
 
 

@@ -132,6 +132,7 @@ const UserMfaListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -598,6 +599,7 @@ const UserMfaListScreenWeb = () => {
                 onRowPress={handleTableRowPress}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
                 tableNavigation={tableNavigationContent}

@@ -142,6 +142,7 @@ const UserRoleListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -611,6 +612,7 @@ const UserRoleListScreenWeb = () => {
                 onRowPress={handleTableRowPress}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
                 tableNavigation={tableNavigationContent}

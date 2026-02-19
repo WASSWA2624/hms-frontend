@@ -133,6 +133,7 @@ const ApiKeyPermissionListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -599,6 +600,7 @@ const ApiKeyPermissionListScreenWeb = () => {
                 onRowPress={handleTableRowPress}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
                 tableNavigation={tableNavigationContent}

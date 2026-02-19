@@ -55,7 +55,71 @@
     "tooltip": "Tooltip",
     "modal": "Dialog",
     "modalHint": "Dialog content",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "dataTable": {
+      "controls": {
+        "showFilters": "Show filters",
+        "hideFilters": "Hide filters",
+        "filtersTitle": "Filters",
+        "showFiltersA11y": "Show filters and export tools",
+        "hideFiltersA11y": "Hide filters and export tools",
+        "export": "Export",
+        "exportA11y": "Open export and print options",
+        "print": "Print",
+        "selectAllRows": "Select all rows"
+      },
+      "exportModal": {
+        "title": "Export and print",
+        "subtitle": "Choose format and row scope. Export output always follows current filters.",
+        "accessibilityLabel": "Export and print options"
+      },
+      "export": {
+        "summary": "Filtered rows: {{filtered}} | Visible rows: {{visible}} | Selected rows: {{selected}}",
+        "basicSectionTitle": "Basic options",
+        "advancedSectionTitle": "Advanced options",
+        "showAdvanced": "Show advanced options",
+        "hideAdvanced": "Hide advanced options",
+        "showAdvancedA11y": "Show advanced export options",
+        "hideAdvancedA11y": "Hide advanced export options",
+        "labelFormat": "Output format",
+        "labelScope": "Rows scope",
+        "labelFileName": "File name",
+        "labelDelimiter": "CSV delimiter",
+        "labelPageSize": "Page size",
+        "labelOrientation": "Orientation",
+        "includeHeaders": "Include column headers",
+        "includeRowNumbers": "Include row numbers",
+        "includeTimestamp": "Include generated timestamp",
+        "includeMetadata": "Include metadata summary",
+        "formatOptionCsv": "CSV (.csv)",
+        "formatOptionExcel": "Excel (.xls)",
+        "formatOptionPdf": "PDF (.pdf)",
+        "formatOptionPrint": "Print",
+        "delimiterComma": "Comma (,)",
+        "delimiterSemicolon": "Semicolon (;)",
+        "delimiterTab": "Tab",
+        "pageSizeA4": "A4",
+        "pageSizeLetter": "Letter",
+        "orientationLandscape": "Landscape",
+        "orientationPortrait": "Portrait",
+        "scopeOptionFiltered": "Filtered rows ({{count}})",
+        "scopeOptionVisible": "Visible viewport rows ({{count}})",
+        "scopeOptionSelected": "Selected rows ({{count}})",
+        "metadataRows": "Rows: {{count}}",
+        "metadataScope": "Scope: {{scope}}",
+        "metadataGenerated": "Generated: {{value}}",
+        "defaultTitle": "Data Table Export",
+        "noRowsFallback": "(No rows)",
+        "status": {
+          "printUnavailable": "Printing is unavailable in this environment.",
+          "printPopupBlocked": "Unable to open print preview. Please allow pop-ups and retry.",
+          "printOpened": "Print dialog opened.",
+          "unsupportedFormat": "Unsupported export format selected.",
+          "downloadFailed": "Unable to start download in this browser environment.",
+          "exported": "Exported {{count}} row(s) as {{format}}."
+        }
+      }
+    }
   },
   "greeting": {
     "hello": "Hello, {{name}}"

@@ -141,6 +141,7 @@ const WardListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -720,6 +721,7 @@ const WardListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -912,7 +914,6 @@ const WardListScreenWeb = () => {
 };
 
 export default WardListScreenWeb;
-
 
 
 

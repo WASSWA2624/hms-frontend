@@ -139,6 +139,7 @@ const RoomListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -718,6 +719,7 @@ const RoomListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -910,7 +912,6 @@ const RoomListScreenWeb = () => {
 };
 
 export default RoomListScreenWeb;
-
 
 
 

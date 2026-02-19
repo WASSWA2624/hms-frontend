@@ -150,6 +150,7 @@ const DepartmentListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -721,6 +722,7 @@ const DepartmentListScreenWeb = () => {
                 }}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 bulkActionsBar={bulkActionsBar}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
@@ -913,5 +915,4 @@ const DepartmentListScreenWeb = () => {
 };
 
 export default DepartmentListScreenWeb;
-
 

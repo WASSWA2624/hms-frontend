@@ -43,7 +43,7 @@ describe('DataTable Component - Web', () => {
   ];
 
   it('renders search/filter/pagination/navigation through centralized DataTable slots', () => {
-    const { getByTestId, getByText } = renderWebWithProviders(
+    const { getByTestId, getByText, queryByTestId } = renderWebWithProviders(
       <DataTableWeb
         testID="tenant-table"
         columns={columns}
@@ -55,6 +55,9 @@ describe('DataTable Component - Web', () => {
       />
     );
 
+    expect(queryByTestId('tenant-table-search-bar')).toBeNull();
+    expect(queryByTestId('tenant-table-filter-bar')).toBeNull();
+    fireEvent.click(getByTestId('tenant-table-filter-tools-show'));
     expect(getByTestId('tenant-table-search-bar')).toBeTruthy();
     expect(getByTestId('tenant-table-filter-bar')).toBeTruthy();
     expect(getByTestId('tenant-table-pagination')).toBeTruthy();
@@ -65,8 +68,98 @@ describe('DataTable Component - Web', () => {
     expect(getByText('Prev Next')).toBeTruthy();
   });
 
-  it('opens export modal with comprehensive controls', () => {
-    const { getByTestId, getByText } = renderWebWithProviders(
+  it('keeps filter/export sections collapsed by default and can collapse again', () => {
+    const { getByTestId, queryByTestId } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={rows}
+        searchBar={<div>Search controls</div>}
+        filterBar={<div>Filter controls</div>}
+      />
+    );
+
+    expect(queryByTestId('tenant-table-filter-bar')).toBeNull();
+    expect(queryByTestId('tenant-table-search-bar')).toBeNull();
+    fireEvent.click(getByTestId('tenant-table-filter-tools-show'));
+    expect(getByTestId('tenant-table-filter-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-search-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-export-trigger')).toBeTruthy();
+
+    fireEvent.click(getByTestId('tenant-table-filter-tools-collapse'));
+    expect(queryByTestId('tenant-table-filter-bar')).toBeNull();
+    expect(queryByTestId('tenant-table-search-bar')).toBeNull();
+    expect(queryByTestId('tenant-table-export-trigger')).toBeNull();
+    expect(getByTestId('tenant-table-filter-tools-show')).toBeTruthy();
+  });
+
+  it('starts expanded when hasActiveFilters is true', () => {
+    const { getByTestId, queryByTestId } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={rows}
+        searchBar={<div>Search controls</div>}
+        filterBar={<div>Filter controls</div>}
+        hasActiveFilters
+      />
+    );
+
+    expect(getByTestId('tenant-table-search-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-filter-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-filter-tools-collapse')).toBeTruthy();
+    expect(queryByTestId('tenant-table-filter-tools-show')).toBeNull();
+  });
+
+  it('auto-opens filter tools when active filters exist and does not auto-collapse later', () => {
+    const { getByTestId, queryByTestId, rerender } = renderWebWithProviders(
+      <DataTableWeb
+        testID="tenant-table"
+        columns={columns}
+        rows={rows}
+        searchBar={<div>Search controls</div>}
+        filterBar={<div>Filter controls</div>}
+        hasActiveFilters={false}
+      />
+    );
+
+    expect(queryByTestId('tenant-table-search-bar')).toBeNull();
+
+    rerender(
+      <ThemeProvider theme={lightTheme}>
+        <DataTableWeb
+          testID="tenant-table"
+          columns={columns}
+          rows={rows}
+          searchBar={<div>Search controls</div>}
+          filterBar={<div>Filter controls</div>}
+          hasActiveFilters
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByTestId('tenant-table-search-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-filter-bar')).toBeTruthy();
+
+    rerender(
+      <ThemeProvider theme={lightTheme}>
+        <DataTableWeb
+          testID="tenant-table"
+          columns={columns}
+          rows={rows}
+          searchBar={<div>Search controls</div>}
+          filterBar={<div>Filter controls</div>}
+          hasActiveFilters={false}
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByTestId('tenant-table-search-bar')).toBeTruthy();
+    expect(getByTestId('tenant-table-filter-bar')).toBeTruthy();
+  });
+
+  it('opens export modal with basic options first and advanced options behind a toggle', () => {
+    const { getByTestId, queryByTestId } = renderWebWithProviders(
       <DataTableWeb
         testID="tenant-table"
         columns={columns}
@@ -74,12 +167,19 @@ describe('DataTable Component - Web', () => {
       />
     );
 
+    fireEvent.click(getByTestId('tenant-table-filter-tools-show'));
     fireEvent.click(getByTestId('tenant-table-export-trigger'));
 
     expect(getByTestId('tenant-table-export-modal')).toBeTruthy();
-    expect(getByText('Export and Print')).toBeTruthy();
     expect(getByTestId('tenant-table-export-format')).toBeTruthy();
     expect(getByTestId('tenant-table-export-scope')).toBeTruthy();
+    expect(queryByTestId('tenant-table-export-file-name')).toBeNull();
+    expect(queryByTestId('tenant-table-export-include-headers')).toBeNull();
+    expect(queryByTestId('tenant-table-export-include-row-numbers')).toBeNull();
+    expect(queryByTestId('tenant-table-export-include-metadata')).toBeNull();
+
+    fireEvent.click(getByTestId('tenant-table-export-advanced-toggle'));
+
     expect(getByTestId('tenant-table-export-file-name')).toBeTruthy();
     expect(getByTestId('tenant-table-export-include-headers')).toBeTruthy();
     expect(getByTestId('tenant-table-export-include-row-numbers')).toBeTruthy();
@@ -108,6 +208,7 @@ describe('DataTable Component - Web', () => {
         />
       );
 
+      fireEvent.click(getByTestId('tenant-table-filter-tools-show'));
       fireEvent.click(getByTestId('tenant-table-export-trigger'));
       fireEvent.click(getByTestId('tenant-table-export-format'));
       fireEvent.click(getByTestId('tenant-table-export-format-option-3'));
@@ -146,6 +247,7 @@ describe('DataTable Component - Web', () => {
       />
     );
 
+    fireEvent.click(getByTestId('tenant-table-filter-tools-show'));
     expect(queryByText('Search field')).toBeNull();
     expect(getByTestId('mock-search-scope-label').textContent).toBe('label-removed');
   });

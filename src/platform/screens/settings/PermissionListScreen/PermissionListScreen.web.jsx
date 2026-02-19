@@ -128,6 +128,7 @@ const PermissionListScreenWeb = () => {
     filterLogicOptions,
     canAddFilter,
     hasNoResults,
+    hasActiveSearchOrFilter,
     sortField,
     sortDirection,
     columnOrder,
@@ -579,6 +580,7 @@ const PermissionListScreenWeb = () => {
                 onRowPress={handleTableRowPress}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
+                hasActiveFilters={hasActiveSearchOrFilter}
                 statusContent={tableStatusContent}
                 pagination={paginationContent}
                 tableNavigation={tableNavigationContent}
