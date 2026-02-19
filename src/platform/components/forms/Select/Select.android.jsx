@@ -20,9 +20,13 @@ import {
   StyledChevron,
   StyledOverlay,
   StyledSheet,
+  StyledSearchContainer,
+  StyledSearchInput,
   StyledOptionList,
   StyledOption,
   StyledOptionText,
+  StyledNoResults,
+  StyledNoResultsText,
   StyledHelperText,
 } from './Select.android.styles';
 
@@ -50,6 +54,7 @@ import {
  * @param {string} [props.accessibilityHint]
  * @param {string} [props.testID]
  * @param {Object} [props.style]
+ * @param {boolean} [props.searchable]
  */
 const SelectAndroid = ({
   label,
@@ -68,6 +73,7 @@ const SelectAndroid = ({
   testID,
   compact = false,
   style,
+  searchable = false,
 }) => {
   const { t } = useI18n();
   const defaultPlaceholder = placeholder || t('common.selectPlaceholder');
@@ -110,21 +116,48 @@ const SelectAndroid = ({
     placement: 'bottom',
     align: 'left',
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const normalizedSearchQuery = useMemo(
+    () => String(searchQuery || '').trim().toLowerCase(),
+    [searchQuery]
+  );
+  const longestOptionLabelLength = useMemo(
+    () => sanitizedOptions.reduce((longest, option) => {
+      const labelLength = String(option?.label || '').length;
+      return Math.max(longest, labelLength);
+    }, 0),
+    [sanitizedOptions]
+  );
+  const filteredOptions = useMemo(() => {
+    if (!searchable || !normalizedSearchQuery) return sanitizedOptions;
+    return sanitizedOptions.filter((option) => (
+      String(option?.label || '').toLowerCase().includes(normalizedSearchQuery)
+    ));
+  }, [searchable, normalizedSearchQuery, sanitizedOptions]);
 
   const computeMenuPosition = useCallback(() => {
     if (!triggerRef.current?.measureInWindow) return;
     const window = Dimensions.get('window');
     triggerRef.current.measureInWindow((x, y, width, height) => {
       const gap = 8;
-      const spaceBelow = window.height - (y + height);
-      const spaceAbove = y;
-      const spaceRight = window.width - x;
-      const spaceLeft = x + width;
+      const spaceBelow = Math.max(0, window.height - (y + height) - gap);
+      const spaceAbove = Math.max(0, y - gap);
+      const maxWidth = Math.max(140, window.width - gap * 2);
+      const estimatedLabelWidth = longestOptionLabelLength > 0
+        ? longestOptionLabelLength * 7.2 + 56
+        : width;
+      const desiredWidth = Math.max(
+        width,
+        Math.min(Math.max(estimatedLabelWidth, width), 420)
+      );
+      const resolvedWidth = Math.min(desiredWidth, maxWidth);
+
+      const spaceRight = Math.max(0, window.width - x - gap);
+      const spaceLeft = Math.max(0, x + width - gap);
       const placement = spaceBelow >= spaceAbove ? 'bottom' : 'top';
       const availableHeight = placement === 'bottom' ? spaceBelow : spaceAbove;
-      const maxHeight = Math.min(240, Math.max(availableHeight - gap, 120));
-      const resolvedWidth = Math.min(width, window.width - gap * 2);
-      const align = spaceRight >= spaceLeft ? 'left' : 'right';
+      const maxHeight = Math.max(120, Math.min(320, availableHeight || 240));
+      const align = spaceRight >= resolvedWidth || spaceRight >= spaceLeft ? 'left' : 'right';
       let left;
       let right;
       if (align === 'left') {
@@ -148,7 +181,7 @@ const SelectAndroid = ({
         align,
       });
     });
-  }, []);
+  }, [longestOptionLabelLength]);
 
   useEffect(() => {
     if (!open) return;
@@ -156,6 +189,11 @@ const SelectAndroid = ({
     const subscription = Dimensions.addEventListener('change', computeMenuPosition);
     return () => subscription?.remove?.();
   }, [open, computeMenuPosition]);
+
+  useEffect(() => {
+    if (open) return;
+    setSearchQuery('');
+  }, [open]);
 
   return (
     <StyledContainer style={style} $compact={compact}>
@@ -194,14 +232,26 @@ const SelectAndroid = ({
       <Modal transparent visible={open} animationType="fade" onRequestClose={closeSelect}>
         <StyledOverlay onPress={closeSelect} accessibilityRole="button" accessibilityLabel={t('common.closeSelect')}>
           <StyledSheet
+            testID={testID ? `${testID}-menu-sheet` : undefined}
             $top={menuPosition.top}
             $left={menuPosition.left}
             $right={menuPosition.right}
             $width={menuPosition.width}
             $maxHeight={menuPosition.maxHeight}
           >
-            <StyledOptionList>
-              {sanitizedOptions.map((opt, index) => (
+            {searchable ? (
+              <StyledSearchContainer>
+                <StyledSearchInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder={t('common.searchPlaceholder')}
+                  accessibilityLabel={t('common.search')}
+                  testID={testID ? `${testID}-search-input` : undefined}
+                />
+              </StyledSearchContainer>
+            ) : null}
+            <StyledOptionList keyboardShouldPersistTaps="handled">
+              {filteredOptions.length > 0 ? filteredOptions.map((opt, index) => (
                 <StyledOption
                   key={`${String(opt.value)}-${index}`}
                   disabled={!!opt.disabled}
@@ -215,7 +265,11 @@ const SelectAndroid = ({
                 >
                   <StyledOptionText>{opt.label}</StyledOptionText>
                 </StyledOption>
-              ))}
+              )) : (
+                <StyledNoResults testID={testID ? `${testID}-no-results` : undefined}>
+                  <StyledNoResultsText>{t('listScaffold.emptyState.title')}</StyledNoResultsText>
+                </StyledNoResults>
+              )}
             </StyledOptionList>
           </StyledSheet>
         </StyledOverlay>

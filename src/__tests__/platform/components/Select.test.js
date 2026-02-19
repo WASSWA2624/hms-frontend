@@ -428,6 +428,48 @@ describe('Select Component', () => {
         fireEvent.press(getByTestId('android-select-option-0'));
         expect(onValueChange).toHaveBeenCalledWith('one');
       });
+
+      it('should render searchable input and filter options on Android', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const SelectAndroid = require('@platform/components/forms/Select/Select.android').default;
+
+        const { getByTestId, getByText, queryByText } = renderWithProviders(
+          <SelectAndroid
+            testID="android-select"
+            options={options}
+            value={undefined}
+            onValueChange={() => {}}
+            searchable
+          />
+        );
+
+        fireEvent.press(getByTestId('android-select'));
+        expect(getByTestId('android-select-search-input')).toBeTruthy();
+        fireEvent.changeText(getByTestId('android-select-search-input'), 'tw');
+
+        expect(getByText('Two')).toBeTruthy();
+        expect(queryByText('One')).toBeFalsy();
+      });
+
+      it('should show empty search state when no Android searchable matches exist', () => {
+        // eslint-disable-next-line import/no-unresolved
+        const SelectAndroid = require('@platform/components/forms/Select/Select.android').default;
+
+        const { getByTestId } = renderWithProviders(
+          <SelectAndroid
+            testID="android-select"
+            options={options}
+            value={undefined}
+            onValueChange={() => {}}
+            searchable
+          />
+        );
+
+        fireEvent.press(getByTestId('android-select'));
+        fireEvent.changeText(getByTestId('android-select-search-input'), 'no-match');
+
+        expect(getByTestId('android-select-no-results')).toBeTruthy();
+      });
     });
 
     // Web variant tests are in Select.web.test.js (requires jsdom environment)

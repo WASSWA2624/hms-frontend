@@ -117,6 +117,32 @@ const StyledSheet = styled.View.withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-radius: ${({ theme }) => theme.radius.lg}px;
   overflow: hidden;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+const StyledSearchContainer = styled.View.withConfig({
+  displayName: 'StyledSearchContainer',
+  componentId: 'StyledSearchContainer',
+})`
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-bottom-width: 1px;
+  border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+const StyledSearchInput = styled.TextInput.withConfig({
+  displayName: 'StyledSearchInput',
+  componentId: 'StyledSearchInput',
+})`
+  min-height: 36px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.sm}px`};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledOptionList = styled.ScrollView.withConfig({
@@ -143,6 +169,22 @@ const StyledOptionText = styled.Text.withConfig({
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
+const StyledNoResults = styled.View.withConfig({
+  displayName: 'StyledNoResults',
+  componentId: 'StyledNoResults',
+})`
+  padding: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledNoResultsText = styled.Text.withConfig({
+  displayName: 'StyledNoResultsText',
+  componentId: 'StyledNoResultsText',
+})`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
 const StyledHelperText = styled.Text.withConfig({
   displayName: 'StyledHelperText',
   componentId: 'StyledHelperText',
@@ -167,9 +209,13 @@ export {
   StyledChevron,
   StyledOverlay,
   StyledSheet,
+  StyledSearchContainer,
+  StyledSearchInput,
   StyledOptionList,
   StyledOption,
   StyledOptionText,
+  StyledNoResults,
+  StyledNoResultsText,
   StyledHelperText,
 };
 

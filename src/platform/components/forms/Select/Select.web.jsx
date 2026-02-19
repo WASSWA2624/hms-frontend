@@ -23,8 +23,11 @@ import {
   StyledTriggerText,
   StyledChevron,
   StyledMenu,
+  StyledSearchContainer,
+  StyledSearchInput,
   StyledOption,
   StyledOptionText,
+  StyledNoResults,
   StyledHelperText,
 } from './Select.web.styles';
 
@@ -60,6 +63,7 @@ import { VALIDATION_STATES } from './types';
  * @param {string} [props.className]
  * @param {Object} [props.style]
  * @param {boolean} [props.compact]
+ * @param {boolean} [props.searchable]
  */
 const SelectWeb = ({
   label,
@@ -79,6 +83,7 @@ const SelectWeb = ({
   className,
   style,
   compact = false,
+  searchable = false,
 }) => {
   const { t } = useI18n();
   const defaultPlaceholder = placeholder || t('common.selectPlaceholder');
@@ -116,13 +121,17 @@ const SelectWeb = ({
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
   const menuRef = useRef(null);
+  const searchInputRef = useRef(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [searchQuery, setSearchQuery] = useState('');
   const helperId = useId();
   const resolvedHelperId = testID ? `${testID}-helper` : helperId;
   const [menuPosition, setMenuPosition] = useState({
     placement: 'bottom',
+    align: 'left',
     top: 0,
     left: 0,
+    right: undefined,
     width: 0,
     maxHeight: 240,
   });
@@ -130,6 +139,18 @@ const SelectWeb = ({
     const raw = option?.label ?? option?.value ?? '';
     return Math.max(longest, String(raw).length);
   }, 0), [options]);
+
+  const normalizedSearchQuery = useMemo(
+    () => String(searchQuery || '').trim().toLowerCase(),
+    [searchQuery]
+  );
+
+  const filteredOptions = useMemo(() => {
+    if (!searchable || !normalizedSearchQuery) return sanitizedOptions;
+    return sanitizedOptions.filter((option) => (
+      String(option?.label || '').toLowerCase().includes(normalizedSearchQuery)
+    ));
+  }, [searchable, normalizedSearchQuery, sanitizedOptions]);
 
   const computeMenuPosition = useCallback(() => {
     if (!triggerRef.current) return;
@@ -162,7 +183,23 @@ const SelectWeb = ({
       || Math.max(estimatedOptionHeight, optionCount * estimatedOptionHeight);
     const menuHeight = Math.min(maxHeight, estimatedMenuHeight);
 
-    const left = Math.min(Math.max(rect.left, gap), Math.max(gap, viewportWidth - width - gap));
+    const spaceRight = Math.max(0, viewportWidth - rect.left - gap);
+    const spaceLeft = Math.max(0, rect.right - gap);
+    const align = spaceRight >= width || spaceRight >= spaceLeft ? 'left' : 'right';
+
+    let left;
+    let right;
+    if (align === 'left') {
+      left = Math.min(Math.max(rect.left, gap), Math.max(gap, viewportWidth - width - gap));
+      right = undefined;
+    } else {
+      right = Math.min(
+        Math.max(viewportWidth - rect.right, gap),
+        Math.max(gap, viewportWidth - width - gap)
+      );
+      left = undefined;
+    }
+
     let top = placement === 'bottom'
       ? rect.bottom + gap
       : rect.top - menuHeight - gap;
@@ -171,8 +208,10 @@ const SelectWeb = ({
 
     setMenuPosition({
       placement,
+      align,
       top,
       left,
+      right,
       width,
       maxHeight,
     });
@@ -200,18 +239,27 @@ const SelectWeb = ({
   useEffect(() => {
     if (open) {
       setFocusedIndex(-1);
+    } else {
+      setSearchQuery('');
     }
   }, [open]);
 
-  // Focus first option when menu opens
+  // Focus search input (searchable) or first option when menu opens
   useEffect(() => {
-    if (open && menuRef.current) {
+    if (!open || !menuRef.current) return;
+
+    if (searchable && searchInputRef.current) {
+      searchInputRef.current.focus();
+      return;
+    }
+
+    if (!searchable) {
       const firstOption = menuRef.current.querySelector('[role="option"]:not([aria-disabled="true"])');
       if (firstOption) {
         firstOption.focus();
       }
     }
-  }, [open]);
+  }, [open, searchable]);
 
   useEffect(() => {
     if (!open) return;
@@ -240,7 +288,7 @@ const SelectWeb = ({
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleResize, true);
     };
-  }, [open, computeMenuPosition]);
+  }, [open, computeMenuPosition, normalizedSearchQuery, filteredOptions.length]);
 
   const handleTriggerKeyDown = (e) => {
     if (disabled) return;
@@ -261,17 +309,22 @@ const SelectWeb = ({
   const handleMenuKeyDown = (e) => {
     if (disabled) return;
 
-    const enabledOptions = sanitizedOptions.filter((opt) => !opt.disabled);
-    const currentIndex = enabledOptions.findIndex((opt, idx) => {
-      const optionIndex = sanitizedOptions.indexOf(opt);
-      return optionIndex === focusedIndex;
-    });
+    const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
+    const currentIndex = enabledOptions.findIndex((opt) => filteredOptions.indexOf(opt) === focusedIndex);
+
+    if (enabledOptions.length === 0) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSelect();
+      }
+      return;
+    }
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       const nextIndex = currentIndex < enabledOptions.length - 1 ? currentIndex + 1 : 0;
       const nextOption = enabledOptions[nextIndex];
-      const nextOptionIndex = sanitizedOptions.indexOf(nextOption);
+      const nextOptionIndex = filteredOptions.indexOf(nextOption);
       setFocusedIndex(nextOptionIndex);
       if (menuRef.current) {
         const optionElement = testID
@@ -285,7 +338,7 @@ const SelectWeb = ({
       e.preventDefault();
       const prevIndex = currentIndex > 0 ? currentIndex - 1 : enabledOptions.length - 1;
       const prevOption = enabledOptions[prevIndex];
-      const prevOptionIndex = sanitizedOptions.indexOf(prevOption);
+      const prevOptionIndex = filteredOptions.indexOf(prevOption);
       setFocusedIndex(prevOptionIndex);
       if (menuRef.current) {
         const optionElement = testID
@@ -311,6 +364,27 @@ const SelectWeb = ({
       }
     }
   };
+
+  const handleSearchInputKeyDown = useCallback((event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeSelect();
+      triggerRef.current?.focus?.();
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const firstEnabledIndex = filteredOptions.findIndex((option) => !option.disabled);
+      if (firstEnabledIndex < 0) return;
+      setFocusedIndex(firstEnabledIndex);
+      if (menuRef.current) {
+        const optionElement = testID
+          ? menuRef.current.querySelector(`[data-testid="${testID}-option-${firstEnabledIndex}"]`)
+          : menuRef.current.querySelectorAll('[role="option"]')[firstEnabledIndex];
+        optionElement?.focus?.();
+      }
+    }
+  }, [closeSelect, filteredOptions, testID]);
 
   return (
     <StyledContainer
@@ -367,12 +441,28 @@ const SelectWeb = ({
             onKeyDown={handleMenuKeyDown}
             data-testid={testID ? `${testID}-menu` : undefined}
             data-placement={menuPosition.placement}
+            data-align={menuPosition.align}
             data-top={String(menuPosition.top)}
             data-left={menuPosition.left != null ? String(menuPosition.left) : undefined}
+            data-right={menuPosition.right != null ? String(menuPosition.right) : undefined}
             data-width={String(menuPosition.width)}
             data-max-height={String(menuPosition.maxHeight)}
           >
-            {sanitizedOptions.map((opt, index) => (
+            {searchable ? (
+              <StyledSearchContainer>
+                <StyledSearchInput
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onKeyDown={handleSearchInputKeyDown}
+                  placeholder={t('common.searchPlaceholder')}
+                  aria-label={t('common.search')}
+                  data-testid={testID ? `${testID}-search-input` : undefined}
+                />
+              </StyledSearchContainer>
+            ) : null}
+            {filteredOptions.length > 0 ? filteredOptions.map((opt, index) => (
               <StyledOption
                 key={`${String(opt.value)}-${index}`}
                 disabled={!!opt.disabled}
@@ -390,7 +480,11 @@ const SelectWeb = ({
               >
                 <StyledOptionText>{opt.label}</StyledOptionText>
               </StyledOption>
-            ))}
+            )) : (
+              <StyledNoResults data-testid={testID ? `${testID}-no-results` : undefined}>
+                {t('listScaffold.emptyState.title')}
+              </StyledNoResults>
+            )}
           </StyledMenu>,
           document.body
         )

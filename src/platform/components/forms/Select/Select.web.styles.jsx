@@ -160,6 +160,39 @@ const StyledMenu = styled.div.withConfig({
   overscroll-behavior: contain;
 `;
 
+const StyledSearchContainer = styled.div.withConfig({
+  displayName: 'StyledSearchContainer',
+  componentId: 'StyledSearchContainer',
+})`
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+`;
+
+const StyledSearchInput = styled.input.withConfig({
+  displayName: 'StyledSearchInput',
+  componentId: 'StyledSearchInput',
+})`
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  padding: ${({ theme }) => `${theme.spacing.xs}px ${theme.spacing.sm}px`};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  color: ${({ theme }) => theme.colors.text.primary};
+  background-color: ${({ theme }) => theme.colors.background.primary};
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.text.tertiary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 1px;
+  }
+`;
+
 const StyledOption = styled.button.withConfig({
   displayName: 'StyledOption',
   componentId: 'StyledOption',
@@ -202,6 +235,16 @@ const StyledOptionText = styled.span.withConfig({
   line-height: 1.35;
 `;
 
+const StyledNoResults = styled.div.withConfig({
+  displayName: 'StyledNoResults',
+  componentId: 'StyledNoResults',
+})`
+  padding: ${({ theme }) => theme.spacing.md}px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
 const StyledHelperText = styled.span.withConfig({
   displayName: 'StyledHelperText',
   componentId: 'StyledHelperText',
@@ -227,8 +270,11 @@ export {
   StyledTriggerText,
   StyledChevron,
   StyledMenu,
+  StyledSearchContainer,
+  StyledSearchInput,
   StyledOption,
   StyledOptionText,
+  StyledNoResults,
   StyledHelperText,
 };
 

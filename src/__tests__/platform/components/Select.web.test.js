@@ -267,6 +267,40 @@ describe('Select Component - Web', () => {
       expect(queryByText(technicalId)).toBeFalsy();
     });
 
+    it('should render search input when searchable is enabled on Web', () => {
+      const { getByTestId, getByText, queryByText } = renderWebWithProviders(
+        <SelectWeb
+          testID="web-select"
+          options={options}
+          value={undefined}
+          onValueChange={() => {}}
+          searchable
+        />
+      );
+
+      fireEvent.click(getByTestId('web-select'));
+      const searchInput = getByTestId('web-select-search-input');
+      expect(searchInput).toBeTruthy();
+      expect(getByText('Two')).toBeTruthy();
+      expect(queryByText('One')).toBeTruthy();
+    });
+
+    it('should show empty search state when searchable has no options on Web', () => {
+      const { getByTestId } = renderWebWithProviders(
+        <SelectWeb
+          testID="web-select"
+          options={[]}
+          value={undefined}
+          onValueChange={() => {}}
+          searchable
+        />
+      );
+
+      fireEvent.click(getByTestId('web-select'));
+      expect(getByTestId('web-select-search-input')).toBeTruthy();
+      expect(getByTestId('web-select-no-results')).toBeTruthy();
+    });
+
     it('should expand menu width for long option labels on Web', async () => {
       const previousWidth = window.innerWidth;
       const previousHeight = window.innerHeight;
@@ -304,6 +338,44 @@ describe('Select Component - Web', () => {
       await waitFor(() => {
         const width = Number(menu.getAttribute('data-width'));
         expect(width).toBeGreaterThan(120);
+      });
+
+      window.innerWidth = previousWidth;
+      window.innerHeight = previousHeight;
+    });
+
+    it('should align menu to the right side when horizontal space is limited on Web', async () => {
+      const previousWidth = window.innerWidth;
+      const previousHeight = window.innerHeight;
+      window.innerWidth = 960;
+      window.innerHeight = 720;
+
+      const { getByTestId } = renderWebWithProviders(
+        <SelectWeb testID="web-select" options={options} value={undefined} onValueChange={() => {}} />
+      );
+
+      const trigger = getByTestId('web-select');
+      trigger.getBoundingClientRect = jest.fn(() => ({
+        top: 120,
+        left: 840,
+        bottom: 156,
+        right: 940,
+        width: 100,
+        height: 36,
+        x: 840,
+        y: 120,
+        toJSON: () => ({}),
+      }));
+
+      fireEvent.click(trigger);
+      const menu = getByTestId('web-select-menu');
+      Object.defineProperty(menu, 'scrollWidth', { configurable: true, value: 280 });
+      Object.defineProperty(menu, 'scrollHeight', { configurable: true, value: 96 });
+      fireEvent(window, new Event('resize'));
+
+      await waitFor(() => {
+        expect(menu.getAttribute('data-align')).toBe('right');
+        expect(menu.getAttribute('data-right')).toBeTruthy();
       });
 
       window.innerWidth = previousWidth;
