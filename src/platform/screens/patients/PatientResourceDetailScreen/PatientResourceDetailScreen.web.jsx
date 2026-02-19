@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Button,
   Card,
@@ -31,6 +31,7 @@ const PatientResourceDetailScreenWeb = ({ resourceId }) => {
   const {
     config,
     item,
+    detailRows,
     isLoading,
     hasError,
     errorMessage,
@@ -42,11 +43,7 @@ const PatientResourceDetailScreenWeb = ({ resourceId }) => {
     canEdit,
     canDelete,
     showEditAction,
-    editBlockedReason,
-    deleteBlockedReason,
   } = usePatientResourceDetailScreen(resourceId);
-
-  const rows = useMemo(() => config?.detailRows || [], [config?.detailRows]);
 
   if (!config) return null;
 
@@ -153,7 +150,7 @@ const PatientResourceDetailScreenWeb = ({ resourceId }) => {
 
         <Card variant="outlined" accessibilityLabel={t(`${config.i18nKey}.detail.title`)} testID="patient-resource-detail-card">
           <StyledDetailsGrid>
-            {rows.map((row) => {
+            {detailRows.map((row) => {
               const rawValue = item?.[row.valueKey];
               const value = row.type === 'boolean'
                 ? rawValue ? t('common.on') : t('common.off')
@@ -182,14 +179,11 @@ const PatientResourceDetailScreenWeb = ({ resourceId }) => {
             {t('common.back')}
           </Button>
 
-          {showEditAction ? (
+          {showEditAction && canEdit ? (
             <Button
               variant="surface"
               size="small"
               onPress={onEdit}
-              disabled={!canEdit}
-              aria-disabled={!canEdit}
-              title={!canEdit ? editBlockedReason : undefined}
               accessibilityLabel={t(`${config.i18nKey}.detail.edit`)}
               accessibilityHint={t(`${config.i18nKey}.detail.editHint`)}
               icon={<Icon glyph="?" size="xs" decorative />}
@@ -199,20 +193,19 @@ const PatientResourceDetailScreenWeb = ({ resourceId }) => {
             </Button>
           ) : null}
 
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            disabled={!canDelete}
-            aria-disabled={!canDelete}
-            title={!canDelete ? deleteBlockedReason : undefined}
-            accessibilityLabel={t(`${config.i18nKey}.detail.delete`)}
-            accessibilityHint={t(`${config.i18nKey}.detail.deleteHint`)}
-            icon={<Icon glyph="?" size="xs" decorative />}
-            testID="patient-resource-detail-delete"
-          >
-            {t(`${config.i18nKey}.detail.delete`)}
-          </Button>
+          {canDelete ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              accessibilityLabel={t(`${config.i18nKey}.detail.delete`)}
+              accessibilityHint={t(`${config.i18nKey}.detail.deleteHint`)}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="patient-resource-detail-delete"
+            >
+              {t(`${config.i18nKey}.detail.delete`)}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

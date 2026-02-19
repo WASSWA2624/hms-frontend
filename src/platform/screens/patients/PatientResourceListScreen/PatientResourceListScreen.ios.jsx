@@ -42,8 +42,6 @@ const PatientResourceListScreenIOS = ({ resourceId }) => {
     onItemPress,
     onDelete,
     onAdd,
-    canCreate,
-    canDelete,
   } = usePatientResourceListScreen(resourceId);
 
   if (!config) return null;
@@ -64,16 +62,17 @@ const PatientResourceListScreenIOS = ({ resourceId }) => {
       <StyledContent>
         <StyledToolbar>
           <StyledToolbarActions>
-            <StyledAddButton
-              onPress={onAdd}
-              disabled={!canCreate}
-              accessibilityLabel={t(`${config.i18nKey}.list.addLabel`)}
-              accessibilityHint={t(`${config.i18nKey}.list.addHint`)}
-              testID="patient-resource-list-add"
-            >
-              <Icon glyph="+" size="xs" decorative />
-              <StyledAddLabel>{t(`${config.i18nKey}.list.addLabel`)}</StyledAddLabel>
-            </StyledAddButton>
+            {onAdd ? (
+              <StyledAddButton
+                onPress={onAdd}
+                accessibilityLabel={t(`${config.i18nKey}.list.addLabel`)}
+                accessibilityHint={t(`${config.i18nKey}.list.addHint`)}
+                testID="patient-resource-list-add"
+              >
+                <Icon glyph="+" size="xs" decorative />
+                <StyledAddLabel>{t(`${config.i18nKey}.list.addLabel`)}</StyledAddLabel>
+              </StyledAddButton>
+            ) : null}
           </StyledToolbarActions>
         </StyledToolbar>
 
@@ -150,12 +149,11 @@ const PatientResourceListScreenIOS = ({ resourceId }) => {
                         title={itemTitle}
                         subtitle={itemSubtitle}
                         onPress={() => onItemPress(item.id)}
-                        actions={
+                        actions={onDelete ? (
                           <Button
                             variant="surface"
                             size="small"
                             onPress={(event) => onDelete(item.id, event)}
-                            disabled={!canDelete}
                             accessibilityLabel={t(`${config.i18nKey}.list.delete`) }
                             accessibilityHint={t(`${config.i18nKey}.list.deleteHint`) }
                             icon={<Icon glyph="?" size="xs" decorative />}
@@ -163,7 +161,7 @@ const PatientResourceListScreenIOS = ({ resourceId }) => {
                           >
                             {t('common.remove')}
                           </Button>
-                        }
+                        ) : null}
                         accessibilityLabel={t(`${config.i18nKey}.list.itemLabel`, { name: itemTitle })}
                         accessibilityHint={t(`${config.i18nKey}.list.itemHint`, { name: itemTitle })}
                         testID={`patient-resource-item-${item.id}`}

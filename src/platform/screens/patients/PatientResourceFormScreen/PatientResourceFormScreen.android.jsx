@@ -30,6 +30,8 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
   const { t } = useI18n();
   const {
     config,
+    visibleFields,
+    showTenantField,
     isEdit,
     values,
     setFieldValue,
@@ -120,22 +122,24 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
 
         <Card variant="outlined" accessibilityLabel={t(`${config.i18nKey}.form.cardLabel`)} testID="patient-resource-form-card">
           <StyledFormGrid>
-            <StyledFullRow>
-              <StyledFieldGroup>
-                <TextField
-                  label={t('patients.common.form.tenantLabel')}
-                  value={values.tenant_id || ''}
-                  onChangeText={(nextValue) => setFieldValue('tenant_id', nextValue)}
-                  accessibilityLabel={t('patients.common.form.tenantLabel')}
-                  accessibilityHint={tenantHint}
-                  helperText={errors.tenant_id || tenantHint}
-                  errorMessage={errors.tenant_id}
-                  required
-                  disabled={tenantLocked}
-                  testID="patient-resource-form-tenant"
-                />
-              </StyledFieldGroup>
-            </StyledFullRow>
+            {showTenantField ? (
+              <StyledFullRow>
+                <StyledFieldGroup>
+                  <TextField
+                    label={t('patients.common.form.tenantLabel')}
+                    value={values.tenant_id || ''}
+                    onChangeText={(nextValue) => setFieldValue('tenant_id', nextValue)}
+                    accessibilityLabel={t('patients.common.form.tenantLabel')}
+                    accessibilityHint={tenantHint}
+                    helperText={errors.tenant_id || tenantHint}
+                    errorMessage={errors.tenant_id}
+                    required
+                    disabled={tenantLocked}
+                    testID="patient-resource-form-tenant"
+                  />
+                </StyledFieldGroup>
+              </StyledFullRow>
+            ) : null}
 
             {config.requiresPatientSelection ? (
               <StyledFullRow>
@@ -197,7 +201,7 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
               </StyledFullRow>
             ) : null}
 
-            {config.fields.map((field) => {
+            {visibleFields.map((field) => {
               const fieldValue = values[field.name];
               const fieldError = errors[field.name];
 

@@ -13,7 +13,12 @@ import {
   withPatientContext,
 } from '../patientResourceConfigs';
 import usePatientResourceCrud from '../usePatientResourceCrud';
-import { isAccessDeniedError, normalizePatientContextId, resolveErrorMessage } from '../patientScreenUtils';
+import {
+  filterDetailRowsByIdentityPolicy,
+  isAccessDeniedError,
+  normalizePatientContextId,
+  resolveErrorMessage,
+} from '../patientScreenUtils';
 
 const usePatientResourceDetailScreen = (resourceId) => {
   const config = getPatientResourceConfig(resourceId);
@@ -46,8 +51,13 @@ const usePatientResourceDetailScreen = (resourceId) => {
   );
   const supportsEdit = config?.supportsEdit !== false;
   const canEdit = canEditPatientRecords && supportsEdit;
+  const canViewTechnicalIds = canManageAllTenants;
 
   const item = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const detailRows = useMemo(
+    () => filterDetailRowsByIdentityPolicy(config?.detailRows || [], canViewTechnicalIds),
+    [config?.detailRows, canViewTechnicalIds]
+  );
 
   const errorMessage = useMemo(() => {
     if (!config) return null;
@@ -132,11 +142,8 @@ const usePatientResourceDetailScreen = (resourceId) => {
     canEdit,
     canDelete: canDeletePatientRecords,
     showEditAction: supportsEdit,
-    editBlockedReason: supportsEdit
-      ? canEditPatientRecords ? '' : t('patients.access.editDenied')
-      : t('patients.access.editUnsupported'),
-    deleteBlockedReason: canDeletePatientRecords ? '' : t('patients.access.deleteDenied'),
     listPath,
+    detailRows,
   };
 };
 

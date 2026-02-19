@@ -20,6 +20,27 @@ import {
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const DATE_ONLY_FIELDS = new Set(['date_of_birth', 'diagnosis_date', 'granted_at', 'revoked_at']);
+const MAX_PATIENT_LOOKUP_LIMIT = 100;
+
+const resolvePatientOptionLabel = (patient, fallbackLabel) => {
+  const firstName = sanitizeString(patient?.first_name);
+  const lastName = sanitizeString(patient?.last_name);
+  const fullName = `${firstName} ${lastName}`.trim();
+  if (fullName) return fullName;
+
+  const readableIdentity = [
+    patient?.patient_code,
+    patient?.patient_number,
+    patient?.medical_record_number,
+    patient?.mrn,
+    patient?.identifier_value,
+    patient?.name,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+
+  return readableIdentity || fallbackLabel;
+};
 
 const usePatientResourceFormScreen = (resourceId) => {
   const config = getPatientResourceConfig(resourceId);
@@ -77,13 +98,20 @@ const usePatientResourceFormScreen = (resourceId) => {
 
   const patientOptions = useMemo(
     () =>
-      patientItems.map((patient) => ({
-        value: String(patient.id),
-        label: patient.first_name || patient.last_name
-          ? `${sanitizeString(patient.first_name)} ${sanitizeString(patient.last_name)}`.trim()
-          : String(patient.id),
-      })),
-    [patientItems]
+      patientItems
+        .map((patient, index) => {
+          const patientId = sanitizeString(patient?.id);
+          if (!patientId) return null;
+          return {
+            value: patientId,
+            label: resolvePatientOptionLabel(
+              patient,
+              t('patients.common.form.unnamedPatient', { position: index + 1 })
+            ),
+          };
+        })
+        .filter(Boolean),
+    [patientItems, t]
   );
 
   const setFieldValue = useCallback((fieldName, nextValue) => {
@@ -186,7 +214,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     if (!config?.requiresPatientSelection || !isResolved || !canAccessPatients) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
     resetPatientList();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_PATIENT_LOOKUP_LIMIT };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -338,7 +366,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     if (!config?.requiresPatientSelection) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
     resetPatientList();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_PATIENT_LOOKUP_LIMIT };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -356,9 +384,22 @@ const usePatientResourceFormScreen = (resourceId) => {
   }, [router]);
 
   const tenantLocked = !canManageAllTenants || isEdit;
+  const showTenantField = canManageAllTenants;
+  const visibleFields = useMemo(
+    () => (config?.fields || []).filter((field) => {
+      if (!field) return false;
+      if (field.name === 'facility_id' && !canManageAllTenants && normalizedFacilityId) {
+        return false;
+      }
+      return true;
+    }),
+    [config?.fields, canManageAllTenants, normalizedFacilityId]
+  );
 
   return {
     config,
+    visibleFields,
+    showTenantField,
     isEdit,
     values,
     setFieldValue,
