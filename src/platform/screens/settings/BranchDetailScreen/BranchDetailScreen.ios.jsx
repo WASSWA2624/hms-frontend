@@ -143,13 +143,11 @@ const BranchDetailScreenIOS = () => {
     branch?.tenant_name
     ?? branch?.tenant?.name
     ?? branch?.tenant_label
-    ?? branch?.tenant_id
   );
   const facilityLabel = humanizeIdentifier(
     branch?.facility_name
     ?? branch?.facility?.name
     ?? branch?.facility_label
-    ?? branch?.facility_id
   );
   const isActive = branch?.is_active ?? false;
   const statusLabel = isActive ? t('common.on') : t('common.off');

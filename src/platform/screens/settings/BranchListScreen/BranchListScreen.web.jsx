@@ -2,7 +2,7 @@
  * BranchListScreen - Web
  * Desktop/tablet renders a customizable table; mobile web renders compact cards.
  */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -84,7 +84,6 @@ const resolveBranchTenantLabel = (t, branch) => {
     branch?.tenant_name
     ?? branch?.tenant?.name
     ?? branch?.tenant_label
-    ?? branch?.tenant_id
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
@@ -95,7 +94,6 @@ const resolveBranchFacilityLabel = (t, branch) => {
     branch?.facility_name
     ?? branch?.facility?.name
     ?? branch?.facility_label
-    ?? branch?.facility_id
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
@@ -212,7 +210,13 @@ const BranchListScreenWeb = () => {
   } = useBranchListScreen();
 
   const rows = pagedItems;
-  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(() => isTableMode);
+
+  useEffect(() => {
+    if (isTableMode) {
+      setIsFilterPanelCollapsed(true);
+    }
+  }, [isTableMode]);
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
   const showOfflineBanner = !isLoading && isOffline && rows.length > 0;

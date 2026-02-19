@@ -19,6 +19,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'tenant', 'facility', 'status']);
@@ -87,6 +89,18 @@ const sanitizeFilterOperator = (field, operator) => {
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
 
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
+
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
     return [DEFAULT_FILTER(getNextFilterId())];
@@ -138,7 +152,6 @@ const resolveBranchTenant = (branch) => normalizeValue(
     branch?.tenant_name
     ?? branch?.tenant?.name
     ?? branch?.tenant_label
-    ?? branch?.tenant_id
   )
 );
 const resolveBranchFacility = (branch) => normalizeValue(
@@ -146,7 +159,6 @@ const resolveBranchFacility = (branch) => normalizeValue(
     branch?.facility_name
     ?? branch?.facility?.name
     ?? branch?.facility_label
-    ?? branch?.facility_id
   )
 );
 const resolveBranchStatus = (branch) => (branch?.is_active ? 'active' : 'inactive');
@@ -327,6 +339,12 @@ const useBranchListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedBranchItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((branch) => normalizeValue(branch?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, baseItems]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -346,7 +364,7 @@ const useBranchListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((branch) => {
+    return scopedItems.filter((branch) => {
       if (hasSearch && !matchesBranchSearch(branch, normalizedSearch, normalizedSearchScope)) {
         return false;
       }
@@ -358,7 +376,7 @@ const useBranchListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [baseItems, search, normalizedSearchScope, activeFilters, filterLogic]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -391,7 +409,7 @@ const useBranchListScreen = () => {
     && selectedOnPageCount === currentPageBranchIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'branch.list.loadError'),
@@ -407,7 +425,10 @@ const useBranchListScreen = () => {
     if (!isResolved || !canManageBranches || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -721,14 +742,14 @@ const useBranchListScreen = () => {
       if (!normalizedId) return;
 
       const targetBranch = resolveBranchById(normalizedId);
-      if (targetBranch && !canAccessBranchRecord(targetBranch)) {
+      if (!canManageAllTenants && (!targetBranch || !canAccessBranchRecord(targetBranch))) {
         router.push('/settings/branches?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/branches/${normalizedId}`);
     },
-    [resolveBranchById, canAccessBranchRecord, router]
+    [canManageAllTenants, resolveBranchById, canAccessBranchRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -744,14 +765,14 @@ const useBranchListScreen = () => {
       if (!normalizedId) return;
 
       const targetBranch = resolveBranchById(normalizedId);
-      if (targetBranch && !canAccessBranchRecord(targetBranch)) {
+      if (!canManageAllTenants && (!targetBranch || !canAccessBranchRecord(targetBranch))) {
         router.push('/settings/branches?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/branches/${normalizedId}/edit`);
     },
-    [canEditBranch, resolveBranchById, canAccessBranchRecord, router]
+    [canEditBranch, canManageAllTenants, resolveBranchById, canAccessBranchRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -763,7 +784,7 @@ const useBranchListScreen = () => {
       if (!normalizedId) return;
 
       const targetBranch = resolveBranchById(normalizedId);
-      if (targetBranch && !canAccessBranchRecord(targetBranch)) {
+      if (!canManageAllTenants && (!targetBranch || !canAccessBranchRecord(targetBranch))) {
         router.push('/settings/branches?notice=accessDenied');
         return;
       }
@@ -785,6 +806,7 @@ const useBranchListScreen = () => {
     },
     [
       canDeleteBranch,
+      canManageAllTenants,
       resolveBranchById,
       canAccessBranchRecord,
       router,
@@ -804,7 +826,7 @@ const useBranchListScreen = () => {
     let removedCount = 0;
     for (const branchIdValue of selectedBranchIds) {
       const targetBranch = resolveBranchById(branchIdValue);
-      if (targetBranch && !canAccessBranchRecord(targetBranch)) {
+      if (!canManageAllTenants && (!targetBranch || !canAccessBranchRecord(targetBranch))) {
         continue;
       }
 
@@ -826,6 +848,7 @@ const useBranchListScreen = () => {
     setSelectedBranchIds([]);
   }, [
     canDeleteBranch,
+    canManageAllTenants,
     selectedBranchIds,
     t,
     resolveBranchById,

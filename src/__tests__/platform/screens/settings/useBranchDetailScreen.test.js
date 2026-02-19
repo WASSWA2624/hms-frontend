@@ -106,9 +106,12 @@ describe('useBranchDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useBranchDetailScreen());
+    const { result } = renderHook(() => useBranchDetailScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings/branches?notice=accessDenied');
+    expect(result.current.branch).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('calls get on mount with id', () => {

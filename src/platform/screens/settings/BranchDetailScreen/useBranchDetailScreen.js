@@ -38,6 +38,14 @@ const useBranchDetailScreen = () => {
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const branch = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isBranchInScope = useMemo(() => {
+    if (!branch) return true;
+    if (canManageAllTenants) return true;
+    const branchTenantId = String(branch.tenant_id ?? '').trim();
+    if (!branchTenantId || !normalizedTenantId) return false;
+    return branchTenantId === normalizedTenantId;
+  }, [branch, canManageAllTenants, normalizedTenantId]);
+  const visibleBranch = isBranchInScope ? branch : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
@@ -65,27 +73,23 @@ const useBranchDetailScreen = () => {
   }, [fetchDetail]);
 
   useEffect(() => {
-    if (!isResolved || !canManageBranches || !isTenantScopedAdmin || !branch) return;
-    const branchTenantId = String(branch.tenant_id ?? '').trim();
-    if (!branchTenantId || branchTenantId !== normalizedTenantId) {
-      router.replace('/settings/branches?notice=accessDenied');
-    }
+    if (!isResolved || !canManageBranches || !branch || isBranchInScope) return;
+    router.replace('/settings/branches?notice=accessDenied');
   }, [
     isResolved,
     canManageBranches,
-    isTenantScopedAdmin,
     branch,
-    normalizedTenantId,
+    isBranchInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageBranches) return;
-    if (branch) return;
+    if (visibleBranch) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/branches?notice=accessDenied');
     }
-  }, [isResolved, canManageBranches, branch, errorCode, router]);
+  }, [isResolved, canManageBranches, visibleBranch, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -96,12 +100,12 @@ const useBranchDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditBranch || !branchId) return;
+    if (!canEditBranch || !branchId || !isBranchInScope) return;
     router.push(`/settings/branches/${branchId}/edit`);
-  }, [canEditBranch, branchId, router]);
+  }, [canEditBranch, branchId, isBranchInScope, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteBranch || !branchId) return;
+    if (!canDeleteBranch || !branchId || !isBranchInScope) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(branchId);
@@ -111,19 +115,19 @@ const useBranchDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeleteBranch, branchId, remove, isOffline, router, t]);
+  }, [canDeleteBranch, branchId, isBranchInScope, remove, isOffline, router, t]);
 
   return {
     id: branchId,
-    branch,
+    branch: visibleBranch,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isBranchInScope,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: canEditBranch ? handleEdit : undefined,
-    onDelete: canDeleteBranch ? handleDelete : undefined,
+    onEdit: canEditBranch && isBranchInScope ? handleEdit : undefined,
+    onDelete: canDeleteBranch && isBranchInScope ? handleDelete : undefined,
   };
 };
 

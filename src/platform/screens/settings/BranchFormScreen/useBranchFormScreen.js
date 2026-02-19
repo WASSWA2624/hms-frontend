@@ -8,6 +8,9 @@ import { useI18n, useBranch, useFacility, useNetwork, useTenant, useTenantAccess
 import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 255;
+const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -17,6 +20,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useBranchFormScreen = () => {
@@ -66,6 +81,14 @@ const useBranchFormScreen = () => {
   const previousTenantRef = useRef('');
 
   const branch = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isBranchInScope = useMemo(() => {
+    if (!branch) return true;
+    if (canManageAllTenants) return true;
+    const branchTenantId = String(branch.tenant_id ?? '').trim();
+    if (!branchTenantId || !normalizedScopedTenantId) return false;
+    return branchTenantId === normalizedScopedTenantId;
+  }, [branch, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleBranch = isBranchInScope ? branch : null;
   const tenantItems = useMemo(
     () => (isTenantScopedAdmin || isEdit
       ? []
@@ -147,7 +170,10 @@ const useBranchFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageBranches,
@@ -160,37 +186,33 @@ const useBranchFormScreen = () => {
   ]);
 
   useEffect(() => {
-    if (branch) {
-      setName(branch.name ?? '');
-      setIsActive(branch.is_active ?? true);
-      setTenantId(String(branch.tenant_id ?? normalizedScopedTenantId ?? ''));
-      setFacilityId(branch.facility_id ?? '');
+    if (visibleBranch) {
+      setName(visibleBranch.name ?? '');
+      setIsActive(visibleBranch.is_active ?? true);
+      setTenantId(String(visibleBranch.tenant_id ?? normalizedScopedTenantId ?? ''));
+      setFacilityId(visibleBranch.facility_id ?? '');
     }
-  }, [branch, normalizedScopedTenantId]);
+  }, [visibleBranch, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (!isResolved || !canManageBranches || !isTenantScopedAdmin || !isEdit || !branch) return;
-    const branchTenantId = String(branch.tenant_id ?? '').trim();
-    if (!normalizedScopedTenantId || !branchTenantId || branchTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/branches?notice=accessDenied');
-    }
+    if (!isResolved || !canManageBranches || !isEdit || !branch || isBranchInScope) return;
+    router.replace('/settings/branches?notice=accessDenied');
   }, [
     isResolved,
     canManageBranches,
-    isTenantScopedAdmin,
     isEdit,
     branch,
-    normalizedScopedTenantId,
+    isBranchInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageBranches || !isEdit) return;
-    if (branch) return;
+    if (visibleBranch) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/branches?notice=accessDenied');
     }
-  }, [isResolved, canManageBranches, isEdit, branch, errorCode, router]);
+  }, [isResolved, canManageBranches, isEdit, visibleBranch, errorCode, router]);
 
   useEffect(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
@@ -199,7 +221,11 @@ const useBranchFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -264,6 +290,7 @@ const useBranchFormScreen = () => {
     !isResolved ||
     isLoading ||
     isCreateBlocked ||
+    (isEdit && !isBranchInScope) ||
     Boolean(nameError) ||
     Boolean(tenantError) ||
     (isEdit ? !canEditBranch : !canCreateBranch);
@@ -280,7 +307,7 @@ const useBranchFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const branchTenantId = String(branch?.tenant_id ?? '').trim();
+        const branchTenantId = String(visibleBranch?.tenant_id ?? '').trim();
         if (!branchTenantId || branchTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/branches?notice=accessDenied');
           return;
@@ -318,7 +345,7 @@ const useBranchFormScreen = () => {
     canCreateBranch,
     canEditBranch,
     isTenantScopedAdmin,
-    branch,
+    visibleBranch,
     normalizedScopedTenantId,
     trimmedName,
     trimmedTenantId,
@@ -344,13 +371,20 @@ const useBranchFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenant || undefined });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant || undefined,
+    });
   }, [listFacilities, resetFacilities, tenantId]);
 
   return {
@@ -376,10 +410,10 @@ const useBranchFormScreen = () => {
     isCreateBlocked,
     isFacilityBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isBranchInScope,
     errorMessage,
     isOffline,
-    branch,
+    branch: visibleBranch,
     nameError,
     tenantError,
     isTenantLocked,

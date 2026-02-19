@@ -118,7 +118,10 @@ describe('useBranchFormScreen', () => {
   it('lists tenants on mount when creating', () => {
     renderHook(() => useBranchFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const tenantParams = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof tenantParams.limit).toBe('number');
+    expect(tenantParams.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from branch data', () => {
@@ -145,7 +148,10 @@ describe('useBranchFormScreen', () => {
       result.current.setTenantId('t1');
     });
     expect(mockResetFacilities).toHaveBeenCalled();
-    expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 200, tenant_id: 't1' });
+    expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const facilityParams = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof facilityParams.limit).toBe('number');
+    expect(facilityParams.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback error message for unknown error codes', () => {
@@ -325,7 +331,7 @@ describe('useBranchFormScreen', () => {
     const { result } = renderHook(() => useBranchFormScreen());
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('onRetryFacilities reloads facility list', () => {
@@ -337,6 +343,31 @@ describe('useBranchFormScreen', () => {
     mockListFacilities.mockClear();
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
-    expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 200, tenant_id: 't1' });
+    expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+  });
+
+  it('hides out-of-scope branch data for tenant-scoped admins', () => {
+    mockParams = { id: 'bid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useBranch.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: { id: 'bid-1', tenant_id: 'tenant-2', name: 'Outside Branch' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useBranchFormScreen());
+
+    expect(result.current.branch).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+    expect(mockReplace).toHaveBeenCalledWith('/settings/branches?notice=accessDenied');
   });
 });

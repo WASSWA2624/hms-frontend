@@ -87,6 +87,10 @@ describe('useBranchListScreen', () => {
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(result.current.isTableMode).toBe(true);
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
@@ -202,6 +206,10 @@ describe('useBranchListScreen', () => {
     const { result } = renderHook(() => useBranchListScreen());
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');

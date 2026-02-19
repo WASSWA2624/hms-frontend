@@ -47,7 +47,6 @@ const resolveBranchTenant = (t, branch) => {
     branch?.tenant_name
     ?? branch?.tenant?.name
     ?? branch?.tenant_label
-    ?? branch?.tenant_id
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
@@ -58,7 +57,6 @@ const resolveBranchFacility = (t, branch) => {
     branch?.facility_name
     ?? branch?.facility?.name
     ?? branch?.facility_label
-    ?? branch?.facility_id
   );
   if (value) return String(value).trim();
   return t('common.notAvailable');
