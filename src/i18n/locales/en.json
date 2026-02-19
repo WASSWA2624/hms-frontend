@@ -5746,6 +5746,19 @@
         "tenantHint": "Use the tenant that owns this record.",
         "tenantLockedHint": "Tenant is locked for this session.",
         "tenantRequired": "Tenant ID is required.",
+        "modeCreate": "create",
+        "modeEdit": "edit",
+        "description": "Use this form to {{mode}} {{resource}} with complete and accurate details.",
+        "helpLabel": "Open form guidance",
+        "helpTooltip": "Open guidance for required fields, actions, and recovery.",
+        "helpTitle": "How to use this form",
+        "helpBody": "Use this {{mode}} form to complete required fields and save safely.",
+        "helpItems": {
+          "context": "Confirm tenant and patient context before entering details.",
+          "required": "Complete required fields and correct validation messages before saving.",
+          "actions": "Use Save to submit or Cancel to return without changes.",
+          "recovery": "Use retry actions and offline guidance if loading fails."
+        },
         "patientLabel": "Patient",
         "patientPlaceholder": "Select patient",
         "patientHint": "Select the linked patient record.",
@@ -5761,10 +5774,21 @@
         "createBlockedMessage": "Create a patient first to continue with linked records."
       },
       "list": {
+        "description": "Use search, filters, and actions to manage {{resource}}.",
         "searchLabel": "Search records",
         "searchPlaceholder": "Search records",
         "searchScopeLabel": "Search in",
         "searchScopeAll": "All fields",
+        "helpLabel": "Open list guidance",
+        "helpTooltip": "Open guidance for list actions, filters, and recovery.",
+        "helpTitle": "How to use this list",
+        "helpBody": "Use this list to find records quickly, open details, and complete allowed actions.",
+        "helpItems": {
+          "search": "Search globally or by a specific field.",
+          "filter": "Apply filters with AND/OR logic to narrow results.",
+          "actions": "Use row actions for view and permitted destructive actions.",
+          "recovery": "Use retry and offline notices to recover from transient issues."
+        },
         "filterLogicLabel": "Match logic",
         "filterLogicAnd": "All conditions (AND)",
         "filterLogicOr": "Any condition (OR)",
@@ -5793,19 +5817,34 @@
         "sortBy": "Sort by {{field}}",
         "view": "View",
         "viewHint": "Open record details",
+        "edit": "Edit",
+        "editHint": "Open record edit form",
         "selectPage": "Select rows on this page",
         "selectRecord": "Select {{name}}",
         "bulkSelectedCount": "{{count}} selected",
         "clearSelection": "Clear selection",
         "bulkDelete": "Delete selected",
         "bulkDeleteConfirm": "Delete {{count}} selected records?",
-        "pageSummary": "Page {{page}} of {{totalPages}} · {{total}} records",
+        "pageSummary": "Page {{page}} of {{totalPages}} - {{total}} records",
         "pageSizeLabel": "Rows",
         "densityLabel": "Density",
         "densityCompact": "Compact",
         "densityComfortable": "Comfortable",
         "unnamedRecord": "Record {{position}}",
         "patientContextRequired": "Select a patient first."
+      },
+      "detail": {
+        "description": "Review {{resource}} details and use only the actions your role allows.",
+        "helpLabel": "Open detail guidance",
+        "helpTooltip": "Open guidance for review, permissions, and recovery.",
+        "helpTitle": "How to use this detail view",
+        "helpBody": "Use this screen to verify details before editing or deleting records.",
+        "helpItems": {
+          "review": "Confirm key fields and status before taking action.",
+          "actions": "Use available actions to navigate, edit, or delete as permitted.",
+          "permissions": "If an action is missing, your role does not allow it.",
+          "recovery": "Use retry and back navigation to recover from loading issues."
+        }
       }
     },
     "resources": {

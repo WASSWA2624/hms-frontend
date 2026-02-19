@@ -20,6 +20,112 @@ const StyledContent = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
+const StyledHeader = styled.section.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHeader',
+  componentId: 'PatientResourceDetailScreen_StyledHeader',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHeaderTop = styled.div.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHeaderTop',
+  componentId: 'PatientResourceDetailScreen_StyledHeaderTop',
+})`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledHeaderCopy = styled.div.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHeaderCopy',
+  componentId: 'PatientResourceDetailScreen_StyledHeaderCopy',
+})`
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpAnchor = styled.div.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpAnchor',
+  componentId: 'PatientResourceDetailScreen_StyledHelpAnchor',
+})`
+  position: relative;
+  display: inline-flex;
+`;
+
+const StyledHelpButton = styled.button.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpButton',
+  componentId: 'PatientResourceDetailScreen_StyledHelpButton',
+})`
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledHelpModalTitle = styled.h2.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpModalTitle',
+  componentId: 'PatientResourceDetailScreen_StyledHelpModalTitle',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledHelpModalBody = styled.p.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpModalBody',
+  componentId: 'PatientResourceDetailScreen_StyledHelpModalBody',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+`;
+
+const StyledHelpChecklist = styled.ul.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpChecklist',
+  componentId: 'PatientResourceDetailScreen_StyledHelpChecklist',
+})`
+  margin: 0;
+  padding-left: ${({ theme }) => theme.spacing.lg}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpItem = styled.li.withConfig({
+  displayName: 'PatientResourceDetailScreen_StyledHelpItem',
+  componentId: 'PatientResourceDetailScreen_StyledHelpItem',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+`;
+
 const StyledInlineStates = styled.div.withConfig({
   displayName: 'PatientResourceDetailScreen_StyledInlineStates',
   componentId: 'PatientResourceDetailScreen_StyledInlineStates',
@@ -86,5 +192,14 @@ export {
   StyledField,
   StyledFieldLabel,
   StyledFieldValue,
+  StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpAnchor,
+  StyledHelpButton,
+  StyledHelpChecklist,
+  StyledHelpItem,
+  StyledHelpModalBody,
+  StyledHelpModalTitle,
   StyledInlineStates,
 };

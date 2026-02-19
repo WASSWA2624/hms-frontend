@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
+import { humanizeDisplayText } from '@utils';
 import {
   getPatientResourceConfig,
   normalizeRouteId,
@@ -86,6 +87,34 @@ const usePatientResourceFormScreen = (resourceId) => {
 
   const record = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const createInitializedRef = useRef(false);
+  const resourceLabel = useMemo(() => {
+    if (!config) return '';
+    const pluralLabel = t(`${config.i18nKey}.pluralLabel`);
+    if (pluralLabel !== `${config.i18nKey}.pluralLabel`) return pluralLabel;
+    const label = t(`${config.i18nKey}.label`);
+    if (label !== `${config.i18nKey}.label`) return label;
+    return humanizeDisplayText(config.id || '') || '';
+  }, [config, t]);
+  const formModeLabel = useMemo(
+    () => t(isEdit ? 'patients.common.form.modeEdit' : 'patients.common.form.modeCreate'),
+    [t, isEdit]
+  );
+  const formDescription = useMemo(
+    () => t('patients.common.form.description', { resource: resourceLabel, mode: formModeLabel }),
+    [t, resourceLabel, formModeLabel]
+  );
+  const helpContent = useMemo(() => ({
+    label: t('patients.common.form.helpLabel', { resource: resourceLabel }),
+    tooltip: t('patients.common.form.helpTooltip', { resource: resourceLabel }),
+    title: t('patients.common.form.helpTitle', { resource: resourceLabel }),
+    body: t('patients.common.form.helpBody', { resource: resourceLabel, mode: formModeLabel }),
+    items: [
+      t('patients.common.form.helpItems.context'),
+      t('patients.common.form.helpItems.required'),
+      t('patients.common.form.helpItems.actions'),
+      t('patients.common.form.helpItems.recovery'),
+    ],
+  }), [t, resourceLabel, formModeLabel]);
 
   const [values, setValues] = useState({});
 
@@ -398,6 +427,9 @@ const usePatientResourceFormScreen = (resourceId) => {
 
   return {
     config,
+    resourceLabel,
+    formDescription,
+    helpContent,
     visibleFields,
     showTenantField,
     isEdit,

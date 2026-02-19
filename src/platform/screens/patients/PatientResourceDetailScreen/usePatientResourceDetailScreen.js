@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatientAccess } from '@hooks';
-import { confirmAction } from '@utils';
+import { confirmAction, humanizeDisplayText } from '@utils';
 import {
   getPatientResourceConfig,
   normalizeRouteId,
@@ -52,6 +52,14 @@ const usePatientResourceDetailScreen = (resourceId) => {
   const supportsEdit = config?.supportsEdit !== false;
   const canEdit = canEditPatientRecords && supportsEdit;
   const canViewTechnicalIds = canManageAllTenants;
+  const resourceLabel = useMemo(() => {
+    if (!config) return '';
+    const pluralLabel = t(`${config.i18nKey}.pluralLabel`);
+    if (pluralLabel !== `${config.i18nKey}.pluralLabel`) return pluralLabel;
+    const label = t(`${config.i18nKey}.label`);
+    if (label !== `${config.i18nKey}.label`) return label;
+    return humanizeDisplayText(config.id || '') || '';
+  }, [config, t]);
 
   const item = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const detailRows = useMemo(
@@ -63,6 +71,22 @@ const usePatientResourceDetailScreen = (resourceId) => {
     if (!config) return null;
     return resolveErrorMessage(t, errorCode, `${config.i18nKey}.detail.loadError`);
   }, [config, errorCode, t]);
+  const screenDescription = useMemo(
+    () => t('patients.common.detail.description', { resource: resourceLabel }),
+    [t, resourceLabel]
+  );
+  const helpContent = useMemo(() => ({
+    label: t('patients.common.detail.helpLabel', { resource: resourceLabel }),
+    tooltip: t('patients.common.detail.helpTooltip', { resource: resourceLabel }),
+    title: t('patients.common.detail.helpTitle', { resource: resourceLabel }),
+    body: t('patients.common.detail.helpBody', { resource: resourceLabel }),
+    items: [
+      t('patients.common.detail.helpItems.review'),
+      t('patients.common.detail.helpItems.actions'),
+      t('patients.common.detail.helpItems.permissions'),
+      t('patients.common.detail.helpItems.recovery'),
+    ],
+  }), [t, resourceLabel]);
 
   const fetchDetail = useCallback(() => {
     if (!config || !routeRecordId || !isResolved || !canAccessPatients || !hasScope) return;
@@ -131,6 +155,8 @@ const usePatientResourceDetailScreen = (resourceId) => {
     config,
     id: routeRecordId,
     item,
+    screenDescription,
+    helpContent,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && Boolean(errorCode),
     errorMessage,

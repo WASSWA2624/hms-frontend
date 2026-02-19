@@ -53,6 +53,7 @@ const PatientResourceListScreenAndroid = ({ resourceId }) => {
     onDismissNotice,
     onRetry,
     onItemPress,
+    onEdit,
     onDelete,
     onAdd,
   } = usePatientResourceListScreen(resourceId);
@@ -186,30 +187,35 @@ const PatientResourceListScreenAndroid = ({ resourceId }) => {
             {items.length > 0 ? (
               <StyledList>
                 {items.map((item, index) => {
-                  const itemTitle = config.getItemTitle(item, t);
+                  const itemTitle = config.getItemTitle(item, t)
+                    || t('patients.common.list.unnamedRecord', { position: index + 1 });
                   const itemSubtitle = config.getItemSubtitle(item, t);
+                  const itemId = item?.id;
+                  const itemKey = itemId ?? `patient-resource-${index}`;
+                  const leadingGlyph = String(itemTitle || 'P').charAt(0).toUpperCase();
                   return (
-                    <React.Fragment key={item.id}>
+                    <React.Fragment key={itemKey}>
                       <ListItem
+                        leading={{ glyph: leadingGlyph, tone: 'inverse', backgroundTone: 'primary' }}
                         title={itemTitle}
-                        subtitle={itemSubtitle}
-                        onPress={() => onItemPress(item.id)}
-                        actions={onDelete ? (
-                          <Button
-                            variant="surface"
-                            size="small"
-                            onPress={(event) => onDelete(item.id, event)}
-                            accessibilityLabel={t(`${config.i18nKey}.list.delete`) }
-                            accessibilityHint={t(`${config.i18nKey}.list.deleteHint`) }
-                            icon={<Icon glyph="?" size="xs" decorative />}
-                            testID={`patient-resource-delete-${item.id}`}
-                          >
-                            {t('common.remove')}
-                          </Button>
-                        ) : null}
+                        subtitle={itemSubtitle || '-'}
+                        density="compact"
+                        onPress={itemId ? () => onItemPress(itemId) : undefined}
+                        onView={itemId ? () => onItemPress(itemId) : undefined}
+                        onEdit={onEdit && itemId ? (event) => onEdit(itemId, event) : undefined}
+                        onDelete={onDelete && itemId ? (event) => onDelete(itemId, event) : undefined}
+                        viewLabel={t('patients.common.list.view')}
+                        viewHint={t('patients.common.list.viewHint')}
+                        editLabel={t('patients.common.list.edit')}
+                        editHint={t('patients.common.list.editHint')}
+                        deleteLabel={t('common.remove')}
+                        deleteHint={t(`${config.i18nKey}.list.deleteHint`)}
+                        viewTestID={`patient-resource-view-${itemKey}`}
+                        editTestID={`patient-resource-edit-${itemKey}`}
+                        deleteTestID={`patient-resource-delete-${itemKey}`}
                         accessibilityLabel={t(`${config.i18nKey}.list.itemLabel`, { name: itemTitle })}
                         accessibilityHint={t(`${config.i18nKey}.list.itemHint`, { name: itemTitle })}
-                        testID={`patient-resource-item-${item.id}`}
+                        testID={`patient-resource-item-${itemKey}`}
                       />
                       {index < items.length - 1 ? <StyledSeparator /> : null}
                     </React.Fragment>

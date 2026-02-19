@@ -307,7 +307,7 @@ const resourceConfigs = {
       item?.contact_type
     ),
     getItemSubtitle: (item, t) => {
-      const contactType = sanitizeString(item?.contact_type);
+      const contactType = sanitizeReadable(item?.contact_type);
       if (!contactType) return '';
       return `${t('patients.resources.patientContacts.detail.contactTypeLabel')}: ${contactType}`;
     },
@@ -384,7 +384,7 @@ const resourceConfigs = {
       item?.phone
     ),
     getItemSubtitle: (item, t) => {
-      const relationship = sanitizeString(item?.relationship);
+      const relationship = sanitizeReadable(item?.relationship);
       if (!relationship) return '';
       return `${t('patients.resources.patientGuardians.detail.relationshipLabel')}: ${relationship}`;
     },
