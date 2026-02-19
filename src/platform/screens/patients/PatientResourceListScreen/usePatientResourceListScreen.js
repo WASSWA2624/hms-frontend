@@ -1,10 +1,12 @@
 /**
  * Shared logic for patient resource list screens.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, usePatientAccess } from '@hooks';
-import { confirmAction } from '@utils';
+import { useAuth, useI18n, useNetwork, usePatientAccess } from '@hooks';
+import { async as asyncStorage } from '@services/storage';
+import { confirmAction, humanizeDisplayText } from '@utils';
 import {
   getPatientResourceConfig,
   normalizeSearchParam,
@@ -21,168 +23,122 @@ import {
   resolveErrorMessage,
 } from '../patientScreenUtils';
 
-const usePatientResourceListScreen = (resourceId) => {
-  const config = getPatientResourceConfig(resourceId);
-  const { t } = useI18n();
-  const router = useRouter();
-  const { notice, patientId: patientIdParam } = useLocalSearchParams();
-  const { isOffline } = useNetwork();
-  const {
-    canAccessPatients,
-    canCreatePatientRecords,
-    canDeletePatientRecords,
-    canManageAllTenants,
-    tenantId,
-    isResolved,
-  } = usePatientAccess();
+const TABLE_MODE_BREAKPOINT = 768;
+const PREFS_STORAGE_PREFIX = 'hms.patients.resources.list.preferences';
+const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
+const DEFAULT_DENSITY = 'compact';
+const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
+const FILTER_LOGICS = Object.freeze(['AND', 'OR']);
+const TEXT_OPERATORS = Object.freeze(['contains', 'equals', 'startsWith']);
+const BOOLEAN_OPERATORS = Object.freeze(['is']);
+const TABLE_COLUMNS = Object.freeze(['title', 'subtitle', 'updatedAt', 'createdAt']);
+const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
+const DEFAULT_VISIBLE_COLUMNS = Object.freeze(['title', 'subtitle', 'updatedAt']);
+const STATUS_FIELDS = new Set(['is_active', 'is_primary']);
 
-  const { list, remove, data, isLoading, errorCode, reset } = usePatientResourceCrud(resourceId);
+const normalizeValue = (value) => sanitizeString(value);
+const normalizeLower = (value) => normalizeValue(value).toLowerCase();
 
-  const [noticeMessage, setNoticeMessage] = useState(null);
-
-  const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
-  const patientContextId = useMemo(
-    () => normalizePatientContextId(patientIdParam),
-    [patientIdParam]
-  );
-  const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
-  const canList = Boolean(config && canAccessPatients && hasScope);
-  const resourceLabel = useMemo(() => t(`${config?.i18nKey}.label`), [config?.i18nKey, t]);
-
-  const items = useMemo(() => {
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.items)) return data.items;
-    return [];
-  }, [data]);
-
-  const noticeValue = useMemo(() => normalizeNoticeValue(notice), [notice]);
-
-  const errorMessage = useMemo(() => {
-    if (!config) return null;
-    return resolveErrorMessage(t, errorCode, `${config.i18nKey}.list.loadError`);
-  }, [config, errorCode, t]);
-
-  const listPath = useMemo(
-    () => withPatientContext(config?.routePath || PATIENT_ROUTE_ROOT, patientContextId),
-    [config?.routePath, patientContextId]
-  );
-
-  const fetchList = useCallback(() => {
-    if (!config || !isResolved || !canList) return;
-    const params = { ...config.listParams };
-    if (!canManageAllTenants) {
-      params.tenant_id = normalizedTenantId;
-    }
-    if (config.supportsPatientFilter && patientContextId) {
-      params.patient_id = patientContextId;
-    }
-    reset();
-    list(params);
-  }, [
-    config,
-    isResolved,
-    canList,
-    canManageAllTenants,
-    normalizedTenantId,
-    patientContextId,
-    reset,
-    list,
-  ]);
-
-  useEffect(() => {
-    if (!isResolved) return;
-    if (!canAccessPatients || !hasScope || !config) {
-      router.replace('/dashboard');
-    }
-  }, [isResolved, canAccessPatients, hasScope, config, router]);
-
-  useEffect(() => {
-    if (!canList) return;
-    fetchList();
-  }, [canList, fetchList]);
-
-  useEffect(() => {
-    if (!noticeValue || !config) return;
-    const message = buildNoticeMessage(t, noticeValue, resourceLabel);
-    if (!message) return;
-    setNoticeMessage(message);
-    router.replace(listPath);
-  }, [noticeValue, config, t, resourceLabel, router, listPath]);
-
-  useEffect(() => {
-    if (!noticeMessage) return;
-    const timer = setTimeout(() => setNoticeMessage(null), 4000);
-    return () => clearTimeout(timer);
-  }, [noticeMessage]);
-
-  useEffect(() => {
-    if (!isResolved || !config) return;
-    if (!isAccessDeniedError(errorCode)) return;
-    const message = buildNoticeMessage(t, 'accessDenied', resourceLabel);
-    if (message) {
-      setNoticeMessage(message);
-    }
-  }, [isResolved, config, errorCode, t, resourceLabel]);
-
-  const handleRetry = useCallback(() => {
-    fetchList();
-  }, [fetchList]);
-
-  const handleItemPress = useCallback(
-    (id) => {
-      const normalizedId = normalizeSearchParam(id);
-      if (!normalizedId || !config) return;
-      router.push(withPatientContext(`${config.routePath}/${normalizedId}`, patientContextId));
-    },
-    [config, patientContextId, router]
-  );
-
-  const handleAdd = useCallback(() => {
-    if (!canCreatePatientRecords || !config) return;
-    router.push(withPatientContext(`${config.routePath}/create`, patientContextId));
-  }, [canCreatePatientRecords, config, patientContextId, router]);
-
-  const handleDelete = useCallback(
-    async (id, e) => {
-      if (!canDeletePatientRecords || !config) return;
-      if (e?.stopPropagation) e.stopPropagation();
-      if (!confirmAction(t('common.confirmDelete'))) return;
-      const normalizedId = normalizeSearchParam(id);
-      if (!normalizedId) return;
-      try {
-        const result = await remove(normalizedId);
-        if (!result) return;
-        fetchList();
-        const noticeType = isOffline ? 'queued' : 'deleted';
-        const message = buildNoticeMessage(t, noticeType, resourceLabel);
-        if (message) setNoticeMessage(message);
-      } catch {
-        // Hook-level error handling already updates state.
-      }
-    },
-    [canDeletePatientRecords, config, t, remove, fetchList, isOffline, resourceLabel]
-  );
-
-  return {
-    config,
-    items,
-    patientContextId,
-    isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
-    errorMessage,
-    isOffline,
-    noticeMessage,
-    onDismissNotice: () => setNoticeMessage(null),
-    onRetry: handleRetry,
-    onItemPress: handleItemPress,
-    onDelete: handleDelete,
-    onAdd: handleAdd,
-    canCreate: canCreatePatientRecords,
-    canDelete: canDeletePatientRecords,
-    createBlockedReason: canCreatePatientRecords ? '' : t('patients.access.createDenied'),
-    deleteBlockedReason: canDeletePatientRecords ? '' : t('patients.access.deleteDenied'),
-    listPath,
-  };
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
 };
 
-export default usePatientResourceListScreen;
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
+
+const resolveListItems = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.items)) return value.items;
+  return [];
+};
+
+const isBooleanField = (field) => field?.type === 'switch' || STATUS_FIELDS.has(field?.name);
+
+const sanitizeSortDirection = (value) => (value === 'desc' ? 'desc' : 'asc');
+
+const sanitizeSortField = (value) => (
+  TABLE_COLUMNS.includes(value) ? value : 'updatedAt'
+);
+
+const sanitizeDensity = (value) => (
+  DENSITY_OPTIONS.includes(value) ? value : DEFAULT_DENSITY
+);
+
+const sanitizePageSize = (value) => (
+  PAGE_SIZE_OPTIONS.includes(Number(value)) ? Number(value) : DEFAULT_PAGE_SIZE
+);
+
+const sanitizeColumns = (values, fallback) => {
+  if (!Array.isArray(values)) return [...fallback];
+  const normalized = values.filter((value) => TABLE_COLUMNS.includes(value));
+  if (normalized.length === 0) return [...fallback];
+  return [...new Set(normalized)];
+};
+
+const sanitizeFilterLogic = (value) => (
+  FILTER_LOGICS.includes(value) ? value : 'AND'
+);
+
+const getDefaultOperator = (fieldType) => (
+  fieldType === 'boolean' ? BOOLEAN_OPERATORS[0] : TEXT_OPERATORS[0]
+);
+
+const sanitizeFilterOperator = (fieldType, value) => {
+  const allowedOperators = fieldType === 'boolean' ? BOOLEAN_OPERATORS : TEXT_OPERATORS;
+  if (allowedOperators.includes(value)) return value;
+  return allowedOperators[0];
+};
+
+const stableSort = (items, compareFn) => items
+  .map((item, index) => ({ item, index }))
+  .sort((left, right) => {
+    const result = compareFn(left.item, right.item);
+    if (result !== 0) return result;
+    return left.index - right.index;
+  })
+  .map((entry) => entry.item);
+
+const compareText = (left, right) => String(left || '').localeCompare(
+  String(right || ''),
+  undefined,
+  { sensitivity: 'base', numeric: true }
+);
+
+const resolveBooleanSearchValue = (value) => {
+  const normalized = normalizeLower(value);
+  if (!normalized) return '';
+  if (['on', 'active', 'enabled', 'yes', 'true', '1'].includes(normalized)) return 'on';
+  if (['off', 'inactive', 'disabled', 'no', 'false', '0'].includes(normalized)) return 'off';
+  return normalized;
+};
+
+const matchesTextOperator = (fieldValue, operator, needle) => {
+  const normalizedValue = normalizeLower(fieldValue);
+  const normalizedNeedle = normalizeLower(needle);
+  if (!normalizedNeedle) return true;
+  if (operator === 'equals') return normalizedValue === normalizedNeedle;
+  if (operator === 'startsWith') return normalizedValue.startsWith(normalizedNeedle);
+  return normalizedValue.includes(normalizedNeedle);
+};
+
+const matchesBooleanOperator = (fieldValue, operator, needle) => {
+  if (operator !== 'is') return true;
+  const normalizedNeedle = resolveBooleanSearchValue(needle);
+  if (!normalizedNeedle) return true;
+  return resolveBooleanSearchValue(fieldValue) === normalizedNeedle;
+};
+
+const normalizeSearchFieldOptions = (fields) => {
+  const normalized = Array.isArray(fields) ? fields : [];
+  const filtered = normalized.filter((field) => field?.id && field?.label);
+  return filtered.length > 0 ? filtered : [{ id: 'title', label: 'Title', type: 'text' }];
+};

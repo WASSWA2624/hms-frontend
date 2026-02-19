@@ -5701,13 +5701,31 @@
       "loadError": "Unable to load patient overview data. Check your connection and try again.",
       "registerPatient": "Register Patient",
       "registerPatientHint": "Open the patient registration form",
+      "summaryTitle": "Patient overview summary",
+      "scopeSummaryAllTenants": "Scope: all authorized tenants",
+      "scopeSummaryTenant": "Scope: current tenant only",
+      "accessSummaryReadWrite": "Access: read and register patients",
+      "accessSummaryReadOnly": "Access: read-only patient workspace",
+      "recentPatientsCount": "Recent records shown: {{count}}",
       "resourcesTitle": "Patient Resources",
       "recentPatientsTitle": "Recent Patients",
       "emptyTitle": "No patients yet",
       "emptyMessage": "Register your first patient to start using linked records.",
+      "unnamedPatient": "Patient record {{position}}",
+      "unknownDemographics": "Profile details pending",
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
-      "openPatient": "Open patient {{patient}}"
+      "openPatient": "Open patient {{patient}}",
+      "helpLabel": "Open patient registry guidance",
+      "helpTooltip": "Open guidance for patient overview, permissions, and recovery.",
+      "helpTitle": "How to use patient registry home",
+      "helpBody": "Use this overview to confirm scope, move to the right patient resource, and recover quickly from loading issues.",
+      "helpItems": {
+        "scope": "Check the scope badges first so you know whether you are viewing one tenant or multiple authorized tenants.",
+        "sequence": "Start with Register Patient when allowed, then open linked resources like identifiers, contacts, and consents in workflow order.",
+        "access": "Only role-authorized actions are shown; if a control is not available, continue with read-only review or contact an administrator.",
+        "recovery": "When data fails to load, use Retry and confirm network connection and role permissions before proceeding."
+      }
     },
     "notices": {
       "created": "{{resource}} created.",

@@ -31,6 +31,127 @@ const StyledHeader = styled.section.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledHeaderTop = styled.div.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHeaderTop',
+  componentId: 'PatientsOverviewScreen_StyledHeaderTop',
+})`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md}px;
+`;
+
+const StyledHeaderCopy = styled.div.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHeaderCopy',
+  componentId: 'PatientsOverviewScreen_StyledHeaderCopy',
+})`
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpAnchor = styled.div.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpAnchor',
+  componentId: 'PatientsOverviewScreen_StyledHelpAnchor',
+})`
+  position: relative;
+  display: inline-flex;
+`;
+
+const StyledHelpButton = styled.button.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpButton',
+  componentId: 'PatientsOverviewScreen_StyledHelpButton',
+})`
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
+`;
+
+const StyledSummaryList = styled.ul.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledSummaryList',
+  componentId: 'PatientsOverviewScreen_StyledSummaryList',
+})`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSummaryListItem = styled.li.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledSummaryListItem',
+  componentId: 'PatientsOverviewScreen_StyledSummaryListItem',
+})`
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+`;
+
+const StyledHelpModalTitle = styled.h2.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpModalTitle',
+  componentId: 'PatientsOverviewScreen_StyledHelpModalTitle',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledHelpModalBody = styled.p.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpModalBody',
+  componentId: 'PatientsOverviewScreen_StyledHelpModalBody',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+`;
+
+const StyledHelpChecklist = styled.ul.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpChecklist',
+  componentId: 'PatientsOverviewScreen_StyledHelpChecklist',
+})`
+  margin: 0;
+  padding-left: ${({ theme }) => theme.spacing.lg}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpItem = styled.li.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpItem',
+  componentId: 'PatientsOverviewScreen_StyledHelpItem',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+`;
+
 const StyledSection = styled.section.withConfig({
   displayName: 'PatientsOverviewScreen_StyledSection',
   componentId: 'PatientsOverviewScreen_StyledSection',
@@ -120,10 +241,20 @@ export {
   StyledContainer,
   StyledContent,
   StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpAnchor,
+  StyledHelpButton,
+  StyledHelpChecklist,
+  StyledHelpItem,
+  StyledHelpModalBody,
+  StyledHelpModalTitle,
   StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
+  StyledSummaryList,
+  StyledSummaryListItem,
   StyledTileAction,
   StyledTileDescription,
   StyledTileTitle,

@@ -1,6 +1,8 @@
+import { humanizeDisplayText } from '@utils';
 import { normalizeRouteId, sanitizeString } from './patientResourceConfigs';
 
 const ACCESS_DENIED_CODES = new Set(['FORBIDDEN', 'UNAUTHORIZED']);
+const TECHNICAL_FIELD_KEYS = new Set(['id', 'tenant_id', 'facility_id', 'patient_id', 'user_id']);
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -36,13 +38,27 @@ const buildNoticeMessage = (t, notice, resourceLabel) => {
   }
 };
 
+const isTechnicalFieldKey = (valueKey) => {
+  const normalizedKey = sanitizeString(valueKey);
+  if (!normalizedKey) return false;
+  if (TECHNICAL_FIELD_KEYS.has(normalizedKey)) return true;
+  return normalizedKey.endsWith('_id');
+};
+
+const filterDetailRowsByIdentityPolicy = (rows, canViewTechnicalIds) => {
+  const normalizedRows = Array.isArray(rows) ? rows : [];
+  if (canViewTechnicalIds) return normalizedRows;
+  return normalizedRows.filter((row) => !isTechnicalFieldKey(row?.valueKey));
+};
+
 const formatFieldValue = (value, type, locale, formatDateTime) => {
   if (value == null || value === '') return '-';
   if (type === 'boolean') return value ? 'true' : 'false';
   if (type === 'datetime') {
     return formatDateTime(value, locale);
   }
-  return String(value);
+  const readable = humanizeDisplayText(value);
+  return readable || '-';
 };
 
 const normalizePatientContextId = (searchParamValue) => {
@@ -52,8 +68,10 @@ const normalizePatientContextId = (searchParamValue) => {
 
 export {
   buildNoticeMessage,
+  filterDetailRowsByIdentityPolicy,
   formatFieldValue,
   isAccessDeniedError,
+  isTechnicalFieldKey,
   normalizeNoticeValue,
   normalizePatientContextId,
   resolveErrorMessage,

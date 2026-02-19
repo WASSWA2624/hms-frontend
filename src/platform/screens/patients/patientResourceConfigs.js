@@ -1,6 +1,7 @@
 /**
  * Patient resource configuration shared by list/detail/form screens.
  */
+import { humanizeIdentifier } from '@utils';
 
 const PATIENT_RESOURCE_IDS = {
   PATIENTS: 'patients',
@@ -29,6 +30,10 @@ const PATIENT_RESOURCE_LIST_ORDER = [
 const PATIENT_ROUTE_ROOT = '/patients';
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
+const sanitizeReadable = (value) => sanitizeString(humanizeIdentifier(value));
+const resolveFirstReadable = (...candidates) => (
+  candidates.map((candidate) => sanitizeReadable(candidate)).find(Boolean) || ''
+);
 
 const normalizeRouteId = (value) => {
   const candidate = Array.isArray(value) ? value[0] : value;
@@ -53,7 +58,15 @@ const getPersonName = (item) => {
   const firstName = sanitizeString(item?.first_name);
   const lastName = sanitizeString(item?.last_name);
   const fullName = `${firstName} ${lastName}`.trim();
-  return fullName || sanitizeString(item?.name) || sanitizeString(item?.id);
+  if (fullName) return fullName;
+  return resolveFirstReadable(
+    item?.name,
+    item?.patient_code,
+    item?.patient_number,
+    item?.medical_record_number,
+    item?.mrn,
+    item?.identifier_value
+  );
 };
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -220,7 +233,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.patientIdentifiers.form.primaryHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.identifier_value) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.identifier_value,
+      item?.identifier_type
+    ),
     getItemSubtitle: (item, t) => {
       const identifierType = sanitizeString(item?.identifier_type);
       if (!identifierType) return '';
@@ -286,7 +302,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.patientContacts.form.primaryHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.value) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.value,
+      item?.contact_type
+    ),
     getItemSubtitle: (item, t) => {
       const contactType = sanitizeString(item?.contact_type);
       if (!contactType) return '';
@@ -358,7 +377,12 @@ const resourceConfigs = {
         hintKey: 'patients.resources.patientGuardians.form.emailHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.name,
+      item?.relationship,
+      item?.email,
+      item?.phone
+    ),
     getItemSubtitle: (item, t) => {
       const relationship = sanitizeString(item?.relationship);
       if (!relationship) return '';
@@ -437,7 +461,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.patientAllergies.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.allergen) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.allergen,
+      item?.severity
+    ),
     getItemSubtitle: (item, t) => {
       const severity = sanitizeString(item?.severity);
       if (!severity) return '';
@@ -503,7 +530,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.patientMedicalHistories.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.condition) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.condition,
+      item?.diagnosis_date
+    ),
     getItemSubtitle: (item, t) => {
       const diagnosedOn = toDateOnly(item?.diagnosis_date);
       if (!diagnosedOn) return '';
@@ -576,9 +606,11 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.file_name) ||
-      sanitizeString(item?.document_type) ||
-      sanitizeString(item?.id),
+      resolveFirstReadable(
+        item?.file_name,
+        item?.document_type,
+        item?.content_type
+      ),
     getItemSubtitle: (item, t) => {
       const documentType = sanitizeString(item?.document_type);
       if (!documentType) return '';
@@ -663,7 +695,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.consents.form.revokedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.consent_type) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.consent_type,
+      item?.status
+    ),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
@@ -721,7 +756,10 @@ const resourceConfigs = {
         hintKey: 'patients.resources.termsAcceptances.form.versionHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.version_label) || sanitizeString(item?.id),
+    getItemTitle: (item) => resolveFirstReadable(
+      item?.version_label,
+      item?.user_id
+    ),
     getItemSubtitle: (item, t) => {
       const userId = sanitizeString(item?.user_id);
       if (!userId) return '';

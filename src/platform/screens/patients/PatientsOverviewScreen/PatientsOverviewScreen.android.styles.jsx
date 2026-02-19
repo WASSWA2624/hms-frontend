@@ -26,6 +26,108 @@ const StyledHeader = styled.View.withConfig({
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledHeaderTop = styled.View.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHeaderTop',
+  componentId: 'PatientsOverviewScreen_StyledHeaderTop',
+})`
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHeaderCopy = styled.View.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHeaderCopy',
+  componentId: 'PatientsOverviewScreen_StyledHeaderCopy',
+})`
+  flex: 1;
+  min-width: 0;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpButton = styled.Pressable.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpButton',
+  componentId: 'PatientsOverviewScreen_StyledHelpButton',
+})`
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledHelpButtonLabel = styled.Text.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpButtonLabel',
+  componentId: 'PatientsOverviewScreen_StyledHelpButtonLabel',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledSummaryList = styled.View.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledSummaryList',
+  componentId: 'PatientsOverviewScreen_StyledSummaryList',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSummaryChip = styled.View.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledSummaryChip',
+  componentId: 'PatientsOverviewScreen_StyledSummaryChip',
+})`
+  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledSummaryText = styled.Text.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledSummaryText',
+  componentId: 'PatientsOverviewScreen_StyledSummaryText',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+`;
+
+const StyledHelpModalTitle = styled.Text.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpModalTitle',
+  componentId: 'PatientsOverviewScreen_StyledHelpModalTitle',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHelpModalBody = styled.Text.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpModalBody',
+  componentId: 'PatientsOverviewScreen_StyledHelpModalBody',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHelpModalItem = styled.Text.withConfig({
+  displayName: 'PatientsOverviewScreen_StyledHelpModalItem',
+  componentId: 'PatientsOverviewScreen_StyledHelpModalItem',
+})`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 const StyledSection = styled.View.withConfig({
   displayName: 'PatientsOverviewScreen_StyledSection',
   componentId: 'PatientsOverviewScreen_StyledSection',
@@ -104,11 +206,21 @@ export {
   StyledContainer,
   StyledContent,
   StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpButton,
+  StyledHelpButtonLabel,
+  StyledHelpModalBody,
+  StyledHelpModalItem,
+  StyledHelpModalTitle,
   StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
   StyledSeparator,
+  StyledSummaryChip,
+  StyledSummaryList,
+  StyledSummaryText,
   StyledTileAction,
   StyledTileDescription,
   StyledTileTitle,

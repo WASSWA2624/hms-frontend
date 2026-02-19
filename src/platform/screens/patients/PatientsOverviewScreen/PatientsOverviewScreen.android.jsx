@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Card,
@@ -8,6 +8,7 @@ import {
   Icon,
   ListItem,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Text,
@@ -18,11 +19,21 @@ import {
   StyledContainer,
   StyledContent,
   StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpButton,
+  StyledHelpButtonLabel,
+  StyledHelpModalBody,
+  StyledHelpModalItem,
+  StyledHelpModalTitle,
   StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
   StyledSeparator,
+  StyledSummaryChip,
+  StyledSummaryList,
+  StyledSummaryText,
   StyledTileAction,
   StyledTileDescription,
   StyledTileTitle,
@@ -31,10 +42,13 @@ import usePatientsOverviewScreen from './usePatientsOverviewScreen';
 
 const PatientsOverviewScreenAndroid = () => {
   const { t } = useI18n();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const {
     cards,
+    overviewSummary,
+    helpContent,
     recentPatients,
-    canCreatePatientRecords,
+    showRegisterPatientAction,
     isLoading,
     hasError,
     errorMessage,
@@ -49,21 +63,63 @@ const PatientsOverviewScreenAndroid = () => {
     <StyledContainer>
       <StyledContent>
         <StyledHeader>
-          <Text variant="h2" accessibilityRole="header">{t('patients.overview.title')}</Text>
-          <Text variant="body">{t('patients.overview.description')}</Text>
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onRegisterPatient}
-            disabled={!canCreatePatientRecords}
-            accessibilityLabel={t('patients.overview.registerPatient')}
-            accessibilityHint={t('patients.overview.registerPatientHint')}
-            icon={<Icon glyph="+" size="xs" decorative />}
-            testID="patients-overview-register"
-          >
-            {t('patients.overview.registerPatient')}
-          </Button>
+          <StyledHeaderTop>
+            <StyledHeaderCopy>
+              <Text variant="h2" accessibilityRole="header">{t('patients.overview.title')}</Text>
+              <Text variant="body">{t('patients.overview.description')}</Text>
+            </StyledHeaderCopy>
+            <StyledHelpButton
+              accessibilityRole="button"
+              accessibilityLabel={helpContent.label}
+              accessibilityHint={helpContent.tooltip}
+              testID="patients-overview-help-trigger"
+              onPress={() => setIsHelpOpen(true)}
+            >
+              <StyledHelpButtonLabel>?</StyledHelpButtonLabel>
+            </StyledHelpButton>
+          </StyledHeaderTop>
+
+          <StyledSummaryList accessibilityLabel={t('patients.overview.summaryTitle')}>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.scope}</StyledSummaryText>
+            </StyledSummaryChip>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.access}</StyledSummaryText>
+            </StyledSummaryChip>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.recentCount}</StyledSummaryText>
+            </StyledSummaryChip>
+          </StyledSummaryList>
+
+          {showRegisterPatientAction ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onRegisterPatient}
+              accessibilityLabel={t('patients.overview.registerPatient')}
+              accessibilityHint={t('patients.overview.registerPatientHint')}
+              icon={<Icon glyph="+" size="xs" decorative />}
+              testID="patients-overview-register"
+            >
+              {t('patients.overview.registerPatient')}
+            </Button>
+          ) : null}
         </StyledHeader>
+
+        <Modal
+          visible={isHelpOpen}
+          onDismiss={() => setIsHelpOpen(false)}
+          size="small"
+          accessibilityLabel={helpContent.title}
+          accessibilityHint={helpContent.body}
+          testID="patients-overview-help-modal"
+        >
+          <StyledHelpModalTitle>{helpContent.title}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{helpContent.body}</StyledHelpModalBody>
+          {helpContent.items.map((item) => (
+            <StyledHelpModalItem key={item}>{`- ${item}`}</StyledHelpModalItem>
+          ))}
+        </Modal>
 
         {isLoading ? (
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patients-overview-loading" />
@@ -149,15 +205,14 @@ const PatientsOverviewScreenAndroid = () => {
             ) : (
               <StyledRecentList>
                 {recentPatients.map((patient, index) => {
-                  const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || patient.id;
                   return (
-                    <React.Fragment key={patient.id}>
+                    <React.Fragment key={patient.listKey}>
                       <ListItem
-                        title={fullName}
-                        subtitle={patient.gender || patient.date_of_birth || ''}
+                        title={patient.displayName}
+                        subtitle={patient.subtitle}
                         onPress={() => onOpenPatient(patient.id)}
-                        accessibilityLabel={t('patients.overview.openPatient', { patient: fullName })}
-                        testID={`patients-overview-item-${patient.id}`}
+                        accessibilityLabel={t('patients.overview.openPatient', { patient: patient.displayName })}
+                        testID={`patients-overview-item-${index + 1}`}
                       />
                       {index < recentPatients.length - 1 ? <StyledSeparator /> : null}
                     </React.Fragment>

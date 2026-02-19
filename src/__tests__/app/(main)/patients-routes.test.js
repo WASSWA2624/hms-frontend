@@ -4,13 +4,40 @@ const React = require('react');
 const { render } = require('@testing-library/react-native');
 
 const mockScreens = {
+  PatientsScreen: jest.fn(() => null),
   PatientsOverviewScreen: jest.fn(() => null),
   PatientResourceListScreen: jest.fn(() => null),
   PatientResourceDetailScreen: jest.fn(() => null),
   PatientResourceFormScreen: jest.fn(() => null),
 };
+const mockSlot = jest.fn(() => null);
+const mockUsePathname = jest.fn(() => '/patients');
+const mockReplace = jest.fn();
+const mockUsePatientAccess = jest.fn(() => ({
+  canAccessPatients: true,
+  canManageAllTenants: true,
+  tenantId: null,
+  isResolved: true,
+}));
+const mockLoadingSpinner = jest.fn(() => null);
+
+jest.mock('expo-router', () => ({
+  Slot: (props) => mockSlot(props),
+  usePathname: () => mockUsePathname(),
+  useRouter: () => ({ replace: mockReplace }),
+}));
+
+jest.mock('@hooks', () => ({
+  useI18n: () => ({ t: (key) => key }),
+  usePatientAccess: (...args) => mockUsePatientAccess(...args),
+}));
+
+jest.mock('@platform/components', () => ({
+  LoadingSpinner: (...args) => mockLoadingSpinner(...args),
+}));
 
 jest.mock('@platform/screens', () => ({
+  PatientsScreen: (...args) => mockScreens.PatientsScreen(...args),
   PatientsOverviewScreen: (...args) => mockScreens.PatientsOverviewScreen(...args),
   PatientResourceListScreen: (...args) => mockScreens.PatientResourceListScreen(...args),
   PatientResourceDetailScreen: (...args) => mockScreens.PatientResourceDetailScreen(...args),
@@ -75,6 +102,14 @@ const PATIENT_ROUTE_CASES = [
 describe('Tier 4 Patient Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUsePathname.mockReturnValue('/patients');
+    mockUsePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
+    mockScreens.PatientsScreen.mockImplementation(({ children }) => children || null);
   });
 
   test.each(PATIENT_ROUTE_CASES)('$routePath renders $screenKey', ({ routePath, screenKey, expectedProps }) => {
@@ -97,5 +132,72 @@ describe('Tier 4 Patient Routes', () => {
       '../../../app/(main)/patients/terms-acceptances/[id]/edit.jsx'
     );
     expect(fs.existsSync(editRoutePath)).toBe(false);
+  });
+
+  test('patients layout renders PatientsScreen and Slot when access is allowed', () => {
+    mockUsePathname.mockReturnValue('/patients');
+    mockUsePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const layoutModule = require('../../../app/(main)/patients/_layout');
+    render(React.createElement(layoutModule.default));
+
+    expect(mockScreens.PatientsScreen).toHaveBeenCalledTimes(1);
+    expect(mockSlot).toHaveBeenCalledTimes(1);
+    expect(mockLoadingSpinner).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  test('patients layout shows loading spinner while access state is resolving', () => {
+    mockUsePatientAccess.mockReturnValue({
+      canAccessPatients: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: false,
+    });
+
+    const layoutModule = require('../../../app/(main)/patients/_layout');
+    render(React.createElement(layoutModule.default));
+
+    expect(mockScreens.PatientsScreen).toHaveBeenCalledTimes(1);
+    expect(mockLoadingSpinner).toHaveBeenCalledTimes(1);
+    expect(mockSlot).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  test('patients layout redirects to dashboard when user lacks patient access', () => {
+    mockUsePatientAccess.mockReturnValue({
+      canAccessPatients: false,
+      canManageAllTenants: true,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const layoutModule = require('../../../app/(main)/patients/_layout');
+    render(React.createElement(layoutModule.default));
+
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    expect(mockScreens.PatientsScreen).not.toHaveBeenCalled();
+    expect(mockSlot).not.toHaveBeenCalled();
+  });
+
+  test('patients layout redirects to dashboard for scoped users without tenant context (read-only denied path)', () => {
+    mockUsePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const layoutModule = require('../../../app/(main)/patients/_layout');
+    render(React.createElement(layoutModule.default));
+
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+    expect(mockScreens.PatientsScreen).not.toHaveBeenCalled();
+    expect(mockSlot).not.toHaveBeenCalled();
   });
 });
