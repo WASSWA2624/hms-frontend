@@ -12,7 +12,6 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
-  Snackbar,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -31,31 +30,19 @@ const UserSessionDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
     session,
+    sessionLabel,
+    userLabel,
+    statusLabel,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
-    noticeMessage,
-    onDismissNotice,
+    canViewTechnicalIds,
     onRetry,
     onBack,
-    onRevoke,
   } = useUserSessionDetailScreen();
-  const hasSession = Boolean(session);
 
-  const retryAction = onRetry ? (
-    <Button
-      variant="surface"
-      size="small"
-      onPress={onRetry}
-      accessibilityLabel={t('common.retry')}
-      accessibilityHint={t('common.retryHint')}
-    >
-      {t('common.retry')}
-    </Button>
-  ) : undefined;
-  const showInlineError = hasSession && hasError;
-  const showInlineOffline = hasSession && isOffline;
+  const hasSession = Boolean(session);
 
   if (isLoading && !hasSession) {
     return (
@@ -78,7 +65,17 @@ const UserSessionDetailScreenWeb = () => {
             size={OfflineStateSizes.SMALL}
             title={t('shell.banners.offline.title')}
             description={t('shell.banners.offline.message')}
-            action={retryAction}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
             testID="user-session-detail-offline"
           />
         </StyledContent>
@@ -93,7 +90,17 @@ const UserSessionDetailScreenWeb = () => {
           <ErrorState
             title={t('userSession.detail.errorTitle')}
             description={errorMessage}
-            action={retryAction}
+            action={(
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onRetry}
+                accessibilityLabel={t('common.retry')}
+                accessibilityHint={t('common.retryHint')}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
             testID="user-session-detail-error"
           />
         </StyledContent>
@@ -116,6 +123,7 @@ const UserSessionDetailScreenWeb = () => {
               size="small"
               onPress={onBack}
               accessibilityLabel={t('common.back')}
+              accessibilityHint={t('userSession.detail.backHint')}
               testID="user-session-detail-back"
             >
               {t('common.back')}
@@ -126,26 +134,30 @@ const UserSessionDetailScreenWeb = () => {
     );
   }
 
-  const createdAt = formatDateTime(session.created_at, locale);
+  const startedAt = formatDateTime(session.created_at, locale);
   const expiresAt = formatDateTime(session.expires_at, locale);
   const revokedAt = formatDateTime(session.revoked_at, locale);
-  const email = session?.user?.email ?? '';
+
+  const retryAction = onRetry ? (
+    <Button
+      variant="surface"
+      size="small"
+      onPress={onRetry}
+      accessibilityLabel={t('common.retry')}
+      accessibilityHint={t('common.retryHint')}
+    >
+      {t('common.retry')}
+    </Button>
+  ) : undefined;
+
+  const showInlineError = hasSession && hasError;
+  const showInlineOffline = hasSession && isOffline;
 
   return (
     <StyledContainer role="main" aria-label={t('userSession.detail.title')}>
-      {noticeMessage ? (
-        <Snackbar
-          visible={Boolean(noticeMessage)}
-          message={noticeMessage}
-          variant="error"
-          position="bottom"
-          onDismiss={onDismissNotice}
-          testID="user-session-detail-notice"
-        />
-      ) : null}
       <StyledContent>
         <StyledInlineStates>
-          {showInlineError && (
+          {showInlineError ? (
             <ErrorState
               size={ErrorStateSizes.SMALL}
               title={t('userSession.detail.errorTitle')}
@@ -153,8 +165,8 @@ const UserSessionDetailScreenWeb = () => {
               action={retryAction}
               testID="user-session-detail-error-banner"
             />
-          )}
-          {showInlineOffline && (
+          ) : null}
+          {showInlineOffline ? (
             <OfflineState
               size={OfflineStateSizes.SMALL}
               title={t('shell.banners.offline.title')}
@@ -162,32 +174,45 @@ const UserSessionDetailScreenWeb = () => {
               action={retryAction}
               testID="user-session-detail-offline-banner"
             />
-          )}
+          ) : null}
         </StyledInlineStates>
-        <Text variant="h1" accessibilityRole="header" testID="user-session-detail-title">
-          {t('userSession.detail.title')}
-        </Text>
         <Card variant="outlined" accessibilityLabel={t('userSession.detail.title')} testID="user-session-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('userSession.detail.idLabel')}</Text>
-              <Text variant="body" testID="user-session-detail-id">
-                {session.id}
-              </Text>
-            </StyledDetailItem>
-            {email ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userSession.detail.emailLabel')}</Text>
-                <Text variant="body" testID="user-session-detail-email">
-                  {email}
+                <Text variant="label">{t('userSession.detail.idLabel')}</Text>
+                <Text variant="body" testID="user-session-detail-id">
+                  {session.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {createdAt ? (
+            {sessionLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userSession.detail.createdLabel')}</Text>
-                <Text variant="body" testID="user-session-detail-created">
-                  {createdAt}
+                <Text variant="label">{t('userSession.detail.sessionLabel')}</Text>
+                <Text variant="body" testID="user-session-detail-session">
+                  {sessionLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {userLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userSession.detail.userLabel')}</Text>
+                <Text variant="body" testID="user-session-detail-user">
+                  {userLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            <StyledDetailItem>
+              <Text variant="label">{t('userSession.detail.statusLabel')}</Text>
+              <Text variant="body" testID="user-session-detail-status">
+                {statusLabel}
+              </Text>
+            </StyledDetailItem>
+            {startedAt ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userSession.detail.startedLabel')}</Text>
+                <Text variant="body" testID="user-session-detail-started">
+                  {startedAt}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -221,19 +246,6 @@ const UserSessionDetailScreenWeb = () => {
           >
             {t('common.back')}
           </Button>
-          {!session.revoked_at ? (
-            <Button
-              variant="surface"
-              size="small"
-              onPress={onRevoke}
-              loading={isLoading}
-              accessibilityLabel={t('userSession.detail.revoke')}
-              accessibilityHint={t('userSession.detail.revokeHint')}
-              testID="user-session-detail-revoke"
-            >
-              {t('common.remove')}
-            </Button>
-          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>
@@ -241,3 +253,4 @@ const UserSessionDetailScreenWeb = () => {
 };
 
 export default UserSessionDetailScreenWeb;
+

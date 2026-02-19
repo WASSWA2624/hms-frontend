@@ -5,7 +5,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useOauthAccount, useTenantAccess, useUser } from '@hooks';
-import { normalizeIsoDateTime, toDateInputValue } from '@utils';
+import { normalizeIsoDateTime, toDateInputValue, humanizeIdentifier } from '@utils';
+
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -15,6 +17,15 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeValue = (value) => String(value ?? '').trim();
+const uniqueArray = (values = []) => [...new Set(values)];
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return MAX_REFERENCE_FETCH_LIMIT;
+  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useOauthAccountFormScreen = () => {
@@ -45,9 +56,10 @@ const useOauthAccountFormScreen = () => {
   const canManageOauthAccounts = canAccessTenantSettings;
   const canCreateOauthAccount = canManageOauthAccounts;
   const canEditOauthAccount = canManageOauthAccounts;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageOauthAccounts && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
-    () => String(scopedTenantId ?? '').trim(),
+    () => normalizeValue(scopedTenantId),
     [scopedTenantId]
   );
   const [userId, setUserId] = useState('');
@@ -63,15 +75,57 @@ const useOauthAccountFormScreen = () => {
     () => (Array.isArray(userData) ? userData : (userData?.items ?? [])),
     [userData]
   );
+  const userLookup = useMemo(() => {
+    const map = new Map();
+    userItems.forEach((userItem, index) => {
+      const userIdValue = normalizeValue(userItem?.id);
+      if (!userIdValue) return;
+      const userLabel = humanizeIdentifier(userItem?.name)
+        || humanizeIdentifier(userItem?.full_name)
+        || humanizeIdentifier(userItem?.display_name)
+        || humanizeIdentifier(userItem?.email)
+        || humanizeIdentifier(userItem?.phone)
+        || (canViewTechnicalIds ? userIdValue : '')
+        || t('oauthAccount.form.userOptionFallback', { index: index + 1 });
+      map.set(userIdValue, {
+        label: userLabel,
+        tenantId: normalizeValue(userItem?.tenant_id || userItem?.tenant?.id),
+      });
+    });
+    return map;
+  }, [userItems, canViewTechnicalIds, t]);
   const userOptions = useMemo(
     () =>
-      userItems.map((user) => ({
-        value: user.id,
-        label: user.email ?? user.phone ?? user.id ?? '',
+      userItems.map((userItem, index) => {
+        const userIdValue = normalizeValue(userItem?.id);
+        const userContext = userLookup.get(userIdValue);
+        return {
+          value: userIdValue,
+          label: userContext?.label || t('oauthAccount.form.userOptionFallback', { index: index + 1 }),
+        };
       })),
-    [userItems]
+    [userItems, userLookup, t]
   );
   const hasUsers = userOptions.length > 0;
+
+  const resolveTenantIdsForSelection = useCallback((targetUserId, record = null) => {
+    const selectedUserId = normalizeValue(targetUserId);
+    const userContext = userLookup.get(selectedUserId);
+    return uniqueArray(
+      [
+        normalizeValue(record?.tenant_id),
+        normalizeValue(userContext?.tenantId),
+      ].filter(Boolean)
+    );
+  }, [userLookup]);
+
+  const canAccessTenantScopedUser = useCallback((targetUserId, record = null) => {
+    if (!isTenantScopedAdmin) return true;
+    if (!normalizedScopedTenantId) return false;
+    const tenantIds = resolveTenantIdsForSelection(targetUserId, record);
+    if (tenantIds.length === 0) return false;
+    return tenantIds.every((tenantIdValue) => tenantIdValue === normalizedScopedTenantId);
+  }, [isTenantScopedAdmin, normalizedScopedTenantId, resolveTenantIdsForSelection]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -121,7 +175,10 @@ const useOauthAccountFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageOauthAccounts) return;
     resetUsers();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -137,7 +194,7 @@ const useOauthAccountFormScreen = () => {
 
   useEffect(() => {
     if (oauthAccount) {
-      setUserId(oauthAccount.user_id ?? '');
+      setUserId(normalizeValue(oauthAccount.user_id));
       setProvider(oauthAccount.provider ?? '');
       setProviderUserId(oauthAccount.provider_user_id ?? '');
       setExpiresAt(toDateInputValue(oauthAccount.expires_at ?? ''));
@@ -146,8 +203,8 @@ const useOauthAccountFormScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canManageOauthAccounts || !isTenantScopedAdmin || !isEdit || !oauthAccount) return;
-    const recordTenantId = String(oauthAccount?.tenant_id ?? '').trim();
-    if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
+    if (userListLoading) return;
+    if (!canAccessTenantScopedUser(oauthAccount?.user_id, oauthAccount)) {
       router.replace('/settings/oauth-accounts?notice=accessDenied');
     }
   }, [
@@ -156,7 +213,8 @@ const useOauthAccountFormScreen = () => {
     isTenantScopedAdmin,
     isEdit,
     oauthAccount,
-    normalizedScopedTenantId,
+    userListLoading,
+    canAccessTenantScopedUser,
     router,
   ]);
 
@@ -165,7 +223,7 @@ const useOauthAccountFormScreen = () => {
     if (userPrefillRef.current) return;
     const paramValue = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
     if (paramValue) {
-      setUserId(String(paramValue));
+      setUserId(normalizeValue(paramValue));
       userPrefillRef.current = true;
       return;
     }
@@ -181,11 +239,11 @@ const useOauthAccountFormScreen = () => {
     router.replace('/settings/oauth-accounts?notice=accessDenied');
   }, [isResolved, canManageOauthAccounts, errorCode, router]);
 
-  const trimmedUserId = String(userId ?? '').trim();
-  const trimmedProvider = String(provider ?? '').trim();
-  const trimmedProviderUserId = String(providerUserId ?? '').trim();
-  const trimmedAccessToken = String(accessToken ?? '').trim();
-  const trimmedRefreshToken = String(refreshToken ?? '').trim();
+  const trimmedUserId = normalizeValue(userId);
+  const trimmedProvider = normalizeValue(provider);
+  const trimmedProviderUserId = normalizeValue(providerUserId);
+  const trimmedAccessToken = normalizeValue(accessToken);
+  const trimmedRefreshToken = normalizeValue(refreshToken);
   const normalizedExpiresAt = normalizeIsoDateTime(expiresAt);
 
   const errorMessage = useMemo(
@@ -197,12 +255,17 @@ const useOauthAccountFormScreen = () => {
     [t, userErrorCode]
   );
   const isCreateBlocked = !isEdit && !hasUsers;
+  const isTenantScopedSelectionAllowed = canAccessTenantScopedUser(
+    trimmedUserId,
+    isEdit ? oauthAccount : null
+  );
   const isSubmitDisabled =
     isLoading ||
     isCreateBlocked ||
     !trimmedProvider ||
     !trimmedProviderUserId ||
-    (!isEdit && !trimmedUserId);
+    (!isEdit && !trimmedUserId) ||
+    !isTenantScopedSelectionAllowed;
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -212,6 +275,10 @@ const useOauthAccountFormScreen = () => {
         return;
       }
       if (isEdit && !canEditOauthAccount) {
+        router.replace('/settings/oauth-accounts?notice=accessDenied');
+        return;
+      }
+      if (!canAccessTenantScopedUser(trimmedUserId, isEdit ? oauthAccount : null)) {
         router.replace('/settings/oauth-accounts?notice=accessDenied');
         return;
       }
@@ -255,6 +322,8 @@ const useOauthAccountFormScreen = () => {
     trimmedUserId,
     canCreateOauthAccount,
     canEditOauthAccount,
+    canAccessTenantScopedUser,
+    oauthAccount,
     routeOauthAccountId,
     create,
     update,
@@ -272,7 +341,10 @@ const useOauthAccountFormScreen = () => {
   const handleRetryUsers = useCallback(() => {
     if (!isResolved || !canManageOauthAccounts) return;
     resetUsers();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }

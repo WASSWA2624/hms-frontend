@@ -104,6 +104,10 @@ For any selected step that exposes a list/index route or collection view:
 - The shared `DataTable` export modal must use a basic-first layout: always show core format/scope + primary action, and keep advanced options collapsed behind an explicit toggle by default.
 - The shared `DataTable` export modal must support at least CSV, Excel-compatible export, PDF export, and print output; this requirement is mandatory for all list/index routes that render `DataTable`.
 - `DataTable` exports and prints must be filter-aware by default: output must reflect the currently active filtered dataset (and any selected scope options) rather than unfiltered source rows.
+- For any web screen/route that renders `DataTable` (or approved shared wrappers built on `DataTable`), the hook-level active criteria signal must be passed into `DataTable` as `hasActiveFilters` so filter tools auto-open when active criteria exist.
+- If a table/list hook does not yet expose `hasActiveSearchOrFilter`, it must add an equivalent computed signal from current search/filter state and wire it to `DataTable.hasActiveFilters`; module-specific or screen-specific exceptions are not allowed.
+- All shared `DataTable` control and export-modal strings (titles, labels, toggles, status feedback, and no-rows export fallbacks) must be i18n-driven from `common.dataTable.*`; do not ship hardcoded UI copy in `DataTable`.
+- Any route that still uses a non-`DataTable` desktop/tablet table implementation (for example transitional screens such as `UserSessionListScreen`) must adopt the same shared `DataTable` contracts above when touched in scope.
 - Provide global search plus field-scoped search so users can query every searchable business field exposed in the dataset contract.
 - Support advanced filters with multi-condition criteria (field, operator, value, AND/OR grouping) and clear reset behavior.
 - On desktop/tablet table views, keep the advanced filter section collapsed by default and reveal it only on explicit user toggle.

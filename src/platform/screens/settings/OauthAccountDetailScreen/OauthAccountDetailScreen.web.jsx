@@ -31,10 +31,14 @@ const OauthAccountDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
     oauthAccount,
+    providerLabel,
+    userLabel,
+    providerUserLabel,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
     onEdit,
@@ -139,9 +143,6 @@ const OauthAccountDetailScreenWeb = () => {
   const createdAt = formatDateTime(oauthAccount.created_at, locale);
   const updatedAt = formatDateTime(oauthAccount.updated_at, locale);
   const expiresAt = formatDateTime(oauthAccount.expires_at, locale);
-  const userId = oauthAccount?.user_id ?? '';
-  const provider = oauthAccount?.provider ?? '';
-  const providerUserId = oauthAccount?.provider_user_id ?? '';
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -182,33 +183,35 @@ const OauthAccountDetailScreenWeb = () => {
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('oauthAccount.detail.title')} testID="oauth-account-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('oauthAccount.detail.idLabel')}</Text>
-              <Text variant="body" testID="oauth-account-detail-id">
-                {oauthAccount.id}
-              </Text>
-            </StyledDetailItem>
-            {userId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('oauthAccount.detail.userIdLabel')}</Text>
-                <Text variant="body" testID="oauth-account-detail-user">
-                  {userId}
+                <Text variant="label">{t('oauthAccount.detail.idLabel')}</Text>
+                <Text variant="body" testID="oauth-account-detail-id">
+                  {oauthAccount.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {provider ? (
+            {userLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('oauthAccount.detail.userLabel')}</Text>
+                <Text variant="body" testID="oauth-account-detail-user">
+                  {userLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {providerLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('oauthAccount.detail.providerLabel')}</Text>
                 <Text variant="body" testID="oauth-account-detail-provider">
-                  {provider}
+                  {providerLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {providerUserId ? (
+            {providerUserLabel ? (
               <StyledDetailItem>
                 <Text variant="label">{t('oauthAccount.detail.providerUserIdLabel')}</Text>
                 <Text variant="body" testID="oauth-account-detail-provider-user-id">
-                  {providerUserId}
+                  {providerUserLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}

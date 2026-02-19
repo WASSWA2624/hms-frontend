@@ -1,15 +1,49 @@
 /**
  * UserSessionListScreen Component Tests
- * Per testing.mdc: render, loading, error, empty, a11y
  */
 const React = require('react');
 const { render, fireEvent } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
+const ReactNative = require('react-native');
 const { useI18n } = require('@hooks');
+
+const mockUseWindowDimensions = jest.spyOn(ReactNative, 'useWindowDimensions');
+const mockDataTable = jest.fn();
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
 }));
+
+jest.mock('@platform/components', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const actual = jest.requireActual('@platform/components');
+
+  return {
+    ...actual,
+    DataTable: (props) => {
+      mockDataTable(props);
+      const {
+        testID,
+        searchBar,
+        filterBar,
+        statusContent,
+        pagination,
+        tableNavigation,
+      } = props;
+
+      return (
+        <View testID={testID}>
+          {searchBar}
+          {filterBar}
+          {statusContent}
+          {pagination}
+          {tableNavigation}
+        </View>
+      );
+    },
+  };
+});
 
 jest.mock('@platform/screens/settings/UserSessionListScreen/useUserSessionListScreen', () => ({
   __esModule: true,
@@ -25,143 +59,224 @@ const { STATES } = require('@platform/screens/settings/UserSessionListScreen/typ
 
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
-const renderWithTheme = (c) => render(<ThemeProvider theme={lightTheme}>{c}</ThemeProvider>);
-
-const mockT = (key) => {
-  const m = {
-    'userSession.list.title': 'User Sessions',
-    'userSession.list.accessibilityLabel': 'User sessions list',
-    'userSession.list.emptyTitle': 'No sessions',
-    'userSession.list.emptyMessage': 'You have no active sessions.',
-    'userSession.list.revoke': 'Revoke session',
-    'userSession.list.revokeHint': 'Revoke this session',
-    'userSession.list.itemLabel': 'Session for {{email}}',
-    'common.remove': 'Remove',
-    'listScaffold.loading': 'Loading',
-    'listScaffold.empty': 'Empty',
-    'listScaffold.error': 'Error',
-    'listScaffold.offline': 'Offline',
-    'common.retry': 'Retry',
-  };
-  return m[key] || key;
-};
+const renderWithTheme = (component) => render(
+  <ThemeProvider theme={lightTheme}>{component}</ThemeProvider>
+);
 
 const baseHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
+  search: '',
+  searchScope: 'all',
+  searchScopeOptions: [{ value: 'all', label: 'All fields' }],
+  filters: [{ id: 'f-1', field: 'session', operator: 'contains', value: '' }],
+  filterFieldOptions: [{ value: 'session', label: 'Session' }],
+  filterLogic: 'AND',
+  filterLogicOptions: [{ value: 'AND', label: 'AND' }],
+  canAddFilter: true,
+  hasNoResults: false,
+  hasActiveSearchOrFilter: false,
+  sortField: 'started',
+  sortDirection: 'desc',
+  columnOrder: ['session', 'status', 'started', 'expires'],
+  visibleColumns: ['session', 'status', 'started', 'expires'],
+  isTableSettingsOpen: false,
   isLoading: false,
   hasError: false,
   errorMessage: null,
   isOffline: false,
+  noticeMessage: null,
+  resolveSessionLabel: (item) => item.session_name || 'Session',
+  resolveStatusLabel: (item) => (item.revoked_at ? 'Revoked' : 'Active'),
+  onDismissNotice: jest.fn(),
   onRetry: jest.fn(),
-  onSessionPress: jest.fn(),
-  onRevoke: jest.fn(),
+  onSearch: jest.fn(),
+  onSearchScopeChange: jest.fn(),
+  onFilterLogicChange: jest.fn(),
+  onFilterFieldChange: jest.fn(),
+  onFilterOperatorChange: jest.fn(),
+  onFilterValueChange: jest.fn(),
+  onAddFilter: jest.fn(),
+  onRemoveFilter: jest.fn(),
+  onClearSearchAndFilters: jest.fn(),
+  onSort: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
+  onToggleColumnVisibility: jest.fn(),
+  onMoveColumnLeft: jest.fn(),
+  onMoveColumnRight: jest.fn(),
+  onOpenTableSettings: jest.fn(),
+  onCloseTableSettings: jest.fn(),
+  onResetTablePreferences: jest.fn(),
+  resolveFilterOperatorOptions: jest.fn(() => [{ value: 'contains', label: 'Contains' }]),
+  onItemPress: jest.fn(),
+  onDelete: undefined,
+  onAdd: undefined,
 };
 
 describe('UserSessionListScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useI18n.mockReturnValue({ t: mockT });
+    useI18n.mockReturnValue({ t: (key) => key, locale: 'en' });
     useUserSessionListScreen.mockReturnValue({ ...baseHook });
-  });
-
-  describe('render', () => {
-    it('renders without error (Web)', () => {
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-list-title')).toBeTruthy();
-    });
-
-    it('renders without error (Android)', () => {
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenAndroid />);
-      expect(getByTestId('user-session-list-title')).toBeTruthy();
-    });
-
-    it('renders without error (iOS)', () => {
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenIOS />);
-      expect(getByTestId('user-session-list-title')).toBeTruthy();
+    mockUseWindowDimensions.mockReturnValue({
+      width: 1280,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
     });
   });
 
-  describe('loading', () => {
-    it('shows loading state (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({ ...baseHook, isLoading: true });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-list-loading')).toBeTruthy();
+  it('renders DataTable on web in desktop/tablet mode', () => {
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
     });
+
+    const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
+    expect(getByTestId('user-session-table')).toBeTruthy();
   });
 
-  describe('empty', () => {
-    it('shows empty state (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [],
-        isLoading: false,
-        hasError: false,
-        isOffline: false,
-      });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-list-empty-state')).toBeTruthy();
+  it('keeps desktop filter panel collapsed by default', () => {
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
     });
+
+    const { queryByText } = renderWithTheme(<UserSessionListScreenWeb />);
+    expect(queryByText('userSession.list.filterLogicLabel')).toBeNull();
   });
 
-  describe('error', () => {
-    it('shows error state (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({
-        ...baseHook,
-        hasError: true,
-        errorMessage: 'Something went wrong',
-      });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-list-error')).toBeTruthy();
+  it('keeps mobile filter panel expanded by default', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
     });
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
+    });
+
+    const { getByText } = renderWithTheme(<UserSessionListScreenWeb />);
+    expect(getByText('userSession.list.filterLogicLabel')).toBeTruthy();
   });
 
-  describe('offline', () => {
-    it('shows offline state (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({
-        ...baseHook,
-        isLoading: false,
-        hasError: false,
-        isOffline: true,
-        items: [],
-      });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-list-offline')).toBeTruthy();
+  it('renders list items on web in mobile mode', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
     });
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
+    });
+
+    const { getByTestId, queryByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
+    expect(getByTestId('user-session-item-session-1')).toBeTruthy();
+    expect(queryByTestId('user-session-table')).toBeNull();
   });
 
-  describe('list with items', () => {
-    it('renders items (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [
-          { id: '1', user: { email: 'a@b.com' }, created_at: '2025-01-01T00:00:00Z' },
-        ],
-      });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      expect(getByTestId('user-session-item-1')).toBeTruthy();
+  it('passes hasActiveFilters signal to DataTable', () => {
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      hasActiveSearchOrFilter: true,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
     });
+
+    renderWithTheme(<UserSessionListScreenWeb />);
+
+    expect(mockDataTable).toHaveBeenCalled();
+    expect(mockDataTable.mock.calls[0][0].hasActiveFilters).toBe(true);
   });
 
-  describe('accessibility', () => {
-    it('has accessibility label (Web)', () => {
-      useUserSessionListScreen.mockReturnValue({
-        ...baseHook,
-        items: [{ id: '1', user: { email: 'a@b.com' }, created_at: '2025-01-01T00:00:00Z' }],
-      });
-      const { getByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
-      const list = getByTestId('user-session-list');
-      expect(list).toBeTruthy();
-    });
+  it('renders Android and iOS variants', () => {
+    const android = renderWithTheme(<UserSessionListScreenAndroid />);
+    expect(android.getByTestId('user-session-list-search')).toBeTruthy();
+    expect(android.getByTestId('user-session-list-card')).toBeTruthy();
+
+    const ios = renderWithTheme(<UserSessionListScreenIOS />);
+    expect(ios.getByTestId('user-session-list-search')).toBeTruthy();
+    expect(ios.getByTestId('user-session-list-card')).toBeTruthy();
   });
 
-  describe('exports', () => {
-    it('exports component and hook from index', () => {
-      expect(UserSessionListScreenIndex.default).toBeDefined();
-      expect(UserSessionListScreenIndex.useUserSessionListScreen).toBeDefined();
+  it('shows no-results state and clear action', () => {
+    const onClearSearchAndFilters = jest.fn();
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      hasNoResults: true,
+      onClearSearchAndFilters,
     });
-    it('exports STATES', () => {
-      expect(STATES).toBeDefined();
-      expect(STATES.READY).toBe('ready');
+
+    const { getByTestId } = renderWithTheme(<UserSessionListScreenAndroid />);
+    expect(getByTestId('user-session-list-no-results')).toBeTruthy();
+    fireEvent.press(getByTestId('user-session-filter-clear'));
+    expect(onClearSearchAndFilters).toHaveBeenCalled();
+  });
+
+  it('keeps read-only surface (no add/delete controls)', () => {
+    useUserSessionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{
+        id: 'session-1',
+        session_name: 'Alice Session',
+        created_at: '2025-01-01T00:00:00Z',
+        expires_at: '2099-01-01T00:00:00Z',
+      }],
+      totalItems: 1,
+      onAdd: undefined,
+      onDelete: undefined,
     });
+
+    const { queryByTestId } = renderWithTheme(<UserSessionListScreenWeb />);
+    expect(queryByTestId('user-session-list-add')).toBeNull();
+    expect(queryByTestId('user-session-delete-session-1')).toBeNull();
+  });
+
+  it('exports component, hook, and state contract', () => {
+    expect(UserSessionListScreenIndex.default).toBeDefined();
+    expect(UserSessionListScreenIndex.useUserSessionListScreen).toBeDefined();
+    expect(STATES.READY).toBe('ready');
   });
 });

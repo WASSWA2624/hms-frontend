@@ -2,7 +2,6 @@
  * useOauthAccountFormScreen Hook Tests
  */
 const { renderHook, act } = require('@testing-library/react-native');
-const useOauthAccountFormScreen = require('@platform/screens/settings/OauthAccountFormScreen/useOauthAccountFormScreen').default;
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -18,10 +17,19 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(() => ({ isOffline: false })),
   useOauthAccount: jest.fn(),
   useUser: jest.fn(),
+  usePermission: jest.fn(),
   useTenantAccess: jest.fn(),
 }));
 
-const { useNetwork, useOauthAccount, useUser, useTenantAccess } = require('@hooks');
+const {
+  useNetwork,
+  useOauthAccount,
+  useUser,
+  usePermission,
+  useTenantAccess,
+} = require('@hooks');
+
+const useOauthAccountFormScreen = require('@platform/screens/settings/OauthAccountFormScreen/useOauthAccountFormScreen').default;
 
 describe('useOauthAccountFormScreen', () => {
   const mockGet = jest.fn();
@@ -30,15 +38,18 @@ describe('useOauthAccountFormScreen', () => {
   const mockReset = jest.fn();
   const mockListUsers = jest.fn();
   const mockResetUsers = jest.fn();
+  const mockListPermissions = jest.fn();
+  const mockResetPermissions = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockParams = {};
+
     useNetwork.mockReturnValue({ isOffline: false });
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: true,
-      tenantId: 'tenant-1',
+      tenantId: null,
       isResolved: true,
     });
     useOauthAccount.mockReturnValue({
@@ -52,115 +63,180 @@ describe('useOauthAccountFormScreen', () => {
     });
     useUser.mockReturnValue({
       list: mockListUsers,
-      data: { items: [{ id: 'user-1', email: 'user@example.com' }] },
+      data: { items: [{ id: 'key-1', name: 'Clinical Key', tenant_id: 'tenant-1' }] },
       isLoading: false,
       errorCode: null,
       reset: mockResetUsers,
+    });
+    usePermission.mockReturnValue({
+      list: mockListPermissions,
+      data: { items: [{ id: 'perm-1', name: 'Read Encounters', tenant_id: 'tenant-1' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPermissions,
     });
   });
 
   it('returns initial create state', () => {
     const { result } = renderHook(() => useOauthAccountFormScreen());
     expect(result.current.isEdit).toBe(false);
-    expect(result.current.provider).toBe('');
-    expect(result.current.providerUserId).toBe('');
+    expect(result.current.apiKeyId).toBe('key-1');
+    expect(result.current.permissionId).toBe('perm-1');
     expect(result.current.oauthAccount).toBeNull();
   });
 
-  it('calls user list on mount', () => {
-    renderHook(() => useOauthAccountFormScreen());
-    expect(mockResetUsers).toHaveBeenCalled();
-    expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 200 });
-  });
-
-  it('calls get on mount when editing', () => {
-    mockParams = { id: 'oauth-1' };
+  it('loads edit detail when route id is provided', () => {
+    mockParams = { id: 'akp-1' };
     renderHook(() => useOauthAccountFormScreen());
     expect(mockReset).toHaveBeenCalled();
-    expect(mockGet).toHaveBeenCalledWith('oauth-1');
+    expect(mockGet).toHaveBeenCalledWith('akp-1');
   });
 
-  it('prefills user from query param in create mode', () => {
-    mockParams = { userId: 'user-2' };
+  it('loads references with capped limit 100', () => {
+    renderHook(() => useOauthAccountFormScreen());
+    expect(mockResetUsers).toHaveBeenCalled();
+    expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(mockResetPermissions).toHaveBeenCalled();
+    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
+  });
+
+  it('scopes references for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => useOauthAccountFormScreen());
+    expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+  });
+
+  it('hydrates form values from edit payload', () => {
+    mockParams = { id: 'akp-1' };
+    useOauthAccount.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: { api_key_id: 'key-1', permission_id: 'perm-1' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
     const { result } = renderHook(() => useOauthAccountFormScreen());
-    expect(result.current.userId).toBe('user-2');
+    expect(result.current.apiKeyId).toBe('key-1');
+    expect(result.current.permissionId).toBe('perm-1');
   });
 
-  it('submits create payload and navigates with created notice', async () => {
-    mockCreate.mockResolvedValue({ id: 'oauth-1' });
+  it('submits create payload and navigates on success', async () => {
+    mockCreate.mockResolvedValue({ id: 'akp-1' });
+
     const { result } = renderHook(() => useOauthAccountFormScreen());
     act(() => {
-      result.current.setUserId(' user-1 ');
-      result.current.setProvider(' Google ');
-      result.current.setProviderUserId(' google-uid ');
-      result.current.setAccessToken(' token-a ');
-      result.current.setRefreshToken(' token-r ');
-      result.current.setExpiresAt('2026-12-31');
+      result.current.setApiKeyId(' key-1 ');
+      result.current.setPermissionId(' perm-1 ');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
+
     expect(mockCreate).toHaveBeenCalledWith({
-      user_id: 'user-1',
-      provider: 'Google',
-      provider_user_id: 'google-uid',
-      access_token_encrypted: 'token-a',
-      refresh_token_encrypted: 'token-r',
-      expires_at: '2026-12-31T00:00:00.000Z',
+      api_key_id: 'key-1',
+      permission_id: 'perm-1',
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/oauth-accounts?notice=created');
   });
 
-  it('submits update payload and navigates with updated notice', async () => {
-    mockParams = { id: 'oauth-1' };
-    mockUpdate.mockResolvedValue({ id: 'oauth-1' });
+  it('submits update payload and navigates on success', async () => {
+    mockParams = { id: 'akp-1' };
+    mockUpdate.mockResolvedValue({ id: 'akp-1' });
+
     const { result } = renderHook(() => useOauthAccountFormScreen());
     act(() => {
-      result.current.setProvider('Github');
-      result.current.setProviderUserId('gh-uid');
+      result.current.setApiKeyId('key-1');
+      result.current.setPermissionId('perm-1');
     });
+
     await act(async () => {
       await result.current.onSubmit();
     });
-    expect(mockUpdate).toHaveBeenCalledWith('oauth-1', {
-      provider: 'Github',
-      provider_user_id: 'gh-uid',
+
+    expect(mockUpdate).toHaveBeenCalledWith('akp-1', {
+      api_key_id: 'key-1',
+      permission_id: 'perm-1',
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/oauth-accounts?notice=updated');
   });
 
-  it('uses queued notice while offline', async () => {
-    useNetwork.mockReturnValue({ isOffline: true });
-    mockCreate.mockResolvedValue({ id: 'oauth-1' });
+  it('prevents tenant-scoped submission for out-of-scope selections', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: { items: [{ id: 'key-2', name: 'External Key', tenant_id: 'tenant-2' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUsers,
+    });
+    usePermission.mockReturnValue({
+      list: mockListPermissions,
+      data: { items: [{ id: 'perm-2', name: 'External Permission', tenant_id: 'tenant-2' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPermissions,
+    });
+
     const { result } = renderHook(() => useOauthAccountFormScreen());
     act(() => {
-      result.current.setUserId('user-1');
-      result.current.setProvider('Google');
-      result.current.setProviderUserId('google-uid');
+      result.current.setApiKeyId('key-2');
+      result.current.setPermissionId('perm-2');
     });
+
+    expect(result.current.isSubmitDisabled).toBe(true);
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('uses queued notice while offline', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+    mockCreate.mockResolvedValue({ id: 'akp-1' });
+
+    const { result } = renderHook(() => useOauthAccountFormScreen());
+    act(() => {
+      result.current.setApiKeyId('key-1');
+      result.current.setPermissionId('perm-1');
+    });
+
     await act(async () => {
       await result.current.onSubmit();
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/oauth-accounts?notice=queued');
   });
 
-  it('does not submit when required fields are missing', async () => {
+  it('routes to related modules and retries references', () => {
     const { result } = renderHook(() => useOauthAccountFormScreen());
-    await act(async () => {
-      await result.current.onSubmit();
+
+    act(() => {
+      result.current.onGoToApiKeys();
+      result.current.onGoToPermissions();
+      result.current.onRetryApiKeys();
+      result.current.onRetryPermissions();
     });
-    expect(mockCreate).not.toHaveBeenCalled();
-  });
 
-  it('onCancel navigates back to list', () => {
-    const { result } = renderHook(() => useOauthAccountFormScreen());
-    result.current.onCancel();
-    expect(mockPush).toHaveBeenCalledWith('/settings/oauth-accounts');
-  });
-
-  it('onGoToUsers navigates to users list', () => {
-    const { result } = renderHook(() => useOauthAccountFormScreen());
-    result.current.onGoToUsers();
-    expect(mockPush).toHaveBeenCalledWith('/settings/users');
+    expect(mockPush).toHaveBeenCalledWith('/settings/api-keys');
+    expect(mockPush).toHaveBeenCalledWith('/settings/permissions');
+    expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 });
+
