@@ -84,6 +84,7 @@
         "labelFormat": "Output format",
         "labelScope": "Rows scope",
         "labelFileName": "File name",
+        "fileNamePlaceholder": "Use default: {{value}}",
         "labelDelimiter": "CSV delimiter",
         "labelPageSize": "Page size",
         "labelOrientation": "Orientation",

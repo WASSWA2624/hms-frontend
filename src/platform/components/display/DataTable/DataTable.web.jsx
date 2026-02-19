@@ -383,6 +383,7 @@ const buildExcelDocument = ({
   rows,
   includeMetadata,
   metadataLines,
+  noRowsLabel = '(No rows)',
 }) => {
   const metadataHtml = includeMetadata && metadataLines.length > 0
     ? `<div style="margin-bottom: 12px;">${metadataLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>`
@@ -392,7 +393,7 @@ const buildExcelDocument = ({
     : '';
   const bodyHtml = rows.length > 0
     ? rows.map((cells) => `<tr>${cells.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')
-    : '<tr><td>(No rows)</td></tr>';
+    : `<tr><td>${escapeHtml(noRowsLabel)}</td></tr>`;
 
   return `<!DOCTYPE html>
 <html>
@@ -467,6 +468,7 @@ const buildPdfBytes = ({
   lines,
   pageSize,
   orientation,
+  noRowsLabel = '(No rows)',
 }) => {
   const dimensions = PAGE_DIMENSIONS[pageSize]?.[orientation]
     || PAGE_DIMENSIONS[EXPORT_PAGE_SIZES.A4][EXPORT_ORIENTATIONS.LANDSCAPE];
@@ -487,7 +489,7 @@ const buildPdfBytes = ({
     pages.push(wrappedLines.slice(index, index + maxLinesPerPage));
   }
   if (pages.length === 0) {
-    pages.push(['(No rows)']);
+    pages.push([noRowsLabel]);
   }
 
   const objects = [];
@@ -561,6 +563,7 @@ const buildPrintHtml = ({
   metadataLines,
   pageSize,
   orientation,
+  noRowsLabel = '(No rows)',
 }) => {
   const metadataHtml = includeMetadata && metadataLines.length > 0
     ? `<div class="meta">${metadataLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>`
@@ -570,7 +573,7 @@ const buildPrintHtml = ({
     : '';
   const bodyHtml = rows.length > 0
     ? rows.map((cells) => `<tr>${cells.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')
-    : '<tr><td>(No rows)</td></tr>';
+    : `<tr><td>${escapeHtml(noRowsLabel)}</td></tr>`;
 
   return `<!DOCTYPE html>
 <html>
@@ -1185,6 +1188,7 @@ const DataTableWeb = ({
 
   const handleRunExportAction = useCallback(() => {
     const title = tableTitle || t('common.dataTable.export.defaultTitle');
+    const noRowsLabel = t('common.dataTable.export.noRowsFallback');
     const generatedAt = new Date();
     const matrix = resolveExportMatrix({
       records: exportRecords,
@@ -1224,6 +1228,7 @@ const DataTableWeb = ({
         metadataLines,
         pageSize,
         orientation,
+        noRowsLabel,
       });
       printWindow.document.open();
       printWindow.document.write(printHtml);
@@ -1257,6 +1262,7 @@ const DataTableWeb = ({
         rows: matrix.rows,
         includeMetadata,
         metadataLines,
+        noRowsLabel,
       });
       blob = new Blob([excelContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
     } else if (exportFormat === EXPORT_FORMATS.PDF) {
@@ -1280,6 +1286,7 @@ const DataTableWeb = ({
         lines: pdfLines,
         pageSize,
         orientation,
+        noRowsLabel,
       });
       blob = new Blob([pdfBytes], { type: 'application/pdf' });
     } else {
@@ -1634,7 +1641,9 @@ const DataTableWeb = ({
                     <TextField
                       value={exportFileName}
                       onChange={(event) => setExportFileName(event.target.value)}
-                      placeholder={normalizedExportConfig.defaultFileName}
+                      placeholder={t('common.dataTable.export.fileNamePlaceholder', {
+                        value: normalizedExportConfig.defaultFileName,
+                      })}
                       density="compact"
                       testID={testID ? `${testID}-export-file-name` : 'data-table-export-file-name'}
                     />
