@@ -109,9 +109,12 @@ describe('useDepartmentDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useDepartmentDetailScreen());
+    const { result } = renderHook(() => useDepartmentDetailScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings/departments?notice=accessDenied');
+    expect(result.current.department).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('deletes and redirects with notice', async () => {

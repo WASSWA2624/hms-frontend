@@ -22,6 +22,23 @@ const MAX_STATE_LENGTH = 120;
 const MAX_POSTAL_CODE_LENGTH = 40;
 const MAX_COUNTRY_LENGTH = 120;
 const MAX_REFERENCE_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
+
+const normalizeValue = (value) => String(value ?? '').trim();
+const resolveListItems = (value) => (Array.isArray(value) ? value : (value?.items ?? []));
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -77,7 +94,7 @@ const useAddressFormScreen = () => {
   const canEditAddress = canManageAddresses;
   const isTenantScopedAdmin = canManageAddresses && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
-    () => String(scopedTenantId ?? '').trim(),
+    () => normalizeValue(scopedTenantId),
     [scopedTenantId]
   );
 
@@ -97,18 +114,26 @@ const useAddressFormScreen = () => {
   const previousFacilityRef = useRef('');
 
   const address = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isAddressInScope = useMemo(() => {
+    if (!address) return true;
+    if (canManageAllTenants) return true;
+    const addressTenantId = normalizeValue(address?.tenant_id);
+    if (!addressTenantId || !normalizedScopedTenantId) return false;
+    return addressTenantId === normalizedScopedTenantId;
+  }, [address, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleAddress = isAddressInScope ? address : null;
   const tenantItems = useMemo(
     () => (isTenantScopedAdmin || isEdit
       ? []
-      : (Array.isArray(tenantData) ? tenantData : (tenantData?.items ?? []))),
+      : resolveListItems(tenantData)),
     [tenantData, isTenantScopedAdmin, isEdit]
   );
   const facilityItems = useMemo(
-    () => (Array.isArray(facilityData) ? facilityData : (facilityData?.items ?? [])),
+    () => resolveListItems(facilityData),
     [facilityData]
   );
   const branchItems = useMemo(
-    () => (Array.isArray(branchData) ? branchData : (branchData?.items ?? [])),
+    () => resolveListItems(branchData),
     [branchData]
   );
 
@@ -201,7 +226,10 @@ const useAddressFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageAddresses,
@@ -215,27 +243,16 @@ const useAddressFormScreen = () => {
 
   useEffect(() => {
     if (!isResolved || !canManageAddresses || !isEdit) return;
-    if (address) return;
+    if (visibleAddress) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/addresses?notice=accessDenied');
     }
-  }, [isResolved, canManageAddresses, isEdit, address, errorCode, router]);
+  }, [isResolved, canManageAddresses, isEdit, visibleAddress, errorCode, router]);
 
   useEffect(() => {
-    if (!isResolved || !canManageAddresses || !isTenantScopedAdmin || !isEdit || !address) return;
-    const addressTenantId = String(address.tenant_id ?? '').trim();
-    if (!addressTenantId || addressTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/addresses?notice=accessDenied');
-    }
-  }, [
-    isResolved,
-    canManageAddresses,
-    isTenantScopedAdmin,
-    isEdit,
-    address,
-    normalizedScopedTenantId,
-    router,
-  ]);
+    if (!isResolved || !canManageAddresses || !isEdit || !address || isAddressInScope) return;
+    router.replace('/settings/addresses?notice=accessDenied');
+  }, [isResolved, canManageAddresses, isEdit, address, isAddressInScope, router]);
 
   useEffect(() => {
     if (isEdit || isTenantScopedAdmin) return;
@@ -253,40 +270,47 @@ const useAddressFormScreen = () => {
   }, [isEdit, isTenantScopedAdmin, tenantIdParam, tenantOptions, tenantId]);
 
   useEffect(() => {
-    if (address) {
-      setAddressType(address.address_type ?? '');
-      setLine1(address.line1 ?? address.line_1 ?? '');
-      setLine2(address.line2 ?? '');
-      setCity(address.city ?? '');
-      setStateValue(address.state ?? '');
-      setPostalCode(address.postal_code ?? '');
-      setCountry(address.country ?? '');
-      setTenantId(String(address.tenant_id ?? normalizedScopedTenantId ?? ''));
-      setFacilityId(String(address.facility_id ?? ''));
-      setBranchId(String(address.branch_id ?? ''));
-    }
-  }, [address, normalizedScopedTenantId]);
+    if (!visibleAddress) return;
+    setAddressType(visibleAddress.address_type ?? '');
+    setLine1(visibleAddress.line1 ?? visibleAddress.line_1 ?? '');
+    setLine2(visibleAddress.line2 ?? '');
+    setCity(visibleAddress.city ?? '');
+    setStateValue(visibleAddress.state ?? '');
+    setPostalCode(visibleAddress.postal_code ?? '');
+    setCountry(visibleAddress.country ?? '');
+    setTenantId(normalizeValue(visibleAddress.tenant_id ?? normalizedScopedTenantId));
+    setFacilityId(normalizeValue(visibleAddress.facility_id));
+    setBranchId(normalizeValue(visibleAddress.branch_id));
+  }, [visibleAddress, normalizedScopedTenantId]);
 
   useEffect(() => {
     if (!isResolved || !canManageAddresses) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
     if (!trimmedTenant) {
       resetFacilities();
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [isResolved, canManageAddresses, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
     if (!isResolved || !canManageAddresses) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
-    const trimmedFacility = String(facilityId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
+    const trimmedFacility = normalizeValue(facilityId);
     if (!trimmedTenant) {
       resetBranches();
       return;
     }
-    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    };
     if (trimmedFacility) {
       params.facility_id = trimmedFacility;
     }
@@ -296,7 +320,7 @@ const useAddressFormScreen = () => {
 
   useEffect(() => {
     if (isEdit) return;
-    const trimmedTenant = String(tenantId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
     if (previousTenantRef.current && previousTenantRef.current !== trimmedTenant) {
       setFacilityId('');
       setBranchId('');
@@ -305,16 +329,16 @@ const useAddressFormScreen = () => {
   }, [tenantId, isEdit]);
 
   useEffect(() => {
-    const trimmedFacility = String(facilityId ?? '').trim();
+    const trimmedFacility = normalizeValue(facilityId);
     if (previousFacilityRef.current && previousFacilityRef.current !== trimmedFacility) {
       setBranchId('');
     }
     previousFacilityRef.current = trimmedFacility;
   }, [facilityId]);
 
-  const trimmedTenantId = String(tenantId ?? '').trim();
-  const trimmedFacilityId = String(facilityId ?? '').trim();
-  const trimmedBranchId = String(branchId ?? '').trim();
+  const trimmedTenantId = normalizeValue(tenantId);
+  const trimmedFacilityId = normalizeValue(facilityId);
+  const trimmedBranchId = normalizeValue(branchId);
   const trimmedAddressType = addressType.trim();
   const trimmedLine1 = line1.trim();
   const trimmedLine2 = line2.trim();
@@ -402,11 +426,11 @@ const useAddressFormScreen = () => {
     const selected = tenantOptions.find((option) => option.value === trimmedTenantId)?.label;
     if (selected) return selected;
     return humanizeIdentifier(
-      address?.tenant_name
-      ?? address?.tenant?.name
-      ?? address?.tenant_label
+      visibleAddress?.tenant_name
+      ?? visibleAddress?.tenant?.name
+      ?? visibleAddress?.tenant_label
     ) || '';
-  }, [tenantOptions, trimmedTenantId, address]);
+  }, [tenantOptions, trimmedTenantId, visibleAddress]);
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
     return selectedTenantLabel || t('address.form.currentTenantLabel');
@@ -420,6 +444,7 @@ const useAddressFormScreen = () => {
     !isResolved ||
     isLoading ||
     isCreateBlocked ||
+    (isEdit && !isAddressInScope) ||
     Boolean(addressTypeError) ||
     Boolean(line1Error) ||
     Boolean(line2Error) ||
@@ -442,7 +467,7 @@ const useAddressFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const addressTenantId = String(address?.tenant_id ?? '').trim();
+        const addressTenantId = normalizeValue(visibleAddress?.tenant_id);
         if (!addressTenantId || addressTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/addresses?notice=accessDenied');
           return;
@@ -496,7 +521,7 @@ const useAddressFormScreen = () => {
     canCreateAddress,
     canEditAddress,
     isTenantScopedAdmin,
-    address,
+    visibleAddress,
     normalizedScopedTenantId,
     isOffline,
     trimmedAddressType,
@@ -534,22 +559,33 @@ const useAddressFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
-    const trimmedTenant = String(tenantId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [tenantId, listFacilities, resetFacilities]);
 
   const handleRetryBranches = useCallback(() => {
-    const trimmedTenant = String(tenantId ?? '').trim();
-    const trimmedFacility = String(facilityId ?? '').trim();
+    const trimmedTenant = normalizeValue(tenantId);
+    const trimmedFacility = normalizeValue(facilityId);
     resetBranches();
     if (!trimmedTenant) return;
-    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenant };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    };
     if (trimmedFacility) params.facility_id = trimmedFacility;
     listBranches(params);
   }, [tenantId, facilityId, listBranches, resetBranches]);
@@ -594,10 +630,10 @@ const useAddressFormScreen = () => {
     hasBranches,
     isCreateBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isAddressInScope,
     errorMessage,
     isOffline,
-    address,
+    address: visibleAddress,
     addressTypeError,
     line1Error,
     line2Error,

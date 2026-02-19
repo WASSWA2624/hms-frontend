@@ -130,6 +130,10 @@ describe('useRoomListScreen', () => {
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100 });
@@ -255,6 +259,10 @@ describe('useRoomListScreen', () => {
     const { result } = renderHook(() => useRoomListScreen());
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(mockListTenants).not.toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
@@ -404,6 +412,35 @@ describe('useRoomListScreen', () => {
     });
 
     expect(mockPush).toHaveBeenCalledWith('/settings/rooms?notice=accessDenied');
+  });
+
+  it('blocks edit and delete when tenant-scoped user targets unknown room id', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useRoom.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useRoomListScreen());
+
+    act(() => {
+      result.current.onEdit('room-missing');
+    });
+    await act(async () => {
+      await result.current.onDelete('room-missing');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/rooms?notice=accessDenied');
+    expect(mockRemove).not.toHaveBeenCalled();
   });
 
   it('bulk delete removes selected rooms when confirmed', async () => {

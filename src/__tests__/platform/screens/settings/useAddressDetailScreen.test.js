@@ -106,9 +106,12 @@ describe('useAddressDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useAddressDetailScreen());
+    const { result } = renderHook(() => useAddressDetailScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings/addresses?notice=accessDenied');
+    expect(result.current.address).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('calls get on mount with id', () => {

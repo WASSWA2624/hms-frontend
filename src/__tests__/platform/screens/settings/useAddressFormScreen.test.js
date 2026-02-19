@@ -143,6 +143,10 @@ describe('useAddressFormScreen', () => {
     renderHook(() => useAddressFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from address data', () => {
@@ -190,6 +194,10 @@ describe('useAddressFormScreen', () => {
     await waitFor(() => {
       expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
     });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('lists branches for tenant and facility with capped limit', async () => {
@@ -201,6 +209,10 @@ describe('useAddressFormScreen', () => {
     await waitFor(() => {
       expect(mockListBranches).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
     });
+    let params = mockListBranches.mock.calls[mockListBranches.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
 
     mockListBranches.mockClear();
     act(() => {
@@ -215,6 +227,10 @@ describe('useAddressFormScreen', () => {
         facility_id: 'f1',
       });
     });
+    params = mockListBranches.mock.calls[mockListBranches.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback submit error message for unknown error codes', () => {
@@ -285,6 +301,42 @@ describe('useAddressFormScreen', () => {
     const { result } = renderHook(() => useAddressFormScreen());
     expect(result.current.branchListError).toBe(true);
     expect(result.current.branchErrorMessage).toBe('Branch fallback');
+  });
+
+  it('masks address and blocks submit when tenant-scoped user opens out-of-scope address', async () => {
+    mockParams = { id: 'aid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useAddress.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: {
+        id: 'aid-1',
+        tenant_id: 'tenant-2',
+        line1: 'External Address',
+        address_type: 'HOME',
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useAddressFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/addresses?notice=accessDenied');
+    expect(result.current.address).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
   it('submits create payload and navigates on success', async () => {
@@ -460,6 +512,26 @@ describe('useAddressFormScreen', () => {
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryTenants is disabled for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useAddressFormScreen());
+    mockResetTenants.mockClear();
+    mockListTenants.mockClear();
+    result.current.onRetryTenants();
+    expect(mockResetTenants).not.toHaveBeenCalled();
+    expect(mockListTenants).not.toHaveBeenCalled();
   });
 
   it('onRetryFacilities reloads facility list with capped limit', async () => {
@@ -476,6 +548,19 @@ describe('useAddressFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryFacilities only resets list when tenant is missing', () => {
+    const { result } = renderHook(() => useAddressFormScreen());
+    mockResetFacilities.mockClear();
+    mockListFacilities.mockClear();
+    result.current.onRetryFacilities();
+    expect(mockResetFacilities).toHaveBeenCalled();
+    expect(mockListFacilities).not.toHaveBeenCalled();
   });
 
   it('onRetryBranches reloads branch list with capped limit', async () => {
@@ -504,5 +589,18 @@ describe('useAddressFormScreen', () => {
       tenant_id: 't1',
       facility_id: 'f1',
     });
+    const params = mockListBranches.mock.calls[mockListBranches.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryBranches only resets list when tenant is missing', () => {
+    const { result } = renderHook(() => useAddressFormScreen());
+    mockResetBranches.mockClear();
+    mockListBranches.mockClear();
+    result.current.onRetryBranches();
+    expect(mockResetBranches).toHaveBeenCalled();
+    expect(mockListBranches).not.toHaveBeenCalled();
   });
 });

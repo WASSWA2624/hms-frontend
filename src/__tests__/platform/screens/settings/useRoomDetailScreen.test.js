@@ -144,8 +144,11 @@ describe('useRoomDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useRoomDetailScreen());
+    const { result } = renderHook(() => useRoomDetailScreen());
     expect(mockReplace).toHaveBeenCalledWith('/settings/rooms?notice=accessDenied');
+    expect(result.current.room).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('calls get on mount with id', () => {
@@ -158,8 +161,21 @@ describe('useRoomDetailScreen', () => {
     renderHook(() => useRoomDetailScreen());
 
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const tenantParams = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof tenantParams.page).toBe('number');
+    expect(typeof tenantParams.limit).toBe('number');
+    expect(tenantParams.limit).toBeLessThanOrEqual(100);
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    const facilityParams =
+      mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof facilityParams.page).toBe('number');
+    expect(typeof facilityParams.limit).toBe('number');
+    expect(facilityParams.limit).toBeLessThanOrEqual(100);
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100, facility_id: 'facility-1' });
+    const wardParams = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof wardParams.page).toBe('number');
+    expect(typeof wardParams.limit).toBe('number');
+    expect(wardParams.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetry calls fetchDetail', () => {

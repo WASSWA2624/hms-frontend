@@ -126,6 +126,10 @@ describe('useWardFormScreen', () => {
     renderHook(() => useWardFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from ward data', () => {
@@ -160,6 +164,10 @@ describe('useWardFormScreen', () => {
     });
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback error message for unknown error codes', () => {
@@ -202,6 +210,42 @@ describe('useWardFormScreen', () => {
     const { result } = renderHook(() => useWardFormScreen());
     expect(result.current.tenantDisplayLabel).toBe('Tenant A');
     expect(result.current.facilityDisplayLabel).toBe('Facility A');
+  });
+
+  it('masks ward and blocks submit when tenant-scoped user opens out-of-scope ward', async () => {
+    mockParams = { id: 'rid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useWard.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: {
+        id: 'rid-1',
+        tenant_id: 'tenant-2',
+        facility_id: 'f1',
+        name: 'External Ward',
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useWardFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/wards?notice=accessDenied');
+    expect(result.current.ward).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
   it('submits create payload and navigates on success', async () => {
@@ -366,6 +410,10 @@ describe('useWardFormScreen', () => {
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryTenants is disabled for tenant-scoped admins', () => {
@@ -394,6 +442,10 @@ describe('useWardFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryFacilities only resets list when tenant is missing', () => {

@@ -18,6 +18,8 @@ import { humanizeIdentifier } from '@utils';
 
 const MAX_LABEL_LENGTH = 50;
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const BED_STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'OUT_OF_SERVICE'];
 
 const normalizeValue = (value) => String(value ?? '').trim();
@@ -34,6 +36,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
 };
 
 const resolveReadableLabel = (value) => normalizeValue(humanizeIdentifier(value));
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const useBedFormScreen = () => {
   const { t } = useI18n();
@@ -112,6 +126,14 @@ const useBedFormScreen = () => {
   const previousWardRef = useRef('');
 
   const bed = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isBedInScope = useMemo(() => {
+    if (!bed) return true;
+    if (canManageAllTenants) return true;
+    const bedTenantId = normalizeValue(bed?.tenant_id);
+    if (!bedTenantId || !normalizedScopedTenantId) return false;
+    return bedTenantId === normalizedScopedTenantId;
+  }, [bed, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleBed = isBedInScope ? bed : null;
   const tenantItems = useMemo(
     () => (
       isTenantScopedAdmin || isEdit
@@ -152,14 +174,14 @@ const useBedFormScreen = () => {
     }));
     if (facilityId && !options.some((option) => option.value === facilityId)) {
       const fallbackLabel = resolveReadableLabel(
-        bed?.facility_name
-          ?? bed?.facility?.name
-          ?? bed?.facility_label
+        visibleBed?.facility_name
+          ?? visibleBed?.facility?.name
+          ?? visibleBed?.facility_label
       ) || t('bed.form.currentFacilityLabel');
       return [{ value: facilityId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId, bed, t]);
+  }, [facilityItems, facilityId, visibleBed, t]);
 
   const wardOptions = useMemo(() => {
     const options = wardItems.map((ward, index) => ({
@@ -169,14 +191,14 @@ const useBedFormScreen = () => {
     }));
     if (wardId && !options.some((option) => option.value === wardId)) {
       const fallbackLabel = resolveReadableLabel(
-        bed?.ward_name
-          ?? bed?.ward?.name
-          ?? bed?.ward_label
+        visibleBed?.ward_name
+          ?? visibleBed?.ward?.name
+          ?? visibleBed?.ward_label
       ) || t('bed.form.currentWardLabel');
       return [{ value: wardId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [wardItems, wardId, bed, t]);
+  }, [wardItems, wardId, visibleBed, t]);
 
   const roomOptions = useMemo(() => {
     const options = roomItems.map((room, index) => ({
@@ -186,14 +208,14 @@ const useBedFormScreen = () => {
     }));
     if (roomId && !options.some((option) => option.value === roomId)) {
       const fallbackLabel = resolveReadableLabel(
-        bed?.room_name
-          ?? bed?.room?.name
-          ?? bed?.room_label
+        visibleBed?.room_name
+          ?? visibleBed?.room?.name
+          ?? visibleBed?.room_label
       ) || t('bed.form.currentRoomLabel');
       return [{ value: roomId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [roomItems, roomId, bed, t]);
+  }, [roomItems, roomId, visibleBed, t]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -238,7 +260,10 @@ const useBedFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageBeds,
@@ -251,39 +276,27 @@ const useBedFormScreen = () => {
   ]);
 
   useEffect(() => {
-    if (bed) {
-      setLabel(bed.label ?? '');
-      setStatus(normalizeValue(bed.status).toUpperCase());
-      setTenantId(normalizeValue(bed.tenant_id ?? normalizedScopedTenantId));
-      setFacilityId(normalizeValue(bed.facility_id));
-      setWardId(normalizeValue(bed.ward_id));
-      setRoomId(normalizeValue(bed.room_id));
-    }
-  }, [bed, normalizedScopedTenantId]);
+    if (!visibleBed) return;
+    setLabel(visibleBed.label ?? '');
+    setStatus(normalizeValue(visibleBed.status).toUpperCase());
+    setTenantId(normalizeValue(visibleBed.tenant_id ?? normalizedScopedTenantId));
+    setFacilityId(normalizeValue(visibleBed.facility_id));
+    setWardId(normalizeValue(visibleBed.ward_id));
+    setRoomId(normalizeValue(visibleBed.room_id));
+  }, [visibleBed, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (!isResolved || !canManageBeds || !isTenantScopedAdmin || !isEdit || !bed) return;
-    const bedTenantId = normalizeValue(bed.tenant_id);
-    if (!bedTenantId || bedTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/beds?notice=accessDenied');
-    }
-  }, [
-    isResolved,
-    canManageBeds,
-    isTenantScopedAdmin,
-    isEdit,
-    bed,
-    normalizedScopedTenantId,
-    router,
-  ]);
+    if (!isResolved || !canManageBeds || !isEdit || !bed || isBedInScope) return;
+    router.replace('/settings/beds?notice=accessDenied');
+  }, [isResolved, canManageBeds, isEdit, bed, isBedInScope, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageBeds || !isEdit) return;
-    if (bed) return;
+    if (visibleBed) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/beds?notice=accessDenied');
     }
-  }, [isResolved, canManageBeds, isEdit, bed, errorCode, router]);
+  }, [isResolved, canManageBeds, isEdit, visibleBed, errorCode, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageBeds) return;
@@ -293,7 +306,11 @@ const useBedFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [isResolved, canManageBeds, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -304,7 +321,11 @@ const useBedFormScreen = () => {
       return;
     }
     resetWards();
-    listWards({ page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility });
+    listWards({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      facility_id: trimmedFacility,
+    });
   }, [isResolved, canManageBeds, facilityId, listWards, resetWards]);
 
   useEffect(() => {
@@ -318,8 +339,8 @@ const useBedFormScreen = () => {
     }
     resetRooms();
     listRooms({
-      page: 1,
-      limit: MAX_FETCH_LIMIT,
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
       tenant_id: trimmedTenant,
       facility_id: trimmedFacility,
       ward_id: trimmedWard || undefined,
@@ -532,11 +553,11 @@ const useBedFormScreen = () => {
   }, [tenantOptions, trimmedTenantId]);
   const bedTenantLabel = useMemo(
     () => resolveReadableLabel(
-      bed?.tenant_name
-        ?? bed?.tenant?.name
-        ?? bed?.tenant_label
+      visibleBed?.tenant_name
+        ?? visibleBed?.tenant?.name
+        ?? visibleBed?.tenant_label
     ),
-    [bed]
+    [visibleBed]
   );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
@@ -554,11 +575,11 @@ const useBedFormScreen = () => {
   }, [facilityOptions, trimmedFacilityId]);
   const bedFacilityLabel = useMemo(
     () => resolveReadableLabel(
-      bed?.facility_name
-        ?? bed?.facility?.name
-        ?? bed?.facility_label
+      visibleBed?.facility_name
+        ?? visibleBed?.facility?.name
+        ?? visibleBed?.facility_label
     ),
-    [bed]
+    [visibleBed]
   );
   const facilityDisplayLabel = useMemo(() => {
     if (!isEdit) return selectedFacilityLabel;
@@ -571,11 +592,11 @@ const useBedFormScreen = () => {
   }, [wardOptions, trimmedWardId]);
   const bedWardLabel = useMemo(
     () => resolveReadableLabel(
-      bed?.ward_name
-        ?? bed?.ward?.name
-        ?? bed?.ward_label
+      visibleBed?.ward_name
+        ?? visibleBed?.ward?.name
+        ?? visibleBed?.ward_label
     ),
-    [bed]
+    [visibleBed]
   );
   const wardDisplayLabel = useMemo(() => {
     if (!isEdit) return selectedWardLabel;
@@ -588,11 +609,11 @@ const useBedFormScreen = () => {
   }, [roomOptions, trimmedRoomId]);
   const bedRoomLabel = useMemo(
     () => resolveReadableLabel(
-      bed?.room_name
-        ?? bed?.room?.name
-        ?? bed?.room_label
+      visibleBed?.room_name
+        ?? visibleBed?.room?.name
+        ?? visibleBed?.room_label
     ),
-    [bed]
+    [visibleBed]
   );
   const roomDisplayLabel = useMemo(() => {
     if (!trimmedRoomId) return '';
@@ -605,6 +626,7 @@ const useBedFormScreen = () => {
     isCreateBlocked ||
     isFacilityBlocked ||
     isWardBlocked ||
+    (isEdit && !isBedInScope) ||
     Boolean(labelError) ||
     Boolean(statusError) ||
     Boolean(tenantError) ||
@@ -624,7 +646,7 @@ const useBedFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const bedTenantId = normalizeValue(bed?.tenant_id);
+        const bedTenantId = normalizeValue(visibleBed?.tenant_id);
         if (!bedTenantId || bedTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/beds?notice=accessDenied');
           return;
@@ -666,7 +688,7 @@ const useBedFormScreen = () => {
     canCreateBed,
     canEditBed,
     isTenantScopedAdmin,
-    bed,
+    visibleBed,
     normalizedScopedTenantId,
     trimmedLabel,
     trimmedStatus,
@@ -702,21 +724,32 @@ const useBedFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = normalizeValue(tenantId);
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [listFacilities, resetFacilities, tenantId]);
 
   const handleRetryWards = useCallback(() => {
     const trimmedFacility = normalizeValue(facilityId);
     resetWards();
     if (!trimmedFacility) return;
-    listWards({ page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility });
+    listWards({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      facility_id: trimmedFacility,
+    });
   }, [listWards, resetWards, facilityId]);
 
   const handleRetryRooms = useCallback(() => {
@@ -726,8 +759,8 @@ const useBedFormScreen = () => {
     resetRooms();
     if (!trimmedTenant || !trimmedFacility) return;
     listRooms({
-      page: 1,
-      limit: MAX_FETCH_LIMIT,
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
       tenant_id: trimmedTenant,
       facility_id: trimmedFacility,
       ward_id: trimmedWard || undefined,
@@ -773,10 +806,10 @@ const useBedFormScreen = () => {
     isFacilityBlocked,
     isWardBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isBedInScope,
     errorMessage,
     isOffline,
-    bed,
+    bed: visibleBed,
     labelError,
     statusError,
     tenantError,

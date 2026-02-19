@@ -138,6 +138,10 @@ describe('useUnitFormScreen', () => {
     renderHook(() => useUnitFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from unit data', () => {
@@ -172,6 +176,10 @@ describe('useUnitFormScreen', () => {
     });
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('lists departments when tenantId and facilityId are set', () => {
@@ -187,6 +195,10 @@ describe('useUnitFormScreen', () => {
       tenant_id: 't1',
       facility_id: 'f1',
     });
+    const params = mockListDepartments.mock.calls[mockListDepartments.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback error message for unknown error codes', () => {
@@ -392,6 +404,10 @@ describe('useUnitFormScreen', () => {
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryFacilities reloads facility list', () => {
@@ -404,6 +420,10 @@ describe('useUnitFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryDepartments reloads department list', () => {
@@ -422,5 +442,34 @@ describe('useUnitFormScreen', () => {
       tenant_id: 't1',
       facility_id: 'f1',
     });
+    const params = mockListDepartments.mock.calls[mockListDepartments.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('hides out-of-scope unit data for tenant-scoped admins', () => {
+    mockParams = { id: 'uid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUnit.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: { id: 'uid-1', tenant_id: 'tenant-2', name: 'Outside Unit' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useUnitFormScreen());
+
+    expect(result.current.unit).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+    expect(mockReplace).toHaveBeenCalledWith('/settings/units?notice=accessDenied');
   });
 });

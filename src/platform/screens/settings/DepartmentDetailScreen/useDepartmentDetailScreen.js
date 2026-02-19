@@ -38,6 +38,14 @@ const useDepartmentDetailScreen = () => {
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const department = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isDepartmentInScope = useMemo(() => {
+    if (!department) return true;
+    if (canManageAllTenants) return true;
+    const departmentTenantId = String(department.tenant_id ?? '').trim();
+    if (!departmentTenantId || !normalizedTenantId) return false;
+    return departmentTenantId === normalizedTenantId;
+  }, [department, canManageAllTenants, normalizedTenantId]);
+  const visibleDepartment = isDepartmentInScope ? department : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
@@ -65,27 +73,23 @@ const useDepartmentDetailScreen = () => {
   }, [fetchDetail]);
 
   useEffect(() => {
-    if (!isResolved || !canManageDepartments || !isTenantScopedAdmin || !department) return;
-    const departmentTenantId = String(department.tenant_id ?? '').trim();
-    if (!departmentTenantId || departmentTenantId !== normalizedTenantId) {
-      router.replace('/settings/departments?notice=accessDenied');
-    }
+    if (!isResolved || !canManageDepartments || !department || isDepartmentInScope) return;
+    router.replace('/settings/departments?notice=accessDenied');
   }, [
     isResolved,
     canManageDepartments,
-    isTenantScopedAdmin,
     department,
-    normalizedTenantId,
+    isDepartmentInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageDepartments) return;
-    if (department) return;
+    if (visibleDepartment) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/departments?notice=accessDenied');
     }
-  }, [isResolved, canManageDepartments, department, errorCode, router]);
+  }, [isResolved, canManageDepartments, visibleDepartment, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -96,12 +100,12 @@ const useDepartmentDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditDepartment || !departmentId) return;
+    if (!canEditDepartment || !departmentId || !isDepartmentInScope) return;
     router.push(`/settings/departments/${departmentId}/edit`);
-  }, [canEditDepartment, departmentId, router]);
+  }, [canEditDepartment, departmentId, isDepartmentInScope, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteDepartment || !departmentId) return;
+    if (!canDeleteDepartment || !departmentId || !isDepartmentInScope) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(departmentId);
@@ -111,19 +115,19 @@ const useDepartmentDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeleteDepartment, departmentId, remove, isOffline, router, t]);
+  }, [canDeleteDepartment, departmentId, isDepartmentInScope, remove, isOffline, router, t]);
 
   return {
     id: departmentId,
-    department,
+    department: visibleDepartment,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isDepartmentInScope,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: canEditDepartment ? handleEdit : undefined,
-    onDelete: canDeleteDepartment ? handleDelete : undefined,
+    onEdit: canEditDepartment && isDepartmentInScope ? handleEdit : undefined,
+    onDelete: canDeleteDepartment && isDepartmentInScope ? handleDelete : undefined,
   };
 };
 

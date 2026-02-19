@@ -137,6 +137,10 @@ describe('useRoomFormScreen', () => {
     renderHook(() => useRoomFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from room data', () => {
@@ -171,6 +175,10 @@ describe('useRoomFormScreen', () => {
     });
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('lists wards when facilityId is set', () => {
@@ -186,6 +194,10 @@ describe('useRoomFormScreen', () => {
       facility_id: 'f1',
       tenant_id: 't1',
     });
+    const params = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback error message for unknown error codes', () => {
@@ -230,6 +242,43 @@ describe('useRoomFormScreen', () => {
     expect(result.current.tenantDisplayLabel).toBe('Tenant A');
     expect(result.current.facilityDisplayLabel).toBe('Facility A');
     expect(result.current.wardDisplayLabel).toBe('Ward A');
+  });
+
+  it('masks room and blocks submit when tenant-scoped user opens out-of-scope room', async () => {
+    mockParams = { id: 'rid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useRoom.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: {
+        id: 'rid-1',
+        tenant_id: 'tenant-2',
+        facility_id: 'f1',
+        ward_id: 'w1',
+        name: 'External Room',
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useRoomFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/rooms?notice=accessDenied');
+    expect(result.current.room).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
   it('submits create payload and navigates on success', async () => {
@@ -386,6 +435,10 @@ describe('useRoomFormScreen', () => {
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryFacilities reloads facility list with capped limit', () => {
@@ -398,6 +451,10 @@ describe('useRoomFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('onRetryWards reloads ward list with capped limit', () => {
@@ -416,5 +473,9 @@ describe('useRoomFormScreen', () => {
       facility_id: 'f1',
       tenant_id: 't1',
     });
+    const params = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 });

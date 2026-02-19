@@ -357,4 +357,3 @@ describe('BedListScreen', () => {
     expect(STATES.SUCCESS).toBe('success');
   });
 });
-

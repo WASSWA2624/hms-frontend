@@ -106,9 +106,12 @@ describe('useUnitDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useUnitDetailScreen());
+    const { result } = renderHook(() => useUnitDetailScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/settings/units?notice=accessDenied');
+    expect(result.current.unit).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('calls get on mount with id', () => {

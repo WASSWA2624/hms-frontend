@@ -149,6 +149,10 @@ describe('useBedFormScreen', () => {
     renderHook(() => useBedFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('hydrates form state from bed data', () => {
@@ -185,6 +189,10 @@ describe('useBedFormScreen', () => {
     });
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('lists wards when facilityId is set', () => {
@@ -194,6 +202,10 @@ describe('useBedFormScreen', () => {
     });
     expect(mockResetWards).toHaveBeenCalled();
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100, facility_id: 'f1' });
+    const params = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('lists rooms when tenantId and facilityId are set', () => {
@@ -211,6 +223,10 @@ describe('useBedFormScreen', () => {
       facility_id: 'f1',
       ward_id: 'w1',
     });
+    const params = mockListRooms.mock.calls[mockListRooms.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('uses fallback error message for unknown error codes', () => {
@@ -257,6 +273,43 @@ describe('useBedFormScreen', () => {
     expect(result.current.tenantDisplayLabel).toBe('Tenant A');
     expect(result.current.facilityDisplayLabel).toBe('Facility A');
     expect(result.current.wardDisplayLabel).toBe('Ward A');
+  });
+
+  it('masks bed and blocks submit when tenant-scoped user opens out-of-scope bed', async () => {
+    mockParams = { id: 'bid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useBed.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: {
+        id: 'bid-1',
+        tenant_id: 'tenant-2',
+        facility_id: 'f1',
+        ward_id: 'w1',
+        label: 'External Bed',
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useBedFormScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/settings/beds?notice=accessDenied');
+    expect(result.current.bed).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
   it('submits create payload and navigates on success', async () => {
@@ -440,6 +493,26 @@ describe('useBedFormScreen', () => {
     result.current.onRetryTenants();
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryTenants is disabled for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useBedFormScreen());
+    mockResetTenants.mockClear();
+    mockListTenants.mockClear();
+    result.current.onRetryTenants();
+    expect(mockResetTenants).not.toHaveBeenCalled();
+    expect(mockListTenants).not.toHaveBeenCalled();
   });
 
   it('onRetryFacilities reloads facility list with capped limit', () => {
@@ -452,6 +525,19 @@ describe('useBedFormScreen', () => {
     result.current.onRetryFacilities();
     expect(mockResetFacilities).toHaveBeenCalled();
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 't1' });
+    const params = mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryFacilities only resets list when tenant is missing', () => {
+    const { result } = renderHook(() => useBedFormScreen());
+    mockResetFacilities.mockClear();
+    mockListFacilities.mockClear();
+    result.current.onRetryFacilities();
+    expect(mockResetFacilities).toHaveBeenCalled();
+    expect(mockListFacilities).not.toHaveBeenCalled();
   });
 
   it('onRetryWards reloads ward list with capped limit', () => {
@@ -464,6 +550,19 @@ describe('useBedFormScreen', () => {
     result.current.onRetryWards();
     expect(mockResetWards).toHaveBeenCalled();
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100, facility_id: 'f1' });
+    const params = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryWards only resets list when facility is missing', () => {
+    const { result } = renderHook(() => useBedFormScreen());
+    mockResetWards.mockClear();
+    mockListWards.mockClear();
+    result.current.onRetryWards();
+    expect(mockResetWards).toHaveBeenCalled();
+    expect(mockListWards).not.toHaveBeenCalled();
   });
 
   it('onRetryRooms reloads room list with capped limit', () => {
@@ -484,6 +583,18 @@ describe('useBedFormScreen', () => {
       facility_id: 'f1',
       ward_id: 'w1',
     });
+    const params = mockListRooms.mock.calls[mockListRooms.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('onRetryRooms only resets list when tenant or facility is missing', () => {
+    const { result } = renderHook(() => useBedFormScreen());
+    mockResetRooms.mockClear();
+    mockListRooms.mockClear();
+    result.current.onRetryRooms();
+    expect(mockResetRooms).toHaveBeenCalled();
+    expect(mockListRooms).not.toHaveBeenCalled();
   });
 });
-

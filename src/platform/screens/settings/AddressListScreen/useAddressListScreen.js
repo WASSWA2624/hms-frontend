@@ -19,6 +19,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'tenant', 'facility', 'status']);
@@ -86,6 +88,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -328,6 +342,12 @@ const useAddressListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedAddressItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((address) => normalizeValue(address?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, baseItems]);
+
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
     [filters, getNextFilterId]
@@ -347,7 +367,7 @@ const useAddressListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((address) => {
+    return scopedItems.filter((address) => {
       if (hasSearch && !matchesAddressSearch(address, normalizedSearch, normalizedSearchScope)) {
         return false;
       }
@@ -359,7 +379,7 @@ const useAddressListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [baseItems, search, normalizedSearchScope, activeFilters, filterLogic]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -392,7 +412,7 @@ const useAddressListScreen = () => {
     && selectedOnPageCount === currentPageAddressIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'address.list.loadError'),
@@ -408,7 +428,10 @@ const useAddressListScreen = () => {
     if (!isResolved || !canManageAddresses || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -712,7 +735,7 @@ const useAddressListScreen = () => {
     if (canManageAllTenants) return true;
 
     const addressTenantId = normalizeValue(address?.tenant_id);
-    if (!addressTenantId || !normalizedTenantId) return true;
+    if (!addressTenantId || !normalizedTenantId) return false;
     return addressTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -722,14 +745,14 @@ const useAddressListScreen = () => {
       if (!normalizedId) return;
 
       const targetAddress = resolveAddressById(normalizedId);
-      if (targetAddress && !canAccessAddressRecord(targetAddress)) {
+      if (!canManageAllTenants && (!targetAddress || !canAccessAddressRecord(targetAddress))) {
         router.push('/settings/addresses?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/addresses/${normalizedId}`);
     },
-    [resolveAddressById, canAccessAddressRecord, router]
+    [canManageAllTenants, resolveAddressById, canAccessAddressRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -745,14 +768,14 @@ const useAddressListScreen = () => {
       if (!normalizedId) return;
 
       const targetAddress = resolveAddressById(normalizedId);
-      if (targetAddress && !canAccessAddressRecord(targetAddress)) {
+      if (!canManageAllTenants && (!targetAddress || !canAccessAddressRecord(targetAddress))) {
         router.push('/settings/addresses?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/addresses/${normalizedId}/edit`);
     },
-    [canEditAddress, resolveAddressById, canAccessAddressRecord, router]
+    [canEditAddress, canManageAllTenants, resolveAddressById, canAccessAddressRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -764,7 +787,7 @@ const useAddressListScreen = () => {
       if (!normalizedId) return;
 
       const targetAddress = resolveAddressById(normalizedId);
-      if (targetAddress && !canAccessAddressRecord(targetAddress)) {
+      if (!canManageAllTenants && (!targetAddress || !canAccessAddressRecord(targetAddress))) {
         router.push('/settings/addresses?notice=accessDenied');
         return;
       }
@@ -786,6 +809,7 @@ const useAddressListScreen = () => {
     },
     [
       canDeleteAddress,
+      canManageAllTenants,
       resolveAddressById,
       canAccessAddressRecord,
       router,
@@ -805,7 +829,7 @@ const useAddressListScreen = () => {
     let removedCount = 0;
     for (const addressIdValue of selectedAddressIds) {
       const targetAddress = resolveAddressById(addressIdValue);
-      if (targetAddress && !canAccessAddressRecord(targetAddress)) {
+      if (!canManageAllTenants && (!targetAddress || !canAccessAddressRecord(targetAddress))) {
         continue;
       }
 
@@ -827,6 +851,7 @@ const useAddressListScreen = () => {
     setSelectedAddressIds([]);
   }, [
     canDeleteAddress,
+    canManageAllTenants,
     selectedAddressIds,
     t,
     resolveAddressById,

@@ -17,6 +17,8 @@ import {
 import { confirmAction, humanizeIdentifier } from '@utils';
 
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const normalizeValue = (value) => String(value ?? '').trim();
 const resolveListItems = (value) => (Array.isArray(value) ? value : (value?.items ?? []));
 const createLabelMap = (items, resolver) => items.reduce((acc, item) => {
@@ -33,6 +35,18 @@ const resolveErrorMessage = (t, errorCode) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t('errors.codes.UNKNOWN_ERROR') : resolved;
+};
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useRoomDetailScreen = () => {
@@ -73,6 +87,14 @@ const useRoomDetailScreen = () => {
   const isTenantScopedAdmin = canManageRooms && !canManageAllTenants;
   const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
   const room = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isRoomInScope = useMemo(() => {
+    if (!room) return true;
+    if (canManageAllTenants) return true;
+    const roomTenantId = normalizeValue(room.tenant_id);
+    if (!roomTenantId || !normalizedTenantId) return false;
+    return roomTenantId === normalizedTenantId;
+  }, [room, canManageAllTenants, normalizedTenantId]);
+  const visibleRoom = isRoomInScope ? room : null;
   const tenantItems = useMemo(() => resolveListItems(tenantData), [tenantData]);
   const facilityItems = useMemo(() => resolveListItems(facilityData), [facilityData]);
   const wardItems = useMemo(() => resolveListItems(wardData), [wardData]);
@@ -115,53 +137,54 @@ const useRoomDetailScreen = () => {
   }, [fetchDetail]);
 
   useEffect(() => {
-    if (!isResolved || !canManageRooms || !isTenantScopedAdmin || !room) return;
-    const roomTenantId = normalizeValue(room.tenant_id);
-    if (!roomTenantId || roomTenantId !== normalizedTenantId) {
-      router.replace('/settings/rooms?notice=accessDenied');
-    }
-  }, [
-    isResolved,
-    canManageRooms,
-    isTenantScopedAdmin,
-    room,
-    normalizedTenantId,
-    router,
-  ]);
+    if (!isResolved || !canManageRooms || !room || isRoomInScope) return;
+    router.replace('/settings/rooms?notice=accessDenied');
+  }, [isResolved, canManageRooms, room, isRoomInScope, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageRooms) return;
-    if (room) return;
+    if (visibleRoom) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/rooms?notice=accessDenied');
     }
-  }, [isResolved, canManageRooms, room, errorCode, router]);
+  }, [isResolved, canManageRooms, visibleRoom, errorCode, router]);
 
   useEffect(() => {
-    if (!isResolved || !canManageRooms || !room || isOffline) return;
+    if (!isResolved || !canManageRooms || !visibleRoom || isOffline) return;
 
-    const roomTenantId = normalizeValue(room?.tenant_id);
-    const roomFacilityId = normalizeValue(room?.facility_id);
+    const roomTenantId = normalizeValue(visibleRoom?.tenant_id);
+    const roomFacilityId = normalizeValue(visibleRoom?.facility_id);
 
     if (canManageAllTenants) {
       resetTenants();
-      listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+      listTenants({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      });
     }
 
     if (roomTenantId) {
       resetFacilities();
-      listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: roomTenantId });
+      listFacilities({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+        tenant_id: roomTenantId,
+      });
     }
 
     if (roomFacilityId) {
       resetWards();
-      listWards({ page: 1, limit: MAX_FETCH_LIMIT, facility_id: roomFacilityId });
+      listWards({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+        facility_id: roomFacilityId,
+      });
     }
   }, [
     isResolved,
     canManageRooms,
     canManageAllTenants,
-    room,
+    visibleRoom,
     isOffline,
     listTenants,
     resetTenants,
@@ -171,39 +194,42 @@ const useRoomDetailScreen = () => {
     resetWards,
   ]);
 
-  const roomName = useMemo(() => normalizeValue(humanizeIdentifier(room?.name)), [room]);
+  const roomName = useMemo(
+    () => normalizeValue(humanizeIdentifier(visibleRoom?.name)),
+    [visibleRoom]
+  );
 
   const tenantLabel = useMemo(() => (
     normalizeValue(humanizeIdentifier(
-      room?.tenant_name
-      ?? room?.tenant?.name
-      ?? room?.tenant_label
+      visibleRoom?.tenant_name
+      ?? visibleRoom?.tenant?.name
+      ?? visibleRoom?.tenant_label
     ))
-    || normalizeValue(tenantMap[normalizeValue(room?.tenant_id)])
+    || normalizeValue(tenantMap[normalizeValue(visibleRoom?.tenant_id)])
     || (!canManageAllTenants && normalizedTenantId ? t('room.form.currentTenantLabel') : '')
-  ), [room, tenantMap, canManageAllTenants, normalizedTenantId, t]);
+  ), [visibleRoom, tenantMap, canManageAllTenants, normalizedTenantId, t]);
 
   const facilityLabel = useMemo(() => (
     normalizeValue(humanizeIdentifier(
-      room?.facility_name
-      ?? room?.facility?.name
-      ?? room?.facility_label
+      visibleRoom?.facility_name
+      ?? visibleRoom?.facility?.name
+      ?? visibleRoom?.facility_label
     ))
-    || normalizeValue(facilityMap[normalizeValue(room?.facility_id)])
-  ), [room, facilityMap]);
+    || normalizeValue(facilityMap[normalizeValue(visibleRoom?.facility_id)])
+  ), [visibleRoom, facilityMap]);
 
   const wardLabel = useMemo(() => (
     normalizeValue(humanizeIdentifier(
-      room?.ward_name
-      ?? room?.ward?.name
-      ?? room?.ward_label
+      visibleRoom?.ward_name
+      ?? visibleRoom?.ward?.name
+      ?? visibleRoom?.ward_label
     ))
-    || normalizeValue(wardMap[normalizeValue(room?.ward_id)])
-  ), [room, wardMap]);
+    || normalizeValue(wardMap[normalizeValue(visibleRoom?.ward_id)])
+  ), [visibleRoom, wardMap]);
 
   const floorLabel = useMemo(
-    () => normalizeValue(humanizeIdentifier(room?.floor)),
-    [room]
+    () => normalizeValue(humanizeIdentifier(visibleRoom?.floor)),
+    [visibleRoom]
   );
 
   const handleRetry = useCallback(() => {
@@ -215,12 +241,12 @@ const useRoomDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditRoom || !roomId) return;
+    if (!canEditRoom || !roomId || !isRoomInScope) return;
     router.push(`/settings/rooms/${roomId}/edit`);
-  }, [canEditRoom, roomId, router]);
+  }, [canEditRoom, roomId, isRoomInScope, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteRoom || !roomId) return;
+    if (!canDeleteRoom || !roomId || !isRoomInScope) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(roomId);
@@ -230,24 +256,24 @@ const useRoomDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeleteRoom, roomId, remove, isOffline, router, t]);
+  }, [canDeleteRoom, roomId, isRoomInScope, remove, isOffline, router, t]);
 
   return {
     id: roomId,
-    room,
+    room: visibleRoom,
     roomName,
     tenantLabel,
     facilityLabel,
     wardLabel,
     floorLabel,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isRoomInScope,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: canEditRoom ? handleEdit : undefined,
-    onDelete: canDeleteRoom ? handleDelete : undefined,
+    onEdit: canEditRoom && isRoomInScope ? handleEdit : undefined,
+    onDelete: canDeleteRoom && isRoomInScope ? handleDelete : undefined,
   };
 };
 

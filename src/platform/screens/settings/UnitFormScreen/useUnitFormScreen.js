@@ -17,6 +17,8 @@ import { humanizeIdentifier } from '@utils';
 
 const MAX_NAME_LENGTH = 255;
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -26,6 +28,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useUnitFormScreen = () => {
@@ -94,6 +108,14 @@ const useUnitFormScreen = () => {
   const previousFacilityRef = useRef('');
 
   const unit = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isUnitInScope = useMemo(() => {
+    if (!unit) return true;
+    if (canManageAllTenants) return true;
+    const unitTenantId = String(unit?.tenant_id ?? '').trim();
+    if (!unitTenantId || !normalizedScopedTenantId) return false;
+    return unitTenantId === normalizedScopedTenantId;
+  }, [unit, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleUnit = isUnitInScope ? unit : null;
   const tenantItems = useMemo(
     () => (isTenantScopedAdmin || isEdit
       ? []
@@ -130,14 +152,14 @@ const useUnitFormScreen = () => {
     }));
     if (facilityId && !options.some((option) => option.value === facilityId)) {
       const fallbackLabel = humanizeIdentifier(
-        unit?.facility_name
-        ?? unit?.facility?.name
-        ?? unit?.facility_label
+        visibleUnit?.facility_name
+        ?? visibleUnit?.facility?.name
+        ?? visibleUnit?.facility_label
       ) || t('unit.form.currentFacilityLabel');
       return [{ value: facilityId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId, unit, t]);
+  }, [facilityItems, facilityId, visibleUnit, t]);
 
   const departmentOptions = useMemo(() => {
     const options = departmentItems.map((department, index) => ({
@@ -148,14 +170,14 @@ const useUnitFormScreen = () => {
     }));
     if (departmentId && !options.some((option) => option.value === departmentId)) {
       const fallbackLabel = humanizeIdentifier(
-        unit?.department_name
-        ?? unit?.department?.name
-        ?? unit?.department_label
+        visibleUnit?.department_name
+        ?? visibleUnit?.department?.name
+        ?? visibleUnit?.department_label
       ) || t('unit.form.currentDepartmentLabel');
       return [{ value: departmentId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [departmentItems, departmentId, unit, t]);
+  }, [departmentItems, departmentId, visibleUnit, t]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -200,7 +222,10 @@ const useUnitFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageUnits,
@@ -213,38 +238,34 @@ const useUnitFormScreen = () => {
   ]);
 
   useEffect(() => {
-    if (unit) {
-      setName(unit.name ?? '');
-      setIsActive(unit.is_active ?? true);
-      setTenantId(String(unit.tenant_id ?? normalizedScopedTenantId ?? ''));
-      setFacilityId(unit.facility_id ?? '');
-      setDepartmentId(unit.department_id ?? '');
+    if (visibleUnit) {
+      setName(visibleUnit.name ?? '');
+      setIsActive(visibleUnit.is_active ?? true);
+      setTenantId(String(visibleUnit.tenant_id ?? normalizedScopedTenantId ?? ''));
+      setFacilityId(visibleUnit.facility_id ?? '');
+      setDepartmentId(visibleUnit.department_id ?? '');
     }
-  }, [unit, normalizedScopedTenantId]);
+  }, [visibleUnit, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (!isResolved || !canManageUnits || !isTenantScopedAdmin || !isEdit || !unit) return;
-    const unitTenantId = String(unit.tenant_id ?? '').trim();
-    if (!normalizedScopedTenantId || !unitTenantId || unitTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/units?notice=accessDenied');
-    }
+    if (!isResolved || !canManageUnits || !isEdit || !unit || isUnitInScope) return;
+    router.replace('/settings/units?notice=accessDenied');
   }, [
     isResolved,
     canManageUnits,
-    isTenantScopedAdmin,
     isEdit,
     unit,
-    normalizedScopedTenantId,
+    isUnitInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageUnits || !isEdit) return;
-    if (unit) return;
+    if (visibleUnit) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/units?notice=accessDenied');
     }
-  }, [isResolved, canManageUnits, isEdit, unit, errorCode, router]);
+  }, [isResolved, canManageUnits, isEdit, visibleUnit, errorCode, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageUnits) return;
@@ -254,7 +275,11 @@ const useUnitFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [isResolved, canManageUnits, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -265,7 +290,11 @@ const useUnitFormScreen = () => {
       return;
     }
     const trimmedFacility = String(facilityId ?? '').trim();
-    const params = { page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    };
     if (trimmedFacility) {
       params.facility_id = trimmedFacility;
     }
@@ -403,11 +432,11 @@ const useUnitFormScreen = () => {
   }, [tenantOptions, trimmedTenantId]);
   const unitTenantLabel = useMemo(
     () => humanizeIdentifier(
-      unit?.tenant_name
-      ?? unit?.tenant?.name
-      ?? unit?.tenant_label
+      visibleUnit?.tenant_name
+      ?? visibleUnit?.tenant?.name
+      ?? visibleUnit?.tenant_label
     ),
-    [unit]
+    [visibleUnit]
   );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
@@ -423,6 +452,7 @@ const useUnitFormScreen = () => {
     !isResolved ||
     isLoading ||
     isCreateBlocked ||
+    (isEdit && !isUnitInScope) ||
     Boolean(nameError) ||
     Boolean(tenantError) ||
     (isEdit ? !canEditUnit : !canCreateUnit);
@@ -439,7 +469,7 @@ const useUnitFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const unitTenantId = String(unit?.tenant_id ?? '').trim();
+        const unitTenantId = String(visibleUnit?.tenant_id ?? '').trim();
         if (!unitTenantId || unitTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/units?notice=accessDenied');
           return;
@@ -480,7 +510,7 @@ const useUnitFormScreen = () => {
     canCreateUnit,
     canEditUnit,
     isTenantScopedAdmin,
-    unit,
+    visibleUnit,
     normalizedScopedTenantId,
     isOffline,
     trimmedName,
@@ -512,21 +542,32 @@ const useUnitFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [tenantId, listFacilities, resetFacilities]);
 
   const handleRetryDepartments = useCallback(() => {
     const trimmedTenant = String(tenantId ?? '').trim();
     resetDepartments();
     if (!trimmedTenant) return;
-    const params = { page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    };
     const trimmedFacility = String(facilityId ?? '').trim();
     if (trimmedFacility) params.facility_id = trimmedFacility;
     listDepartments(params);
@@ -561,10 +602,10 @@ const useUnitFormScreen = () => {
     hasDepartments,
     isCreateBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isUnitInScope,
     errorMessage,
     isOffline,
-    unit,
+    unit: visibleUnit,
     nameError,
     tenantError,
     isTenantLocked,

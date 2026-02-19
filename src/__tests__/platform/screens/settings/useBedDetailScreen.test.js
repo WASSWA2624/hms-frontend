@@ -152,8 +152,11 @@ describe('useBedDetailScreen', () => {
       reset: mockReset,
     });
 
-    renderHook(() => useBedDetailScreen());
+    const { result } = renderHook(() => useBedDetailScreen());
     expect(mockReplace).toHaveBeenCalledWith('/settings/beds?notice=accessDenied');
+    expect(result.current.bed).toBeNull();
+    expect(result.current.onEdit).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
   });
 
   it('calls get on mount with id', () => {
@@ -166,8 +169,21 @@ describe('useBedDetailScreen', () => {
     renderHook(() => useBedDetailScreen());
 
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const tenantParams = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof tenantParams.page).toBe('number');
+    expect(typeof tenantParams.limit).toBe('number');
+    expect(tenantParams.limit).toBeLessThanOrEqual(100);
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    const facilityParams =
+      mockListFacilities.mock.calls[mockListFacilities.mock.calls.length - 1][0];
+    expect(typeof facilityParams.page).toBe('number');
+    expect(typeof facilityParams.limit).toBe('number');
+    expect(facilityParams.limit).toBeLessThanOrEqual(100);
     expect(mockListWards).toHaveBeenCalledWith({ page: 1, limit: 100, facility_id: 'facility-1' });
+    const wardParams = mockListWards.mock.calls[mockListWards.mock.calls.length - 1][0];
+    expect(typeof wardParams.page).toBe('number');
+    expect(typeof wardParams.limit).toBe('number');
+    expect(wardParams.limit).toBeLessThanOrEqual(100);
     expect(mockListRooms).toHaveBeenCalledWith({
       page: 1,
       limit: 100,
@@ -175,6 +191,24 @@ describe('useBedDetailScreen', () => {
       facility_id: 'facility-1',
       ward_id: 'ward-1',
     });
+    const roomParams = mockListRooms.mock.calls[mockListRooms.mock.calls.length - 1][0];
+    expect(typeof roomParams.page).toBe('number');
+    expect(typeof roomParams.limit).toBe('number');
+    expect(roomParams.limit).toBeLessThanOrEqual(100);
+  });
+
+  it('does not load tenant list for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => useBedDetailScreen());
+
+    expect(mockListTenants).not.toHaveBeenCalled();
+    expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
   });
 
   it('onRetry calls fetchDetail', () => {
@@ -290,4 +324,3 @@ describe('useBedDetailScreen', () => {
     expect(result.current.bed).toBeNull();
   });
 });
-

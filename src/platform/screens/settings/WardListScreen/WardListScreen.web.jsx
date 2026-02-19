@@ -2,7 +2,7 @@
  * WardListScreen - Web
  * Desktop/tablet renders a customizable table; mobile web renders compact cards.
  */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -192,7 +192,14 @@ const WardListScreenWeb = () => {
   } = useWardListScreen();
 
   const rows = pagedItems;
-  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(() => isTableMode);
+
+  useEffect(() => {
+    if (isTableMode) {
+      setIsFilterPanelCollapsed(true);
+    }
+  }, [isTableMode]);
+
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
   const showOfflineBanner = !isLoading && isOffline && rows.length > 0;

@@ -18,6 +18,8 @@ import { humanizeIdentifier } from '@utils';
 const MAX_NAME_LENGTH = 255;
 const MAX_FLOOR_LENGTH = 50;
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 
 const normalizeValue = (value) => String(value ?? '').trim();
 const resolveListItems = (value) => (Array.isArray(value) ? value : (value?.items ?? []));
@@ -31,6 +33,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useRoomFormScreen = () => {
@@ -99,6 +113,14 @@ const useRoomFormScreen = () => {
   const previousFacilityRef = useRef('');
 
   const room = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isRoomInScope = useMemo(() => {
+    if (!room) return true;
+    if (canManageAllTenants) return true;
+    const roomTenantId = normalizeValue(room?.tenant_id);
+    if (!roomTenantId || !normalizedScopedTenantId) return false;
+    return roomTenantId === normalizedScopedTenantId;
+  }, [room, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleRoom = isRoomInScope ? room : null;
   const tenantItems = useMemo(
     () => (
       isTenantScopedAdmin || isEdit
@@ -135,14 +157,14 @@ const useRoomFormScreen = () => {
     }));
     if (facilityId && !options.some((option) => option.value === facilityId)) {
       const fallbackLabel = resolveReadableLabel(
-        room?.facility_name
-        ?? room?.facility?.name
-        ?? room?.facility_label
+        visibleRoom?.facility_name
+        ?? visibleRoom?.facility?.name
+        ?? visibleRoom?.facility_label
       ) || t('room.form.currentFacilityLabel');
       return [{ value: facilityId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId, room, t]);
+  }, [facilityItems, facilityId, visibleRoom, t]);
 
   const wardOptions = useMemo(() => {
     const options = wardItems.map((ward, index) => ({
@@ -152,14 +174,14 @@ const useRoomFormScreen = () => {
     }));
     if (wardId && !options.some((option) => option.value === wardId)) {
       const fallbackLabel = resolveReadableLabel(
-        room?.ward_name
-        ?? room?.ward?.name
-        ?? room?.ward_label
+        visibleRoom?.ward_name
+        ?? visibleRoom?.ward?.name
+        ?? visibleRoom?.ward_label
       ) || t('room.form.currentWardLabel');
       return [{ value: wardId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [wardItems, wardId, room, t]);
+  }, [wardItems, wardId, visibleRoom, t]);
 
   const wardSelectOptions = useMemo(
     () => [{ value: '', label: t('room.form.wardNoneOption') }, ...wardOptions],
@@ -209,7 +231,10 @@ const useRoomFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageRooms,
@@ -222,38 +247,34 @@ const useRoomFormScreen = () => {
   ]);
 
   useEffect(() => {
-    if (room) {
-      setName(room.name ?? '');
-      setFloor(room.floor ?? '');
-      setTenantId(normalizeValue(room.tenant_id ?? normalizedScopedTenantId));
-      setFacilityId(normalizeValue(room.facility_id));
-      setWardId(normalizeValue(room.ward_id));
+    if (visibleRoom) {
+      setName(visibleRoom.name ?? '');
+      setFloor(visibleRoom.floor ?? '');
+      setTenantId(normalizeValue(visibleRoom.tenant_id ?? normalizedScopedTenantId));
+      setFacilityId(normalizeValue(visibleRoom.facility_id));
+      setWardId(normalizeValue(visibleRoom.ward_id));
     }
-  }, [room, normalizedScopedTenantId]);
+  }, [visibleRoom, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (!isResolved || !canManageRooms || !isTenantScopedAdmin || !isEdit || !room) return;
-    const roomTenantId = normalizeValue(room.tenant_id);
-    if (!roomTenantId || roomTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/rooms?notice=accessDenied');
-    }
+    if (!isResolved || !canManageRooms || !isEdit || !room || isRoomInScope) return;
+    router.replace('/settings/rooms?notice=accessDenied');
   }, [
     isResolved,
     canManageRooms,
-    isTenantScopedAdmin,
     isEdit,
     room,
-    normalizedScopedTenantId,
+    isRoomInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageRooms || !isEdit) return;
-    if (room) return;
+    if (visibleRoom) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/rooms?notice=accessDenied');
     }
-  }, [isResolved, canManageRooms, isEdit, room, errorCode, router]);
+  }, [isResolved, canManageRooms, isEdit, visibleRoom, errorCode, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageRooms) return;
@@ -263,7 +284,11 @@ const useRoomFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [isResolved, canManageRooms, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -273,7 +298,11 @@ const useRoomFormScreen = () => {
       resetWards();
       return;
     }
-    const params = { page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      facility_id: trimmedFacility,
+    };
     const trimmedTenant = normalizeValue(tenantId);
     if (trimmedTenant) {
       params.tenant_id = trimmedTenant;
@@ -435,11 +464,11 @@ const useRoomFormScreen = () => {
   }, [tenantOptions, trimmedTenantId]);
   const roomTenantLabel = useMemo(
     () => resolveReadableLabel(
-      room?.tenant_name
-      ?? room?.tenant?.name
-      ?? room?.tenant_label
+      visibleRoom?.tenant_name
+      ?? visibleRoom?.tenant?.name
+      ?? visibleRoom?.tenant_label
     ),
-    [room]
+    [visibleRoom]
   );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
@@ -457,11 +486,11 @@ const useRoomFormScreen = () => {
   }, [facilityOptions, trimmedFacilityId]);
   const roomFacilityLabel = useMemo(
     () => resolveReadableLabel(
-      room?.facility_name
-      ?? room?.facility?.name
-      ?? room?.facility_label
+      visibleRoom?.facility_name
+      ?? visibleRoom?.facility?.name
+      ?? visibleRoom?.facility_label
     ),
-    [room]
+    [visibleRoom]
   );
   const facilityDisplayLabel = useMemo(() => {
     if (!isEdit) return selectedFacilityLabel;
@@ -474,11 +503,11 @@ const useRoomFormScreen = () => {
   }, [wardOptions, trimmedWardId]);
   const roomWardLabel = useMemo(
     () => resolveReadableLabel(
-      room?.ward_name
-      ?? room?.ward?.name
-      ?? room?.ward_label
+      visibleRoom?.ward_name
+      ?? visibleRoom?.ward?.name
+      ?? visibleRoom?.ward_label
     ),
-    [room]
+    [visibleRoom]
   );
   const wardDisplayLabel = useMemo(() => {
     if (!trimmedWardId) return t('room.form.wardNoneOption');
@@ -491,6 +520,7 @@ const useRoomFormScreen = () => {
     isLoading ||
     isCreateBlocked ||
     isFacilityBlocked ||
+    (isEdit && !isRoomInScope) ||
     Boolean(nameError) ||
     Boolean(floorError) ||
     Boolean(tenantError) ||
@@ -509,7 +539,7 @@ const useRoomFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const roomTenantId = normalizeValue(room?.tenant_id);
+        const roomTenantId = normalizeValue(visibleRoom?.tenant_id);
         if (!roomTenantId || roomTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/rooms?notice=accessDenied');
           return;
@@ -552,7 +582,7 @@ const useRoomFormScreen = () => {
     canCreateRoom,
     canEditRoom,
     isTenantScopedAdmin,
-    room,
+    visibleRoom,
     normalizedScopedTenantId,
     isOffline,
     routeRoomId,
@@ -585,21 +615,32 @@ const useRoomFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = normalizeValue(tenantId);
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [listFacilities, resetFacilities, tenantId]);
 
   const handleRetryWards = useCallback(() => {
     const trimmedFacility = normalizeValue(facilityId);
     resetWards();
     if (!trimmedFacility) return;
-    const params = { page: 1, limit: MAX_FETCH_LIMIT, facility_id: trimmedFacility };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      facility_id: trimmedFacility,
+    };
     const trimmedTenant = normalizeValue(tenantId);
     if (trimmedTenant) {
       params.tenant_id = trimmedTenant;
@@ -637,10 +678,10 @@ const useRoomFormScreen = () => {
     isCreateBlocked,
     isFacilityBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isRoomInScope,
     errorMessage,
     isOffline,
-    room,
+    room: visibleRoom,
     nameError,
     floorError,
     tenantError,

@@ -17,6 +17,8 @@ import { humanizeIdentifier } from '@utils';
 const MAX_NAME_LENGTH = 255;
 const MAX_TYPE_LENGTH = 100;
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 
 const normalizeValue = (value) => String(value ?? '').trim();
 const resolveListItems = (value) => (Array.isArray(value) ? value : (value?.items ?? []));
@@ -30,6 +32,18 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const parseBoolean = (value, fallback = true) => {
@@ -102,6 +116,14 @@ const useWardFormScreen = () => {
   const previousTenantRef = useRef('');
 
   const ward = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isWardInScope = useMemo(() => {
+    if (!ward) return true;
+    if (canManageAllTenants) return true;
+    const wardTenantId = normalizeValue(ward?.tenant_id);
+    if (!wardTenantId || !normalizedScopedTenantId) return false;
+    return wardTenantId === normalizedScopedTenantId;
+  }, [ward, canManageAllTenants, normalizedScopedTenantId]);
+  const visibleWard = isWardInScope ? ward : null;
   const tenantItems = useMemo(
     () => (
       isTenantScopedAdmin || isEdit
@@ -134,14 +156,14 @@ const useWardFormScreen = () => {
     }));
     if (facilityId && !options.some((option) => option.value === facilityId)) {
       const fallbackLabel = resolveReadableLabel(
-        ward?.facility_name
-        ?? ward?.facility?.name
-        ?? ward?.facility_label
+        visibleWard?.facility_name
+        ?? visibleWard?.facility?.name
+        ?? visibleWard?.facility_label
       ) || t('ward.form.currentFacilityLabel');
       return [{ value: facilityId, label: fallbackLabel }, ...options];
     }
     return options;
-  }, [facilityItems, facilityId, ward, t]);
+  }, [facilityItems, facilityId, visibleWard, t]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -186,7 +208,10 @@ const useWardFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [
     isResolved,
     canManageWards,
@@ -199,37 +224,33 @@ const useWardFormScreen = () => {
   ]);
 
   useEffect(() => {
-    if (!ward) return;
-    setName(ward.name ?? '');
-    setWardType(ward.ward_type ?? ward.type ?? '');
-    setIsActive(parseBoolean(ward.is_active, true));
-    setTenantId(normalizeValue(ward.tenant_id ?? normalizedScopedTenantId));
-    setFacilityId(normalizeValue(ward.facility_id));
-  }, [ward, normalizedScopedTenantId]);
+    if (!visibleWard) return;
+    setName(visibleWard.name ?? '');
+    setWardType(visibleWard.ward_type ?? visibleWard.type ?? '');
+    setIsActive(parseBoolean(visibleWard.is_active, true));
+    setTenantId(normalizeValue(visibleWard.tenant_id ?? normalizedScopedTenantId));
+    setFacilityId(normalizeValue(visibleWard.facility_id));
+  }, [visibleWard, normalizedScopedTenantId]);
 
   useEffect(() => {
-    if (!isResolved || !canManageWards || !isTenantScopedAdmin || !isEdit || !ward) return;
-    const wardTenantId = normalizeValue(ward.tenant_id);
-    if (!wardTenantId || wardTenantId !== normalizedScopedTenantId) {
-      router.replace('/settings/wards?notice=accessDenied');
-    }
+    if (!isResolved || !canManageWards || !isEdit || !ward || isWardInScope) return;
+    router.replace('/settings/wards?notice=accessDenied');
   }, [
     isResolved,
     canManageWards,
-    isTenantScopedAdmin,
     isEdit,
     ward,
-    normalizedScopedTenantId,
+    isWardInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageWards || !isEdit) return;
-    if (ward) return;
+    if (visibleWard) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/wards?notice=accessDenied');
     }
-  }, [isResolved, canManageWards, isEdit, ward, errorCode, router]);
+  }, [isResolved, canManageWards, isEdit, visibleWard, errorCode, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageWards) return;
@@ -239,7 +260,11 @@ const useWardFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [isResolved, canManageWards, tenantId, listFacilities, resetFacilities]);
 
   useEffect(() => {
@@ -361,11 +386,11 @@ const useWardFormScreen = () => {
   }, [tenantOptions, trimmedTenantId]);
   const wardTenantLabel = useMemo(
     () => resolveReadableLabel(
-      ward?.tenant_name
-      ?? ward?.tenant?.name
-      ?? ward?.tenant_label
+      visibleWard?.tenant_name
+      ?? visibleWard?.tenant?.name
+      ?? visibleWard?.tenant_label
     ),
-    [ward]
+    [visibleWard]
   );
   const lockedTenantDisplay = useMemo(() => {
     if (!isTenantLocked) return '';
@@ -383,11 +408,11 @@ const useWardFormScreen = () => {
   }, [facilityOptions, trimmedFacilityId]);
   const wardFacilityLabel = useMemo(
     () => resolveReadableLabel(
-      ward?.facility_name
-      ?? ward?.facility?.name
-      ?? ward?.facility_label
+      visibleWard?.facility_name
+      ?? visibleWard?.facility?.name
+      ?? visibleWard?.facility_label
     ),
-    [ward]
+    [visibleWard]
   );
   const facilityDisplayLabel = useMemo(() => {
     if (!isEdit) return selectedFacilityLabel;
@@ -399,6 +424,7 @@ const useWardFormScreen = () => {
     || isLoading
     || isCreateBlocked
     || isFacilityBlocked
+    || (isEdit && !isWardInScope)
     || Boolean(nameError)
     || Boolean(typeError)
     || Boolean(tenantError)
@@ -417,7 +443,7 @@ const useWardFormScreen = () => {
         return;
       }
       if (isEdit && isTenantScopedAdmin) {
-        const wardTenantId = normalizeValue(ward?.tenant_id);
+        const wardTenantId = normalizeValue(visibleWard?.tenant_id);
         if (!wardTenantId || wardTenantId !== normalizedScopedTenantId) {
           router.replace('/settings/wards?notice=accessDenied');
           return;
@@ -457,7 +483,7 @@ const useWardFormScreen = () => {
     canCreateWard,
     canEditWard,
     isTenantScopedAdmin,
-    ward,
+    visibleWard,
     normalizedScopedTenantId,
     isOffline,
     routeWardId,
@@ -486,14 +512,21 @@ const useWardFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+    listTenants({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    });
   }, [isTenantScopedAdmin, isEdit, listTenants, resetTenants]);
 
   const handleRetryFacilities = useCallback(() => {
     const trimmedTenant = normalizeValue(tenantId);
     resetFacilities();
     if (!trimmedTenant) return;
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: trimmedTenant });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: trimmedTenant,
+    });
   }, [listFacilities, resetFacilities, tenantId]);
 
   return {
@@ -521,10 +554,10 @@ const useWardFormScreen = () => {
     isCreateBlocked,
     isFacilityBlocked,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isWardInScope,
     errorMessage,
     isOffline,
-    ward,
+    ward: visibleWard,
     nameError,
     typeError,
     tenantError,

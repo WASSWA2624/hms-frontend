@@ -19,6 +19,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'label', 'tenant', 'facility', 'ward', 'room', 'status']);
@@ -104,6 +106,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -410,6 +424,12 @@ const useBedListScreen = () => {
     return liveItems;
   }, [liveItems, isOffline, cachedBedItems]);
 
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return baseItems;
+    if (!normalizedTenantId) return [];
+    return baseItems.filter((bed) => normalizeValue(bed?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, baseItems]);
+
   const tenantMap = useMemo(() => {
     const map = createEntityLabelMap(
       tenantItems,
@@ -462,7 +482,7 @@ const useBedListScreen = () => {
     const normalizedSearch = normalizeValue(search);
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
-    return baseItems.filter((bed) => {
+    return scopedItems.filter((bed) => {
       if (hasSearch && !matchesBedSearch(bed, normalizedSearch, normalizedSearchScope, lookupMaps)) {
         return false;
       }
@@ -474,7 +494,7 @@ const useBedListScreen = () => {
       }
       return matches.every(Boolean);
     });
-  }, [baseItems, search, normalizedSearchScope, activeFilters, filterLogic, lookupMaps]);
+  }, [scopedItems, search, normalizedSearchScope, activeFilters, filterLogic, lookupMaps]);
 
   const sortedItems = useMemo(() => stableSort(
     filteredItems,
@@ -507,7 +527,7 @@ const useBedListScreen = () => {
     && selectedBedsOnPageCount === currentPageBedIds.length;
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && baseItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'bed.list.loadError'),
@@ -523,7 +543,10 @@ const useBedListScreen = () => {
     if (!isResolved || !canManageBeds || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -566,27 +589,51 @@ const useBedListScreen = () => {
 
     if (canManageAllTenants) {
       resetTenants();
-      listTenants({ page: 1, limit: MAX_FETCH_LIMIT });
+      listTenants({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      });
 
       resetFacilities();
-      listFacilities({ page: 1, limit: MAX_FETCH_LIMIT });
+      listFacilities({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      });
 
       resetWards();
-      listWards({ page: 1, limit: MAX_FETCH_LIMIT });
+      listWards({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      });
 
       resetRooms();
-      listRooms({ page: 1, limit: MAX_FETCH_LIMIT });
+      listRooms({
+        page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+        limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      });
       return;
     }
 
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: normalizedTenantId });
+    listFacilities({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: normalizedTenantId,
+    });
 
     resetWards();
-    listWards({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: normalizedTenantId });
+    listWards({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: normalizedTenantId,
+    });
 
     resetRooms();
-    listRooms({ page: 1, limit: MAX_FETCH_LIMIT, tenant_id: normalizedTenantId });
+    listRooms({
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+      tenant_id: normalizedTenantId,
+    });
   }, [
     isResolved,
     canManageBeds,
@@ -870,7 +917,7 @@ const useBedListScreen = () => {
     if (canManageAllTenants) return true;
 
     const bedTenantId = normalizeValue(bed?.tenant_id);
-    if (!bedTenantId || !normalizedTenantId) return true;
+    if (!bedTenantId || !normalizedTenantId) return false;
     return bedTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -880,14 +927,14 @@ const useBedListScreen = () => {
       if (!normalizedId) return;
 
       const targetBed = resolveBedById(normalizedId);
-      if (targetBed && !canAccessBedRecord(targetBed)) {
+      if (!canManageAllTenants && (!targetBed || !canAccessBedRecord(targetBed))) {
         router.push('/settings/beds?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/beds/${normalizedId}`);
     },
-    [resolveBedById, canAccessBedRecord, router]
+    [canManageAllTenants, resolveBedById, canAccessBedRecord, router]
   );
 
   const handleAdd = useCallback(() => {
@@ -903,14 +950,14 @@ const useBedListScreen = () => {
       if (!normalizedId) return;
 
       const targetBed = resolveBedById(normalizedId);
-      if (targetBed && !canAccessBedRecord(targetBed)) {
+      if (!canManageAllTenants && (!targetBed || !canAccessBedRecord(targetBed))) {
         router.push('/settings/beds?notice=accessDenied');
         return;
       }
 
       router.push(`/settings/beds/${normalizedId}/edit`);
     },
-    [canEditBed, resolveBedById, canAccessBedRecord, router]
+    [canEditBed, canManageAllTenants, resolveBedById, canAccessBedRecord, router]
   );
 
   const handleDelete = useCallback(
@@ -922,7 +969,7 @@ const useBedListScreen = () => {
       if (!normalizedId) return;
 
       const targetBed = resolveBedById(normalizedId);
-      if (targetBed && !canAccessBedRecord(targetBed)) {
+      if (!canManageAllTenants && (!targetBed || !canAccessBedRecord(targetBed))) {
         router.push('/settings/beds?notice=accessDenied');
         return;
       }
@@ -944,6 +991,7 @@ const useBedListScreen = () => {
     },
     [
       canDeleteBed,
+      canManageAllTenants,
       resolveBedById,
       canAccessBedRecord,
       router,
@@ -963,7 +1011,7 @@ const useBedListScreen = () => {
     let removedCount = 0;
     for (const bedIdValue of selectedBedIds) {
       const targetBed = resolveBedById(bedIdValue);
-      if (targetBed && !canAccessBedRecord(targetBed)) {
+      if (!canManageAllTenants && (!targetBed || !canAccessBedRecord(targetBed))) {
         continue;
       }
 
@@ -985,6 +1033,7 @@ const useBedListScreen = () => {
     setSelectedBedIds([]);
   }, [
     canDeleteBed,
+    canManageAllTenants,
     selectedBedIds,
     t,
     resolveBedById,

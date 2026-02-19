@@ -87,6 +87,10 @@ describe('useUnitListScreen', () => {
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(result.current.isTableMode).toBe(true);
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
@@ -211,6 +215,10 @@ describe('useUnitListScreen', () => {
     const { result } = renderHook(() => useUnitListScreen());
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+    const params = mockList.mock.calls[mockList.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
     expect(typeof result.current.onAdd).toBe('function');
     expect(typeof result.current.onEdit).toBe('function');
     expect(typeof result.current.onDelete).toBe('function');
@@ -359,6 +367,35 @@ describe('useUnitListScreen', () => {
     });
 
     expect(mockPush).toHaveBeenCalledWith('/settings/units?notice=accessDenied');
+  });
+
+  it('blocks edit and delete when tenant-scoped user targets unknown unit id', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUnit.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useUnitListScreen());
+
+    act(() => {
+      result.current.onEdit('unit-missing');
+    });
+    await act(async () => {
+      await result.current.onDelete('unit-missing');
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/settings/units?notice=accessDenied');
+    expect(mockRemove).not.toHaveBeenCalled();
   });
 
   it('bulk delete removes selected units when confirmed', async () => {

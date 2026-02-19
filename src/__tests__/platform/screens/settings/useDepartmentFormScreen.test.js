@@ -63,6 +63,10 @@ describe('useDepartmentFormScreen', () => {
     renderHook(() => useDepartmentFormScreen());
     expect(mockResetTenants).toHaveBeenCalled();
     expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const params = mockListTenants.mock.calls[mockListTenants.mock.calls.length - 1][0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
+    expect(params.limit).toBeLessThanOrEqual(100);
   });
 
   it('locks tenant for tenant-scoped create and resolves readable tenant label', () => {
@@ -84,8 +88,8 @@ describe('useDepartmentFormScreen', () => {
 
     expect(result.current.isTenantLocked).toBe(true);
     expect(result.current.tenantId).toBe('tenant-1');
-    expect(result.current.lockedTenantDisplay).toBe('Tenant 1');
-    expect(mockListTenants).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    expect(result.current.lockedTenantDisplay).toBe('department.form.currentTenantLabel');
+    expect(mockListTenants).not.toHaveBeenCalled();
   });
 
   it('redirects unauthorized users to settings', () => {
@@ -266,5 +270,30 @@ describe('useDepartmentFormScreen', () => {
     });
 
     expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('hides out-of-scope department data for tenant-scoped admins', () => {
+    mockParams = { id: 'fid-1' };
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useDepartment.mockReturnValue({
+      get: mockGet,
+      create: mockCreate,
+      update: mockUpdate,
+      data: { id: 'fid-1', tenant_id: 'tenant-2', name: 'Outside Department', department_type: 'CLINICAL' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useDepartmentFormScreen());
+
+    expect(result.current.department).toBeNull();
+    expect(result.current.isSubmitDisabled).toBe(true);
+    expect(mockReplace).toHaveBeenCalledWith('/settings/departments?notice=accessDenied');
   });
 });

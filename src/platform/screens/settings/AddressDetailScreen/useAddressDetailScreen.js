@@ -8,6 +8,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useI18n, useNetwork, useAddress, useTenantAccess } from '@hooks';
 import { confirmAction } from '@utils';
 
+const normalizeValue = (value) => String(value ?? '').trim();
+
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
   const key = `errors.codes.${errorCode}`;
@@ -35,9 +37,17 @@ const useAddressDetailScreen = () => {
   const canEditAddress = canManageAddresses;
   const canDeleteAddress = canManageAddresses;
   const isTenantScopedAdmin = canManageAddresses && !canManageAllTenants;
-  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
 
   const address = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isAddressInScope = useMemo(() => {
+    if (!address) return true;
+    if (canManageAllTenants) return true;
+    const addressTenantId = normalizeValue(address.tenant_id);
+    if (!addressTenantId || !normalizedTenantId) return false;
+    return addressTenantId === normalizedTenantId;
+  }, [address, canManageAllTenants, normalizedTenantId]);
+  const visibleAddress = isAddressInScope ? address : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
@@ -65,27 +75,17 @@ const useAddressDetailScreen = () => {
   }, [fetchDetail]);
 
   useEffect(() => {
-    if (!isResolved || !canManageAddresses || !isTenantScopedAdmin || !address) return;
-    const addressTenantId = String(address.tenant_id ?? '').trim();
-    if (!addressTenantId || addressTenantId !== normalizedTenantId) {
-      router.replace('/settings/addresses?notice=accessDenied');
-    }
-  }, [
-    isResolved,
-    canManageAddresses,
-    isTenantScopedAdmin,
-    address,
-    normalizedTenantId,
-    router,
-  ]);
+    if (!isResolved || !canManageAddresses || !address || isAddressInScope) return;
+    router.replace('/settings/addresses?notice=accessDenied');
+  }, [isResolved, canManageAddresses, address, isAddressInScope, router]);
 
   useEffect(() => {
     if (!isResolved || !canManageAddresses) return;
-    if (address) return;
+    if (visibleAddress) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/addresses?notice=accessDenied');
     }
-  }, [isResolved, canManageAddresses, address, errorCode, router]);
+  }, [isResolved, canManageAddresses, visibleAddress, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -96,12 +96,12 @@ const useAddressDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditAddress || !addressId) return;
+    if (!canEditAddress || !addressId || !isAddressInScope) return;
     router.push(`/settings/addresses/${addressId}/edit`);
-  }, [canEditAddress, addressId, router]);
+  }, [canEditAddress, addressId, isAddressInScope, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteAddress || !addressId) return;
+    if (!canDeleteAddress || !addressId || !isAddressInScope) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(addressId);
@@ -111,19 +111,19 @@ const useAddressDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeleteAddress, addressId, remove, isOffline, router, t]);
+  }, [canDeleteAddress, addressId, isAddressInScope, remove, isOffline, router, t]);
 
   return {
     id: addressId,
-    address,
+    address: visibleAddress,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isAddressInScope,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: canEditAddress ? handleEdit : undefined,
-    onDelete: canDeleteAddress ? handleDelete : undefined,
+    onEdit: canEditAddress && isAddressInScope ? handleEdit : undefined,
+    onDelete: canDeleteAddress && isAddressInScope ? handleDelete : undefined,
   };
 };
 

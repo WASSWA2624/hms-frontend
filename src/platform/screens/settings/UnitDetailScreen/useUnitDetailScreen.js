@@ -38,6 +38,14 @@ const useUnitDetailScreen = () => {
   const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
 
   const unit = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const isUnitInScope = useMemo(() => {
+    if (!unit) return true;
+    if (canManageAllTenants) return true;
+    const unitTenantId = String(unit.tenant_id ?? '').trim();
+    if (!unitTenantId || !normalizedTenantId) return false;
+    return unitTenantId === normalizedTenantId;
+  }, [unit, canManageAllTenants, normalizedTenantId]);
+  const visibleUnit = isUnitInScope ? unit : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
@@ -65,27 +73,23 @@ const useUnitDetailScreen = () => {
   }, [fetchDetail]);
 
   useEffect(() => {
-    if (!isResolved || !canManageUnits || !isTenantScopedAdmin || !unit) return;
-    const unitTenantId = String(unit.tenant_id ?? '').trim();
-    if (!unitTenantId || unitTenantId !== normalizedTenantId) {
-      router.replace('/settings/units?notice=accessDenied');
-    }
+    if (!isResolved || !canManageUnits || !unit || isUnitInScope) return;
+    router.replace('/settings/units?notice=accessDenied');
   }, [
     isResolved,
     canManageUnits,
-    isTenantScopedAdmin,
     unit,
-    normalizedTenantId,
+    isUnitInScope,
     router,
   ]);
 
   useEffect(() => {
     if (!isResolved || !canManageUnits) return;
-    if (unit) return;
+    if (visibleUnit) return;
     if (errorCode === 'FORBIDDEN' || errorCode === 'UNAUTHORIZED') {
       router.replace('/settings/units?notice=accessDenied');
     }
-  }, [isResolved, canManageUnits, unit, errorCode, router]);
+  }, [isResolved, canManageUnits, visibleUnit, errorCode, router]);
 
   const handleRetry = useCallback(() => {
     fetchDetail();
@@ -96,12 +100,12 @@ const useUnitDetailScreen = () => {
   }, [router]);
 
   const handleEdit = useCallback(() => {
-    if (!canEditUnit || !unitId) return;
+    if (!canEditUnit || !unitId || !isUnitInScope) return;
     router.push(`/settings/units/${unitId}/edit`);
-  }, [canEditUnit, unitId, router]);
+  }, [canEditUnit, unitId, isUnitInScope, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!canDeleteUnit || !unitId) return;
+    if (!canDeleteUnit || !unitId || !isUnitInScope) return;
     if (!confirmAction(t('common.confirmDelete'))) return;
     try {
       const result = await remove(unitId);
@@ -111,19 +115,19 @@ const useUnitDetailScreen = () => {
     } catch {
       /* error handled by hook */
     }
-  }, [canDeleteUnit, unitId, remove, isOffline, router, t]);
+  }, [canDeleteUnit, unitId, isUnitInScope, remove, isOffline, router, t]);
 
   return {
     id: unitId,
-    unit,
+    unit: visibleUnit,
     isLoading: !isResolved || isLoading,
-    hasError: isResolved && Boolean(errorCode),
+    hasError: isResolved && Boolean(errorCode) && isUnitInScope,
     errorMessage,
     isOffline,
     onRetry: handleRetry,
     onBack: handleBack,
-    onEdit: canEditUnit ? handleEdit : undefined,
-    onDelete: canDeleteUnit ? handleDelete : undefined,
+    onEdit: canEditUnit && isUnitInScope ? handleEdit : undefined,
+    onDelete: canDeleteUnit && isUnitInScope ? handleDelete : undefined,
   };
 };
 
