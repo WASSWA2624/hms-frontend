@@ -29,6 +29,95 @@ const StyledContent = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
+const StyledHeader = styled.div.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHeader',
+  componentId: 'PatientResourceListScreen_StyledHeader',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHeaderTop = styled.div.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHeaderTop',
+  componentId: 'PatientResourceListScreen_StyledHeaderTop',
+})`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledHeaderCopy = styled.div.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHeaderCopy',
+  componentId: 'PatientResourceListScreen_StyledHeaderCopy',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpAnchor = styled.div.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpAnchor',
+  componentId: 'PatientResourceListScreen_StyledHelpAnchor',
+})`
+  position: relative;
+  display: inline-flex;
+`;
+
+const StyledHelpButton = styled.button.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpButton',
+  componentId: 'PatientResourceListScreen_StyledHelpButton',
+})`
+  min-height: 36px;
+  min-width: 36px;
+  border-radius: ${({ theme }) => theme.radius.full}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+const StyledHelpModalTitle = styled.h3.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpModalTitle',
+  componentId: 'PatientResourceListScreen_StyledHelpModalTitle',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+`;
+
+const StyledHelpModalBody = styled.p.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpModalBody',
+  componentId: 'PatientResourceListScreen_StyledHelpModalBody',
+})`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+`;
+
+const StyledHelpChecklist = styled.ul.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpChecklist',
+  componentId: 'PatientResourceListScreen_StyledHelpChecklist',
+})`
+  margin: 0;
+  padding-left: ${({ theme }) => theme.spacing.md}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledHelpItem = styled.li.withConfig({
+  displayName: 'PatientResourceListScreen_StyledHelpItem',
+  componentId: 'PatientResourceListScreen_StyledHelpItem',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+`;
+
 const StyledToolbar = styled.div.withConfig({
   displayName: 'PatientResourceListScreen_StyledToolbar',
   componentId: 'PatientResourceListScreen_StyledToolbar',
@@ -515,6 +604,15 @@ export {
   StyledFilterChevron,
   StyledFilterTitle,
   StyledFilterToggleButton,
+  StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpAnchor,
+  StyledHelpButton,
+  StyledHelpChecklist,
+  StyledHelpItem,
+  StyledHelpModalBody,
+  StyledHelpModalTitle,
   StyledListBody,
   StyledMobileList,
   StyledMoveButton,
@@ -539,4 +637,3 @@ export {
   StyledToolbar,
   StyledToolbarActions,
 };
-

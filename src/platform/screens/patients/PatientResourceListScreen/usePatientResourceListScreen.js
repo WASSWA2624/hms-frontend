@@ -145,13 +145,56 @@ const normalizeSearchFieldOptions = (fields) => {
   return filtered.length > 0 ? filtered : [{ id: 'title', label: 'Title', type: 'text' }];
 };
 
-const sanitizeSearchScope = (value, searchFieldOptions) => {
-  if (value === 'all') return 'all';
-  const options = Array.isArray(searchFieldOptions) ? searchFieldOptions : [];
-  return options.some((field) => field.id === value) ? value : 'all';
+const SEARCH_SCOPE_ALL = 'all';
+
+const DEFAULT_FILTER = (id = 'patient-resource-filter-1') => ({
+  id,
+  field: 'title',
+  operator: 'contains',
+  value: '',
+});
+
+const sanitizeSearchScope = (value, allowed) => {
+  if (value === SEARCH_SCOPE_ALL) return SEARCH_SCOPE_ALL;
+  const options = Array.isArray(allowed) ? allowed : [];
+  const hasMatch = options.some((entry) => {
+    if (typeof entry === 'string') return entry === value;
+    return entry?.id === value;
+  });
+  return hasMatch ? value : SEARCH_SCOPE_ALL;
 };
 
-const toTimestamp = (value) => {
+const sanitizeFilterField = (value, allowed) => (
+  allowed.includes(value) ? value : 'title'
+);
+
+const resolveFieldType = (fieldId, fieldMap) => (
+  fieldMap?.[fieldId]?.type === 'boolean' ? 'boolean' : 'text'
+);
+
+const sanitizeFilters = (filters, getNextFilterId, allowedFields, fieldMap) => {
+  if (!Array.isArray(filters)) return [DEFAULT_FILTER(getNextFilterId())];
+
+  const nextFilters = filters
+    .map((filter) => {
+      const field = sanitizeFilterField(filter?.field, allowedFields);
+      const fieldType = resolveFieldType(field, fieldMap);
+      return {
+        id: normalizeValue(filter?.id) || getNextFilterId(),
+        field,
+        operator: sanitizeFilterOperator(fieldType, filter?.operator),
+        value: normalizeValue(filter?.value),
+      };
+    })
+    .filter((filter) => allowedFields.includes(filter.field))
+    .slice(0, 4);
+
+  return nextFilters.length > 0 ? nextFilters : [DEFAULT_FILTER(getNextFilterId())];
+};
+
+const resolveReadableText = (value) => normalizeValue(humanizeDisplayText(value));
+
+const resolveTimestamp = (value) => {
   const normalized = normalizeValue(value);
   if (!normalized) return 0;
   const parsed = Date.parse(normalized);
@@ -161,7 +204,7 @@ const toTimestamp = (value) => {
 const compareByField = (leftRecord, rightRecord, field, direction) => {
   let result = 0;
   if (field === 'updatedAt' || field === 'createdAt') {
-    result = toTimestamp(leftRecord?.[field]) - toTimestamp(rightRecord?.[field]);
+    result = resolveTimestamp(leftRecord?.[field]) - resolveTimestamp(rightRecord?.[field]);
   } else {
     result = compareText(leftRecord?.[field], rightRecord?.[field]);
   }
@@ -195,6 +238,7 @@ const usePatientResourceListScreen = (resourceId) => {
   const {
     canAccessPatients,
     canCreatePatientRecords,
+    canEditPatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
     tenantId,
@@ -238,6 +282,11 @@ const usePatientResourceListScreen = (resourceId) => {
   const canCreate = Boolean(
     canCreatePatientRecords
       && config?.supportsCreate !== false
+      && hasRequiredContext
+  );
+  const canEdit = Boolean(
+    canEditPatientRecords
+      && config?.supportsEdit !== false
       && hasRequiredContext
   );
   const canDelete = Boolean(
@@ -397,6 +446,17 @@ const usePatientResourceListScreen = (resourceId) => {
     },
     [getNextFilterId, sanitizeFilterField, searchFieldMap]
   );
+
+  const searchFieldOptionsRef = useRef(searchFieldOptions);
+  const sanitizeFiltersRef = useRef(sanitizeFilters);
+
+  useEffect(() => {
+    searchFieldOptionsRef.current = searchFieldOptions;
+  }, [searchFieldOptions]);
+
+  useEffect(() => {
+    sanitizeFiltersRef.current = sanitizeFilters;
+  }, [sanitizeFilters]);
 
   const activeFilters = useMemo(
     () => sanitizeFilters(filters).filter((filter) => normalizeValue(filter.value).length > 0),
@@ -627,6 +687,26 @@ const usePatientResourceListScreen = (resourceId) => {
     if (!canCreate || !config) return;
     router.push(withPatientContext(`${config.routePath}/create`, patientContextId));
   }, [canCreate, config, router, patientContextId]);
+
+  const handleEdit = useCallback(
+    (id, event) => {
+      if (event?.stopPropagation) event.stopPropagation();
+      if (!canEdit || !config) return;
+
+      const normalizedId = normalizeSearchParam(id);
+      if (!normalizedId) return;
+
+      const targetRecord = resolveRecordById(normalizedId);
+      if (!hasRecordAccess(targetRecord)) {
+        const separator = listPath.includes('?') ? '&' : '?';
+        router.push(`${listPath}${separator}notice=accessDenied`);
+        return;
+      }
+
+      router.push(withPatientContext(`${config.routePath}/${normalizedId}/edit`, patientContextId));
+    },
+    [canEdit, config, resolveRecordById, hasRecordAccess, listPath, router, patientContextId]
+  );
 
   const handleDelete = useCallback(
     async (id, event) => {
@@ -906,7 +986,13 @@ const usePatientResourceListScreen = (resourceId) => {
 
   useEffect(() => {
     const availableIds = new Set(sortedRecords.map((record) => record.id).filter(Boolean));
-    setSelectedRecordIds((previous) => previous.filter((value) => availableIds.has(value)));
+    setSelectedRecordIds((previous) => {
+      const next = previous.filter((value) => availableIds.has(value));
+      if (next.length === previous.length && next.every((value, index) => value === previous[index])) {
+        return previous;
+      }
+      return next;
+    });
   }, [sortedRecords]);
 
   useEffect(() => {
@@ -924,9 +1010,9 @@ const usePatientResourceListScreen = (resourceId) => {
         setSortDirection(sanitizeSortDirection(stored.sortDirection));
         setPageSize(sanitizePageSize(stored.pageSize));
         setDensity(sanitizeDensity(stored.density));
-        setSearchScope(sanitizeSearchScope(stored.searchScope, searchFieldOptions));
+        setSearchScope(sanitizeSearchScope(stored.searchScope, searchFieldOptionsRef.current));
         setFilterLogic(sanitizeFilterLogic(stored.filterLogic));
-        setFilters(sanitizeFilters(stored.filters));
+        setFilters(sanitizeFiltersRef.current(stored.filters));
       }
 
       setIsPreferencesLoaded(true);
@@ -937,7 +1023,7 @@ const usePatientResourceListScreen = (resourceId) => {
     return () => {
       cancelled = true;
     };
-  }, [preferenceKey, searchFieldOptions, sanitizeFilters]);
+  }, [preferenceKey]);
 
   useEffect(() => {
     if (!isPreferencesLoaded) return;
@@ -1037,6 +1123,19 @@ const usePatientResourceListScreen = (resourceId) => {
     [searchFieldMap, t]
   );
 
+  const helpContent = useMemo(() => ({
+    label: t('patients.common.list.helpLabel', { resource: resourceLabel }),
+    tooltip: t('patients.common.list.helpTooltip', { resource: resourceLabel }),
+    title: t('patients.common.list.helpTitle', { resource: resourceLabel }),
+    body: t('patients.common.list.helpBody', { resource: resourceLabel }),
+    items: [
+      t('patients.common.list.helpItems.search'),
+      t('patients.common.list.helpItems.filter'),
+      t('patients.common.list.helpItems.actions'),
+      t('patients.common.list.helpItems.recovery'),
+    ],
+  }), [t, resourceLabel]);
+
   return {
     config,
     locale,
@@ -1075,6 +1174,7 @@ const usePatientResourceListScreen = (resourceId) => {
     errorMessage,
     isOffline,
     noticeMessage,
+    helpContent,
     onDismissNotice: handleDismissNotice,
     onRetry: handleRetry,
     onSearch: handleSearch,
@@ -1119,9 +1219,11 @@ const usePatientResourceListScreen = (resourceId) => {
     onBulkDelete: canDelete ? handleBulkDelete : undefined,
     resolveFilterOperatorOptions,
     onItemPress: handleItemPress,
+    onEdit: canEdit ? handleEdit : undefined,
     onDelete: canDelete ? handleDelete : undefined,
     onAdd: canCreate ? handleAdd : undefined,
     canCreate,
+    canEdit,
     canDelete,
     createBlockedReason: canCreatePatientRecords
       ? hasRequiredContext ? '' : t('patients.common.list.patientContextRequired')
@@ -1131,3 +1233,4 @@ const usePatientResourceListScreen = (resourceId) => {
 };
 
 export default usePatientResourceListScreen;
+

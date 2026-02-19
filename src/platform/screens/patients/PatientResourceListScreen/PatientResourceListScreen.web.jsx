@@ -15,7 +15,9 @@ import {
   OfflineStateSizes,
   Select,
   Snackbar,
+  Text,
   TextField,
+  Tooltip,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import { formatDateTime } from '@utils';
@@ -42,6 +44,15 @@ import {
   StyledFilterChevron,
   StyledFilterTitle,
   StyledFilterToggleButton,
+  StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpAnchor,
+  StyledHelpButton,
+  StyledHelpChecklist,
+  StyledHelpItem,
+  StyledHelpModalBody,
+  StyledHelpModalTitle,
   StyledListBody,
   StyledMobileList,
   StyledMoveButton,
@@ -78,8 +89,11 @@ const resolveColumnLabel = (t, column) => {
 
 const PatientResourceListScreenWeb = ({ resourceId }) => {
   const { t, locale } = useI18n();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isHelpTooltipVisible, setIsHelpTooltipVisible] = useState(false);
   const {
     config,
+    resourceLabel,
     items,
     totalItems,
     totalPages,
@@ -111,6 +125,7 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
     errorMessage,
     isOffline,
     noticeMessage,
+    helpContent,
     onDismissNotice,
     onRetry,
     onSearch,
@@ -138,6 +153,7 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
     onBulkDelete,
     resolveFilterOperatorOptions,
     onItemPress,
+    onEdit,
     onDelete,
     onAdd,
   } = usePatientResourceListScreen(resourceId);
@@ -283,6 +299,16 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
         >
           {t('patients.common.list.view')}
         </StyledActionButton>
+
+        {onEdit ? (
+          <StyledActionButton
+            type="button"
+            onClick={(event) => onEdit(itemId, event)}
+            data-testid={`patient-resource-edit-${itemId}`}
+          >
+            {t('patients.common.list.edit')}
+          </StyledActionButton>
+        ) : null}
 
         {onDelete ? (
           <StyledDangerActionButton
@@ -554,9 +580,49 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
       ) : null}
 
       <StyledContent>
-        {!isTableMode ? searchBarSection : null}
-        {!isTableMode ? filterBarSection : null}
-        {!isTableMode ? bulkActionsBar : null}
+        <StyledHeader>
+          <StyledHeaderTop>
+            <StyledHeaderCopy>
+              <Text variant="h2" accessibilityRole="header">{t(`${config.i18nKey}.list.title`)}</Text>
+              <Text variant="body">{t('patients.common.list.description', { resource: resourceLabel })}</Text>
+            </StyledHeaderCopy>
+            <StyledHelpAnchor>
+              <StyledHelpButton
+                type="button"
+                aria-label={helpContent?.label}
+                testID="patient-resource-list-help-trigger"
+                onMouseEnter={() => setIsHelpTooltipVisible(true)}
+                onMouseLeave={() => setIsHelpTooltipVisible(false)}
+                onFocus={() => setIsHelpTooltipVisible(true)}
+                onBlur={() => setIsHelpTooltipVisible(false)}
+                onClick={() => setIsHelpOpen(true)}
+              >
+                <Icon glyph="?" size="xs" decorative />
+              </StyledHelpButton>
+              <Tooltip
+                visible={isHelpTooltipVisible && !isHelpOpen}
+                position="bottom"
+                text={helpContent?.tooltip || ''}
+              />
+            </StyledHelpAnchor>
+          </StyledHeaderTop>
+        </StyledHeader>
+
+        <Modal
+          visible={isHelpOpen}
+          onDismiss={() => setIsHelpOpen(false)}
+          size="small"
+          accessibilityLabel={helpContent?.title}
+          testID="patient-resource-list-help-modal"
+        >
+          <StyledHelpModalTitle>{helpContent?.title}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{helpContent?.body}</StyledHelpModalBody>
+          <StyledHelpChecklist>
+            {(helpContent?.items || []).map((item) => (
+              <StyledHelpItem key={item}>{item}</StyledHelpItem>
+            ))}
+          </StyledHelpChecklist>
+        </Modal>
 
         <Card
           variant="outlined"
@@ -654,12 +720,16 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
                         density="compact"
                         onPress={itemId ? () => onItemPress(itemId) : undefined}
                         onView={itemId ? () => onItemPress(itemId) : undefined}
+                        onEdit={onEdit && itemId ? (event) => onEdit(itemId, event) : undefined}
                         onDelete={onDelete && itemId ? (event) => onDelete(itemId, event) : undefined}
                         viewLabel={t('patients.common.list.view')}
                         viewHint={t('patients.common.list.viewHint')}
+                        editLabel={t('patients.common.list.edit')}
+                        editHint={t('patients.common.list.editHint')}
                         deleteLabel={t('common.remove')}
                         deleteHint={t(`${config.i18nKey}.list.deleteHint`)}
                         viewTestID={`patient-resource-view-${itemKey}`}
+                        editTestID={`patient-resource-edit-${itemKey}`}
                         deleteTestID={`patient-resource-delete-${itemKey}`}
                         accessibilityLabel={t(`${config.i18nKey}.list.itemLabel`, { name: title })}
                         accessibilityHint={t(`${config.i18nKey}.list.itemHint`, { name: title })}
@@ -741,4 +811,3 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
 };
 
 export default PatientResourceListScreenWeb;
-

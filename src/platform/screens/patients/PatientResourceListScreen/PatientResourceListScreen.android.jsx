@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Card,
@@ -8,9 +8,11 @@ import {
   Icon,
   ListItem,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Snackbar,
+  Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -18,6 +20,14 @@ import {
   StyledAddLabel,
   StyledContainer,
   StyledContent,
+  StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpButton,
+  StyledHelpButtonLabel,
+  StyledHelpModalBody,
+  StyledHelpModalItem,
+  StyledHelpModalTitle,
   StyledList,
   StyledListBody,
   StyledSeparator,
@@ -29,14 +39,17 @@ import usePatientResourceListScreen from './usePatientResourceListScreen';
 
 const PatientResourceListScreenAndroid = ({ resourceId }) => {
   const { t } = useI18n();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const {
     config,
+    resourceLabel,
     items,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
     noticeMessage,
+    helpContent,
     onDismissNotice,
     onRetry,
     onItemPress,
@@ -60,6 +73,38 @@ const PatientResourceListScreenAndroid = ({ resourceId }) => {
       ) : null}
 
       <StyledContent>
+        <StyledHeader>
+          <StyledHeaderTop>
+            <StyledHeaderCopy>
+              <Text variant="h2" accessibilityRole="header">{t(`${config.i18nKey}.list.title`)}</Text>
+              <Text variant="body">{t('patients.common.list.description', { resource: resourceLabel })}</Text>
+            </StyledHeaderCopy>
+            <StyledHelpButton
+              accessibilityRole="button"
+              accessibilityLabel={helpContent?.label}
+              accessibilityHint={helpContent?.tooltip}
+              testID="patient-resource-list-help-trigger"
+              onPress={() => setIsHelpOpen(true)}
+            >
+              <StyledHelpButtonLabel>?</StyledHelpButtonLabel>
+            </StyledHelpButton>
+          </StyledHeaderTop>
+        </StyledHeader>
+
+        <Modal
+          visible={isHelpOpen}
+          onDismiss={() => setIsHelpOpen(false)}
+          size="small"
+          accessibilityLabel={helpContent?.title}
+          testID="patient-resource-list-help-modal"
+        >
+          <StyledHelpModalTitle>{helpContent?.title}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{helpContent?.body}</StyledHelpModalBody>
+          {(helpContent?.items || []).map((item) => (
+            <StyledHelpModalItem key={item}>{`- ${item}`}</StyledHelpModalItem>
+          ))}
+        </Modal>
+
         <StyledToolbar>
           <StyledToolbarActions>
             {onAdd ? (
