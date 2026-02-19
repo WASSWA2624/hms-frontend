@@ -26,6 +26,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'user', 'role', 'tenant', 'facility']);
@@ -94,6 +96,18 @@ const sanitizeFilterOperator = (field, operator) => {
 };
 
 const sanitizeFilterValue = (value) => normalizeValue(value);
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
 
 const sanitizeFilters = (values, getNextFilterId) => {
   if (!Array.isArray(values)) {
@@ -294,6 +308,13 @@ const useUserRoleListScreen = () => {
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
   );
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return rawItems;
+    if (!normalizedTenantId) return [];
+    return rawItems.filter(
+      (userRole) => normalizeValue(userRole?.tenant_id) === normalizedTenantId
+    );
+  }, [canManageAllTenants, normalizedTenantId, rawItems]);
   const roleItems = useMemo(
     () => (Array.isArray(roleData) ? roleData : (roleData?.items ?? [])),
     [roleData]
@@ -470,7 +491,7 @@ const useUserRoleListScreen = () => {
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
 
-    return rawItems.filter((userRole) => {
+    return scopedItems.filter((userRole) => {
       if (hasSearch && !matchesUserRoleSearch(
         userRole,
         normalizedSearch,
@@ -492,7 +513,7 @@ const useUserRoleListScreen = () => {
       return matches.every(Boolean);
     });
   }, [
-    rawItems,
+    scopedItems,
     search,
     normalizedSearchScope,
     activeFilters,
@@ -525,7 +546,7 @@ const useUserRoleListScreen = () => {
   }, [items, page, pageSize]);
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && rawItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'userRole.list.loadError'),
@@ -538,10 +559,13 @@ const useUserRoleListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
-    if (!isResolved || !canManageUserRoles) return;
+    if (!isResolved || !canManageUserRoles || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -551,6 +575,7 @@ const useUserRoleListScreen = () => {
   }, [
     isResolved,
     canManageUserRoles,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     reset,
@@ -558,10 +583,13 @@ const useUserRoleListScreen = () => {
   ]);
 
   const fetchReferenceData = useCallback(() => {
-    if (!isResolved || !canManageUserRoles) return;
+    if (!isResolved || !canManageUserRoles || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
-    const params = { page: 1, limit: MAX_FETCH_LIMIT };
+    const params = {
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+    };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
@@ -577,6 +605,7 @@ const useUserRoleListScreen = () => {
   }, [
     isResolved,
     canManageUserRoles,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     resetRoles,
@@ -882,7 +911,7 @@ const useUserRoleListScreen = () => {
     if (canManageAllTenants) return true;
 
     const userRoleTenantId = normalizeValue(userRole?.tenant_id);
-    if (!userRoleTenantId || !normalizedTenantId) return true;
+    if (!userRoleTenantId || !normalizedTenantId) return false;
     return userRoleTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 
@@ -892,13 +921,13 @@ const useUserRoleListScreen = () => {
     if (!userRoleId) return;
 
     const targetUserRole = resolveUserRoleById(userRoleId);
-    if (targetUserRole && !canAccessUserRoleRecord(targetUserRole)) {
+    if (!canManageAllTenants && (!targetUserRole || !canAccessUserRoleRecord(targetUserRole))) {
       router.push('/settings/user-roles?notice=accessDenied');
       return;
     }
 
     router.push(`/settings/user-roles/${userRoleId}`);
-  }, [canManageUserRoles, resolveUserRoleById, canAccessUserRoleRecord, router]);
+  }, [canManageUserRoles, canManageAllTenants, resolveUserRoleById, canAccessUserRoleRecord, router]);
 
   const handleDelete = useCallback(
     async (id, e) => {
@@ -909,7 +938,7 @@ const useUserRoleListScreen = () => {
       if (!userRoleId) return;
 
       const targetUserRole = resolveUserRoleById(userRoleId);
-      if (targetUserRole && !canAccessUserRoleRecord(targetUserRole)) {
+      if (!canManageAllTenants && (!targetUserRole || !canAccessUserRoleRecord(targetUserRole))) {
         router.push('/settings/user-roles?notice=accessDenied');
         return;
       }
@@ -930,6 +959,7 @@ const useUserRoleListScreen = () => {
     },
     [
       canDeleteUserRole,
+      canManageAllTenants,
       resolveUserRoleById,
       canAccessUserRoleRecord,
       router,

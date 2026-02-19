@@ -157,6 +157,18 @@ describe('useUserRoleListScreen', () => {
     expect(mockListFacilities).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
   });
 
+  it('does not request list or references while offline', () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+
+    renderHook(() => useUserRoleListScreen());
+
+    expect(mockList).not.toHaveBeenCalled();
+    expect(mockListRoles).not.toHaveBeenCalled();
+    expect(mockListUsers).not.toHaveBeenCalled();
+    expect(mockListTenants).not.toHaveBeenCalled();
+    expect(mockListFacilities).not.toHaveBeenCalled();
+  });
+
   it('supports all-field search and scoped search', () => {
     useUserRole.mockReturnValue({
       list: mockList,
@@ -305,6 +317,56 @@ describe('useUserRoleListScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/settings/user-roles?notice=accessDenied');
   });
 
+  it('hides records outside tenant scope from rendered data source', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUserRole.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          { id: 'ur-1', tenant_id: 'tenant-1', user_name: 'Allowed User' },
+          { id: 'ur-2', tenant_id: 'tenant-2', user_name: 'Blocked User' },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useUserRoleListScreen());
+    expect(result.current.items.map((item) => item.id)).toEqual(['ur-1']);
+  });
+
+  it('blocks deletion when tenant-scoped target record is unknown', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useUserRole.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useUserRoleListScreen());
+    await act(async () => {
+      await result.current.onDelete('unknown-id');
+    });
+
+    expect(mockRemove).not.toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith('/settings/user-roles?notice=accessDenied');
+  });
+
   it('does not remove when confirmation is cancelled', async () => {
     confirmAction.mockReturnValueOnce(false);
 
@@ -331,7 +393,7 @@ describe('useUserRoleListScreen', () => {
           id: 'ur-1',
           user_id: 'user-raw',
           role_id: 'role-raw',
-          tenant_id: 'tenant-raw',
+          tenant_id: 'tenant-1',
           facility_id: 'facility-raw',
         }],
       },
@@ -349,4 +411,3 @@ describe('useUserRoleListScreen', () => {
     expect(result.current.resolveFacilityLabel(item)).toBe('userRole.list.currentFacilityLabel');
   });
 });
-

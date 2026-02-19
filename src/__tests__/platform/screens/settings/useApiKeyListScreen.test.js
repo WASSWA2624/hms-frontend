@@ -69,11 +69,14 @@ describe('useApiKeyListScreen', () => {
     asyncStorage.setItem.mockResolvedValue(true);
   });
 
-  it('loads list with capped numeric limit 100', () => {
+  it('loads list with numeric pagination params capped at 100', () => {
     renderHook(() => useApiKeyListScreen());
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [params] = mockList.mock.calls[0];
+    expect(typeof params.page).toBe('number');
+    expect(typeof params.limit).toBe('number');
   });
 
   it('applies tenant scope to list request', () => {
@@ -87,6 +90,39 @@ describe('useApiKeyListScreen', () => {
     renderHook(() => useApiKeyListScreen());
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+  });
+
+  it('does not request list while offline', () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+
+    renderHook(() => useApiKeyListScreen());
+
+    expect(mockReset).not.toHaveBeenCalled();
+    expect(mockList).not.toHaveBeenCalled();
+  });
+
+  it('filters rendered records to tenant scope for tenant-scoped admins', () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useApiKey.mockReturnValue({
+      list: mockList,
+      data: {
+        items: [
+          { id: 'k-1', tenant_id: 'tenant-1', name: 'Internal Key', is_active: true },
+          { id: 'k-2', tenant_id: 'tenant-2', name: 'External Key', is_active: true },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => useApiKeyListScreen());
+    expect(result.current.items.map((item) => item.id)).toEqual(['k-1']);
   });
 
   it('supports all-field and scoped search', () => {
@@ -295,7 +331,7 @@ describe('useApiKeyListScreen', () => {
         items: [{
           id: '8f4fd148-2502-4edb-bf1d-c1f5c66182fd',
           user_id: '910f0d1f-66fd-4490-8e4a-cc8ef00a4bf6',
-          tenant_id: '24526426-b527-4cb4-a48b-c3f71ca9f3e7',
+          tenant_id: 'tenant-1',
           is_active: true,
         }],
       },

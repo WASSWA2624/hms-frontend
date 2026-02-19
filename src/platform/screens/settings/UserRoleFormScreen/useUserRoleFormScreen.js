@@ -17,6 +17,8 @@ import {
 import { humanizeIdentifier } from '@utils';
 
 const MAX_REFERENCE_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -29,6 +31,30 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
 };
 
 const normalizeRoleName = (value) => String(value ?? '').trim().toUpperCase();
+
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
+  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+};
+
+const buildReferenceParams = (tenantId) => {
+  const params = {
+    page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+    limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
+  };
+  const normalizedTenantId = String(tenantId ?? '').trim();
+  if (normalizedTenantId) {
+    params.tenant_id = normalizedTenantId;
+  }
+  return params;
+};
 
 const useUserRoleFormScreen = () => {
   const { t } = useI18n();
@@ -229,7 +255,7 @@ const useUserRoleFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
+    listTenants(buildReferenceParams());
   }, [
     isResolved,
     canManageUserRoles,
@@ -283,11 +309,11 @@ const useUserRoleFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
+    listFacilities(buildReferenceParams(trimmedTenantId));
     resetUsers();
-    listUsers({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
+    listUsers(buildReferenceParams(trimmedTenantId));
     resetRoles();
-    listRoles({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
+    listRoles(buildReferenceParams(trimmedTenantId));
   }, [
     isResolved,
     canManageUserRoles,
@@ -512,7 +538,7 @@ const useUserRoleFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (!isResolved || !canManageUserRoles || isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
+    listTenants(buildReferenceParams());
   }, [
     isResolved,
     canManageUserRoles,
@@ -525,31 +551,19 @@ const useUserRoleFormScreen = () => {
   const handleRetryFacilities = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetFacilities();
-    listFacilities({
-      page: 1,
-      limit: MAX_REFERENCE_FETCH_LIMIT,
-      tenant_id: trimmedTenantId || undefined,
-    });
+    listFacilities(buildReferenceParams(trimmedTenantId));
   }, [isResolved, canManageUserRoles, listFacilities, resetFacilities, trimmedTenantId]);
 
   const handleRetryUsers = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetUsers();
-    listUsers({
-      page: 1,
-      limit: MAX_REFERENCE_FETCH_LIMIT,
-      tenant_id: trimmedTenantId || undefined,
-    });
+    listUsers(buildReferenceParams(trimmedTenantId));
   }, [isResolved, canManageUserRoles, listUsers, resetUsers, trimmedTenantId]);
 
   const handleRetryRoles = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetRoles();
-    listRoles({
-      page: 1,
-      limit: MAX_REFERENCE_FETCH_LIMIT,
-      tenant_id: trimmedTenantId || undefined,
-    });
+    listRoles(buildReferenceParams(trimmedTenantId));
   }, [isResolved, canManageUserRoles, listRoles, resetRoles, trimmedTenantId]);
 
   return {

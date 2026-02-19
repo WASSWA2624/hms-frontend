@@ -98,15 +98,24 @@ describe('useApiKeyPermissionListScreen', () => {
     asyncStorage.setItem.mockResolvedValue(true);
   });
 
-  it('loads list and references with capped limit 100', () => {
+  it('loads list and references with numeric params capped at 100', () => {
     renderHook(() => useApiKeyPermissionListScreen());
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [listParams] = mockList.mock.calls[0];
+    expect(typeof listParams.page).toBe('number');
+    expect(typeof listParams.limit).toBe('number');
     expect(mockResetApiKeys).toHaveBeenCalled();
     expect(mockListApiKeys).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [apiKeyParams] = mockListApiKeys.mock.calls[0];
+    expect(typeof apiKeyParams.page).toBe('number');
+    expect(typeof apiKeyParams.limit).toBe('number');
     expect(mockResetPermissions).toHaveBeenCalled();
     expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [permissionParams] = mockListPermissions.mock.calls[0];
+    expect(typeof permissionParams.page).toBe('number');
+    expect(typeof permissionParams.limit).toBe('number');
   });
 
   it('applies tenant scope only to reference lookups', () => {
@@ -122,6 +131,19 @@ describe('useApiKeyPermissionListScreen', () => {
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(mockListApiKeys).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+  });
+
+  it('does not fetch list or references while offline', () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+
+    renderHook(() => useApiKeyPermissionListScreen());
+
+    expect(mockReset).not.toHaveBeenCalled();
+    expect(mockList).not.toHaveBeenCalled();
+    expect(mockResetApiKeys).not.toHaveBeenCalled();
+    expect(mockListApiKeys).not.toHaveBeenCalled();
+    expect(mockResetPermissions).not.toHaveBeenCalled();
+    expect(mockListPermissions).not.toHaveBeenCalled();
   });
 
   it('supports all-field and scoped search', () => {
@@ -297,4 +319,3 @@ describe('useApiKeyPermissionListScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/settings/api-key-permissions');
   });
 });
-

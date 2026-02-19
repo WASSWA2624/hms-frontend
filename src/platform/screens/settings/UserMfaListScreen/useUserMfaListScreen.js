@@ -23,6 +23,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = MAX_FETCH_LIMIT;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'user', 'channel', 'enabled']);
@@ -201,9 +203,15 @@ const compareByField = (leftUserMfa, rightUserMfa, field, direction, resolveUser
   return direction === 'desc' ? result * -1 : result;
 };
 
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
 const normalizeFetchLimit = (value) => {
   const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return MAX_FETCH_LIMIT;
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
   return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
@@ -472,12 +480,12 @@ const useUserMfaListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
-    if (!isResolved || !canManageUserMfas) return;
+    if (!isResolved || !canManageUserMfas || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
     const params = {
-      page: 1,
-      limit: normalizeFetchLimit(MAX_FETCH_LIMIT),
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
     };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
@@ -488,6 +496,7 @@ const useUserMfaListScreen = () => {
   }, [
     isResolved,
     canManageUserMfas,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     reset,
@@ -495,12 +504,12 @@ const useUserMfaListScreen = () => {
   ]);
 
   const fetchReferenceUsers = useCallback(() => {
-    if (!isResolved || !canManageUserMfas) return;
+    if (!isResolved || !canManageUserMfas || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
     const params = {
-      page: 1,
-      limit: normalizeFetchLimit(MAX_FETCH_LIMIT),
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
     };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
@@ -511,6 +520,7 @@ const useUserMfaListScreen = () => {
   }, [
     isResolved,
     canManageUserMfas,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     resetUsers,
@@ -801,7 +811,9 @@ const useUserMfaListScreen = () => {
   }, [getNextFilterId]);
 
   const resolveUserMfaById = useCallback((userMfaIdValue) => (
-    scopedRawItems.find((userMfa) => userMfa?.id === userMfaIdValue) ?? null
+    scopedRawItems.find(
+      (userMfa) => normalizeValue(userMfa?.id) === normalizeValue(userMfaIdValue)
+    ) ?? null
   ), [scopedRawItems]);
 
   const canAccessUserMfaRecord = useCallback((userMfa) => {

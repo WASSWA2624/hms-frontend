@@ -30,8 +30,9 @@ const mockT = (key) => {
   const m = {
     'rolePermission.detail.title': 'Role Permission Details',
     'rolePermission.detail.idLabel': 'Role permission ID',
-    'rolePermission.detail.roleIdLabel': 'Role',
-    'rolePermission.detail.permissionIdLabel': 'Permission',
+    'rolePermission.detail.roleLabel': 'Role',
+    'rolePermission.detail.permissionLabel': 'Permission',
+    'rolePermission.detail.tenantLabel': 'Tenant',
     'rolePermission.detail.createdLabel': 'Created',
     'rolePermission.detail.updatedLabel': 'Updated',
     'rolePermission.detail.errorTitle': 'Failed to load role permission',
@@ -56,6 +57,10 @@ const mockT = (key) => {
 const baseHook = {
   id: 'rp-1',
   rolePermission: null,
+  roleLabel: '',
+  permissionLabel: '',
+  tenantLabel: '',
+  canViewTechnicalIds: false,
   isLoading: false,
   hasError: false,
   errorMessage: null,
@@ -143,6 +148,10 @@ describe('RolePermissionDetailScreen', () => {
     it('renders role permission details (Web)', () => {
       useRolePermissionDetailScreen.mockReturnValue({
         ...baseHook,
+        canViewTechnicalIds: true,
+        roleLabel: 'Admin',
+        permissionLabel: 'Manage users',
+        tenantLabel: 'Main tenant',
         rolePermission: {
           id: 'rp-1',
           role_id: 'r1',
@@ -159,6 +168,23 @@ describe('RolePermissionDetailScreen', () => {
       expect(getByTestId('role-permission-detail-created')).toBeTruthy();
       expect(getByTestId('role-permission-detail-updated')).toBeTruthy();
     });
+
+    it('hides technical ID for non-global users (Web)', () => {
+      useRolePermissionDetailScreen.mockReturnValue({
+        ...baseHook,
+        canViewTechnicalIds: false,
+        roleLabel: 'Admin',
+        permissionLabel: 'Manage users',
+        tenantLabel: 'Main tenant',
+        rolePermission: {
+          id: 'rp-1',
+          role_id: 'r1',
+          permission_id: 'p1',
+        },
+      });
+      const { queryByTestId } = renderWithTheme(<RolePermissionDetailScreenWeb />);
+      expect(queryByTestId('role-permission-detail-id')).toBeNull();
+    });
   });
 
   describe('inline states', () => {
@@ -167,6 +193,9 @@ describe('RolePermissionDetailScreen', () => {
         ...baseHook,
         hasError: true,
         errorMessage: 'Error',
+        roleLabel: 'Admin',
+        permissionLabel: 'Manage users',
+        tenantLabel: 'Main tenant',
         rolePermission: { id: 'rp-1', role_id: 'r1', permission_id: 'p1' },
       });
       const { getByTestId } = renderWithTheme(<RolePermissionDetailScreenWeb />);
@@ -177,6 +206,9 @@ describe('RolePermissionDetailScreen', () => {
       useRolePermissionDetailScreen.mockReturnValue({
         ...baseHook,
         isOffline: true,
+        roleLabel: 'Admin',
+        permissionLabel: 'Manage users',
+        tenantLabel: 'Main tenant',
         rolePermission: { id: 'rp-1', role_id: 'r1', permission_id: 'p1' },
       });
       const { getByTestId } = renderWithTheme(<RolePermissionDetailScreenWeb />);
@@ -188,6 +220,9 @@ describe('RolePermissionDetailScreen', () => {
     it('has accessibility labels (Web)', () => {
       useRolePermissionDetailScreen.mockReturnValue({
         ...baseHook,
+        roleLabel: 'Admin',
+        permissionLabel: 'Manage users',
+        tenantLabel: 'Main tenant',
         rolePermission: {
           id: 'rp-1',
           role_id: 'r1',

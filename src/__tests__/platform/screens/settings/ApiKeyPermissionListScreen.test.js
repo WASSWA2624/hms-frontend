@@ -13,6 +13,25 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
 }));
 
+jest.mock('@platform/components', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const actual = jest.requireActual('@platform/components');
+
+  return {
+    ...actual,
+    DataTable: ({ testID, searchBar, filterBar, statusContent, pagination, tableNavigation }) => (
+      <View testID={testID}>
+        {searchBar}
+        {filterBar}
+        {statusContent}
+        {pagination}
+        {tableNavigation}
+      </View>
+    ),
+  };
+});
+
 jest.mock('@platform/screens/settings/ApiKeyPermissionListScreen/useApiKeyPermissionListScreen', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -122,6 +141,46 @@ describe('ApiKeyPermissionListScreen', () => {
     expect(getByTestId('api-key-permission-table')).toBeTruthy();
   });
 
+  it('keeps desktop filter panel collapsed by default', () => {
+    useApiKeyPermissionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [
+        {
+          id: 'akp-1',
+          api_key_id: 'key-1',
+          permission_id: 'perm-1',
+        },
+      ],
+      totalItems: 1,
+    });
+
+    const { queryByText } = renderWithTheme(<ApiKeyPermissionListScreenWeb />);
+    expect(queryByText('apiKeyPermission.list.filterLogicLabel')).toBeNull();
+  });
+
+  it('keeps mobile filter panel expanded by default', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+    useApiKeyPermissionListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [
+        {
+          id: 'akp-1',
+          api_key_id: 'key-1',
+          permission_id: 'perm-1',
+        },
+      ],
+      totalItems: 1,
+    });
+
+    const { getByText } = renderWithTheme(<ApiKeyPermissionListScreenWeb />);
+    expect(getByText('apiKeyPermission.list.filterLogicLabel')).toBeTruthy();
+  });
+
   it('renders list items on web in mobile mode', () => {
     mockUseWindowDimensions.mockReturnValue({
       width: 420,
@@ -186,4 +245,3 @@ describe('ApiKeyPermissionListScreen', () => {
     expect(STATES.SUCCESS).toBe('success');
   });
 });
-

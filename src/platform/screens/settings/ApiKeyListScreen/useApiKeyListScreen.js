@@ -22,6 +22,8 @@ const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
 const MAX_FETCH_LIMIT = 100;
+const DEFAULT_FETCH_PAGE = 1;
+const DEFAULT_FETCH_LIMIT = MAX_FETCH_LIMIT;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'name', 'user', 'tenant', 'status']);
@@ -257,9 +259,15 @@ const compareByField = (leftApiKey, rightApiKey, field, direction, canViewTechni
   return direction === 'desc' ? result * -1 : result;
 };
 
+const normalizeFetchPage = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_PAGE;
+  return Math.max(DEFAULT_FETCH_PAGE, Math.trunc(numeric));
+};
+
 const normalizeFetchLimit = (value) => {
   const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return MAX_FETCH_LIMIT;
+  if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
   return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
@@ -325,6 +333,11 @@ const useApiKeyListScreen = () => {
     () => (Array.isArray(data) ? data : (data?.items ?? [])),
     [data]
   );
+  const scopedItems = useMemo(() => {
+    if (canManageAllTenants) return rawItems;
+    if (!normalizedTenantId) return [];
+    return rawItems.filter((apiKey) => normalizeValue(apiKey?.tenant_id) === normalizedTenantId);
+  }, [canManageAllTenants, normalizedTenantId, rawItems]);
 
   const normalizedFilters = useMemo(
     () => sanitizeFilters(filters, getNextFilterId),
@@ -346,7 +359,7 @@ const useApiKeyListScreen = () => {
     const hasSearch = normalizedSearch.length > 0;
     const hasFilters = activeFilters.length > 0;
 
-    return rawItems.filter((apiKey) => {
+    return scopedItems.filter((apiKey) => {
       if (hasSearch && !matchesApiKeySearch(
         apiKey,
         normalizedSearch,
@@ -371,7 +384,7 @@ const useApiKeyListScreen = () => {
       return matches.every(Boolean);
     });
   }, [
-    rawItems,
+    scopedItems,
     search,
     normalizedSearchScope,
     activeFilters,
@@ -406,7 +419,7 @@ const useApiKeyListScreen = () => {
   }, [items, page, pageSize]);
 
   const hasActiveSearchOrFilter = normalizeValue(search).length > 0 || activeFilters.length > 0;
-  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && rawItems.length > 0;
+  const hasNoResults = hasActiveSearchOrFilter && items.length === 0 && scopedItems.length > 0;
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'apiKey.list.loadError'),
@@ -419,12 +432,12 @@ const useApiKeyListScreen = () => {
   }, [notice]);
 
   const fetchList = useCallback(() => {
-    if (!isResolved || !canManageApiKeys) return;
+    if (!isResolved || !canManageApiKeys || isOffline) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
 
     const params = {
-      page: 1,
-      limit: normalizeFetchLimit(MAX_FETCH_LIMIT),
+      page: normalizeFetchPage(DEFAULT_FETCH_PAGE),
+      limit: normalizeFetchLimit(DEFAULT_FETCH_LIMIT),
     };
 
     if (!canManageAllTenants) {
@@ -436,6 +449,7 @@ const useApiKeyListScreen = () => {
   }, [
     isResolved,
     canManageApiKeys,
+    isOffline,
     canManageAllTenants,
     normalizedTenantId,
     reset,
@@ -721,7 +735,7 @@ const useApiKeyListScreen = () => {
   }, [getNextFilterId]);
 
   const resolveApiKeyById = useCallback((apiKeyIdValue) => (
-    items.find((apiKey) => apiKey?.id === apiKeyIdValue) ?? null
+    items.find((apiKey) => normalizeValue(apiKey?.id) === apiKeyIdValue) ?? null
   ), [items]);
 
   const canAccessApiKeyRecord = useCallback((apiKey) => {
@@ -729,7 +743,7 @@ const useApiKeyListScreen = () => {
     if (canManageAllTenants) return true;
 
     const apiKeyTenantId = normalizeValue(apiKey?.tenant_id);
-    if (!apiKeyTenantId || !normalizedTenantId) return true;
+    if (!apiKeyTenantId || !normalizedTenantId) return false;
     return apiKeyTenantId === normalizedTenantId;
   }, [canManageAllTenants, normalizedTenantId]);
 

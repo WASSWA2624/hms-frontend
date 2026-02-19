@@ -2,7 +2,7 @@
  * UserRoleListScreen - Web
  * Desktop/tablet renders a customizable table; mobile web renders compact list items.
  */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import {
   Button,
@@ -185,8 +185,12 @@ const UserRoleListScreenWeb = () => {
   } = useUserRoleListScreen();
 
   const rows = pagedItems;
-  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(false);
   const isTableMode = Number(width) >= TABLE_MODE_BREAKPOINT;
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(() => isTableMode);
+
+  useEffect(() => {
+    setIsFilterPanelCollapsed(Boolean(isTableMode));
+  }, [isTableMode]);
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline && rows.length === 0;
   const showOfflineBanner = !isLoading && isOffline && rows.length > 0;

@@ -13,6 +13,25 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
 }));
 
+jest.mock('@platform/components', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const actual = jest.requireActual('@platform/components');
+
+  return {
+    ...actual,
+    DataTable: ({ testID, searchBar, filterBar, statusContent, pagination, tableNavigation }) => (
+      <View testID={testID}>
+        {searchBar}
+        {filterBar}
+        {statusContent}
+        {pagination}
+        {tableNavigation}
+      </View>
+    ),
+  };
+});
+
 jest.mock('@platform/screens/settings/ApiKeyListScreen/useApiKeyListScreen', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -50,6 +69,7 @@ const baseHook = {
   filterLogicOptions: [{ value: 'AND', label: 'AND' }],
   canAddFilter: true,
   hasNoResults: false,
+  hasActiveSearchOrFilter: false,
   sortField: 'name',
   sortDirection: 'asc',
   columnOrder: ['name', 'user', 'tenant', 'status'],
@@ -113,6 +133,34 @@ describe('ApiKeyListScreen', () => {
 
     const { getByTestId } = renderWithTheme(<ApiKeyListScreenWeb />);
     expect(getByTestId('api-key-table')).toBeTruthy();
+  });
+
+  it('keeps desktop filter panel collapsed by default', () => {
+    useApiKeyListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{ id: 'k-1', name: 'Integration Key', user_name: 'Alice', tenant_name: 'North', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { queryByText } = renderWithTheme(<ApiKeyListScreenWeb />);
+    expect(queryByText('apiKey.list.filterLogicLabel')).toBeNull();
+  });
+
+  it('keeps mobile filter panel expanded by default', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+    useApiKeyListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{ id: 'k-1', name: 'Integration Key', user_name: 'Alice', tenant_name: 'North', is_active: true }],
+      totalItems: 1,
+    });
+
+    const { getByText } = renderWithTheme(<ApiKeyListScreenWeb />);
+    expect(getByText('apiKey.list.filterLogicLabel')).toBeTruthy();
   });
 
   it('renders list items on web in mobile mode', () => {

@@ -95,9 +95,9 @@ describe('useRolePermissionFormScreen', () => {
   it('lists roles and permissions on mount', () => {
     renderHook(() => useRolePermissionFormScreen());
     expect(mockResetRoles).toHaveBeenCalled();
-    expect(mockListRoles).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListRoles).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(mockResetPermissions).toHaveBeenCalled();
-    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('hydrates form state from role permission data', () => {
@@ -300,14 +300,14 @@ describe('useRolePermissionFormScreen', () => {
     const { result } = renderHook(() => useRolePermissionFormScreen());
     result.current.onRetryRoles();
     expect(mockResetRoles).toHaveBeenCalled();
-    expect(mockListRoles).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListRoles).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 
   it('onRetryPermissions reloads permissions list', () => {
     const { result } = renderHook(() => useRolePermissionFormScreen());
     result.current.onRetryPermissions();
     expect(mockResetPermissions).toHaveBeenCalled();
-    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 200 });
+    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
   });
 });
 

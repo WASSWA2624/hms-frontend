@@ -114,6 +114,17 @@ describe('UserRoleListScreen', () => {
     expect(getByTestId('user-role-table')).toBeTruthy();
   });
 
+  it('keeps desktop filters collapsed by default', () => {
+    useUserRoleListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{ id: 'ur-1', user_name: 'Alice', role_name: 'Admin' }],
+      totalItems: 1,
+    });
+
+    const { queryByTestId } = renderWithTheme(<UserRoleListScreenWeb />);
+    expect(queryByTestId('user-role-filter-body')).toBeNull();
+  });
+
   it('renders list items on web in mobile mode', () => {
     mockUseWindowDimensions.mockReturnValue({
       width: 420,

@@ -99,13 +99,19 @@ describe('useUserMfaListScreen', () => {
     return rendered;
   };
 
-  it('loads list and users with capped numeric limit 100', async () => {
+  it('loads list and users with numeric params capped at 100', async () => {
     await renderUseUserMfaListScreen();
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [listParams] = mockList.mock.calls[0];
+    expect(typeof listParams.page).toBe('number');
+    expect(typeof listParams.limit).toBe('number');
     expect(mockResetUsers).toHaveBeenCalled();
     expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100 });
+    const [userParams] = mockListUsers.mock.calls[0];
+    expect(typeof userParams.page).toBe('number');
+    expect(typeof userParams.limit).toBe('number');
   });
 
   it('applies tenant scope to list and user lookups for tenant admins', async () => {
@@ -120,6 +126,17 @@ describe('useUserMfaListScreen', () => {
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
     expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
+  });
+
+  it('does not fetch list or users while offline', async () => {
+    useNetwork.mockReturnValue({ isOffline: true });
+
+    await renderUseUserMfaListScreen();
+
+    expect(mockReset).not.toHaveBeenCalled();
+    expect(mockList).not.toHaveBeenCalled();
+    expect(mockResetUsers).not.toHaveBeenCalled();
+    expect(mockListUsers).not.toHaveBeenCalled();
   });
 
   it('supports all-field and scoped search', async () => {

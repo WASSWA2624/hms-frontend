@@ -116,6 +116,23 @@ describe('UserMfaListScreen', () => {
     expect(getByTestId('user-mfa-table')).toBeTruthy();
   });
 
+  it('renders mobile filter panel controls in list mode', () => {
+    mockUseWindowDimensions.mockReturnValue({
+      width: 420,
+      height: 900,
+      scale: 1,
+      fontScale: 1,
+    });
+    useUserMfaListScreen.mockReturnValue({
+      ...baseHook,
+      pagedItems: [{ id: 'mfa-1', user_name: 'Alice', channel: 'EMAIL', is_enabled: true }],
+      totalItems: 1,
+    });
+
+    const { getByTestId } = renderWithTheme(<UserMfaListScreenWeb />);
+    expect(getByTestId('user-mfa-filter-logic')).toBeTruthy();
+  });
+
   it('renders list items on web in mobile mode', () => {
     mockUseWindowDimensions.mockReturnValue({
       width: 420,

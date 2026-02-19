@@ -53,13 +53,60 @@ const mockT = (key) => {
 
 const baseHook = {
   items: [],
+  pagedItems: [],
+  totalItems: 0,
+  totalPages: 1,
+  page: 1,
+  pageSize: 10,
+  pageSizeOptions: [{ value: '10', label: '10' }],
+  density: 'compact',
+  densityOptions: [{ value: 'compact', label: 'Compact' }],
+  search: '',
+  searchScope: 'all',
+  searchScopeOptions: [{ value: 'all', label: 'All fields' }],
+  filters: [{ id: 'filter-1', field: 'role', operator: 'contains', value: '' }],
+  filterFieldOptions: [{ value: 'role', label: 'Role' }],
+  filterLogic: 'AND',
+  filterLogicOptions: [{ value: 'AND', label: 'AND' }],
+  canAddFilter: true,
+  hasNoResults: false,
+  hasActiveSearchOrFilter: false,
+  sortField: 'role',
+  sortDirection: 'asc',
+  columnOrder: ['role', 'permission', 'tenant'],
+  visibleColumns: ['role', 'permission', 'tenant'],
+  isTableSettingsOpen: false,
   isLoading: false,
   hasError: false,
   errorMessage: null,
   isOffline: false,
+  canViewTechnicalIds: false,
   noticeMessage: null,
+  resolveRoleLabel: jest.fn((item) => item?.role_name || 'Role'),
+  resolvePermissionLabel: jest.fn((item) => item?.permission_name || 'Permission'),
+  resolveTenantLabel: jest.fn((item) => item?.tenant_name || 'Tenant'),
   onDismissNotice: jest.fn(),
   onRetry: jest.fn(),
+  onSearch: jest.fn(),
+  onSearchScopeChange: jest.fn(),
+  onFilterLogicChange: jest.fn(),
+  onFilterFieldChange: jest.fn(),
+  onFilterOperatorChange: jest.fn(),
+  onFilterValueChange: jest.fn(),
+  onAddFilter: jest.fn(),
+  onRemoveFilter: jest.fn(),
+  onClearSearchAndFilters: jest.fn(),
+  onSort: jest.fn(),
+  onPageChange: jest.fn(),
+  onPageSizeChange: jest.fn(),
+  onDensityChange: jest.fn(),
+  onToggleColumnVisibility: jest.fn(),
+  onMoveColumnLeft: jest.fn(),
+  onMoveColumnRight: jest.fn(),
+  onOpenTableSettings: jest.fn(),
+  onCloseTableSettings: jest.fn(),
+  onResetTablePreferences: jest.fn(),
+  resolveFilterOperatorOptions: jest.fn(() => [{ value: 'contains', label: 'Contains' }]),
   onItemPress: jest.fn(),
   onDelete: jest.fn(),
   onAdd: jest.fn(),
@@ -101,7 +148,8 @@ describe('RolePermissionListScreen', () => {
     it('shows empty state (Web)', () => {
       useRolePermissionListScreen.mockReturnValue({
         ...baseHook,
-        items: [],
+        pagedItems: [],
+        totalItems: 0,
         isLoading: false,
         hasError: false,
         isOffline: false,
@@ -130,7 +178,8 @@ describe('RolePermissionListScreen', () => {
         isLoading: false,
         hasError: false,
         isOffline: true,
-        items: [],
+        pagedItems: [],
+        totalItems: 0,
       });
       const { getByTestId } = renderWithTheme(<RolePermissionListScreenWeb />);
       expect(getByTestId('role-permission-list-offline')).toBeTruthy();
@@ -141,9 +190,10 @@ describe('RolePermissionListScreen', () => {
     it('renders items (Web)', () => {
       useRolePermissionListScreen.mockReturnValue({
         ...baseHook,
-        items: [
+        pagedItems: [
           { id: '1', role_id: 'r1', permission_id: 'p1' },
         ],
+        totalItems: 1,
       });
       const { getByTestId } = renderWithTheme(<RolePermissionListScreenWeb />);
       expect(getByTestId('role-permission-item-1')).toBeTruthy();
@@ -175,7 +225,8 @@ describe('RolePermissionListScreen', () => {
     it('has accessibility label (Web)', () => {
       useRolePermissionListScreen.mockReturnValue({
         ...baseHook,
-        items: [{ id: '1', role_id: 'r1', permission_id: 'p1' }],
+        pagedItems: [{ id: '1', role_id: 'r1', permission_id: 'p1' }],
+        totalItems: 1,
       });
       const { getByTestId } = renderWithTheme(<RolePermissionListScreenWeb />);
       const list = getByTestId('role-permission-list');
