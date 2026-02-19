@@ -1,6 +1,5 @@
 /**
  * ApiKeyPermissionDetailScreen - Web
- * File: ApiKeyPermissionDetailScreen.web.jsx
  */
 import React from 'react';
 import {
@@ -9,7 +8,6 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -18,12 +16,12 @@ import {
 import { useI18n } from '@hooks';
 import { formatDateTime } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
   StyledDetailGrid,
   StyledDetailItem,
   StyledInlineStates,
-  StyledActions,
 } from './ApiKeyPermissionDetailScreen.web.styles';
 import useApiKeyPermissionDetailScreen from './useApiKeyPermissionDetailScreen';
 
@@ -31,6 +29,10 @@ const ApiKeyPermissionDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
     apiKeyPermission,
+    apiKeyLabel,
+    permissionLabel,
+    tenantLabel,
+    canViewTechnicalIds,
     isLoading,
     hasError,
     errorMessage,
@@ -71,7 +73,6 @@ const ApiKeyPermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -97,7 +98,6 @@ const ApiKeyPermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -125,7 +125,6 @@ const ApiKeyPermissionDetailScreenWeb = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('apiKeyPermission.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="api-key-permission-detail-back"
             >
               {t('common.back')}
@@ -138,8 +137,6 @@ const ApiKeyPermissionDetailScreenWeb = () => {
 
   const createdAt = formatDateTime(apiKeyPermission.created_at, locale);
   const updatedAt = formatDateTime(apiKeyPermission.updated_at, locale);
-  const apiKeyId = apiKeyPermission?.api_key_id ?? '';
-  const permissionId = apiKeyPermission?.permission_id ?? '';
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -147,7 +144,6 @@ const ApiKeyPermissionDetailScreenWeb = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -159,7 +155,7 @@ const ApiKeyPermissionDetailScreenWeb = () => {
     <StyledContainer role="main" aria-label={t('apiKeyPermission.detail.title')}>
       <StyledContent>
         <StyledInlineStates>
-          {showInlineError && (
+          {showInlineError ? (
             <ErrorState
               size={ErrorStateSizes.SMALL}
               title={t('apiKeyPermission.detail.errorTitle')}
@@ -167,8 +163,9 @@ const ApiKeyPermissionDetailScreenWeb = () => {
               action={retryAction}
               testID="api-key-permission-detail-error-banner"
             />
-          )}
-          {showInlineOffline && (
+          ) : null}
+
+          {showInlineOffline ? (
             <OfflineState
               size={OfflineStateSizes.SMALL}
               title={t('shell.banners.offline.title')}
@@ -176,32 +173,51 @@ const ApiKeyPermissionDetailScreenWeb = () => {
               action={retryAction}
               testID="api-key-permission-detail-offline-banner"
             />
-          )}
+          ) : null}
         </StyledInlineStates>
-        <Card variant="outlined" accessibilityLabel={t('apiKeyPermission.detail.title')} testID="api-key-permission-detail-card">
+
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('apiKeyPermission.detail.title')}
+          testID="api-key-permission-detail-card"
+        >
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('apiKeyPermission.detail.idLabel')}</Text>
-              <Text variant="body" testID="api-key-permission-detail-id">
-                {apiKeyPermission.id}
-              </Text>
-            </StyledDetailItem>
-            {apiKeyId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('apiKeyPermission.detail.apiKeyIdLabel')}</Text>
+                <Text variant="label">{t('apiKeyPermission.detail.idLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-id">
+                  {apiKeyPermission.id}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+
+            {apiKeyLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.apiKeyLabel')}</Text>
                 <Text variant="body" testID="api-key-permission-detail-api-key">
-                  {apiKeyId}
+                  {apiKeyLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {permissionId ? (
+
+            {permissionLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('apiKeyPermission.detail.permissionIdLabel')}</Text>
+                <Text variant="label">{t('apiKeyPermission.detail.permissionLabel')}</Text>
                 <Text variant="body" testID="api-key-permission-detail-permission">
-                  {permissionId}
+                  {permissionLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
+
+            {tenantLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKeyPermission.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="api-key-permission-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+
             {createdAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('apiKeyPermission.detail.createdLabel')}</Text>
@@ -210,6 +226,7 @@ const ApiKeyPermissionDetailScreenWeb = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
+
             {updatedAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('apiKeyPermission.detail.updatedLabel')}</Text>
@@ -220,6 +237,7 @@ const ApiKeyPermissionDetailScreenWeb = () => {
             ) : null}
           </StyledDetailGrid>
         </Card>
+
         <StyledActions>
           <Button
             variant="surface"
@@ -227,38 +245,39 @@ const ApiKeyPermissionDetailScreenWeb = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('apiKeyPermission.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="api-key-permission-detail-back"
             disabled={isLoading}
           >
             {t('common.back')}
           </Button>
-          {onEdit && (
+
+          {onEdit ? (
             <Button
               variant="surface"
               size="small"
               onPress={onEdit}
               accessibilityLabel={t('apiKeyPermission.detail.edit')}
               accessibilityHint={t('apiKeyPermission.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="api-key-permission-detail-edit"
               disabled={isLoading}
             >
               {t('apiKeyPermission.detail.edit')}
             </Button>
-          )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('apiKeyPermission.detail.delete')}
-            accessibilityHint={t('apiKeyPermission.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="api-key-permission-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          ) : null}
+
+          {onDelete ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('apiKeyPermission.detail.delete')}
+              accessibilityHint={t('apiKeyPermission.detail.deleteHint')}
+              testID="api-key-permission-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

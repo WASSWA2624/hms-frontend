@@ -1,4 +1,4 @@
-﻿/**
+/**
  * UserRoleDetailScreen Android Styles
  * File: UserRoleDetailScreen.android.styles.jsx
  */

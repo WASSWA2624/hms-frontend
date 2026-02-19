@@ -1,6 +1,5 @@
-﻿/**
+/**
  * UserRoleDetailScreen - iOS
- * File: UserRoleDetailScreen.ios.jsx
  */
 import React from 'react';
 import {
@@ -9,7 +8,6 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -31,6 +29,11 @@ const UserRoleDetailScreenIOS = () => {
   const { t, locale } = useI18n();
   const {
     userRole,
+    userLabel,
+    roleLabel,
+    tenantLabel,
+    facilityLabel,
+    canViewTechnicalIds,
     isLoading,
     hasError,
     errorMessage,
@@ -71,7 +74,6 @@ const UserRoleDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -97,7 +99,6 @@ const UserRoleDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -125,7 +126,6 @@ const UserRoleDetailScreenIOS = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('userRole.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="user-role-detail-back"
             >
               {t('common.back')}
@@ -136,12 +136,8 @@ const UserRoleDetailScreenIOS = () => {
     );
   }
 
-  const createdAt = formatDateTime(userRole.created_at, locale);
-  const updatedAt = formatDateTime(userRole.updated_at, locale);
-  const userId = userRole?.user_id ?? '';
-  const roleId = userRole?.role_id ?? '';
-  const tenantId = userRole?.tenant_id ?? '';
-  const facilityId = userRole?.facility_id ?? '';
+  const createdAt = formatDateTime(userRole?.created_at, locale);
+  const updatedAt = formatDateTime(userRole?.updated_at, locale);
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -149,7 +145,6 @@ const UserRoleDetailScreenIOS = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -161,7 +156,7 @@ const UserRoleDetailScreenIOS = () => {
     <StyledContainer>
       <StyledContent>
         <StyledInlineStates>
-          {showInlineError && (
+          {showInlineError ? (
             <ErrorState
               size={ErrorStateSizes.SMALL}
               title={t('userRole.detail.errorTitle')}
@@ -169,8 +164,9 @@ const UserRoleDetailScreenIOS = () => {
               action={retryAction}
               testID="user-role-detail-error-banner"
             />
-          )}
-          {showInlineOffline && (
+          ) : null}
+
+          {showInlineOffline ? (
             <OfflineState
               size={OfflineStateSizes.SMALL}
               title={t('shell.banners.offline.title')}
@@ -178,48 +174,60 @@ const UserRoleDetailScreenIOS = () => {
               action={retryAction}
               testID="user-role-detail-offline-banner"
             />
-          )}
+          ) : null}
         </StyledInlineStates>
-        <Card variant="outlined" accessibilityLabel={t('userRole.detail.title')} testID="user-role-detail-card">
+
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('userRole.detail.title')}
+          testID="user-role-detail-card"
+        >
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('userRole.detail.idLabel')}</Text>
-              <Text variant="body" testID="user-role-detail-id">
-                {userRole.id}
-              </Text>
-            </StyledDetailItem>
-            {userId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userRole.detail.userIdLabel')}</Text>
+                <Text variant="label">{t('userRole.detail.idLabel')}</Text>
+                <Text variant="body" testID="user-role-detail-id">
+                  {userRole.id}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+
+            {userLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('userRole.detail.userLabel')}</Text>
                 <Text variant="body" testID="user-role-detail-user">
-                  {userId}
+                  {userLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {roleId ? (
+
+            {roleLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userRole.detail.roleIdLabel')}</Text>
+                <Text variant="label">{t('userRole.detail.roleLabel')}</Text>
                 <Text variant="body" testID="user-role-detail-role">
-                  {roleId}
+                  {roleLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {tenantId ? (
+
+            {tenantLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userRole.detail.tenantIdLabel')}</Text>
+                <Text variant="label">{t('userRole.detail.tenantLabel')}</Text>
                 <Text variant="body" testID="user-role-detail-tenant">
-                  {tenantId}
+                  {tenantLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {facilityId ? (
+
+            {facilityLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('userRole.detail.facilityIdLabel')}</Text>
+                <Text variant="label">{t('userRole.detail.facilityLabel')}</Text>
                 <Text variant="body" testID="user-role-detail-facility">
-                  {facilityId}
+                  {facilityLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
+
             {createdAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('userRole.detail.createdLabel')}</Text>
@@ -228,6 +236,7 @@ const UserRoleDetailScreenIOS = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
+
             {updatedAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('userRole.detail.updatedLabel')}</Text>
@@ -238,6 +247,7 @@ const UserRoleDetailScreenIOS = () => {
             ) : null}
           </StyledDetailGrid>
         </Card>
+
         <StyledActions>
           <Button
             variant="surface"
@@ -245,38 +255,39 @@ const UserRoleDetailScreenIOS = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('userRole.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="user-role-detail-back"
             disabled={isLoading}
           >
             {t('common.back')}
           </Button>
-          {onEdit && (
+
+          {onEdit ? (
             <Button
               variant="surface"
               size="small"
               onPress={onEdit}
               accessibilityLabel={t('userRole.detail.edit')}
               accessibilityHint={t('userRole.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="user-role-detail-edit"
               disabled={isLoading}
             >
               {t('userRole.detail.edit')}
             </Button>
-          )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('userRole.detail.delete')}
-            accessibilityHint={t('userRole.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="user-role-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          ) : null}
+
+          {onDelete ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('userRole.detail.delete')}
+              accessibilityHint={t('userRole.detail.deleteHint')}
+              testID="user-role-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

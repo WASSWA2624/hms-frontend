@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ApiKeyPermissionFormScreen - Android
  */
 import React from 'react';
@@ -7,7 +7,6 @@ import {
   Card,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -83,7 +82,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
                 accessibilityHint={t('apiKeyPermission.form.cancelHint')}
-                icon={<Icon glyph="?" size="xs" decorative />}
               >
                 {t('common.back')}
               </Button>
@@ -103,7 +101,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
       onPress={onRetryApiKeys}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="api-key-permission-form-api-key-retry"
     >
       {t('common.retry')}
@@ -116,7 +113,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
       onPress={onRetryPermissions}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="?" size="xs" decorative />}
       testID="api-key-permission-form-permission-retry"
     >
       {t('common.retry')}
@@ -179,7 +175,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
                       onPress={onGoToApiKeys}
                       accessibilityLabel={t('apiKeyPermission.form.goToApiKeys')}
                       accessibilityHint={t('apiKeyPermission.form.goToApiKeysHint')}
-                      icon={<Icon glyph="?" size="xs" decorative />}
                       testID="api-key-permission-form-go-to-api-keys"
                     >
                       {t('apiKeyPermission.form.goToApiKeys')}
@@ -228,7 +223,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
                       onPress={onGoToPermissions}
                       accessibilityLabel={t('apiKeyPermission.form.goToPermissions')}
                       accessibilityHint={t('apiKeyPermission.form.goToPermissionsHint')}
-                      icon={<Icon glyph="?" size="xs" decorative />}
                       testID="api-key-permission-form-go-to-permissions"
                     >
                       {t('apiKeyPermission.form.goToPermissions')}
@@ -261,7 +255,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
             onPress={onCancel}
             accessibilityLabel={t('apiKeyPermission.form.cancel')}
             accessibilityHint={t('apiKeyPermission.form.cancelHint')}
-            icon={<Icon glyph="?" size="xs" decorative />}
             testID="api-key-permission-form-cancel"
             disabled={isLoading}
           >
@@ -275,7 +268,6 @@ const ApiKeyPermissionFormScreenAndroid = () => {
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('apiKeyPermission.form.submitEdit') : t('apiKeyPermission.form.submitCreate')}
             accessibilityHint={isEdit ? t('apiKeyPermission.form.submitEdit') : t('apiKeyPermission.form.submitCreate')}
-            icon={<Icon glyph="?" size="xs" decorative />}
             testID="api-key-permission-form-submit"
           >
             {isEdit ? t('apiKeyPermission.form.submitEdit') : t('apiKeyPermission.form.submitCreate')}
@@ -287,3 +279,5 @@ const ApiKeyPermissionFormScreenAndroid = () => {
 };
 
 export default ApiKeyPermissionFormScreenAndroid;
+
+

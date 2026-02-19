@@ -7,11 +7,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   useI18n,
   useNetwork,
+  usePermission,
   useApiKey,
   useApiKeyPermission,
-  usePermission,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
+
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -21,6 +24,15 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t(fallbackKey) : resolved;
+};
+
+const normalizeValue = (value) => String(value ?? '').trim();
+const uniqueArray = (values = []) => [...new Set(values)];
+
+const normalizeFetchLimit = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return MAX_REFERENCE_FETCH_LIMIT;
+  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useApiKeyPermissionFormScreen = () => {
@@ -58,6 +70,7 @@ const useApiKeyPermissionFormScreen = () => {
   const canManageApiKeyPermissions = canAccessTenantSettings;
   const canCreateApiKeyPermission = canManageApiKeyPermissions;
   const canEditApiKeyPermission = canManageApiKeyPermissions;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageApiKeyPermissions && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
     () => String(scopedTenantId ?? '').trim(),
@@ -77,22 +90,80 @@ const useApiKeyPermissionFormScreen = () => {
     () => (Array.isArray(permissionData) ? permissionData : (permissionData?.items ?? [])),
     [permissionData]
   );
+  const apiKeyLookup = useMemo(() => {
+    const map = new Map();
+    apiKeyItems.forEach((apiKey) => {
+      const keyId = normalizeValue(apiKey?.id);
+      if (!keyId) return;
+      map.set(keyId, {
+        tenantId: normalizeValue(apiKey?.tenant_id || apiKey?.tenant?.id),
+      });
+    });
+    return map;
+  }, [apiKeyItems]);
+  const permissionLookup = useMemo(() => {
+    const map = new Map();
+    permissionItems.forEach((permission) => {
+      const permissionIdValue = normalizeValue(permission?.id);
+      if (!permissionIdValue) return;
+      map.set(permissionIdValue, {
+        tenantId: normalizeValue(permission?.tenant_id || permission?.tenant?.id),
+      });
+    });
+    return map;
+  }, [permissionItems]);
   const apiKeyOptions = useMemo(
     () =>
-      apiKeyItems.map((apiKey) => ({
-        value: apiKey.id,
-        label: apiKey.name ?? apiKey.label ?? apiKey.id ?? '',
+      apiKeyItems.map((apiKey, index) => ({
+        value: normalizeValue(apiKey?.id),
+        label: humanizeIdentifier(apiKey.name)
+          || humanizeIdentifier(apiKey.label)
+          || humanizeIdentifier(apiKey.display_name)
+          || humanizeIdentifier(apiKey.slug)
+          || (canViewTechnicalIds ? normalizeValue(apiKey.id) : '')
+          || t('apiKeyPermission.form.apiKeyOptionFallback', { index: index + 1 }),
       })),
-    [apiKeyItems]
+    [apiKeyItems, canViewTechnicalIds, t]
   );
   const permissionOptions = useMemo(
     () =>
-      permissionItems.map((permission) => ({
-        value: permission.id,
-        label: permission.name ?? permission.code ?? permission.id ?? '',
+      permissionItems.map((permission, index) => ({
+        value: normalizeValue(permission?.id),
+        label: humanizeIdentifier(permission.name)
+          || humanizeIdentifier(permission.code)
+          || (canViewTechnicalIds ? normalizeValue(permission.id) : '')
+          || t('apiKeyPermission.form.permissionOptionFallback', { index: index + 1 }),
       })),
-    [permissionItems]
+    [permissionItems, canViewTechnicalIds, t]
   );
+
+  const resolveTenantIdsForSelection = useCallback((nextApiKeyId, nextPermissionId, record) => {
+    const selectedApiKeyId = normalizeValue(nextApiKeyId);
+    const selectedPermissionId = normalizeValue(nextPermissionId);
+    const apiKeyContext = apiKeyLookup.get(selectedApiKeyId);
+    const permissionContext = permissionLookup.get(selectedPermissionId);
+
+    return uniqueArray(
+      [
+        normalizeValue(record?.tenant_id),
+        normalizeValue(apiKeyContext?.tenantId),
+        normalizeValue(permissionContext?.tenantId),
+      ].filter(Boolean)
+    );
+  }, [apiKeyLookup, permissionLookup]);
+
+  const canAccessTenantScopedSelection = useCallback((nextApiKeyId, nextPermissionId, record) => {
+    if (!isTenantScopedAdmin) return true;
+    if (!normalizedScopedTenantId) return false;
+
+    const tenantIds = resolveTenantIdsForSelection(nextApiKeyId, nextPermissionId, record);
+    if (tenantIds.length === 0) return false;
+    return tenantIds.every((tenantIdValue) => tenantIdValue === normalizedScopedTenantId);
+  }, [
+    isTenantScopedAdmin,
+    normalizedScopedTenantId,
+    resolveTenantIdsForSelection,
+  ]);
 
   useEffect(() => {
     if (!isResolved) return;
@@ -142,7 +213,10 @@ const useApiKeyPermissionFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageApiKeyPermissions) return;
     resetApiKeys();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -159,7 +233,10 @@ const useApiKeyPermissionFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageApiKeyPermissions) return;
     resetPermissions();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -175,15 +252,19 @@ const useApiKeyPermissionFormScreen = () => {
 
   useEffect(() => {
     if (apiKeyPermission) {
-      setApiKeyId(apiKeyPermission.api_key_id ?? '');
-      setPermissionId(apiKeyPermission.permission_id ?? '');
+      setApiKeyId(normalizeValue(apiKeyPermission.api_key_id));
+      setPermissionId(normalizeValue(apiKeyPermission.permission_id));
     }
   }, [apiKeyPermission]);
 
   useEffect(() => {
     if (!isResolved || !canManageApiKeyPermissions || !isTenantScopedAdmin || !isEdit || !apiKeyPermission) return;
-    const recordTenantId = String(apiKeyPermission?.tenant_id ?? '').trim();
-    if (recordTenantId && recordTenantId !== normalizedScopedTenantId) {
+    if (apiKeyListLoading || permissionListLoading) return;
+    if (!canAccessTenantScopedSelection(
+      apiKeyPermission?.api_key_id,
+      apiKeyPermission?.permission_id,
+      apiKeyPermission
+    )) {
       router.replace('/settings/api-key-permissions?notice=accessDenied');
     }
   }, [
@@ -192,7 +273,9 @@ const useApiKeyPermissionFormScreen = () => {
     isTenantScopedAdmin,
     isEdit,
     apiKeyPermission,
-    normalizedScopedTenantId,
+    apiKeyListLoading,
+    permissionListLoading,
+    canAccessTenantScopedSelection,
     router,
   ]);
 
@@ -201,12 +284,12 @@ const useApiKeyPermissionFormScreen = () => {
     if (apiKeyPrefillRef.current) return;
     const paramValue = Array.isArray(apiKeyIdParam) ? apiKeyIdParam[0] : apiKeyIdParam;
     if (paramValue) {
-      setApiKeyId(String(paramValue));
+      setApiKeyId(normalizeValue(paramValue));
       apiKeyPrefillRef.current = true;
       return;
     }
     if (apiKeyOptions.length === 1 && !apiKeyId) {
-      setApiKeyId(apiKeyOptions[0].value);
+      setApiKeyId(normalizeValue(apiKeyOptions[0].value));
       apiKeyPrefillRef.current = true;
     }
   }, [isEdit, apiKeyIdParam, apiKeyOptions, apiKeyId]);
@@ -216,12 +299,12 @@ const useApiKeyPermissionFormScreen = () => {
     if (permissionPrefillRef.current) return;
     const paramValue = Array.isArray(permissionIdParam) ? permissionIdParam[0] : permissionIdParam;
     if (paramValue) {
-      setPermissionId(String(paramValue));
+      setPermissionId(normalizeValue(paramValue));
       permissionPrefillRef.current = true;
       return;
     }
     if (permissionOptions.length === 1 && !permissionId) {
-      setPermissionId(permissionOptions[0].value);
+      setPermissionId(normalizeValue(permissionOptions[0].value));
       permissionPrefillRef.current = true;
     }
   }, [isEdit, permissionIdParam, permissionOptions, permissionId]);
@@ -232,8 +315,8 @@ const useApiKeyPermissionFormScreen = () => {
     router.replace('/settings/api-key-permissions?notice=accessDenied');
   }, [isResolved, canManageApiKeyPermissions, errorCode, router]);
 
-  const trimmedApiKeyId = String(apiKeyId ?? '').trim();
-  const trimmedPermissionId = String(permissionId ?? '').trim();
+  const trimmedApiKeyId = normalizeValue(apiKeyId);
+  const trimmedPermissionId = normalizeValue(permissionId);
 
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode, 'apiKeyPermission.form.submitErrorMessage'),
@@ -253,11 +336,17 @@ const useApiKeyPermissionFormScreen = () => {
   const hasApiKeys = apiKeyOptions.length > 0;
   const hasPermissions = permissionOptions.length > 0;
   const isCreateBlocked = !isEdit && (!hasApiKeys || !hasPermissions);
+  const isTenantScopedSelectionAllowed = canAccessTenantScopedSelection(
+    trimmedApiKeyId,
+    trimmedPermissionId,
+    isEdit ? apiKeyPermission : null
+  );
   const isSubmitDisabled =
     isLoading ||
     isCreateBlocked ||
     !trimmedApiKeyId ||
-    !trimmedPermissionId;
+    !trimmedPermissionId ||
+    !isTenantScopedSelectionAllowed;
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -267,6 +356,14 @@ const useApiKeyPermissionFormScreen = () => {
         return;
       }
       if (isEdit && !canEditApiKeyPermission) {
+        router.replace('/settings/api-key-permissions?notice=accessDenied');
+        return;
+      }
+      if (!canAccessTenantScopedSelection(
+        trimmedApiKeyId,
+        trimmedPermissionId,
+        isEdit ? apiKeyPermission : null
+      )) {
         router.replace('/settings/api-key-permissions?notice=accessDenied');
         return;
       }
@@ -294,7 +391,9 @@ const useApiKeyPermissionFormScreen = () => {
     trimmedPermissionId,
     canCreateApiKeyPermission,
     canEditApiKeyPermission,
+    canAccessTenantScopedSelection,
     routeApiKeyPermissionId,
+    apiKeyPermission,
     create,
     update,
     router,
@@ -315,7 +414,10 @@ const useApiKeyPermissionFormScreen = () => {
   const handleRetryApiKeys = useCallback(() => {
     if (!isResolved || !canManageApiKeyPermissions) return;
     resetApiKeys();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -332,7 +434,10 @@ const useApiKeyPermissionFormScreen = () => {
   const handleRetryPermissions = useCallback(() => {
     if (!isResolved || !canManageApiKeyPermissions) return;
     resetPermissions();
-    const params = { page: 1, limit: 200 };
+    const params = {
+      page: 1,
+      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+    };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * UserRoleDetailScreen iOS Styles
  * File: UserRoleDetailScreen.ios.styles.jsx
  */

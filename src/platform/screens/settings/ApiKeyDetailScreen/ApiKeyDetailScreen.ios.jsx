@@ -9,14 +9,13 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { formatDateTime } from '@utils';
+import { formatDateTime, humanizeIdentifier } from '@utils';
 import {
   StyledContainer,
   StyledContent,
@@ -27,6 +26,21 @@ import {
 } from './ApiKeyDetailScreen.ios.styles';
 import useApiKeyDetailScreen from './useApiKeyDetailScreen';
 
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return String(normalized).trim();
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fallbackLabel) => {
+  if (readableValue) return readableValue;
+  if (canViewTechnicalIds) return String(technicalId ?? '').trim();
+  if (String(technicalId ?? '').trim()) return fallbackLabel;
+  return '';
+};
+
 const ApiKeyDetailScreenIOS = () => {
   const { t, locale } = useI18n();
   const {
@@ -35,10 +49,9 @@ const ApiKeyDetailScreenIOS = () => {
     hasError,
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry,
     onBack,
-    onEdit,
-    onDelete,
   } = useApiKeyDetailScreen();
 
   const hasApiKey = Boolean(apiKey);
@@ -61,6 +74,7 @@ const ApiKeyDetailScreenIOS = () => {
       <StyledContainer>
         <StyledContent>
           <OfflineState
+            size={OfflineStateSizes.SMALL}
             title={t('shell.banners.offline.title')}
             description={t('shell.banners.offline.message')}
             action={(
@@ -70,7 +84,6 @@ const ApiKeyDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -96,7 +109,6 @@ const ApiKeyDetailScreenIOS = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -124,7 +136,6 @@ const ApiKeyDetailScreenIOS = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('apiKey.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="api-key-detail-back"
             >
               {t('common.back')}
@@ -139,10 +150,40 @@ const ApiKeyDetailScreenIOS = () => {
   const updatedAt = formatDateTime(apiKey.updated_at, locale);
   const lastUsedAt = formatDateTime(apiKey.last_used_at, locale);
   const expiresAt = formatDateTime(apiKey.expires_at, locale);
-  const tenantId = apiKey?.tenant_id ?? '';
-  const userId = apiKey?.user_id ?? '';
-  const name = apiKey?.name ?? '';
-  const isActive = apiKey?.is_active ?? false;
+
+  const name = resolveContextValue(
+    resolveReadableValue(apiKey?.name, apiKey?.label, apiKey?.display_name),
+    apiKey?.id,
+    canViewTechnicalIds,
+    t('apiKey.detail.currentKey')
+  );
+  const userLabel = resolveContextValue(
+    resolveReadableValue(
+      apiKey?.user_name,
+      apiKey?.user?.name,
+      apiKey?.user?.full_name,
+      apiKey?.user?.email,
+      apiKey?.user_label
+    ),
+    apiKey?.user_id,
+    canViewTechnicalIds,
+    t('apiKey.detail.currentUser')
+  );
+  const tenantLabel = resolveContextValue(
+    resolveReadableValue(
+      apiKey?.tenant_name,
+      apiKey?.tenant?.name,
+      apiKey?.tenant?.slug,
+      apiKey?.tenant_label
+    ),
+    apiKey?.tenant_id,
+    canViewTechnicalIds,
+    t('apiKey.detail.currentTenant')
+  );
+  const statusLabel = apiKey?.is_active
+    ? t('apiKey.list.statusActive')
+    : t('apiKey.list.statusInactive');
+
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -150,11 +191,11 @@ const ApiKeyDetailScreenIOS = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
+
   const showInlineError = hasApiKey && hasError;
   const showInlineOffline = hasApiKey && isOffline;
 
@@ -162,7 +203,7 @@ const ApiKeyDetailScreenIOS = () => {
     <StyledContainer>
       <StyledContent>
         <StyledInlineStates>
-          {showInlineError && (
+          {showInlineError ? (
             <ErrorState
               size={ErrorStateSizes.SMALL}
               title={t('apiKey.detail.errorTitle')}
@@ -170,8 +211,8 @@ const ApiKeyDetailScreenIOS = () => {
               action={retryAction}
               testID="api-key-detail-error-banner"
             />
-          )}
-          {showInlineOffline && (
+          ) : null}
+          {showInlineOffline ? (
             <OfflineState
               size={OfflineStateSizes.SMALL}
               title={t('shell.banners.offline.title')}
@@ -179,29 +220,15 @@ const ApiKeyDetailScreenIOS = () => {
               action={retryAction}
               testID="api-key-detail-offline-banner"
             />
-          )}
+          ) : null}
         </StyledInlineStates>
         <Card variant="outlined" accessibilityLabel={t('apiKey.detail.title')} testID="api-key-detail-card">
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('apiKey.detail.idLabel')}</Text>
-              <Text variant="body" testID="api-key-detail-id">
-                {apiKey.id}
-              </Text>
-            </StyledDetailItem>
-            {tenantId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('apiKey.detail.tenantIdLabel')}</Text>
-                <Text variant="body" testID="api-key-detail-tenant">
-                  {tenantId}
-                </Text>
-              </StyledDetailItem>
-            ) : null}
-            {userId ? (
-              <StyledDetailItem>
-                <Text variant="label">{t('apiKey.detail.userIdLabel')}</Text>
-                <Text variant="body" testID="api-key-detail-user">
-                  {userId}
+                <Text variant="label">{t('apiKey.detail.idLabel')}</Text>
+                <Text variant="body" testID="api-key-detail-id">
+                  {apiKey.id}
                 </Text>
               </StyledDetailItem>
             ) : null}
@@ -213,10 +240,26 @@ const ApiKeyDetailScreenIOS = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
+            {userLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKey.detail.userLabel')}</Text>
+                <Text variant="body" testID="api-key-detail-user">
+                  {userLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+            {tenantLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('apiKey.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="api-key-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
             <StyledDetailItem>
-              <Text variant="label">{t('apiKey.detail.activeLabel')}</Text>
-              <Text variant="body" testID="api-key-detail-active">
-                {isActive ? t('common.on') : t('common.off')}
+              <Text variant="label">{t('apiKey.detail.statusLabel')}</Text>
+              <Text variant="body" testID="api-key-detail-status">
+                {statusLabel}
               </Text>
             </StyledDetailItem>
             {lastUsedAt ? (
@@ -260,37 +303,10 @@ const ApiKeyDetailScreenIOS = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('apiKey.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="api-key-detail-back"
             disabled={isLoading}
           >
             {t('common.back')}
-          </Button>
-          {onEdit && (
-            <Button
-              variant="surface"
-              size="small"
-              onPress={onEdit}
-              accessibilityLabel={t('apiKey.detail.edit')}
-              accessibilityHint={t('apiKey.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
-              testID="api-key-detail-edit"
-              disabled={isLoading}
-            >
-              {t('apiKey.detail.edit')}
-            </Button>
-          )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('apiKey.detail.delete')}
-            accessibilityHint={t('apiKey.detail.deleteHint')}
-            icon={<Icon glyph="×" size="xs" decorative />}
-            testID="api-key-detail-delete"
-          >
-            {t('common.remove')}
           </Button>
         </StyledActions>
       </StyledContent>

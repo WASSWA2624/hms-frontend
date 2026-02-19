@@ -17,9 +17,8 @@ const StyledContent = styled.View.withConfig({
   displayName: 'ApiKeyPermissionFormScreen_StyledContent',
   componentId: 'ApiKeyPermissionFormScreen_StyledContent',
 })`
-  flex: 1;
   width: 100%;
-  gap: ${({ theme }) => theme.spacing.lg}px;
+  flex: 1;
 `;
 
 const StyledInlineStates = styled.View.withConfig({
@@ -64,8 +63,9 @@ const StyledActions = styled.View.withConfig({
   componentId: 'ApiKeyPermissionFormScreen_StyledActions',
 })`
   flex-direction: row;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  align-items: center;
   flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 export {

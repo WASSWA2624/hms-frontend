@@ -14,6 +14,9 @@ import {
   useUser,
   useUserRole,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
+
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -83,6 +86,7 @@ const useUserRoleFormScreen = () => {
   const canManageUserRoles = canAccessTenantSettings;
   const canCreateUserRole = canManageUserRoles;
   const canEditUserRole = canManageUserRoles;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageUserRoles && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
     () => String(scopedTenantId ?? '').trim(),
@@ -121,39 +125,57 @@ const useUserRoleFormScreen = () => {
       const scopedTenant = tenantItems.find(
         (tenant) => String(tenant?.id ?? '').trim() === normalizedScopedTenantId
       );
+      const scopedTenantLabel = humanizeIdentifier(scopedTenant?.name)
+        || humanizeIdentifier(scopedTenant?.slug)
+        || (canViewTechnicalIds ? normalizedScopedTenantId : '')
+        || t('userRole.form.tenantOptionFallback', { index: 1 });
       return [{
         value: normalizedScopedTenantId,
-        label: scopedTenant?.name ?? scopedTenant?.slug ?? normalizedScopedTenantId,
+        label: scopedTenantLabel,
       }];
     }
-    return tenantItems.map((tenant) => ({
+    return tenantItems.map((tenant, index) => ({
       value: tenant.id,
-      label: tenant.name ?? tenant.slug ?? tenant.id ?? '',
+      label: humanizeIdentifier(tenant?.name)
+        || humanizeIdentifier(tenant?.slug)
+        || (canViewTechnicalIds ? String(tenant?.id ?? '').trim() : '')
+        || t('userRole.form.tenantOptionFallback', { index: index + 1 }),
     }));
-  }, [tenantItems, isTenantScopedAdmin, normalizedScopedTenantId]);
+  }, [tenantItems, isTenantScopedAdmin, normalizedScopedTenantId, canViewTechnicalIds, t]);
   const facilityOptions = useMemo(
     () =>
-      facilityItems.map((facility) => ({
+      facilityItems.map((facility, index) => ({
         value: facility.id,
-        label: facility.name ?? facility.id ?? '',
+        label: humanizeIdentifier(facility?.name)
+          || humanizeIdentifier(facility?.code)
+          || (canViewTechnicalIds ? String(facility?.id ?? '').trim() : '')
+          || t('userRole.form.facilityOptionFallback', { index: index + 1 }),
       })),
-    [facilityItems]
+    [facilityItems, canViewTechnicalIds, t]
   );
   const userOptions = useMemo(
     () =>
-      userItems.map((user) => ({
+      userItems.map((user, index) => ({
         value: user.id,
-        label: user.email ?? user.phone ?? user.id ?? '',
+        label: humanizeIdentifier(user?.name)
+          || humanizeIdentifier(user?.full_name)
+          || humanizeIdentifier(user?.email)
+          || humanizeIdentifier(user?.phone)
+          || (canViewTechnicalIds ? String(user?.id ?? '').trim() : '')
+          || t('userRole.form.userOptionFallback', { index: index + 1 }),
       })),
-    [userItems]
+    [userItems, canViewTechnicalIds, t]
   );
   const roleOptions = useMemo(
     () =>
-      roleItems.map((role) => ({
+      roleItems.map((role, index) => ({
         value: role.id,
-        label: role.name ?? role.id ?? '',
+        label: humanizeIdentifier(role?.name)
+          || humanizeIdentifier(role?.slug)
+          || (canViewTechnicalIds ? String(role?.id ?? '').trim() : '')
+          || t('userRole.form.roleOptionFallback', { index: index + 1 }),
       })),
-    [roleItems]
+    [roleItems, canViewTechnicalIds, t]
   );
 
   useEffect(() => {
@@ -207,7 +229,7 @@ const useUserRoleFormScreen = () => {
       return;
     }
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManageUserRoles,
@@ -261,11 +283,11 @@ const useUserRoleFormScreen = () => {
       return;
     }
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenantId });
+    listFacilities({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
     resetUsers();
-    listUsers({ page: 1, limit: 200, tenant_id: trimmedTenantId });
+    listUsers({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
     resetRoles();
-    listRoles({ page: 1, limit: 200, tenant_id: trimmedTenantId });
+    listRoles({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT, tenant_id: trimmedTenantId });
   }, [
     isResolved,
     canManageUserRoles,
@@ -490,7 +512,7 @@ const useUserRoleFormScreen = () => {
   const handleRetryTenants = useCallback(() => {
     if (!isResolved || !canManageUserRoles || isTenantScopedAdmin || isEdit) return;
     resetTenants();
-    listTenants({ page: 1, limit: 200 });
+    listTenants({ page: 1, limit: MAX_REFERENCE_FETCH_LIMIT });
   }, [
     isResolved,
     canManageUserRoles,
@@ -503,19 +525,31 @@ const useUserRoleFormScreen = () => {
   const handleRetryFacilities = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetFacilities();
-    listFacilities({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
+    listFacilities({
+      page: 1,
+      limit: MAX_REFERENCE_FETCH_LIMIT,
+      tenant_id: trimmedTenantId || undefined,
+    });
   }, [isResolved, canManageUserRoles, listFacilities, resetFacilities, trimmedTenantId]);
 
   const handleRetryUsers = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetUsers();
-    listUsers({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
+    listUsers({
+      page: 1,
+      limit: MAX_REFERENCE_FETCH_LIMIT,
+      tenant_id: trimmedTenantId || undefined,
+    });
   }, [isResolved, canManageUserRoles, listUsers, resetUsers, trimmedTenantId]);
 
   const handleRetryRoles = useCallback(() => {
     if (!isResolved || !canManageUserRoles) return;
     resetRoles();
-    listRoles({ page: 1, limit: 200, tenant_id: trimmedTenantId || undefined });
+    listRoles({
+      page: 1,
+      limit: MAX_REFERENCE_FETCH_LIMIT,
+      tenant_id: trimmedTenantId || undefined,
+    });
   }, [isResolved, canManageUserRoles, listRoles, resetRoles, trimmedTenantId]);
 
   return {

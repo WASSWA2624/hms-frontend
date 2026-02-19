@@ -1,4 +1,4 @@
-﻿/**
+/**
  * UserRoleDetailScreen Web Styles
  * File: UserRoleDetailScreen.web.styles.jsx
  */

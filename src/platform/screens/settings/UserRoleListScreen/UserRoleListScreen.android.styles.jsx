@@ -38,6 +38,13 @@ const StyledSearchSlot = styled.View.withConfig({
   width: 100%;
 `;
 
+const StyledScopeSlot = styled.View.withConfig({
+  displayName: 'StyledScopeSlot',
+  componentId: 'StyledScopeSlot',
+})`
+  width: 100%;
+`;
+
 const StyledToolbarActions = styled.View.withConfig({
   displayName: 'StyledToolbarActions',
   componentId: 'StyledToolbarActions',
@@ -97,6 +104,85 @@ const StyledList = styled.View.withConfig({
   width: 100%;
 `;
 
+const StyledFilterPanel = styled.View.withConfig({
+  displayName: 'StyledFilterPanel',
+  componentId: 'StyledFilterPanel',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  border-radius: ${({ theme }) => theme.radius.sm}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border.light};
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledFilterBody = styled.View.withConfig({
+  displayName: 'StyledFilterBody',
+  componentId: 'StyledFilterBody',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFilterRow = styled.View.withConfig({
+  displayName: 'StyledFilterRow',
+  componentId: 'StyledFilterRow',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFilterRowActions = styled.View.withConfig({
+  displayName: 'StyledFilterRowActions',
+  componentId: 'StyledFilterRowActions',
+})`
+  flex-direction: row;
+  justify-content: flex-end;
+`;
+
+const StyledFilterActions = styled.View.withConfig({
+  displayName: 'StyledFilterActions',
+  componentId: 'StyledFilterActions',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPagination = styled.View.withConfig({
+  displayName: 'StyledPagination',
+  componentId: 'StyledPagination',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  border-top-width: 1px;
+  border-top-color: ${({ theme }) => theme.colors.border.light};
+  padding-top: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledPaginationInfo = styled.View.withConfig({
+  displayName: 'StyledPaginationInfo',
+  componentId: 'StyledPaginationInfo',
+})``;
+
+const StyledPaginationActions = styled.View.withConfig({
+  displayName: 'StyledPaginationActions',
+  componentId: 'StyledPaginationActions',
+})`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledPaginationControl = styled.View.withConfig({
+  displayName: 'StyledPaginationControl',
+  componentId: 'StyledPaginationControl',
+})`
+  min-width: 120px;
+`;
+
 const StyledSeparator = styled.View.withConfig({
   displayName: 'StyledSeparator',
   componentId: 'StyledSeparator',
@@ -110,11 +196,21 @@ export {
   StyledContent,
   StyledToolbar,
   StyledSearchSlot,
+  StyledScopeSlot,
   StyledToolbarActions,
   StyledAddButton,
   StyledAddLabel,
   StyledListBody,
   StyledStateStack,
   StyledList,
+  StyledFilterPanel,
+  StyledFilterBody,
+  StyledFilterRow,
+  StyledFilterRowActions,
+  StyledFilterActions,
+  StyledPagination,
+  StyledPaginationInfo,
+  StyledPaginationActions,
+  StyledPaginationControl,
   StyledSeparator,
 };
