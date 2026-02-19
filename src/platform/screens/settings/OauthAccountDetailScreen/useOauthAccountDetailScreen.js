@@ -5,10 +5,11 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { PAGINATION } from '@config/constants';
 import { useI18n, useNetwork, useOauthAccount, useTenantAccess, useUser } from '@hooks';
 import { confirmAction, humanizeIdentifier } from '@utils';
 
-const MAX_REFERENCE_FETCH_LIMIT = 100;
+const DEFAULT_REFERENCE_FETCH_LIMIT = PAGINATION.MAX_LIMIT;
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
@@ -38,8 +39,8 @@ const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fa
 
 const normalizeFetchLimit = (value) => {
   const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return MAX_REFERENCE_FETCH_LIMIT;
-  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+  if (!Number.isFinite(numeric)) return DEFAULT_REFERENCE_FETCH_LIMIT;
+  return Math.min(PAGINATION.MAX_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useOauthAccountDetailScreen = () => {
@@ -169,7 +170,7 @@ const useOauthAccountDetailScreen = () => {
 
     const params = {
       page: 1,
-      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+      limit: normalizeFetchLimit(DEFAULT_REFERENCE_FETCH_LIMIT),
     };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedTenantId;

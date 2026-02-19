@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { PAGINATION } from '@config/constants';
 import {
   useAuth,
   useI18n,
@@ -22,9 +23,8 @@ const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_VISIBLE_COLUMNS = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = Object.freeze([10, 20, 50]);
-const MAX_FETCH_LIMIT = 100;
-const DEFAULT_FETCH_PAGE = 1;
-const DEFAULT_FETCH_LIMIT = MAX_FETCH_LIMIT;
+const DEFAULT_FETCH_PAGE = PAGINATION.DEFAULT_PAGE;
+const DEFAULT_FETCH_LIMIT = PAGINATION.MAX_LIMIT;
 const DEFAULT_DENSITY = 'compact';
 const DENSITY_OPTIONS = Object.freeze(['compact', 'comfortable']);
 const SEARCH_SCOPES = Object.freeze(['all', 'provider', 'user', 'providerUser', 'expires']);
@@ -233,7 +233,7 @@ const normalizeFetchPage = (value) => {
 const normalizeFetchLimit = (value) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return DEFAULT_FETCH_LIMIT;
-  return Math.min(MAX_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+  return Math.min(PAGINATION.MAX_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useOauthAccountListScreen = () => {

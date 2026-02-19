@@ -4,10 +4,11 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { PAGINATION } from '@config/constants';
 import { useI18n, useNetwork, useOauthAccount, useTenantAccess, useUser } from '@hooks';
 import { normalizeIsoDateTime, toDateInputValue, humanizeIdentifier } from '@utils';
 
-const MAX_REFERENCE_FETCH_LIMIT = 100;
+const DEFAULT_REFERENCE_FETCH_LIMIT = PAGINATION.MAX_LIMIT;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -24,8 +25,8 @@ const uniqueArray = (values = []) => [...new Set(values)];
 
 const normalizeFetchLimit = (value) => {
   const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return MAX_REFERENCE_FETCH_LIMIT;
-  return Math.min(MAX_REFERENCE_FETCH_LIMIT, Math.max(1, Math.trunc(numeric)));
+  if (!Number.isFinite(numeric)) return DEFAULT_REFERENCE_FETCH_LIMIT;
+  return Math.min(PAGINATION.MAX_LIMIT, Math.max(1, Math.trunc(numeric)));
 };
 
 const useOauthAccountFormScreen = () => {
@@ -103,7 +104,7 @@ const useOauthAccountFormScreen = () => {
           value: userIdValue,
           label: userContext?.label || t('oauthAccount.form.userOptionFallback', { index: index + 1 }),
         };
-      })),
+      }),
     [userItems, userLookup, t]
   );
   const hasUsers = userOptions.length > 0;
@@ -177,7 +178,7 @@ const useOauthAccountFormScreen = () => {
     resetUsers();
     const params = {
       page: 1,
-      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+      limit: normalizeFetchLimit(DEFAULT_REFERENCE_FETCH_LIMIT),
     };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
@@ -343,7 +344,7 @@ const useOauthAccountFormScreen = () => {
     resetUsers();
     const params = {
       page: 1,
-      limit: normalizeFetchLimit(MAX_REFERENCE_FETCH_LIMIT),
+      limit: normalizeFetchLimit(DEFAULT_REFERENCE_FETCH_LIMIT),
     };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;

@@ -13,7 +13,6 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(),
   useOauthAccount: jest.fn(),
   useUser: jest.fn(),
-  usePermission: jest.fn(),
   useTenantAccess: jest.fn(),
 }));
 
@@ -44,7 +43,6 @@ const {
   useNetwork,
   useOauthAccount,
   useUser,
-  usePermission,
   useTenantAccess,
 } = require('@hooks');
 const { async: asyncStorage } = require('@services/storage');
@@ -56,8 +54,6 @@ describe('useOauthAccountListScreen', () => {
   const mockReset = jest.fn();
   const mockListUsers = jest.fn();
   const mockResetUsers = jest.fn();
-  const mockListPermissions = jest.fn();
-  const mockResetPermissions = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -88,18 +84,24 @@ describe('useOauthAccountListScreen', () => {
       data: { items: [] },
       reset: mockResetUsers,
     });
-    usePermission.mockReturnValue({
-      list: mockListPermissions,
-      data: { items: [] },
-      reset: mockResetPermissions,
-    });
 
     asyncStorage.getItem.mockResolvedValue(null);
     asyncStorage.setItem.mockResolvedValue(true);
   });
 
-  it('loads list and references with numeric params capped at 100', () => {
-    renderHook(() => useOauthAccountListScreen());
+  const renderUseOauthAccountListScreen = async () => {
+    const rendered = renderHook(() => useOauthAccountListScreen());
+    await waitFor(() => {
+      expect(asyncStorage.getItem).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(asyncStorage.setItem).toHaveBeenCalled();
+    });
+    return rendered;
+  };
+
+  it('loads list and user references with numeric params capped at 100', async () => {
+    await renderUseOauthAccountListScreen();
 
     expect(mockReset).toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
@@ -108,17 +110,12 @@ describe('useOauthAccountListScreen', () => {
     expect(typeof listParams.limit).toBe('number');
     expect(mockResetUsers).toHaveBeenCalled();
     expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100 });
-    const [apiKeyParams] = mockListUsers.mock.calls[0];
-    expect(typeof apiKeyParams.page).toBe('number');
-    expect(typeof apiKeyParams.limit).toBe('number');
-    expect(mockResetPermissions).toHaveBeenCalled();
-    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100 });
-    const [permissionParams] = mockListPermissions.mock.calls[0];
-    expect(typeof permissionParams.page).toBe('number');
-    expect(typeof permissionParams.limit).toBe('number');
+    const [userParams] = mockListUsers.mock.calls[0];
+    expect(typeof userParams.page).toBe('number');
+    expect(typeof userParams.limit).toBe('number');
   });
 
-  it('applies tenant scope only to reference lookups', () => {
+  it('applies tenant scope only to user reference lookups', async () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: false,
@@ -126,34 +123,31 @@ describe('useOauthAccountListScreen', () => {
       isResolved: true,
     });
 
-    renderHook(() => useOauthAccountListScreen());
+    await renderUseOauthAccountListScreen();
 
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 100 });
     expect(mockListUsers).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
-    expect(mockListPermissions).toHaveBeenCalledWith({ page: 1, limit: 100, tenant_id: 'tenant-1' });
   });
 
-  it('does not fetch list or references while offline', () => {
+  it('does not fetch list or references while offline', async () => {
     useNetwork.mockReturnValue({ isOffline: true });
 
-    renderHook(() => useOauthAccountListScreen());
+    await renderUseOauthAccountListScreen();
 
     expect(mockReset).not.toHaveBeenCalled();
     expect(mockList).not.toHaveBeenCalled();
     expect(mockResetUsers).not.toHaveBeenCalled();
     expect(mockListUsers).not.toHaveBeenCalled();
-    expect(mockResetPermissions).not.toHaveBeenCalled();
-    expect(mockListPermissions).not.toHaveBeenCalled();
   });
 
-  it('supports all-field and scoped search', () => {
+  it('supports all-field and scoped search', async () => {
     useOauthAccount.mockReturnValue({
       list: mockList,
       remove: mockRemove,
       data: {
         items: [
-          { id: 'akp-1', api_key_id: 'key-1', permission_id: 'perm-1' },
-          { id: 'akp-2', api_key_id: 'key-2', permission_id: 'perm-2' },
+          { id: 'oac-1', user_id: 'user-1', provider: 'Google', provider_user_id: 'alice-google' },
+          { id: 'oac-2', user_id: 'user-2', provider: 'Microsoft', provider_user_id: 'billing-bridge' },
         ],
       },
       isLoading: false,
@@ -164,38 +158,28 @@ describe('useOauthAccountListScreen', () => {
       list: mockListUsers,
       data: {
         items: [
-          { id: 'key-1', name: 'Clinical Integration', tenant_id: 'tenant-1' },
-          { id: 'key-2', name: 'Billing Bridge', tenant_id: 'tenant-2' },
+          { id: 'user-1', name: 'Alice Carter', tenant_id: 'tenant-1' },
+          { id: 'user-2', name: 'Billing Sync User', tenant_id: 'tenant-1' },
         ],
       },
       reset: mockResetUsers,
     });
-    usePermission.mockReturnValue({
-      list: mockListPermissions,
-      data: {
-        items: [
-          { id: 'perm-1', name: 'Read Encounters', tenant_id: 'tenant-1' },
-          { id: 'perm-2', name: 'Sync Billing', tenant_id: 'tenant-2' },
-        ],
-      },
-      reset: mockResetPermissions,
-    });
 
-    const { result } = renderHook(() => useOauthAccountListScreen());
+    const { result } = await renderUseOauthAccountListScreen();
 
     act(() => {
       result.current.onSearch('billing');
     });
-    expect(result.current.items.map((item) => item.id)).toEqual(['akp-2']);
+    expect(result.current.items.map((item) => item.id)).toEqual(['oac-2']);
 
     act(() => {
-      result.current.onSearchScopeChange('permission');
-      result.current.onSearch('read');
+      result.current.onSearchScopeChange('provider');
+      result.current.onSearch('google');
     });
-    expect(result.current.items.map((item) => item.id)).toEqual(['akp-1']);
+    expect(result.current.items.map((item) => item.id)).toEqual(['oac-1']);
   });
 
-  it('filters out records outside tenant scope and blocks direct open', () => {
+  it('filters out records outside tenant scope and blocks direct open', async () => {
     useTenantAccess.mockReturnValue({
       canAccessTenantSettings: true,
       canManageAllTenants: false,
@@ -207,8 +191,8 @@ describe('useOauthAccountListScreen', () => {
       remove: mockRemove,
       data: {
         items: [
-          { id: 'akp-1', api_key_id: 'key-1', permission_id: 'perm-1' },
-          { id: 'akp-2', api_key_id: 'key-2', permission_id: 'perm-2' },
+          { id: 'oac-1', user_id: 'user-1', provider: 'Google', provider_user_id: 'alice-google' },
+          { id: 'oac-2', user_id: 'user-2', provider: 'Microsoft', provider_user_id: 'external-user' },
         ],
       },
       isLoading: false,
@@ -219,28 +203,18 @@ describe('useOauthAccountListScreen', () => {
       list: mockListUsers,
       data: {
         items: [
-          { id: 'key-1', name: 'Scoped Key', tenant_id: 'tenant-1' },
-          { id: 'key-2', name: 'External Key', tenant_id: 'tenant-2' },
+          { id: 'user-1', name: 'Scoped User', tenant_id: 'tenant-1' },
+          { id: 'user-2', name: 'External User', tenant_id: 'tenant-2' },
         ],
       },
       reset: mockResetUsers,
     });
-    usePermission.mockReturnValue({
-      list: mockListPermissions,
-      data: {
-        items: [
-          { id: 'perm-1', name: 'Scoped Permission', tenant_id: 'tenant-1' },
-          { id: 'perm-2', name: 'External Permission', tenant_id: 'tenant-2' },
-        ],
-      },
-      reset: mockResetPermissions,
-    });
 
-    const { result } = renderHook(() => useOauthAccountListScreen());
-    expect(result.current.items.map((item) => item.id)).toEqual(['akp-1']);
+    const { result } = await renderUseOauthAccountListScreen();
+    expect(result.current.items.map((item) => item.id)).toEqual(['oac-1']);
 
     act(() => {
-      result.current.onItemPress('akp-2');
+      result.current.onItemPress('oac-2');
     });
     expect(mockPush).toHaveBeenCalledWith('/settings/oauth-accounts?notice=accessDenied');
   });
@@ -250,7 +224,7 @@ describe('useOauthAccountListScreen', () => {
       list: mockList,
       remove: mockRemove,
       data: {
-        items: [{ id: 'akp-1', api_key_id: 'key-1', permission_id: 'perm-1' }],
+        items: [{ id: 'oac-1', user_id: 'user-1', provider: 'Google', provider_user_id: 'alice-google' }],
       },
       isLoading: false,
       errorCode: null,
@@ -258,23 +232,18 @@ describe('useOauthAccountListScreen', () => {
     });
     useUser.mockReturnValue({
       list: mockListUsers,
-      data: { items: [{ id: 'key-1', name: 'Scoped Key', tenant_id: 'tenant-1' }] },
+      data: { items: [{ id: 'user-1', name: 'Scoped User', tenant_id: 'tenant-1' }] },
       reset: mockResetUsers,
     });
-    usePermission.mockReturnValue({
-      list: mockListPermissions,
-      data: { items: [{ id: 'perm-1', name: 'Scoped Permission', tenant_id: 'tenant-1' }] },
-      reset: mockResetPermissions,
-    });
-    mockRemove.mockResolvedValue({ id: 'akp-1' });
+    mockRemove.mockResolvedValue({ id: 'oac-1' });
 
-    const { result } = renderHook(() => useOauthAccountListScreen());
+    const { result } = await renderUseOauthAccountListScreen();
 
     await act(async () => {
-      await result.current.onDelete('akp-1');
+      await result.current.onDelete('oac-1');
     });
 
-    expect(mockRemove).toHaveBeenCalledWith('akp-1');
+    expect(mockRemove).toHaveBeenCalledWith('oac-1');
     expect(mockList).toHaveBeenLastCalledWith({ page: 1, limit: 100 });
     expect(result.current.noticeMessage).toBe('oauthAccount.list.noticeDeleted');
   });
@@ -285,7 +254,7 @@ describe('useOauthAccountListScreen', () => {
       list: mockList,
       remove: mockRemove,
       data: {
-        items: [{ id: 'akp-1', api_key_id: 'key-1', permission_id: 'perm-1' }],
+        items: [{ id: 'oac-1', user_id: 'user-1', provider: 'Google', provider_user_id: 'alice-google' }],
       },
       isLoading: false,
       errorCode: null,
@@ -293,18 +262,14 @@ describe('useOauthAccountListScreen', () => {
     });
     useUser.mockReturnValue({
       list: mockListUsers,
-      data: { items: [{ id: 'key-1', name: 'Scoped Key', tenant_id: 'tenant-1' }] },
+      data: { items: [{ id: 'user-1', name: 'Scoped User', tenant_id: 'tenant-1' }] },
       reset: mockResetUsers,
     });
-    usePermission.mockReturnValue({
-      list: mockListPermissions,
-      data: { items: [{ id: 'perm-1', name: 'Scoped Permission', tenant_id: 'tenant-1' }] },
-      reset: mockResetPermissions,
-    });
 
-    const { result } = renderHook(() => useOauthAccountListScreen());
+    const { result } = await renderUseOauthAccountListScreen();
+
     await act(async () => {
-      await result.current.onDelete('akp-1');
+      await result.current.onDelete('oac-1');
     });
     expect(mockRemove).not.toHaveBeenCalled();
   });
@@ -312,11 +277,60 @@ describe('useOauthAccountListScreen', () => {
   it('maps notice query value and clears the param', async () => {
     mockParams = { notice: 'accessDenied' };
 
-    const { result } = renderHook(() => useOauthAccountListScreen());
+    const { result } = await renderUseOauthAccountListScreen();
     await waitFor(() => {
       expect(result.current.noticeMessage).toBe('oauthAccount.list.noticeAccessDenied');
     });
     expect(mockReplace).toHaveBeenCalledWith('/settings/oauth-accounts');
   });
-});
 
+  it('redirects unauthorized users and hides write actions', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: false,
+      canManageAllTenants: false,
+      tenantId: null,
+      isResolved: true,
+    });
+
+    const { result } = await renderUseOauthAccountListScreen();
+    expect(mockReplace).toHaveBeenCalledWith('/settings');
+    expect(result.current.onAdd).toBeUndefined();
+    expect(result.current.onDelete).toBeUndefined();
+  });
+
+  it('masks technical ids for standard users', async () => {
+    useTenantAccess.mockReturnValue({
+      canAccessTenantSettings: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+    useOauthAccount.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [{
+          id: 'oac-1',
+          tenant_id: 'tenant-1',
+          user_id: '910f0d1f-66fd-4490-8e4a-cc8ef00a4bf6',
+          provider: 'Google',
+          provider_user_id: '8f4fd148-2502-4edb-bf1d-c1f5c66182fd',
+        }],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: { items: [] },
+      reset: mockResetUsers,
+    });
+
+    const { result } = await renderUseOauthAccountListScreen();
+    const item = result.current.items[0];
+
+    expect(result.current.resolveUserLabel(item)).toBe('oauthAccount.list.currentUserLabel');
+    expect(result.current.resolveProviderUserLabel(item)).toBe('oauthAccount.list.currentProviderUserLabel');
+  });
+});
