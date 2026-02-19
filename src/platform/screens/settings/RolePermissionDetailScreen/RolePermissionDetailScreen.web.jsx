@@ -1,6 +1,5 @@
 /**
  * RolePermissionDetailScreen - Web
- * File: RolePermissionDetailScreen.web.jsx
  */
 import React from 'react';
 import {
@@ -9,7 +8,6 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -18,12 +16,12 @@ import {
 import { useI18n } from '@hooks';
 import { formatDateTime } from '@utils';
 import {
+  StyledActions,
   StyledContainer,
   StyledContent,
   StyledDetailGrid,
   StyledDetailItem,
   StyledInlineStates,
-  StyledActions,
 } from './RolePermissionDetailScreen.web.styles';
 import useRolePermissionDetailScreen from './useRolePermissionDetailScreen';
 
@@ -31,6 +29,10 @@ const RolePermissionDetailScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
     rolePermission,
+    roleLabel,
+    permissionLabel,
+    tenantLabel,
+    canViewTechnicalIds,
     isLoading,
     hasError,
     errorMessage,
@@ -71,7 +73,6 @@ const RolePermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -97,7 +98,6 @@ const RolePermissionDetailScreenWeb = () => {
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="↻" size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -125,7 +125,6 @@ const RolePermissionDetailScreenWeb = () => {
               onPress={onBack}
               accessibilityLabel={t('common.back')}
               accessibilityHint={t('rolePermission.detail.backHint')}
-              icon={<Icon glyph="←" size="xs" decorative />}
               testID="role-permission-detail-back"
             >
               {t('common.back')}
@@ -138,8 +137,6 @@ const RolePermissionDetailScreenWeb = () => {
 
   const createdAt = formatDateTime(rolePermission.created_at, locale);
   const updatedAt = formatDateTime(rolePermission.updated_at, locale);
-  const roleId = rolePermission?.role_id ?? '';
-  const permissionId = rolePermission?.permission_id ?? '';
   const retryAction = onRetry ? (
     <Button
       variant="surface"
@@ -147,7 +144,6 @@ const RolePermissionDetailScreenWeb = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
     >
       {t('common.retry')}
     </Button>
@@ -159,7 +155,7 @@ const RolePermissionDetailScreenWeb = () => {
     <StyledContainer role="main" aria-label={t('rolePermission.detail.title')}>
       <StyledContent>
         <StyledInlineStates>
-          {showInlineError && (
+          {showInlineError ? (
             <ErrorState
               size={ErrorStateSizes.SMALL}
               title={t('rolePermission.detail.errorTitle')}
@@ -167,8 +163,9 @@ const RolePermissionDetailScreenWeb = () => {
               action={retryAction}
               testID="role-permission-detail-error-banner"
             />
-          )}
-          {showInlineOffline && (
+          ) : null}
+
+          {showInlineOffline ? (
             <OfflineState
               size={OfflineStateSizes.SMALL}
               title={t('shell.banners.offline.title')}
@@ -176,32 +173,51 @@ const RolePermissionDetailScreenWeb = () => {
               action={retryAction}
               testID="role-permission-detail-offline-banner"
             />
-          )}
+          ) : null}
         </StyledInlineStates>
-        <Card variant="outlined" accessibilityLabel={t('rolePermission.detail.title')} testID="role-permission-detail-card">
+
+        <Card
+          variant="outlined"
+          accessibilityLabel={t('rolePermission.detail.title')}
+          testID="role-permission-detail-card"
+        >
           <StyledDetailGrid>
-            <StyledDetailItem>
-              <Text variant="label">{t('rolePermission.detail.idLabel')}</Text>
-              <Text variant="body" testID="role-permission-detail-id">
-                {rolePermission.id}
-              </Text>
-            </StyledDetailItem>
-            {roleId ? (
+            {canViewTechnicalIds ? (
               <StyledDetailItem>
-                <Text variant="label">{t('rolePermission.detail.roleIdLabel')}</Text>
+                <Text variant="label">{t('rolePermission.detail.idLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-id">
+                  {rolePermission.id}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+
+            {roleLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.roleLabel')}</Text>
                 <Text variant="body" testID="role-permission-detail-role">
-                  {roleId}
+                  {roleLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
-            {permissionId ? (
+
+            {permissionLabel ? (
               <StyledDetailItem>
-                <Text variant="label">{t('rolePermission.detail.permissionIdLabel')}</Text>
+                <Text variant="label">{t('rolePermission.detail.permissionLabel')}</Text>
                 <Text variant="body" testID="role-permission-detail-permission">
-                  {permissionId}
+                  {permissionLabel}
                 </Text>
               </StyledDetailItem>
             ) : null}
+
+            {tenantLabel ? (
+              <StyledDetailItem>
+                <Text variant="label">{t('rolePermission.detail.tenantLabel')}</Text>
+                <Text variant="body" testID="role-permission-detail-tenant">
+                  {tenantLabel}
+                </Text>
+              </StyledDetailItem>
+            ) : null}
+
             {createdAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('rolePermission.detail.createdLabel')}</Text>
@@ -210,6 +226,7 @@ const RolePermissionDetailScreenWeb = () => {
                 </Text>
               </StyledDetailItem>
             ) : null}
+
             {updatedAt ? (
               <StyledDetailItem>
                 <Text variant="label">{t('rolePermission.detail.updatedLabel')}</Text>
@@ -220,6 +237,7 @@ const RolePermissionDetailScreenWeb = () => {
             ) : null}
           </StyledDetailGrid>
         </Card>
+
         <StyledActions>
           <Button
             variant="surface"
@@ -227,38 +245,39 @@ const RolePermissionDetailScreenWeb = () => {
             onPress={onBack}
             accessibilityLabel={t('common.back')}
             accessibilityHint={t('rolePermission.detail.backHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="role-permission-detail-back"
             disabled={isLoading}
           >
             {t('common.back')}
           </Button>
-          {onEdit && (
+
+          {onEdit ? (
             <Button
               variant="surface"
               size="small"
               onPress={onEdit}
               accessibilityLabel={t('rolePermission.detail.edit')}
               accessibilityHint={t('rolePermission.detail.editHint')}
-              icon={<Icon glyph="✎" size="xs" decorative />}
               testID="role-permission-detail-edit"
               disabled={isLoading}
             >
               {t('rolePermission.detail.edit')}
             </Button>
-          )}
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onDelete}
-            loading={isLoading}
-            accessibilityLabel={t('rolePermission.detail.delete')}
-            accessibilityHint={t('rolePermission.detail.deleteHint')}
-            icon={<Icon glyph="✕" size="xs" decorative />}
-            testID="role-permission-detail-delete"
-          >
-            {t('common.remove')}
-          </Button>
+          ) : null}
+
+          {onDelete ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onDelete}
+              loading={isLoading}
+              accessibilityLabel={t('rolePermission.detail.delete')}
+              accessibilityHint={t('rolePermission.detail.deleteHint')}
+              testID="role-permission-detail-delete"
+            >
+              {t('common.remove')}
+            </Button>
+          ) : null}
         </StyledActions>
       </StyledContent>
     </StyledContainer>

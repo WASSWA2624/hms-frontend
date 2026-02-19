@@ -92,6 +92,26 @@ const resolveRolePermissionCell = (
   return t('common.notAvailable');
 };
 
+const resolveMobileSubtitle = (
+  t,
+  rolePermissionItem,
+  resolvePermissionLabel,
+  resolveTenantLabel
+) => {
+  const permissionValue = resolvePermissionLabel(rolePermissionItem);
+  const tenantValue = resolveTenantLabel(rolePermissionItem);
+  const parts = [];
+
+  if (permissionValue && permissionValue !== t('common.notAvailable')) {
+    parts.push(`${t('rolePermission.list.permissionLabel')}: ${permissionValue}`);
+  }
+  if (tenantValue && tenantValue !== t('common.notAvailable')) {
+    parts.push(`${t('rolePermission.list.tenantLabel')}: ${tenantValue}`);
+  }
+
+  return parts.length > 0 ? parts.join(' - ') : undefined;
+};
+
 const RolePermissionListScreenWeb = () => {
   const { t } = useI18n();
   const { width } = useWindowDimensions();
@@ -285,7 +305,7 @@ const RolePermissionListScreenWeb = () => {
   }, [onDelete, onItemPress, t]);
 
   const searchBarSection = (
-    <StyledToolbar data-testid="permission-list-toolbar" testID="permission-list-toolbar">
+    <StyledToolbar data-testid="role-permission-list-toolbar" testID="role-permission-list-toolbar">
       <StyledSearchSlot>
         <TextField
           value={search}
@@ -343,13 +363,13 @@ const RolePermissionListScreenWeb = () => {
       <StyledFilterButton
         type="button"
         onClick={() => setIsFilterPanelCollapsed((previous) => !previous)}
-        data-testid="permission-filter-toggle"
+        data-testid="role-permission-filter-toggle"
       >
         {t('common.filters')}
       </StyledFilterButton>
 
       {!isFilterPanelCollapsed ? (
-        <StyledFilterBody data-testid="permission-filter-body">
+        <StyledFilterBody data-testid="role-permission-filter-body">
           <Select
             value={filterLogic}
             onValueChange={onFilterLogicChange}
@@ -494,7 +514,7 @@ const RolePermissionListScreenWeb = () => {
   ) : null;
 
   return (
-    <StyledContainer role="main" aria-label={t('permission.list.title')}>
+    <StyledContainer role="main" aria-label={t('rolePermission.list.title')}>
       {noticeMessage ? (
         <Snackbar
           visible={Boolean(noticeMessage)}
@@ -502,7 +522,7 @@ const RolePermissionListScreenWeb = () => {
           variant="success"
           position="bottom"
           onDismiss={onDismissNotice}
-          testID="permission-list-notice"
+          testID="role-permission-list-notice"
         />
       ) : null}
 
@@ -512,14 +532,14 @@ const RolePermissionListScreenWeb = () => {
 
         <Card
           variant="outlined"
-          accessibilityLabel={t('permission.list.accessibilityLabel')}
-          testID="permission-list-card"
+          accessibilityLabel={t('rolePermission.list.accessibilityLabel')}
+          testID="role-permission-list-card"
         >
           <StyledListBody
             role="region"
-            aria-label={t('permission.list.accessibilityLabel')}
-            data-testid="permission-list"
-            testID="permission-list"
+            aria-label={t('rolePermission.list.accessibilityLabel')}
+            data-testid="role-permission-list"
+            testID="role-permission-list"
           >
             <StyledStateStack>
               {showError ? (
@@ -528,7 +548,7 @@ const RolePermissionListScreenWeb = () => {
                   title={t('listScaffold.errorState.title')}
                   description={errorMessage}
                   action={retryAction}
-                  testID="permission-list-error"
+                  testID="role-permission-list-error"
                 />
               ) : null}
 
@@ -538,7 +558,7 @@ const RolePermissionListScreenWeb = () => {
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="permission-list-offline"
+                  testID="role-permission-list-offline"
                 />
               ) : null}
 
@@ -548,13 +568,16 @@ const RolePermissionListScreenWeb = () => {
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="permission-list-offline-banner"
+                  testID="role-permission-list-offline-banner"
                 />
               ) : null}
             </StyledStateStack>
 
             {isLoading ? (
-              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="permission-list-loading" />
+              <LoadingSpinner
+                accessibilityLabel={t('common.loading')}
+                testID="role-permission-list-loading"
+              />
             ) : null}
 
             {!isTableMode && showEmpty ? emptyComponent : null}
@@ -564,15 +587,15 @@ const RolePermissionListScreenWeb = () => {
               <DataTable
                 columns={tableColumns}
                 rows={rows}
-                getRowKey={(permissionItem, index) => (
-                  resolvePermissionId(permissionItem) || `permission-${index}`
+                getRowKey={(rolePermissionItem, index) => (
+                  resolveRolePermissionId(rolePermissionItem) || `role-permission-${index}`
                 )}
                 rowDensity={density}
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSort={onSort}
                 renderRowActions={renderTableRowActions}
-                rowActionsLabel={t('permission.list.columnActions')}
+                rowActionsLabel={t('rolePermission.list.columnActions')}
                 onRowPress={handleTableRowPress}
                 searchBar={searchBarSection}
                 filterBar={filterBarSection}
@@ -581,40 +604,43 @@ const RolePermissionListScreenWeb = () => {
                 tableNavigation={tableNavigationContent}
                 showDefaultEmptyRow={false}
                 minWidth={900}
-                testID="permission-table"
+                testID="role-permission-table"
               />
             ) : null}
 
             {showList && !isTableMode ? (
               <StyledList role="list">
-                {rows.map((permissionItem, index) => {
-                  const permissionId = resolvePermissionId(permissionItem);
-                  const itemKey = permissionId || `permission-${index}`;
-                  const title = resolvePermissionName(t, permissionItem);
-                  const description = resolvePermissionDescription(t, permissionItem);
-                  const tenant = resolvePermissionTenant(t, permissionItem, canViewTechnicalIds);
-                  const subtitle = [description, tenant].filter(Boolean).join(' - ');
+                {rows.map((rolePermissionItem, index) => {
+                  const rolePermissionId = resolveRolePermissionId(rolePermissionItem);
+                  const itemKey = rolePermissionId || `role-permission-${index}`;
+                  const title = resolveRoleLabel(rolePermissionItem);
+                  const subtitle = resolveMobileSubtitle(
+                    t,
+                    rolePermissionItem,
+                    resolvePermissionLabel,
+                    resolveTenantLabel
+                  );
 
                   return (
                     <li key={itemKey} role="listitem">
                       <ListItem
                         title={title}
-                        subtitle={subtitle || undefined}
-                        onPress={permissionId ? () => onItemPress(permissionId) : undefined}
-                        actions={onDelete && permissionId ? (
+                        subtitle={subtitle}
+                        onPress={rolePermissionId ? () => onItemPress(rolePermissionId) : undefined}
+                        actions={onDelete && rolePermissionId ? (
                           <Button
                             variant="surface"
                             size="small"
-                            onPress={(event) => onDelete(permissionId, event)}
-                            accessibilityLabel={t('permission.list.delete')}
-                            accessibilityHint={t('permission.list.deleteHint')}
-                            testID={`permission-delete-${itemKey}`}
+                            onPress={(event) => onDelete(rolePermissionId, event)}
+                            accessibilityLabel={t('rolePermission.list.delete')}
+                            accessibilityHint={t('rolePermission.list.deleteHint')}
+                            testID={`role-permission-delete-${itemKey}`}
                           >
                             {t('common.remove')}
                           </Button>
                         ) : undefined}
-                        accessibilityLabel={t('permission.list.itemLabel', { name: title })}
-                        testID={`permission-item-${itemKey}`}
+                        accessibilityLabel={t('rolePermission.list.itemLabel', { name: title })}
+                        testID={`role-permission-item-${itemKey}`}
                       />
                     </li>
                   );
@@ -625,7 +651,7 @@ const RolePermissionListScreenWeb = () => {
             {!isTableMode && showList ? (
               <StyledPagination>
                 <StyledPaginationInfo>
-                  {t('permission.list.pageSummary', { page, totalPages, total: totalItems })}
+                  {t('rolePermission.list.pageSummary', { page, totalPages, total: totalItems })}
                 </StyledPaginationInfo>
 
                 <StyledPaginationActions>
@@ -635,39 +661,39 @@ const RolePermissionListScreenWeb = () => {
                     disabled={page <= 1}
                     aria-label={t('common.previous')}
                     title={t('common.previous')}
-                    data-testid="permission-page-prev"
+                    data-testid="role-permission-page-prev"
                   >
                     {'<'}
                   </StyledPaginationNavButton>
 
                   <StyledPaginationControl>
                     <StyledPaginationControlLabel>
-                      {t('permission.list.pageSizeLabel')}
+                      {t('rolePermission.list.pageSizeLabel')}
                     </StyledPaginationControlLabel>
                     <StyledPaginationSelectSlot>
                       <Select
                         value={String(pageSize)}
                         onValueChange={onPageSizeChange}
                         options={pageSizeOptions}
-                        accessibilityLabel={t('permission.list.pageSizeLabel')}
+                        accessibilityLabel={t('rolePermission.list.pageSizeLabel')}
                         compact
-                        testID="permission-page-size"
+                        testID="role-permission-page-size"
                       />
                     </StyledPaginationSelectSlot>
                   </StyledPaginationControl>
 
                   <StyledPaginationControl>
                     <StyledPaginationControlLabel>
-                      {t('permission.list.densityLabel')}
+                      {t('rolePermission.list.densityLabel')}
                     </StyledPaginationControlLabel>
                     <StyledPaginationSelectSlot>
                       <Select
                         value={density}
                         onValueChange={onDensityChange}
                         options={densityOptions}
-                        accessibilityLabel={t('permission.list.densityLabel')}
+                        accessibilityLabel={t('rolePermission.list.densityLabel')}
                         compact
-                        testID="permission-density"
+                        testID="role-permission-density"
                       />
                     </StyledPaginationSelectSlot>
                   </StyledPaginationControl>
@@ -678,7 +704,7 @@ const RolePermissionListScreenWeb = () => {
                     disabled={page >= totalPages}
                     aria-label={t('common.next')}
                     title={t('common.next')}
-                    data-testid="permission-page-next"
+                    data-testid="role-permission-page-next"
                   >
                     {'>'}
                   </StyledPaginationNavButton>
@@ -692,41 +718,41 @@ const RolePermissionListScreenWeb = () => {
           visible={Boolean(isTableMode && isTableSettingsOpen)}
           onDismiss={onCloseTableSettings}
           size="small"
-          accessibilityLabel={t('permission.list.tableSettings')}
-          testID="permission-table-settings-modal"
+          accessibilityLabel={t('rolePermission.list.tableSettings')}
+          testID="role-permission-table-settings-modal"
         >
           <StyledSettingsBody>
             <StyledSettingsSection>
-              <StyledSettingsTitle>{t('permission.list.visibleColumns')}</StyledSettingsTitle>
+              <StyledSettingsTitle>{t('rolePermission.list.visibleColumns')}</StyledSettingsTitle>
               {columnOrder.map((column) => (
                 <StyledColumnRow key={column}>
                   <Checkbox
                     checked={visibleColumns.includes(column)}
                     onChange={() => onToggleColumnVisibility(column)}
                     label={resolveColumnLabel(t, column)}
-                    testID={`permission-column-visible-${column}`}
+                    testID={`role-permission-column-visible-${column}`}
                   />
 
                   <StyledColumnMoveControls>
                     <StyledMoveButton
                       type="button"
                       onClick={() => onMoveColumnLeft(column)}
-                      aria-label={t('permission.list.moveColumnLeft', {
+                      aria-label={t('rolePermission.list.moveColumnLeft', {
                         column: resolveColumnLabel(t, column),
                       })}
                       disabled={columnOrder.indexOf(column) === 0}
-                      data-testid={`permission-column-left-${column}`}
+                      data-testid={`role-permission-column-left-${column}`}
                     >
                       {'<'}
                     </StyledMoveButton>
                     <StyledMoveButton
                       type="button"
                       onClick={() => onMoveColumnRight(column)}
-                      aria-label={t('permission.list.moveColumnRight', {
+                      aria-label={t('rolePermission.list.moveColumnRight', {
                         column: resolveColumnLabel(t, column),
                       })}
                       disabled={columnOrder.indexOf(column) === columnOrder.length - 1}
-                      data-testid={`permission-column-right-${column}`}
+                      data-testid={`role-permission-column-right-${column}`}
                     >
                       {'>'}
                     </StyledMoveButton>
@@ -739,9 +765,9 @@ const RolePermissionListScreenWeb = () => {
               <StyledFilterButton
                 type="button"
                 onClick={onResetTablePreferences}
-                data-testid="permission-table-settings-reset"
+                data-testid="role-permission-table-settings-reset"
               >
-                {t('permission.list.resetTablePreferences')}
+                {t('rolePermission.list.resetTablePreferences')}
               </StyledFilterButton>
             </StyledSettingsActions>
           </StyledSettingsBody>
@@ -751,4 +777,4 @@ const RolePermissionListScreenWeb = () => {
   );
 };
 
-export default PermissionListScreenWeb;
+export default RolePermissionListScreenWeb;

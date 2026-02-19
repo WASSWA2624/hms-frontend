@@ -1,6 +1,6 @@
 /**
- * PermissionListScreen - iOS
- * File: PermissionListScreen.ios.jsx
+ * RolePermissionListScreen - iOS
+ * Mobile list rendering with scoped search, filters, and pagination.
  */
 import React from 'react';
 import { FlatList } from 'react-native';
@@ -17,110 +17,142 @@ import {
   OfflineStateSizes,
   Select,
   Snackbar,
+  Text,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { humanizeIdentifier } from '@utils';
 import {
   StyledAddButton,
   StyledAddLabel,
   StyledContainer,
   StyledContent,
+  StyledFilterActions,
+  StyledFilterBody,
+  StyledFilterPanel,
+  StyledFilterRow,
+  StyledFilterRowActions,
   StyledList,
   StyledListBody,
+  StyledPagination,
+  StyledPaginationActions,
+  StyledPaginationControl,
+  StyledPaginationInfo,
   StyledScopeSlot,
   StyledSearchSlot,
   StyledSeparator,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
-} from './PermissionListScreen.ios.styles';
-import usePermissionListScreen from './usePermissionListScreen';
+} from './RolePermissionListScreen.ios.styles';
+import useRolePermissionListScreen from './useRolePermissionListScreen';
 
-const resolvePermissionId = (permissionItem) => String(permissionItem?.id ?? '').trim();
+const resolveRolePermissionId = (rolePermissionItem) => String(rolePermissionItem?.id ?? '').trim();
 
-const resolvePermissionName = (t, permissionItem) => (
-  humanizeIdentifier(permissionItem?.name) || t('permission.list.unnamedPermission')
-);
+const resolveMobileSubtitle = (
+  t,
+  rolePermissionItem,
+  resolvePermissionLabel,
+  resolveTenantLabel
+) => {
+  const permissionValue = resolvePermissionLabel(rolePermissionItem);
+  const tenantValue = resolveTenantLabel(rolePermissionItem);
+  const parts = [];
 
-const resolvePermissionDescription = (t, permissionItem) => (
-  humanizeIdentifier(permissionItem?.description) || t('common.notAvailable')
-);
+  if (permissionValue && permissionValue !== t('common.notAvailable')) {
+    parts.push(`${t('rolePermission.list.permissionLabel')}: ${permissionValue}`);
+  }
+  if (tenantValue && tenantValue !== t('common.notAvailable')) {
+    parts.push(`${t('rolePermission.list.tenantLabel')}: ${tenantValue}`);
+  }
 
-const resolvePermissionTenant = (t, permissionItem, canViewTechnicalIds) => {
-  const readableTenant = humanizeIdentifier(permissionItem?.tenant_name)
-    || humanizeIdentifier(permissionItem?.tenant?.name)
-    || humanizeIdentifier(permissionItem?.tenant_label);
-
-  if (readableTenant) return readableTenant;
-
-  const technicalTenantId = String(permissionItem?.tenant_id ?? '').trim();
-  if (technicalTenantId && canViewTechnicalIds) return technicalTenantId;
-  if (technicalTenantId) return t('permission.list.currentTenantLabel');
-  return t('common.notAvailable');
+  return parts.length > 0 ? parts.join(' - ') : undefined;
 };
 
-const PermissionListScreenIOS = () => {
+const RolePermissionListScreenIOS = () => {
   const { t } = useI18n();
   const {
-    items,
+    pagedItems,
+    totalItems,
+    totalPages,
+    page,
+    pageSize,
+    pageSizeOptions,
+    density,
+    densityOptions,
     search,
     searchScope,
     searchScopeOptions,
+    filters,
+    filterFieldOptions,
+    filterLogic,
+    filterLogicOptions,
+    canAddFilter,
     hasNoResults,
     isLoading,
     hasError,
     errorMessage,
     isOffline,
-    canViewTechnicalIds,
     noticeMessage,
+    resolveRoleLabel,
+    resolvePermissionLabel,
+    resolveTenantLabel,
     onDismissNotice,
     onRetry,
     onSearch,
     onSearchScopeChange,
+    onFilterLogicChange,
+    onFilterFieldChange,
+    onFilterOperatorChange,
+    onFilterValueChange,
+    onAddFilter,
+    onRemoveFilter,
     onClearSearchAndFilters,
+    onPageChange,
+    onPageSizeChange,
+    onDensityChange,
+    resolveFilterOperatorOptions,
     onItemPress,
     onDelete,
     onAdd,
-  } = usePermissionListScreen();
+  } = useRolePermissionListScreen();
 
+  const rows = pagedItems;
   const emptyComponent = (
     <EmptyState
-      title={t('permission.list.emptyTitle')}
-      description={t('permission.list.emptyMessage')}
-      action={
-        onAdd ? (
-          <StyledAddButton
-            onPress={onAdd}
-            accessibilityRole="button"
-            accessibilityLabel={t('permission.list.addLabel')}
-            accessibilityHint={t('permission.list.addHint')}
-            testID="permission-list-empty-add"
-          >
-            <Icon glyph="+" size="xs" decorative />
-            <StyledAddLabel>{t('permission.list.addLabel')}</StyledAddLabel>
-          </StyledAddButton>
-        ) : undefined
-      }
-      testID="permission-list-empty-state"
+      title={t('rolePermission.list.emptyTitle')}
+      description={t('rolePermission.list.emptyMessage')}
+      action={onAdd ? (
+        <StyledAddButton
+          onPress={onAdd}
+          accessibilityRole="button"
+          accessibilityLabel={t('rolePermission.list.addLabel')}
+          accessibilityHint={t('rolePermission.list.addHint')}
+          testID="role-permission-list-empty-add"
+        >
+          <Icon glyph="+" size="xs" decorative />
+          <StyledAddLabel>{t('rolePermission.list.addLabel')}</StyledAddLabel>
+        </StyledAddButton>
+      ) : undefined}
+      testID="role-permission-list-empty-state"
     />
   );
 
   const noResultsComponent = (
     <EmptyState
-      title={t('permission.list.noResultsTitle')}
-      description={t('permission.list.noResultsMessage')}
+      title={t('rolePermission.list.noResultsTitle')}
+      description={t('rolePermission.list.noResultsMessage')}
       action={(
-        <StyledAddButton
+        <Button
+          variant="surface"
+          size="small"
           onPress={onClearSearchAndFilters}
-          accessibilityRole="button"
-          accessibilityLabel={t('permission.list.clearSearchAndFilters')}
-          testID="permission-list-clear-search"
+          accessibilityLabel={t('rolePermission.list.clearSearchAndFilters')}
+          testID="role-permission-list-clear-search"
         >
-          <StyledAddLabel>{t('permission.list.clearSearchAndFilters')}</StyledAddLabel>
-        </StyledAddButton>
+          {t('rolePermission.list.clearSearchAndFilters')}
+        </Button>
       )}
-      testID="permission-list-no-results"
+      testID="role-permission-list-no-results"
     />
   );
 
@@ -132,45 +164,49 @@ const PermissionListScreenIOS = () => {
       onPress={onRetry}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      testID="permission-list-retry"
+      testID="role-permission-list-retry"
     >
       {t('common.retry')}
     </Button>
   ) : undefined;
-  const showError = !isLoading && hasError && !isOffline;
-  const showOffline = !isLoading && isOffline && items.length === 0;
-  const showOfflineBanner = !isLoading && isOffline && items.length > 0;
-  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && items.length === 0;
-  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
-  const showList = items.length > 0;
 
-  const renderItem = ({ item: permissionItem, index }) => {
-    const permissionId = resolvePermissionId(permissionItem);
-    const itemKey = permissionId || `permission-${index}`;
-    const title = resolvePermissionName(t, permissionItem);
-    const description = resolvePermissionDescription(t, permissionItem);
-    const tenant = resolvePermissionTenant(t, permissionItem, canViewTechnicalIds);
-    const subtitle = [description, tenant].filter(Boolean).join(' - ');
+  const showError = !isLoading && hasError && !isOffline;
+  const showOffline = !isLoading && isOffline && rows.length === 0;
+  const showOfflineBanner = !isLoading && isOffline && rows.length > 0;
+  const showEmpty = !isLoading && !showError && !showOffline && !hasNoResults && totalItems === 0;
+  const showNoResults = !isLoading && !showError && !showOffline && hasNoResults;
+  const showList = rows.length > 0;
+
+  const renderItem = ({ item: rolePermissionItem, index }) => {
+    const rolePermissionId = resolveRolePermissionId(rolePermissionItem);
+    const itemKey = rolePermissionId || `role-permission-${index}`;
+    const title = resolveRoleLabel(rolePermissionItem);
+    const subtitle = resolveMobileSubtitle(
+      t,
+      rolePermissionItem,
+      resolvePermissionLabel,
+      resolveTenantLabel
+    );
 
     return (
       <ListItem
         title={title}
-        subtitle={subtitle || undefined}
-        onPress={permissionId ? () => onItemPress(permissionId) : undefined}
-        actions={onDelete && permissionId ? (
+        subtitle={subtitle}
+        onPress={rolePermissionId ? () => onItemPress(rolePermissionId) : undefined}
+        actions={onDelete && rolePermissionId ? (
           <Button
             variant="surface"
             size="small"
-            onPress={(event) => onDelete(permissionId, event)}
-            accessibilityLabel={t('permission.list.delete')}
-            accessibilityHint={t('permission.list.deleteHint')}
-            testID={`permission-delete-${itemKey}`}
+            onPress={(event) => onDelete(rolePermissionId, event)}
+            accessibilityLabel={t('rolePermission.list.delete')}
+            accessibilityHint={t('rolePermission.list.deleteHint')}
+            testID={`role-permission-delete-${itemKey}`}
           >
             {t('common.remove')}
           </Button>
         ) : undefined}
-        accessibilityLabel={t('permission.list.itemLabel', { name: title })}
-        testID={`permission-item-${itemKey}`}
+        accessibilityLabel={t('rolePermission.list.itemLabel', { name: title })}
+        testID={`role-permission-item-${itemKey}`}
       />
     );
   };
@@ -184,99 +220,246 @@ const PermissionListScreenIOS = () => {
           variant="success"
           position="bottom"
           onDismiss={onDismissNotice}
-          testID="permission-list-notice"
+          testID="role-permission-list-notice"
         />
       ) : null}
+
       <StyledContent>
-        <StyledToolbar testID="permission-list-toolbar">
+        <StyledToolbar testID="role-permission-list-toolbar">
           <StyledSearchSlot>
             <TextField
               value={search}
               onChangeText={onSearch}
-              placeholder={t('permission.list.searchPlaceholder')}
-              accessibilityLabel={t('permission.list.searchLabel')}
+              placeholder={t('rolePermission.list.searchPlaceholder')}
+              accessibilityLabel={t('rolePermission.list.searchLabel')}
               density="compact"
               type="search"
-              testID="permission-list-search"
+              testID="role-permission-list-search"
             />
           </StyledSearchSlot>
+
           <StyledScopeSlot>
             <Select
               value={searchScope}
               onValueChange={onSearchScopeChange}
               options={searchScopeOptions}
-              label={t('permission.list.searchScopeLabel')}
+              label={t('rolePermission.list.searchScopeLabel')}
               compact
-              testID="permission-list-search-scope"
+              testID="role-permission-list-search-scope"
             />
           </StyledScopeSlot>
+
           <StyledToolbarActions>
-            {onAdd && (
+            {onAdd ? (
               <StyledAddButton
                 onPress={onAdd}
                 accessibilityRole="button"
-                accessibilityLabel={t('permission.list.addLabel')}
-                accessibilityHint={t('permission.list.addHint')}
-                testID="permission-list-add"
+                accessibilityLabel={t('rolePermission.list.addLabel')}
+                accessibilityHint={t('rolePermission.list.addHint')}
+                testID="role-permission-list-add"
               >
                 <Icon glyph="+" size="xs" decorative />
-                <StyledAddLabel>{t('permission.list.addLabel')}</StyledAddLabel>
+                <StyledAddLabel>{t('rolePermission.list.addLabel')}</StyledAddLabel>
               </StyledAddButton>
-            )}
+            ) : null}
           </StyledToolbarActions>
         </StyledToolbar>
+
+        <StyledFilterPanel>
+          <StyledFilterBody>
+            <Select
+              value={filterLogic}
+              onValueChange={onFilterLogicChange}
+              options={filterLogicOptions}
+              label={t('rolePermission.list.filterLogicLabel')}
+              compact
+              testID="role-permission-filter-logic"
+            />
+
+            {filters.map((filter, index) => (
+              <StyledFilterRow key={filter.id}>
+                <Select
+                  value={filter.field}
+                  onValueChange={(value) => onFilterFieldChange(filter.id, value)}
+                  options={filterFieldOptions}
+                  label={t('rolePermission.list.filterFieldLabel')}
+                  compact
+                  testID={`role-permission-filter-field-${index}`}
+                />
+
+                <Select
+                  value={filter.operator}
+                  onValueChange={(value) => onFilterOperatorChange(filter.id, value)}
+                  options={resolveFilterOperatorOptions(filter.field)}
+                  label={t('rolePermission.list.filterOperatorLabel')}
+                  compact
+                  testID={`role-permission-filter-operator-${index}`}
+                />
+
+                <TextField
+                  value={filter.value}
+                  onChangeText={(value) => onFilterValueChange(filter.id, value)}
+                  label={t('rolePermission.list.filterValueLabel')}
+                  placeholder={t('rolePermission.list.filterValuePlaceholder')}
+                  density="compact"
+                  testID={`role-permission-filter-value-${index}`}
+                />
+
+                <StyledFilterRowActions>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onRemoveFilter(filter.id)}
+                    accessibilityLabel={t('rolePermission.list.removeFilter')}
+                    testID={`role-permission-filter-remove-${index}`}
+                  >
+                    {t('common.remove')}
+                  </Button>
+                </StyledFilterRowActions>
+              </StyledFilterRow>
+            ))}
+
+            <StyledFilterActions>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onAddFilter}
+                disabled={!canAddFilter}
+                testID="role-permission-filter-add"
+              >
+                {t('rolePermission.list.addFilter')}
+              </Button>
+
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onClearSearchAndFilters}
+                testID="role-permission-filter-clear"
+              >
+                {t('rolePermission.list.clearSearchAndFilters')}
+              </Button>
+            </StyledFilterActions>
+          </StyledFilterBody>
+        </StyledFilterPanel>
+
         <Card
           variant="outlined"
-          accessibilityLabel={t('permission.list.accessibilityLabel')}
-          testID="permission-list-card"
+          accessibilityLabel={t('rolePermission.list.accessibilityLabel')}
+          testID="role-permission-list-card"
         >
           <StyledListBody>
             <StyledStateStack>
-              {showError && (
+              {showError ? (
                 <ErrorState
                   size={ErrorStateSizes.SMALL}
                   title={t('listScaffold.errorState.title')}
                   description={errorMessage}
                   action={retryAction}
-                  testID="permission-list-error"
+                  testID="role-permission-list-error"
                 />
-              )}
-              {showOffline && (
+              ) : null}
+
+              {showOffline ? (
                 <OfflineState
                   size={OfflineStateSizes.SMALL}
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="permission-list-offline"
+                  testID="role-permission-list-offline"
                 />
-              )}
-              {showOfflineBanner && (
+              ) : null}
+
+              {showOfflineBanner ? (
                 <OfflineState
                   size={OfflineStateSizes.SMALL}
                   title={t('shell.banners.offline.title')}
                   description={t('shell.banners.offline.message')}
                   action={retryAction}
-                  testID="permission-list-offline-banner"
+                  testID="role-permission-list-offline-banner"
                 />
-              )}
+              ) : null}
             </StyledStateStack>
-            {isLoading && (
-              <LoadingSpinner accessibilityLabel={t('common.loading')} testID="permission-list-loading" />
-            )}
+
+            {isLoading ? (
+              <LoadingSpinner
+                accessibilityLabel={t('common.loading')}
+                testID="role-permission-list-loading"
+              />
+            ) : null}
+
             {showEmpty ? emptyComponent : null}
             {showNoResults ? noResultsComponent : null}
+
             {showList ? (
               <StyledList>
                 <FlatList
-                  data={items}
-                  keyExtractor={(permissionItem, index) => resolvePermissionId(permissionItem) || `permission-${index}`}
+                  data={rows}
+                  keyExtractor={(rolePermissionItem, index) => (
+                    resolveRolePermissionId(rolePermissionItem) || `role-permission-${index}`
+                  )}
                   renderItem={renderItem}
                   ItemSeparatorComponent={ItemSeparator}
                   scrollEnabled={false}
-                  accessibilityLabel={t('permission.list.accessibilityLabel')}
-                  testID="permission-list-flatlist"
+                  accessibilityLabel={t('rolePermission.list.accessibilityLabel')}
+                  testID="role-permission-list-flatlist"
                 />
               </StyledList>
+            ) : null}
+
+            {showList ? (
+              <StyledPagination>
+                <StyledPaginationInfo>
+                  <Text variant="body">
+                    {t('rolePermission.list.pageSummary', { page, totalPages, total: totalItems })}
+                  </Text>
+                </StyledPaginationInfo>
+
+                <StyledPaginationActions>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onPageChange(page - 1)}
+                    disabled={page <= 1}
+                    accessibilityLabel={t('common.previous')}
+                    testID="role-permission-page-prev"
+                  >
+                    {t('common.previous')}
+                  </Button>
+
+                  <StyledPaginationControl>
+                    <Select
+                      value={String(pageSize)}
+                      onValueChange={onPageSizeChange}
+                      options={pageSizeOptions}
+                      label={t('rolePermission.list.pageSizeLabel')}
+                      compact
+                      testID="role-permission-page-size"
+                    />
+                  </StyledPaginationControl>
+
+                  <StyledPaginationControl>
+                    <Select
+                      value={density}
+                      onValueChange={onDensityChange}
+                      options={densityOptions}
+                      label={t('rolePermission.list.densityLabel')}
+                      compact
+                      testID="role-permission-density"
+                    />
+                  </StyledPaginationControl>
+
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={() => onPageChange(page + 1)}
+                    disabled={page >= totalPages}
+                    accessibilityLabel={t('common.next')}
+                    testID="role-permission-page-next"
+                  >
+                    {t('common.next')}
+                  </Button>
+                </StyledPaginationActions>
+              </StyledPagination>
             ) : null}
           </StyledListBody>
         </Card>
@@ -285,4 +468,4 @@ const PermissionListScreenIOS = () => {
   );
 };
 
-export default PermissionListScreenIOS;
+export default RolePermissionListScreenIOS;

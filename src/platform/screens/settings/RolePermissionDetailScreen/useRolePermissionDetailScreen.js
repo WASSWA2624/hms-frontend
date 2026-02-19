@@ -6,13 +6,32 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, useRolePermission, useTenantAccess } from '@hooks';
-import { confirmAction } from '@utils';
+import { confirmAction, humanizeIdentifier } from '@utils';
 
 const resolveErrorMessage = (t, errorCode) => {
   if (!errorCode) return null;
   const key = `errors.codes.${errorCode}`;
   const resolved = t(key);
   return resolved === key ? t('errors.codes.UNKNOWN_ERROR') : resolved;
+};
+
+const normalizeValue = (value) => String(value ?? '').trim();
+
+const resolveReadableValue = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = humanizeIdentifier(candidate);
+    if (normalized) return normalizeValue(normalized);
+  }
+  return '';
+};
+
+const resolveContextValue = (readableValue, technicalId, canViewTechnicalIds, fallbackLabel) => {
+  if (readableValue) return readableValue;
+
+  const normalizedTechnicalId = normalizeValue(technicalId);
+  if (!normalizedTechnicalId) return '';
+  if (canViewTechnicalIds) return normalizedTechnicalId;
+  return fallbackLabel;
 };
 
 const useRolePermissionDetailScreen = () => {
@@ -34,14 +53,59 @@ const useRolePermissionDetailScreen = () => {
   const canManageRolePermissions = canAccessTenantSettings;
   const canEditRolePermission = canManageRolePermissions;
   const canDeleteRolePermission = canManageRolePermissions;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageRolePermissions && !canManageAllTenants;
-  const normalizedTenantId = useMemo(() => String(tenantId ?? '').trim(), [tenantId]);
+  const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
 
   const rolePermission = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
   const errorMessage = useMemo(
     () => resolveErrorMessage(t, errorCode),
     [t, errorCode]
   );
+  const roleLabel = useMemo(() => {
+    if (!rolePermission) return '';
+
+    return resolveContextValue(
+      resolveReadableValue(
+        rolePermission?.role_name,
+        rolePermission?.role?.name,
+        rolePermission?.role_label
+      ),
+      rolePermission?.role_id,
+      canViewTechnicalIds,
+      t('rolePermission.detail.currentRole')
+    );
+  }, [rolePermission, canViewTechnicalIds, t]);
+
+  const permissionLabel = useMemo(() => {
+    if (!rolePermission) return '';
+
+    return resolveContextValue(
+      resolveReadableValue(
+        rolePermission?.permission_name,
+        rolePermission?.permission?.name,
+        rolePermission?.permission_label
+      ),
+      rolePermission?.permission_id,
+      canViewTechnicalIds,
+      t('rolePermission.detail.currentPermission')
+    );
+  }, [rolePermission, canViewTechnicalIds, t]);
+
+  const tenantLabel = useMemo(() => {
+    if (!rolePermission) return '';
+
+    return resolveContextValue(
+      resolveReadableValue(
+        rolePermission?.tenant_name,
+        rolePermission?.tenant?.name,
+        rolePermission?.tenant_label
+      ),
+      rolePermission?.tenant_id,
+      canViewTechnicalIds,
+      t('rolePermission.detail.currentTenant')
+    );
+  }, [rolePermission, canViewTechnicalIds, t]);
 
   const fetchDetail = useCallback(() => {
     if (!isResolved || !canManageRolePermissions || !rolePermissionId) return;
@@ -122,10 +186,14 @@ const useRolePermissionDetailScreen = () => {
   return {
     id: rolePermissionId,
     rolePermission,
+    roleLabel,
+    permissionLabel,
+    tenantLabel,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && Boolean(errorCode),
     errorMessage,
     isOffline,
+    canViewTechnicalIds,
     onRetry: handleRetry,
     onBack: handleBack,
     onEdit: canEditRolePermission ? handleEdit : undefined,

@@ -7,7 +7,6 @@ import {
   Card,
   ErrorState,
   ErrorStateSizes,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -83,7 +82,6 @@ const RolePermissionFormScreenWeb = () => {
                 onPress={onCancel}
                 accessibilityLabel={t('common.back')}
                 accessibilityHint={t('rolePermission.form.cancelHint')}
-                icon={<Icon glyph="←" size="xs" decorative />}
               >
                 {t('common.back')}
               </Button>
@@ -103,7 +101,6 @@ const RolePermissionFormScreenWeb = () => {
       onPress={onRetryRoles}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="role-permission-form-role-retry"
     >
       {t('common.retry')}
@@ -116,7 +113,6 @@ const RolePermissionFormScreenWeb = () => {
       onPress={onRetryPermissions}
       accessibilityLabel={t('common.retry')}
       accessibilityHint={t('common.retryHint')}
-      icon={<Icon glyph="↻" size="xs" decorative />}
       testID="role-permission-form-permission-retry"
     >
       {t('common.retry')}
@@ -179,7 +175,6 @@ const RolePermissionFormScreenWeb = () => {
                       onPress={onGoToRoles}
                       accessibilityLabel={t('rolePermission.form.goToRoles')}
                       accessibilityHint={t('rolePermission.form.goToRolesHint')}
-                      icon={<Icon glyph="→" size="xs" decorative />}
                       testID="role-permission-form-go-to-roles"
                     >
                       {t('rolePermission.form.goToRoles')}
@@ -229,7 +224,6 @@ const RolePermissionFormScreenWeb = () => {
                       onPress={onGoToPermissions}
                       accessibilityLabel={t('rolePermission.form.goToPermissions')}
                       accessibilityHint={t('rolePermission.form.goToPermissionsHint')}
-                      icon={<Icon glyph="→" size="xs" decorative />}
                       testID="role-permission-form-go-to-permissions"
                     >
                       {t('rolePermission.form.goToPermissions')}
@@ -263,7 +257,6 @@ const RolePermissionFormScreenWeb = () => {
             onPress={onCancel}
             accessibilityLabel={t('rolePermission.form.cancel')}
             accessibilityHint={t('rolePermission.form.cancelHint')}
-            icon={<Icon glyph="←" size="xs" decorative />}
             testID="role-permission-form-cancel"
             disabled={isLoading}
           >
@@ -277,7 +270,6 @@ const RolePermissionFormScreenWeb = () => {
             disabled={isSubmitDisabled}
             accessibilityLabel={isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}
             accessibilityHint={isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}
-            icon={<Icon glyph="✓" size="xs" decorative />}
             testID="role-permission-form-submit"
           >
             {isEdit ? t('rolePermission.form.submitEdit') : t('rolePermission.form.submitCreate')}
@@ -289,3 +281,4 @@ const RolePermissionFormScreenWeb = () => {
 };
 
 export default RolePermissionFormScreenWeb;
+

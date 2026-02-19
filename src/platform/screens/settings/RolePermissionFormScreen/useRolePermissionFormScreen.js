@@ -12,6 +12,9 @@ import {
   useRolePermission,
   useTenantAccess,
 } from '@hooks';
+import { humanizeIdentifier } from '@utils';
+
+const MAX_REFERENCE_FETCH_LIMIT = 100;
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;
@@ -58,6 +61,7 @@ const useRolePermissionFormScreen = () => {
   const canManageRolePermissions = canAccessTenantSettings;
   const canCreateRolePermission = canManageRolePermissions;
   const canEditRolePermission = canManageRolePermissions;
+  const canViewTechnicalIds = canManageAllTenants;
   const isTenantScopedAdmin = canManageRolePermissions && !canManageAllTenants;
   const normalizedScopedTenantId = useMemo(
     () => String(scopedTenantId ?? '').trim(),
@@ -79,19 +83,25 @@ const useRolePermissionFormScreen = () => {
   );
   const roleOptions = useMemo(
     () =>
-      roleItems.map((role) => ({
+      roleItems.map((role, index) => ({
         value: role.id,
-        label: role.name ?? role.slug ?? role.id ?? '',
+        label: humanizeIdentifier(role.name)
+          || humanizeIdentifier(role.slug)
+          || (canViewTechnicalIds ? String(role.id ?? '').trim() : '')
+          || t('rolePermission.form.roleOptionFallback', { index: index + 1 }),
       })),
-    [roleItems]
+    [roleItems, canViewTechnicalIds, t]
   );
   const permissionOptions = useMemo(
     () =>
-      permissionItems.map((permission) => ({
+      permissionItems.map((permission, index) => ({
         value: permission.id,
-        label: permission.name ?? permission.code ?? permission.id ?? '',
+        label: humanizeIdentifier(permission.name)
+          || humanizeIdentifier(permission.code)
+          || (canViewTechnicalIds ? String(permission.id ?? '').trim() : '')
+          || t('rolePermission.form.permissionOptionFallback', { index: index + 1 }),
       })),
-    [permissionItems]
+    [permissionItems, canViewTechnicalIds, t]
   );
 
   useEffect(() => {
@@ -142,7 +152,7 @@ const useRolePermissionFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageRolePermissions) return;
     resetRoles();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -159,7 +169,7 @@ const useRolePermissionFormScreen = () => {
   useEffect(() => {
     if (!isResolved || !canManageRolePermissions) return;
     resetPermissions();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -315,7 +325,7 @@ const useRolePermissionFormScreen = () => {
   const handleRetryRoles = useCallback(() => {
     if (!isResolved || !canManageRolePermissions) return;
     resetRoles();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }
@@ -332,7 +342,7 @@ const useRolePermissionFormScreen = () => {
   const handleRetryPermissions = useCallback(() => {
     if (!isResolved || !canManageRolePermissions) return;
     resetPermissions();
-    const params = { page: 1, limit: 200 };
+    const params = { page: 1, limit: MAX_REFERENCE_FETCH_LIMIT };
     if (isTenantScopedAdmin) {
       params.tenant_id = normalizedScopedTenantId;
     }

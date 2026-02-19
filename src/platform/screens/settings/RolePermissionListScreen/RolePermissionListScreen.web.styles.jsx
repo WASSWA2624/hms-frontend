@@ -487,6 +487,8 @@ const StyledMobileList = styled.ul.withConfig({
   gap: 0;
 `;
 
+const StyledList = StyledMobileList;
+
 const StyledSettingsBody = styled.div.withConfig({
   displayName: 'StyledSettingsBody',
   componentId: 'StyledSettingsBody',
@@ -598,6 +600,7 @@ export {
   StyledPaginationControl,
   StyledPaginationControlLabel,
   StyledPaginationSelectSlot,
+  StyledList,
   StyledMobileList,
   StyledSettingsBody,
   StyledSettingsSection,
