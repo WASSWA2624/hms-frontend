@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Card,
@@ -8,9 +8,11 @@ import {
   Icon,
   ListItem,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Text,
+  Tooltip,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -18,10 +20,20 @@ import {
   StyledContainer,
   StyledContent,
   StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpAnchor,
+  StyledHelpButton,
+  StyledHelpChecklist,
+  StyledHelpItem,
+  StyledHelpModalBody,
+  StyledHelpModalTitle,
   StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
+  StyledSummaryList,
+  StyledSummaryListItem,
   StyledTileAction,
   StyledTileDescription,
   StyledTileTitle,
@@ -30,10 +42,14 @@ import useSchedulingOverviewScreen from './useSchedulingOverviewScreen';
 
 const SchedulingOverviewScreenWeb = () => {
   const { t } = useI18n();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const {
     cards,
+    overviewSummary,
+    helpContent,
     recentAppointments,
-    canCreateSchedulingRecords,
+    showCreateAppointmentAction,
     isLoading,
     hasError,
     errorMessage,
@@ -48,23 +64,73 @@ const SchedulingOverviewScreenWeb = () => {
     <StyledContainer role="main" aria-label={t('scheduling.overview.title')}>
       <StyledContent>
         <StyledHeader>
-          <Text variant="h2" accessibilityRole="header">{t('scheduling.overview.title')}</Text>
-          <Text variant="body">{t('scheduling.overview.description')}</Text>
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onCreateAppointment}
-            disabled={!canCreateSchedulingRecords}
-            aria-disabled={!canCreateSchedulingRecords}
-            title={!canCreateSchedulingRecords ? t('scheduling.access.createDenied') : undefined}
-            accessibilityLabel={t('scheduling.overview.createAppointment')}
-            accessibilityHint={t('scheduling.overview.createAppointmentHint')}
-            icon={<Icon glyph="+" size="xs" decorative />}
-            testID="scheduling-overview-create-appointment"
-          >
-            {t('scheduling.overview.createAppointment')}
-          </Button>
+          <StyledHeaderTop>
+            <StyledHeaderCopy>
+              <Text variant="h2" accessibilityRole="header">{t('scheduling.overview.title')}</Text>
+              <Text variant="body">{t('scheduling.overview.description')}</Text>
+            </StyledHeaderCopy>
+            <StyledHelpAnchor>
+              <StyledHelpButton
+                type="button"
+                aria-label={helpContent.label}
+                aria-describedby="scheduling-overview-help-tooltip"
+                testID="scheduling-overview-help-trigger"
+                data-testid="scheduling-overview-help-trigger"
+                onMouseEnter={() => setIsTooltipVisible(true)}
+                onMouseLeave={() => setIsTooltipVisible(false)}
+                onFocus={() => setIsTooltipVisible(true)}
+                onBlur={() => setIsTooltipVisible(false)}
+                onClick={() => setIsHelpOpen(true)}
+              >
+                <Icon glyph="?" size="xs" decorative />
+              </StyledHelpButton>
+              <Tooltip
+                id="scheduling-overview-help-tooltip"
+                visible={isTooltipVisible && !isHelpOpen}
+                position="bottom"
+                text={helpContent.tooltip}
+                testID="scheduling-overview-help-tooltip"
+              />
+            </StyledHelpAnchor>
+          </StyledHeaderTop>
+
+          <StyledSummaryList role="list" aria-label={t('scheduling.overview.summaryTitle')}>
+            <StyledSummaryListItem role="listitem">{overviewSummary.scope}</StyledSummaryListItem>
+            <StyledSummaryListItem role="listitem">{overviewSummary.access}</StyledSummaryListItem>
+            <StyledSummaryListItem role="listitem">{overviewSummary.recentCount}</StyledSummaryListItem>
+          </StyledSummaryList>
+
+          {showCreateAppointmentAction ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onCreateAppointment}
+              accessibilityLabel={t('scheduling.overview.createAppointment')}
+              accessibilityHint={t('scheduling.overview.createAppointmentHint')}
+              icon={<Icon glyph="+" size="xs" decorative />}
+              testID="scheduling-overview-create-appointment"
+            >
+              {t('scheduling.overview.createAppointment')}
+            </Button>
+          ) : null}
         </StyledHeader>
+
+        <Modal
+          visible={isHelpOpen}
+          onDismiss={() => setIsHelpOpen(false)}
+          size="small"
+          accessibilityLabel={helpContent.title}
+          accessibilityHint={helpContent.body}
+          testID="scheduling-overview-help-modal"
+        >
+          <StyledHelpModalTitle>{helpContent.title}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{helpContent.body}</StyledHelpModalBody>
+          <StyledHelpChecklist>
+            {helpContent.items.map((item) => (
+              <StyledHelpItem key={item}>{item}</StyledHelpItem>
+            ))}
+          </StyledHelpChecklist>
+        </Modal>
 
         {isLoading ? (
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="scheduling-overview-loading" />
@@ -150,17 +216,15 @@ const SchedulingOverviewScreenWeb = () => {
               />
             ) : (
               <StyledRecentList role="list">
-                {recentAppointments.map((appointment) => {
-                  const title = appointment.reason || appointment.id;
-                  const subtitle = appointment.status || appointment.scheduled_start || '';
+                {recentAppointments.map((appointment, index) => {
                   return (
-                    <li key={appointment.id} role="listitem">
+                    <li key={appointment.listKey} role="listitem">
                       <ListItem
-                        title={title}
-                        subtitle={subtitle}
+                        title={appointment.displayName}
+                        subtitle={appointment.subtitle}
                         onPress={() => onOpenAppointment(appointment)}
-                        accessibilityLabel={t('scheduling.overview.openAppointment', { appointment: title })}
-                        testID={`scheduling-overview-item-${appointment.id}`}
+                        accessibilityLabel={t('scheduling.overview.openAppointment', { appointment: appointment.displayName })}
+                        testID={`scheduling-overview-item-${index + 1}`}
                       />
                     </li>
                   );

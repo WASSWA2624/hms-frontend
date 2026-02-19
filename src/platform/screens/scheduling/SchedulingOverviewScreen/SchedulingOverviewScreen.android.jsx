@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Card,
@@ -8,6 +8,7 @@ import {
   Icon,
   ListItem,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Text,
@@ -18,11 +19,21 @@ import {
   StyledContainer,
   StyledContent,
   StyledHeader,
+  StyledHeaderCopy,
+  StyledHeaderTop,
+  StyledHelpButton,
+  StyledHelpButtonLabel,
+  StyledHelpModalBody,
+  StyledHelpModalItem,
+  StyledHelpModalTitle,
   StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
   StyledSeparator,
+  StyledSummaryChip,
+  StyledSummaryList,
+  StyledSummaryText,
   StyledTileAction,
   StyledTileDescription,
   StyledTileTitle,
@@ -31,10 +42,13 @@ import useSchedulingOverviewScreen from './useSchedulingOverviewScreen';
 
 const SchedulingOverviewScreenAndroid = () => {
   const { t } = useI18n();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const {
     cards,
+    overviewSummary,
+    helpContent,
     recentAppointments,
-    canCreateSchedulingRecords,
+    showCreateAppointmentAction,
     isLoading,
     hasError,
     errorMessage,
@@ -49,25 +63,63 @@ const SchedulingOverviewScreenAndroid = () => {
     <StyledContainer>
       <StyledContent>
         <StyledHeader>
-          <Text variant="h2" accessibilityRole="header">{t('scheduling.overview.title')}</Text>
-          <Text variant="body">{t('scheduling.overview.description')}</Text>
-          <Button
-            variant="surface"
-            size="small"
-            onPress={onCreateAppointment}
-            disabled={!canCreateSchedulingRecords}
-            accessibilityLabel={t('scheduling.overview.createAppointment')}
-            accessibilityHint={
-              canCreateSchedulingRecords
-                ? t('scheduling.overview.createAppointmentHint')
-                : t('scheduling.access.createDenied')
-            }
-            icon={<Icon glyph="+" size="xs" decorative />}
-            testID="scheduling-overview-create-appointment"
-          >
-            {t('scheduling.overview.createAppointment')}
-          </Button>
+          <StyledHeaderTop>
+            <StyledHeaderCopy>
+              <Text variant="h2" accessibilityRole="header">{t('scheduling.overview.title')}</Text>
+              <Text variant="body">{t('scheduling.overview.description')}</Text>
+            </StyledHeaderCopy>
+            <StyledHelpButton
+              accessibilityRole="button"
+              accessibilityLabel={helpContent.label}
+              accessibilityHint={helpContent.tooltip}
+              testID="scheduling-overview-help-trigger"
+              onPress={() => setIsHelpOpen(true)}
+            >
+              <StyledHelpButtonLabel>?</StyledHelpButtonLabel>
+            </StyledHelpButton>
+          </StyledHeaderTop>
+
+          <StyledSummaryList accessibilityLabel={t('scheduling.overview.summaryTitle')}>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.scope}</StyledSummaryText>
+            </StyledSummaryChip>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.access}</StyledSummaryText>
+            </StyledSummaryChip>
+            <StyledSummaryChip>
+              <StyledSummaryText>{overviewSummary.recentCount}</StyledSummaryText>
+            </StyledSummaryChip>
+          </StyledSummaryList>
+
+          {showCreateAppointmentAction ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onCreateAppointment}
+              accessibilityLabel={t('scheduling.overview.createAppointment')}
+              accessibilityHint={t('scheduling.overview.createAppointmentHint')}
+              icon={<Icon glyph="+" size="xs" decorative />}
+              testID="scheduling-overview-create-appointment"
+            >
+              {t('scheduling.overview.createAppointment')}
+            </Button>
+          ) : null}
         </StyledHeader>
+
+        <Modal
+          visible={isHelpOpen}
+          onDismiss={() => setIsHelpOpen(false)}
+          size="small"
+          accessibilityLabel={helpContent.title}
+          accessibilityHint={helpContent.body}
+          testID="scheduling-overview-help-modal"
+        >
+          <StyledHelpModalTitle>{helpContent.title}</StyledHelpModalTitle>
+          <StyledHelpModalBody>{helpContent.body}</StyledHelpModalBody>
+          {helpContent.items.map((item) => (
+            <StyledHelpModalItem key={item}>{`- ${item}`}</StyledHelpModalItem>
+          ))}
+        </Modal>
 
         {isLoading ? (
           <LoadingSpinner accessibilityLabel={t('common.loading')} testID="scheduling-overview-loading" />
@@ -153,16 +205,14 @@ const SchedulingOverviewScreenAndroid = () => {
             ) : (
               <StyledRecentList>
                 {recentAppointments.map((appointment, index) => {
-                  const title = appointment.reason || appointment.id;
-                  const subtitle = appointment.status || appointment.scheduled_start || '';
                   return (
-                    <React.Fragment key={appointment.id}>
+                    <React.Fragment key={appointment.listKey}>
                       <ListItem
-                        title={title}
-                        subtitle={subtitle}
+                        title={appointment.displayName}
+                        subtitle={appointment.subtitle}
                         onPress={() => onOpenAppointment(appointment)}
-                        accessibilityLabel={t('scheduling.overview.openAppointment', { appointment: title })}
-                        testID={`scheduling-overview-item-${appointment.id}`}
+                        accessibilityLabel={t('scheduling.overview.openAppointment', { appointment: appointment.displayName })}
+                        testID={`scheduling-overview-item-${index + 1}`}
                       />
                       {index < recentAppointments.length - 1 ? <StyledSeparator /> : null}
                     </React.Fragment>

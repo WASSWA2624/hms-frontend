@@ -6452,7 +6452,26 @@
       "emptyMessage": "Create your first appointment to start scheduling care.",
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
-      "openAppointment": "Open appointment {{appointment}}"
+      "openAppointment": "Open appointment {{appointment}}",
+      "summaryTitle": "Scheduling overview summary",
+      "scopeSummaryAllTenants": "Scope: all authorized tenants",
+      "scopeSummaryTenant": "Scope: current tenant only",
+      "accessSummaryReadWrite": "Access: read and manage scheduling records",
+      "accessSummaryReadOnly": "Access: read-only scheduling workspace",
+      "recentAppointmentsCount": "Recent appointments shown: {{count}}",
+      "helpLabel": "Open scheduling guidance",
+      "helpTooltip": "Open guidance for scheduling overview, permissions, and recovery.",
+      "helpTitle": "How to use scheduling home",
+      "helpBody": "Use this overview to confirm scope, move to the right scheduling resource, and recover quickly from loading issues.",
+      "helpItems": {
+        "scope": "Confirm tenant and facility scope before taking actions.",
+        "sequence": "Start with appointments, then manage participants, reminders, schedules, slots, and queues.",
+        "access": "Create and update actions appear only when your role allows scheduling changes.",
+        "recovery": "If data does not load, retry from this screen or check your connection status."
+      },
+      "unnamedAppointment": "Appointment record {{position}}",
+      "unknownSchedule": "Schedule details pending",
+      "appointmentForPatient": "Appointment for {{patient}}"
     },
     "notices": {
       "created": "{{resource}} created.",
@@ -13584,4 +13603,3 @@
     }
   }
 }
-
