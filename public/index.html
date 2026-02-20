@@ -1,0 +1,1508 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HOSSPI HMS | Hospital Management System Coming Soon</title>
+  <meta
+    name="description"
+    content="HOSSPI HMS is a complete, modern Hospital Management System for clinics and hospitals. Coming soon with clinical, billing, diagnostics, staffing, and compliance workflows."
+  />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="author" content="HOSSPI HMS" />
+  <meta name="application-name" content="HOSSPI HMS" />
+  <meta name="theme-color" content="#0078D4" />
+
+  <link rel="canonical" href="https://www.hosspi.com" />
+  <link rel="alternate" hreflang="en" href="https://www.hosspi.com" />
+  <link rel="alternate" hreflang="x-default" href="https://www.hosspi.com" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="HOSSPI HMS" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="HOSSPI HMS | Hospital Management System Coming Soon" />
+  <meta
+    property="og:description"
+    content="HOSSPI HMS helps healthcare teams run faster, safer, and more profitable operations with one unified platform."
+  />
+  <meta property="og:url" content="https://www.hosspi.com" />
+  <meta property="og:image" content="https://www.hosspi.com/logo-512.png" />
+  <meta property="og:image:alt" content="HOSSPI HMS logo" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HOSSPI HMS | Hospital Management System Coming Soon" />
+  <meta
+    name="twitter:description"
+    content="A complete hospital management platform for clinical, financial, and operational workflows."
+  />
+  <meta name="twitter:image" content="https://www.hosspi.com/logo-512.png" />
+
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo-192.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "HOSSPI HMS",
+          "url": "https://www.hosspi.com",
+          "logo": "https://www.hosspi.com/logo.png",
+          "email": "admin@hosspi.com",
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "contactType": "customer support",
+              "email": "admin@hosspi.com",
+              "url": "https://www.hosspi.com"
+            }
+          ]
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "HOSSPI HMS",
+          "applicationCategory": "HealthApplication",
+          "operatingSystem": "Web, Android, iOS",
+          "url": "https://www.hosspi.com",
+          "image": "https://www.hosspi.com/logo.png",
+          "description": "A complete, modern Hospital Management System for clinics, hospitals, dignostic centers, pharmacies, nursing homes and more.",
+          "publisher": {
+            "@type": "Organization",
+            "name": "HOSSPI HMS",
+            "url": "https://www.hosspi.com"
+          }
+        }
+      ]
+    }
+  </script>
+  <style>
+    :root {
+      --bg-a: #f5fbff;
+      --bg-b: #eaf5ff;
+      --bg-c: #f4fff9;
+      --brand: #0078d4;
+      --brand-deep: #00589f;
+      --accent: #0aa59a;
+      --ink: #10263d;
+      --ink-soft: #3d5876;
+      --surface: rgba(255, 255, 255, 0.82);
+      --surface-strong: rgba(255, 255, 255, 0.9);
+      --line: rgba(13, 83, 144, 0.18);
+      --line-soft: rgba(13, 83, 144, 0.1);
+      --shadow-lg: 0 34px 90px rgba(11, 32, 58, 0.18);
+      --shadow-md: 0 14px 36px rgba(8, 49, 86, 0.14);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max-content: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1400px 800px at -10% 2%, rgba(0, 120, 212, 0.23), transparent 48%),
+        radial-gradient(900px 700px at 110% 88%, rgba(10, 165, 154, 0.22), transparent 43%),
+        linear-gradient(145deg, var(--bg-a) 0%, var(--bg-b) 55%, var(--bg-c) 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--line-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black 38%, transparent 90%);
+      opacity: 0.42;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 18s ease-in-out infinite;
+    }
+
+    .orb-a {
+      width: 340px;
+      height: 340px;
+      left: -90px;
+      top: 120px;
+      background: rgba(0, 120, 212, 0.16);
+    }
+
+    .orb-b {
+      width: 280px;
+      height: 280px;
+      right: -70px;
+      top: 62px;
+      background: rgba(10, 165, 154, 0.15);
+      animation-delay: -6s;
+    }
+
+    .orb-c {
+      width: 240px;
+      height: 240px;
+      right: 22%;
+      bottom: -96px;
+      background: rgba(0, 88, 159, 0.16);
+      animation-delay: -12s;
+    }
+
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0px) scale(1);
+      }
+      50% {
+        transform: translateY(-18px) scale(1.05);
+      }
+    }
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shine-drift {
+      0%,
+      100% {
+        transform: translate3d(-2%, -8%, 28px) rotate(0deg);
+      }
+      50% {
+        transform: translate3d(3%, -5%, 28px) rotate(1.2deg);
+      }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(var(--max-content), 94vw);
+      margin: 0 auto;
+      min-height: 100svh;
+      padding: 30px 0;
+      display: grid;
+      align-items: center;
+      perspective: 1800px;
+      transform-style: preserve-3d;
+    }
+
+    .shell {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow:
+        0 42px 96px rgba(11, 32, 58, 0.2),
+        0 18px 36px rgba(7, 53, 92, 0.12);
+      padding: clamp(18px, 3.8vw, 42px);
+      backdrop-filter: blur(12px);
+      animation: fade-up 0.7s ease both;
+      transform-style: preserve-3d;
+      transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -40% -18% auto;
+      height: 72%;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse at 70% 10%,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0.15) 45%,
+        rgba(255, 255, 255, 0) 72%
+      );
+      transform: translate3d(-2%, -8%, 28px);
+      animation: shine-drift 9s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      transform: translateZ(18px);
+      z-index: 0;
+    }
+
+    .shell > * {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(16px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      padding: 9px 12px;
+      border-radius: 16px;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.92), rgba(241, 250, 255, 0.86));
+      border: 1px solid rgba(7, 106, 182, 0.2);
+      box-shadow: 0 8px 24px rgba(7, 67, 117, 0.12);
+      transform: translateZ(26px);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: #fff;
+      border: 1px solid rgba(0, 120, 212, 0.28);
+      box-shadow: 0 10px 24px rgba(8, 66, 115, 0.15);
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 3px;
+    }
+
+    .brand-label {
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #4c6f8f;
+    }
+
+    .brand-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+      letter-spacing: 0.01em;
+      line-height: 1;
+      color: #0f3f68;
+    }
+
+    .hms-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: linear-gradient(120deg, #0a7bd8 0%, #0aa59a 100%);
+      color: #ffffff;
+      font-size: 0.78em;
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 18px rgba(7, 97, 164, 0.3);
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid rgba(0, 120, 212, 0.28);
+      background: rgba(0, 120, 212, 0.1);
+      color: var(--brand-deep);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      transform: translateZ(24px);
+      box-shadow: 0 8px 16px rgba(7, 84, 143, 0.16);
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(10, 165, 154, 0.12);
+    }
+
+    .content {
+      display: grid;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero {
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--brand-deep);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: clamp(1.45rem, 3.6vw, 2.85rem);
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      max-width: 14ch;
+      background: linear-gradient(110deg, #062847 0%, #0f66ba 58%, #0ba19a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .summary {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: clamp(1rem, 1.45vw, 1.17rem);
+      line-height: 1.75;
+      max-width: 60ch;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      border-radius: 13px;
+      font-size: 0.94rem;
+      font-weight: 800;
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      transform: translateZ(20px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid rgba(0, 120, 212, 0.28);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(120deg, #0b79d5 0%, #0aa59a 100%);
+      box-shadow: 0 14px 28px rgba(6, 88, 151, 0.24);
+    }
+
+    .btn-secondary {
+      color: var(--brand-deep);
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(5, 88, 152, 0.34);
+    }
+
+    .btn:hover {
+      transform: translate3d(0, -2px, 26px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .contact-card {
+      border: 1px solid var(--line-soft);
+      background: var(--surface-strong);
+      border-radius: var(--radius-md);
+      padding: 12px 13px;
+      box-shadow:
+        0 8px 18px rgba(14, 63, 105, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      transform: translateZ(12px);
+    }
+
+    .contact-label {
+      margin: 0 0 4px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #547191;
+      font-weight: 800;
+    }
+
+    .contact-value {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .contact-value:hover,
+    .contact-value:focus-visible {
+      color: var(--brand-deep);
+    }
+
+    .side-panel {
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(242, 250, 255, 0.9));
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: grid;
+      gap: 15px;
+      box-shadow:
+        0 20px 34px rgba(7, 56, 95, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.74);
+      transform: translateZ(22px);
+    }
+
+    .side-panel h2 {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: 1.06rem;
+      letter-spacing: -0.01em;
+    }
+
+    .focus-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 9px;
+    }
+
+    .focus-list li {
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 10px 11px;
+      font-size: 0.89rem;
+      color: #2e4a67;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .focus-note {
+      margin: 0;
+      font-size: 0.86rem;
+      color: #456482;
+      line-height: 1.6;
+    }
+
+    .stats {
+      margin-top: 22px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat-card {
+      border: 1px solid var(--line-soft);
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 13px;
+      padding: 12px;
+      animation: fade-up 0.7s ease both;
+      box-shadow:
+        0 10px 22px rgba(7, 57, 95, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      transform-style: preserve-3d;
+      transform: translateZ(10px);
+    }
+
+    .stat-card:nth-child(1) {
+      animation-delay: 0.08s;
+    }
+
+    .stat-card:nth-child(2) {
+      animation-delay: 0.14s;
+    }
+
+    .stat-card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(4) {
+      animation-delay: 0.26s;
+    }
+
+    .stat-value {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: 1.3rem;
+      color: var(--brand-deep);
+      letter-spacing: -0.01em;
+    }
+
+    .stat-label {
+      margin: 3px 0 0;
+      font-size: 0.82rem;
+      color: #4a6887;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .strengths-section {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(168deg, rgba(255, 255, 255, 0.95), rgba(242, 250, 255, 0.9));
+      border-radius: var(--radius-lg);
+      padding: clamp(16px, 2.4vw, 24px);
+      display: grid;
+      gap: 14px;
+      box-shadow:
+        0 20px 34px rgba(6, 56, 97, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      transform: translateZ(16px);
+    }
+
+    .strengths-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .strengths-head h2 {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      letter-spacing: -0.01em;
+      font-size: clamp(1.05rem, 2vw, 1.32rem);
+      color: #12395c;
+    }
+
+    .strengths-head p {
+      margin: 0;
+      color: #476686;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .strengths-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .strength-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      display: grid;
+      gap: 8px;
+      transition: transform 0.26s ease, box-shadow 0.26s ease;
+      transform-style: preserve-3d;
+      box-shadow:
+        0 10px 20px rgba(7, 57, 95, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .strength-card::before {
+      content: "";
+      position: absolute;
+      inset: -36% -55% auto;
+      height: 64%;
+      pointer-events: none;
+      background: linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.55),
+        rgba(255, 255, 255, 0)
+      );
+      transform: translate3d(-30%, 0, 24px);
+      transition: transform 0.45s ease;
+    }
+
+    .strength-card:hover {
+      transform: translate3d(0, -6px, 20px);
+      box-shadow: 0 18px 30px rgba(8, 58, 100, 0.16);
+    }
+
+    .strength-card:hover::before {
+      transform: translate3d(32%, 2%, 24px);
+    }
+
+    .strength-top {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .strength-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(10, 116, 191, 0.26);
+      background: linear-gradient(135deg, rgba(10, 116, 191, 0.18), rgba(10, 165, 154, 0.2));
+      color: #0d5f9e;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+        0 8px 16px rgba(10, 98, 162, 0.14);
+    }
+
+    .strength-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .strength-card h3 {
+      margin: 0;
+      font-size: 0.91rem;
+      color: #173a5a;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      transform: translateZ(10px);
+    }
+
+    .strength-card p {
+      margin: 0;
+      color: #4a6a88;
+      font-size: 0.8rem;
+      line-height: 1.46;
+      transform: translateZ(8px);
+    }
+
+    .modules-section {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(170deg, rgba(255, 255, 255, 0.95), rgba(244, 251, 255, 0.9));
+      border-radius: var(--radius-lg);
+      padding: clamp(16px, 2.5vw, 24px);
+      display: grid;
+      gap: 16px;
+      box-shadow:
+        0 22px 36px rgba(6, 56, 97, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      transform: translateZ(18px);
+    }
+
+    .modules-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .modules-head h2 {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      letter-spacing: -0.01em;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      color: #12395c;
+    }
+
+    .modules-head p {
+      margin: 0;
+      color: #466584;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .module-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .module-card {
+      --icon-color: #0f66ba;
+      --icon-bg-a: rgba(15, 102, 186, 0.18);
+      --icon-bg-b: rgba(89, 198, 255, 0.2);
+      --icon-border: rgba(15, 102, 186, 0.3);
+      --icon-shadow: rgba(15, 102, 186, 0.15);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.9);
+      display: grid;
+      gap: 8px;
+      transition: transform 0.26s ease, box-shadow 0.26s ease;
+      transform-style: preserve-3d;
+      box-shadow:
+        0 10px 20px rgba(7, 57, 95, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .module-card::before {
+      content: "";
+      position: absolute;
+      inset: -32% -48% auto;
+      height: 66%;
+      pointer-events: none;
+      background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.58),
+        rgba(255, 255, 255, 0)
+      );
+      transform: translate3d(-26%, 0, 24px);
+      transition: transform 0.45s ease;
+    }
+
+    .module-card:hover {
+      transform: translate3d(0, -6px, 22px);
+      box-shadow: 0 18px 30px rgba(8, 58, 100, 0.16);
+    }
+
+    .module-card:hover::before {
+      transform: translate3d(28%, 2%, 24px);
+    }
+
+    .module-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .module-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--icon-border);
+      background: linear-gradient(135deg, var(--icon-bg-a), var(--icon-bg-b));
+      color: var(--icon-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.38),
+        0 8px 16px var(--icon-shadow);
+    }
+
+    .module-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .module-card h3 {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #173a5a;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      transform: translateZ(10px);
+    }
+
+    .module-card p {
+      margin: 0;
+      color: #4a6a88;
+      font-size: 0.79rem;
+      line-height: 1.45;
+      transform: translateZ(8px);
+    }
+
+    .module-card:nth-child(8n + 1) {
+      --icon-color: #0f66ba;
+      --icon-bg-a: rgba(15, 102, 186, 0.18);
+      --icon-bg-b: rgba(89, 198, 255, 0.2);
+      --icon-border: rgba(15, 102, 186, 0.3);
+      --icon-shadow: rgba(15, 102, 186, 0.15);
+    }
+
+    .module-card:nth-child(8n + 2) {
+      --icon-color: #0c8c81;
+      --icon-bg-a: rgba(12, 140, 129, 0.18);
+      --icon-bg-b: rgba(104, 224, 197, 0.22);
+      --icon-border: rgba(12, 140, 129, 0.28);
+      --icon-shadow: rgba(12, 140, 129, 0.14);
+    }
+
+    .module-card:nth-child(8n + 3) {
+      --icon-color: #cc7b17;
+      --icon-bg-a: rgba(204, 123, 23, 0.18);
+      --icon-bg-b: rgba(255, 208, 132, 0.24);
+      --icon-border: rgba(204, 123, 23, 0.28);
+      --icon-shadow: rgba(204, 123, 23, 0.14);
+    }
+
+    .module-card:nth-child(8n + 4) {
+      --icon-color: #3f8c38;
+      --icon-bg-a: rgba(63, 140, 56, 0.18);
+      --icon-bg-b: rgba(153, 230, 143, 0.24);
+      --icon-border: rgba(63, 140, 56, 0.28);
+      --icon-shadow: rgba(63, 140, 56, 0.14);
+    }
+
+    .module-card:nth-child(8n + 5) {
+      --icon-color: #b34d2d;
+      --icon-bg-a: rgba(179, 77, 45, 0.17);
+      --icon-bg-b: rgba(255, 170, 143, 0.22);
+      --icon-border: rgba(179, 77, 45, 0.27);
+      --icon-shadow: rgba(179, 77, 45, 0.14);
+    }
+
+    .module-card:nth-child(8n + 6) {
+      --icon-color: #4e66b8;
+      --icon-bg-a: rgba(78, 102, 184, 0.18);
+      --icon-bg-b: rgba(172, 183, 244, 0.22);
+      --icon-border: rgba(78, 102, 184, 0.28);
+      --icon-shadow: rgba(78, 102, 184, 0.14);
+    }
+
+    .module-card:nth-child(8n + 7) {
+      --icon-color: #9b6a14;
+      --icon-bg-a: rgba(155, 106, 20, 0.18);
+      --icon-bg-b: rgba(243, 203, 111, 0.24);
+      --icon-border: rgba(155, 106, 20, 0.28);
+      --icon-shadow: rgba(155, 106, 20, 0.14);
+    }
+
+    .module-card:nth-child(8n + 8) {
+      --icon-color: #167a96;
+      --icon-bg-a: rgba(22, 122, 150, 0.18);
+      --icon-bg-b: rgba(138, 212, 235, 0.22);
+      --icon-border: rgba(22, 122, 150, 0.28);
+      --icon-shadow: rgba(22, 122, 150, 0.14);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .shell:hover {
+        box-shadow:
+          0 52px 108px rgba(11, 32, 58, 0.23),
+          0 20px 38px rgba(7, 53, 92, 0.14);
+      }
+
+      .brand:hover {
+        transform: translate3d(0, -2px, 30px);
+        box-shadow: 0 14px 28px rgba(7, 67, 117, 0.16);
+      }
+
+      .status-pill:hover {
+        transform: translate3d(0, -2px, 28px);
+      }
+
+      .contact-card:hover,
+      .stat-card:hover {
+        transform: translate3d(0, -3px, 16px);
+      }
+
+      .strength-card:hover {
+        transform: translate3d(0, -7px, 22px) rotateX(5deg) rotateY(-5deg);
+      }
+
+      .module-card:hover {
+        transform: translate3d(0, -8px, 24px) rotateX(6deg) rotateY(-6deg);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .content {
+        grid-template-columns: 1.25fr 0.82fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .strengths-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .module-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 16px 0;
+      }
+
+      .shell {
+        border-radius: 18px;
+      }
+
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .strengths-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .brand {
+        padding: 8px 10px;
+      }
+
+      .brand-logo {
+        width: 46px;
+        height: 46px;
+      }
+
+      .brand-subtitle {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        max-width: 100%;
+      }
+
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      body::before,
+      .orb,
+      .shell::before,
+      .shell::after,
+      .strength-card::before,
+      .module-card::before {
+        display: none;
+      }
+
+      .page {
+        perspective: none;
+        transform-style: flat;
+      }
+
+      .shell {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        transform: none !important;
+        transform-style: flat;
+      }
+
+      .shell > *,
+      .brand,
+      .status-pill,
+      .btn,
+      .contact-card,
+      .side-panel,
+      .stat-card,
+      .strengths-section,
+      .modules-section,
+      .strength-card,
+      .module-card,
+      .module-card h3,
+      .module-card p,
+      .strength-card h3,
+      .strength-card p {
+        transform: none !important;
+      }
+
+      .strength-card:hover,
+      .module-card:hover {
+        box-shadow: 0 10px 20px rgba(7, 57, 95, 0.09);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+
+  <main class="page">
+    <section class="shell" aria-labelledby="coming-soon-title">
+      <header class="topbar">
+        <a class="brand" href="https://www.hosspi.com" target="_blank" rel="noreferrer">
+          <img class="brand-logo" src="/logo.png" alt="HOSSPI HMS logo" />
+          <span class="brand-copy">
+            <span class="brand-label">App Name</span>
+            <strong class="brand-name">HOSSPI <span class="hms-pill">HMS</span></strong>
+            <span class="brand-subtitle">Hospital Management System</span>
+          </span>
+        </a>
+        <span class="status-pill">Coming Soon</span>
+      </header>
+
+      <div class="content">
+        <section class="hero">
+          <p class="eyebrow">Now preparing launch</p>
+          <h1 id="coming-soon-title">A complete care platform is almost here.</h1>
+          <p class="summary">
+            HOSSPI HMS helps healthcare teams run faster, safer, and more profitable operations by
+            unifying clinical, financial, and operational workflows in one intelligent platform.
+          </p>
+
+          <div class="actions">
+            <a class="btn btn-primary" href="https://www.hosspi.com" target="_blank" rel="noreferrer">
+              Visit Website
+            </a>
+            <a class="btn btn-secondary" href="mailto:admin@hosspi.com">
+              Contact Admin
+            </a>
+          </div>
+
+          <div class="contact-grid">
+            <article class="contact-card">
+              <p class="contact-label">App</p>
+              <p class="contact-value">HOSSPI HMS</p>
+            </article>
+            <article class="contact-card">
+              <p class="contact-label">Website</p>
+              <a class="contact-value" href="https://www.hosspi.com" target="_blank" rel="noreferrer">
+                hosspi.com
+              </a>
+            </article>
+            <article class="contact-card">
+              <p class="contact-label">Email</p>
+              <a class="contact-value" href="mailto:admin@hosspi.com">admin@hosspi.com</a>
+            </article>
+          </div>
+        </section>
+
+        <aside class="side-panel" aria-label="Why teams choose HOSSPI HMS">
+          <h2>Why Teams Choose HOSSPI HMS</h2>
+          <ul class="focus-list">
+            <li>End-to-end workflows remove siloed tools and duplicate work</li>
+            <li>Smarter scheduling and rota automation reduce waiting times</li>
+            <li>Billing + claims controls protect revenue and improve collections</li>
+            <li>Built-in alerts, audit trails, and consent strengthen patient safety</li>
+            <li>Scales from one clinic to multi-branch hospital operations</li>
+          </ul>
+          <p class="focus-note">
+            Built for measurable outcomes: faster service, fewer errors, and stronger financial
+            performance.
+          </p>
+        </aside>
+      </div>
+
+      <section class="stats" aria-label="Program highlights">
+        <article class="stat-card">
+          <p class="stat-value">160</p>
+          <p class="stat-label">Backend module foundations tracked in the implementation scope</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-value">20</p>
+          <p class="stat-label">Core module groups covering clinical, ops, and financial workflows</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-value">1.0.0</p>
+          <p class="stat-label">Current active implementation baseline for delivery and hardening</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-value">Web + Mobile</p>
+          <p class="stat-label">Cross-platform experience for clinics and multi-branch hospitals</p>
+        </article>
+      </section>
+
+      <section class="strengths-section" aria-label="Reasons to use HOSSPI HMS">
+        <div class="strengths-head">
+          <h2>Why Healthcare Teams Choose HOSSPI HMS</h2>
+          <p>Clear value from day one, with room to scale</p>
+        </div>
+
+        <div class="strengths-grid">
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
+              </span>
+              <h3>Faster Patient Throughput</h3>
+            </div>
+            <p>Smart scheduling, queue control, and nurse rota automation speed up care delivery.</p>
+          </article>
+
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z" /><path d="M3 10h18" /><path d="M7 15h5" /><path d="M16 13l2 2 3-3" /></svg>
+              </span>
+              <h3>Revenue Protection</h3>
+            </div>
+            <p>Accurate billing, claims tracking, and payment reconciliation reduce leakage.</p>
+          </article>
+
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
+              </span>
+              <h3>Safer, Compliant Care</h3>
+            </div>
+            <p>Alerts, audit logs, consent controls, and biomedical governance improve safety.</p>
+          </article>
+
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2" /><circle cx="12" cy="6" r="2" /><circle cx="18" cy="12" r="2" /><circle cx="12" cy="18" r="2" /><path d="M8 12h8M12 8v8" /></svg>
+              </span>
+              <h3>One Unified System</h3>
+            </div>
+            <p>Clinical, diagnostics, pharmacy, ambulance, housekeeping, and finance work together.</p>
+          </article>
+
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 19h16" /><path d="M7 16v-5" /><path d="M12 16V8" /><path d="M17 16v-3" /></svg>
+              </span>
+              <h3>Operational Intelligence</h3>
+            </div>
+            <p>Dashboards and KPIs help leaders act faster on quality, staffing, and performance.</p>
+          </article>
+
+          <article class="strength-card">
+            <div class="strength-top">
+              <span class="strength-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><path d="M16 18h5M18.5 15.5v5" /></svg>
+              </span>
+              <h3>Scales With Your Facility</h3>
+            </div>
+            <p>Start with essentials and activate advanced modules as your hospital grows.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="modules-section" aria-label="Key selling modules">
+        <div class="modules-head">
+          <h2>Key Selling Modules</h2>
+          <p>Complete, subscription-flexible hospital operations stack</p>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /><path d="M19 8v4" /><path d="M17 10h4" /></svg>
+              </span>
+              <h3>Patient Registry</h3>
+            </div>
+            <p>Longitudinal records, identifiers, guardians, allergies, and consent tracking.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M8 2v4M16 2v4M3 10h18" /></svg>
+              </span>
+              <h3>Scheduling & Queue</h3>
+            </div>
+            <p>Appointments, provider slots, reminders, and priority queue workflows.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M8 13h8M8 17h5" /></svg>
+              </span>
+              <h3>Clinical Documentation</h3>
+            </div>
+            <p>Encounters, diagnoses, procedures, vitals, care plans, and follow-up.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 12h18v6H3z" /><path d="M3 12V8h7a3 3 0 0 1 3 3v1" /><path d="M7 12v6" /></svg>
+              </span>
+              <h3>IPD & Bed Management</h3>
+            </div>
+            <p>Admission-to-discharge flow, ward rounds, transfers, and MAR safety.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M4 12h4l2-4 3 8 2-4h5" /></svg>
+              </span>
+              <h3>ICU & Critical Care</h3>
+            </div>
+            <p>Observation trends, critical alerts, and escalation acknowledgment chains.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="2.2" /><path d="M12 12l8 8" /><path d="M14 4l6 6" /><path d="M7 13l4 4" /></svg>
+              </span>
+              <h3>Theatre & Anesthesia</h3>
+            </div>
+            <p>Theatre case lifecycles, anesthesia records, and post-op tracking.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 3h6" /><path d="M10 3v5l-5 8a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 16l-5-8V3" /><path d="M8 14h8" /></svg>
+              </span>
+              <h3>Laboratory (LIS)</h3>
+            </div>
+            <p>Order-to-result lifecycle, sample chain of custody, and QC controls.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 8l6 8M15 8l-6 8" /></svg>
+              </span>
+              <h3>Radiology & PACS</h3>
+            </div>
+            <p>Imaging orders, result sign-off, PACS linking, and study traceability.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="3" /><path d="M12 9v6" /></svg>
+              </span>
+              <h3>Pharmacy</h3>
+            </div>
+            <p>Formulary and stock-aware dispensing with adverse-event traceability.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z" /><path d="M3 10h18" /><path d="M16 14h3" /></svg>
+              </span>
+              <h3>Billing & Insurance</h3>
+            </div>
+            <p>Invoices, flexible payments, claims, pre-authorizations, and refunds.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5z" /><path d="M3 8v8l9 5 9-5V8" /><path d="M12 13v8" /></svg>
+              </span>
+              <h3>Inventory & Procurement</h3>
+            </div>
+            <p>Suppliers, purchase flows, stock movements, valuation, and adjustments.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M8 2v4M16 2v4M3 10h18" /><path d="M12 14l1 2 2 .5-1.5 1.5.3 2-1.8-1-1.8 1 .3-2L8 16.5l2-.5z" /></svg>
+              </span>
+              <h3>HR, Payroll & Rota Automation</h3>
+            </div>
+            <p>Automatically generate nurses' rota using shift rules, leave, rest windows, and skill mix.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 14h13v4H3z" /><path d="M16 14h4l1-3-3-3h-2z" /><circle cx="7" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" /><path d="M6 12h3M7.5 10.5v3" /></svg>
+              </span>
+              <h3>Ambulance Operations</h3>
+            </div>
+            <p>Dispatch lifecycle, trip tracking, timestamps, and emergency response coordination.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="4" y="4" width="10" height="16" rx="1.5" /><path d="M8 8h2M8 12h2M8 16h2" /><path d="M16 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" /></svg>
+              </span>
+              <h3>Housekeeping Management</h3>
+            </div>
+            <p>Cleaning schedules, task evidence, SLA monitoring, and sanitation status visibility.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 7a4 4 0 0 0 5 5l-7 7a2 2 0 0 1-3-3l7-7a4 4 0 0 0-5-5" /></svg>
+              </span>
+              <h3>Biomedical Engineering</h3>
+            </div>
+            <p>Equipment registry, PM plans, calibration logs, downtime, and safety tests.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
+              </span>
+              <h3>Compliance & Audit</h3>
+            </div>
+            <p>Tamper-evident logs, PHI access trails, breach workflows, and governance.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 19h16" /><path d="M7 16v-5" /><path d="M12 16V8" /><path d="M17 16v-3" /></svg>
+              </span>
+              <h3>Reporting & Analytics</h3>
+            </div>
+            <p>KPIs, custom reports, dashboard widgets, and operational insights.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 1 1 7 7l-1 1" /><path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 1 1-7-7l1-1" /></svg>
+              </span>
+              <h3>Integrations & Webhooks</h3>
+            </div>
+            <p>Open APIs, webhook subscriptions, provider integrations, and sync logs.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><path d="M16 18h5M18.5 15.5v5" /></svg>
+              </span>
+              <h3>Subscription & Modules</h3>
+            </div>
+            <p>Free core plan, paid add-ons, entitlement controls, and module marketplace.</p>
+          </article>
+
+          <article class="module-card">
+            <div class="module-top">
+              <span class="module-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" /><path d="M10 21h4" /></svg>
+              </span>
+              <h3>Notifications & Messaging</h3>
+            </div>
+            <p>SMS, email, push, templates, delivery tracking, and internal conversations.</p>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var shell = document.querySelector(".shell");
+      if (!shell || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+      if (!finePointer.matches) {
+        return;
+      }
+
+      var rafId = 0;
+      var pendingX = 0;
+      var pendingY = 0;
+
+      var updateTilt = function () {
+        shell.style.setProperty("--tilt-y", pendingX.toFixed(2) + "deg");
+        shell.style.setProperty("--tilt-x", pendingY.toFixed(2) + "deg");
+        rafId = 0;
+      };
+
+      var onMove = function (event) {
+        var bounds = shell.getBoundingClientRect();
+        var px = (event.clientX - bounds.left) / bounds.width - 0.5;
+        var py = (event.clientY - bounds.top) / bounds.height - 0.5;
+        pendingX = px * 4.8;
+        pendingY = py * -4.2;
+
+        if (!rafId) {
+          rafId = requestAnimationFrame(updateTilt);
+        }
+      };
+
+      var resetTilt = function () {
+        shell.style.setProperty("--tilt-x", "0deg");
+        shell.style.setProperty("--tilt-y", "0deg");
+      };
+
+      shell.addEventListener("pointermove", onMove);
+      shell.addEventListener("pointerleave", resetTilt);
+      shell.addEventListener("pointercancel", resetTilt);
+    })();
+  </script>
+</body>
+</html>
