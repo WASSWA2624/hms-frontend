@@ -4,9 +4,8 @@
  * File: List.web.styles.jsx
  */
 import styled from 'styled-components';
-import { View } from 'react-native';
 
-const StyledList = styled(View).withConfig({
+const StyledList = styled.div.withConfig({
   displayName: 'StyledList',
 })`
   display: flex;
@@ -15,5 +14,3 @@ const StyledList = styled(View).withConfig({
 `;
 
 export { StyledList };
-
-

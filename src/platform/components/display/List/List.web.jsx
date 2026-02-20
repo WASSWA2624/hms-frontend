@@ -33,9 +33,9 @@ const ListWeb = ({
 
   return (
     <StyledList
-      accessibilityRole="list"
-      accessibilityLabel={accessibilityLabel || t('common.list')}
-      testID={testID}
+      role="list"
+      aria-label={accessibilityLabel || t('common.list')}
+      data-testid={testID}
       className={className}
       style={style}
       {...rest}
@@ -46,4 +46,3 @@ const ListWeb = ({
 };
 
 export default ListWeb;
-

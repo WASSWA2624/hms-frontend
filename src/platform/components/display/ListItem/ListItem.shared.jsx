@@ -14,9 +14,9 @@ import Badge from '@platform/components/display/Badge';
 import Icon from '@platform/components/display/Icon';
 
 const ACTION_ICON_GLYPHS = {
-  view: '\u25C9',
+  view: '\u{1F441}',
   edit: '\u270E',
-  delete: '\u2715',
+  delete: '\u{1F5D1}',
   more: '\u22EE',
 };
 
@@ -36,6 +36,76 @@ const VARIANT_TO_TONE = {
 };
 
 const DEFAULT_LEADING_GLYPH = '\u{1F4C1}';
+
+const mergeStyles = (...styles) => {
+  const merged = styles.reduce((accumulator, item) => {
+    if (Array.isArray(item)) {
+      return accumulator.concat(item.filter(Boolean));
+    }
+    if (item) accumulator.push(item);
+    return accumulator;
+  }, []);
+
+  if (merged.length === 0) return undefined;
+  if (merged.length === 1) return merged[0];
+  return merged;
+};
+
+// Web list-item slots are rendered with react-native-web primitives.
+// Keep core layout constraints in inline styles so mobile web stays stable.
+const WEB_SLOT_STYLE_DEFAULTS = Object.freeze({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'column',
+    minWidth: 0,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  headerContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+  },
+  actionSlot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusSlot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});
 
 const normalizeTone = (tone) => {
   if (!tone) return undefined;
@@ -79,6 +149,9 @@ const normalizeMetadata = (metadata) => {
           iconTone: undefined,
           tone: undefined,
           testID: undefined,
+          style: undefined,
+          textStyle: undefined,
+          iconStyle: undefined,
         };
       }
 
@@ -92,6 +165,9 @@ const normalizeMetadata = (metadata) => {
         iconTone: normalizeTone(item.iconTone),
         tone: mapVariantToTone(item.tone || item.variant),
         testID: item.testID,
+        style: item.style,
+        textStyle: item.textStyle,
+        iconStyle: item.iconStyle,
       };
     })
     .filter(Boolean);
@@ -108,6 +184,9 @@ const normalizeStatus = (status) => {
       showDot: true,
       testID: undefined,
       accessibilityLabel: undefined,
+      style: undefined,
+      dotStyle: undefined,
+      textStyle: undefined,
     };
   }
 
@@ -120,6 +199,9 @@ const normalizeStatus = (status) => {
     showDot: status.showDot !== false,
     testID: status.testID,
     accessibilityLabel: status.accessibilityLabel,
+    style: status.style,
+    dotStyle: status.dotStyle,
+    textStyle: status.textStyle,
   };
 };
 
@@ -137,6 +219,7 @@ const buildGeneratedActions = ({
   onEdit,
   onDelete,
   onMore,
+  hideViewActionWhenPressable,
   canView,
   canEdit,
   canDelete,
@@ -154,47 +237,54 @@ const buildGeneratedActions = ({
   deleteTestID,
   moreTestID,
   testID,
-}) => ([
-  (Boolean(onView) && canView) ? {
-    key: 'view',
-    type: 'view',
-    label: resolvedViewLabel,
-    hint: resolvedViewHint,
-    onPress: onView,
-    testID: viewTestID || (testID ? `${testID}-view` : undefined),
-    hideOnWide: true,
-  } : null,
-  (Boolean(onEdit) && canEdit) ? {
-    key: 'edit',
-    type: 'edit',
-    label: resolvedEditLabel,
-    hint: resolvedEditHint,
-    onPress: onEdit,
-    testID: editTestID || (testID ? `${testID}-edit` : undefined),
-  } : null,
-  (Boolean(onDelete) && canDelete) ? {
-    key: 'delete',
-    type: 'delete',
-    label: resolvedDeleteLabel,
-    hint: resolvedDeleteHint,
-    onPress: onDelete,
-    testID: deleteTestID || (testID ? `${testID}-delete` : undefined),
-  } : null,
-  (Boolean(onMore) && canMore) ? {
-    key: 'more',
-    type: 'more',
-    label: resolvedMoreLabel,
-    hint: resolvedMoreHint,
-    onPress: onMore,
-    testID: moreTestID || (testID ? `${testID}-more` : undefined),
-    separatorBefore: true,
-  } : null,
-].filter(Boolean));
+}) =>
+  [
+    Boolean(onView) && canView
+      ? {
+          key: 'view',
+          type: 'view',
+          label: resolvedViewLabel,
+          hint: resolvedViewHint,
+          onPress: onView,
+          testID: viewTestID || (testID ? `${testID}-view` : undefined),
+          hideOnWide: true,
+          hideOnPressable: hideViewActionWhenPressable,
+        }
+      : null,
+    Boolean(onEdit) && canEdit
+      ? {
+          key: 'edit',
+          type: 'edit',
+          label: resolvedEditLabel,
+          hint: resolvedEditHint,
+          onPress: onEdit,
+          testID: editTestID || (testID ? `${testID}-edit` : undefined),
+        }
+      : null,
+    Boolean(onDelete) && canDelete
+      ? {
+          key: 'delete',
+          type: 'delete',
+          label: resolvedDeleteLabel,
+          hint: resolvedDeleteHint,
+          onPress: onDelete,
+          testID: deleteTestID || (testID ? `${testID}-delete` : undefined),
+        }
+      : null,
+    Boolean(onMore) && canMore
+      ? {
+          key: 'more',
+          type: 'more',
+          label: resolvedMoreLabel,
+          hint: resolvedMoreHint,
+          onPress: onMore,
+          testID: moreTestID || (testID ? `${testID}-more` : undefined),
+          separatorBefore: true,
+        }
+      : null,
+  ].filter(Boolean);
 
-const createListItemComponent = ({
-  styles,
-  isWeb = false,
-}) => {
+const createListItemComponent = ({ styles, isWeb = false }) => {
   const {
     StyledListItem,
     StyledLeadingSlot,
@@ -232,6 +322,7 @@ const createListItemComponent = ({
     actionItems,
     actionLabelMode = 'auto',
     layoutMode = 'auto',
+    mobileActionsPlacement = 'top',
     showMetaDivider = true,
     density = 'default',
     badge,
@@ -243,6 +334,7 @@ const createListItemComponent = ({
     canEdit = true,
     canDelete = true,
     canMore = true,
+    hideViewActionWhenPressable = true,
     viewLabel,
     editLabel,
     deleteLabel,
@@ -258,6 +350,7 @@ const createListItemComponent = ({
     onPress,
     accessibilityLabel,
     testID,
+    slotStyles,
     className,
     style,
     ...rest
@@ -267,22 +360,39 @@ const createListItemComponent = ({
 
     const tabletBreakpoint = Number(theme?.breakpoints?.tablet ?? 768);
     const measuredWidth = Number(width || 0);
-    const runtimeWindowWidth = (typeof window !== 'undefined' && Number(window.innerWidth) > 0)
-      ? Number(window.innerWidth)
-      : 0;
-    const effectiveWidth = measuredWidth > 0 ? measuredWidth : runtimeWindowWidth;
+    const runtimeWindowWidth =
+      typeof window !== 'undefined' && Number(window.innerWidth) > 0
+        ? Number(window.innerWidth)
+        : 0;
+    const effectiveWidth =
+      measuredWidth > 0 ? measuredWidth : runtimeWindowWidth;
     const isWideFromWidth = effectiveWidth >= tabletBreakpoint;
-    const isWide = layoutMode === 'wide'
-      ? true
-      : layoutMode === 'mobile'
-        ? false
-        : isWideFromWidth;
+    const isWide =
+      layoutMode === 'wide'
+        ? true
+        : layoutMode === 'mobile'
+          ? false
+          : isWideFromWidth;
     const automaticLabelMode = false;
-    const showActionLabels = actionLabelMode === 'always'
-      ? true
-      : actionLabelMode === 'never'
-        ? false
-        : automaticLabelMode;
+    const showActionLabels =
+      actionLabelMode === 'always'
+        ? true
+        : actionLabelMode === 'never'
+          ? false
+          : automaticLabelMode;
+    const resolvedMobileActionsPlacement =
+      mobileActionsPlacement === 'below' ? 'mobile' : 'top';
+    const effectiveTopActionsPlacement = isWide
+      ? 'top'
+      : resolvedMobileActionsPlacement;
+    const shouldRenderTopActions = effectiveTopActionsPlacement === 'top';
+    const shouldRenderBottomActions =
+      !isWide && resolvedMobileActionsPlacement === 'mobile';
+    const customSlotStyles =
+      slotStyles && typeof slotStyles === 'object' ? slotStyles : {};
+    const resolvedSlotStyles = isWeb
+      ? { ...WEB_SLOT_STYLE_DEFAULTS, ...customSlotStyles }
+      : customSlotStyles;
 
     const translateWithFallback = (key, fallback) => {
       const resolved = t(key);
@@ -295,27 +405,40 @@ const createListItemComponent = ({
       if (handler) handler(event);
     };
 
-    const resolvedTitle = humanizeDisplayText(title) || (title ? t('common.notAvailable') : '');
+    const resolvedTitle =
+      humanizeDisplayText(title) || (title ? t('common.notAvailable') : '');
     const resolvedSubtitle = humanizeDisplayText(subtitle);
-    const resolvedAccessibilityLabel = humanizeDisplayText(accessibilityLabel) || resolvedTitle;
+    const resolvedAccessibilityLabel =
+      humanizeDisplayText(accessibilityLabel) || resolvedTitle;
 
-    const resolvedViewLabel = viewLabel || translateWithFallback('common.view', 'View');
-    const resolvedEditLabel = editLabel || translateWithFallback('common.edit', 'Edit');
-    const resolvedDeleteLabel = deleteLabel || translateWithFallback('common.remove', 'Remove');
-    const resolvedMoreLabel = moreLabel || translateWithFallback('common.more', 'More');
-    const resolvedViewHint = viewHint || translateWithFallback('common.viewHint', 'Open item details');
-    const resolvedEditHint = editHint || translateWithFallback('common.editHint', 'Edit this item');
-    const resolvedDeleteHint = deleteHint || translateWithFallback('common.deleteHint', 'Remove this item');
-    const resolvedMoreHint = moreHint || translateWithFallback('common.moreHint', 'Open more actions');
+    const resolvedViewLabel =
+      viewLabel || translateWithFallback('common.view', 'View');
+    const resolvedEditLabel =
+      editLabel || translateWithFallback('common.edit', 'Edit');
+    const resolvedDeleteLabel =
+      deleteLabel || translateWithFallback('common.remove', 'Remove');
+    const resolvedMoreLabel =
+      moreLabel || translateWithFallback('common.more', 'More');
+    const resolvedViewHint =
+      viewHint || translateWithFallback('common.viewHint', 'Open item details');
+    const resolvedEditHint =
+      editHint || translateWithFallback('common.editHint', 'Edit this item');
+    const resolvedDeleteHint =
+      deleteHint ||
+      translateWithFallback('common.deleteHint', 'Remove this item');
+    const resolvedMoreHint =
+      moreHint || translateWithFallback('common.moreHint', 'Open more actions');
 
     const badgeLabel = humanizeDisplayText(
       typeof badge === 'string' ? badge : badge?.label
     );
     const badgeVariant = typeof badge === 'object' ? badge.variant : 'primary';
-    const badgeSize = typeof badge === 'object' ? badge.size || 'small' : 'small';
-    const badgeAccessibilityLabel = typeof badge === 'object'
-      ? (badge.accessibilityLabel || badgeLabel)
-      : badgeLabel;
+    const badgeSize =
+      typeof badge === 'object' ? badge.size || 'small' : 'small';
+    const badgeAccessibilityLabel =
+      typeof badge === 'object'
+        ? badge.accessibilityLabel || badgeLabel
+        : badgeLabel;
 
     const resolvedLeading = normalizeLeading(leading);
     const resolvedMetadata = normalizeMetadata(metadata);
@@ -324,94 +447,137 @@ const createListItemComponent = ({
     const configuredActions = Array.isArray(actionItems)
       ? actionItems.filter(Boolean)
       : buildGeneratedActions({
-        onView,
-        onEdit,
-        onDelete,
-        onMore,
-        canView,
-        canEdit,
-        canDelete,
-        canMore,
-        resolvedViewLabel,
-        resolvedEditLabel,
-        resolvedDeleteLabel,
-        resolvedMoreLabel,
-        resolvedViewHint,
-        resolvedEditHint,
-        resolvedDeleteHint,
-        resolvedMoreHint,
-        viewTestID,
-        editTestID,
-        deleteTestID,
-        moreTestID,
-        testID,
-      });
+          onView,
+          onEdit,
+          onDelete,
+          onMore,
+          canView,
+          canEdit,
+          canDelete,
+          canMore,
+          hideViewActionWhenPressable,
+          resolvedViewLabel,
+          resolvedEditLabel,
+          resolvedDeleteLabel,
+          resolvedMoreLabel,
+          resolvedViewHint,
+          resolvedEditHint,
+          resolvedDeleteHint,
+          resolvedMoreHint,
+          viewTestID,
+          editTestID,
+          deleteTestID,
+          moreTestID,
+          testID,
+        });
 
-    const builtActions = configuredActions
-      .map((action, index) => {
-        if (!action || action.visible === false) return null;
-        if (isWide && action.hideOnWide) return null;
-        const actionType = action.type || action.key || `action-${index}`;
-        const tone = mapVariantToTone(action.tone || action.variant)
-          || ACTION_ICON_TONES[actionType]
-          || 'primary';
-        const label = humanizeDisplayText(action.label)
-          || translateWithFallback('common.action', 'Action');
-        const hint = humanizeDisplayText(action.hint || action.accessibilityHint);
-        const glyph = humanizeDisplayText(action.iconGlyph || action.glyph)
-          || ACTION_ICON_GLYPHS[actionType]
-          || ACTION_ICON_GLYPHS.more;
-        const showLabelForAction = action.showLabel === true
-          || (action.showLabel !== false && showActionLabels);
-        const disabled = Boolean(action.disabled);
-        const actionTestID = action.testID || (testID ? `${testID}-${actionType}` : undefined);
+    const renderBuiltActions = (placement) =>
+      configuredActions
+        .map((action, index) => {
+          if (!action || action.visible === false) return null;
+          if (isWide && action.hideOnWide) return null;
+          if (Boolean(onPress) && action.hideOnPressable) return null;
+          const actionType = action.type || action.key || `action-${index}`;
+          const tone =
+            mapVariantToTone(action.tone || action.variant) ||
+            ACTION_ICON_TONES[actionType] ||
+            'primary';
+          const label =
+            humanizeDisplayText(action.label) ||
+            translateWithFallback('common.action', 'Action');
+          const hint = humanizeDisplayText(
+            action.hint || action.accessibilityHint
+          );
+          const glyph =
+            humanizeDisplayText(action.iconGlyph || action.glyph) ||
+            ACTION_ICON_GLYPHS[actionType] ||
+            ACTION_ICON_GLYPHS.more;
+          const showLabelForAction =
+            action.showLabel === true ||
+            (action.showLabel !== false && showActionLabels);
+          const disabled = Boolean(action.disabled);
+          const actionTestID =
+            action.testID || (testID ? `${testID}-${actionType}` : undefined);
+          const actionAccessibilityLabel =
+            humanizeDisplayText(action.accessibilityLabel) || label;
+          const actionIconSize =
+            action.iconSize || (isWide || placement === 'top' ? 'sm' : 'xs');
 
-        if (!action.onPress && !disabled && !action.passive) return null;
+          if (!action.onPress && !disabled && !action.passive) return null;
 
-        return (
-          <StyledActionSlot
-            key={action.key || `${actionType}-${index}`}
-            $separatorBefore={Boolean(action.separatorBefore)}
-            $isWide={isWide}
-          >
-            <StyledActionButton
-              $actionType={actionType}
-              $showLabel={showLabelForAction}
-              $tone={tone}
+          return (
+            <StyledActionSlot
+              key={action.key || `${actionType}-${index}`}
+              $separatorBefore={Boolean(action.separatorBefore)}
               $isWide={isWide}
-              onPress={(event) => {
-                if (disabled) return;
-                handleActionPress(action.onPress, event);
-              }}
-              disabled={disabled}
-              accessibilityRole="button"
-              accessibilityLabel={label}
-              accessibilityHint={hint}
-              testID={actionTestID}
+              $placement={placement}
+              $isFirst={index === 0}
+              style={mergeStyles(
+                resolvedSlotStyles.actionSlot,
+                action.slotStyle
+              )}
             >
-              <Icon
-                glyph={glyph}
-                tone={tone}
-                size={isWide ? 'sm' : 'xs'}
-                decorative
-              />
-              {showLabelForAction ? (
-                <StyledActionButtonLabel variant="caption" $actionType={actionType} $tone={tone}>
-                  {label}
-                </StyledActionButtonLabel>
-              ) : null}
-            </StyledActionButton>
-          </StyledActionSlot>
-        );
-      })
-      .filter(Boolean);
+              <StyledActionButton
+                $actionType={actionType}
+                $showLabel={showLabelForAction}
+                $tone={tone}
+                $isWide={isWide}
+                $placement={placement}
+                onPress={(event) => {
+                  if (disabled) return;
+                  handleActionPress(action.onPress, event);
+                }}
+                disabled={disabled}
+                accessibilityRole="button"
+                accessibilityLabel={actionAccessibilityLabel}
+                accessibilityHint={hint}
+                testID={actionTestID}
+                style={mergeStyles(
+                  resolvedSlotStyles.actionButton,
+                  action.style,
+                  action.buttonStyle
+                )}
+              >
+                <Icon
+                  glyph={glyph}
+                  tone={tone}
+                  size={actionIconSize}
+                  decorative
+                />
+                {showLabelForAction ? (
+                  <StyledActionButtonLabel
+                    variant="caption"
+                    $actionType={actionType}
+                    $tone={tone}
+                    style={mergeStyles(
+                      resolvedSlotStyles.actionLabel,
+                      action.labelStyle
+                    )}
+                  >
+                    {label}
+                  </StyledActionButtonLabel>
+                ) : null}
+              </StyledActionButton>
+            </StyledActionSlot>
+          );
+        })
+        .filter(Boolean);
 
     const hasCustomActions = Boolean(actions);
-    const hasResolvedActions = hasCustomActions || builtActions.length > 0;
+    const hasResolvedActions = hasCustomActions || configuredActions.length > 0;
     const renderActions = (placement) => {
       if (!hasResolvedActions) return null;
+      const builtActions = hasCustomActions
+        ? null
+        : renderBuiltActions(placement);
+      if (!hasCustomActions && (!builtActions || builtActions.length === 0))
+        return null;
       return (
-        <StyledListItemActions $isWide={isWide} $placement={placement}>
+        <StyledListItemActions
+          $isWide={isWide}
+          $placement={placement}
+          style={resolvedSlotStyles.actions}
+        >
           {hasCustomActions ? actions : builtActions}
         </StyledListItemActions>
       );
@@ -430,22 +596,33 @@ const createListItemComponent = ({
 
       if (!resolvedLeading) return null;
       if (resolvedLeading.element) return resolvedLeading.element;
-      if (React.isValidElement(resolvedLeading.content)) return resolvedLeading.content;
+      if (React.isValidElement(resolvedLeading.content))
+        return resolvedLeading.content;
 
-      const leadingTone = mapVariantToTone(
-        resolvedLeading.tone || resolvedLeading.iconTone || 'primary'
-      ) || 'primary';
-      const glyph = humanizeDisplayText(resolvedLeading.glyph) || DEFAULT_LEADING_GLYPH;
+      const leadingTone =
+        mapVariantToTone(
+          resolvedLeading.tone || resolvedLeading.iconTone || 'primary'
+        ) || 'primary';
+      const glyph =
+        humanizeDisplayText(resolvedLeading.glyph) || DEFAULT_LEADING_GLYPH;
       const iconSize = resolvedLeading.size || 'md';
 
       return (
         <StyledLeadingSurface
           $tone={leadingTone}
           $backgroundTone={resolvedLeading.backgroundTone || leadingTone}
-          $backgroundColor={resolvedLeading.backgroundColor}
+          $backgroundColor={
+            resolvedLeading.backgroundColor || resolvedLeading.backgroundTone
+          }
           $density={density}
           $isWide={isWide}
-          testID={resolvedLeading.testID || (testID ? `${testID}-leading` : undefined)}
+          testID={
+            resolvedLeading.testID || (testID ? `${testID}-leading` : undefined)
+          }
+          style={mergeStyles(
+            resolvedSlotStyles.leadingSurface,
+            resolvedLeading.style
+          )}
         >
           <Icon
             glyph={glyph}
@@ -459,19 +636,44 @@ const createListItemComponent = ({
     };
 
     const leadingNode = renderLeading();
-    const showMetaRow = resolvedMetadata.length > 0 || Boolean(resolvedStatus) || (isWide && Boolean(resolvedSubtitle));
+    const showMetaRow =
+      resolvedMetadata.length > 0 ||
+      Boolean(resolvedStatus) ||
+      (isWide && Boolean(resolvedSubtitle));
 
     const content = children || (
       <>
-        {leadingNode ? <StyledLeadingSlot $isWide={isWide}>{leadingNode}</StyledLeadingSlot> : null}
-        <StyledListItemContent $hasAvatar={Boolean(avatar)} $density={density} $isWide={isWide}>
-          <StyledTopRow $isWide={isWide}>
-            <StyledHeaderContent $isWide={isWide}>
+        {leadingNode ? (
+          <StyledLeadingSlot
+            $isWide={isWide}
+            style={resolvedSlotStyles.leadingSlot}
+          >
+            {leadingNode}
+          </StyledLeadingSlot>
+        ) : null}
+        <StyledListItemContent
+          $hasAvatar={Boolean(avatar)}
+          $density={density}
+          $isWide={isWide}
+          style={resolvedSlotStyles.content}
+        >
+          <StyledTopRow $isWide={isWide} style={resolvedSlotStyles.topRow}>
+            <StyledHeaderContent
+              $isWide={isWide}
+              style={resolvedSlotStyles.headerContent}
+            >
               {(resolvedTitle || badgeLabel) && (
-                <StyledTitleRow>
-                  {resolvedTitle ? <StyledTitle variant="body">{resolvedTitle}</StyledTitle> : null}
+                <StyledTitleRow style={resolvedSlotStyles.titleRow}>
+                  {resolvedTitle ? (
+                    <StyledTitle
+                      variant="body"
+                      style={resolvedSlotStyles.title}
+                    >
+                      {resolvedTitle}
+                    </StyledTitle>
+                  ) : null}
                   {badgeLabel ? (
-                    <StyledBadgeSlot>
+                    <StyledBadgeSlot style={resolvedSlotStyles.badgeSlot}>
                       <Badge
                         variant={badgeVariant}
                         size={badgeSize}
@@ -484,18 +686,39 @@ const createListItemComponent = ({
                 </StyledTitleRow>
               )}
               {resolvedSubtitle && !isWide ? (
-                <StyledSubtitle variant="caption">{resolvedSubtitle}</StyledSubtitle>
+                <StyledSubtitle
+                  variant="caption"
+                  style={resolvedSlotStyles.subtitle}
+                >
+                  {resolvedSubtitle}
+                </StyledSubtitle>
               ) : null}
             </StyledHeaderContent>
-            {isWide ? renderActions('top') : null}
+            {shouldRenderTopActions
+              ? renderActions(effectiveTopActionsPlacement)
+              : null}
           </StyledTopRow>
-          {!isWide ? renderActions('mobile') : null}
+          {shouldRenderBottomActions ? renderActions('mobile') : null}
 
           {showMetaRow ? (
-            <StyledMetaRow $withDivider={showMetaDivider && !isWide} $isWide={isWide}>
+            <StyledMetaRow
+              $withDivider={showMetaDivider && !isWide}
+              $isWide={isWide}
+              style={resolvedSlotStyles.metaRow}
+            >
               {isWide && resolvedSubtitle ? (
-                <StyledMetaItem key="subtitle-inline" $isWide={isWide} $isSubtitle>
-                  <StyledSubtitle variant="caption" $isInline>{resolvedSubtitle}</StyledSubtitle>
+                <StyledMetaItem
+                  key="subtitle-inline"
+                  $isWide={isWide}
+                  $isSubtitle
+                >
+                  <StyledSubtitle
+                    variant="caption"
+                    $isInline
+                    style={resolvedSlotStyles.subtitle}
+                  >
+                    {resolvedSubtitle}
+                  </StyledSubtitle>
                 </StyledMetaItem>
               ) : null}
               {resolvedMetadata.map((metaItem, index) => (
@@ -504,9 +727,18 @@ const createListItemComponent = ({
                   $isWide={isWide}
                   $isFirst={!isWide && index === 0}
                   testID={metaItem.testID}
+                  style={mergeStyles(
+                    resolvedSlotStyles.metaItem,
+                    metaItem.style
+                  )}
                 >
                   {metaItem.iconGlyph ? (
-                    <StyledMetaIconSlot>
+                    <StyledMetaIconSlot
+                      style={mergeStyles(
+                        resolvedSlotStyles.metaIconSlot,
+                        metaItem.iconStyle
+                      )}
+                    >
                       <Icon
                         glyph={metaItem.iconGlyph}
                         tone={metaItem.iconTone || metaItem.tone || 'muted'}
@@ -515,7 +747,14 @@ const createListItemComponent = ({
                       />
                     </StyledMetaIconSlot>
                   ) : null}
-                  <StyledMetaText variant="caption" $tone={metaItem.tone}>
+                  <StyledMetaText
+                    variant="caption"
+                    $tone={metaItem.tone}
+                    style={mergeStyles(
+                      resolvedSlotStyles.metaText,
+                      metaItem.textStyle
+                    )}
+                  >
                     {metaItem.text}
                   </StyledMetaText>
                 </StyledMetaItem>
@@ -523,13 +762,33 @@ const createListItemComponent = ({
               {resolvedStatus ? (
                 <StyledStatusSlot
                   $isWide={isWide}
-                  testID={resolvedStatus.testID || (testID ? `${testID}-status` : undefined)}
+                  testID={
+                    resolvedStatus.testID ||
+                    (testID ? `${testID}-status` : undefined)
+                  }
                   accessibilityLabel={resolvedStatus.accessibilityLabel}
+                  style={mergeStyles(
+                    resolvedSlotStyles.statusSlot,
+                    resolvedStatus.style
+                  )}
                 >
                   {resolvedStatus.showDot ? (
-                    <StyledStatusDot $tone={resolvedStatus.tone} />
+                    <StyledStatusDot
+                      $tone={resolvedStatus.tone}
+                      style={mergeStyles(
+                        resolvedSlotStyles.statusDot,
+                        resolvedStatus.dotStyle
+                      )}
+                    />
                   ) : null}
-                  <StyledStatusLabel variant="caption" $tone={resolvedStatus.tone}>
+                  <StyledStatusLabel
+                    variant="caption"
+                    $tone={resolvedStatus.tone}
+                    style={mergeStyles(
+                      resolvedSlotStyles.statusLabel,
+                      resolvedStatus.textStyle
+                    )}
+                  >
                     {resolvedStatus.label}
                   </StyledStatusLabel>
                 </StyledStatusSlot>
@@ -549,7 +808,7 @@ const createListItemComponent = ({
         accessibilityRole={onPress ? 'button' : 'listitem'}
         accessibilityLabel={resolvedAccessibilityLabel}
         testID={testID}
-        style={style}
+        style={mergeStyles(resolvedSlotStyles.container, style)}
         {...(isWeb ? { className } : {})}
         {...rest}
       >

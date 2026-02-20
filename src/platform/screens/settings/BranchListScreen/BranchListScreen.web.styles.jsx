@@ -94,7 +94,8 @@ const StyledTableSettingsButton = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs}px
+    ${({ theme }) => theme.spacing.sm}px;
   min-height: 36px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
@@ -119,7 +120,8 @@ const StyledAddButton = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs}px
+    ${({ theme }) => theme.spacing.sm}px;
   min-height: 36px;
   border-radius: ${({ theme }) => theme.radius.sm}px;
   border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
@@ -144,7 +146,8 @@ const StyledAddLabel = styled.span.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  line-height: ${({ theme }) => theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.xs * theme.typography.lineHeight.normal}px;
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
@@ -212,7 +215,8 @@ const StyledFilterChevron = styled.span.withConfig({
   align-items: center;
   justify-content: center;
   line-height: 1;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+  transform: ${({ $collapsed }) =>
+    $collapsed ? 'rotate(-90deg)' : 'rotate(0deg)'};
   transition: transform 0.2s ease;
 
   @media (prefers-reduced-motion: reduce) {
@@ -238,7 +242,9 @@ const StyledFilterRow = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
-    grid-template-columns: minmax(120px, 1fr) minmax(110px, 150px) minmax(180px, 2fr) auto;
+    grid-template-columns:
+      minmax(120px, 1fr) minmax(110px, 150px) minmax(180px, 2fr)
+      auto;
     align-items: end;
   }
 `;
@@ -343,8 +349,12 @@ const StyledStatusBadge = styled.span.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   white-space: nowrap;
-  background-color: ${({ theme, $tone }) => ($tone === 'success' ? `${theme.colors.success}22` : `${theme.colors.warning}22`)};
-  color: ${({ theme, $tone }) => ($tone === 'success' ? theme.colors.success : theme.colors.warning)};
+  background-color: ${({ theme, $tone }) =>
+    $tone === 'success'
+      ? `${theme.colors.success}22`
+      : `${theme.colors.warning}22`};
+  color: ${({ theme, $tone }) =>
+    $tone === 'success' ? theme.colors.success : theme.colors.warning};
 `;
 
 const StyledRowActions = styled.div.withConfig({
@@ -415,7 +425,9 @@ const StyledCodeCellText = styled.span.withConfig({
   displayName: 'StyledCodeCellText',
   componentId: 'StyledCodeCellText',
 })`
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
@@ -485,6 +497,12 @@ const StyledMobileList = styled.ul.withConfig({
   display: flex;
   flex-direction: column;
   gap: 0;
+
+  > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 `;
 
 const StyledSettingsBody = styled.div.withConfig({
@@ -607,4 +625,3 @@ export {
   StyledMoveButton,
   StyledSettingsActions,
 };
-
