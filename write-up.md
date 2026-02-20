@@ -1,8 +1,11 @@
-# HMS Implementation Master Write-Up
+# HOSSPI HMS Implementation Master Write-Up
 
 Version: 2.1  
 Date: 2026-02-16  
 Status: Active implementation baseline  
+App name: HOSSPI HMS  
+Website: https://www.hosspi.com  
+Email: admin@hosspi.com  
 Primary repos: `hms-frontend`, `hms-backend`
 
 ---
@@ -11,7 +14,7 @@ Primary repos: `hms-frontend`, `hms-backend`
 
 ### 0.1 Purpose
 
-This document is the implementation master blueprint for building and improving the HMS application in this codebase. It defines what "complete" means for product, engineering, operations, security, commercialization, and growth.
+This document is the implementation master blueprint for building and improving the HOSSPI HMS application in this codebase. It defines what "complete" means for product, engineering, operations, security, commercialization, and growth.
 
 This is not only a product brief. It is an execution contract.
 
@@ -59,7 +62,7 @@ Deliver a complete, modern, user-friendly, modular, and self-marketable Hospital
 
 ### 1.2 Product outcomes
 
-The HMS must:
+The HOSPI HMS must:
 
 - Run end-to-end care and operations without spreadsheet dependence
 - Improve speed, quality, and consistency of clinical and administrative work
@@ -891,7 +894,7 @@ Where applicable:
 
 ### 9.2 Free core modules for all plans
 
-Every plan includes a free basic foundation so facilities can start using HMS immediately.
+Every plan includes a free basic foundation so facilities can start using HOSSPI HMS immediately.
 
 Free core module scope:
 
@@ -971,7 +974,7 @@ Support all feasible methods per region:
 - Installments and payment plans
 - Insurance and corporate payer flows
 
-### 10.2 HMS licensing flexibility
+### 10.2 HOSSPI HMS licensing flexibility
 
 Commercial models to support:
 
@@ -1328,7 +1331,7 @@ A release is done when all are true:
 
 ### 18.3 Product-level DoD
 
-The HMS is complete when all are true:
+The HOSSPI HMS is complete when all are true:
 
 1. Functional coverage is complete across module groups 1-20.
 2. Flexible payment and module strategies are operational.
@@ -1430,7 +1433,7 @@ The HMS is complete when all are true:
 
 ## 22. Final Positioning
 
-This HMS is intended to be:
+This HOSSPI HMS is intended to be:
 
 - Complete enough to run a real facility with confidence
 - Modern enough to be competitive and future-ready
