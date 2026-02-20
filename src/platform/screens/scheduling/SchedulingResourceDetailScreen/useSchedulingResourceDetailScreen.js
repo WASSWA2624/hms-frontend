@@ -20,13 +20,41 @@ import {
   resolveErrorMessage,
 } from '../schedulingScreenUtils';
 
+const getSearchParamValue = (value) => (Array.isArray(value) ? value[0] : value);
+
 const useSchedulingResourceDetailScreen = (resourceId) => {
   const config = getSchedulingResourceConfig(resourceId);
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
+  const patientParam = getSearchParamValue(searchParams?.patientId);
+  const providerUserParam = getSearchParamValue(searchParams?.providerUserId);
+  const scheduleParam = getSearchParamValue(searchParams?.scheduleId);
+  const appointmentParam = getSearchParamValue(searchParams?.appointmentId);
+  const statusParam = getSearchParamValue(searchParams?.status);
+  const dayOfWeekParam = getSearchParamValue(searchParams?.dayOfWeek);
+  const isAvailableParam = getSearchParamValue(searchParams?.isAvailable);
   const routeRecordId = useMemo(() => normalizeRecordId(searchParams?.id), [searchParams?.id]);
-  const context = useMemo(() => normalizeSchedulingContext(searchParams), [searchParams]);
+  const context = useMemo(
+    () => normalizeSchedulingContext({
+      patientId: patientParam,
+      providerUserId: providerUserParam,
+      scheduleId: scheduleParam,
+      appointmentId: appointmentParam,
+      status: statusParam,
+      dayOfWeek: dayOfWeekParam,
+      isAvailable: isAvailableParam,
+    }),
+    [
+      patientParam,
+      providerUserParam,
+      scheduleParam,
+      appointmentParam,
+      statusParam,
+      dayOfWeekParam,
+      isAvailableParam,
+    ]
+  );
   const { isOffline } = useNetwork();
   const {
     canAccessScheduling,

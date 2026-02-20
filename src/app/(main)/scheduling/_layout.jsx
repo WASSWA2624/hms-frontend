@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
-import { Slot, usePathname, useRouter } from 'expo-router';
+import { Slot, useRouter } from 'expo-router';
 import { LoadingSpinner } from '@platform/components';
 import { useI18n, useSchedulingAccess } from '@hooks';
 import { SchedulingScreen } from '@platform/screens';
 
 export default function SchedulingLayoutRoute() {
   const { t } = useI18n();
-  const pathname = usePathname();
   const router = useRouter();
   const {
     canAccessScheduling,
@@ -38,7 +37,7 @@ export default function SchedulingLayoutRoute() {
 
   return (
     <SchedulingScreen>
-      <Slot key={pathname} />
+      <Slot />
     </SchedulingScreen>
   );
 }

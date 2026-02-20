@@ -2,6 +2,7 @@
  * useAppointment Hook
  * File: useAppointment.js
  */
+import { useMemo } from 'react';
 import useCrud from '@hooks/useCrud';
 import {
   cancelAppointment,
@@ -12,14 +13,20 @@ import {
   updateAppointment,
 } from '@features/appointment';
 
-const useAppointment = () =>
-  useCrud({
-    list: listAppointments,
-    get: getAppointment,
-    create: createAppointment,
-    update: updateAppointment,
-    remove: deleteAppointment,
-    cancel: cancelAppointment,
-  });
+const useAppointment = () => {
+  const actions = useMemo(
+    () => ({
+      list: listAppointments,
+      get: getAppointment,
+      create: createAppointment,
+      update: updateAppointment,
+      remove: deleteAppointment,
+      cancel: cancelAppointment,
+    }),
+    []
+  );
+
+  return useCrud(actions);
+};
 
 export default useAppointment;
