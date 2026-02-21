@@ -185,13 +185,21 @@ Use this decision rule first:
 
 ## Add-Ons (Optional Revenue Modules)
 
-| Add-On | Price Range |
-|------|-------------|
-| Biomedical Engineering Suite | $49-$199/mo |
-| Advanced Analytics | $29-$99/mo |
-| Integrations/Webhooks Pack | $49-$149/mo |
-| Extra Storage | $5 / 10GB |
-| SMS Credits | Usage-based |
+Add-on eligibility is gated by minimum plan to protect feature fit, supportability, and margin.
+
+| Add-On | Price Range | Minimum Plan | Eligibility Notes |
+|------|-------------|-------------|-------------------|
+| Biomedical Engineering Suite | $49-$199/mo | Pro | Requires advanced operations workflows and role setup. |
+| Advanced Analytics | $29-$99/mo | Pro | Depends on richer data volume and reporting maturity. |
+| Integrations/Webhooks Pack | $49-$149/mo | Pro | Requires technical ownership and integration governance. |
+| Extra Storage | $5 / 10GB | Basic | Available on all paid plans. |
+| SMS Credits | Usage-based | Basic | Available on all paid plans; billed by usage. |
+
+### Add-On Eligibility Rules
+- Free plan is not eligible for paid add-ons.
+- If a customer needs an ineligible add-on, they must first upgrade to the required minimum plan.
+- Advanced and Custom can consume all add-ons, subject to contract scope and infrastructure constraints.
+- Custom plan can also include bespoke add-ons via SOW pricing when standard packs are insufficient.
 
 ---
 
@@ -219,6 +227,7 @@ Use this decision rule first:
 - Taxes, payment gateway fees, SMS usage, and third-party infrastructure costs are excluded unless stated otherwise.
 - Annual plans are prepaid unless contract terms state otherwise.
 - Add-ons can be bundled at discounted rates for annual or multi-module commitments.
+- Minimum-plan gates for add-ons are mandatory unless explicitly overridden in a signed enterprise contract.
 
 ---
 
