@@ -264,10 +264,10 @@ Before coding, read and apply:
 ## Tier Step Selection Contract (Mandatory)
 
 - This file applies to all tier folders under `dev-phase-011-screens-routes`.
-- If specific step IDs are selected, implement only those IDs.
+- If specific step IDs are selected, implement only those IDs after confirming all earlier step IDs in this phase are already complete; if not, complete missing earlier steps first (no chronology skips).
 - If an entire tier folder is selected, implement all steps in that tier in numeric order.
 - If shared prerequisite wiring is required, implement only the minimum required for the selected scope.
-- Do NOT implement unselected sibling tiers or out-of-scope steps.
+- Do NOT implement unselected sibling tiers or out-of-scope steps unless an earlier required prerequisite is needed to satisfy mandatory chronology gates.
 
 ---
 

@@ -86,9 +86,9 @@ Conflict resolution order:
 - This file covers Step 6.5 only.
 - The request can target one or more step IDs from `6.5.1` to `6.5.4`.
 - Group ID `6.5` means all `6.5.1` to `6.5.4`.
-- If specific step IDs are selected, implement only those selected IDs.
+- If specific step IDs are selected, implement only those selected IDs after confirming all earlier step IDs in this phase are already complete; if not, complete missing earlier steps first (no chronology skips).
 - If a selected step needs shared prerequisite wiring, implement only minimal prerequisite changes required for that selected step.
-- Do NOT auto-implement unselected sibling steps.
+- Do NOT auto-implement unselected sibling steps unless an earlier unselected step is required to satisfy mandatory chronology/prerequisite gates.
 - Apply strict gate execution from P006: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
 
 ---

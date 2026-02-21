@@ -85,9 +85,9 @@ Conflict resolution order:
 ## Step Selection Contract (Mandatory)
 
 - The request can target one or more step IDs from `4.1 to 4.7`.
-- If specific step IDs are selected, implement only those selected IDs.
+- If specific step IDs are selected, implement only those selected IDs after confirming all earlier step IDs in this phase are already complete; if not, complete missing earlier steps first (no chronology skips).
 - If selected steps need minimal shared prerequisite wiring, implement only the minimum prerequisite changes required.
-- Do NOT auto-implement unselected sibling steps.
+- Do NOT auto-implement unselected sibling steps unless an earlier unselected step is required to satisfy mandatory chronology/prerequisite gates.
 - Apply strict gate execution from `P004_offline.md`: complete each selected step fully (implementation + tests + compliance checks) before moving to the next selected step.
 
 ---

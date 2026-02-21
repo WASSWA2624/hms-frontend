@@ -82,10 +82,10 @@ Before coding, read and apply:
 ## Tier Step Selection Contract (Mandatory)
 
 - This file covers only the listed step IDs for Phase 009 Tier 3.
-- If specific step IDs from this tier are selected, implement only those IDs.
+- If specific step IDs from this tier are selected, implement only those IDs after confirming all earlier step IDs in the same phase/tier are already complete; if not, complete missing earlier steps first (no chronology skips).
 - If the tier is selected as a whole, implement all listed step IDs in order.
 - If shared prerequisite wiring is required, implement only the minimum required for this tier.
-- Do NOT implement unselected sibling tiers or out-of-tier steps.
+- Do NOT implement unselected sibling tiers or out-of-tier steps unless an earlier required prerequisite is needed to satisfy mandatory chronology gates.
 
 ---
 
