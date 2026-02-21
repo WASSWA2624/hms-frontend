@@ -69,7 +69,7 @@ Use this decision rule first:
 - Billing and payments
 - Basic reports
 - Notifications
-- Optional inventory add-on
+- Optional Inventory and Procurement Lite add-on
 
 **Support**
 - Email support (48-72h response)
@@ -183,13 +183,42 @@ Use this decision rule first:
 
 ---
 
+## Module Entitlement Framework (All HMS Module Groups)
+
+This map aligns subscription entitlements with module groups defined in `write-up.md` section `6.1` through `6.20`.
+
+| Module Group | Free | Basic | Pro | Advanced | Custom | Upgrade Signal |
+|------|------|------|------|------|------|------|
+| Group 1: Auth, sessions, tenancy, core access | Limited | Included | Included | Included | Included | Need more users, stronger role governance, or multi-site access |
+| Group 2: Patient registry and consent | Basic | Included | Included | Included | Included | Need full consent workflows and complete records |
+| Group 3: Scheduling, availability, queue | Basic | Included | Included | Included | Included | Need higher throughput and multi-provider scheduling |
+| Group 4: Encounters and clinical documentation | Basic | Included | Included | Included | Included | Need advanced clinical workflow depth |
+| Groups 5-7: IPD, ICU, theatre | Not included | Not included | Included | Included | Included | Inpatient or critical-care operations start |
+| Groups 8-9: Lab and radiology | Not included | Not included | Included | Included | Included | Diagnostics order-to-result workflow required |
+| Group 10: Pharmacy | Not included | Not included | Included | Included | Included | Dispensing and medication safety controls required |
+| Group 11: Inventory and procurement | Not included | Lite add-on | Included | Included | Included | Need stock governance and procurement controls |
+| Group 12: Emergency and ambulance | Not included | Not included | Included | Included | Included | Emergency triage/dispatch workflows required |
+| Group 13: Billing, payments, insurance | Basic billing | Core billing | Full with insurance | Full with insurance | Full with insurance | Claim/pre-authorization workflows required |
+| Group 14: HR, payroll, staffing | Not included | Not included | Included | Included | Included | Roster/payroll optimization required |
+| Group 15: Housekeeping, facilities, maintenance foundation | Basic issue reporting | Basic maintenance | Included | Included | Included | Asset SLA workflows needed |
+| Group 15A: Biomedical Engineering Suite | Not included | Not included | Add-on | Add-on | Included/contract | Biomedical lifecycle and calibration governance required |
+| Group 16: Notifications and communications | Basic templates | Included | Included | Included | Included | Multi-channel communication scale required |
+| Group 17: Reporting and analytics | View-only basics | Basic reports | Advanced dashboards | Advanced dashboards | Advanced dashboards + DW options | Need executive analytics and forecasting depth |
+| Group 18: Subscription, licensing, module controls | Platform managed | Platform managed | Platform managed | Platform managed | Platform managed + contract controls | Need enterprise license governance terms |
+| Group 19: Compliance, audit, security logs | Basic operational logs | Basic operational logs | Add-on | Included | Included | Regulatory audit evidence or strict PHI controls required |
+| Group 20: Integrations and webhooks | Not included | Not included | Add-on | Add-on/contract | Included/contract | External system integration becomes critical |
+
+---
+
 ## Add-Ons (Optional Revenue Modules)
 
 Add-on eligibility is gated by minimum plan to protect feature fit, supportability, and margin.
 
 | Add-On | Price Range | Minimum Plan | Eligibility Notes |
 |------|-------------|-------------|-------------------|
+| Inventory and Procurement Lite | $19-$59/mo | Basic | Adds stock tracking and procurement-lite flows for small clinics. |
 | Biomedical Engineering Suite | $49-$199/mo | Pro | Requires advanced operations workflows and role setup. |
+| Compliance and Audit Suite | $39-$149/mo | Pro | Enables advanced audit, PHI access, and compliance reporting controls. |
 | Advanced Analytics | $29-$99/mo | Pro | Depends on richer data volume and reporting maturity. |
 | Integrations/Webhooks Pack | $49-$149/mo | Pro | Requires technical ownership and integration governance. |
 | Extra Storage | $5 / 10GB | Basic | Available on all paid plans. |
@@ -219,6 +248,24 @@ Add-on eligibility is gated by minimum plan to protect feature fit, supportabili
 | Multi-Region Architecture | No | No | No | Limited/No (default) | Yes |
 | Procurement Model | Self-serve | Self-serve | Commercial | Standard quote | SOW / RFP-ready |
 | Support Model | Best effort | Standard | Priority | Priority + optional SLA | Dedicated + custom SLA |
+
+---
+
+## Upgrade Guidance and Plan-Fit Governance
+
+### Upgrade Guidance
+- Free -> Basic: when clinics need printing, export, branding, or unlimited patient throughput.
+- Basic -> Pro: when care delivery expands into inpatient, diagnostics, pharmacy, emergency, HR/rosters, insurance, or higher user/facility complexity.
+- Pro -> Advanced: when deployment must move on-premise for policy, sovereignty, or local-infrastructure requirements.
+- Advanced -> Custom: when custom engineering, enterprise integrations, or government/enterprise contracting requirements emerge.
+
+### Keep Current Plan Appropriate
+- Keep the current plan when active workflows are fully supported and usage is within plan limits.
+- Flag "approaching limit" status when sustained usage exceeds 80% of user/facility/storage thresholds.
+- Trigger upgrade recommendation when limits are exceeded or critical workflows are blocked by entitlement.
+- Trigger downgrade review when usage remains below 50% of paid limits for 90+ days and no restricted modules are actively required.
+- Run monthly plan-fit checks in-product and quarterly commercial reviews with admin owners.
+- Position upgrades as workflow-enablement decisions, not forced upsell actions.
 
 ---
 
