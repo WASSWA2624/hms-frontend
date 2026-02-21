@@ -942,8 +942,6 @@
         linear-gradient(170deg, rgba(255, 255, 255, 0.95), rgba(242, 250, 255, 0.9));
       border-radius: var(--radius-lg);
       padding: clamp(15px, 2.4vw, 22px);
-      display: grid;
-      gap: 12px;
       box-shadow:
         0 22px 36px rgba(6, 56, 97, 0.11),
         inset 0 1px 0 rgba(255, 255, 255, 0.72);
@@ -956,6 +954,43 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    .page-visit-head::-webkit-details-marker {
+      display: none;
+    }
+
+    .page-visit-head-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .page-visit-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(0, 120, 212, 0.1);
+      border: 1px solid rgba(0, 120, 212, 0.24);
+      color: #0c5e9f;
+      font-size: 0.73rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .page-visit-toggle::before {
+      content: "Show";
+    }
+
+    .page-visit-stats[open] .page-visit-toggle::before {
+      content: "Hide";
     }
 
     .page-visit-title {
@@ -971,6 +1006,12 @@
       color: #4a6a88;
       font-size: 0.82rem;
       font-weight: 700;
+    }
+
+    .page-visit-content {
+      margin-top: 10px;
+      display: grid;
+      gap: 12px;
     }
 
     .page-visit-grid {
@@ -1007,17 +1048,28 @@
       font-weight: 650;
     }
 
-    .page-visit-last {
-      margin: 2px 0 0;
+    .page-visit-meta-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .page-visit-meta {
+      margin: 0;
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.86);
       color: #466585;
-      font-size: 0.84rem;
-      line-height: 1.5;
+      font-size: 0.82rem;
+      line-height: 1.45;
       font-weight: 600;
     }
 
-    .page-visit-last span {
+    .page-visit-meta span {
       color: #16466f;
       font-weight: 800;
+      word-break: break-word;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -1115,6 +1167,10 @@
       }
 
       .page-visit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-visit-meta-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1553,34 +1609,77 @@
         </div>
       </section>
 
-      <section class="page-visit-stats" aria-label="Page visit statistics">
-        <div class="page-visit-head">
-          <h2 class="page-visit-title">Page Visit Statistics</h2>
-          <p class="page-visit-note">Saved in this browser</p>
+      <details class="page-visit-stats" aria-label="Page visit statistics">
+        <summary class="page-visit-head">
+          <span class="page-visit-title">Page Visit Statistics</span>
+          <span class="page-visit-head-meta">
+            <span class="page-visit-note">Saved in this browser</span>
+            <span class="page-visit-toggle" aria-hidden="true"></span>
+          </span>
+        </summary>
+        <div class="page-visit-content">
+          <div class="page-visit-grid">
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="total-views">0</p>
+              <p class="page-visit-label">Total page views</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="unique-sessions">0</p>
+              <p class="page-visit-label">Unique sessions</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="active-days">0</p>
+              <p class="page-visit-label">Active days</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="this-session">0</p>
+              <p class="page-visit-label">Views this session</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="today">0</p>
+              <p class="page-visit-label">Visits today</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="week">0</p>
+              <p class="page-visit-label">Visits in last 7 days</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="month">0</p>
+              <p class="page-visit-label">Visits in last 30 days</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="year">0</p>
+              <p class="page-visit-label">Visits in last 365 days</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="this-month">0</p>
+              <p class="page-visit-label">Visits this calendar month</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="avg-30">0</p>
+              <p class="page-visit-label">Avg visits/day (30d)</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="current-streak">0</p>
+              <p class="page-visit-label">Current visit streak (days)</p>
+            </article>
+            <article class="page-visit-card">
+              <p class="page-visit-value" data-visit-stat="longest-streak">0</p>
+              <p class="page-visit-label">Longest visit streak (days)</p>
+            </article>
+          </div>
+          <div class="page-visit-meta-grid">
+            <p class="page-visit-meta">First visit: <span data-visit-stat="first-visit">No data yet</span></p>
+            <p class="page-visit-meta">Last visit: <span data-visit-stat="last-visit">No previous visits recorded</span></p>
+            <p class="page-visit-meta">Busiest day: <span data-visit-stat="peak-day">No data yet</span></p>
+            <p class="page-visit-meta">Busiest hour: <span data-visit-stat="peak-hour">No data yet</span></p>
+            <p class="page-visit-meta">Top referrer: <span data-visit-stat="top-referrer">No data yet</span></p>
+            <p class="page-visit-meta">Top path: <span data-visit-stat="top-path">No data yet</span></p>
+            <p class="page-visit-meta">Environment: <span data-visit-stat="device-profile">No data yet</span></p>
+            <p class="page-visit-meta">Screen/Viewport: <span data-visit-stat="screen-profile">No data yet</span></p>
+          </div>
         </div>
-        <div class="page-visit-grid">
-          <article class="page-visit-card">
-            <p class="page-visit-value" data-visit-stat="total">0</p>
-            <p class="page-visit-label">Total visits</p>
-          </article>
-          <article class="page-visit-card">
-            <p class="page-visit-value" data-visit-stat="today">0</p>
-            <p class="page-visit-label">Visits today</p>
-          </article>
-          <article class="page-visit-card">
-            <p class="page-visit-value" data-visit-stat="week">0</p>
-            <p class="page-visit-label">Visits in last 7 days</p>
-          </article>
-          <article class="page-visit-card">
-            <p class="page-visit-value" data-visit-stat="month">0</p>
-            <p class="page-visit-label">Visits in last 30 days</p>
-          </article>
-        </div>
-        <p class="page-visit-last">
-          Last visit:
-          <span data-visit-stat="last-visit">No previous visits recorded</span>
-        </p>
-      </section>
+      </details>
     </section>
   </main>
 
@@ -1633,26 +1732,58 @@
         return document.querySelector('[data-visit-stat="' + key + '"]');
       };
 
-      var nodes = {
-        total: readNode("total"),
-        today: readNode("today"),
-        week: readNode("week"),
-        month: readNode("month"),
-        lastVisit: readNode("last-visit")
+      var requiredKeys = [
+        "total-views",
+        "unique-sessions",
+        "active-days",
+        "this-session",
+        "today",
+        "week",
+        "month",
+        "year",
+        "this-month",
+        "avg-30",
+        "current-streak",
+        "longest-streak",
+        "first-visit",
+        "last-visit",
+        "peak-day",
+        "peak-hour",
+        "top-referrer",
+        "top-path",
+        "device-profile",
+        "screen-profile"
+      ];
+
+      var nodes = {};
+      for (var r = 0; r < requiredKeys.length; r += 1) {
+        nodes[requiredKeys[r]] = readNode(requiredKeys[r]);
       };
 
-      if (!nodes.total || !nodes.today || !nodes.week || !nodes.month || !nodes.lastVisit) {
-        return;
+      for (var n = 0; n < requiredKeys.length; n += 1) {
+        if (!nodes[requiredKeys[n]]) {
+          return;
+        }
       }
 
-      var storageKey = "hms_page_visit_stats_v1";
+      var storageKey = "hms_page_visit_stats_v2";
+      var legacyStorageKey = "hms_page_visit_stats_v1";
+      var sessionIdKey = "hms_page_visit_session_id_v1";
+      var sessionCountedKey = "hms_page_visit_session_counted_v1";
+      var sessionViewsKey = "hms_page_visit_session_views_v1";
       var now = new Date();
+      var nowIso = now.toISOString();
+
       var pad = function (value) {
         return value < 10 ? "0" + value : String(value);
       };
 
       var toDateKey = function (date) {
         return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+      };
+
+      var toMonthKey = function (date) {
+        return date.getFullYear() + "-" + pad(date.getMonth() + 1);
       };
 
       var parseDateKey = function (dateKey) {
@@ -1667,76 +1798,232 @@
         return parsed;
       };
 
-      var sumDays = function (dailyStats, days) {
+      var parseMonthKey = function (monthKey) {
+        var match = /^(\d{4})-(\d{2})$/.exec(monthKey);
+        if (!match) {
+          return null;
+        }
+        var parsed = new Date(Number(match[1]), Number(match[2]) - 1, 1);
+        if (isNaN(parsed.getTime())) {
+          return null;
+        }
+        return parsed;
+      };
+
+      var sumDays = function (dailyStats, days, referenceDate) {
         var sum = 0;
         for (var i = 0; i < days; i += 1) {
-          var date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+          var date = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate() - i);
           var count = Number(dailyStats[toDateKey(date)]) || 0;
           sum += count;
         }
         return sum;
       };
 
-      var stats = {
-        total: 0,
-        daily: {},
-        lastVisitIso: null
-      };
-
-      try {
-        var raw = window.localStorage.getItem(storageKey);
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === "object") {
-            stats.total = Number(parsed.total) || 0;
-            stats.daily = parsed.daily && typeof parsed.daily === "object" ? parsed.daily : {};
-            stats.lastVisitIso = typeof parsed.lastVisitIso === "string" ? parsed.lastVisitIso : null;
-          }
-        }
-      } catch (error) {
-      }
-
-      var todayKey = toDateKey(now);
-      var previousVisitIso = stats.lastVisitIso;
-      stats.daily[todayKey] = (Number(stats.daily[todayKey]) || 0) + 1;
-      stats.total = (Number(stats.total) || 0) + 1;
-      stats.lastVisitIso = now.toISOString();
-
-      var cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 400);
-      Object.keys(stats.daily).forEach(function (key) {
-        var dayDate = parseDateKey(key);
-        var value = Number(stats.daily[key]) || 0;
-        if (!dayDate || dayDate < cutoffDate || value <= 0) {
-          delete stats.daily[key];
+      var incrementMap = function (target, key, amount) {
+        if (!target || typeof target !== "object") {
           return;
         }
-        stats.daily[key] = value;
-      });
+        target[key] = (Number(target[key]) || 0) + (amount || 1);
+      };
 
-      var computedTotal = Object.keys(stats.daily).reduce(function (sum, key) {
-        return sum + (Number(stats.daily[key]) || 0);
-      }, 0);
-      if (computedTotal > 0) {
-        stats.total = computedTotal;
-      }
+      var makeCountArray = function (length) {
+        var arr = [];
+        for (var i = 0; i < length; i += 1) {
+          arr.push(0);
+        }
+        return arr;
+      };
 
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(stats));
-      } catch (error) {
-      }
+      var normalizeCountArray = function (value, length) {
+        var normalized = makeCountArray(length);
+        if (!Array.isArray(value)) {
+          return normalized;
+        }
+        for (var i = 0; i < length; i += 1) {
+          normalized[i] = Number(value[i]) || 0;
+        }
+        return normalized;
+      };
+
+      var createEmptyStats = function () {
+        return {
+          schemaVersion: 2,
+          totalViews: 0,
+          uniqueSessions: 0,
+          daily: {},
+          monthly: {},
+          hourly: makeCountArray(24),
+          weekday: makeCountArray(7),
+          referrers: {},
+          paths: {},
+          firstVisitIso: null,
+          lastVisitIso: null,
+          environment: {}
+        };
+      };
+
+      var normalizeStats = function (raw) {
+        var stats = createEmptyStats();
+        if (!raw || typeof raw !== "object") {
+          return stats;
+        }
+
+        stats.totalViews = Number(raw.totalViews || raw.total) || 0;
+        stats.uniqueSessions = Number(raw.uniqueSessions) || 0;
+        stats.daily = raw.daily && typeof raw.daily === "object" ? raw.daily : {};
+        stats.monthly = raw.monthly && typeof raw.monthly === "object" ? raw.monthly : {};
+        stats.hourly = normalizeCountArray(raw.hourly, 24);
+        stats.weekday = normalizeCountArray(raw.weekday, 7);
+        stats.referrers = raw.referrers && typeof raw.referrers === "object" ? raw.referrers : {};
+        stats.paths = raw.paths && typeof raw.paths === "object" ? raw.paths : {};
+        stats.firstVisitIso = typeof raw.firstVisitIso === "string" ? raw.firstVisitIso : null;
+        stats.lastVisitIso = typeof raw.lastVisitIso === "string" ? raw.lastVisitIso : null;
+        stats.environment = raw.environment && typeof raw.environment === "object" ? raw.environment : {};
+
+        if (!Object.keys(stats.monthly).length) {
+          Object.keys(stats.daily).forEach(function (dateKey) {
+            var count = Number(stats.daily[dateKey]) || 0;
+            if (count <= 0) {
+              return;
+            }
+            var monthPart = dateKey.slice(0, 7);
+            if (/^\d{4}-\d{2}$/.test(monthPart)) {
+              incrementMap(stats.monthly, monthPart, count);
+            }
+          });
+        }
+
+        return stats;
+      };
+
+      var trimMap = function (source, limit) {
+        var entries = Object.keys(source || {})
+          .map(function (key) {
+            return [key, Number(source[key]) || 0];
+          })
+          .filter(function (entry) {
+            return entry[1] > 0;
+          })
+          .sort(function (a, b) {
+            return b[1] - a[1];
+          })
+          .slice(0, limit);
+
+        var trimmed = {};
+        entries.forEach(function (entry) {
+          trimmed[entry[0]] = entry[1];
+        });
+        return trimmed;
+      };
+
+      var getTopEntry = function (source) {
+        var topKey = "";
+        var topValue = 0;
+        Object.keys(source || {}).forEach(function (key) {
+          var value = Number(source[key]) || 0;
+          if (value > topValue) {
+            topKey = key;
+            topValue = value;
+          }
+        });
+        return { key: topKey, value: topValue };
+      };
+
+      var getTopHour = function (hourlyCounts) {
+        var topIndex = -1;
+        var topValue = 0;
+        for (var i = 0; i < hourlyCounts.length; i += 1) {
+          var value = Number(hourlyCounts[i]) || 0;
+          if (value > topValue) {
+            topIndex = i;
+            topValue = value;
+          }
+        }
+        return { index: topIndex, value: topValue };
+      };
+
+      var toDayNumber = function (date) {
+        return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+      };
+
+      var calculateStreaks = function (dailyStats, referenceDate) {
+        var dayNumbers = [];
+        Object.keys(dailyStats).forEach(function (key) {
+          var parsedDate = parseDateKey(key);
+          var value = Number(dailyStats[key]) || 0;
+          if (!parsedDate || value <= 0) {
+            return;
+          }
+          dayNumbers.push(toDayNumber(parsedDate));
+        });
+
+        if (!dayNumbers.length) {
+          return { current: 0, longest: 0 };
+        }
+
+        dayNumbers.sort(function (a, b) {
+          return a - b;
+        });
+
+        var uniqueDayNumbers = [];
+        for (var i = 0; i < dayNumbers.length; i += 1) {
+          if (i === 0 || dayNumbers[i] !== dayNumbers[i - 1]) {
+            uniqueDayNumbers.push(dayNumbers[i]);
+          }
+        }
+
+        var longest = 1;
+        var run = 1;
+        for (var j = 1; j < uniqueDayNumbers.length; j += 1) {
+          if (uniqueDayNumbers[j] - uniqueDayNumbers[j - 1] === 1) {
+            run += 1;
+          } else {
+            run = 1;
+          }
+          if (run > longest) {
+            longest = run;
+          }
+        }
+
+        var daySet = {};
+        uniqueDayNumbers.forEach(function (dayNumber) {
+          daySet[dayNumber] = true;
+        });
+
+        var current = 0;
+        var targetDay = toDayNumber(referenceDate);
+        while (daySet[targetDay]) {
+          current += 1;
+          targetDay -= 1;
+        }
+
+        return { current: current, longest: longest };
+      };
 
       var formatCount = function (value) {
         return (Number(value) || 0).toLocaleString();
       };
 
-      var formatVisitDate = function (isoString) {
-        if (!isoString) {
-          return "No previous visits recorded";
+      var formatDecimal = function (value) {
+        var numeric = Number(value);
+        if (!isFinite(numeric)) {
+          return "0";
         }
+        return numeric.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      };
+
+      var formatVisitDate = function (isoString, fallback) {
+        var fallbackValue = fallback || "No data yet";
+        if (!isoString) {
+          return fallbackValue;
+        }
+
         var date = new Date(isoString);
         if (isNaN(date.getTime())) {
-          return "No previous visits recorded";
+          return fallbackValue;
         }
+
         try {
           return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
         } catch (error) {
@@ -1744,11 +2031,226 @@
         }
       };
 
-      nodes.total.textContent = formatCount(stats.total);
-      nodes.today.textContent = formatCount(stats.daily[todayKey]);
-      nodes.week.textContent = formatCount(sumDays(stats.daily, 7));
-      nodes.month.textContent = formatCount(sumDays(stats.daily, 30));
-      nodes.lastVisit.textContent = formatVisitDate(previousVisitIso);
+      var formatDateKey = function (dateKey) {
+        var parsedDate = parseDateKey(dateKey);
+        if (!parsedDate) {
+          return dateKey;
+        }
+        try {
+          return parsedDate.toLocaleDateString(undefined, { dateStyle: "medium" });
+        } catch (error) {
+          return parsedDate.toLocaleDateString();
+        }
+      };
+
+      var formatHourRange = function (hour) {
+        if (typeof hour !== "number" || hour < 0 || hour > 23) {
+          return "No data yet";
+        }
+        var start = new Date(2000, 0, 1, hour, 0, 0);
+        var end = new Date(2000, 0, 1, hour, 59, 59);
+        try {
+          return (
+            start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) +
+            " - " +
+            end.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+          );
+        } catch (error) {
+          return hour + ":00 - " + hour + ":59";
+        }
+      };
+
+      var getReferrerLabel = function (referrer) {
+        if (!referrer) {
+          return "Direct / None";
+        }
+        try {
+          var hostname = new URL(referrer, window.location.origin).hostname.toLowerCase();
+          if (!hostname) {
+            return "Direct / None";
+          }
+          var referrerDomain = hostname.replace(/^www\./, "");
+          var localDomain = window.location.hostname.toLowerCase().replace(/^www\./, "");
+          if (referrerDomain === localDomain) {
+            return "Internal";
+          }
+          return referrerDomain;
+        } catch (error) {
+          return "Unknown";
+        }
+      };
+
+      var sessionViewCount = 1;
+      var isNewSession = true;
+      try {
+        var sessionId = window.sessionStorage.getItem(sessionIdKey);
+        if (!sessionId) {
+          sessionId = now.getTime().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+          window.sessionStorage.setItem(sessionIdKey, sessionId);
+        }
+        sessionViewCount = (Number(window.sessionStorage.getItem(sessionViewsKey)) || 0) + 1;
+        window.sessionStorage.setItem(sessionViewsKey, String(sessionViewCount));
+        isNewSession = window.sessionStorage.getItem(sessionCountedKey) !== "1";
+        if (isNewSession) {
+          window.sessionStorage.setItem(sessionCountedKey, "1");
+        }
+      } catch (error) {
+        sessionViewCount = 1;
+        isNewSession = true;
+      }
+
+      var stats = createEmptyStats();
+      try {
+        var raw = window.localStorage.getItem(storageKey);
+        if (!raw) {
+          raw = window.localStorage.getItem(legacyStorageKey);
+        }
+        if (raw) {
+          stats = normalizeStats(JSON.parse(raw));
+        }
+      } catch (error) {
+      }
+
+      var previousVisitIso = stats.lastVisitIso;
+      var todayKey = toDateKey(now);
+      var monthKey = toMonthKey(now);
+      var currentPath = window.location.pathname || "/";
+      var currentReferrer = getReferrerLabel(document.referrer);
+      var currentHour = now.getHours();
+      var currentWeekday = now.getDay();
+
+      if (!stats.firstVisitIso) {
+        stats.firstVisitIso = nowIso;
+      }
+
+      stats.totalViews = (Number(stats.totalViews) || 0) + 1;
+      if (isNewSession) {
+        stats.uniqueSessions = (Number(stats.uniqueSessions) || 0) + 1;
+      }
+      stats.lastVisitIso = nowIso;
+
+      incrementMap(stats.daily, todayKey, 1);
+      incrementMap(stats.monthly, monthKey, 1);
+      incrementMap(stats.paths, currentPath, 1);
+      incrementMap(stats.referrers, currentReferrer, 1);
+      stats.hourly[currentHour] = (Number(stats.hourly[currentHour]) || 0) + 1;
+      stats.weekday[currentWeekday] = (Number(stats.weekday[currentWeekday]) || 0) + 1;
+
+      var timezone = "Unknown";
+      try {
+        timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown";
+      } catch (error) {
+      }
+
+      stats.environment = {
+        language: navigator.language || "Unknown",
+        platform: navigator.platform || "Unknown",
+        timezone: timezone,
+        viewport: window.innerWidth + "x" + window.innerHeight,
+        screen:
+          window.screen && window.screen.width && window.screen.height
+            ? window.screen.width + "x" + window.screen.height
+            : "Unknown",
+        userAgent: navigator.userAgent || "Unknown"
+      };
+
+      var dailyCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 730);
+      Object.keys(stats.daily).forEach(function (dateKey) {
+        var date = parseDateKey(dateKey);
+        var value = Number(stats.daily[dateKey]) || 0;
+        if (!date || date < dailyCutoff || value <= 0) {
+          delete stats.daily[dateKey];
+          return;
+        }
+        stats.daily[dateKey] = value;
+      });
+
+      var monthlyCutoff = new Date(now.getFullYear(), now.getMonth() - 60, 1);
+      Object.keys(stats.monthly).forEach(function (savedMonthKey) {
+        var monthDate = parseMonthKey(savedMonthKey);
+        var value = Number(stats.monthly[savedMonthKey]) || 0;
+        if (!monthDate || monthDate < monthlyCutoff || value <= 0) {
+          delete stats.monthly[savedMonthKey];
+          return;
+        }
+        stats.monthly[savedMonthKey] = value;
+      });
+
+      stats.referrers = trimMap(stats.referrers, 25);
+      stats.paths = trimMap(stats.paths, 25);
+
+      var recomputedTotal = Object.keys(stats.daily).reduce(function (sum, dateKey) {
+        return sum + (Number(stats.daily[dateKey]) || 0);
+      }, 0);
+      if (recomputedTotal > 0) {
+        stats.totalViews = recomputedTotal;
+      }
+
+      if (!stats.firstVisitIso) {
+        var earliestDayKey = Object.keys(stats.daily).sort()[0];
+        var earliestDate = earliestDayKey ? parseDateKey(earliestDayKey) : null;
+        stats.firstVisitIso = earliestDate ? earliestDate.toISOString() : nowIso;
+      }
+
+      var activeDays = Object.keys(stats.daily).filter(function (dateKey) {
+        return (Number(stats.daily[dateKey]) || 0) > 0;
+      }).length;
+      var visitsToday = Number(stats.daily[todayKey]) || 0;
+      var visitsWeek = sumDays(stats.daily, 7, now);
+      var visitsMonth = sumDays(stats.daily, 30, now);
+      var visitsYear = sumDays(stats.daily, 365, now);
+      var visitsThisMonth = Number(stats.monthly[monthKey]) || 0;
+      var avg30 = visitsMonth / 30;
+
+      var streaks = calculateStreaks(stats.daily, now);
+      var peakDay = getTopEntry(stats.daily);
+      var peakHour = getTopHour(stats.hourly);
+      var topReferrer = getTopEntry(stats.referrers);
+      var topPath = getTopEntry(stats.paths);
+
+      var peakDayLabel = peakDay.key
+        ? formatDateKey(peakDay.key) + " (" + formatCount(peakDay.value) + ")"
+        : "No data yet";
+      var peakHourLabel =
+        peakHour.index >= 0
+          ? formatHourRange(peakHour.index) + " (" + formatCount(peakHour.value) + ")"
+          : "No data yet";
+      var topReferrerLabel = topReferrer.key
+        ? topReferrer.key + " (" + formatCount(topReferrer.value) + ")"
+        : "No data yet";
+      var topPathLabel = topPath.key ? topPath.key + " (" + formatCount(topPath.value) + ")" : "No data yet";
+
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(stats));
+      } catch (error) {
+      }
+
+      nodes["total-views"].textContent = formatCount(stats.totalViews);
+      nodes["unique-sessions"].textContent = formatCount(stats.uniqueSessions);
+      nodes["active-days"].textContent = formatCount(activeDays);
+      nodes["this-session"].textContent = formatCount(sessionViewCount);
+      nodes.today.textContent = formatCount(visitsToday);
+      nodes.week.textContent = formatCount(visitsWeek);
+      nodes.month.textContent = formatCount(visitsMonth);
+      nodes.year.textContent = formatCount(visitsYear);
+      nodes["this-month"].textContent = formatCount(visitsThisMonth);
+      nodes["avg-30"].textContent = formatDecimal(avg30);
+      nodes["current-streak"].textContent = formatCount(streaks.current);
+      nodes["longest-streak"].textContent = formatCount(streaks.longest);
+      nodes["first-visit"].textContent = formatVisitDate(stats.firstVisitIso, "No data yet");
+      nodes["last-visit"].textContent = formatVisitDate(previousVisitIso, "No previous visits recorded");
+      nodes["peak-day"].textContent = peakDayLabel;
+      nodes["peak-hour"].textContent = peakHourLabel;
+      nodes["top-referrer"].textContent = topReferrerLabel;
+      nodes["top-path"].textContent = topPathLabel;
+      nodes["device-profile"].textContent =
+        (stats.environment.platform || "Unknown") +
+        " | " +
+        (stats.environment.language || "Unknown") +
+        " | " +
+        (stats.environment.timezone || "Unknown");
+      nodes["screen-profile"].textContent =
+        (stats.environment.screen || "Unknown") + " | " + (stats.environment.viewport || "Unknown");
     })();
   </script>
 </body>
