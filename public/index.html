@@ -935,6 +935,91 @@
       --icon-shadow: rgba(22, 122, 150, 0.14);
     }
 
+    .page-visit-stats {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(170deg, rgba(255, 255, 255, 0.95), rgba(242, 250, 255, 0.9));
+      border-radius: var(--radius-lg);
+      padding: clamp(15px, 2.4vw, 22px);
+      display: grid;
+      gap: 12px;
+      box-shadow:
+        0 22px 36px rgba(6, 56, 97, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      transform: translateZ(18px);
+    }
+
+    .page-visit-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-visit-title {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      letter-spacing: -0.01em;
+      font-size: clamp(1rem, 1.9vw, 1.24rem);
+      color: #12395c;
+    }
+
+    .page-visit-note {
+      margin: 0;
+      color: #4a6a88;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .page-visit-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .page-visit-card {
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 10px 20px rgba(7, 57, 95, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      transform-style: preserve-3d;
+      transform: translateZ(10px);
+    }
+
+    .page-visit-value {
+      margin: 0;
+      font-family: "Sora", "Manrope", sans-serif;
+      font-size: 1.24rem;
+      color: var(--brand-deep);
+      letter-spacing: -0.01em;
+    }
+
+    .page-visit-label {
+      margin: 3px 0 0;
+      font-size: 0.8rem;
+      color: #4a6887;
+      line-height: 1.4;
+      font-weight: 650;
+    }
+
+    .page-visit-last {
+      margin: 2px 0 0;
+      color: #466585;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .page-visit-last span {
+      color: #16466f;
+      font-weight: 800;
+    }
+
     @media (hover: hover) and (pointer: fine) {
       .shell:hover {
         box-shadow:
@@ -973,6 +1058,10 @@
 
     @media (max-width: 980px) {
       .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .page-visit-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
@@ -1025,6 +1114,10 @@
         grid-template-columns: 1fr;
       }
 
+      .page-visit-grid {
+        grid-template-columns: 1fr;
+      }
+
       h1 {
         max-width: 100%;
       }
@@ -1065,8 +1158,10 @@
       .stat-card,
       .strengths-section,
       .modules-section,
+      .page-visit-stats,
       .strength-card,
       .module-card,
+      .page-visit-card,
       .module-card h3,
       .module-card p,
       .strength-card h3,
@@ -1457,6 +1552,35 @@
           </article>
         </div>
       </section>
+
+      <section class="page-visit-stats" aria-label="Page visit statistics">
+        <div class="page-visit-head">
+          <h2 class="page-visit-title">Page Visit Statistics</h2>
+          <p class="page-visit-note">Saved in this browser</p>
+        </div>
+        <div class="page-visit-grid">
+          <article class="page-visit-card">
+            <p class="page-visit-value" data-visit-stat="total">0</p>
+            <p class="page-visit-label">Total visits</p>
+          </article>
+          <article class="page-visit-card">
+            <p class="page-visit-value" data-visit-stat="today">0</p>
+            <p class="page-visit-label">Visits today</p>
+          </article>
+          <article class="page-visit-card">
+            <p class="page-visit-value" data-visit-stat="week">0</p>
+            <p class="page-visit-label">Visits in last 7 days</p>
+          </article>
+          <article class="page-visit-card">
+            <p class="page-visit-value" data-visit-stat="month">0</p>
+            <p class="page-visit-label">Visits in last 30 days</p>
+          </article>
+        </div>
+        <p class="page-visit-last">
+          Last visit:
+          <span data-visit-stat="last-visit">No previous visits recorded</span>
+        </p>
+      </section>
     </section>
   </main>
 
@@ -1502,6 +1626,129 @@
       shell.addEventListener("pointermove", onMove);
       shell.addEventListener("pointerleave", resetTilt);
       shell.addEventListener("pointercancel", resetTilt);
+    })();
+
+    (function () {
+      var readNode = function (key) {
+        return document.querySelector('[data-visit-stat="' + key + '"]');
+      };
+
+      var nodes = {
+        total: readNode("total"),
+        today: readNode("today"),
+        week: readNode("week"),
+        month: readNode("month"),
+        lastVisit: readNode("last-visit")
+      };
+
+      if (!nodes.total || !nodes.today || !nodes.week || !nodes.month || !nodes.lastVisit) {
+        return;
+      }
+
+      var storageKey = "hms_page_visit_stats_v1";
+      var now = new Date();
+      var pad = function (value) {
+        return value < 10 ? "0" + value : String(value);
+      };
+
+      var toDateKey = function (date) {
+        return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+      };
+
+      var parseDateKey = function (dateKey) {
+        var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
+        if (!match) {
+          return null;
+        }
+        var parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        if (isNaN(parsed.getTime())) {
+          return null;
+        }
+        return parsed;
+      };
+
+      var sumDays = function (dailyStats, days) {
+        var sum = 0;
+        for (var i = 0; i < days; i += 1) {
+          var date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+          var count = Number(dailyStats[toDateKey(date)]) || 0;
+          sum += count;
+        }
+        return sum;
+      };
+
+      var stats = {
+        total: 0,
+        daily: {},
+        lastVisitIso: null
+      };
+
+      try {
+        var raw = window.localStorage.getItem(storageKey);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            stats.total = Number(parsed.total) || 0;
+            stats.daily = parsed.daily && typeof parsed.daily === "object" ? parsed.daily : {};
+            stats.lastVisitIso = typeof parsed.lastVisitIso === "string" ? parsed.lastVisitIso : null;
+          }
+        }
+      } catch (error) {
+      }
+
+      var todayKey = toDateKey(now);
+      var previousVisitIso = stats.lastVisitIso;
+      stats.daily[todayKey] = (Number(stats.daily[todayKey]) || 0) + 1;
+      stats.total = (Number(stats.total) || 0) + 1;
+      stats.lastVisitIso = now.toISOString();
+
+      var cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 400);
+      Object.keys(stats.daily).forEach(function (key) {
+        var dayDate = parseDateKey(key);
+        var value = Number(stats.daily[key]) || 0;
+        if (!dayDate || dayDate < cutoffDate || value <= 0) {
+          delete stats.daily[key];
+          return;
+        }
+        stats.daily[key] = value;
+      });
+
+      var computedTotal = Object.keys(stats.daily).reduce(function (sum, key) {
+        return sum + (Number(stats.daily[key]) || 0);
+      }, 0);
+      if (computedTotal > 0) {
+        stats.total = computedTotal;
+      }
+
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(stats));
+      } catch (error) {
+      }
+
+      var formatCount = function (value) {
+        return (Number(value) || 0).toLocaleString();
+      };
+
+      var formatVisitDate = function (isoString) {
+        if (!isoString) {
+          return "No previous visits recorded";
+        }
+        var date = new Date(isoString);
+        if (isNaN(date.getTime())) {
+          return "No previous visits recorded";
+        }
+        try {
+          return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+        } catch (error) {
+          return date.toLocaleString();
+        }
+      };
+
+      nodes.total.textContent = formatCount(stats.total);
+      nodes.today.textContent = formatCount(stats.daily[todayKey]);
+      nodes.week.textContent = formatCount(sumDays(stats.daily, 7));
+      nodes.month.textContent = formatCount(sumDays(stats.daily, 30));
+      nodes.lastVisit.textContent = formatVisitDate(previousVisitIso);
     })();
   </script>
 </body>
