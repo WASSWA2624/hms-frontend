@@ -21,7 +21,7 @@ Load and apply this file before any other prompt file in this folder tree (index
 
 - Keep this contract step-agnostic. Put tier/step-specific parity checklists in the corresponding tier `README.mdc` or step prompt file.
 - Review and implement missing/non-compliant aspects for selected scope per `hms-frontend/dev-plan/P011_screens-routes.md`.
-- Ensure full compliance with `hms-frontend/.cursor/rules/*` and `hms-frontend/write-up.md`.
+- Apply the `Rule Loading Contract` in this file and `hms-frontend/write-up.md`.
 - Contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and selected module route files are source of truth.
 - Use only mounted backend resources/actions from `hms-backend/src/app/router.js`; do not invent unsupported endpoints.
@@ -270,9 +270,9 @@ Primary areas for selected scope:
 
 ## Scope Constraints (Mandatory)
 
-- Do NOT implement steps from unselected tiers unless minimal prerequisite wiring is required.
-- Do NOT call non-mounted backend endpoints or invent shortcut routes.
-- Do NOT bypass route-level auth/role guards.
+- Apply the `Tier Step Selection Contract` as the scope boundary; do not exceed selected step/tier scope except minimal prerequisite wiring.
+- Apply backend route/resource boundaries from `Shared Scope and Alignment Notes`; only mounted endpoints/actions are allowed.
+- Apply access-control boundaries from `Role-Based Visibility and Access Enforcement Contract`; route/action guard bypass is prohibited.
 
 ---
 
