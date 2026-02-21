@@ -30,6 +30,12 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 - All folders created
 - Dependencies installed
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps
 
 ### Step 1.1: Create Environment Configuration
@@ -697,4 +703,6 @@ Build the foundation layer: configuration, utilities, logging, and error handlin
 - [x] No dependencies on other layers (foundation remains independent).
 
 **Next Phase**: `P002_infrastructure.md`
+
+
 

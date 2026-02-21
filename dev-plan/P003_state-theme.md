@@ -30,6 +30,12 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`. **Complia
 - Services available
 - Security layer available
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps
 
 ### Step 3.1: Create Color Tokens
@@ -554,4 +560,6 @@ Build Redux store and theme system. Follows rules in `.cursor/rules/`. **Complia
 - [x] Backend-compatible session/tenant metadata boundaries verified.
 
 **Next Phase**: `P004_offline.md`
+
+
 

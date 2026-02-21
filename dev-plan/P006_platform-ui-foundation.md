@@ -49,6 +49,12 @@ Follow the rule references below. This plan file does not redefine rules—only 
 - Core components (if very few) can be at root, but **grouping is preferred**
 - See `.cursor/rules/component-structure.mdc` and `.cursor/rules/platform-ui.mdc` for complete requirements
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps
 
 ### Step 6.1: UI Primitives — build **one by one** (strict gates)
@@ -310,5 +316,7 @@ Follow the rule references below. This plan file does not redefine rules—only 
 - [x] Component primitives provide all required UX states (loading, empty, error, offline) for downstream module screens.
 
 **Next Phase**: `P007_app-shell.md`
+
+
 
 

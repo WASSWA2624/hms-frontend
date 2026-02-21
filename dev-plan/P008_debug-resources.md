@@ -25,6 +25,12 @@ Implement the debug system defined in `.cursor/rules/debug.mdc`: script-based lo
 - Debug tooling must capture enough frontend context to correlate with backend request IDs and module endpoints during parity audits.
 - Debug scripts must remain dev-only and never alter production request/response behavior.
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps (Atomic, Chronological)
 
 ### Step 8.1: Create `scripts/debug/expo-with-logging.mjs`
@@ -67,3 +73,5 @@ Implement the debug system defined in `.cursor/rules/debug.mdc`: script-based lo
 - Debug output supports frontend/backend parity diagnostics without exposing secrets/PII.
 
 **Next Phase**: `P009_app-layouts.md`
+
+

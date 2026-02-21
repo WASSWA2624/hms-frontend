@@ -34,6 +34,12 @@ Wire the **app shell** infrastructure: providers, app bootstrap, routing groups,
 - Bootstrap layer exists (created in Phase 4)
 - UI layouts/components available (Phase 6)
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Implementation Steps
 
 **IMPORTANT**: Follow rule references above. Do not redefine rules; reference them. Each step must be fully tested before proceeding to the next (see `testing.mdc` for mandatory testing standards).
@@ -533,5 +539,6 @@ When navigating/linking (after routes are created in Phase 10 and Phase 11), **o
 - [ ] Routes and module screens are fully production-hardened in Phases `10`-`13` (this phase provides shell infrastructure only).
 
 **Next Phase**: `P008_debug-resources.md`
+
 
 

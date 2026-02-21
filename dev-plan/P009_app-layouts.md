@@ -36,6 +36,12 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 - **Look and feel**: Microsoft Fluent / Microsoft 365 (Fluent blue primary, neutrals, Segoe UI–style typography, 2–4px radius, light elevation). All tokens from theme; no hardcoded colors/spacing.
 - **Theme**: Light and dark only; theme controls in shell must switch only between light and dark.
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps (Atomic, Chronological)
 
 ### Step 9.1: App Identity and Icons (All Platforms)
@@ -196,3 +202,5 @@ Implement **app layouts and global UI shell** for all route groups. Layouts and 
 - All steps executed in order; tests passing; rule compliance verified per `.cursor/rules/`.
 
 **Next Phase**: `P010_core-features.md`
+
+

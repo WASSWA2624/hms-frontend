@@ -31,6 +31,7 @@ Implement HMS routes and screens in strict chronological order. One step equals 
 - `write-up.md` sections `8.3` to `8.6` (a11y, low-bandwidth behavior, i18n, UI simplicity charter).
 - `write-up.md` sections `9` and `10` (entitlement and commercial route behavior).
 - `write-up.md` section `17` (placeholder route retirement and route parity verification).
+- `subscription-plan.md` (plan selection, tier limits, add-on minimum-plan gates, and Advanced vs Custom route behavior).
 
 ## Backend Alignment Gate (Mandatory)
 - Module source of truth: mounted backend modules in `hms-backend/src/app/router.js` (use `hms-backend/dev-plan/P011_modules.mdc` where synchronized)
@@ -39,6 +40,7 @@ Implement HMS routes and screens in strict chronological order. One step equals 
 - Every module-backed screen below includes explicit backend module mapping.
 - Workflow actions source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc` section `25`.
 - Commercial/interop/growth route dependencies source of truth: sections `26`, `27`, and `28`.
+- Commercial policy source of truth: `hms-frontend/subscription-plan.md`.
 
 ## Atomic Step Contract
 - One step equals one route file under `src/app/**` and one screen implementation under `src/platform/screens/**`.
@@ -374,6 +376,7 @@ Verification evidence (keep in CI):
 - All user-facing text uses i18n keys.
 - Loading, empty, error, and offline states implemented.
 - Guard and navigation behavior verified.
+- Commercial-gated routes enforce tier limits/add-on eligibility and show deterministic upgrade guidance when blocked.
 - Tests added and passing per `testing.mdc` (including a11y coverage).
 
 ## Completeness
@@ -403,6 +406,7 @@ Route-file coverage status (`2026-02-17`):
 - Route-file coverage remains `207/207` for defined steps in this phase.
 - Module-backed routes remain aligned with backend modules/endpoints.
 - Workflow action routes/screens expose explicit pending/success/failure/retry states.
+- Commercial routes (onboarding plans/trial/upgrade/payment + subscriptions area) align with `subscription-plan.md` and backend section `26` contracts.
 - Placeholder catch-all retirement is completed or formally approved as deferred with owner/date.
 - Route-level regression, accessibility, and offline UX checks pass.
 

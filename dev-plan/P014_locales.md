@@ -21,11 +21,13 @@ Implement all supported locale files, enforce translation-key parity, validate R
 - `write-up.md` sections `14.5` and `15.3` (observability + quality gate checks for locale behavior).
 - `write-up.md` sections `18.2` and `19.3` (release readiness and client implementation readiness).
 - `write-up.md` section `10` (regional payment/commercial terminology readiness).
+- `subscription-plan.md` (consistent translation of plan names, commercial boundaries, and add-on terminology).
 
 ## Backend Alignment Gate
 - Supported locale codes must stay aligned with backend locale rollout in `hms-backend/dev-plan/P014_locales.mdc`.
 - Shared RTL locales must align on direction metadata and rendering behavior.
 - Any locale drift (frontend-only or backend-only) requires explicit justification, owner, and target resolution phase.
+- Commercial wording for tier/add-on/upgrade flows must stay semantically aligned with `hms-frontend/subscription-plan.md`.
 
 ## Supported Locale Target Set
 Target locale codes for parity with backend expansion:
@@ -33,6 +35,12 @@ Target locale codes for parity with backend expansion:
 
 RTL subset requiring direction validation:
 `ar, he, fa, ur`
+
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
 
 ## Steps (Atomic, Chronological)
 
@@ -107,3 +115,5 @@ RTL subset requiring direction validation:
 - Localization release gate is signed off.
 
 **This is the last phase.** No subsequent development phase follows.
+
+

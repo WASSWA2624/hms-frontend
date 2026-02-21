@@ -21,22 +21,31 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Phase 10 completed
 - Backend module and endpoint parity confirmed (`hms-backend/dev-plan/P011_modules.mdc`, `hms-backend/dev-plan/P010_api_endpoints.mdc`)
 - Backend realtime scope confirmed for event-driven UX (`hms-backend/dev-plan/P013_ws_features.mdc`)
+- Commercial baseline confirmed (`hms-frontend/subscription-plan.md`)
 
 ## Write-up Coverage
 - `write-up.md` sections `7`, `9`, `10`, and `11` (workflow overlays, modules strategy, commercial controls, growth engine).
 - `write-up.md` sections `12` and `20` (interoperability and KPI frameworks).
 - `write-up.md` sections `14.5`, `18.3`, and `21` (observability, product DoD closure, and priority backlog themes).
+- `subscription-plan.md` (tier-fit guardrails and enterprise/commercial boundaries for advanced journeys).
 
 ## Backend Alignment Gate
 - Realtime UX must map to WS event scope in `hms-backend/dev-plan/P013_ws_features.mdc`.
 - Advanced action/control UX must map to endpoint sections `25`, `26`, `27`, and `28` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Feature-mapped Group 21 scope must reuse Phase 10 modules; no unsanctioned backend module creation in frontend architecture.
+- Commercial overlays must preserve `Advanced` vs `Custom` boundaries in `subscription-plan.md` and avoid exposing custom-engineering flows under standard advanced plans.
 
 ## Advanced Scope Contract
 - Advanced features must reuse core modules; do not introduce unauthorized module boundaries.
 - Any backend dependency used by a step must be documented in that step.
 - If a backend contract is intentionally deferred, keep UI behind a feature flag and do not break chronology.
 - Tenant-specific behavior must be configuration-first (policies/workflows/forms/templates), not forked code paths.
+
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
 
 ## Steps (Atomic, Chronological)
 
@@ -159,6 +168,7 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 ### Step 12.30: Commercial and entitlement operations UX
 - Build subscription/module lifecycle UX for upgrade, downgrade, renewal, proration preview, activation/deactivation, and invoice collection/retry.
 - Backend dependencies: endpoint section `26` in `hms-backend/dev-plan/P010_api_endpoints.mdc`.
+- Commercial dependencies: `hms-frontend/subscription-plan.md` (minimum-plan add-on gates, plan-fit statuses, and upgrade/downgrade suitability rules).
 
 ### Step 12.31: Interoperability and migration operations console
 - Build admin UX for integration test/sync/replay and interop import/export controls (FHIR/HL7/DICOM/migration flows).
@@ -191,7 +201,10 @@ Implement advanced HMS capabilities after core modules and screens are in place.
 - Advanced feature slices are implemented without creating unauthorized backend module boundaries.
 - WS-driven UX is aligned to backend event contracts and idempotency expectations.
 - Workflow/commercial/interop/growth control surfaces map to backend endpoint sections `25-28`.
+- Commercial UX enforces `subscription-plan.md` rules for tier limits, add-on eligibility, and Advanced vs Custom decision boundaries.
 - Adaptability UX foundations support configuration-first tenant customization (no forked code paths).
 - Tests for permission failure, offline handling, and fallback behavior pass.
 
 **Next Phase**: `P013_finalization.md`
+
+

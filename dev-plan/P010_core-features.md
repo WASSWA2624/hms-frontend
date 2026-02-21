@@ -28,10 +28,13 @@ Implement the HMS core modules aligned with `write-up.md` and `hms-backend/dev-p
 - `write-up.md` section `7` (workflow-critical module behavior).
 - `write-up.md` sections `9` and `10` (entitlement/commercial control requirements).
 - `write-up.md` sections `13`, `15`, and `18.1` (security, test, and module DoD gates).
+- `subscription-plan.md` (tier limits, add-on minimum-plan eligibility, plan-fit states, and Advanced vs Custom boundary rules).
 
 ## Backend Alignment Gate
 - Modules source of truth: `hms-backend/src/app/router.js` and `hms-backend/dev-plan/P011_modules.mdc`.
 - Endpoint source of truth: `hms-backend/dev-plan/P010_api_endpoints.mdc` (including sections `25-28` action/control endpoints).
+- Data-model entitlement source: `hms-backend/dev-plan/P009_models.mdc` Step `9.19` and Step `9.24` verification gates.
+- Seeder source for deterministic parity scenarios: `hms-backend/dev-plan/P012_seeder.mdc`.
 - No Phase 10 module may be omitted, renamed, or merged if mounted in backend router.
 
 ## Review Snapshot (2026-02-17)
@@ -83,6 +86,22 @@ Action implementation gates:
 - No raw status mutation helpers in UI; action orchestration stays in feature/usecase layer.
 - Action states are auditable and expose normalized status/error codes.
 - Role/entitlement checks are enforced before action dispatch.
+
+## Commercial and Entitlement Contract (Mandatory)
+For Group `18` and any commercial-gated modules:
+- Use `subscription-plan.md` as the frontend commercial source of truth for tier capabilities and minimum-plan add-on gates.
+- Enforce add-on eligibility before activation flows; if ineligible, route to upgrade guidance (not silent failure).
+- Surface plan-fit status using backend-compatible states: `healthy`, `approaching_limit`, `exceeded`.
+- Support deterministic upgrade/downgrade suitability messaging based on current usage and restricted module/add-on requirements.
+- Keep `Advanced` vs `Custom` boundaries explicit:
+  - `Advanced`: standard on-prem package with no net-new custom engineering flow.
+  - `Custom`: enterprise/government contract flow for custom engineering, complex integrations, or contractual governance requirements.
+
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
 
 ## Steps
 Each step implements exactly **one** mounted backend module from `hms-backend/src/app/router.js` (and `hms-backend/dev-plan/P011_modules.mdc` where synchronized).
@@ -323,8 +342,10 @@ No additional backend modules are introduced. Phase 12 must reuse these Phase 10
 - All 160 backend-mounted modules have matching frontend feature contracts and tests.
 - Group 15A biomedical suite is implemented in-order with subscription-gated readiness controls.
 - Workflow action endpoint support (section `25`) is mapped to feature/usecase actions with normalized error/status handling.
-- Group 18 entitlement/commercial controls include section `26` action-path support.
+- Group 18 entitlement/commercial controls include section `26` action-path support and `subscription-plan.md` gating (tier limits, add-on eligibility, plan-fit, and upgrade/downgrade suitability).
 - No unresolved module parity deltas remain against backend router/modules.
 
 **Next Phase**: `P011_screens-routes.md`
+
+
 

@@ -29,6 +29,12 @@ Build the infrastructure layer: services (API, storage, analytics) and security.
 - Config layer available
 - Logging and error handling available
 
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
+
 ## Steps
 
 ### Step 2.1: Create Storage Services
@@ -417,4 +423,6 @@ Build the infrastructure layer: services (API, storage, analytics) and security.
 - [x] Backend endpoint/error contract alignment verified.
 
 **Next Phase**: `P003_state-theme.md`
+
+
 

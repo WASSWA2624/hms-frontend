@@ -28,11 +28,19 @@ Finalize onboarding/help UX, retire route placeholders, execute cross-workflow r
 - `write-up.md` sections `7` and `17` (end-to-end workflows and placeholder retirement obligations).
 - `write-up.md` sections `20` and `21` (KPI instrumentation and priority hardening backlog).
 - `write-up.md` sections `9.7` and `12.5` (configuration-first adaptability and governance).
+- `subscription-plan.md` (final commercial fit checks, tier/add-on gate behavior, and upgrade/downgrade recommendation integrity).
 
 ## Backend Alignment Gate
 - Validate parity against `hms-backend/src/app/router.js`, `hms-backend/dev-plan/P010_api_endpoints.mdc`, and `hms-backend/dev-plan/P011_modules.mdc`.
 - Validate WS-driven screens against event contracts in `hms-backend/dev-plan/P013_ws_features.mdc`.
 - Validate performance and readiness assumptions against `hms-backend/dev-plan/P008_perf.mdc`.
+- Validate commercial UX parity for Group 18 and section `26` endpoints against `hms-frontend/subscription-plan.md`.
+
+## Atomic and Chronology Contract (Mandatory)
+- Execute steps strictly in listed order; do not skip ahead.
+- One step equals one primary deliverable; if a step lists multiple items, execute them as sequential atomic sub-units within that step.
+- Complete implementation, tests, backend-alignment checks, and rule-compliance checks for the current step before starting the next step.
+- Do not pull work from later phases into the current phase unless explicitly declared as a prerequisite gate.
 
 ## Steps (Atomic, Chronological)
 
@@ -96,6 +104,7 @@ Finalize onboarding/help UX, retire route placeholders, execute cross-workflow r
 ### Step 13.12: Backend/Frontend parity and release DoD sign-off
 - Confirm frontend route/feature coverage aligns with backend modules/endpoints and approved action endpoints.
 - Confirm realtime UX dependencies align with backend WS event coverage.
+- Confirm commercial and entitlement UX gates (tier limits, add-on eligibility, plan-fit states, upgrade/downgrade guidance, Advanced vs Custom routing) align with backend section `26` contracts and `subscription-plan.md`.
 - Confirm release-level DoD gates from write-up section `18.2` are satisfied.
 - Record any approved temporary deltas with owner and target phase.
 
@@ -104,6 +113,9 @@ Finalize onboarding/help UX, retire route placeholders, execute cross-workflow r
 - Placeholder routes are retired or formally justified with approved owner/date.
 - Security, offline, accessibility, performance, and observability gates are green.
 - Backend/frontend parity is signed off with no undocumented deltas.
+- Commercial parity and plan-fit behavior are signed off with no undocumented tier/add-on gate drift.
 - Locale phase can start without key drift.
 
 **Next Phase**: `P014_locales.md` (last phase)
+
+
