@@ -1,11 +1,18 @@
 # HOSSPI HMS Subscription Plans
 
+Version: 2.0
+Date: 2026-02-21
+Status: Active pricing baseline
+
 ## Overview
-Designed to be affordable for small clinics while scaling revenue from growing hospitals and enterprises.
+This pricing model keeps entry affordable for small clinics while scaling for hospitals, enterprise groups, and government deployments.
 
----
+## Plan Selection Rule (Advanced vs Custom)
+Use this decision rule first:
+- Choose `Advanced` when you need on-premise deployment with standard product behavior and no custom engineering.
+- Choose `Custom` when you need contract-specific engineering, multi-region architecture, advanced compliance mapping, or enterprise/government procurement terms.
 
-## 1. Free — Starter Tier
+## 1. Free - Starter Tier
 **Price:** $0
 
 **Best for:** Very small clinics evaluating the system
@@ -19,95 +26,107 @@ Designed to be affordable for small clinics while scaling revenue from growing h
 **Permissions**
 - Patient edits allowed:
   - Full edit within 24h of creation
-  - After 24h → only contact/address fields
-- Printing: ❌
-- Data export: ❌
-- Branding: ❌ (HOSSPI watermark visible)
+  - After 24h: contact/address fields only
+- Printing: No
+- Data export: No
+- Branding: No (HOSSPI watermark visible)
 
 **Included Modules**
-- Auth & RBAC basics
+- Auth and RBAC basics
 - Patient registry
-- Basic scheduling & queue
-- Basic encounters + vitals
-- Basic invoicing & receipts
+- Basic scheduling and queue
+- Basic encounters and vitals
+- Basic invoicing and receipts
 - Basic dashboards (view only)
-- Notifications templates
+- Notification templates
 - Equipment fault reporting
 
 **Support**
-- Email / community (best effort)
+- Email or community (best effort)
 
 ---
 
-## 2. Basic — Small Clinic
+## 2. Basic - Small Clinic
 **Price**
-- $39/month  
+- $39/month
 - $390/year (2 months free)
 
 **Includes**
 - Up to 5 users
-- Extra user: $6/month
+- Extra user: $6/month or $60/year
 
 **Capabilities**
 - 1 facility (optionally up to 2 branches)
 - Unlimited patients
 - Printing enabled
 - CSV/Excel exports
-- Logo + receipt branding
+- Logo and receipt branding
 
 **Modules**
-- Patient registry + consent
-- Scheduling & queue
-- Encounters + prescriptions
-- Billing + payments
+- Patient registry and consent
+- Scheduling and queue
+- Encounters and prescriptions
+- Billing and payments
 - Basic reports
 - Notifications
 - Optional inventory add-on
 
 **Support**
-- Email support (48–72h response)
+- Email support (48-72h response)
 
 ---
 
-## 3. Pro — Growing Hospital
+## 3. Pro - Growing Hospital
 **Price**
-- $89/month  
+- $89/month
 - $890/year
 
 **Includes**
 - Up to 10 users
-- Extra user: $8/month
+- Extra user: $8/month or $80/year
 
 **Facilities**
 - Up to 3 facilities
-- Extra facility: $15/month
+- Extra facility: $15/month or $150/year
 
 **Capabilities**
 - Unlimited patients
-- Full printing & exports
+- Full printing and exports
 - Scheduled reports
 - Advanced dashboards
 
 **Modules**
-- All Basic features +
-- IPD + bed management
-- Nursing workflows + MAR
-- Lab + Radiology workflows
-- Pharmacy dispensing + batch tracking
-- Inventory + procurement
+- All Basic features, plus:
+- IPD and bed management
+- Nursing workflows and MAR
+- Lab and radiology workflows
+- Pharmacy dispensing and batch tracking
+- Inventory and procurement
 - Insurance workflows
-- HR basics + rosters
+- HR basics and rosters
 
 **Support**
-- Priority support (24–48h)
+- Priority support (24-48h)
 - 1 onboarding session
 
 ---
 
-## 4. Advanced — On-Premise Deployment
+## 4. Advanced - On-Prem Standard
 **Pricing**
-- Setup: $2,500–$7,500
-- Annual maintenance: $600–$1,500
+- Setup: $2,500-$7,500 (one-time)
+- Annual maintenance: $600-$1,500 (recurring)
+
+**Best for**
+- Hospitals requiring local hosting with standard workflows
+- Facilities with strict data-locality policies but no custom engineering requirement
+
+**Commercial Model**
+- Standardized implementation package (fixed scope)
+- Fast deployment using existing HMS capabilities and documented connectors
+
+**Hosting Model**
+- Single customer environment
+- On-premise deployment only (customer-managed infrastructure)
 
 **Includes**
 - Local server installation
@@ -117,68 +136,95 @@ Designed to be affordable for small clinics while scaling revenue from growing h
 - Offline optimization
 - Optional SLA tiers
 
-**Best for**
-- Hospitals requiring local hosting
-- Facilities with strict data policies
+**Not Included by Default**
+- Net-new custom product features
+- Deep custom integrations outside standard connector patterns
+- Multi-region active-active architecture
+- Dedicated account management team
 
 ---
 
-## 5. Custom — Enterprise / Government
+## 5. Custom - Enterprise and Government
 **Pricing**
 - Setup: $10,000+
-- Annual support: 15–25% of setup
+- Annual support: 15-25% of setup
+
+**Best for**
+- Enterprise health groups and government programs
+- Organizations with formal procurement, legal, and compliance controls
+
+**Commercial Model**
+- Statement of Work (SOW) with milestone-based delivery
+- Contractual SLAs and governance commitments
+
+**Hosting Model**
+- Cloud, on-premise, or hybrid
+- Multi-region support and enterprise disaster-recovery patterns
 
 **Includes**
-- Custom integrations
-- Multi-region deployment
-- Advanced compliance configs
-- Dedicated support channel
-- Custom SLA
-- Data warehouse integration
-- Enterprise governance tools
+- Custom integrations and interface development
+- Custom workflow/feature engineering
+- Multi-region deployment and data governance controls
+- Advanced compliance configuration and evidence mapping
+- Dedicated support channel and named account ownership
+- Custom SLA and enterprise governance tooling
+- Data warehouse and advanced analytics integration
 
 ---
 
-# Add-Ons (Optional Revenue Modules)
+## Hard Boundary: Advanced vs Custom
+`Advanced` is for standard product delivery on customer infrastructure.
+`Custom` is required when any of the following is true:
+- You need custom feature development or major workflow redesign.
+- You need complex multi-system integration beyond standard connectors.
+- You require multi-region architecture with contractual resilience targets.
+- You require government/enterprise procurement artifacts (SOW, legal controls, audit commitments).
+- You require dedicated account governance and custom SLA terms.
+
+---
+
+## Add-Ons (Optional Revenue Modules)
 
 | Add-On | Price Range |
 |------|-------------|
-Biomedical Engineering Suite | $49–$199/mo |
-Advanced Analytics | $29–$99/mo |
-Integrations/Webhooks | $49–$149/mo |
-Extra Storage | $5 / 10GB |
-SMS Credits | Usage-based |
+| Biomedical Engineering Suite | $49-$199/mo |
+| Advanced Analytics | $29-$99/mo |
+| Integrations/Webhooks Pack | $49-$149/mo |
+| Extra Storage | $5 / 10GB |
+| SMS Credits | Usage-based |
 
 ---
 
-# Plan Comparison Snapshot
+## Plan Comparison Snapshot
 
 | Feature | Free | Basic | Pro | Advanced | Custom |
 |--------|------|------|-----|---------|--------|
-Users Included | 1 | 5 | 10 | Custom | Custom |
-Facilities | 1 | 1 | 3 | Unlimited | Unlimited |
-Patients | 5/day | Unlimited | Unlimited | Unlimited | Unlimited |
-Printing | ❌ | ✔ | ✔ | ✔ | ✔ |
-Exports | ❌ | Basic | Full | Full | Full |
-Branding | ❌ | ✔ | ✔ | ✔ | ✔ |
-Advanced Clinical | ❌ | ❌ | ✔ | ✔ | ✔ |
-On-Prem | ❌ | ❌ | ❌ | ✔ | ✔ |
-Support SLA | ❌ | Standard | Priority | SLA | Custom |
+| Users Included | 1 | 5 | 10 | Contracted | Contracted |
+| Facilities | 1 | 1 | 3 | Contracted | Contracted |
+| Patients | 5/day | Unlimited | Unlimited | Unlimited | Unlimited |
+| Printing | No | Yes | Yes | Yes | Yes |
+| Exports | No | Basic | Full | Full | Full |
+| Branding | No | Yes | Yes | Yes | Yes |
+| Advanced Clinical | No | No | Yes | Yes | Yes |
+| On-Prem | No | No | No | Yes (standard package) | Yes (tailored) |
+| Custom Engineering | No | No | No | No (default) | Yes |
+| Multi-Region Architecture | No | No | No | Limited/No (default) | Yes |
+| Procurement Model | Self-serve | Self-serve | Commercial | Standard quote | SOW / RFP-ready |
+| Support Model | Best effort | Standard | Priority | Priority + optional SLA | Dedicated + custom SLA |
 
 ---
 
-# Pricing Design Principles
-- Low entry barrier → encourages adoption.
-- User-based scaling → ensures profitability.
-- Facility-based scaling → monetizes growth.
-- Add-ons → revenue without raising base price.
-- On-prem pricing → high-margin enterprise segment.
+## Commercial Terms and Assumptions
+- Prices are baseline references; final quote depends on scope, region, and deployment complexity.
+- Taxes, payment gateway fees, SMS usage, and third-party infrastructure costs are excluded unless stated otherwise.
+- Annual plans are prepaid unless contract terms state otherwise.
+- Add-ons can be bundled at discounted rates for annual or multi-module commitments.
 
 ---
 
-**Positioning Summary**
-- Free → Try platform risk-free  
-- Basic → Run a clinic  
-- Pro → Run a hospital  
-- Advanced → Run locally  
-- Custom → Run at enterprise scale
+## Positioning Summary
+- Free: Try platform risk-free.
+- Basic: Run a clinic.
+- Pro: Run a hospital.
+- Advanced: Run on your own infrastructure with standard scope.
+- Custom: Run at enterprise/government scale with tailored engineering and governance.

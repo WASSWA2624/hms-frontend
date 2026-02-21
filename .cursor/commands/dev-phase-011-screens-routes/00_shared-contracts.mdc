@@ -90,6 +90,23 @@ UI applicability note for the contracts in this block: unless a section states o
 - Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
+## Shared-First Parent Abstraction Contract (Mandatory)
+
+For any selected step that touches route files, screens, components, hooks, utilities, or screen behavior:
+- Treat repeated components, logic, and behaviors as defects to be refactored, not duplicated.
+- If UI/behavior appears in 2+ places (or is expected to recur across sibling routes), extract it to a shared parent layer before completion.
+- Move repeated UI primitives/compositions to shared/base components in existing shared component families (for example `src/platform/components/**`) instead of per-screen inline copies.
+- Move repeated screen shells and structural wrappers (title/help header blocks, action bars, list/form scaffolds, shared state surfaces) to shared layouts/wrappers (for example `src/platform/layouts/**` or route-group `_layout.jsx`).
+- Move repeated orchestration/state logic (query wiring, permission guards, mutation flows, retry/offline handling, cross-screen navigation handoffs) into shared hooks/screen abstractions (for example `src/hooks/**` or `src/platform/screens/**`).
+- Move repeated pure helpers (formatting, normalization, mapping, filtering, pagination, permission predicates, validation helpers) into shared utility modules (for example `src/utils/**`) as a single source of truth.
+- Centralize repeated constants/config maps (resource IDs, route metadata, action definitions, filter schemas, table defaults) in shared config/contracts rather than re-declaring per screen.
+- Prefer extending an existing parent/shared abstraction over creating a new one-off local variant when capability overlap exists.
+- Keep parent abstractions configurable (props/options/callbacks) so module-specific behavior does not require forks.
+- Do not ship copy-pasted handlers, duplicated validation branches, duplicated table/list behavior, or duplicated layout scaffolding across selected scope files.
+- When extracting shared code, update all touched selected-scope consumers to use the parent abstraction in the same change set.
+- Add/update tests at the shared abstraction layer plus at least one consuming screen/route to guard reuse and prevent behavior drift.
+- Final compliance output must explicitly list extracted parent components/layouts/hooks/utilities and justify any temporary non-extracted duplication with a follow-up step.
+
 ## Responsive List Presentation and Customizable Data Grid Contract (Mandatory)
 
 For any selected step that exposes a list/index route or collection view:
@@ -280,6 +297,7 @@ Primary areas for selected scope:
 5. Verify no architecture boundary violations.
 6. Verify no out-of-tier scope creep.
 7. Complete and document a full UI component/sub-component compliance review for selected step(s), redesigning non-compliant UI where needed.
+8. Verify repeated components/logic/behaviors in selected scope were moved to parent shared layers (base components, layouts, hooks, utilities, or shared configs) or explicitly deferred with justification.
 
 ---
 
