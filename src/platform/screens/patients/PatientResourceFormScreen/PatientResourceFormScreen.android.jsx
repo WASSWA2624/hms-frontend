@@ -47,6 +47,16 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
     values,
     setFieldValue,
     errors,
+    tenantOptions,
+    tenantListLoading,
+    tenantListError,
+    tenantListErrorMessage,
+    hasTenants,
+    facilityListLoading,
+    facilityListError,
+    facilityListErrorMessage,
+    hasFacilities,
+    facilityRequiresTenantSelection,
     patientOptions,
     patientListLoading,
     patientListError,
@@ -58,10 +68,11 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
     submitErrorMessage,
     isOffline,
     record,
-    tenantLocked,
     tenantHint,
     onSubmit,
     onCancel,
+    onRetryTenants,
+    onRetryFacilities,
     onRetryPatients,
     onGoToPatients,
     isSubmitDisabled,
@@ -160,18 +171,48 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
                 {showTenantField ? (
                   <StyledFullRow>
                     <StyledFieldGroup>
-                      <TextField
-                        label={t('patients.common.form.tenantLabel')}
-                        value={values.tenant_id || ''}
-                        onChangeText={(nextValue) => setFieldValue('tenant_id', nextValue)}
-                        accessibilityLabel={t('patients.common.form.tenantLabel')}
-                        accessibilityHint={tenantHint}
-                        helperText={errors.tenant_id || tenantHint}
-                        errorMessage={errors.tenant_id}
-                        required
-                        disabled={tenantLocked}
-                        testID="patient-resource-form-tenant"
-                      />
+                      {tenantListLoading ? (
+                        <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patient-resource-form-tenant-loading" />
+                      ) : tenantListError ? (
+                        <ErrorState
+                          size={ErrorStateSizes.SMALL}
+                          title={t('patients.common.form.tenantLoadErrorTitle')}
+                          description={tenantListErrorMessage}
+                          action={
+                            <Button
+                              variant="surface"
+                              size="small"
+                              onPress={onRetryTenants}
+                              accessibilityLabel={t('common.retry')}
+                              accessibilityHint={t('common.retryHint')}
+                              icon={<Icon glyph="?" size="xs" decorative />}
+                            >
+                              {t('common.retry')}
+                            </Button>
+                          }
+                          testID="patient-resource-form-tenant-error"
+                        />
+                      ) : !hasTenants ? (
+                        <StyledHelperStack>
+                          <Text variant="body">{t('patients.common.form.noTenantsMessage')}</Text>
+                        </StyledHelperStack>
+                      ) : (
+                        <Select
+                          label={t('patients.common.form.tenantLabel')}
+                          placeholder={t('patients.common.form.tenantPlaceholder')}
+                          options={tenantOptions}
+                          value={values.tenant_id || ''}
+                          onValueChange={(nextValue) => setFieldValue('tenant_id', nextValue)}
+                          accessibilityLabel={t('patients.common.form.tenantLabel')}
+                          accessibilityHint={tenantHint}
+                          helperText={errors.tenant_id || tenantHint}
+                          errorMessage={errors.tenant_id}
+                          required
+                          compact
+                          disabled={isLoading}
+                          testID="patient-resource-form-tenant"
+                        />
+                      )}
                     </StyledFieldGroup>
                   </StyledFullRow>
                 ) : null}
@@ -257,17 +298,76 @@ const PatientResourceFormScreenAndroid = ({ resourceId }) => {
                   }
 
                   if (field.type === 'select') {
+                    if (field.name === 'facility_id') {
+                      if (facilityRequiresTenantSelection) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <StyledHelperStack>
+                              <Text variant="body">{t('patients.common.form.facilityRequiresTenantMessage')}</Text>
+                            </StyledHelperStack>
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (facilityListLoading) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patient-resource-form-facility-loading" />
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (facilityListError) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <ErrorState
+                              size={ErrorStateSizes.SMALL}
+                              title={t('patients.common.form.facilityLoadErrorTitle')}
+                              description={facilityListErrorMessage}
+                              action={
+                                <Button
+                                  variant="surface"
+                                  size="small"
+                                  onPress={onRetryFacilities}
+                                  accessibilityLabel={t('common.retry')}
+                                  accessibilityHint={t('common.retryHint')}
+                                  icon={<Icon glyph="?" size="xs" decorative />}
+                                >
+                                  {t('common.retry')}
+                                </Button>
+                              }
+                              testID="patient-resource-form-facility-error"
+                            />
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (!hasFacilities) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <StyledHelperStack>
+                              <Text variant="body">{t('patients.common.form.noFacilitiesMessage')}</Text>
+                            </StyledHelperStack>
+                          </StyledFieldGroup>
+                        );
+                      }
+                    }
+
                     const selectOptions = (field.options || []).map((option) => ({
                       value: option.value,
                       label: t(option.labelKey),
                     }));
+
+                    const resolvedOptions = field.name === 'facility_id'
+                      ? (field.options || [])
+                      : selectOptions;
 
                     return (
                       <StyledFieldGroup key={field.name}>
                         <Select
                           label={t(field.labelKey)}
                           placeholder={t(field.placeholderKey)}
-                          options={selectOptions}
+                          options={resolvedOptions}
                           value={fieldValue || ''}
                           onValueChange={(nextValue) => setFieldValue(field.name, nextValue)}
                           accessibilityLabel={t(field.labelKey)}

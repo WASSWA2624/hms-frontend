@@ -31,4 +31,35 @@ describe('patientResourceConfigs', () => {
     expect(config.supportsPatientFilter).toBe(false);
     expect(config.supportsEdit).toBe(false);
   });
+
+  it('captures core writable patient fields and uses selector controls for enum/table-backed values', () => {
+    const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENTS);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
+
+    expect(config).toBeTruthy();
+    expect(Object.keys(fieldByName)).toEqual([
+      'first_name',
+      'last_name',
+      'date_of_birth',
+      'gender',
+      'facility_id',
+      'is_active',
+    ]);
+    expect(fieldByName.first_name.type).toBe('text');
+    expect(fieldByName.last_name.type).toBe('text');
+    expect(fieldByName.date_of_birth.type).toBe('text');
+    expect(fieldByName.gender.type).toBe('select');
+    expect(fieldByName.facility_id.type).toBe('select');
+    expect(fieldByName.is_active.type).toBe('switch');
+  });
+
+  it('keeps system-managed fields out of patient form config', () => {
+    const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENTS);
+    const fieldNames = (config?.fields || []).map((field) => field.name);
+
+    expect(fieldNames).not.toContain('id');
+    expect(fieldNames).not.toContain('created_at');
+    expect(fieldNames).not.toContain('updated_at');
+    expect(fieldNames).not.toContain('deleted_at');
+  });
 });

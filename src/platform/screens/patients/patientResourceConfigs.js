@@ -144,7 +144,7 @@ const resourceConfigs = {
       },
       {
         name: 'facility_id',
-        type: 'text',
+        type: 'select',
         required: false,
         maxLength: 64,
         labelKey: 'patients.resources.patients.form.facilityLabel',

@@ -131,6 +131,13 @@ For any selected step that exposes a list/index route or collection view:
 - Mobile breakpoints must always render the same records using shared `List` + `ListItem` patterns (or approved shared wrappers built on those components), optimized for compact vertical density and thumb-friendly actions.
 - Do not replace mobile list/list-item flows with desktop table grid layouts. Do not replace desktop/tablet table flows with mobile card-only layouts.
 - Use one shared data source and consistent RBAC policy across table/list variants so visible rows, counts, and allowed actions stay in sync on all platforms.
+- Desktop/tablet tables must expose the maximum practical set of business-relevant fields for the resource, including workflow-critical fields from related mounted tables/resources when available.
+- Mobile list items must preserve the same core information hierarchy as the table (with compact presentation), including related context labels that are necessary for safe user decisions.
+- Related-table fields must be resolved through mounted backend includes/expansions or shared lookup composition in hooks; do not skip high-value related columns only to avoid mapping/join effort.
+- Foreign-key columns in table/list views must render human-readable related labels/codes (for example tenant/facility/patient/provider names) instead of raw IDs for standard users.
+- Default visible table columns must include key identity, status, ownership/context, chronology, and related business context; optional/advanced columns may be hidden behind column-visibility controls.
+- Search/filter/sort contracts must include mapped related fields when those fields are displayed as table/list columns.
+- Add/update tests to verify related-field column rendering, related-label fallback behavior, and parity of critical related context between table and mobile list variants.
 - Table and mobile list item actions (view/create/edit/delete/restore/export/bulk operations) must be shown or hidden by role/permission and guarded in handlers to block unauthorized execution.
 - Desktop/tablet `DataTable` implementations must always include a built-in export + print capability at component level (not per-screen duplication), with a minimal trigger button that opens a comprehensive modal for export/print configuration.
 - `DataTable` filter/export utility sections must be collapsed (hidden) by default to preserve vertical space and must expose a minimal explicit toggle button to reveal them.
@@ -317,6 +324,7 @@ Primary areas for selected scope:
 8. Verify repeated components/logic/behaviors in selected scope were moved to parent shared layers (base components, layouts, hooks, utilities, or shared configs) or explicitly deferred with justification.
 9. Verify create/edit forms in selected scope capture broad writable field coverage, hide pre-known context fields, and avoid exposing system-managed fields.
 10. Verify enum/table-backed fields use selection controls (select/autocomplete/toggle/segmented/radio/switch) instead of free-text inputs.
+11. Verify list/index table and mobile list surfaces in selected scope include broad business field coverage, including required related-table context rendered as human-readable labels.
 
 ---
 
@@ -331,6 +339,7 @@ Return ONLY:
 5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 6. Explicit guide/help synchronization confirmation for every updated screen (updated text or validated-as-current statement), plus responsive list-mode confirmation (`DataTable` on desktop/tablet web and `List` + `ListItem` on mobile).
 7. Form coverage summary for selected create/edit routes, including hidden pre-known fields and selector-control mapping for enum/table-backed fields.
+8. List/table field-coverage summary for selected index routes, including related-table fields displayed, human-readable mapping used, and any justified related-data gaps.
 
 Do NOT include files or logic outside selected step(s).
 
