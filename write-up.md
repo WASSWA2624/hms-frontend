@@ -40,8 +40,9 @@ When conflicts happen, use this order:
 1. `.cursor/rules/index.mdc` and linked rule files
 2. `hms-frontend/dev-plan/*.md`
 3. `hms-backend/dev-plan/*.mdc`
-4. This `write-up.md`
-5. Ad hoc notes in tickets/chats
+4. [`hms-frontend/subscription-plan.md`](./subscription-plan.md) (for subscription tiers, pricing, limits, and add-ons)
+5. This `write-up.md`
+6. Ad hoc notes in tickets/chats
 
 ### 0.5 Change management
 
@@ -892,55 +893,21 @@ Where applicable:
 - UI, API, and permissions must all enforce module activation status.
 - Activation/deactivation should not require deployment.
 
-### 9.2 Free core modules for all plans
+### 9.2 Subscription plan source of truth
 
-Every plan includes a free basic foundation so facilities can start using HOSSPI HMS immediately.
+Canonical subscription definitions live in [`subscription-plan.md`](./subscription-plan.md).
 
-Free core module scope:
+This write-up intentionally avoids re-defining tier details (free/basic/pro/enterprise), pricing, limits, included modules, and add-ons. Use [`subscription-plan.md`](./subscription-plan.md) as the single source of truth for those items.
 
-- Authentication, user sessions, tenant/facility setup, and baseline RBAC
-- Core patient registry and identifiers
-- Basic appointment booking and queue visibility
-- Basic encounter notes and vitals capture
-- Basic invoicing and payment receipt workflows
-- Basic notifications and communication templates
-- Basic reports and operational dashboard snapshots
-- Basic equipment issue reporting by nurses/users for biomedical triage
-
-### 9.3 Paid module bundles and add-ons
-
-Clients choose which paid modules to enable based on needs and budget.
-
-Paid bundles/add-ons include:
-
-- Advanced clinical operations (IPD, ICU, theatre, advanced nursing workflows)
-- Diagnostics bundles (LIS, RIS, PACS integrations)
-- Pharmacy and advanced medication safety
-- Inventory and procurement automation
-- Billing and insurance advanced workflows
-- HR, payroll, staffing optimization, and nurse roster automation
-- Compliance and advanced audit suites
-- Integration and webhook automation packs
-- Biomedical Engineering and Medical Equipment Suite
-- Advanced analytics, forecasting, and AI-assisted workflows
-
-### 9.4 Client-controlled subscription governance
+### 9.3 Client-controlled subscription governance
 
 - The client decides which modules to pay for and activate
 - Module activation must be self-service from subscription settings
 - Upgrades/downgrades must support clear pricing and proration
 - Module access must be enforced consistently at UI, API, and permission layers
-- Free core modules remain available across all active plans
+- Tier entitlements and module package contents must be referenced from [`subscription-plan.md`](./subscription-plan.md)
 
-### 9.5 Module packaging examples
-
-- Starter: free core modules + basic billing + basic scheduling + basic clinical
-- Clinical Core: starter + IPD + nursing + diagnostics + pharmacy
-- Ops Core: starter + inventory + HR + housekeeping + reporting
-- Biomed Pro: starter + Biomedical Engineering and Medical Equipment Suite
-- Enterprise: all modules + compliance + integration + analytics
-
-### 9.6 Module marketplace behavior
+### 9.4 Module marketplace behavior
 
 - Discoverable in onboarding and settings
 - Trial and plan compatibility checks
@@ -948,7 +915,7 @@ Paid bundles/add-ons include:
 - Prorated billing and invoice generation
 - Clear labeling of free modules vs paid modules
 
-### 9.7 Adaptability guardrails for modules
+### 9.5 Adaptability guardrails for modules
 
 - No tenant-specific forked code for normal customization cases
 - Custom requirements should first be implemented as configurable policies, forms, or templates
@@ -978,7 +945,7 @@ Support all feasible methods per region:
 
 Commercial models to support:
 
-- Free Core plan baseline with upgrade paths
+- Plan definitions, pricing, limits, and add-ons: see [`subscription-plan.md`](./subscription-plan.md)
 - Monthly/quarterly/annual subscriptions
 - Module-based subscriptions
 - User-based tiers
