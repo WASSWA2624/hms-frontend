@@ -90,6 +90,23 @@ UI applicability note for the contracts in this block: unless a section states o
 - Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
 - Keep full compliance with i18n, accessibility, and theme-token rules while applying this contract.
 
+## Comprehensive Create/Edit Form Coverage and Input Strategy Contract (Mandatory)
+
+For any selected step that touches add/create/edit forms:
+- Forms must capture the maximum practical set of writable business fields available from mounted backend resource contracts and shared resource configs; do not ship thin forms that omit useful writable fields without explicit scope justification.
+- Create and edit forms must maintain field parity for writable fields. Allowed differences are limited to immutable/system-managed fields and role-restricted fields.
+- Auto-resolve and hide pre-known context fields (for example tenant, facility, branch, encounter, provider, current user) when sourced from trusted app/session/route context.
+- Do not ask users to manually input system-managed or backend-generated fields (`id`, UUIDs, `created_at`, `updated_at`, `deleted_at`, `version`, `etag`, audit-only metadata), unless an approved compliance flow explicitly requires visibility.
+- If a pre-known field is required for compliance visibility, render it as read-only contextual information instead of editable free input.
+- Any field backed by enums, finite option sets, or relational table/resource options must use selection controls (for example `Select`, searchable select/autocomplete, segmented controls, radio groups, toggle groups, switches), not unconstrained text input.
+- Boolean fields must use toggles/switches or equivalent binary controls; do not model booleans with free-text fields.
+- Foreign-key/reference fields must use readable labels from mounted resource lookups and hide raw technical IDs from standard users.
+- Organize long forms into clear, chronological sections with concise headers and helper copy; keep advanced/rare fields collapsed behind progressive disclosure by default.
+- Provide sensible defaults, inline validation, and clear error recovery near each field/action to reduce correction effort.
+- Edit forms must prefill existing values and clearly separate editable vs non-editable fields.
+- Reuse shared form primitives and patterns (`FormField`, shared selectors, validation schemas, shared section wrappers) before introducing one-off local field components.
+- Add/update tests to verify: required field presence, hidden pre-known field behavior, selector usage for enum/table-backed inputs, and create/edit parity for core writable fields.
+
 ## Shared-First Parent Abstraction Contract (Mandatory)
 
 For any selected step that touches route files, screens, components, hooks, utilities, or screen behavior:
@@ -298,6 +315,8 @@ Primary areas for selected scope:
 6. Verify no out-of-tier scope creep.
 7. Complete and document a full UI component/sub-component compliance review for selected step(s), redesigning non-compliant UI where needed.
 8. Verify repeated components/logic/behaviors in selected scope were moved to parent shared layers (base components, layouts, hooks, utilities, or shared configs) or explicitly deferred with justification.
+9. Verify create/edit forms in selected scope capture broad writable field coverage, hide pre-known context fields, and avoid exposing system-managed fields.
+10. Verify enum/table-backed fields use selection controls (select/autocomplete/toggle/segmented/radio/switch) instead of free-text inputs.
 
 ---
 
@@ -311,6 +330,7 @@ Return ONLY:
 4. Tests/check commands run and result summary.
 5. A concise compliance report confirming selected step IDs, full UI component/sub-component review outcomes, redesign actions taken where needed, rule checks, backend/write-up alignment checks, and any justified out-of-scope deferrals.
 6. Explicit guide/help synchronization confirmation for every updated screen (updated text or validated-as-current statement), plus responsive list-mode confirmation (`DataTable` on desktop/tablet web and `List` + `ListItem` on mobile).
+7. Form coverage summary for selected create/edit routes, including hidden pre-known fields and selector-control mapping for enum/table-backed fields.
 
 Do NOT include files or logic outside selected step(s).
 
