@@ -17,51 +17,16 @@ Load and apply this file before any other prompt file in this folder tree (index
 - The inheritance section in covered prompt files is declarative only; it does not supersede or rewrite this contract.
 - Every covered prompt file must treat the guide/help synchronization and responsive list-rendering rules in this contract as required acceptance criteria.
 
-## Supplemental Tier Notes
-## Concrete Parity Checklist for `11.10.12` (`(main)/hr/staff-positions`)
+## Shared Scope and Alignment Notes
 
-Run this after `11.10.11` is complete.
-
-- [ ] Create route files:
-  - `src/app/(main)/hr/staff-positions/index.jsx`
-  - `src/app/(main)/hr/staff-positions/create.jsx`
-  - `src/app/(main)/hr/staff-positions/[id].jsx`
-  - `src/app/(main)/hr/staff-positions/[id]/edit.jsx`
-- [ ] Use generic resource wrappers with `resourceId="staff-positions"`:
-  - list -> `ClinicalResourceListScreen`
-  - create -> `ClinicalResourceFormScreen`
-  - detail -> `ClinicalResourceDetailScreen`
-  - edit -> `ClinicalResourceFormScreen`
-- [ ] Confirm shared wiring:
-  - `src/config/sideMenu.js` includes `/hr/staff-positions`
-  - `src/i18n/locales/en.json` includes `main-nav.hr-staff-positions`
-  - `src/platform/screens/clinical/ClinicalResourceConfigs.js` includes `staff-positions`
-  - `src/platform/screens/clinical/useClinicalResourceCrud.js` maps `CLINICAL_RESOURCE_IDS.STAFF_POSITIONS`
-- [ ] Update route coverage:
-  - `src/__tests__/app/(main)/tier-10-routes.test.js` add `'staff-positions'` in `RESOURCES_WITH_EDIT.hr`
-- [ ] Verify:
-  - `npm run test -- "src/__tests__/app/(main)/tier-10-routes.test.js"`
-  - `npm run test -- src/__tests__/platform/screens/clinical/clinicalResourceConfigs.test.js`
-  - navigate `/hr/staff-positions`, `/hr/staff-positions/create`, `/hr/staff-positions/:id`, `/hr/staff-positions/:id/edit`
-
-Specific implementation scope for this selected scope:
-- Implement selected screen/route wiring and interactions for selected tier/step IDs only.
-- Ensure end-to-end backend linkage for enabled actions and role-aware fallbacks when API contract or entitlement blocks an action.
-- Apply route/action access control, accessibility semantics, and resilient loading/error/offline states.
-
-Review and implement all missing and non-compliant aspects of this selected scope per:
-- hms-frontend/dev-plan/P011_screens-routes.md
-
-You must ensure 100% compliance with:
-- All rules in hms-frontend/.cursor/rules/*
-- hms-frontend/write-up.md
+- Keep this contract step-agnostic. Put tier/step-specific parity checklists in the corresponding tier `README.mdc` or step prompt file.
+- Review and implement missing/non-compliant aspects for selected scope per `hms-frontend/dev-plan/P011_screens-routes.md`.
+- Ensure full compliance with `hms-frontend/.cursor/rules/*` and `hms-frontend/write-up.md`.
 - Contracts must align with `hms-backend/dev-plan/P010_api_endpoints.mdc`.
 - Mounted routes in `hms-backend/src/app/router.js` and selected module route files are source of truth.
 - Use only mounted backend resources/actions from `hms-backend/src/app/router.js`; do not invent unsupported endpoints.
 - If backend changes are required, comply fully with `hms-backend/.cursor/rules/*`.
-- Actual repository architecture and conventions already in hms-frontend/src/**
-
-Only implement what is required for selected step(s).
+- Follow repository architecture and conventions in `hms-frontend/src/**`.
 
 ## Pagination Limit Safety and Type Contract (Mandatory)
 
@@ -81,10 +46,9 @@ UI applicability note for the contracts in this block: unless a section states o
 - Android and iOS must visually and behaviorally match mobile web for layout density, typography scale, component sizing, spacing, and interaction patterns.
 - Use shared-first implementations by default. Platform-specific override files are allowed only for hard platform/accessibility constraints and must preserve parity with mobile web.
 - Keep UI simple, modern, compact, stable, and fully responsive across phone, tablet, and web breakpoints.
-- Keep user journeys chronological and obvious for first-time users: clear actions, short labels, and minimal friction.
+- Follow the `Novice-First UX and Navigation Contract` for first-time user journey sequencing.
 - Prefer consolidating related actions on one screen when it reduces fragmentation and cognitive load.
-- Auto-resolve and hide known context parameters (tenant, facility, branch, user, encounter, and similar context) unless user input is mandatory by contract or compliance.
-- Do not show internal model IDs in UI. Display human-readable business IDs/labels from backend or domain data contracts.
+- Follow the context resolution and identifier display rules in the `Comprehensive Create/Edit Form Coverage and Input Strategy Contract` and `Human-Readable Identity and Context Selection Contract`.
 - Keep navigation straightforward with stable route structure, stable nav items, and consistent placement of controls.
 - Reuse shared platform components/patterns/tokens first; avoid ad-hoc one-off UI implementations.
 - Add concise contextual help for critical decisions and keep instructional copy short and local to the action.
@@ -140,18 +104,18 @@ For any selected step that exposes a list/index route or collection view:
 - Add/update tests to verify related-field column rendering, related-label fallback behavior, and parity of critical related context between table and mobile list variants.
 - Table and mobile list item actions (view/create/edit/delete/restore/export/bulk operations) must be shown or hidden by role/permission and guarded in handlers to block unauthorized execution.
 - Desktop/tablet `DataTable` implementations must always include a built-in export + print capability at component level (not per-screen duplication), with a minimal trigger button that opens a comprehensive modal for export/print configuration.
-- `DataTable` filter/export utility sections must be collapsed (hidden) by default to preserve vertical space and must expose a minimal explicit toggle button to reveal them.
+- `DataTable` filter/export utility sections must be collapsed (hidden) by default when no active criteria exist, and must expose a minimal explicit toggle button to reveal them.
 - The `Export` button must live in the `Filters` section header and be positioned immediately to the left of the expand/collapse control.
 - The shared `DataTable` export modal must use a basic-first layout: always show core format/scope + primary action, and keep advanced options collapsed behind an explicit toggle by default.
 - The shared `DataTable` export modal must support at least CSV, Excel-compatible export, PDF export, and print output; this requirement is mandatory for all list/index routes that render `DataTable`.
 - `DataTable` exports and prints must be filter-aware by default: output must reflect the currently active filtered dataset (and any selected scope options) rather than unfiltered source rows.
-- For any web screen/route that renders `DataTable` (or approved shared wrappers built on `DataTable`), the hook-level active criteria signal must be passed into `DataTable` as `hasActiveFilters` so filter tools auto-open when active criteria exist.
+- For any web screen/route that renders `DataTable` (or approved shared wrappers built on `DataTable`), the hook-level active criteria signal must be passed into `DataTable` as `hasActiveFilters` so filter tools auto-open when active criteria exist. This is the explicit exception to the collapsed-by-default rule above.
 - If a table/list hook does not yet expose `hasActiveSearchOrFilter`, it must add an equivalent computed signal from current search/filter state and wire it to `DataTable.hasActiveFilters`; module-specific or screen-specific exceptions are not allowed.
 - All shared `DataTable` control and export-modal strings (titles, labels, toggles, status feedback, and no-rows export fallbacks) must be i18n-driven from `common.dataTable.*`; do not ship hardcoded UI copy in `DataTable`.
 - Any route that still uses a non-`DataTable` desktop/tablet table implementation (for example transitional screens such as `UserSessionListScreen`) must adopt the same shared `DataTable` contracts above when touched in scope.
 - Provide global search plus field-scoped search so users can query every searchable business field exposed in the dataset contract.
 - Support advanced filters with multi-condition criteria (field, operator, value, AND/OR grouping) and clear reset behavior.
-- On desktop/tablet table views, keep the advanced filter section collapsed by default and reveal it only on explicit user toggle.
+- On desktop/tablet table views, keep advanced filters collapsed by default when no active criteria exist, and reveal them either on explicit user toggle or when `hasActiveFilters` indicates active criteria.
 - Support sortable columns with stable sort state and deterministic server/client fallback behavior.
 - Support column visibility toggles and drag/drop (or equivalent) column reordering on desktop/tablet tables.
 - Persist per-user table preferences (visible columns, order, sort, filters, density, and page size) when storage contracts exist; otherwise keep deterministic session defaults.
@@ -189,10 +153,10 @@ For any selected step that touches UI, onboarding, auth, or context selection:
 - Keep user journeys chronological and self-explanatory from start to completion; every next step must be clearly signposted.
 - Make navigation between related screens easy and predictable with consistent placement, labels, and back/next patterns.
 - Prefer progressive disclosure and role-focused context; show only what the current user needs to complete the current task.
-- Pre-fill and auto-resolve known values from trusted context (tenant, facility, user, encounter, branch, etc.) and hide them unless confirmation or compliance visibility is required.
+- Apply pre-fill/auto-resolve rules for known context values according to the dedicated form and identity contracts; do not redefine these rules per screen.
 - Enforce strict role and permission visibility for routes, navigation items, widgets, fields, and actions.
 - Do not surface unauthorized or irrelevant areas (for example, finance metrics for non-finance roles or registration flows for non-admin operational roles).
-- Reuse predefined shared components and established design tokens before creating new UI patterns.
+- Reuse predefined shared components and established design tokens before creating new UI patterns, consistent with the `Shared-First Parent Abstraction Contract`.
 - Keep layouts space-efficient, lightweight, and performant; avoid visual clutter and long static instructions.
 - Provide contextual in-app guidance with a help icon pattern; on hover/focus/press it must reveal a tooltip or modal that explains terms, fields, and decisions.
 - Include concise guidance for domain sequencing where needed (for example, tenant vs facility and required creation order).
