@@ -90,6 +90,27 @@ describe('patientResourceConfigs', () => {
     expect(detailValueKeys).toContain('patient_display_label');
   });
 
+  it('configures patient documents for contextless navigation and patient label display', () => {
+    const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
+
+    expect(config).toBeTruthy();
+    expect(config.requiresPatientSelection).toBe(true);
+    expect(config.allowListWithoutPatientContext).toBe(true);
+    expect(config.allowCreateWithoutPatientContext).toBe(true);
+    expect(config.allowEditWithoutPatientContext).toBe(true);
+    expect(config.hidePatientSelectorOnEdit).toBe(true);
+    expect(config.hidePatientSelectorWhenContextProvided).toBe(true);
+    expect(config.resolvePatientLabels).toBe(true);
+    expect(fieldByName.document_type?.type).toBe('text');
+    expect(fieldByName.storage_key?.type).toBe('text');
+    expect(fieldByName.file_name?.type).toBe('text');
+    expect(fieldByName.content_type?.type).toBe('text');
+
+    const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
+    expect(detailValueKeys).toContain('patient_display_label');
+  });
+
   it('captures core writable patient fields and uses selector controls for enum/table-backed values', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENTS);
     const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));

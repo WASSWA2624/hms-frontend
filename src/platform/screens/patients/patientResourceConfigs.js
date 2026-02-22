@@ -626,6 +626,12 @@ const resourceConfigs = {
     i18nKey: 'patients.resources.patientDocuments',
     supportsPatientFilter: true,
     requiresPatientSelection: true,
+    allowListWithoutPatientContext: true,
+    allowCreateWithoutPatientContext: true,
+    allowEditWithoutPatientContext: true,
+    resolvePatientLabels: true,
+    hidePatientSelectorOnEdit: true,
+    hidePatientSelectorWhenContextProvided: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
@@ -673,8 +679,21 @@ const resourceConfigs = {
       ),
     getItemSubtitle: (item, t) => {
       const documentType = sanitizeString(item?.document_type);
-      if (!documentType) return '';
-      return `${t('patients.resources.patientDocuments.detail.documentTypeLabel')}: ${documentType}`;
+      const patientLabel = resolveFirstReadable(
+        item?.patient_display_label,
+        item?.patient_name,
+        item?.patient_label
+      );
+      if (documentType && patientLabel) {
+        return `${t('patients.resources.patientDocuments.detail.documentTypeLabel')}: ${documentType} | ${t('patients.resources.patientDocuments.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      if (documentType) {
+        return `${t('patients.resources.patientDocuments.detail.documentTypeLabel')}: ${documentType}`;
+      }
+      if (patientLabel) {
+        return `${t('patients.resources.patientDocuments.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      return '';
     },
     getInitialValues: (record) => ({
       document_type: sanitizeString(record?.document_type),
@@ -691,6 +710,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.patientDocuments.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.patientDocuments.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.patientDocuments.detail.patientNameLabel', valueKey: 'patient_display_label' },
       { labelKey: 'patients.resources.patientDocuments.detail.patientLabel', valueKey: 'patient_id' },
       { labelKey: 'patients.resources.patientDocuments.detail.documentTypeLabel', valueKey: 'document_type' },
       { labelKey: 'patients.resources.patientDocuments.detail.storageKeyLabel', valueKey: 'storage_key' },

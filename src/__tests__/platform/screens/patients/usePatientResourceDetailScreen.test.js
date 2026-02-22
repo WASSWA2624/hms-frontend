@@ -248,4 +248,31 @@ describe('usePatientResourceDetailScreen', () => {
     expect(valueKeys).toContain('patient_display_label');
     expect(valueKeys).not.toContain('patient_id');
   });
+
+  it('hydrates patient-documents detail with a human-readable patient label', () => {
+    mockParams = { id: 'document-1' };
+    mockCrudData = {
+      id: 'document-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-d',
+      document_type: 'LAB_RESULT',
+      storage_key: 'docs/lab-result-1',
+      file_name: 'lab-result.pdf',
+    };
+    usePatient.mockReturnValue({
+      get: mockGetPatientById,
+      data: { id: 'patient-d', first_name: 'Lydia', last_name: 'Muthoni' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPatientLookup,
+    });
+
+    const { result } = renderHook(() => usePatientResourceDetailScreen('patient-documents'));
+    const valueKeys = result.current.detailRows.map((row) => row.valueKey);
+
+    expect(mockGetPatientById).toHaveBeenCalledWith('patient-d');
+    expect(result.current.item.patient_display_label).toBe('Lydia Muthoni');
+    expect(valueKeys).toContain('patient_display_label');
+    expect(valueKeys).not.toContain('patient_id');
+  });
 });

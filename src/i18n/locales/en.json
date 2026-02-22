@@ -6283,6 +6283,7 @@
           "deleteHint": "Delete this patient document",
           "idLabel": "Document ID",
           "tenantLabel": "Tenant ID",
+          "patientNameLabel": "Patient",
           "patientLabel": "Patient ID",
           "documentTypeLabel": "Document type",
           "storageKeyLabel": "Storage key",
