@@ -1,9 +1,9 @@
 /**
  * Shared logic for patient resource detail screens.
  */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, usePatientAccess } from '@hooks';
+import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
 import { confirmAction, humanizeDisplayText } from '@utils';
 import {
   getPatientResourceConfig,
@@ -17,6 +17,8 @@ import {
   filterDetailRowsByIdentityPolicy,
   isAccessDeniedError,
   normalizePatientContextId,
+  resolvePatientContextLabel,
+  resolvePatientDisplayLabel,
   resolveErrorMessage,
 } from '../patientScreenUtils';
 
@@ -36,6 +38,12 @@ const usePatientResourceDetailScreen = (resourceId) => {
   } = usePatientAccess();
 
   const { get, remove, data, isLoading, errorCode, reset } = usePatientResourceCrud(resourceId);
+  const {
+    get: getPatientById,
+    data: patientLookupData,
+    reset: resetPatientLookup,
+  } = usePatient();
+  const patientLookupRequestRef = useRef('');
 
   const routeRecordId = useMemo(() => normalizeRouteId(id), [id]);
   const patientContextId = useMemo(
@@ -61,7 +69,26 @@ const usePatientResourceDetailScreen = (resourceId) => {
     return humanizeDisplayText(config.id || '') || '';
   }, [config, t]);
 
-  const item = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const rawItem = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  const patientLookupLabel = useMemo(
+    () => resolvePatientDisplayLabel(patientLookupData),
+    [patientLookupData]
+  );
+  const resolvedPatientLabel = useMemo(
+    () => resolvePatientContextLabel(rawItem, null, patientLookupLabel),
+    [rawItem, patientLookupLabel]
+  );
+  const item = useMemo(() => {
+    if (!rawItem) return null;
+    if (!config?.resolvePatientLabels || !resolvedPatientLabel) return rawItem;
+    if (sanitizeString(rawItem.patient_display_label) === resolvedPatientLabel) {
+      return rawItem;
+    }
+    return {
+      ...rawItem,
+      patient_display_label: resolvedPatientLabel,
+    };
+  }, [rawItem, config?.resolvePatientLabels, resolvedPatientLabel]);
   const detailRows = useMemo(
     () => filterDetailRowsByIdentityPolicy(config?.detailRows || [], canViewTechnicalIds),
     [config?.detailRows, canViewTechnicalIds]
@@ -108,6 +135,31 @@ const usePatientResourceDetailScreen = (resourceId) => {
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  useEffect(() => {
+    patientLookupRequestRef.current = '';
+  }, [routeRecordId]);
+
+  useEffect(() => {
+    if (!isResolved || !config?.resolvePatientLabels || !rawItem) return;
+
+    const existingLabel = resolvePatientContextLabel(rawItem);
+    if (existingLabel) return;
+
+    const patientId = sanitizeString(rawItem.patient_id);
+    if (!patientId) return;
+    if (patientLookupRequestRef.current === patientId) return;
+
+    patientLookupRequestRef.current = patientId;
+    resetPatientLookup();
+    getPatientById(patientId);
+  }, [
+    isResolved,
+    config?.resolvePatientLabels,
+    rawItem,
+    resetPatientLookup,
+    getPatientById,
+  ]);
 
   useEffect(() => {
     if (!isResolved || !item || canManageAllTenants) return;

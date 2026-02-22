@@ -5965,6 +5965,7 @@
           "idLabel": "Identifier ID",
           "tenantLabel": "Tenant ID",
           "patientLabel": "Patient ID",
+          "patientNameLabel": "Patient",
           "identifierTypeLabel": "Identifier type",
           "identifierValueLabel": "Identifier value",
           "primaryLabel": "Primary identifier",

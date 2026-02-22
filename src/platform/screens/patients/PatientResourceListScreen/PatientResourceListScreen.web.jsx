@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -158,7 +158,15 @@ const PatientResourceListScreenWeb = ({ resourceId }) => {
     onAdd,
   } = usePatientResourceListScreen(resourceId);
 
-  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(true);
+  const [isFilterPanelCollapsed, setIsFilterPanelCollapsed] = useState(
+    () => !hasActiveSearchOrFilter
+  );
+
+  useEffect(() => {
+    if (hasActiveSearchOrFilter) {
+      setIsFilterPanelCollapsed(false);
+    }
+  }, [hasActiveSearchOrFilter]);
 
   if (!config) return null;
 

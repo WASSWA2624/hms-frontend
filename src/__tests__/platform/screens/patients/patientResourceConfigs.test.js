@@ -32,6 +32,21 @@ describe('patientResourceConfigs', () => {
     expect(config.supportsEdit).toBe(false);
   });
 
+  it('configures patient identifiers for contextless list navigation and patient label display', () => {
+    const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_IDENTIFIERS);
+
+    expect(config).toBeTruthy();
+    expect(config.requiresPatientSelection).toBe(true);
+    expect(config.allowListWithoutPatientContext).toBe(true);
+    expect(config.allowCreateWithoutPatientContext).toBe(true);
+    expect(config.hidePatientSelectorOnEdit).toBe(true);
+    expect(config.hidePatientSelectorWhenContextProvided).toBe(true);
+    expect(config.resolvePatientLabels).toBe(true);
+
+    const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
+    expect(detailValueKeys).toContain('patient_display_label');
+  });
+
   it('captures core writable patient fields and uses selector controls for enum/table-backed values', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENTS);
     const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));

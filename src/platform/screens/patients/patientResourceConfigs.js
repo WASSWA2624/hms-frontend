@@ -205,6 +205,12 @@ const resourceConfigs = {
     i18nKey: 'patients.resources.patientIdentifiers',
     supportsPatientFilter: true,
     requiresPatientSelection: true,
+    allowListWithoutPatientContext: true,
+    allowCreateWithoutPatientContext: true,
+    allowEditWithoutPatientContext: true,
+    resolvePatientLabels: true,
+    hidePatientSelectorOnEdit: true,
+    hidePatientSelectorWhenContextProvided: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
@@ -239,8 +245,21 @@ const resourceConfigs = {
     ),
     getItemSubtitle: (item, t) => {
       const identifierType = sanitizeString(item?.identifier_type);
-      if (!identifierType) return '';
-      return `${t('patients.resources.patientIdentifiers.detail.identifierTypeLabel')}: ${identifierType}`;
+      const patientLabel = resolveFirstReadable(
+        item?.patient_display_label,
+        item?.patient_name,
+        item?.patient_label
+      );
+      if (identifierType && patientLabel) {
+        return `${t('patients.resources.patientIdentifiers.detail.identifierTypeLabel')}: ${identifierType} | ${t('patients.resources.patientIdentifiers.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      if (identifierType) {
+        return `${t('patients.resources.patientIdentifiers.detail.identifierTypeLabel')}: ${identifierType}`;
+      }
+      if (patientLabel) {
+        return `${t('patients.resources.patientIdentifiers.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      return '';
     },
     getInitialValues: (record) => ({
       identifier_type: sanitizeString(record?.identifier_type),
@@ -255,6 +274,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.patientIdentifiers.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.patientIdentifiers.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.patientIdentifiers.detail.patientNameLabel', valueKey: 'patient_display_label' },
       { labelKey: 'patients.resources.patientIdentifiers.detail.patientLabel', valueKey: 'patient_id' },
       { labelKey: 'patients.resources.patientIdentifiers.detail.identifierTypeLabel', valueKey: 'identifier_type' },
       { labelKey: 'patients.resources.patientIdentifiers.detail.identifierValueLabel', valueKey: 'identifier_value' },

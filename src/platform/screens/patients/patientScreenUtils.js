@@ -66,6 +66,65 @@ const normalizePatientContextId = (searchParamValue) => {
   return normalized || null;
 };
 
+const resolvePatientDisplayLabel = (patient, fallbackLabel = '') => {
+  if (!patient || typeof patient !== 'object') {
+    return sanitizeString(fallbackLabel);
+  }
+
+  const firstName = sanitizeString(patient.first_name);
+  const lastName = sanitizeString(patient.last_name);
+  const fullName = `${firstName} ${lastName}`.trim();
+  if (fullName) return fullName;
+
+  const readableCandidate = [
+    patient.name,
+    patient.display_name,
+    patient.patient_name,
+    patient.patient_label,
+    patient.patient_code,
+    patient.patient_number,
+    patient.medical_record_number,
+    patient.mrn,
+    patient.identifier_value,
+    patient.identifier_type,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+
+  return readableCandidate || sanitizeString(fallbackLabel);
+};
+
+const resolvePatientContextLabel = (record, patientLabelsById = null, fallbackLabel = '') => {
+  if (!record || typeof record !== 'object') {
+    return sanitizeString(fallbackLabel);
+  }
+
+  const nestedLabel = resolvePatientDisplayLabel(record.patient, '');
+  if (nestedLabel) return nestedLabel;
+
+  const directLabel = [
+    record.patient_display_label,
+    record.patient_name,
+    record.patient_label,
+    record.patient_code,
+    record.patient_number,
+    record.medical_record_number,
+    record.mrn,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+
+  if (directLabel) return directLabel;
+
+  const patientId = sanitizeString(record.patient_id);
+  if (patientId && patientLabelsById && typeof patientLabelsById === 'object') {
+    const mapped = sanitizeString(patientLabelsById[patientId]);
+    if (mapped) return mapped;
+  }
+
+  return sanitizeString(fallbackLabel);
+};
+
 export {
   buildNoticeMessage,
   filterDetailRowsByIdentityPolicy,
@@ -74,5 +133,7 @@ export {
   isTechnicalFieldKey,
   normalizeNoticeValue,
   normalizePatientContextId,
+  resolvePatientContextLabel,
+  resolvePatientDisplayLabel,
   resolveErrorMessage,
 };

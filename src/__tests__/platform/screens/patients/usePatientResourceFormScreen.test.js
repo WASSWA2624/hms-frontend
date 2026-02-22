@@ -188,4 +188,122 @@ describe('usePatientResourceFormScreen', () => {
     const editFields = editHook.result.current.visibleFields.map((field) => field.name);
     expect(editFields).toEqual(createFields);
   });
+
+  it('redirects create route to access denied notice for read-only users', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: false,
+      canEditPatientRecords: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientResourceFormScreen('patients'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/patients/patients?notice=accessDenied');
+    });
+  });
+
+  it('redirects edit route to access denied notice when edit permission is missing', async () => {
+    mockParams = { id: 'patient-1' };
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientResourceFormScreen('patients'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/patients/patients?notice=accessDenied');
+    });
+  });
+
+  it('hides tenant selector on edit and does not send tenant_id in update payload', async () => {
+    mockParams = { id: 'patient-1' };
+    mockCrudData = {
+      id: 'patient-1',
+      tenant_id: 'tenant-edit',
+      first_name: 'Jane',
+      last_name: 'Doe',
+      facility_id: 'facility-1',
+      gender: 'FEMALE',
+      is_active: true,
+    };
+    mockUpdate.mockResolvedValue({ id: 'patient-1' });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('patients'));
+
+    await waitFor(() => {
+      expect(result.current.values.tenant_id).toBe('tenant-edit');
+    });
+
+    expect(result.current.showTenantField).toBe(false);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+    const payload = mockUpdate.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('tenant_id');
+  });
+
+  it('hides patient selector when patient context is preselected for patient identifiers', async () => {
+    mockParams = { patientId: 'patient-context-id' };
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('patient-identifiers'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-context-id');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+    expect(mockListPatients).not.toHaveBeenCalled();
+  });
+
+  it('hides patient selector on edit for patient identifiers', async () => {
+    mockParams = { id: 'identifier-1' };
+    mockCrudData = {
+      id: 'identifier-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-1',
+      identifier_type: 'MRN',
+      identifier_value: 'MRN-22',
+      is_primary: true,
+    };
+    mockUpdate.mockResolvedValue({ id: 'identifier-1' });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('patient-identifiers'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-1');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+    const payload = mockUpdate.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('patient_id');
+  });
 });

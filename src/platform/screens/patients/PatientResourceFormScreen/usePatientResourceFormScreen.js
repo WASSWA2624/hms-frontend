@@ -23,6 +23,7 @@ import usePatientResourceCrud from '../usePatientResourceCrud';
 import {
   isAccessDeniedError,
   normalizePatientContextId,
+  resolvePatientDisplayLabel,
   resolveErrorMessage,
 } from '../patientScreenUtils';
 
@@ -31,26 +32,6 @@ const DATE_ONLY_FIELDS = new Set(['date_of_birth', 'diagnosis_date', 'granted_at
 const MAX_PATIENT_LOOKUP_LIMIT = 100;
 const MAX_LOOKUP_LIMIT = 100;
 const DEFAULT_LOOKUP_PAGE = 1;
-
-const resolvePatientOptionLabel = (patient, fallbackLabel) => {
-  const firstName = sanitizeString(patient?.first_name);
-  const lastName = sanitizeString(patient?.last_name);
-  const fullName = `${firstName} ${lastName}`.trim();
-  if (fullName) return fullName;
-
-  const readableIdentity = [
-    patient?.patient_code,
-    patient?.patient_number,
-    patient?.medical_record_number,
-    patient?.mrn,
-    patient?.identifier_value,
-    patient?.name,
-  ]
-    .map((value) => sanitizeString(value))
-    .find(Boolean);
-
-  return readableIdentity || fallbackLabel;
-};
 
 const resolveTenantOptionLabel = (tenant, fallbackLabel) => {
   const candidates = [tenant?.name, tenant?.display_name, tenant?.slug, tenant?.code];
@@ -159,7 +140,16 @@ const usePatientResourceFormScreen = (resourceId) => {
   }), [t, resourceLabel, formModeLabel]);
 
   const [values, setValues] = useState({});
-  const showTenantField = canManageAllTenants && !normalizedTenantId;
+  const showTenantField = !isEdit && canManageAllTenants && !normalizedTenantId;
+  const hidePatientFieldForEdit = Boolean(isEdit && config?.hidePatientSelectorOnEdit);
+  const hidePatientFieldForRouteContext = Boolean(
+    patientContextId && config?.hidePatientSelectorWhenContextProvided
+  );
+  const showPatientField = Boolean(
+    config?.requiresPatientSelection
+      && !hidePatientFieldForEdit
+      && !hidePatientFieldForRouteContext
+  );
   const shouldHideFacilityField = Boolean(config?.supportsFacility && normalizedFacilityId);
   const selectedTenantForFacility = sanitizeString(values.tenant_id || normalizedTenantId);
   const facilityRequiresTenantSelection = Boolean(
@@ -167,9 +157,9 @@ const usePatientResourceFormScreen = (resourceId) => {
   );
 
   const patientItems = useMemo(() => {
-    if (!config?.requiresPatientSelection) return [];
+    if (!showPatientField) return [];
     return resolveItems(patientData);
-  }, [config?.requiresPatientSelection, patientData]);
+  }, [showPatientField, patientData]);
   const tenantItems = useMemo(() => {
     if (!showTenantField) return [];
     return resolveItems(tenantData);
@@ -187,7 +177,7 @@ const usePatientResourceFormScreen = (resourceId) => {
           if (!patientId) return null;
           return {
             value: patientId,
-            label: resolvePatientOptionLabel(
+            label: resolvePatientDisplayLabel(
               patient,
               t('patients.common.form.unnamedPatient', { position: index + 1 })
             ),
@@ -327,7 +317,7 @@ const usePatientResourceFormScreen = (resourceId) => {
   }, [record, config, initializeValues]);
 
   useEffect(() => {
-    if (!config?.requiresPatientSelection || !isResolved || !canAccessPatients) return;
+    if (!showPatientField || !isResolved || !canAccessPatients) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
     resetPatientList();
     const params = { page: DEFAULT_LOOKUP_PAGE, limit: MAX_PATIENT_LOOKUP_LIMIT };
@@ -338,7 +328,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     }
     listPatients(params);
   }, [
-    config?.requiresPatientSelection,
+    showPatientField,
     isResolved,
     canAccessPatients,
     canManageAllTenants,
@@ -414,13 +404,13 @@ const usePatientResourceFormScreen = (resourceId) => {
   }, [isEdit, config, isResolved, record, errorCode, router, listPath]);
 
   const patientListErrorMessage = useMemo(() => {
-    if (!config?.requiresPatientSelection) return null;
+    if (!showPatientField) return null;
     return resolveErrorMessage(
       t,
       patientListErrorCode,
       `${config.i18nKey}.form.patientLoadErrorMessage`
     );
-  }, [config, t, patientListErrorCode]);
+  }, [showPatientField, config, t, patientListErrorCode]);
 
   const submitErrorMessage = useMemo(() => {
     if (!config) return null;
@@ -442,7 +432,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     const tenantValue = sanitizeString(values.tenant_id);
     const patientValue = sanitizeString(values.patient_id);
 
-    if (!tenantValue) {
+    if (!isEdit && !tenantValue) {
       nextErrors.tenant_id = t('patients.common.form.tenantRequired');
     }
 
@@ -474,9 +464,10 @@ const usePatientResourceFormScreen = (resourceId) => {
 
   const hasPatients = useMemo(() => {
     if (!config?.requiresPatientSelection) return true;
+    if (!showPatientField) return Boolean(sanitizeString(values.patient_id));
     if (sanitizeString(values.patient_id)) return true;
     return patientOptions.length > 0;
-  }, [config?.requiresPatientSelection, values.patient_id, patientOptions.length]);
+  }, [config?.requiresPatientSelection, showPatientField, values.patient_id, patientOptions.length]);
   const hasTenants = useMemo(() => {
     if (!showTenantField) return true;
     if (sanitizeString(values.tenant_id)) return true;
@@ -500,11 +491,10 @@ const usePatientResourceFormScreen = (resourceId) => {
     if (!config || isSubmitDisabled) return;
 
     const payload = {
-      tenant_id: sanitizeString(values.tenant_id),
       ...config.toPayload(values),
     };
 
-    if (config.requiresPatientSelection) {
+    if (config.requiresPatientSelection && !isEdit) {
       payload.patient_id = sanitizeString(values.patient_id);
     }
 
@@ -519,8 +509,11 @@ const usePatientResourceFormScreen = (resourceId) => {
       }
     }
 
-    if (!canManageAllTenants) {
-      payload.tenant_id = normalizedTenantId;
+    if (!isEdit) {
+      payload.tenant_id = sanitizeString(values.tenant_id);
+      if (!canManageAllTenants) {
+        payload.tenant_id = normalizedTenantId;
+      }
     }
 
     try {
@@ -557,7 +550,7 @@ const usePatientResourceFormScreen = (resourceId) => {
   }, [router, listPath]);
 
   const handleRetryPatients = useCallback(() => {
-    if (!config?.requiresPatientSelection) return;
+    if (!showPatientField) return;
     if (!canManageAllTenants && !normalizedTenantId) return;
     resetPatientList();
     const params = { page: DEFAULT_LOOKUP_PAGE, limit: MAX_PATIENT_LOOKUP_LIMIT };
@@ -568,7 +561,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     }
     listPatients(params);
   }, [
-    config?.requiresPatientSelection,
+    showPatientField,
     canManageAllTenants,
     normalizedTenantId,
     selectedTenantForFacility,
@@ -633,6 +626,7 @@ const usePatientResourceFormScreen = (resourceId) => {
     helpContent,
     visibleFields,
     showTenantField,
+    showPatientField,
     isEdit,
     values,
     setFieldValue,
@@ -648,8 +642,8 @@ const usePatientResourceFormScreen = (resourceId) => {
     hasFacilities,
     facilityRequiresTenantSelection,
     patientOptions,
-    patientListLoading,
-    patientListError: Boolean(patientListErrorCode),
+    patientListLoading: showPatientField ? patientListLoading : false,
+    patientListError: showPatientField ? Boolean(patientListErrorCode) : false,
     patientListErrorMessage,
     hasPatients,
     isCreateBlocked,

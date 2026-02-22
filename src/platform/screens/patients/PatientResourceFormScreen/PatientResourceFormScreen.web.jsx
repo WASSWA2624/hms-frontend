@@ -45,6 +45,7 @@ const PatientResourceFormScreenWeb = ({ resourceId }) => {
     helpContent,
     visibleFields,
     showTenantField,
+    showPatientField,
     isEdit,
     values,
     setFieldValue,
@@ -232,7 +233,7 @@ const PatientResourceFormScreenWeb = ({ resourceId }) => {
                   </StyledFullRow>
                 ) : null}
 
-                {config.requiresPatientSelection ? (
+                {showPatientField ? (
                   <StyledFullRow>
                     <StyledFieldGroup>
                       {patientListLoading ? (

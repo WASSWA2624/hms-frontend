@@ -4,7 +4,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useAuth, useI18n, useNetwork, usePatientAccess } from '@hooks';
+import {
+  useAuth,
+  useI18n,
+  useNetwork,
+  usePatient,
+  usePatientAccess,
+} from '@hooks';
 import { async as asyncStorage } from '@services/storage';
 import { confirmAction, humanizeDisplayText } from '@utils';
 import {
@@ -20,12 +26,15 @@ import {
   isAccessDeniedError,
   normalizeNoticeValue,
   normalizePatientContextId,
+  resolvePatientContextLabel,
+  resolvePatientDisplayLabel,
   resolveErrorMessage,
 } from '../patientScreenUtils';
 
 const TABLE_MODE_BREAKPOINT = 768;
 const PREFS_STORAGE_PREFIX = 'hms.patients.resources.list.preferences';
 const MAX_FETCH_LIMIT = 100;
+const PATIENT_LOOKUP_LIMIT = 100;
 const DEFAULT_FETCH_PAGE = 1;
 const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_PAGE_SIZE = 10;
@@ -247,6 +256,11 @@ const usePatientResourceListScreen = (resourceId) => {
   } = usePatientAccess();
 
   const { list, remove, data, isLoading, errorCode, reset } = usePatientResourceCrud(resourceId);
+  const {
+    list: listPatients,
+    data: patientLookupData,
+    reset: resetPatientLookup,
+  } = usePatient();
 
   const filterCounterRef = useRef(1);
   const [search, setSearch] = useState('');
@@ -277,17 +291,28 @@ const usePatientResourceListScreen = (resourceId) => {
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const hasPatientContext = Boolean(patientContextId);
   const requiresPatientContext = Boolean(config?.requiresPatientSelection);
-  const hasRequiredContext = !requiresPatientContext || hasPatientContext;
-  const canList = Boolean(config && canAccessPatients && hasScope && hasRequiredContext);
+  const requiresPatientContextForList = Boolean(
+    requiresPatientContext && config?.allowListWithoutPatientContext !== true
+  );
+  const requiresPatientContextForCreate = Boolean(
+    requiresPatientContext && config?.allowCreateWithoutPatientContext !== true
+  );
+  const requiresPatientContextForEdit = Boolean(
+    requiresPatientContext && config?.allowEditWithoutPatientContext !== true
+  );
+  const hasRequiredListContext = !requiresPatientContextForList || hasPatientContext;
+  const hasRequiredCreateContext = !requiresPatientContextForCreate || hasPatientContext;
+  const hasRequiredEditContext = !requiresPatientContextForEdit || hasPatientContext;
+  const canList = Boolean(config && canAccessPatients && hasScope && hasRequiredListContext);
   const canCreate = Boolean(
     canCreatePatientRecords
       && config?.supportsCreate !== false
-      && hasRequiredContext
+      && hasRequiredCreateContext
   );
   const canEdit = Boolean(
     canEditPatientRecords
       && config?.supportsEdit !== false
-      && hasRequiredContext
+      && hasRequiredEditContext
   );
   const canDelete = Boolean(
     canDeletePatientRecords
@@ -331,19 +356,67 @@ const usePatientResourceListScreen = (resourceId) => {
     [config?.routePath, patientContextId]
   );
 
+  const shouldResolvePatientLabels = Boolean(config?.resolvePatientLabels);
+  const patientLookupItems = useMemo(
+    () => (shouldResolvePatientLabels ? resolveListItems(patientLookupData) : []),
+    [shouldResolvePatientLabels, patientLookupData]
+  );
+
+  const patientLabelsById = useMemo(() => {
+    if (!shouldResolvePatientLabels) return {};
+
+    return patientLookupItems.reduce((acc, patient, index) => {
+      const patientId = normalizeValue(patient?.id);
+      if (!patientId || Object.prototype.hasOwnProperty.call(acc, patientId)) {
+        return acc;
+      }
+
+      const fallbackLabel = t('patients.common.form.unnamedPatient', { position: index + 1 });
+      const label = resolvePatientDisplayLabel(patient, fallbackLabel);
+      if (label) {
+        acc[patientId] = label;
+      }
+      return acc;
+    }, {});
+  }, [shouldResolvePatientLabels, patientLookupItems, t]);
+
   const rawItems = useMemo(() => resolveListItems(data), [data]);
 
   const scopedItems = useMemo(
-    () => rawItems.filter((item) => {
-      if (!isRecordInTenantScope(item, canManageAllTenants, normalizedTenantId)) {
-        return false;
-      }
-      if (config?.supportsPatientFilter && patientContextId) {
-        return normalizeValue(item?.patient_id) === patientContextId;
-      }
-      return true;
-    }),
-    [rawItems, canManageAllTenants, normalizedTenantId, config?.supportsPatientFilter, patientContextId]
+    () =>
+      rawItems
+        .filter((item) => {
+          if (!isRecordInTenantScope(item, canManageAllTenants, normalizedTenantId)) {
+            return false;
+          }
+          if (config?.supportsPatientFilter && patientContextId) {
+            return normalizeValue(item?.patient_id) === patientContextId;
+          }
+          return true;
+        })
+        .map((item) => {
+          if (!shouldResolvePatientLabels) return item;
+
+          const patientLabel = resolvePatientContextLabel(item, patientLabelsById);
+          if (!patientLabel) return item;
+
+          if (normalizeValue(item?.patient_display_label) === patientLabel) {
+            return item;
+          }
+          return {
+            ...item,
+            patient_display_label: patientLabel,
+          };
+        }),
+    [
+      rawItems,
+      canManageAllTenants,
+      normalizedTenantId,
+      config?.supportsPatientFilter,
+      patientContextId,
+      shouldResolvePatientLabels,
+      patientLabelsById,
+    ]
   );
 
   const records = useMemo(
@@ -606,6 +679,31 @@ const usePatientResourceListScreen = (resourceId) => {
     patientContextId,
     reset,
     list,
+  ]);
+
+  useEffect(() => {
+    if (!shouldResolvePatientLabels || !isResolved || !canAccessPatients || isOffline) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+
+    const params = {
+      page: DEFAULT_FETCH_PAGE,
+      limit: PATIENT_LOOKUP_LIMIT,
+    };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
+
+    resetPatientLookup();
+    listPatients(params);
+  }, [
+    shouldResolvePatientLabels,
+    isResolved,
+    canAccessPatients,
+    isOffline,
+    canManageAllTenants,
+    normalizedTenantId,
+    resetPatientLookup,
+    listPatients,
   ]);
 
   useEffect(() => {
@@ -1226,7 +1324,7 @@ const usePatientResourceListScreen = (resourceId) => {
     canEdit,
     canDelete,
     createBlockedReason: canCreatePatientRecords
-      ? hasRequiredContext ? '' : t('patients.common.list.patientContextRequired')
+      ? hasRequiredCreateContext ? '' : t('patients.common.list.patientContextRequired')
       : t('patients.access.createDenied'),
     deleteBlockedReason: canDelete ? '' : t('patients.access.deleteDenied'),
   };
