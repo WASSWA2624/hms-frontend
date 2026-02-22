@@ -209,6 +209,7 @@ describe('auth.usecase', () => {
   it('refreshes session and logs out', async () => {
     const tokens = await refreshSessionUseCase();
     expect(tokens).toEqual({ accessToken: 'a', refreshToken: 'b' });
+    expect(refreshApi).toHaveBeenCalledWith({ refresh_token: 'refresh' });
     expect(tokenManager.setTokens).toHaveBeenCalledWith('a', 'b', { persist: true });
     await logoutUseCase();
     expect(logoutApi).toHaveBeenCalledWith({ refresh_token: 'refresh' });
@@ -223,6 +224,9 @@ describe('auth.usecase', () => {
 
     refreshApi.mockResolvedValueOnce({ data: { data: {} } });
     await expect(refreshSessionUseCase()).resolves.toBeNull();
+
+    tokenManager.getRefreshToken.mockResolvedValueOnce(null);
+    await expect(refreshSessionUseCase()).rejects.toMatchObject({ code: 'UNKNOWN_ERROR' });
 
     tokenManager.getRefreshToken.mockResolvedValueOnce(null);
     await logoutUseCase();

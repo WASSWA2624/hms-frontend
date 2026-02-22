@@ -168,6 +168,12 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/patients/${id}`,
     UPDATE: (id) => `${baseUrl}/patients/${id}`,
     DELETE: (id) => `${baseUrl}/patients/${id}`,
+    GET_IDENTIFIERS: (id) => `${baseUrl}/patients/${id}/identifiers`,
+    GET_CONTACTS: (id) => `${baseUrl}/patients/${id}/contacts`,
+    GET_GUARDIANS: (id) => `${baseUrl}/patients/${id}/guardians`,
+    GET_ALLERGIES: (id) => `${baseUrl}/patients/${id}/allergies`,
+    GET_MEDICAL_HISTORIES: (id) => `${baseUrl}/patients/${id}/medical-histories`,
+    GET_DOCUMENTS: (id) => `${baseUrl}/patients/${id}/documents`,
   },
   PATIENT_IDENTIFIERS: {
     LIST: `${baseUrl}/patient-identifiers`,

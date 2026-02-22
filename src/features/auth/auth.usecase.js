@@ -105,7 +105,10 @@ const logoutUseCase = async () =>
 const refreshSessionUseCase = async () =>
   execute(async () => {
     const refreshToken = await tokenManager.getRefreshToken();
-    const response = await refreshApi({ refreshToken });
+    if (!refreshToken) {
+      throw new Error('Missing refresh token');
+    }
+    const response = await refreshApi({ refresh_token: refreshToken });
     const data = unwrap(response);
     const { tokens } = normalizeAuthResponse(data);
     if (tokens?.accessToken && tokens?.refreshToken) {

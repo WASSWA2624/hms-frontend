@@ -51,4 +51,25 @@ describe('endpoints.js', () => {
     expect(endpoints.STAFF_POSITIONS.LIST).toMatch(/\/staff-positions$/);
     expect(endpoints.STAFF_POSITIONS.GET('id')).toMatch(/\/staff-positions\/id$/);
   });
+
+  test('should expose patient nested resource endpoints', () => {
+    expect(endpoints.PATIENTS.GET_IDENTIFIERS('id')).toMatch(
+      /\/patients\/id\/identifiers$/
+    );
+    expect(endpoints.PATIENTS.GET_CONTACTS('id')).toMatch(
+      /\/patients\/id\/contacts$/
+    );
+    expect(endpoints.PATIENTS.GET_GUARDIANS('id')).toMatch(
+      /\/patients\/id\/guardians$/
+    );
+    expect(endpoints.PATIENTS.GET_ALLERGIES('id')).toMatch(
+      /\/patients\/id\/allergies$/
+    );
+    expect(endpoints.PATIENTS.GET_MEDICAL_HISTORIES('id')).toMatch(
+      /\/patients\/id\/medical-histories$/
+    );
+    expect(endpoints.PATIENTS.GET_DOCUMENTS('id')).toMatch(
+      /\/patients\/id\/documents$/
+    );
+  });
 });

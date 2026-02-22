@@ -30,6 +30,27 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes mounted patient nested resource endpoints', () => {
+    expect(endpoints.PATIENTS.GET_IDENTIFIERS('id')).toMatch(
+      /\/patients\/id\/identifiers$/
+    );
+    expect(endpoints.PATIENTS.GET_CONTACTS('id')).toMatch(
+      /\/patients\/id\/contacts$/
+    );
+    expect(endpoints.PATIENTS.GET_GUARDIANS('id')).toMatch(
+      /\/patients\/id\/guardians$/
+    );
+    expect(endpoints.PATIENTS.GET_ALLERGIES('id')).toMatch(
+      /\/patients\/id\/allergies$/
+    );
+    expect(endpoints.PATIENTS.GET_MEDICAL_HISTORIES('id')).toMatch(
+      /\/patients\/id\/medical-histories$/
+    );
+    expect(endpoints.PATIENTS.GET_DOCUMENTS('id')).toMatch(
+      /\/patients\/id\/documents$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();

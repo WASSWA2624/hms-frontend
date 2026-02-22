@@ -33,7 +33,7 @@ describe('auth.api', () => {
     await loginApi({ email: 'user', password: 'pass' });
     await logoutApi();
     await logoutApi({ refresh_token: 'token' });
-    await refreshApi({ refreshToken: 'token' });
+    await refreshApi({ refresh_token: 'token' });
     await registerApi({ email: 'user' });
     await verifyEmailApi({ token: 't' });
     await verifyPhoneApi({ token: 't' });
@@ -65,7 +65,7 @@ describe('auth.api', () => {
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.REFRESH,
       method: 'POST',
-      body: { refreshToken: 'token' },
+      body: { refresh_token: 'token' },
     });
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.ME,

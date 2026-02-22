@@ -17,6 +17,8 @@ const execute = async (work) => {
   }
 };
 
+const normalizeRelatedCollection = (value) => (Array.isArray(value) ? value : []);
+
 const listPatients = async (params = {}) =>
   execute(async () => {
     const parsed = parsePatientListParams(params);
@@ -29,6 +31,54 @@ const getPatient = async (id) =>
     const parsedId = parsePatientId(id);
     const response = await patientApi.get(parsedId);
     return normalizePatient(response.data);
+  });
+
+const listPatientIdentifiers = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listIdentifiers(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
+  });
+
+const listPatientContacts = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listContacts(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
+  });
+
+const listPatientGuardians = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listGuardians(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
+  });
+
+const listPatientAllergies = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listAllergies(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
+  });
+
+const listPatientMedicalHistories = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listMedicalHistories(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
+  });
+
+const listPatientDocuments = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parsePatientId(id);
+    const parsed = parsePatientListParams(params);
+    const response = await patientApi.listDocuments(parsedId, parsed);
+    return normalizeRelatedCollection(response.data);
   });
 
 const createPatient = async (payload) =>
@@ -76,4 +126,16 @@ const deletePatient = async (id) =>
     return { id: parsedId };
   });
 
-export { listPatients, getPatient, createPatient, updatePatient, deletePatient };
+export {
+  listPatients,
+  getPatient,
+  listPatientIdentifiers,
+  listPatientContacts,
+  listPatientGuardians,
+  listPatientAllergies,
+  listPatientMedicalHistories,
+  listPatientDocuments,
+  createPatient,
+  updatePatient,
+  deletePatient,
+};
