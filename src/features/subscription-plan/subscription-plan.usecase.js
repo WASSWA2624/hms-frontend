@@ -80,10 +80,26 @@ const deleteSubscriptionPlan = async (id) =>
     return normalizeSubscriptionPlan(response.data);
   });
 
+const getSubscriptionPlanEntitlements = async (id) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionPlanId(id);
+    const response = await subscriptionPlanApi.getEntitlements(parsedId);
+    return normalizeSubscriptionPlan(response.data);
+  });
+
+const getSubscriptionPlanAddOnEligibility = async (id) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionPlanId(id);
+    const response = await subscriptionPlanApi.getAddOnEligibility(parsedId);
+    return normalizeSubscriptionPlan(response.data);
+  });
+
 export {
   listSubscriptionPlans,
   getSubscriptionPlan,
   createSubscriptionPlan,
   updateSubscriptionPlan,
   deleteSubscriptionPlan,
+  getSubscriptionPlanEntitlements,
+  getSubscriptionPlanAddOnEligibility,
 };

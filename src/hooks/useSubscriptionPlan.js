@@ -7,6 +7,8 @@ import {
   createSubscriptionPlan,
   deleteSubscriptionPlan,
   getSubscriptionPlan,
+  getSubscriptionPlanAddOnEligibility,
+  getSubscriptionPlanEntitlements,
   listSubscriptionPlans,
   updateSubscriptionPlan,
 } from '@features/subscription-plan';
@@ -18,6 +20,8 @@ const useSubscriptionPlan = () =>
     create: createSubscriptionPlan,
     update: updateSubscriptionPlan,
     remove: deleteSubscriptionPlan,
+    getEntitlements: getSubscriptionPlanEntitlements,
+    getAddOnEligibility: getSubscriptionPlanAddOnEligibility,
   });
 
 export default useSubscriptionPlan;

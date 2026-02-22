@@ -203,6 +203,62 @@ describe('endpoints.js', () => {
     );
   });
 
+  test('should expose subscription and licensing action-path endpoints', () => {
+    expect(endpoints.SUBSCRIPTION_PLANS.LIST).toMatch(/\/subscription-plans$/);
+    expect(endpoints.SUBSCRIPTION_PLANS.ENTITLEMENTS('id')).toMatch(
+      /\/subscription-plans\/id\/entitlements$/
+    );
+    expect(endpoints.SUBSCRIPTION_PLANS.ADD_ON_ELIGIBILITY('id')).toMatch(
+      /\/subscription-plans\/id\/add-on-eligibility$/
+    );
+
+    expect(endpoints.SUBSCRIPTIONS.LIST).toMatch(/\/subscriptions$/);
+    expect(endpoints.SUBSCRIPTIONS.UPGRADE('id')).toMatch(
+      /\/subscriptions\/id\/upgrade$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.DOWNGRADE('id')).toMatch(
+      /\/subscriptions\/id\/downgrade$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.RENEW('id')).toMatch(
+      /\/subscriptions\/id\/renew$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.PRORATION_PREVIEW('id')).toMatch(
+      /\/subscriptions\/id\/proration-preview$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.USAGE_SUMMARY('id')).toMatch(
+      /\/subscriptions\/id\/usage-summary$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.FIT_CHECK('id')).toMatch(
+      /\/subscriptions\/id\/fit-check$/
+    );
+    expect(endpoints.SUBSCRIPTIONS.UPGRADE_RECOMMENDATION('id')).toMatch(
+      /\/subscriptions\/id\/upgrade-recommendation$/
+    );
+
+    expect(endpoints.SUBSCRIPTION_INVOICES.COLLECT('id')).toMatch(
+      /\/subscription-invoices\/id\/collect$/
+    );
+    expect(endpoints.SUBSCRIPTION_INVOICES.RETRY('id')).toMatch(
+      /\/subscription-invoices\/id\/retry$/
+    );
+
+    expect(endpoints.MODULE_SUBSCRIPTIONS.ACTIVATE('id')).toMatch(
+      /\/module-subscriptions\/id\/activate$/
+    );
+    expect(endpoints.MODULE_SUBSCRIPTIONS.DEACTIVATE('id')).toMatch(
+      /\/module-subscriptions\/id\/deactivate$/
+    );
+    expect(endpoints.MODULE_SUBSCRIPTIONS.ELIGIBILITY_CHECK('id')).toMatch(
+      /\/module-subscriptions\/id\/eligibility-check$/
+    );
+    expect(endpoints.LICENSES.LIST).toMatch(/\/licenses$/);
+
+    expect(endpoints.SUBSCRIPTIONS.GET_PLANS).toBeUndefined();
+    expect(endpoints.SUBSCRIPTIONS.SUBSCRIBE).toBeUndefined();
+    expect(endpoints.SUBSCRIPTIONS.GET_CURRENT).toBeUndefined();
+    expect(endpoints.SUBSCRIPTIONS.CANCEL).toBeUndefined();
+  });
+
   test('should expose communications CRUD endpoints with mounted-only contracts', () => {
     expect(endpoints.NOTIFICATIONS.LIST).toMatch(/\/notifications$/);
     expect(endpoints.NOTIFICATIONS.CREATE).toMatch(/\/notifications$/);

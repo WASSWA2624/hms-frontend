@@ -9,6 +9,14 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useSubscriptionInvoice', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useSubscriptionInvoice);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, [
+      'list',
+      'get',
+      'create',
+      'update',
+      'remove',
+      'collect',
+      'retry',
+    ]);
   });
 });

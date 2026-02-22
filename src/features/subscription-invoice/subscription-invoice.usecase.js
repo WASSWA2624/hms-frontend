@@ -80,10 +80,44 @@ const deleteSubscriptionInvoice = async (id) =>
     return normalizeSubscriptionInvoice(response.data);
   });
 
+const collectSubscriptionInvoice = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionInvoiceId(id);
+    const parsed = parseSubscriptionInvoicePayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SUBSCRIPTION_INVOICES.COLLECT(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSubscriptionInvoice({ id: parsedId, ...parsed });
+    }
+    const response = await subscriptionInvoiceApi.collect(parsedId, parsed);
+    return normalizeSubscriptionInvoice(response.data);
+  });
+
+const retrySubscriptionInvoice = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionInvoiceId(id);
+    const parsed = parseSubscriptionInvoicePayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SUBSCRIPTION_INVOICES.RETRY(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSubscriptionInvoice({ id: parsedId, ...parsed });
+    }
+    const response = await subscriptionInvoiceApi.retry(parsedId, parsed);
+    return normalizeSubscriptionInvoice(response.data);
+  });
+
 export {
   listSubscriptionInvoices,
   getSubscriptionInvoice,
   createSubscriptionInvoice,
   updateSubscriptionInvoice,
   deleteSubscriptionInvoice,
+  collectSubscriptionInvoice,
+  retrySubscriptionInvoice,
 };

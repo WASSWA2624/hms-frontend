@@ -6,8 +6,15 @@ import useCrud from '@hooks/useCrud';
 import {
   createSubscription,
   deleteSubscription,
+  downgradeSubscription,
+  getSubscriptionFitCheck,
+  getSubscriptionProrationPreview,
+  getSubscriptionUpgradeRecommendation,
+  getSubscriptionUsageSummary,
   getSubscription,
   listSubscriptions,
+  renewSubscription,
+  upgradeSubscription,
   updateSubscription,
 } from '@features/subscription';
 
@@ -18,6 +25,13 @@ const useSubscription = () =>
     create: createSubscription,
     update: updateSubscription,
     remove: deleteSubscription,
+    upgrade: upgradeSubscription,
+    downgrade: downgradeSubscription,
+    renew: renewSubscription,
+    getProrationPreview: getSubscriptionProrationPreview,
+    getUsageSummary: getSubscriptionUsageSummary,
+    getFitCheck: getSubscriptionFitCheck,
+    getUpgradeRecommendation: getSubscriptionUpgradeRecommendation,
   });
 
 export default useSubscription;

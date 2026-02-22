@@ -985,17 +985,19 @@ export const endpoints = {
     CHANNEL_BREAKDOWN: (id) => `${baseUrl}/payments/${id}/channel-breakdown`,
   },
   SUBSCRIPTIONS: {
-    GET_PLANS: `${baseUrl}/subscriptions/plans`,
-    SUBSCRIBE: `${baseUrl}/subscriptions`,
     LIST: `${baseUrl}/subscriptions`,
     CREATE: `${baseUrl}/subscriptions`,
     GET: (id) => `${baseUrl}/subscriptions/${id}`,
     UPDATE: (id) => `${baseUrl}/subscriptions/${id}`,
     DELETE: (id) => `${baseUrl}/subscriptions/${id}`,
-    GET_CURRENT: `${baseUrl}/subscriptions/current`,
     UPGRADE: (id) => `${baseUrl}/subscriptions/${id}/upgrade`,
     DOWNGRADE: (id) => `${baseUrl}/subscriptions/${id}/downgrade`,
-    CANCEL: (id) => `${baseUrl}/subscriptions/${id}/cancel`,
+    RENEW: (id) => `${baseUrl}/subscriptions/${id}/renew`,
+    PRORATION_PREVIEW: (id) => `${baseUrl}/subscriptions/${id}/proration-preview`,
+    USAGE_SUMMARY: (id) => `${baseUrl}/subscriptions/${id}/usage-summary`,
+    FIT_CHECK: (id) => `${baseUrl}/subscriptions/${id}/fit-check`,
+    UPGRADE_RECOMMENDATION: (id) =>
+      `${baseUrl}/subscriptions/${id}/upgrade-recommendation`,
   },
   SUBSCRIPTION_PLANS: {
     LIST: `${baseUrl}/subscription-plans`,
@@ -1003,6 +1005,9 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/subscription-plans/${id}`,
     UPDATE: (id) => `${baseUrl}/subscription-plans/${id}`,
     DELETE: (id) => `${baseUrl}/subscription-plans/${id}`,
+    ENTITLEMENTS: (id) => `${baseUrl}/subscription-plans/${id}/entitlements`,
+    ADD_ON_ELIGIBILITY: (id) =>
+      `${baseUrl}/subscription-plans/${id}/add-on-eligibility`,
   },
   SUBSCRIPTION_INVOICES: {
     LIST: `${baseUrl}/subscription-invoices`,
@@ -1010,6 +1015,8 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/subscription-invoices/${id}`,
     UPDATE: (id) => `${baseUrl}/subscription-invoices/${id}`,
     DELETE: (id) => `${baseUrl}/subscription-invoices/${id}`,
+    COLLECT: (id) => `${baseUrl}/subscription-invoices/${id}/collect`,
+    RETRY: (id) => `${baseUrl}/subscription-invoices/${id}/retry`,
   },
   MODULES: {
     LIST: `${baseUrl}/modules`,
@@ -1024,6 +1031,10 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/module-subscriptions/${id}`,
     UPDATE: (id) => `${baseUrl}/module-subscriptions/${id}`,
     DELETE: (id) => `${baseUrl}/module-subscriptions/${id}`,
+    ACTIVATE: (id) => `${baseUrl}/module-subscriptions/${id}/activate`,
+    DEACTIVATE: (id) => `${baseUrl}/module-subscriptions/${id}/deactivate`,
+    ELIGIBILITY_CHECK: (id) =>
+      `${baseUrl}/module-subscriptions/${id}/eligibility-check`,
   },
   LICENSES: {
     LIST: `${baseUrl}/licenses`,

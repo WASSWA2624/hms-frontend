@@ -9,6 +9,14 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useSubscriptionPlan', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useSubscriptionPlan);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, [
+      'list',
+      'get',
+      'create',
+      'update',
+      'remove',
+      'getEntitlements',
+      'getAddOnEligibility',
+    ]);
   });
 });

@@ -4,7 +4,10 @@
  */
 import useCrud from '@hooks/useCrud';
 import {
+  activateModuleSubscription,
+  checkModuleSubscriptionEligibility,
   createModuleSubscription,
+  deactivateModuleSubscription,
   deleteModuleSubscription,
   getModuleSubscription,
   listModuleSubscriptions,
@@ -18,6 +21,9 @@ const useModuleSubscription = () =>
     create: createModuleSubscription,
     update: updateModuleSubscription,
     remove: deleteModuleSubscription,
+    activate: activateModuleSubscription,
+    deactivate: deactivateModuleSubscription,
+    checkEligibility: checkModuleSubscriptionEligibility,
   });
 
 export default useModuleSubscription;

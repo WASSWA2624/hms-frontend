@@ -80,10 +80,52 @@ const deleteModuleSubscription = async (id) =>
     return normalizeModuleSubscription(response.data);
   });
 
+const activateModuleSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseModuleSubscriptionId(id);
+    const parsed = parseModuleSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.MODULE_SUBSCRIPTIONS.ACTIVATE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeModuleSubscription({ id: parsedId, is_active: true, ...parsed });
+    }
+    const response = await moduleSubscriptionApi.activate(parsedId, parsed);
+    return normalizeModuleSubscription(response.data);
+  });
+
+const deactivateModuleSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseModuleSubscriptionId(id);
+    const parsed = parseModuleSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.MODULE_SUBSCRIPTIONS.DEACTIVATE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeModuleSubscription({ id: parsedId, is_active: false, ...parsed });
+    }
+    const response = await moduleSubscriptionApi.deactivate(parsedId, parsed);
+    return normalizeModuleSubscription(response.data);
+  });
+
+const checkModuleSubscriptionEligibility = async (id) =>
+  execute(async () => {
+    const parsedId = parseModuleSubscriptionId(id);
+    const response = await moduleSubscriptionApi.checkEligibility(parsedId);
+    return normalizeModuleSubscription(response.data);
+  });
+
 export {
   listModuleSubscriptions,
   getModuleSubscription,
   createModuleSubscription,
   updateModuleSubscription,
   deleteModuleSubscription,
+  activateModuleSubscription,
+  deactivateModuleSubscription,
+  checkModuleSubscriptionEligibility,
 };

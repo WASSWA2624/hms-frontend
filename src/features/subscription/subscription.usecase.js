@@ -80,4 +80,94 @@ const deleteSubscription = async (id) =>
     return normalizeSubscription(response.data);
   });
 
-export { listSubscriptions, getSubscription, createSubscription, updateSubscription, deleteSubscription };
+const upgradeSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const parsed = parseSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SUBSCRIPTIONS.UPGRADE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSubscription({ id: parsedId, ...parsed });
+    }
+    const response = await subscriptionApi.upgrade(parsedId, parsed);
+    return normalizeSubscription(response.data);
+  });
+
+const downgradeSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const parsed = parseSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SUBSCRIPTIONS.DOWNGRADE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSubscription({ id: parsedId, ...parsed });
+    }
+    const response = await subscriptionApi.downgrade(parsedId, parsed);
+    return normalizeSubscription(response.data);
+  });
+
+const renewSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const parsed = parseSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SUBSCRIPTIONS.RENEW(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSubscription({ id: parsedId, ...parsed });
+    }
+    const response = await subscriptionApi.renew(parsedId, parsed);
+    return normalizeSubscription(response.data);
+  });
+
+const getSubscriptionProrationPreview = async (id, params = {}) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const parsed = parseSubscriptionPayload(params);
+    const response = await subscriptionApi.getProrationPreview(parsedId, parsed);
+    return normalizeSubscription(response.data);
+  });
+
+const getSubscriptionUsageSummary = async (id) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const response = await subscriptionApi.getUsageSummary(parsedId);
+    return normalizeSubscription(response.data);
+  });
+
+const getSubscriptionFitCheck = async (id) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const response = await subscriptionApi.getFitCheck(parsedId);
+    return normalizeSubscription(response.data);
+  });
+
+const getSubscriptionUpgradeRecommendation = async (id) =>
+  execute(async () => {
+    const parsedId = parseSubscriptionId(id);
+    const response = await subscriptionApi.getUpgradeRecommendation(parsedId);
+    return normalizeSubscription(response.data);
+  });
+
+export {
+  listSubscriptions,
+  getSubscription,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription,
+  upgradeSubscription,
+  downgradeSubscription,
+  renewSubscription,
+  getSubscriptionProrationPreview,
+  getSubscriptionUsageSummary,
+  getSubscriptionFitCheck,
+  getSubscriptionUpgradeRecommendation,
+};
