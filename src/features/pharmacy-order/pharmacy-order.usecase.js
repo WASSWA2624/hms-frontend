@@ -76,4 +76,31 @@ const deletePharmacyOrder = async (id) =>
     return normalizePharmacyOrder(response.data);
   });
 
-export { listPharmacyOrders, getPharmacyOrder, createPharmacyOrder, updatePharmacyOrder, deletePharmacyOrder };
+const dispensePharmacyOrder = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parsePharmacyOrderId(id);
+    const parsed = parsePharmacyOrderPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.PHARMACY_ORDERS.DISPENSE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizePharmacyOrder({
+        id: parsedId,
+        status: parsed.status || 'DISPENSED',
+        ...parsed,
+      });
+    }
+    const response = await pharmacyOrderApi.dispense(parsedId, parsed);
+    return normalizePharmacyOrder(response.data);
+  });
+
+export {
+  listPharmacyOrders,
+  getPharmacyOrder,
+  createPharmacyOrder,
+  updatePharmacyOrder,
+  deletePharmacyOrder,
+  dispensePharmacyOrder,
+};

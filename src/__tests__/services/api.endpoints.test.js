@@ -85,6 +85,9 @@ describe('services/api/endpoints', () => {
     expect(endpoints.RADIOLOGY_RESULTS.SIGN_OFF('id')).toMatch(
       /\/radiology-results\/id\/sign-off$/
     );
+    expect(endpoints.PHARMACY_ORDERS.DISPENSE('id')).toMatch(
+      /\/pharmacy-orders\/id\/dispense$/
+    );
   });
 
   it('does not expose deprecated unmounted commerce endpoint groups', () => {

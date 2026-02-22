@@ -6,6 +6,7 @@ import useCrud from '@hooks/useCrud';
 import {
   createPharmacyOrder,
   deletePharmacyOrder,
+  dispensePharmacyOrder,
   getPharmacyOrder,
   listPharmacyOrders,
   updatePharmacyOrder,
@@ -18,6 +19,7 @@ const usePharmacyOrder = () =>
     create: createPharmacyOrder,
     update: updatePharmacyOrder,
     remove: deletePharmacyOrder,
+    dispense: dispensePharmacyOrder,
   });
 
 export default usePharmacyOrder;

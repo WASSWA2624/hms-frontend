@@ -552,6 +552,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/pharmacy-orders/${id}`,
     UPDATE: (id) => `${baseUrl}/pharmacy-orders/${id}`,
     DELETE: (id) => `${baseUrl}/pharmacy-orders/${id}`,
+    DISPENSE: (id) => `${baseUrl}/pharmacy-orders/${id}/dispense`,
   },
   PHARMACY_ORDER_ITEMS: {
     LIST: `${baseUrl}/pharmacy-order-items`,

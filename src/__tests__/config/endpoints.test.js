@@ -107,5 +107,8 @@ describe('endpoints.js', () => {
     expect(endpoints.RADIOLOGY_RESULTS.SIGN_OFF('id')).toMatch(
       /\/radiology-results\/id\/sign-off$/
     );
+    expect(endpoints.PHARMACY_ORDERS.DISPENSE('id')).toMatch(
+      /\/pharmacy-orders\/id\/dispense$/
+    );
   });
 });
