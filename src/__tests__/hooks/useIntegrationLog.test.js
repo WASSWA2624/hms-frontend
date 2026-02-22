@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useIntegrationLog', () => {
   it('exposes list/get handlers', () => {
     const result = renderHookResult(useIntegrationLog);
-    expectCrudHook(result, ['list', 'get']);
+    expectCrudHook(result, ['list', 'get', 'listByIntegration', 'replay']);
   });
 });

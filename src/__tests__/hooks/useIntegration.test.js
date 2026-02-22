@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useIntegration', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useIntegration);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'testConnection', 'syncNow']);
   });
 });

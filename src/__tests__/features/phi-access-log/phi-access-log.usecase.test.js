@@ -6,8 +6,7 @@ import {
   listPhiAccessLogs,
   getPhiAccessLog,
   createPhiAccessLog,
-  updatePhiAccessLog,
-  deletePhiAccessLog,
+  listPhiAccessLogsByUser,
 } from '@features/phi-access-log';
 import { phiAccessLogApi } from '@features/phi-access-log/phi-access-log.api';
 import { queueRequestIfOffline } from '@offline/request';
@@ -18,8 +17,7 @@ jest.mock('@features/phi-access-log/phi-access-log.api', () => ({
     list: jest.fn(),
     get: jest.fn(),
     create: jest.fn(),
-    update: jest.fn(),
-    remove: jest.fn(),
+    listByUser: jest.fn(),
   },
 }));
 
@@ -32,8 +30,7 @@ describe('phi-access-log.usecase', () => {
     phiAccessLogApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     phiAccessLogApi.get.mockResolvedValue({ data: { id: '1' } });
     phiAccessLogApi.create.mockResolvedValue({ data: { id: '1' } });
-    phiAccessLogApi.update.mockResolvedValue({ data: { id: '1' } });
-    phiAccessLogApi.remove.mockResolvedValue({ data: { id: '1' } });
+    phiAccessLogApi.listByUser.mockResolvedValue({ data: [{ id: '1' }] });
   });
 
   runCrudUsecaseTests(
@@ -41,9 +38,19 @@ describe('phi-access-log.usecase', () => {
       list: listPhiAccessLogs,
       get: getPhiAccessLog,
       create: createPhiAccessLog,
-      update: updatePhiAccessLog,
-      remove: deletePhiAccessLog,
+      extraActions: [{ fn: listPhiAccessLogsByUser, args: ['user-1', { page: 1 }] }],
     },
     { queueRequestIfOffline }
   );
+
+  it('lists phi access logs for a user', async () => {
+    queueRequestIfOffline.mockResolvedValue(false);
+
+    await expect(listPhiAccessLogsByUser('user-1', { page: 1 })).resolves.toEqual([{ id: '1' }]);
+    expect(phiAccessLogApi.listByUser).toHaveBeenCalledWith('user-1', { page: 1 });
+  });
+
+  it('rejects invalid user id for user-scoped log lookup', async () => {
+    await expect(listPhiAccessLogsByUser(null)).rejects.toBeDefined();
+  });
 });

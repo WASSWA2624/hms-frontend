@@ -8,7 +8,9 @@ import {
   getIntegration,
   createIntegration,
   updateIntegration,
-  deleteIntegration
+  deleteIntegration,
+  testIntegrationConnection,
+  syncIntegrationNow,
 } from '@features/integration';
 
 const useIntegration = () =>
@@ -18,6 +20,8 @@ const useIntegration = () =>
     create: createIntegration,
     update: updateIntegration,
     remove: deleteIntegration,
+    testConnection: testIntegrationConnection,
+    syncNow: syncIntegrationNow,
   });
 
 export default useIntegration;

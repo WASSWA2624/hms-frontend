@@ -8,7 +8,8 @@ import {
   getWebhookSubscription,
   createWebhookSubscription,
   updateWebhookSubscription,
-  deleteWebhookSubscription
+  deleteWebhookSubscription,
+  replayWebhookSubscription,
 } from '@features/webhook-subscription';
 
 const useWebhookSubscription = () =>
@@ -18,6 +19,7 @@ const useWebhookSubscription = () =>
     create: createWebhookSubscription,
     update: updateWebhookSubscription,
     remove: deleteWebhookSubscription,
+    replay: replayWebhookSubscription,
   });
 
 export default useWebhookSubscription;

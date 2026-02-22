@@ -8761,6 +8761,8 @@ const TIER_10_GENERIC_RESOURCES = [
     id: CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS,
     routeRoot: COMPLIANCE_ROUTE_ROOT,
     requiresTenant: true,
+    allowEdit: false,
+    allowDelete: false,
   },
   {
     id: CLINICAL_RESOURCE_IDS.DATA_PROCESSING_LOGS,
@@ -8771,11 +8773,13 @@ const TIER_10_GENERIC_RESOURCES = [
     id: CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS,
     routeRoot: COMPLIANCE_ROUTE_ROOT,
     requiresTenant: true,
+    allowDelete: false,
   },
   {
     id: CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS,
     routeRoot: COMPLIANCE_ROUTE_ROOT,
     requiresTenant: true,
+    allowDelete: false,
   },
   { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
   { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },

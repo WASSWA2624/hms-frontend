@@ -8,7 +8,8 @@ import {
   getSystemChangeLog,
   createSystemChangeLog,
   updateSystemChangeLog,
-  deleteSystemChangeLog
+  approveSystemChangeLog,
+  implementSystemChangeLog,
 } from '@features/system-change-log';
 
 const useSystemChangeLog = () =>
@@ -17,7 +18,8 @@ const useSystemChangeLog = () =>
     get: getSystemChangeLog,
     create: createSystemChangeLog,
     update: updateSystemChangeLog,
-    remove: deleteSystemChangeLog,
+    approve: approveSystemChangeLog,
+    implement: implementSystemChangeLog,
   });
 
 export default useSystemChangeLog;

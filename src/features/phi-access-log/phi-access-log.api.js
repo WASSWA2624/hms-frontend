@@ -3,8 +3,30 @@
  * File: phi-access-log.api.js
  */
 import { endpoints } from '@config/endpoints';
-import { createCrudApi } from '@services/api';
+import { apiClient, buildQueryString } from '@services/api';
 
-const phiAccessLogApi = createCrudApi(endpoints.PHI_ACCESS_LOGS);
+const phiAccessLogApi = {
+  list: (params = {}) =>
+    apiClient({
+      url: `${endpoints.PHI_ACCESS_LOGS.LIST}${buildQueryString(params)}`,
+      method: 'GET',
+    }),
+  get: (id) =>
+    apiClient({
+      url: endpoints.PHI_ACCESS_LOGS.GET(id),
+      method: 'GET',
+    }),
+  create: (payload) =>
+    apiClient({
+      url: endpoints.PHI_ACCESS_LOGS.CREATE,
+      method: 'POST',
+      body: payload,
+    }),
+  listByUser: (userId, params = {}) =>
+    apiClient({
+      url: `${endpoints.PHI_ACCESS_LOGS.GET_BY_USER(userId)}${buildQueryString(params)}`,
+      method: 'GET',
+    }),
+};
 
 export { phiAccessLogApi };

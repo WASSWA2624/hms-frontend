@@ -35,55 +35,36 @@ const getIntegrationLog = async (id) =>
     return normalizeIntegrationLog(response.data);
   });
 
-const createIntegrationLog = async (payload) =>
+const listIntegrationLogsByIntegration = async (integrationId, params = {}) =>
   execute(async () => {
-    const parsed = parseIntegrationLogPayload(payload);
-    const queued = await queueRequestIfOffline({
-      url: endpoints.INTEGRATION_LOGS.CREATE,
-      method: 'POST',
-      body: parsed,
-    });
-    if (queued) {
-      return normalizeIntegrationLog(parsed);
-    }
-    const response = await integrationLogApi.create(parsed);
-    return normalizeIntegrationLog(response.data);
+    const parsedIntegrationId = parseIntegrationLogId(integrationId);
+    const parsedParams = parseIntegrationLogListParams(params);
+    const response = await integrationLogApi.listByIntegration(
+      parsedIntegrationId,
+      parsedParams
+    );
+    return normalizeIntegrationLogList(response.data);
   });
 
-const updateIntegrationLog = async (id, payload) =>
+const replayIntegrationLog = async (id, payload = {}) =>
   execute(async () => {
     const parsedId = parseIntegrationLogId(id);
     const parsed = parseIntegrationLogPayload(payload);
     const queued = await queueRequestIfOffline({
-      url: endpoints.INTEGRATION_LOGS.UPDATE(parsedId),
-      method: 'PUT',
+      url: endpoints.INTEGRATION_LOGS.REPLAY(parsedId),
+      method: 'POST',
       body: parsed,
     });
     if (queued) {
       return normalizeIntegrationLog({ id: parsedId, ...parsed });
     }
-    const response = await integrationLogApi.update(parsedId, parsed);
-    return normalizeIntegrationLog(response.data);
-  });
-
-const deleteIntegrationLog = async (id) =>
-  execute(async () => {
-    const parsedId = parseIntegrationLogId(id);
-    const queued = await queueRequestIfOffline({
-      url: endpoints.INTEGRATION_LOGS.DELETE(parsedId),
-      method: 'DELETE',
-    });
-    if (queued) {
-      return normalizeIntegrationLog({ id: parsedId });
-    }
-    const response = await integrationLogApi.remove(parsedId);
+    const response = await integrationLogApi.replay(parsedId, parsed);
     return normalizeIntegrationLog(response.data);
   });
 
 export {
   listIntegrationLogs,
   getIntegrationLog,
-  createIntegrationLog,
-  updateIntegrationLog,
-  deleteIntegrationLog,
+  listIntegrationLogsByIntegration,
+  replayIntegrationLog,
 };

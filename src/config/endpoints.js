@@ -1045,17 +1045,13 @@ export const endpoints = {
   },
   AUDIT_LOGS: {
     LIST: `${baseUrl}/audit-logs`,
-    CREATE: `${baseUrl}/audit-logs`,
     GET: (id) => `${baseUrl}/audit-logs/${id}`,
-    UPDATE: (id) => `${baseUrl}/audit-logs/${id}`,
-    DELETE: (id) => `${baseUrl}/audit-logs/${id}`,
   },
   PHI_ACCESS_LOGS: {
     LIST: `${baseUrl}/phi-access-logs`,
     CREATE: `${baseUrl}/phi-access-logs`,
     GET: (id) => `${baseUrl}/phi-access-logs/${id}`,
-    UPDATE: (id) => `${baseUrl}/phi-access-logs/${id}`,
-    DELETE: (id) => `${baseUrl}/phi-access-logs/${id}`,
+    GET_BY_USER: (userId) => `${baseUrl}/phi-access-logs/user/${userId}`,
   },
   DATA_PROCESSING_LOGS: {
     LIST: `${baseUrl}/data-processing-logs`,
@@ -1069,14 +1065,15 @@ export const endpoints = {
     CREATE: `${baseUrl}/breach-notifications`,
     GET: (id) => `${baseUrl}/breach-notifications/${id}`,
     UPDATE: (id) => `${baseUrl}/breach-notifications/${id}`,
-    DELETE: (id) => `${baseUrl}/breach-notifications/${id}`,
+    RESOLVE: (id) => `${baseUrl}/breach-notifications/${id}/resolve`,
   },
   SYSTEM_CHANGE_LOGS: {
     LIST: `${baseUrl}/system-change-logs`,
     CREATE: `${baseUrl}/system-change-logs`,
     GET: (id) => `${baseUrl}/system-change-logs/${id}`,
     UPDATE: (id) => `${baseUrl}/system-change-logs/${id}`,
-    DELETE: (id) => `${baseUrl}/system-change-logs/${id}`,
+    APPROVE: (id) => `${baseUrl}/system-change-logs/${id}/approve`,
+    IMPLEMENT: (id) => `${baseUrl}/system-change-logs/${id}/implement`,
   },
   INTEGRATIONS: {
     LIST: `${baseUrl}/integrations`,
@@ -1084,13 +1081,15 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/integrations/${id}`,
     UPDATE: (id) => `${baseUrl}/integrations/${id}`,
     DELETE: (id) => `${baseUrl}/integrations/${id}`,
+    TEST_CONNECTION: (id) => `${baseUrl}/integrations/${id}/test-connection`,
+    SYNC_NOW: (id) => `${baseUrl}/integrations/${id}/sync-now`,
   },
   INTEGRATION_LOGS: {
     LIST: `${baseUrl}/integration-logs`,
-    CREATE: `${baseUrl}/integration-logs`,
     GET: (id) => `${baseUrl}/integration-logs/${id}`,
-    UPDATE: (id) => `${baseUrl}/integration-logs/${id}`,
-    DELETE: (id) => `${baseUrl}/integration-logs/${id}`,
+    GET_BY_INTEGRATION: (integrationId) =>
+      `${baseUrl}/integration-logs/integration/${integrationId}`,
+    REPLAY: (id) => `${baseUrl}/integration-logs/${id}/replay`,
   },
   WEBHOOK_SUBSCRIPTIONS: {
     LIST: `${baseUrl}/webhook-subscriptions`,
@@ -1098,6 +1097,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/webhook-subscriptions/${id}`,
     UPDATE: (id) => `${baseUrl}/webhook-subscriptions/${id}`,
     DELETE: (id) => `${baseUrl}/webhook-subscriptions/${id}`,
+    REPLAY: (id) => `${baseUrl}/webhook-subscriptions/${id}/replay`,
   },
   ADDRESSES: {
     LIST: `${baseUrl}/addresses`,

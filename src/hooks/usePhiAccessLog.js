@@ -7,8 +7,7 @@ import {
   listPhiAccessLogs,
   getPhiAccessLog,
   createPhiAccessLog,
-  updatePhiAccessLog,
-  deletePhiAccessLog
+  listPhiAccessLogsByUser,
 } from '@features/phi-access-log';
 
 const usePhiAccessLog = () =>
@@ -16,8 +15,7 @@ const usePhiAccessLog = () =>
     list: listPhiAccessLogs,
     get: getPhiAccessLog,
     create: createPhiAccessLog,
-    update: updatePhiAccessLog,
-    remove: deletePhiAccessLog,
+    listByUser: listPhiAccessLogsByUser,
   });
 
 export default usePhiAccessLog;

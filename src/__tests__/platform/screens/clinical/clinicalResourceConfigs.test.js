@@ -413,6 +413,15 @@ describe('clinicalResourceConfigs', () => {
       CLINICAL_RESOURCE_IDS.INTEGRATION_LOGS
     );
     const auditLogsConfig = getClinicalResourceConfig(CLINICAL_RESOURCE_IDS.AUDIT_LOGS);
+    const phiAccessLogsConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.PHI_ACCESS_LOGS
+    );
+    const breachNotificationsConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.BREACH_NOTIFICATIONS
+    );
+    const systemChangeLogsConfig = getClinicalResourceConfig(
+      CLINICAL_RESOURCE_IDS.SYSTEM_CHANGE_LOGS
+    );
     const equipmentRegistriesConfig = getClinicalResourceConfig(
       CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES
     );
@@ -433,5 +442,17 @@ describe('clinicalResourceConfigs', () => {
     expect(auditLogsConfig?.allowCreate).toBe(false);
     expect(auditLogsConfig?.allowEdit).toBe(false);
     expect(auditLogsConfig?.allowDelete).toBe(false);
+
+    expect(phiAccessLogsConfig?.allowCreate).toBe(true);
+    expect(phiAccessLogsConfig?.allowEdit).toBe(false);
+    expect(phiAccessLogsConfig?.allowDelete).toBe(false);
+
+    expect(breachNotificationsConfig?.allowCreate).toBe(true);
+    expect(breachNotificationsConfig?.allowEdit).toBe(true);
+    expect(breachNotificationsConfig?.allowDelete).toBe(false);
+
+    expect(systemChangeLogsConfig?.allowCreate).toBe(true);
+    expect(systemChangeLogsConfig?.allowEdit).toBe(true);
+    expect(systemChangeLogsConfig?.allowDelete).toBe(false);
   });
 });

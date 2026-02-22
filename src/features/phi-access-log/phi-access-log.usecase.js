@@ -35,6 +35,14 @@ const getPhiAccessLog = async (id) =>
     return normalizePhiAccessLog(response.data);
   });
 
+const listPhiAccessLogsByUser = async (userId, params = {}) =>
+  execute(async () => {
+    const parsedUserId = parsePhiAccessLogId(userId);
+    const parsedParams = parsePhiAccessLogListParams(params);
+    const response = await phiAccessLogApi.listByUser(parsedUserId, parsedParams);
+    return normalizePhiAccessLogList(response.data);
+  });
+
 const createPhiAccessLog = async (payload) =>
   execute(async () => {
     const parsed = parsePhiAccessLogPayload(payload);
@@ -50,34 +58,4 @@ const createPhiAccessLog = async (payload) =>
     return normalizePhiAccessLog(response.data);
   });
 
-const updatePhiAccessLog = async (id, payload) =>
-  execute(async () => {
-    const parsedId = parsePhiAccessLogId(id);
-    const parsed = parsePhiAccessLogPayload(payload);
-    const queued = await queueRequestIfOffline({
-      url: endpoints.PHI_ACCESS_LOGS.UPDATE(parsedId),
-      method: 'PUT',
-      body: parsed,
-    });
-    if (queued) {
-      return normalizePhiAccessLog({ id: parsedId, ...parsed });
-    }
-    const response = await phiAccessLogApi.update(parsedId, parsed);
-    return normalizePhiAccessLog(response.data);
-  });
-
-const deletePhiAccessLog = async (id) =>
-  execute(async () => {
-    const parsedId = parsePhiAccessLogId(id);
-    const queued = await queueRequestIfOffline({
-      url: endpoints.PHI_ACCESS_LOGS.DELETE(parsedId),
-      method: 'DELETE',
-    });
-    if (queued) {
-      return normalizePhiAccessLog({ id: parsedId });
-    }
-    const response = await phiAccessLogApi.remove(parsedId);
-    return normalizePhiAccessLog(response.data);
-  });
-
-export { listPhiAccessLogs, getPhiAccessLog, createPhiAccessLog, updatePhiAccessLog, deletePhiAccessLog };
+export { listPhiAccessLogs, getPhiAccessLog, createPhiAccessLog, listPhiAccessLogsByUser };

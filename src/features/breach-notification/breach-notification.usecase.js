@@ -66,17 +66,23 @@ const updateBreachNotification = async (id, payload) =>
     return normalizeBreachNotification(response.data);
   });
 
-const deleteBreachNotification = async (id) =>
+const resolveBreachNotification = async (id, payload = {}) =>
   execute(async () => {
     const parsedId = parseBreachNotificationId(id);
+    const parsed = parseBreachNotificationPayload(payload);
     const queued = await queueRequestIfOffline({
-      url: endpoints.BREACH_NOTIFICATIONS.DELETE(parsedId),
-      method: 'DELETE',
+      url: endpoints.BREACH_NOTIFICATIONS.RESOLVE(parsedId),
+      method: 'POST',
+      body: parsed,
     });
     if (queued) {
-      return normalizeBreachNotification({ id: parsedId });
+      return normalizeBreachNotification({
+        id: parsedId,
+        status: parsed.status || 'RESOLVED',
+        ...parsed,
+      });
     }
-    const response = await breachNotificationApi.remove(parsedId);
+    const response = await breachNotificationApi.resolve(parsedId, parsed);
     return normalizeBreachNotification(response.data);
   });
 
@@ -85,5 +91,5 @@ export {
   getBreachNotification,
   createBreachNotification,
   updateBreachNotification,
-  deleteBreachNotification,
+  resolveBreachNotification,
 };

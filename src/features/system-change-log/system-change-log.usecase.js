@@ -66,17 +66,43 @@ const updateSystemChangeLog = async (id, payload) =>
     return normalizeSystemChangeLog(response.data);
   });
 
-const deleteSystemChangeLog = async (id) =>
+const approveSystemChangeLog = async (id, payload = {}) =>
   execute(async () => {
     const parsedId = parseSystemChangeLogId(id);
+    const parsed = parseSystemChangeLogPayload(payload);
     const queued = await queueRequestIfOffline({
-      url: endpoints.SYSTEM_CHANGE_LOGS.DELETE(parsedId),
-      method: 'DELETE',
+      url: endpoints.SYSTEM_CHANGE_LOGS.APPROVE(parsedId),
+      method: 'POST',
+      body: parsed,
     });
     if (queued) {
-      return normalizeSystemChangeLog({ id: parsedId });
+      return normalizeSystemChangeLog({
+        id: parsedId,
+        status: parsed.status || 'APPROVED',
+        ...parsed,
+      });
     }
-    const response = await systemChangeLogApi.remove(parsedId);
+    const response = await systemChangeLogApi.approve(parsedId, parsed);
+    return normalizeSystemChangeLog(response.data);
+  });
+
+const implementSystemChangeLog = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseSystemChangeLogId(id);
+    const parsed = parseSystemChangeLogPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.SYSTEM_CHANGE_LOGS.IMPLEMENT(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeSystemChangeLog({
+        id: parsedId,
+        status: parsed.status || 'IMPLEMENTED',
+        ...parsed,
+      });
+    }
+    const response = await systemChangeLogApi.implement(parsedId, parsed);
     return normalizeSystemChangeLog(response.data);
   });
 
@@ -85,5 +111,6 @@ export {
   getSystemChangeLog,
   createSystemChangeLog,
   updateSystemChangeLog,
-  deleteSystemChangeLog,
+  approveSystemChangeLog,
+  implementSystemChangeLog,
 };

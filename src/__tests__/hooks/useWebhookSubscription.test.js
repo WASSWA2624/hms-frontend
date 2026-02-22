@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useWebhookSubscription', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useWebhookSubscription);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'replay']);
   });
 });

@@ -7,8 +7,8 @@ import { expectCrudHook } from '../helpers/hook-assertions';
 import { renderHookResult } from '../helpers/render-hook';
 
 describe('useSystemChangeLog', () => {
-  it('exposes CRUD handlers', () => {
+  it('exposes mounted system change log handlers', () => {
     const result = renderHookResult(useSystemChangeLog);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'approve', 'implement']);
   });
 });

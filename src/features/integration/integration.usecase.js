@@ -76,10 +76,44 @@ const deleteIntegration = async (id) =>
     return normalizeIntegration(response.data);
   });
 
+const testIntegrationConnection = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIntegrationId(id);
+    const parsed = parseIntegrationPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.INTEGRATIONS.TEST_CONNECTION(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeIntegration({ id: parsedId, ...parsed });
+    }
+    const response = await integrationApi.testConnection(parsedId, parsed);
+    return normalizeIntegration(response.data);
+  });
+
+const syncIntegrationNow = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIntegrationId(id);
+    const parsed = parseIntegrationPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.INTEGRATIONS.SYNC_NOW(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeIntegration({ id: parsedId, ...parsed });
+    }
+    const response = await integrationApi.syncNow(parsedId, parsed);
+    return normalizeIntegration(response.data);
+  });
+
 export {
   listIntegrations,
   getIntegration,
   createIntegration,
   updateIntegration,
   deleteIntegration,
+  testIntegrationConnection,
+  syncIntegrationNow,
 };

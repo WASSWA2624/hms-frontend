@@ -8,7 +8,7 @@ import {
   getBreachNotification,
   createBreachNotification,
   updateBreachNotification,
-  deleteBreachNotification
+  resolveBreachNotification,
 } from '@features/breach-notification';
 
 const useBreachNotification = () =>
@@ -17,7 +17,7 @@ const useBreachNotification = () =>
     get: getBreachNotification,
     create: createBreachNotification,
     update: updateBreachNotification,
-    remove: deleteBreachNotification,
+    resolve: resolveBreachNotification,
   });
 
 export default useBreachNotification;

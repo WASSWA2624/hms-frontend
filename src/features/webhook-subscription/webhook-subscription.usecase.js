@@ -80,10 +80,27 @@ const deleteWebhookSubscription = async (id) =>
     return normalizeWebhookSubscription(response.data);
   });
 
+const replayWebhookSubscription = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseWebhookSubscriptionId(id);
+    const parsed = parseWebhookSubscriptionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.WEBHOOK_SUBSCRIPTIONS.REPLAY(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeWebhookSubscription({ id: parsedId, ...parsed });
+    }
+    const response = await webhookSubscriptionApi.replay(parsedId, parsed);
+    return normalizeWebhookSubscription(response.data);
+  });
+
 export {
   listWebhookSubscriptions,
   getWebhookSubscription,
   createWebhookSubscription,
   updateWebhookSubscription,
   deleteWebhookSubscription,
+  replayWebhookSubscription,
 };

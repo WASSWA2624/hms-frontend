@@ -259,6 +259,62 @@ describe('endpoints.js', () => {
     expect(endpoints.SUBSCRIPTIONS.CANCEL).toBeUndefined();
   });
 
+  test('should expose compliance endpoints with mounted-only contracts', () => {
+    expect(endpoints.AUDIT_LOGS.LIST).toMatch(/\/audit-logs$/);
+    expect(endpoints.AUDIT_LOGS.GET('id')).toMatch(/\/audit-logs\/id$/);
+    expect(endpoints.AUDIT_LOGS.CREATE).toBeUndefined();
+    expect(endpoints.AUDIT_LOGS.UPDATE).toBeUndefined();
+    expect(endpoints.AUDIT_LOGS.DELETE).toBeUndefined();
+
+    expect(endpoints.PHI_ACCESS_LOGS.LIST).toMatch(/\/phi-access-logs$/);
+    expect(endpoints.PHI_ACCESS_LOGS.CREATE).toMatch(/\/phi-access-logs$/);
+    expect(endpoints.PHI_ACCESS_LOGS.GET('id')).toMatch(/\/phi-access-logs\/id$/);
+    expect(endpoints.PHI_ACCESS_LOGS.GET_BY_USER('user-1')).toMatch(
+      /\/phi-access-logs\/user\/user-1$/
+    );
+    expect(endpoints.PHI_ACCESS_LOGS.UPDATE).toBeUndefined();
+    expect(endpoints.PHI_ACCESS_LOGS.DELETE).toBeUndefined();
+
+    expect(endpoints.DATA_PROCESSING_LOGS.LIST).toMatch(/\/data-processing-logs$/);
+    expect(endpoints.DATA_PROCESSING_LOGS.CREATE).toMatch(/\/data-processing-logs$/);
+    expect(endpoints.DATA_PROCESSING_LOGS.GET('id')).toMatch(
+      /\/data-processing-logs\/id$/
+    );
+    expect(endpoints.DATA_PROCESSING_LOGS.UPDATE('id')).toMatch(
+      /\/data-processing-logs\/id$/
+    );
+    expect(endpoints.DATA_PROCESSING_LOGS.DELETE('id')).toMatch(
+      /\/data-processing-logs\/id$/
+    );
+
+    expect(endpoints.BREACH_NOTIFICATIONS.LIST).toMatch(/\/breach-notifications$/);
+    expect(endpoints.BREACH_NOTIFICATIONS.CREATE).toMatch(/\/breach-notifications$/);
+    expect(endpoints.BREACH_NOTIFICATIONS.GET('id')).toMatch(
+      /\/breach-notifications\/id$/
+    );
+    expect(endpoints.BREACH_NOTIFICATIONS.UPDATE('id')).toMatch(
+      /\/breach-notifications\/id$/
+    );
+    expect(endpoints.BREACH_NOTIFICATIONS.RESOLVE('id')).toMatch(
+      /\/breach-notifications\/id\/resolve$/
+    );
+    expect(endpoints.BREACH_NOTIFICATIONS.DELETE).toBeUndefined();
+
+    expect(endpoints.SYSTEM_CHANGE_LOGS.LIST).toMatch(/\/system-change-logs$/);
+    expect(endpoints.SYSTEM_CHANGE_LOGS.CREATE).toMatch(/\/system-change-logs$/);
+    expect(endpoints.SYSTEM_CHANGE_LOGS.GET('id')).toMatch(/\/system-change-logs\/id$/);
+    expect(endpoints.SYSTEM_CHANGE_LOGS.UPDATE('id')).toMatch(
+      /\/system-change-logs\/id$/
+    );
+    expect(endpoints.SYSTEM_CHANGE_LOGS.APPROVE('id')).toMatch(
+      /\/system-change-logs\/id\/approve$/
+    );
+    expect(endpoints.SYSTEM_CHANGE_LOGS.IMPLEMENT('id')).toMatch(
+      /\/system-change-logs\/id\/implement$/
+    );
+    expect(endpoints.SYSTEM_CHANGE_LOGS.DELETE).toBeUndefined();
+  });
+
   test('should expose communications CRUD endpoints with mounted-only contracts', () => {
     expect(endpoints.NOTIFICATIONS.LIST).toMatch(/\/notifications$/);
     expect(endpoints.NOTIFICATIONS.CREATE).toMatch(/\/notifications$/);
@@ -294,5 +350,50 @@ describe('endpoints.js', () => {
     expect(endpoints.CONVERSATIONS.ADD_MESSAGE).toBeUndefined();
     expect(endpoints.MESSAGES.GET_BY_CONVERSATION).toBeUndefined();
     expect(endpoints.MESSAGES.GET_MEDIA).toBeUndefined();
+  });
+
+  test('should expose integration and webhook endpoints with mounted-only contracts', () => {
+    expect(endpoints.INTEGRATIONS.LIST).toMatch(/\/integrations$/);
+    expect(endpoints.INTEGRATIONS.CREATE).toMatch(/\/integrations$/);
+    expect(endpoints.INTEGRATIONS.GET('id')).toMatch(/\/integrations\/id$/);
+    expect(endpoints.INTEGRATIONS.UPDATE('id')).toMatch(/\/integrations\/id$/);
+    expect(endpoints.INTEGRATIONS.DELETE('id')).toMatch(/\/integrations\/id$/);
+    expect(endpoints.INTEGRATIONS.TEST_CONNECTION('id')).toMatch(
+      /\/integrations\/id\/test-connection$/
+    );
+    expect(endpoints.INTEGRATIONS.SYNC_NOW('id')).toMatch(
+      /\/integrations\/id\/sync-now$/
+    );
+
+    expect(endpoints.INTEGRATION_LOGS.LIST).toMatch(/\/integration-logs$/);
+    expect(endpoints.INTEGRATION_LOGS.GET('id')).toMatch(/\/integration-logs\/id$/);
+    expect(
+      endpoints.INTEGRATION_LOGS.GET_BY_INTEGRATION('integration-1')
+    ).toMatch(/\/integration-logs\/integration\/integration-1$/);
+    expect(endpoints.INTEGRATION_LOGS.REPLAY('id')).toMatch(
+      /\/integration-logs\/id\/replay$/
+    );
+    expect(endpoints.INTEGRATION_LOGS.CREATE).toBeUndefined();
+    expect(endpoints.INTEGRATION_LOGS.UPDATE).toBeUndefined();
+    expect(endpoints.INTEGRATION_LOGS.DELETE).toBeUndefined();
+
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.LIST).toMatch(
+      /\/webhook-subscriptions$/
+    );
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.CREATE).toMatch(
+      /\/webhook-subscriptions$/
+    );
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.GET('id')).toMatch(
+      /\/webhook-subscriptions\/id$/
+    );
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.UPDATE('id')).toMatch(
+      /\/webhook-subscriptions\/id$/
+    );
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.DELETE('id')).toMatch(
+      /\/webhook-subscriptions\/id$/
+    );
+    expect(endpoints.WEBHOOK_SUBSCRIPTIONS.REPLAY('id')).toMatch(
+      /\/webhook-subscriptions\/id\/replay$/
+    );
   });
 });
