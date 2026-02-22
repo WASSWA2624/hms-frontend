@@ -41,7 +41,17 @@ jest.mock('@offline/request', () => ({
 
 describe('patient.usecase', () => {
   beforeEach(() => {
-    patientApi.list.mockResolvedValue({ data: [{ id: '1' }] });
+    patientApi.list.mockResolvedValue({
+      data: [{ id: '1' }],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
     patientApi.get.mockResolvedValue({ data: { id: '1' } });
     patientApi.create.mockResolvedValue({ data: { id: '1' } });
     patientApi.update.mockResolvedValue({ data: { id: '1' } });
@@ -64,6 +74,20 @@ describe('patient.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('returns list response with items and pagination contract', async () => {
+    await expect(listPatients({ page: 1, limit: 20 })).resolves.toEqual({
+      items: [{ id: '1' }],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+  });
 
   it('lists mounted patient subresources', async () => {
     await expect(listPatientIdentifiers('1', { page: 1 })).resolves.toEqual([

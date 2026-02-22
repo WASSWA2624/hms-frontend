@@ -18,12 +18,36 @@ const execute = async (work) => {
 };
 
 const normalizeRelatedCollection = (value) => (Array.isArray(value) ? value : []);
+const normalizePagination = (value) => {
+  if (!value || typeof value !== 'object') {
+    return {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    };
+  }
+
+  return {
+    page: Number(value.page) > 0 ? Number(value.page) : 1,
+    limit: Number(value.limit) > 0 ? Number(value.limit) : 20,
+    total: Number(value.total) >= 0 ? Number(value.total) : 0,
+    totalPages: Number(value.totalPages) > 0 ? Number(value.totalPages) : 1,
+    hasNextPage: Boolean(value.hasNextPage),
+    hasPreviousPage: Boolean(value.hasPreviousPage),
+  };
+};
 
 const listPatients = async (params = {}) =>
   execute(async () => {
     const parsed = parsePatientListParams(params);
     const response = await patientApi.list(parsed);
-    return normalizePatientList(response.data);
+    return {
+      items: normalizePatientList(response.data),
+      pagination: normalizePagination(response.pagination),
+    };
   });
 
 const getPatient = async (id) =>

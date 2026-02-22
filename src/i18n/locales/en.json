@@ -359,6 +359,7 @@
       "USER_EXISTS": "User with this email already exists",
       "SESSION_NOT_FOUND": "Session not found",
       "ALREADY_VERIFIED": "Account is already verified",
+      "MODULE_NOT_ENTITLED": "Your subscription does not include this module.",
       "EMAIL_DELIVERY_UNAVAILABLE": "Unable to send verification email right now. Please try again later."
     }
   },
@@ -545,6 +546,7 @@
         "verify-phone": "Verify Phone",
         "patients": "Patients",
         "patients-patients": "Patients",
+        "patients-legal": "Legal Hub",
         "patients-patient-identifiers": "Patient Identifiers",
         "patients-patient-contacts": "Patient Contacts",
         "patients-patient-guardians": "Patient Guardians",
@@ -5727,6 +5729,101 @@
         "access": "Only role-authorized actions are shown; if a control is not available, continue with read-only review or contact an administrator.",
         "recovery": "When data fails to load, use Retry and confirm network connection and role permissions before proceeding."
       }
+    },
+    "directory": {
+      "title": "Patient Directory",
+      "description": "Search patients by demographics, identifiers, contacts, guardians, care context, documents, and consents.",
+      "searchLabel": "Deep search",
+      "searchPlaceholder": "Name, patient ID, contact, guardian, allergy, history, document, consent...",
+      "sortLabel": "Sort by",
+      "orderLabel": "Order",
+      "pageSizeLabel": "Rows",
+      "pageSummary": "Page {{page}} of {{totalPages}} ({{total}} total)",
+      "emptyTitle": "No patients found",
+      "emptyMessage": "Try another search term or adjust filters.",
+      "openWorkspace": "Open workspace",
+      "createPatient": "Quick create",
+      "refresh": "Refresh",
+      "loadError": "Unable to load patient directory.",
+      "sortOptions": {
+        "updated_at": "Last updated",
+        "created_at": "Date created",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "human_friendly_id": "Patient ID"
+      },
+      "orderOptions": {
+        "asc": "Ascending",
+        "desc": "Descending"
+      },
+      "columns": {
+        "patient": "Patient",
+        "patientId": "Patient ID",
+        "tenant": "Tenant",
+        "facility": "Facility",
+        "updated": "Updated"
+      }
+    },
+    "workspace": {
+      "title": "Patient Workspace",
+      "description": "Manage this patient through one organized workflow.",
+      "tabs": {
+        "summary": "Summary",
+        "identity": "Identity & Reachability",
+        "care": "Care Context",
+        "documents": "Documents",
+        "consents": "Consents"
+      },
+      "panels": {
+        "identifiers": "Identifiers",
+        "contacts": "Contacts",
+        "guardians": "Guardians",
+        "allergies": "Allergies",
+        "histories": "Medical Histories",
+        "documents": "Documents",
+        "consents": "Consents"
+      },
+      "patientSummary": {
+        "name": "Name",
+        "patientId": "Patient ID",
+        "tenant": "Tenant",
+        "facility": "Facility",
+        "dob": "Date of birth",
+        "gender": "Gender",
+        "active": "Active"
+      },
+      "actions": {
+        "newRecord": "Add record",
+        "editRecord": "Edit",
+        "deleteRecord": "Delete",
+        "save": "Save",
+        "cancel": "Cancel",
+        "refresh": "Refresh"
+      },
+      "state": {
+        "emptyPanel": "No records yet for this panel.",
+        "loadError": "Unable to load patient workspace data.",
+        "saveError": "Unable to save this record.",
+        "deleteConfirm": "Delete this record?"
+      }
+    },
+    "legal": {
+      "title": "Patient Legal Hub",
+      "description": "Manage global consent and terms acceptance operations in one place.",
+      "tabs": {
+        "consents": "Consents",
+        "terms": "Terms Acceptances"
+      },
+      "actions": {
+        "newConsent": "Add consent",
+        "newTerms": "Add terms acceptance"
+      }
+    },
+    "entitlement": {
+      "title": "Patient module not available",
+      "description": "Your plan does not include this patient operation. Upgrade subscription to continue.",
+      "cta": "Manage subscription",
+      "ctaHint": "Open subscriptions to enable patient module access"
     },
     "notices": {
       "created": "{{resource}} created.",

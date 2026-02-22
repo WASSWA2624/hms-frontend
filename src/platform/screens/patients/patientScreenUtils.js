@@ -2,6 +2,7 @@ import { humanizeDisplayText } from '@utils';
 import { normalizeRouteId, sanitizeString } from './patientResourceConfigs';
 
 const ACCESS_DENIED_CODES = new Set(['FORBIDDEN', 'UNAUTHORIZED']);
+const ENTITLEMENT_DENIED_CODES = new Set(['MODULE_NOT_ENTITLED']);
 const TECHNICAL_FIELD_KEYS = new Set(['id', 'tenant_id', 'facility_id', 'patient_id', 'user_id']);
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
@@ -15,6 +16,7 @@ const resolveErrorMessage = (t, errorCode, fallbackKey) => {
 };
 
 const isAccessDeniedError = (errorCode) => ACCESS_DENIED_CODES.has(errorCode);
+const isEntitlementDeniedError = (errorCode) => ENTITLEMENT_DENIED_CODES.has(errorCode);
 
 const normalizeNoticeValue = (value) => {
   if (Array.isArray(value)) return sanitizeString(value[0]);
@@ -41,6 +43,13 @@ const buildNoticeMessage = (t, notice, resourceLabel) => {
 const isTechnicalFieldKey = (valueKey) => {
   const normalizedKey = sanitizeString(valueKey);
   if (!normalizedKey) return false;
+  if (
+    normalizedKey === 'human_friendly_id'
+    || normalizedKey.endsWith('_human_friendly_id')
+    || normalizedKey.endsWith('_context')
+  ) {
+    return false;
+  }
   if (TECHNICAL_FIELD_KEYS.has(normalizedKey)) return true;
   return normalizedKey.endsWith('_id');
 };
@@ -77,6 +86,7 @@ const resolvePatientDisplayLabel = (patient, fallbackLabel = '') => {
   if (fullName) return fullName;
 
   const readableCandidate = [
+    patient.human_friendly_id,
     patient.name,
     patient.display_name,
     patient.patient_name,
@@ -103,6 +113,7 @@ const resolvePatientContextLabel = (record, patientLabelsById = null, fallbackLa
   if (nestedLabel) return nestedLabel;
 
   const directLabel = [
+    record.human_friendly_id,
     record.patient_display_label,
     record.patient_name,
     record.patient_label,
@@ -136,6 +147,7 @@ const resolveUserDisplayLabel = (user, fallbackLabel = '') => {
   if (fullName) return fullName;
 
   const readableCandidate = [
+    user.human_friendly_id,
     user.display_name,
     user.name,
     user.email,
@@ -159,6 +171,7 @@ const resolveUserContextLabel = (record, userLabelsById = null, fallbackLabel = 
   if (nestedLabel) return nestedLabel;
 
   const directLabel = [
+    record.human_friendly_id,
     record.user_display_label,
     record.user_name,
     record.user_label,
@@ -186,6 +199,7 @@ export {
   filterDetailRowsByIdentityPolicy,
   formatFieldValue,
   isAccessDeniedError,
+  isEntitlementDeniedError,
   isTechnicalFieldKey,
   normalizeNoticeValue,
   normalizePatientContextId,

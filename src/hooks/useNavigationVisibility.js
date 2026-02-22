@@ -5,6 +5,7 @@
  */
 import { useCallback, useMemo } from 'react';
 import useAuth from '@hooks/useAuth';
+import usePatientAccess from '@hooks/usePatientAccess';
 import useResolvedRoles from '@hooks/useResolvedRoles';
 import { normalizeRoleKey } from './roleUtils';
 
@@ -20,6 +21,7 @@ const resolveRequiredRoles = (item) => {
  */
 const useNavigationVisibility = () => {
   const { isAuthenticated } = useAuth();
+  const { canAccessPatients, canAccessPatientLegalHub } = usePatientAccess();
   const { roles, isResolved } = useResolvedRoles();
 
   const roleSet = useMemo(
@@ -37,9 +39,19 @@ const useNavigationVisibility = () => {
     [isResolved, roleSet]
   );
 
+  const hasPathAccess = useCallback(
+    (item) => {
+      const path = String(item?.path || '').trim();
+      if (!path.startsWith('/patients')) return true;
+      if (path === '/patients/legal') return canAccessPatientLegalHub;
+      return canAccessPatients;
+    },
+    [canAccessPatients, canAccessPatientLegalHub]
+  );
+
   const isItemVisible = useCallback(
-    (item) => Boolean(item && isAuthenticated && hasRoleAccess(item)),
-    [isAuthenticated, hasRoleAccess]
+    (item) => Boolean(item && isAuthenticated && hasRoleAccess(item) && hasPathAccess(item)),
+    [isAuthenticated, hasRoleAccess, hasPathAccess]
   );
 
   return { isItemVisible };
