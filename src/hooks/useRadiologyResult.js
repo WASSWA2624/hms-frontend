@@ -8,6 +8,7 @@ import {
   deleteRadiologyResult,
   getRadiologyResult,
   listRadiologyResults,
+  signOffRadiologyResult,
   updateRadiologyResult,
 } from '@features/radiology-result';
 
@@ -18,6 +19,7 @@ const useRadiologyResult = () =>
     create: createRadiologyResult,
     update: updateRadiologyResult,
     remove: deleteRadiologyResult,
+    signOff: signOffRadiologyResult,
   });
 
 export default useRadiologyResult;
