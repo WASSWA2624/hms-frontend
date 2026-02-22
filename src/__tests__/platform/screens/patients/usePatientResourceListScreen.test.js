@@ -28,6 +28,7 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(),
   usePatient: jest.fn(),
   usePatientAccess: jest.fn(),
+  useUser: jest.fn(),
 }));
 
 jest.mock('@services/storage', () => ({
@@ -57,6 +58,7 @@ const {
   useNetwork,
   usePatient,
   usePatientAccess,
+  useUser,
 } = require('@hooks');
 const { async: asyncStorage } = require('@services/storage');
 const { confirmAction } = require('@utils');
@@ -67,6 +69,8 @@ describe('usePatientResourceListScreen', () => {
   const mockReset = jest.fn();
   const mockListPatients = jest.fn();
   const mockResetPatientLookup = jest.fn();
+  const mockListUsers = jest.fn();
+  const mockResetUserLookup = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -86,6 +90,13 @@ describe('usePatientResourceListScreen', () => {
       isLoading: false,
       errorCode: null,
       reset: mockResetPatientLookup,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUserLookup,
     });
     usePatientAccess.mockReturnValue({
       canAccessPatients: true,
@@ -591,5 +602,57 @@ describe('usePatientResourceListScreen', () => {
     expect(subtitle).toContain('GRANTED');
     expect(subtitle).toContain('patients.resources.consents.detail.patientNameLabel');
     expect(subtitle).toContain('Jane Doe');
+  });
+
+  it('resolves terms-acceptances user labels for human-readable list display', () => {
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: {
+        items: [
+          {
+            id: 'user-1',
+            first_name: 'Sam',
+            last_name: 'Njoroge',
+            email: 'sam@example.com',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUserLookup,
+    });
+    usePatientResourceCrud.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          {
+            id: 'terms-1',
+            tenant_id: 'tenant-1',
+            user_id: 'user-1',
+            version_label: 'v2.1',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePatientResourceListScreen('terms-acceptances'));
+
+    expect(mockListUsers).toHaveBeenCalledWith({
+      page: 1,
+      limit: 100,
+      tenant_id: 'tenant-1',
+    });
+
+    const subtitle = result.current.config.getItemSubtitle(
+      result.current.items[0],
+      (key) => key
+    );
+    expect(subtitle).toContain('patients.resources.termsAcceptances.detail.userNameLabel');
+    expect(subtitle).toContain('Sam Njoroge');
+    expect(subtitle).not.toContain('user-1');
   });
 });

@@ -10,6 +10,7 @@ import {
   useNetwork,
   usePatient,
   usePatientAccess,
+  useUser,
 } from '@hooks';
 import { async as asyncStorage } from '@services/storage';
 import { confirmAction, humanizeDisplayText } from '@utils';
@@ -29,12 +30,15 @@ import {
   resolvePatientContextLabel,
   resolvePatientDisplayLabel,
   resolveErrorMessage,
+  resolveUserContextLabel,
+  resolveUserDisplayLabel,
 } from '../patientScreenUtils';
 
 const TABLE_MODE_BREAKPOINT = 768;
 const PREFS_STORAGE_PREFIX = 'hms.patients.resources.list.preferences';
 const MAX_FETCH_LIMIT = 100;
 const PATIENT_LOOKUP_LIMIT = 100;
+const USER_LOOKUP_LIMIT = 100;
 const DEFAULT_FETCH_PAGE = 1;
 const DEFAULT_FETCH_LIMIT = 100;
 const DEFAULT_PAGE_SIZE = 10;
@@ -261,6 +265,11 @@ const usePatientResourceListScreen = (resourceId) => {
     data: patientLookupData,
     reset: resetPatientLookup,
   } = usePatient();
+  const {
+    list: listUsers,
+    data: userLookupData,
+    reset: resetUserLookup,
+  } = useUser();
 
   const filterCounterRef = useRef(1);
   const [search, setSearch] = useState('');
@@ -357,9 +366,14 @@ const usePatientResourceListScreen = (resourceId) => {
   );
 
   const shouldResolvePatientLabels = Boolean(config?.resolvePatientLabels);
+  const shouldResolveUserLabels = Boolean(config?.resolveUserLabels);
   const patientLookupItems = useMemo(
     () => (shouldResolvePatientLabels ? resolveListItems(patientLookupData) : []),
     [shouldResolvePatientLabels, patientLookupData]
+  );
+  const userLookupItems = useMemo(
+    () => (shouldResolveUserLabels ? resolveListItems(userLookupData) : []),
+    [shouldResolveUserLabels, userLookupData]
   );
 
   const patientLabelsById = useMemo(() => {
@@ -379,6 +393,23 @@ const usePatientResourceListScreen = (resourceId) => {
       return acc;
     }, {});
   }, [shouldResolvePatientLabels, patientLookupItems, t]);
+  const userLabelsById = useMemo(() => {
+    if (!shouldResolveUserLabels) return {};
+
+    return userLookupItems.reduce((acc, userItem, index) => {
+      const userId = normalizeValue(userItem?.id);
+      if (!userId || Object.prototype.hasOwnProperty.call(acc, userId)) {
+        return acc;
+      }
+
+      const fallbackLabel = t(`${config?.i18nKey}.form.unnamedUser`, { position: index + 1 });
+      const label = resolveUserDisplayLabel(userItem, fallbackLabel);
+      if (label) {
+        acc[userId] = label;
+      }
+      return acc;
+    }, {});
+  }, [shouldResolveUserLabels, userLookupItems, config?.i18nKey, t]);
 
   const rawItems = useMemo(() => resolveListItems(data), [data]);
 
@@ -395,18 +426,29 @@ const usePatientResourceListScreen = (resourceId) => {
           return true;
         })
         .map((item) => {
-          if (!shouldResolvePatientLabels) return item;
+          let resolvedItem = item;
 
-          const patientLabel = resolvePatientContextLabel(item, patientLabelsById);
-          if (!patientLabel) return item;
-
-          if (normalizeValue(item?.patient_display_label) === patientLabel) {
-            return item;
+          if (shouldResolvePatientLabels) {
+            const patientLabel = resolvePatientContextLabel(item, patientLabelsById);
+            if (patientLabel && normalizeValue(item?.patient_display_label) !== patientLabel) {
+              resolvedItem = {
+                ...resolvedItem,
+                patient_display_label: patientLabel,
+              };
+            }
           }
-          return {
-            ...item,
-            patient_display_label: patientLabel,
-          };
+
+          if (shouldResolveUserLabels) {
+            const userLabel = resolveUserContextLabel(resolvedItem, userLabelsById);
+            if (userLabel && normalizeValue(resolvedItem?.user_display_label) !== userLabel) {
+              resolvedItem = {
+                ...resolvedItem,
+                user_display_label: userLabel,
+              };
+            }
+          }
+
+          return resolvedItem;
         }),
     [
       rawItems,
@@ -416,6 +458,8 @@ const usePatientResourceListScreen = (resourceId) => {
       patientContextId,
       shouldResolvePatientLabels,
       patientLabelsById,
+      shouldResolveUserLabels,
+      userLabelsById,
     ]
   );
 
@@ -704,6 +748,31 @@ const usePatientResourceListScreen = (resourceId) => {
     normalizedTenantId,
     resetPatientLookup,
     listPatients,
+  ]);
+
+  useEffect(() => {
+    if (!shouldResolveUserLabels || !isResolved || !canAccessPatients || isOffline) return;
+    if (!canManageAllTenants && !normalizedTenantId) return;
+
+    const params = {
+      page: DEFAULT_FETCH_PAGE,
+      limit: USER_LOOKUP_LIMIT,
+    };
+    if (!canManageAllTenants) {
+      params.tenant_id = normalizedTenantId;
+    }
+
+    resetUserLookup();
+    listUsers(params);
+  }, [
+    shouldResolveUserLabels,
+    isResolved,
+    canAccessPatients,
+    isOffline,
+    canManageAllTenants,
+    normalizedTenantId,
+    resetUserLookup,
+    listUsers,
   ]);
 
   useEffect(() => {

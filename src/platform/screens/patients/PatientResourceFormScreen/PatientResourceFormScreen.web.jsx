@@ -60,6 +60,11 @@ const PatientResourceFormScreenWeb = ({ resourceId }) => {
     facilityListErrorMessage,
     hasFacilities,
     facilityRequiresTenantSelection,
+    userListLoading,
+    userListError,
+    userListErrorMessage,
+    hasUsers,
+    userRequiresTenantSelection,
     patientOptions,
     patientListLoading,
     patientListError,
@@ -76,7 +81,9 @@ const PatientResourceFormScreenWeb = ({ resourceId }) => {
     onCancel,
     onRetryTenants,
     onRetryFacilities,
+    onRetryUsers,
     onRetryPatients,
+    onGoToUsers,
     onGoToPatients,
     isSubmitDisabled,
   } = usePatientResourceFormScreen(resourceId);
@@ -369,9 +376,75 @@ const PatientResourceFormScreenWeb = ({ resourceId }) => {
                       }
                     }
 
+                    if (field.name === 'user_id') {
+                      if (userRequiresTenantSelection) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <StyledHelperStack>
+                              <Text variant="body">{t(`${config.i18nKey}.form.userRequiresTenantMessage`)}</Text>
+                            </StyledHelperStack>
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (userListLoading) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patient-resource-form-user-loading" />
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (userListError) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <ErrorState
+                              size={ErrorStateSizes.SMALL}
+                              title={t(`${config.i18nKey}.form.userLoadErrorTitle`)}
+                              description={userListErrorMessage}
+                              action={
+                                <Button
+                                  variant="surface"
+                                  size="small"
+                                  onPress={onRetryUsers}
+                                  accessibilityLabel={t('common.retry')}
+                                  accessibilityHint={t('common.retryHint')}
+                                  icon={<Icon glyph="?" size="xs" decorative />}
+                                >
+                                  {t('common.retry')}
+                                </Button>
+                              }
+                              testID="patient-resource-form-user-error"
+                            />
+                          </StyledFieldGroup>
+                        );
+                      }
+
+                      if (!hasUsers) {
+                        return (
+                          <StyledFieldGroup key={field.name}>
+                            <StyledHelperStack>
+                              <Text variant="body">{t(`${config.i18nKey}.form.noUsersMessage`)}</Text>
+                              <Button
+                                variant="surface"
+                                size="small"
+                                onPress={onGoToUsers}
+                                accessibilityLabel={t(`${config.i18nKey}.form.goToUsers`)}
+                                accessibilityHint={t(`${config.i18nKey}.form.goToUsersHint`)}
+                                icon={<Icon glyph="?" size="xs" decorative />}
+                                testID="patient-resource-form-go-to-users"
+                              >
+                                {t(`${config.i18nKey}.form.goToUsers`)}
+                              </Button>
+                            </StyledHelperStack>
+                          </StyledFieldGroup>
+                        );
+                      }
+                    }
+
                     const selectOptions = (field.options || []).map((option) => ({
                       value: option.value,
-                      label: t(option.labelKey),
+                      label: option.label || (option.labelKey ? t(option.labelKey) : ''),
                     }));
 
                     const resolvedOptions = field.name === 'facility_id'

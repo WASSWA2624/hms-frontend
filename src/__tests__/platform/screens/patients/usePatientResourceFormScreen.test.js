@@ -15,6 +15,8 @@ const mockListTenants = jest.fn();
 const mockResetTenants = jest.fn();
 const mockListFacilities = jest.fn();
 const mockResetFacilities = jest.fn();
+const mockListUsers = jest.fn();
+const mockResetUsers = jest.fn();
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
@@ -35,6 +37,7 @@ jest.mock('@hooks', () => ({
   useTenant: jest.fn(),
   useFacility: jest.fn(),
   usePatientAccess: jest.fn(),
+  useUser: jest.fn(),
 }));
 
 jest.mock('@platform/screens/patients/usePatientResourceCrud', () => ({
@@ -49,6 +52,7 @@ const {
   useTenant,
   useFacility,
   usePatientAccess,
+  useUser,
 } = require('@hooks');
 
 describe('usePatientResourceFormScreen', () => {
@@ -89,6 +93,13 @@ describe('usePatientResourceFormScreen', () => {
       isLoading: false,
       errorCode: null,
       reset: mockResetFacilities,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: { items: [{ id: 'user-1', first_name: 'Grace', last_name: 'Akinyi', email: 'grace@example.com' }] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUsers,
     });
 
     usePatientResourceCrud.mockImplementation(() => ({
@@ -567,6 +578,83 @@ describe('usePatientResourceFormScreen', () => {
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith('/patients/consents?notice=accessDenied');
+    });
+  });
+
+  it('uses user selector options for terms-acceptances and loads users by tenant scope', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('terms-acceptances'));
+
+    await waitFor(() => {
+      expect(mockListUsers).toHaveBeenCalledWith({
+        page: 1,
+        limit: 100,
+        tenant_id: 'tenant-1',
+      });
+    });
+
+    const userField = result.current.visibleFields.find((field) => field.name === 'user_id');
+    expect(userField).toBeTruthy();
+    expect(userField.type).toBe('select');
+    expect(userField.options[0]).toMatchObject({
+      value: 'user-1',
+      label: 'Grace Akinyi',
+    });
+  });
+
+  it('blocks terms-acceptances create when tenant has no users', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+    useUser.mockReturnValue({
+      list: mockListUsers,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUsers,
+    });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('terms-acceptances'));
+
+    await waitFor(() => {
+      expect(mockListUsers).toHaveBeenCalled();
+    });
+
+    expect(result.current.hasUsers).toBe(false);
+    expect(result.current.isCreateBlocked).toBe(true);
+    expect(result.current.isSubmitDisabled).toBe(true);
+  });
+
+  it('redirects terms-acceptances create route to access denied notice for read-only users', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: false,
+      canEditPatientRecords: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientResourceFormScreen('terms-acceptances'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/patients/terms-acceptances?notice=accessDenied');
     });
   });
 });

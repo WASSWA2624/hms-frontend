@@ -21,6 +21,7 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(() => ({ isOffline: false })),
   usePatient: jest.fn(),
   usePatientAccess: jest.fn(),
+  useUser: jest.fn(),
 }));
 
 jest.mock('@utils', () => {
@@ -38,8 +39,11 @@ jest.mock('@platform/screens/patients/usePatientResourceCrud', () => ({
 
 const usePatientResourceDetailScreen = require('@platform/screens/patients/PatientResourceDetailScreen/usePatientResourceDetailScreen').default;
 const usePatientResourceCrud = require('@platform/screens/patients/usePatientResourceCrud').default;
-const { usePatient, usePatientAccess } = require('@hooks');
+const { usePatient, usePatientAccess, useUser } = require('@hooks');
 const { confirmAction } = require('@utils');
+
+const mockGetUserById = jest.fn();
+const mockResetUserLookup = jest.fn();
 
 describe('usePatientResourceDetailScreen', () => {
   beforeEach(() => {
@@ -69,6 +73,13 @@ describe('usePatientResourceDetailScreen', () => {
       isLoading: false,
       errorCode: null,
       reset: mockResetPatientLookup,
+    });
+    useUser.mockReturnValue({
+      get: mockGetUserById,
+      data: null,
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUserLookup,
     });
 
     usePatientResourceCrud.mockImplementation(() => ({
@@ -300,5 +311,35 @@ describe('usePatientResourceDetailScreen', () => {
     expect(result.current.item.patient_display_label).toBe('Peter Mwangi');
     expect(valueKeys).toContain('patient_display_label');
     expect(valueKeys).not.toContain('patient_id');
+  });
+
+  it('hydrates terms-acceptances detail with a human-readable user label', () => {
+    mockParams = { id: 'terms-1' };
+    mockCrudData = {
+      id: 'terms-1',
+      tenant_id: 'tenant-1',
+      user_id: 'user-1',
+      version_label: 'v2.1',
+    };
+    useUser.mockReturnValue({
+      get: mockGetUserById,
+      data: {
+        id: 'user-1',
+        first_name: 'Amina',
+        last_name: 'Hassan',
+        email: 'amina@example.com',
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetUserLookup,
+    });
+
+    const { result } = renderHook(() => usePatientResourceDetailScreen('terms-acceptances'));
+    const valueKeys = result.current.detailRows.map((row) => row.valueKey);
+
+    expect(mockGetUserById).toHaveBeenCalledWith('user-1');
+    expect(result.current.item.user_display_label).toBe('Amina Hassan');
+    expect(valueKeys).toContain('user_display_label');
+    expect(valueKeys).not.toContain('user_id');
   });
 });

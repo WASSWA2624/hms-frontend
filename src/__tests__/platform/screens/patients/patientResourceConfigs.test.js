@@ -46,13 +46,20 @@ describe('patientResourceConfigs', () => {
     expect(detailValueKeys).toContain('patient_display_label');
   });
 
-  it('configures terms acceptances as read-only for edit action', () => {
+  it('configures terms acceptances as read-only with user selector and user label resolution', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.TERMS_ACCEPTANCES);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
 
     expect(config).toBeTruthy();
     expect(config.requiresPatientSelection).toBe(false);
     expect(config.supportsPatientFilter).toBe(false);
     expect(config.supportsEdit).toBe(false);
+    expect(config.resolveUserLabels).toBe(true);
+    expect(fieldByName.user_id?.type).toBe('select');
+    expect(fieldByName.version_label?.type).toBe('text');
+
+    const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
+    expect(detailValueKeys).toContain('user_display_label');
   });
 
   it('configures patient identifiers for contextless list navigation and patient label display', () => {

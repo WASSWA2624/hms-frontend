@@ -835,13 +835,13 @@ const resourceConfigs = {
     supportsPatientFilter: false,
     requiresPatientSelection: false,
     supportsEdit: false,
+    resolveUserLabels: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
         name: 'user_id',
-        type: 'text',
+        type: 'select',
         required: true,
-        maxLength: 64,
         labelKey: 'patients.resources.termsAcceptances.form.userLabel',
         placeholderKey: 'patients.resources.termsAcceptances.form.userPlaceholder',
         hintKey: 'patients.resources.termsAcceptances.form.userHint',
@@ -858,12 +858,18 @@ const resourceConfigs = {
     ],
     getItemTitle: (item) => resolveFirstReadable(
       item?.version_label,
-      item?.user_id
+      item?.user_display_label,
+      item?.user_name,
+      item?.user_email
     ),
     getItemSubtitle: (item, t) => {
-      const userId = sanitizeString(item?.user_id);
-      if (!userId) return '';
-      return `${t('patients.resources.termsAcceptances.detail.userLabel')}: ${userId}`;
+      const userLabel = sanitizeString(
+        item?.user_display_label
+        || item?.user_name
+        || item?.user_email
+      );
+      if (!userLabel) return '';
+      return `${t('patients.resources.termsAcceptances.detail.userNameLabel')}: ${userLabel}`;
     },
     getInitialValues: (record) => ({
       user_id: sanitizeString(record?.user_id),
@@ -876,6 +882,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.termsAcceptances.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.termsAcceptances.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.termsAcceptances.detail.userNameLabel', valueKey: 'user_display_label' },
       { labelKey: 'patients.resources.termsAcceptances.detail.userLabel', valueKey: 'user_id' },
       { labelKey: 'patients.resources.termsAcceptances.detail.versionLabel', valueKey: 'version_label' },
       { labelKey: 'patients.resources.termsAcceptances.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },

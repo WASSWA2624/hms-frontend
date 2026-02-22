@@ -125,6 +125,62 @@ const resolvePatientContextLabel = (record, patientLabelsById = null, fallbackLa
   return sanitizeString(fallbackLabel);
 };
 
+const resolveUserDisplayLabel = (user, fallbackLabel = '') => {
+  if (!user || typeof user !== 'object') {
+    return sanitizeString(fallbackLabel);
+  }
+
+  const firstName = sanitizeString(user.first_name);
+  const lastName = sanitizeString(user.last_name);
+  const fullName = `${firstName} ${lastName}`.trim();
+  if (fullName) return fullName;
+
+  const readableCandidate = [
+    user.display_name,
+    user.name,
+    user.email,
+    user.phone,
+    user.username,
+    user.user_label,
+    user.user_code,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+
+  return readableCandidate || sanitizeString(fallbackLabel);
+};
+
+const resolveUserContextLabel = (record, userLabelsById = null, fallbackLabel = '') => {
+  if (!record || typeof record !== 'object') {
+    return sanitizeString(fallbackLabel);
+  }
+
+  const nestedLabel = resolveUserDisplayLabel(record.user, '');
+  if (nestedLabel) return nestedLabel;
+
+  const directLabel = [
+    record.user_display_label,
+    record.user_name,
+    record.user_label,
+    record.display_name,
+    record.email,
+    record.user_email,
+    record.username,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+
+  if (directLabel) return directLabel;
+
+  const userId = sanitizeString(record.user_id);
+  if (userId && userLabelsById && typeof userLabelsById === 'object') {
+    const mapped = sanitizeString(userLabelsById[userId]);
+    if (mapped) return mapped;
+  }
+
+  return sanitizeString(fallbackLabel);
+};
+
 export {
   buildNoticeMessage,
   filterDetailRowsByIdentityPolicy,
@@ -135,5 +191,7 @@ export {
   normalizePatientContextId,
   resolvePatientContextLabel,
   resolvePatientDisplayLabel,
+  resolveUserContextLabel,
+  resolveUserDisplayLabel,
   resolveErrorMessage,
 };

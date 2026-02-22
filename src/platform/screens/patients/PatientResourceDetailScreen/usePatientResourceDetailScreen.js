@@ -3,7 +3,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
+import { useI18n, useNetwork, usePatient, usePatientAccess, useUser } from '@hooks';
 import { confirmAction, humanizeDisplayText } from '@utils';
 import {
   getPatientResourceConfig,
@@ -19,6 +19,8 @@ import {
   normalizePatientContextId,
   resolvePatientContextLabel,
   resolvePatientDisplayLabel,
+  resolveUserContextLabel,
+  resolveUserDisplayLabel,
   resolveErrorMessage,
 } from '../patientScreenUtils';
 
@@ -43,7 +45,13 @@ const usePatientResourceDetailScreen = (resourceId) => {
     data: patientLookupData,
     reset: resetPatientLookup,
   } = usePatient();
+  const {
+    get: getUserById,
+    data: userLookupData,
+    reset: resetUserLookup,
+  } = useUser();
   const patientLookupRequestRef = useRef('');
+  const userLookupRequestRef = useRef('');
 
   const routeRecordId = useMemo(() => normalizeRouteId(id), [id]);
   const patientContextId = useMemo(
@@ -74,21 +82,49 @@ const usePatientResourceDetailScreen = (resourceId) => {
     () => resolvePatientDisplayLabel(patientLookupData),
     [patientLookupData]
   );
+  const userLookupLabel = useMemo(
+    () => resolveUserDisplayLabel(userLookupData),
+    [userLookupData]
+  );
   const resolvedPatientLabel = useMemo(
     () => resolvePatientContextLabel(rawItem, null, patientLookupLabel),
     [rawItem, patientLookupLabel]
   );
+  const resolvedUserLabel = useMemo(
+    () => resolveUserContextLabel(rawItem, null, userLookupLabel),
+    [rawItem, userLookupLabel]
+  );
   const item = useMemo(() => {
     if (!rawItem) return null;
-    if (!config?.resolvePatientLabels || !resolvedPatientLabel) return rawItem;
-    if (sanitizeString(rawItem.patient_display_label) === resolvedPatientLabel) {
-      return rawItem;
+
+    let resolvedItem = rawItem;
+
+    if (config?.resolvePatientLabels && resolvedPatientLabel) {
+      if (sanitizeString(rawItem.patient_display_label) !== resolvedPatientLabel) {
+        resolvedItem = {
+          ...resolvedItem,
+          patient_display_label: resolvedPatientLabel,
+        };
+      }
     }
-    return {
-      ...rawItem,
-      patient_display_label: resolvedPatientLabel,
-    };
-  }, [rawItem, config?.resolvePatientLabels, resolvedPatientLabel]);
+
+    if (config?.resolveUserLabels && resolvedUserLabel) {
+      if (sanitizeString(resolvedItem.user_display_label) !== resolvedUserLabel) {
+        resolvedItem = {
+          ...resolvedItem,
+          user_display_label: resolvedUserLabel,
+        };
+      }
+    }
+
+    return resolvedItem;
+  }, [
+    rawItem,
+    config?.resolvePatientLabels,
+    config?.resolveUserLabels,
+    resolvedPatientLabel,
+    resolvedUserLabel,
+  ]);
   const detailRows = useMemo(
     () => filterDetailRowsByIdentityPolicy(config?.detailRows || [], canViewTechnicalIds),
     [config?.detailRows, canViewTechnicalIds]
@@ -138,6 +174,7 @@ const usePatientResourceDetailScreen = (resourceId) => {
 
   useEffect(() => {
     patientLookupRequestRef.current = '';
+    userLookupRequestRef.current = '';
   }, [routeRecordId]);
 
   useEffect(() => {
@@ -159,6 +196,27 @@ const usePatientResourceDetailScreen = (resourceId) => {
     rawItem,
     resetPatientLookup,
     getPatientById,
+  ]);
+
+  useEffect(() => {
+    if (!isResolved || !config?.resolveUserLabels || !rawItem) return;
+
+    const existingLabel = resolveUserContextLabel(rawItem);
+    if (existingLabel) return;
+
+    const userId = sanitizeString(rawItem.user_id);
+    if (!userId) return;
+    if (userLookupRequestRef.current === userId) return;
+
+    userLookupRequestRef.current = userId;
+    resetUserLookup();
+    getUserById(userId);
+  }, [
+    isResolved,
+    config?.resolveUserLabels,
+    rawItem,
+    resetUserLookup,
+    getUserById,
   ]);
 
   useEffect(() => {
