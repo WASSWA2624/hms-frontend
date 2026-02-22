@@ -12,5 +12,11 @@ admissionApi.discharge = (id, payload = {}) =>
     method: 'POST',
     body: payload,
   });
+admissionApi.transfer = (id, payload = {}) =>
+  apiClient({
+    url: endpoints.ADMISSIONS.TRANSFER(id),
+    method: 'POST',
+    body: payload,
+  });
 
 export { admissionApi };

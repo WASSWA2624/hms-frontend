@@ -80,4 +80,27 @@ const deleteDischargeSummary = async (id) =>
     return normalizeDischargeSummary(response.data);
   });
 
-export { listDischargeSummaries, getDischargeSummary, createDischargeSummary, updateDischargeSummary, deleteDischargeSummary };
+const finalizeDischargeSummary = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseDischargeSummaryId(id);
+    const parsed = parseDischargeSummaryPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.DISCHARGE_SUMMARIES.FINALIZE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeDischargeSummary({ id: parsedId, status: 'COMPLETED', ...parsed });
+    }
+    const response = await dischargeSummaryApi.finalize(parsedId, parsed);
+    return normalizeDischargeSummary(response.data);
+  });
+
+export {
+  listDischargeSummaries,
+  getDischargeSummary,
+  createDischargeSummary,
+  updateDischargeSummary,
+  deleteDischargeSummary,
+  finalizeDischargeSummary,
+};

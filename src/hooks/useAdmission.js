@@ -9,6 +9,7 @@ import {
   deleteAdmission,
   getAdmission,
   listAdmissions,
+  transferAdmission,
   updateAdmission,
 } from '@features/admission';
 
@@ -20,6 +21,7 @@ const useAdmission = () =>
     update: updateAdmission,
     remove: deleteAdmission,
     discharge: dischargeAdmission,
+    transfer: transferAdmission,
   });
 
 export default useAdmission;

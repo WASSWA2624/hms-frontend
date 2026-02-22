@@ -66,6 +66,18 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes inpatient workflow action endpoints', () => {
+    expect(endpoints.ADMISSIONS.DISCHARGE('id')).toMatch(
+      /\/admissions\/id\/discharge$/
+    );
+    expect(endpoints.ADMISSIONS.TRANSFER('id')).toMatch(
+      /\/admissions\/id\/transfer$/
+    );
+    expect(endpoints.DISCHARGE_SUMMARIES.FINALIZE('id')).toMatch(
+      /\/discharge-summaries\/id\/finalize$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();

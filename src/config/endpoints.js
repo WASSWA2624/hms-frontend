@@ -345,6 +345,7 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/admissions/${id}`,
     DELETE: (id) => `${baseUrl}/admissions/${id}`,
     DISCHARGE: (id) => `${baseUrl}/admissions/${id}/discharge`,
+    TRANSFER: (id) => `${baseUrl}/admissions/${id}/transfer`,
   },
   BED_ASSIGNMENTS: {
     LIST: `${baseUrl}/bed-assignments`,
@@ -380,6 +381,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/discharge-summaries/${id}`,
     UPDATE: (id) => `${baseUrl}/discharge-summaries/${id}`,
     DELETE: (id) => `${baseUrl}/discharge-summaries/${id}`,
+    FINALIZE: (id) => `${baseUrl}/discharge-summaries/${id}/finalize`,
   },
   TRANSFER_REQUESTS: {
     LIST: `${baseUrl}/transfer-requests`,

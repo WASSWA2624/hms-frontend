@@ -6,6 +6,7 @@ import useCrud from '@hooks/useCrud';
 import {
   createDischargeSummary,
   deleteDischargeSummary,
+  finalizeDischargeSummary,
   getDischargeSummary,
   listDischargeSummaries,
   updateDischargeSummary,
@@ -18,6 +19,7 @@ const useDischargeSummary = () =>
     create: createDischargeSummary,
     update: updateDischargeSummary,
     remove: deleteDischargeSummary,
+    finalize: finalizeDischargeSummary,
   });
 
 export default useDischargeSummary;

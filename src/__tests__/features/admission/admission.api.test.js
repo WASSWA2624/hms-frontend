@@ -46,4 +46,34 @@ describe('admission.api', () => {
       body: {},
     });
   });
+
+  it('posts admission transfer action', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'TRANSFERRED' } });
+
+    await admissionApi.transfer('1', {
+      facility_id: 'facility-2',
+      notes: 'Transfer to ICU',
+    });
+
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.ADMISSIONS.TRANSFER('1'),
+      method: 'POST',
+      body: {
+        facility_id: 'facility-2',
+        notes: 'Transfer to ICU',
+      },
+    });
+  });
+
+  it('posts admission transfer action with default payload', async () => {
+    apiClient.mockResolvedValue({ data: { id: '1', status: 'TRANSFERRED' } });
+
+    await admissionApi.transfer('1');
+
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.ADMISSIONS.TRANSFER('1'),
+      method: 'POST',
+      body: {},
+    });
+  });
 });

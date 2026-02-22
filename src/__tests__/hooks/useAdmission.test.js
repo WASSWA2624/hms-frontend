@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useAdmission', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useAdmission);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'discharge']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'discharge', 'transfer']);
   });
 });

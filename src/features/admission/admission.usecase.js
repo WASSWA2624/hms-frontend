@@ -92,6 +92,22 @@ const dischargeAdmission = async (id, payload = {}) =>
     return normalizeAdmission(response.data);
   });
 
+const transferAdmission = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseAdmissionId(id);
+    const parsed = parseAdmissionPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.ADMISSIONS.TRANSFER(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeAdmission({ id: parsedId, status: 'TRANSFERRED', ...parsed });
+    }
+    const response = await admissionApi.transfer(parsedId, parsed);
+    return normalizeAdmission(response.data);
+  });
+
 export {
   listAdmissions,
   getAdmission,
@@ -99,4 +115,5 @@ export {
   updateAdmission,
   deleteAdmission,
   dischargeAdmission,
+  transferAdmission,
 };
