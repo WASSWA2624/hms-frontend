@@ -149,6 +149,60 @@ describe('endpoints.js', () => {
     );
   });
 
+  test('should expose reporting and analytics CRUD endpoint groups', () => {
+    expect(endpoints.REPORT_DEFINITIONS.LIST).toMatch(/\/report-definitions$/);
+    expect(endpoints.REPORT_DEFINITIONS.CREATE).toMatch(/\/report-definitions$/);
+    expect(endpoints.REPORT_DEFINITIONS.GET('id')).toMatch(
+      /\/report-definitions\/id$/
+    );
+    expect(endpoints.REPORT_DEFINITIONS.UPDATE('id')).toMatch(
+      /\/report-definitions\/id$/
+    );
+    expect(endpoints.REPORT_DEFINITIONS.DELETE('id')).toMatch(
+      /\/report-definitions\/id$/
+    );
+
+    expect(endpoints.REPORT_RUNS.LIST).toMatch(/\/report-runs$/);
+    expect(endpoints.REPORT_RUNS.CREATE).toMatch(/\/report-runs$/);
+    expect(endpoints.REPORT_RUNS.GET('id')).toMatch(/\/report-runs\/id$/);
+    expect(endpoints.REPORT_RUNS.UPDATE('id')).toMatch(/\/report-runs\/id$/);
+    expect(endpoints.REPORT_RUNS.DELETE('id')).toMatch(/\/report-runs\/id$/);
+
+    expect(endpoints.DASHBOARD_WIDGETS.LIST).toMatch(/\/dashboard-widgets$/);
+    expect(endpoints.DASHBOARD_WIDGETS.CREATE).toMatch(/\/dashboard-widgets$/);
+    expect(endpoints.DASHBOARD_WIDGETS.GET('id')).toMatch(
+      /\/dashboard-widgets\/id$/
+    );
+    expect(endpoints.DASHBOARD_WIDGETS.UPDATE('id')).toMatch(
+      /\/dashboard-widgets\/id$/
+    );
+    expect(endpoints.DASHBOARD_WIDGETS.DELETE('id')).toMatch(
+      /\/dashboard-widgets\/id$/
+    );
+
+    expect(endpoints.KPI_SNAPSHOTS.LIST).toMatch(/\/kpi-snapshots$/);
+    expect(endpoints.KPI_SNAPSHOTS.CREATE).toMatch(/\/kpi-snapshots$/);
+    expect(endpoints.KPI_SNAPSHOTS.GET('id')).toMatch(/\/kpi-snapshots\/id$/);
+    expect(endpoints.KPI_SNAPSHOTS.UPDATE('id')).toMatch(
+      /\/kpi-snapshots\/id$/
+    );
+    expect(endpoints.KPI_SNAPSHOTS.DELETE('id')).toMatch(
+      /\/kpi-snapshots\/id$/
+    );
+
+    expect(endpoints.ANALYTICS_EVENTS.LIST).toMatch(/\/analytics-events$/);
+    expect(endpoints.ANALYTICS_EVENTS.CREATE).toMatch(/\/analytics-events$/);
+    expect(endpoints.ANALYTICS_EVENTS.GET('id')).toMatch(
+      /\/analytics-events\/id$/
+    );
+    expect(endpoints.ANALYTICS_EVENTS.UPDATE('id')).toMatch(
+      /\/analytics-events\/id$/
+    );
+    expect(endpoints.ANALYTICS_EVENTS.DELETE('id')).toMatch(
+      /\/analytics-events\/id$/
+    );
+  });
+
   test('should expose communications CRUD endpoints with mounted-only contracts', () => {
     expect(endpoints.NOTIFICATIONS.LIST).toMatch(/\/notifications$/);
     expect(endpoints.NOTIFICATIONS.CREATE).toMatch(/\/notifications$/);
