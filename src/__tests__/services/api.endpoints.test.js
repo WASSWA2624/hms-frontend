@@ -60,6 +60,12 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes referral redeem workflow action endpoint', () => {
+    expect(endpoints.REFERRALS.REDEEM('id')).toMatch(
+      /\/referrals\/id\/redeem$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();

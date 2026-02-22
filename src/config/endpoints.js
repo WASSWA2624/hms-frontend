@@ -329,6 +329,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/referrals/${id}`,
     UPDATE: (id) => `${baseUrl}/referrals/${id}`,
     DELETE: (id) => `${baseUrl}/referrals/${id}`,
+    REDEEM: (id) => `${baseUrl}/referrals/${id}/redeem`,
   },
   FOLLOW_UPS: {
     LIST: `${baseUrl}/follow-ups`,

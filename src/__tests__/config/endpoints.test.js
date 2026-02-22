@@ -81,4 +81,10 @@ describe('endpoints.js', () => {
       /\/visit-queues\/id\/prioritize$/
     );
   });
+
+  test('should expose referral redeem workflow action endpoint', () => {
+    expect(endpoints.REFERRALS.REDEEM('id')).toMatch(
+      /\/referrals\/id\/redeem$/
+    );
+  });
 });

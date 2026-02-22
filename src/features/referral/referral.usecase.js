@@ -76,4 +76,27 @@ const deleteReferral = async (id) =>
     return normalizeReferral(response.data);
   });
 
-export { listReferrals, getReferral, createReferral, updateReferral, deleteReferral };
+const redeemReferral = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseReferralId(id);
+    const parsed = parseReferralPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.REFERRALS.REDEEM(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeReferral({ id: parsedId, ...parsed });
+    }
+    const response = await referralApi.redeem(parsedId, parsed);
+    return normalizeReferral(response.data);
+  });
+
+export {
+  listReferrals,
+  getReferral,
+  createReferral,
+  updateReferral,
+  deleteReferral,
+  redeemReferral,
+};

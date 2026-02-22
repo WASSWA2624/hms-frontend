@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useReferral', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useReferral);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'redeem']);
   });
 });

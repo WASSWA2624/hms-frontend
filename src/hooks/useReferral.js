@@ -8,6 +8,7 @@ import {
   deleteReferral,
   getReferral,
   listReferrals,
+  redeemReferral,
   updateReferral,
 } from '@features/referral';
 
@@ -18,6 +19,7 @@ const useReferral = () =>
     create: createReferral,
     update: updateReferral,
     remove: deleteReferral,
+    redeem: redeemReferral,
   });
 
 export default useReferral;
