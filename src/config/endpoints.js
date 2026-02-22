@@ -24,8 +24,6 @@ export const endpoints = {
     VERIFY_EMAIL: `${baseUrl}/auth/verify-email`,
     VERIFY_PHONE: `${baseUrl}/auth/verify-phone`,
     RESEND_VERIFICATION: `${baseUrl}/auth/resend-verification`,
-    MFA_VERIFY: `${baseUrl}/auth/mfa/verify`,
-    MFA_RESEND: `${baseUrl}/auth/mfa/resend`,
   },
   USER_SESSIONS: {
     LIST: `${baseUrl}/user-sessions`,
@@ -957,8 +955,6 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/users/${id}`,
     UPDATE: (id) => `${baseUrl}/users/${id}`,
     DELETE: (id) => `${baseUrl}/users/${id}`,
-    GET_PROFILE: `${baseUrl}/users/me`,
-    UPDATE_PROFILE: `${baseUrl}/users/me`,
   },
   PAYMENTS: {
     CREATE: `${baseUrl}/payments`,
@@ -1079,8 +1075,6 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/addresses/${id}`,
     UPDATE: (id) => `${baseUrl}/addresses/${id}`,
     DELETE: (id) => `${baseUrl}/addresses/${id}`,
-    SET_DEFAULT: (id) => `${baseUrl}/addresses/${id}/set-default`,
-    GET_DEFAULT: (type) => `${baseUrl}/addresses/default/${type}`,
   },
   CONVERSATIONS: {
     LIST: `${baseUrl}/conversations`,
