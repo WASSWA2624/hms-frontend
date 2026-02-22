@@ -8,6 +8,7 @@ import {
   deleteLabResult,
   getLabResult,
   listLabResults,
+  releaseLabResult,
   updateLabResult,
 } from '@features/lab-result';
 
@@ -18,6 +19,7 @@ const useLabResult = () =>
     create: createLabResult,
     update: updateLabResult,
     remove: deleteLabResult,
+    release: releaseLabResult,
   });
 
 export default useLabResult;

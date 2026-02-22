@@ -473,6 +473,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/lab-results/${id}`,
     UPDATE: (id) => `${baseUrl}/lab-results/${id}`,
     DELETE: (id) => `${baseUrl}/lab-results/${id}`,
+    RELEASE: (id) => `${baseUrl}/lab-results/${id}/release`,
   },
   LAB_QC_LOGS: {
     LIST: `${baseUrl}/lab-qc-logs`,
@@ -501,6 +502,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/radiology-results/${id}`,
     UPDATE: (id) => `${baseUrl}/radiology-results/${id}`,
     DELETE: (id) => `${baseUrl}/radiology-results/${id}`,
+    SIGN_OFF: (id) => `${baseUrl}/radiology-results/${id}/sign-off`,
   },
   IMAGING_STUDIES: {
     LIST: `${baseUrl}/imaging-studies`,

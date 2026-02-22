@@ -76,4 +76,27 @@ const deleteRadiologyResult = async (id) =>
     return normalizeRadiologyResult(response.data);
   });
 
-export { listRadiologyResults, getRadiologyResult, createRadiologyResult, updateRadiologyResult, deleteRadiologyResult };
+const signOffRadiologyResult = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseRadiologyResultId(id);
+    const parsed = parseRadiologyResultPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.RADIOLOGY_RESULTS.SIGN_OFF(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeRadiologyResult({ id: parsedId, status: 'FINAL', ...parsed });
+    }
+    const response = await radiologyResultApi.signOff(parsedId, parsed);
+    return normalizeRadiologyResult(response.data);
+  });
+
+export {
+  listRadiologyResults,
+  getRadiologyResult,
+  createRadiologyResult,
+  updateRadiologyResult,
+  deleteRadiologyResult,
+  signOffRadiologyResult,
+};

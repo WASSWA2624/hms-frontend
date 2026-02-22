@@ -99,4 +99,10 @@ describe('endpoints.js', () => {
       /\/discharge-summaries\/id\/finalize$/
     );
   });
+
+  test('should expose diagnostics workflow action endpoint', () => {
+    expect(endpoints.LAB_RESULTS.RELEASE('id')).toMatch(
+      /\/lab-results\/id\/release$/
+    );
+  });
 });

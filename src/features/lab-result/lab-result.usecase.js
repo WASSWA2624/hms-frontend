@@ -76,4 +76,27 @@ const deleteLabResult = async (id) =>
     return normalizeLabResult(response.data);
   });
 
-export { listLabResults, getLabResult, createLabResult, updateLabResult, deleteLabResult };
+const releaseLabResult = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseLabResultId(id);
+    const parsed = parseLabResultPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.LAB_RESULTS.RELEASE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeLabResult({ id: parsedId, status: 'RELEASED', ...parsed });
+    }
+    const response = await labResultApi.release(parsedId, parsed);
+    return normalizeLabResult(response.data);
+  });
+
+export {
+  listLabResults,
+  getLabResult,
+  createLabResult,
+  updateLabResult,
+  deleteLabResult,
+  releaseLabResult,
+};

@@ -78,6 +78,12 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes diagnostics workflow action endpoint', () => {
+    expect(endpoints.LAB_RESULTS.RELEASE('id')).toMatch(
+      /\/lab-results\/id\/release$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();
