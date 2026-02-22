@@ -7,14 +7,19 @@ import styled from 'styled-components';
 import { BANNER_VARIANTS } from '@utils/shellBanners';
 
 const getVariantColors = (variant, theme) => {
-  const surface = theme.colors.background?.secondary || '#F5F5F7';
-  const textPrimary = theme.colors.text?.primary || theme.colors.textPrimary;
-  const inverse = theme.colors.onPrimary || theme.colors.text.inverse;
+  const colors = theme?.colors || {};
+  const surface = colors.background?.secondary || '#F5F5F7';
+  const textPrimary = colors.text?.primary || colors.textPrimary || '#1f2937';
+  const inverse = colors.onPrimary || colors.text?.inverse || '#FFFFFF';
+  const maintenance = colors.status?.error || {
+    background: colors.error || '#FFEBEE',
+    text: '#C62828',
+  };
 
   if (variant === BANNER_VARIANTS.MAINTENANCE) {
     return {
-      background: theme.colors.status.error.background,
-      text: theme.colors.status.error.text,
+      background: maintenance.background,
+      text: maintenance.text,
       border: 'rgba(198, 40, 40, 0.28)',
       accent: null,
       sheen: 'rgba(255, 255, 255, 0.35)',
@@ -26,14 +31,14 @@ const getVariantColors = (variant, theme) => {
       background: surface,
       text: textPrimary,
       border: 'rgba(255, 149, 0, 0.25)',
-      accent: theme.colors.warning,
+      accent: colors.warning || '#FF9500',
       sheen: 'rgba(255, 255, 255, 0.75)',
       glow: 'rgba(255, 149, 0, 0.12)',
     };
   }
   if (variant === BANNER_VARIANTS.ONLINE) {
     return {
-      background: theme.colors.success,
+      background: colors.success || '#34C759',
       text: inverse,
       border: 'rgba(255, 255, 255, 0.25)',
       accent: null,
@@ -42,7 +47,7 @@ const getVariantColors = (variant, theme) => {
     };
   }
   return {
-    background: theme.colors.primary,
+    background: colors.primary || '#0078D4',
     text: inverse,
     border: 'rgba(255, 255, 255, 0.22)',
     accent: null,

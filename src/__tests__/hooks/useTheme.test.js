@@ -29,8 +29,8 @@ const TestComponent = ({ onResult }) => {
 };
 
 describe('useTheme', () => {
-  it('returns the same selector object when theme selector provides an object', async () => {
-    const customTheme = { colors: { brand: '#123456' } };
+  it('merges object selector values onto base theme tokens', async () => {
+    const customTheme = { mode: 'dark', colors: { brand: '#123456' } };
     const store = createMockStore({
       ui: { theme: customTheme, locale: 'en', isLoading: false },
     });
@@ -42,7 +42,12 @@ describe('useTheme', () => {
       </Provider>
     );
 
-    await waitFor(() => expect(result).toBe(customTheme));
+    await waitFor(() => expect(result).toBeTruthy());
+    expect(result).not.toBe(customTheme);
+    expect(result.mode).toBe('dark');
+    expect(result.colors.brand).toBe('#123456');
+    expect(result.colors.tooltip.background).toBeTruthy();
+    expect(result.colors.status.error.background).toBeTruthy();
   });
 
   it('returns light theme by default', async () => {
@@ -103,6 +108,24 @@ describe('useTheme', () => {
     );
 
     await waitFor(() => expect(result).toBe(lightTheme));
+  });
+
+  it('normalizes malformed object themes to include required nested color tokens', async () => {
+    const store = createMockStore({
+      ui: { theme: { colors: { background: { primary: '#ffffff' } } }, locale: 'en', isLoading: false },
+    });
+
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+
+    await waitFor(() => expect(result).toBeTruthy());
+    expect(result.colors.background.primary).toBe('#ffffff');
+    expect(result.colors.tooltip.background).toBeTruthy();
+    expect(result.colors.status.error.background).toBeTruthy();
   });
 
   it('returns a stable theme reference across unrelated rerenders', async () => {

@@ -9,8 +9,6 @@ import { ThemeProvider as NativeThemeProvider } from 'styled-components/native';
 import lightTheme from './light.theme';
 import darkTheme from './dark.theme';
 
-const ThemeProvider = Platform.OS === 'web' ? WebThemeProvider : NativeThemeProvider;
-
 /** Light and dark only per theme-design.mdc. */
 export function getTheme(mode = 'light') {
   return mode === 'dark' ? darkTheme : lightTheme;
@@ -24,10 +22,20 @@ const resolveThemeObject = (theme) => {
 
 export function ThemeProviderWrapper({ children, theme = 'light' }) {
   const themeObj = resolveThemeObject(theme);
+  if (Platform.OS === 'web') {
+    return (
+      <WebThemeProvider theme={themeObj}>
+        <NativeThemeProvider theme={themeObj}>
+          {children}
+        </NativeThemeProvider>
+      </WebThemeProvider>
+    );
+  }
+
   return (
-    <ThemeProvider theme={themeObj}>
+    <NativeThemeProvider theme={themeObj}>
       {children}
-    </ThemeProvider>
+    </NativeThemeProvider>
   );
 }
 

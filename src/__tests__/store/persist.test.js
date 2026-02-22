@@ -71,4 +71,33 @@ describe('store/persist', () => {
       theme: 'light',
     });
   });
+
+  it('normalizes invalid ui preferences when rehydrating', () => {
+    const transformed = uiStateTransform.out(
+      {
+        theme: { mode: 'dark', colors: { background: { primary: '#fff' } } },
+        locale: 42,
+      },
+      'ui'
+    );
+
+    expect(transformed).toEqual({
+      theme: 'light',
+    });
+  });
+
+  it('preserves valid persisted ui preferences when rehydrating', () => {
+    const transformed = uiStateTransform.out(
+      {
+        theme: 'dark',
+        locale: 'en',
+      },
+      'ui'
+    );
+
+    expect(transformed).toEqual({
+      theme: 'dark',
+      locale: 'en',
+    });
+  });
 });

@@ -7,7 +7,6 @@ import {
   ErrorState,
   ErrorStateSizes,
   GlobalDateRangeField,
-  Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -20,8 +19,11 @@ import { EntitlementBlockedState, FieldHelpTrigger, InlineFieldGuide } from '../
 import usePatientDirectoryScreen from './usePatientDirectoryScreen';
 
 const StyledContainer = styled.View`
-  flex: 1;
+  width: 100%;
+  align-self: center;
+  max-width: 1180px;
   gap: 16px;
+  padding-bottom: 16px;
 `;
 
 const StyledHeader = styled.View`
@@ -30,6 +32,7 @@ const StyledHeader = styled.View`
 
 const StyledHeaderRow = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -37,6 +40,7 @@ const StyledHeaderRow = styled.View`
 
 const StyledToolbarCard = styled(Card)`
   gap: 12px;
+  padding: 12px;
 `;
 
 const StyledAdvancedFilters = styled.View`
@@ -49,6 +53,7 @@ const StyledAdvancedFilters = styled.View`
 const StyledToolbarGrid = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: 10px;
 `;
 
@@ -60,27 +65,32 @@ const StyledToolbarField = styled.View`
 
 const StyledListCard = styled(Card)`
   gap: 10px;
+  padding: 12px;
 `;
 
 const StyledListRow = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  background-color: ${({ theme }) => theme.colors.background?.primary || '#ffffff'};
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px;
 `;
 
 const StyledRowMeta = styled.View`
   flex: 1;
+  min-width: 240px;
   gap: 2px;
 `;
 
 const StyledPaginationRow = styled.View`
   margin-top: 4px;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -88,6 +98,7 @@ const StyledPaginationRow = styled.View`
 
 const StyledPaginationActions = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 `;
@@ -95,7 +106,7 @@ const StyledPaginationActions = styled.View`
 const StyledFilterActions = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
 `;
 
@@ -187,7 +198,6 @@ const PatientDirectoryScreen = () => {
               size="small"
               onPress={onRetry}
               accessibilityLabel={t('patients.directory.refresh')}
-              icon={<Icon glyph="?" size="xs" decorative />}
             >
               {t('patients.directory.refresh')}
             </Button>
@@ -200,7 +210,6 @@ const PatientDirectoryScreen = () => {
                   ? 'patients.directory.hideFilters'
                   : 'patients.directory.showFilters'
               )}
-              icon={<Icon glyph="?" size="xs" decorative />}
               testID="patient-directory-toggle-filters"
             >
               {isFilterPanelOpen
@@ -213,7 +222,6 @@ const PatientDirectoryScreen = () => {
                 size="small"
                 onPress={onQuickCreate}
                 accessibilityLabel={t('patients.directory.createPatient')}
-                icon={<Icon glyph="+" size="xs" decorative />}
               >
                 {t('patients.directory.createPatient')}
               </Button>
@@ -412,7 +420,6 @@ const PatientDirectoryScreen = () => {
                 size="small"
                 onPress={onClearFilters}
                 accessibilityLabel={t('patients.directory.clearFilters')}
-                icon={<Icon glyph="?" size="xs" decorative />}
                 testID="patient-directory-clear-filters"
               >
                 {t('patients.directory.clearFilters')}
@@ -422,7 +429,6 @@ const PatientDirectoryScreen = () => {
                 size="small"
                 onPress={onApplyFilters}
                 accessibilityLabel={t('patients.directory.applyFilters')}
-                icon={<Icon glyph="?" size="xs" decorative />}
                 testID="patient-directory-apply-filters"
               >
                 {t('patients.directory.applyFilters')}
@@ -456,7 +462,6 @@ const PatientDirectoryScreen = () => {
               size="small"
               onPress={onRetry}
               accessibilityLabel={t('common.retry')}
-              icon={<Icon glyph="?" size="xs" decorative />}
             >
               {t('common.retry')}
             </Button>
@@ -476,7 +481,6 @@ const PatientDirectoryScreen = () => {
               size="small"
               onPress={onRetry}
               accessibilityLabel={t('common.retry')}
-              icon={<Icon glyph="?" size="xs" decorative />}
             >
               {t('common.retry')}
             </Button>
@@ -511,7 +515,6 @@ const PatientDirectoryScreen = () => {
                     size="small"
                     onPress={() => onOpenPatient(item.id)}
                     accessibilityLabel={t('patients.directory.openWorkspace')}
-                    icon={<Icon glyph="?" size="xs" decorative />}
                   >
                     {t('patients.directory.openWorkspace')}
                   </Button>
@@ -533,7 +536,6 @@ const PatientDirectoryScreen = () => {
                     onPress={onPreviousPage}
                     disabled={page <= 1}
                     accessibilityLabel={t('patients.directory.previousPage')}
-                    icon={<Icon glyph="?" size="xs" decorative />}
                   >
                     {t('patients.directory.previousPage')}
                   </Button>
@@ -543,7 +545,6 @@ const PatientDirectoryScreen = () => {
                     onPress={onNextPage}
                     disabled={page >= pagination.totalPages}
                     accessibilityLabel={t('patients.directory.nextPage')}
-                    icon={<Icon glyph="?" size="xs" decorative />}
                   >
                     {t('patients.directory.nextPage')}
                   </Button>

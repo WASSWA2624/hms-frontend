@@ -38,6 +38,20 @@ const sanitizeTheme = (theme) => (theme === 'dark' ? 'dark' : 'light');
 const sanitizeLocale = (locale) =>
   typeof locale === 'string' && locale.trim() ? locale : undefined;
 
+const sanitizeUiPreferences = (state) => {
+  const source = state && typeof state === 'object' ? state : {};
+  const locale = sanitizeLocale(source.locale);
+  const normalized = {
+    theme: sanitizeTheme(source.theme),
+  };
+
+  if (locale) {
+    normalized.locale = locale;
+  }
+
+  return normalized;
+};
+
 /**
  * Persist only stable, non-sensitive UI preferences.
  * Transient UI flags and auth-like metadata are intentionally excluded.
@@ -48,18 +62,12 @@ const uiStateTransform = createTransform(
       return inboundState;
     }
 
-    const locale = sanitizeLocale(inboundState.locale);
-    const persisted = {
-      theme: sanitizeTheme(inboundState.theme),
-    };
-
-    if (locale) {
-      persisted.locale = locale;
-    }
-
-    return persisted;
+    return sanitizeUiPreferences(inboundState);
   },
-  (outboundState) => outboundState,
+  (outboundState, key) => {
+    if (key !== 'ui') return outboundState;
+    return sanitizeUiPreferences(outboundState);
+  },
   { whitelist: ['ui'] }
 );
 

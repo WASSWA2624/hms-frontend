@@ -73,5 +73,10 @@ describe('errors/fallback.ui.jsx', () => {
     expect(getByText('Something went wrong')).toBeTruthy();
     expect(getByText('An unexpected error occurred')).toBeTruthy();
   });
+
+  test('should render without ThemeProvider (error-boundary fallback path)', () => {
+    const { getByText } = render(<FallbackUI />);
+    expect(getByText('Something went wrong')).toBeTruthy();
+  });
 });
 

@@ -88,6 +88,9 @@ const resolvePagination = (data, fallbackPage, fallbackLimit, totalItems) => {
 const resolvePatientName = (patient, fallback) => {
   const firstName = sanitizeString(patient?.first_name);
   const lastName = sanitizeString(patient?.last_name);
+  if (firstName && lastName && firstName.toLowerCase() === lastName.toLowerCase()) {
+    return firstName;
+  }
   const fullName = `${firstName} ${lastName}`.trim();
   if (fullName) return fullName;
 

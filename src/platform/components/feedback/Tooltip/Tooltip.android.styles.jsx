@@ -12,14 +12,14 @@ const StyledTooltip = styled.View.withConfig({
 })`
   position: absolute;
   z-index: 10000;
-  padding-horizontal: ${({ theme }) => theme.spacing.md}px;
-  padding-vertical: ${({ theme }) => theme.spacing.sm}px;
-  border-radius: ${({ theme }) => theme.radius.sm}px;
-  background-color: ${({ theme }) => theme.colors.tooltip.background};
-  max-width: ${({ theme }) => theme.spacing.xxl * 4}px;
+  padding-horizontal: ${({ theme }) => theme?.spacing?.md ?? 12}px;
+  padding-vertical: ${({ theme }) => theme?.spacing?.sm ?? 8}px;
+  border-radius: ${({ theme }) => theme?.radius?.sm ?? 6}px;
+  background-color: ${({ theme }) => theme?.colors?.tooltip?.background || 'rgba(0, 0, 0, 0.85)'};
+  max-width: ${({ theme }) => (theme?.spacing?.xxl ?? 40) * 4}px;
   elevation: 8;
   ${({ position, theme }) => {
-    const margin = theme.spacing.sm;
+    const margin = theme?.spacing?.sm ?? 8;
     if (position === 'top') {
       return `bottom: 100%; margin-bottom: ${margin}px;`;
     }
@@ -37,11 +37,12 @@ const StyledTooltipText = styled.Text.withConfig({
   displayName: 'StyledTooltipText',
   componentId: 'StyledTooltipText',
 })`
-  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
-  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
-  color: ${({ theme }) => theme.colors.tooltip.text};
+  font-family: ${({ theme }) => theme?.typography?.fontFamily?.regular || 'System'};
+  font-size: ${({ theme }) => theme?.typography?.fontSize?.sm ?? 14}px;
+  font-weight: ${({ theme }) => theme?.typography?.fontWeight?.normal || '400'};
+  line-height: ${({ theme }) =>
+    (theme?.typography?.fontSize?.sm ?? 14) * (theme?.typography?.lineHeight?.normal ?? 1.4)}px;
+  color: ${({ theme }) => theme?.colors?.tooltip?.text || '#FFFFFF'};
   text-align: center;
 `;
 

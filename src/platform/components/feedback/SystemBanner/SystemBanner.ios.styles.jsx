@@ -8,35 +8,40 @@ import { Pressable } from 'react-native';
 import { BANNER_VARIANTS } from '@utils/shellBanners';
 
 const getVariantColors = (variant, theme) => {
-  const surface = theme.colors.background?.secondary || '#F5F5F7';
+  const colors = theme?.colors || {};
+  const surface = colors.background?.secondary || '#F5F5F7';
+  const maintenance = colors.status?.error || {
+    background: colors.error || '#FFEBEE',
+    text: '#C62828',
+  };
   if (variant === BANNER_VARIANTS.MAINTENANCE) {
     return {
-      background: theme.colors.status.error.background,
-      text: theme.colors.status.error.text,
-      border: theme.colors.error,
+      background: maintenance.background,
+      text: maintenance.text,
+      border: colors.error || '#FF3B30',
       accent: null,
     };
   }
   if (variant === BANNER_VARIANTS.LOW_QUALITY || variant === BANNER_VARIANTS.OFFLINE) {
     return {
       background: surface,
-      text: theme.colors.text?.primary || theme.colors.textPrimary,
+      text: colors.text?.primary || colors.textPrimary || '#1f2937',
       border: 'transparent',
-      accent: theme.colors.warning,
+      accent: colors.warning || '#FF9500',
     };
   }
   if (variant === BANNER_VARIANTS.ONLINE) {
     return {
-      background: theme.colors.success,
-      text: theme.colors.onPrimary || theme.colors.text.inverse,
-      border: theme.colors.success,
+      background: colors.success || '#34C759',
+      text: colors.onPrimary || colors.text?.inverse || '#FFFFFF',
+      border: colors.success || '#34C759',
       accent: null,
     };
   }
   return {
-    background: theme.colors.primary,
-    text: theme.colors.onPrimary || theme.colors.text.inverse,
-    border: theme.colors.primary,
+    background: colors.primary || '#0078D4',
+    text: colors.onPrimary || colors.text?.inverse || '#FFFFFF',
+    border: colors.primary || '#0078D4',
     accent: null,
   };
 };
