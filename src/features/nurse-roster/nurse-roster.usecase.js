@@ -5,7 +5,11 @@
 import { endpoints } from '@config/endpoints';
 import { handleError } from '@errors';
 import { queueRequestIfOffline } from '@offline/request';
-import { nurseRosterApi, publishNurseRosterApi } from './nurse-roster.api';
+import {
+  nurseRosterApi,
+  publishNurseRosterApi,
+  generateNurseRosterApi,
+} from './nurse-roster.api';
 import {
   normalizeNurseRoster,
   normalizeNurseRosterList,
@@ -93,6 +97,13 @@ const publishNurseRoster = async (id, payload = {}) =>
     return normalizeNurseRoster(getPayload(response));
   });
 
+const generateNurseRoster = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseNurseRosterId(id);
+    const response = await generateNurseRosterApi(parsedId, payload);
+    return normalizeNurseRoster(getPayload(response));
+  });
+
 export {
   listNurseRosters,
   getNurseRoster,
@@ -100,4 +111,5 @@ export {
   updateNurseRoster,
   deleteNurseRoster,
   publishNurseRoster,
+  generateNurseRoster,
 };

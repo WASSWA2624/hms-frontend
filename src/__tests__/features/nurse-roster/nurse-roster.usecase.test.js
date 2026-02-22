@@ -9,6 +9,7 @@ import {
   updateNurseRoster,
   deleteNurseRoster,
   publishNurseRoster,
+  generateNurseRoster,
 } from '@features/nurse-roster';
 import * as api from '@features/nurse-roster/nurse-roster.api';
 import { queueRequestIfOffline } from '@offline/request';
@@ -23,6 +24,7 @@ jest.mock('@features/nurse-roster/nurse-roster.api', () => ({
     remove: jest.fn(),
   },
   publishNurseRosterApi: jest.fn(),
+  generateNurseRosterApi: jest.fn(),
 }));
 jest.mock('@offline/request', () => ({ queueRequestIfOffline: jest.fn() }));
 
@@ -39,6 +41,7 @@ describe('nurse-roster.usecase', () => {
     api.nurseRosterApi.update.mockResolvedValue({ data: { id: '1' } });
     api.nurseRosterApi.remove.mockResolvedValue({ data: { id: '1' } });
     api.publishNurseRosterApi.mockResolvedValue({ data: { id: '1', status: 'PUBLISHED' } });
+    api.generateNurseRosterApi.mockResolvedValue({ data: { id: '1', status: 'GENERATED' } });
   });
 
   afterEach(() => {
@@ -82,5 +85,21 @@ describe('nurse-roster.usecase', () => {
     const result = await publishNurseRoster('1');
     expect(api.publishNurseRosterApi).toHaveBeenCalledWith('1', {});
     expect(result).toEqual({ id: '1', status: 'PUBLISHED' });
+  });
+
+  it('generateNurseRoster calls generate api', async () => {
+    const result = await generateNurseRoster('1', { force: true });
+    expect(api.generateNurseRosterApi).toHaveBeenCalledWith('1', { force: true });
+    expect(result).toEqual({ id: '1', status: 'GENERATED' });
+  });
+
+  it('generateNurseRoster uses default payload when omitted', async () => {
+    const result = await generateNurseRoster('1');
+    expect(api.generateNurseRosterApi).toHaveBeenCalledWith('1', {});
+    expect(result).toEqual({ id: '1', status: 'GENERATED' });
+  });
+
+  it('rejects invalid id for generate', async () => {
+    await expect(generateNurseRoster(null, { force: true })).rejects.toBeDefined();
   });
 });

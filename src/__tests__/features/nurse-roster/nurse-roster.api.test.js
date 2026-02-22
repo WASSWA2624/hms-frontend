@@ -3,7 +3,11 @@
  * File: nurse-roster.api.test.js
  */
 import { apiClient } from '@services/api';
-import { nurseRosterApi, publishNurseRosterApi } from '@features/nurse-roster';
+import {
+  nurseRosterApi,
+  publishNurseRosterApi,
+  generateNurseRosterApi,
+} from '@features/nurse-roster';
 
 jest.mock('@services/api', () => ({
   apiClient: jest.fn(),
@@ -59,6 +63,30 @@ describe('nurse-roster.api', () => {
     expect(apiClient).toHaveBeenCalledWith(
       expect.objectContaining({
         url: expect.stringContaining('/nurse-rosters/id-123/publish'),
+        method: 'POST',
+        body: {},
+      })
+    );
+  });
+
+  it('generateNurseRosterApi calls apiClient with generate URL', async () => {
+    apiClient.mockResolvedValue({ data: {} });
+    await generateNurseRosterApi('id-123', { force: true });
+    expect(apiClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('/nurse-rosters/id-123/generate'),
+        method: 'POST',
+        body: { force: true },
+      })
+    );
+  });
+
+  it('generateNurseRosterApi defaults payload to empty object', async () => {
+    apiClient.mockResolvedValue({ data: {} });
+    await generateNurseRosterApi('id-123');
+    expect(apiClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('/nurse-rosters/id-123/generate'),
         method: 'POST',
         body: {},
       })

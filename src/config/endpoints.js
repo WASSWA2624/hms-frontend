@@ -788,6 +788,7 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/nurse-rosters/${id}`,
     DELETE: (id) => `${baseUrl}/nurse-rosters/${id}`,
     PUBLISH: (id) => `${baseUrl}/nurse-rosters/${id}/publish`,
+    GENERATE: (id) => `${baseUrl}/nurse-rosters/${id}/generate`,
   },
   SHIFT_TEMPLATES: {
     LIST: `${baseUrl}/shift-templates`,

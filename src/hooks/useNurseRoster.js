@@ -11,6 +11,7 @@ import {
   updateNurseRoster,
   deleteNurseRoster,
   publishNurseRoster,
+  generateNurseRoster,
 } from '@features/nurse-roster';
 
 const useNurseRoster = () => {
@@ -22,6 +23,7 @@ const useNurseRoster = () => {
       update: updateNurseRoster,
       remove: deleteNurseRoster,
       publish: publishNurseRoster,
+      generate: generateNurseRoster,
     }),
     []
   );

@@ -90,6 +90,16 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes staffing workflow action endpoints', () => {
+    expect(endpoints.SHIFTS.PUBLISH('id')).toMatch(/\/shifts\/id\/publish$/);
+    expect(endpoints.NURSE_ROSTERS.PUBLISH('id')).toMatch(
+      /\/nurse-rosters\/id\/publish$/
+    );
+    expect(endpoints.NURSE_ROSTERS.GENERATE('id')).toMatch(
+      /\/nurse-rosters\/id\/generate$/
+    );
+  });
+
   it('includes billing and claim workflow action endpoints', () => {
     expect(endpoints.INSURANCE_CLAIMS.SUBMIT('id')).toMatch(
       /\/insurance-claims\/id\/submit$/

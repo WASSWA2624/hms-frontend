@@ -104,6 +104,13 @@ describe('payment.usecase', () => {
     expect(paymentApi.getChannelBreakdown).toHaveBeenCalledWith('1');
   });
 
+  it('returns empty channel breakdown object when action response is empty', async () => {
+    paymentApi.getChannelBreakdown.mockResolvedValueOnce(undefined);
+
+    await expect(getPaymentChannelBreakdown('1')).resolves.toEqual({});
+    expect(paymentApi.getChannelBreakdown).toHaveBeenCalledWith('1');
+  });
+
   it('rejects invalid id for payment channel breakdown', async () => {
     await expect(getPaymentChannelBreakdown(null)).rejects.toBeDefined();
   });

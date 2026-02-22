@@ -12,6 +12,7 @@ jest.mock('@features/nurse-roster', () => ({
   updateNurseRoster: jest.fn(),
   deleteNurseRoster: jest.fn(),
   publishNurseRoster: jest.fn(),
+  generateNurseRoster: jest.fn(),
 }));
 
 const {
@@ -19,6 +20,7 @@ const {
   getNurseRoster,
   createNurseRoster,
   publishNurseRoster,
+  generateNurseRoster,
 } = require('@features/nurse-roster');
 
 describe('useNurseRoster', () => {
@@ -26,7 +28,7 @@ describe('useNurseRoster', () => {
     jest.clearAllMocks();
   });
 
-  it('returns list, get, create, update, remove, publish actions', () => {
+  it('returns list, get, create, update, remove, publish, generate actions', () => {
     const { result } = renderHook(() => useNurseRoster());
     expect(typeof result.current.list).toBe('function');
     expect(typeof result.current.get).toBe('function');
@@ -34,6 +36,7 @@ describe('useNurseRoster', () => {
     expect(typeof result.current.update).toBe('function');
     expect(typeof result.current.remove).toBe('function');
     expect(typeof result.current.publish).toBe('function');
+    expect(typeof result.current.generate).toBe('function');
   });
 
   it('list invokes listNurseRosters', async () => {
@@ -52,5 +55,14 @@ describe('useNurseRoster', () => {
       await result.current.publish('1');
     });
     expect(publishNurseRoster).toHaveBeenCalledWith('1');
+  });
+
+  it('generate invokes generateNurseRoster', async () => {
+    generateNurseRoster.mockResolvedValue({ id: '1', status: 'GENERATED' });
+    const { result } = renderHook(() => useNurseRoster());
+    await act(async () => {
+      await result.current.generate('1');
+    });
+    expect(generateNurseRoster).toHaveBeenCalledWith('1');
   });
 });

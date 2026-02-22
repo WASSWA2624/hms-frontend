@@ -15,4 +15,11 @@ const publishNurseRosterApi = (id, payload = {}) =>
     body: payload,
   });
 
-export { nurseRosterApi, publishNurseRosterApi };
+const generateNurseRosterApi = (id, payload = {}) =>
+  apiClient({
+    url: endpoints.NURSE_ROSTERS.GENERATE(id),
+    method: 'POST',
+    body: payload,
+  });
+
+export { nurseRosterApi, publishNurseRosterApi, generateNurseRosterApi };
