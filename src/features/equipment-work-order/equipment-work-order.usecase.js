@@ -80,10 +80,52 @@ const deleteEquipmentWorkOrder = async (id) =>
     return normalizeEquipmentWorkOrder(response.data);
   });
 
+const startEquipmentWorkOrder = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseEquipmentWorkOrderId(id);
+    const parsed = parseEquipmentWorkOrderPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.EQUIPMENT_WORK_ORDERS.START(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeEquipmentWorkOrder({
+        id: parsedId,
+        status: parsed.status || 'IN_REPAIR',
+        ...parsed,
+      });
+    }
+    const response = await equipmentWorkOrderApi.start(parsedId, parsed);
+    return normalizeEquipmentWorkOrder(response.data);
+  });
+
+const returnToServiceEquipmentWorkOrder = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseEquipmentWorkOrderId(id);
+    const parsed = parseEquipmentWorkOrderPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.EQUIPMENT_WORK_ORDERS.RETURN_TO_SERVICE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeEquipmentWorkOrder({
+        id: parsedId,
+        status: parsed.status || 'RETURNED_TO_SERVICE',
+        ...parsed,
+      });
+    }
+    const response = await equipmentWorkOrderApi.returnToService(parsedId, parsed);
+    return normalizeEquipmentWorkOrder(response.data);
+  });
+
 export {
   listEquipmentWorkOrders,
   getEquipmentWorkOrder,
   createEquipmentWorkOrder,
   updateEquipmentWorkOrder,
   deleteEquipmentWorkOrder,
+  startEquipmentWorkOrder,
+  returnToServiceEquipmentWorkOrder,
 };

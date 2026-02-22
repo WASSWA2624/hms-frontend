@@ -83,10 +83,31 @@ const deleteMaintenanceRequest = async (id) =>
     return normalizeMaintenanceRequest(response.data);
   });
 
+const triageMaintenanceRequest = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseMaintenanceRequestId(id);
+    const parsed = parseMaintenanceRequestPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.MAINTENANCE_REQUESTS.TRIAGE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeMaintenanceRequest({
+        id: parsedId,
+        status: parsed.status || 'IN_PROGRESS',
+        ...parsed,
+      });
+    }
+    const response = await maintenanceRequestApi.triage(parsedId, parsed);
+    return normalizeMaintenanceRequest(response.data);
+  });
+
 export {
   listMaintenanceRequests,
   getMaintenanceRequest,
   createMaintenanceRequest,
   updateMaintenanceRequest,
   deleteMaintenanceRequest,
+  triageMaintenanceRequest,
 };

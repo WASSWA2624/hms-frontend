@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useMaintenanceRequest', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useMaintenanceRequest);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'triage']);
   });
 });

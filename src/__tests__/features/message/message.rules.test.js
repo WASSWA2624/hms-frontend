@@ -3,7 +3,6 @@
  * File: message.rules.test.js
  */
 import {
-  parseMessageConversationId,
   parseMessageId,
   parseMessageListParams,
   parseMessagePayload,
@@ -13,7 +12,6 @@ import { expectIdParser, expectListParamsParser, expectPayloadParser } from '../
 describe('message.rules', () => {
   it('parses ids', () => {
     expectIdParser(parseMessageId);
-    expectIdParser(parseMessageConversationId);
   });
 
   it('parses payloads', () => {

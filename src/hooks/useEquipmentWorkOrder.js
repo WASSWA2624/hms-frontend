@@ -8,7 +8,9 @@ import {
   getEquipmentWorkOrder,
   createEquipmentWorkOrder,
   updateEquipmentWorkOrder,
-  deleteEquipmentWorkOrder
+  deleteEquipmentWorkOrder,
+  startEquipmentWorkOrder,
+  returnToServiceEquipmentWorkOrder,
 } from '@features/equipment-work-order';
 
 const useEquipmentWorkOrder = () =>
@@ -18,6 +20,8 @@ const useEquipmentWorkOrder = () =>
     create: createEquipmentWorkOrder,
     update: updateEquipmentWorkOrder,
     remove: deleteEquipmentWorkOrder,
+    start: startEquipmentWorkOrder,
+    returnToService: returnToServiceEquipmentWorkOrder,
   });
 
 export default useEquipmentWorkOrder;

@@ -845,6 +845,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/maintenance-requests/${id}`,
     UPDATE: (id) => `${baseUrl}/maintenance-requests/${id}`,
     DELETE: (id) => `${baseUrl}/maintenance-requests/${id}`,
+    TRIAGE: (id) => `${baseUrl}/maintenance-requests/${id}/triage`,
   },
   ASSETS: {
     LIST: `${baseUrl}/assets`,
@@ -894,6 +895,8 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/equipment-work-orders/${id}`,
     UPDATE: (id) => `${baseUrl}/equipment-work-orders/${id}`,
     DELETE: (id) => `${baseUrl}/equipment-work-orders/${id}`,
+    START: (id) => `${baseUrl}/equipment-work-orders/${id}/start`,
+    RETURN_TO_SERVICE: (id) => `${baseUrl}/equipment-work-orders/${id}/return-to-service`,
   },
   EQUIPMENT_CALIBRATION_LOGS: {
     LIST: `${baseUrl}/equipment-calibration-logs`,
@@ -1098,12 +1101,6 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/conversations/${id}`,
     UPDATE: (id) => `${baseUrl}/conversations/${id}`,
     DELETE: (id) => `${baseUrl}/conversations/${id}`,
-    GET_PARTICIPANTS: (id) => `${baseUrl}/conversations/${id}/participants`,
-    ADD_PARTICIPANT: (id) => `${baseUrl}/conversations/${id}/participants`,
-    REMOVE_PARTICIPANT: (id, userId) =>
-      `${baseUrl}/conversations/${id}/participants/${userId}`,
-    GET_MESSAGES: (id) => `${baseUrl}/conversations/${id}/messages`,
-    ADD_MESSAGE: (id) => `${baseUrl}/conversations/${id}/messages`,
   },
   MESSAGES: {
     LIST: `${baseUrl}/messages`,
@@ -1111,18 +1108,13 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/messages/${id}`,
     UPDATE: (id) => `${baseUrl}/messages/${id}`,
     DELETE: (id) => `${baseUrl}/messages/${id}`,
-    GET_BY_CONVERSATION: (conversationId) =>
-      `${baseUrl}/messages/conversation/${conversationId}`,
-    GET_MEDIA: (id) => `${baseUrl}/messages/${id}/media`,
   },
   NOTIFICATIONS: {
     LIST: `${baseUrl}/notifications`,
+    CREATE: `${baseUrl}/notifications`,
     GET: (id) => `${baseUrl}/notifications/${id}`,
-    MARK_READ: (id) => `${baseUrl}/notifications/${id}/read`,
-    MARK_UNREAD: (id) => `${baseUrl}/notifications/${id}/unread`,
-    GET_TARGETS: `${baseUrl}/notifications/targets`,
-    GET_PREFERENCES: `${baseUrl}/notifications/preferences`,
-    UPDATE_PREFERENCES: `${baseUrl}/notifications/preferences`,
+    UPDATE: (id) => `${baseUrl}/notifications/${id}`,
+    DELETE: (id) => `${baseUrl}/notifications/${id}`,
   },
   NOTIFICATION_DELIVERIES: {
     LIST: `${baseUrl}/notification-deliveries`,

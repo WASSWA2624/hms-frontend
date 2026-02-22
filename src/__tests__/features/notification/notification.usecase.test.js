@@ -3,22 +3,15 @@
  * File: notification.usecase.test.js
  */
 import {
+  createNotification,
+  deleteNotification,
   getNotification,
-  getNotificationPreferences,
   listNotifications,
-  listNotificationTargets,
   markNotificationRead,
   markNotificationUnread,
-  updateNotificationPreferences,
+  updateNotification,
 } from '@features/notification';
-import {
-  getNotificationPreferencesApi,
-  getNotificationTargetsApi,
-  markNotificationReadApi,
-  markNotificationUnreadApi,
-  notificationApi,
-  updateNotificationPreferencesApi,
-} from '@features/notification/notification.api';
+import { notificationApi } from '@features/notification/notification.api';
 import { queueRequestIfOffline } from '@offline/request';
 import { runCrudUsecaseTests } from '../../helpers/crud-usecase-runner';
 
@@ -26,12 +19,10 @@ jest.mock('@features/notification/notification.api', () => ({
   notificationApi: {
     list: jest.fn(),
     get: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
   },
-  markNotificationReadApi: jest.fn(),
-  markNotificationUnreadApi: jest.fn(),
-  getNotificationTargetsApi: jest.fn(),
-  getNotificationPreferencesApi: jest.fn(),
-  updateNotificationPreferencesApi: jest.fn(),
 }));
 
 jest.mock('@offline/request', () => ({
@@ -42,46 +33,76 @@ describe('notification.usecase', () => {
   beforeEach(() => {
     notificationApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     notificationApi.get.mockResolvedValue({ data: { id: '1' } });
-    markNotificationReadApi.mockResolvedValue({ data: { id: '1', read: true } });
-    markNotificationUnreadApi.mockResolvedValue({ data: { id: '1', read: false } });
-    getNotificationTargetsApi.mockResolvedValue({ data: [{ id: 't1' }] });
-    getNotificationPreferencesApi.mockResolvedValue({ data: { id: 'prefs' } });
-    updateNotificationPreferencesApi.mockResolvedValue({ data: { id: 'prefs' } });
+    notificationApi.create.mockResolvedValue({ data: { id: '1' } });
+    notificationApi.update.mockResolvedValue({ data: { id: '1' } });
+    notificationApi.remove.mockResolvedValue({ data: { id: '1' } });
   });
 
   runCrudUsecaseTests(
     {
       list: listNotifications,
       get: getNotification,
-      extraActions: [
-        { fn: listNotificationTargets },
-        { fn: getNotificationPreferences },
-      ],
+      create: createNotification,
+      update: updateNotification,
+      remove: deleteNotification,
     },
     { queueRequestIfOffline }
   );
 
-  it('marks notifications read/unread online', async () => {
+  it('marks notifications read/unread online via update', async () => {
     queueRequestIfOffline.mockResolvedValue(false);
-    await expect(markNotificationRead('1')).resolves.toEqual({ id: '1', read: true });
-    await expect(markNotificationUnread('1')).resolves.toEqual({ id: '1', read: false });
+    notificationApi.update.mockClear();
+    notificationApi.update
+      .mockResolvedValueOnce({ data: { id: '1', read: true, is_read: true } })
+      .mockResolvedValueOnce({ data: { id: '1', read: false, is_read: false } });
+
+    await expect(markNotificationRead('1')).resolves.toEqual({
+      id: '1',
+      read: true,
+      is_read: true,
+    });
+    expect(notificationApi.update).toHaveBeenNthCalledWith(
+      1,
+      '1',
+      expect.objectContaining({
+        read: true,
+        is_read: true,
+      })
+    );
+
+    await expect(markNotificationUnread('1')).resolves.toEqual({
+      id: '1',
+      read: false,
+      is_read: false,
+    });
+    expect(notificationApi.update).toHaveBeenNthCalledWith(2, '1', {
+      read: false,
+      is_read: false,
+      read_at: null,
+      readAt: null,
+    });
   });
 
-  it('queues notification read/unread updates', async () => {
+  it('queues read/unread updates when offline', async () => {
     queueRequestIfOffline.mockResolvedValue(true);
-    await expect(markNotificationRead('1')).resolves.toEqual({ id: '1', read: true });
-    await expect(markNotificationUnread('1')).resolves.toEqual({ id: '1', read: false });
-  });
 
-  it('updates notification preferences online', async () => {
-    const payload = { channel: 'email' };
-    queueRequestIfOffline.mockResolvedValue(false);
-    await expect(updateNotificationPreferences(payload)).resolves.toEqual({ id: 'prefs' });
-  });
+    const markedRead = await markNotificationRead('1');
+    expect(markedRead).toEqual(
+      expect.objectContaining({
+        id: '1',
+        read: true,
+        is_read: true,
+      })
+    );
+    expect(markedRead.read_at).toEqual(expect.any(String));
+    expect(markedRead.readAt).toEqual(markedRead.read_at);
 
-  it('queues notification preferences updates', async () => {
-    const payload = { channel: 'sms' };
-    queueRequestIfOffline.mockResolvedValue(true);
-    await expect(updateNotificationPreferences(payload)).resolves.toEqual(payload);
+    await expect(markNotificationUnread('1')).resolves.toEqual({
+      id: '1',
+      read: false,
+      is_read: false,
+      read_at: null,
+      readAt: null,
+    });
   });
 });

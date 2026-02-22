@@ -100,6 +100,18 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes facilities and biomedical workflow action endpoints', () => {
+    expect(endpoints.MAINTENANCE_REQUESTS.TRIAGE('id')).toMatch(
+      /\/maintenance-requests\/id\/triage$/
+    );
+    expect(endpoints.EQUIPMENT_WORK_ORDERS.START('id')).toMatch(
+      /\/equipment-work-orders\/id\/start$/
+    );
+    expect(endpoints.EQUIPMENT_WORK_ORDERS.RETURN_TO_SERVICE('id')).toMatch(
+      /\/equipment-work-orders\/id\/return-to-service$/
+    );
+  });
+
   it('includes billing and claim workflow action endpoints', () => {
     expect(endpoints.INSURANCE_CLAIMS.SUBMIT('id')).toMatch(
       /\/insurance-claims\/id\/submit$/
@@ -113,6 +125,42 @@ describe('services/api/endpoints', () => {
     expect(endpoints.PAYMENTS.CHANNEL_BREAKDOWN('id')).toMatch(
       /\/payments\/id\/channel-breakdown$/
     );
+  });
+
+  it('includes communications CRUD endpoints and excludes unmounted extras', () => {
+    expect(endpoints.NOTIFICATIONS.LIST).toMatch(/\/notifications$/);
+    expect(endpoints.NOTIFICATIONS.CREATE).toMatch(/\/notifications$/);
+    expect(endpoints.NOTIFICATIONS.GET('id')).toMatch(/\/notifications\/id$/);
+    expect(endpoints.NOTIFICATIONS.UPDATE('id')).toMatch(/\/notifications\/id$/);
+    expect(endpoints.NOTIFICATIONS.DELETE('id')).toMatch(/\/notifications\/id$/);
+    expect(endpoints.NOTIFICATION_DELIVERIES.LIST).toMatch(
+      /\/notification-deliveries$/
+    );
+    expect(endpoints.CONVERSATIONS.LIST).toMatch(/\/conversations$/);
+    expect(endpoints.CONVERSATIONS.CREATE).toMatch(/\/conversations$/);
+    expect(endpoints.CONVERSATIONS.GET('id')).toMatch(/\/conversations\/id$/);
+    expect(endpoints.CONVERSATIONS.UPDATE('id')).toMatch(/\/conversations\/id$/);
+    expect(endpoints.CONVERSATIONS.DELETE('id')).toMatch(/\/conversations\/id$/);
+    expect(endpoints.MESSAGES.LIST).toMatch(/\/messages$/);
+    expect(endpoints.MESSAGES.CREATE).toMatch(/\/messages$/);
+    expect(endpoints.MESSAGES.GET('id')).toMatch(/\/messages\/id$/);
+    expect(endpoints.MESSAGES.UPDATE('id')).toMatch(/\/messages\/id$/);
+    expect(endpoints.MESSAGES.DELETE('id')).toMatch(/\/messages\/id$/);
+    expect(endpoints.TEMPLATES.LIST).toMatch(/\/templates$/);
+    expect(endpoints.TEMPLATE_VARIABLES.LIST).toMatch(/\/template-variables$/);
+
+    expect(endpoints.NOTIFICATIONS.MARK_READ).toBeUndefined();
+    expect(endpoints.NOTIFICATIONS.MARK_UNREAD).toBeUndefined();
+    expect(endpoints.NOTIFICATIONS.GET_TARGETS).toBeUndefined();
+    expect(endpoints.NOTIFICATIONS.GET_PREFERENCES).toBeUndefined();
+    expect(endpoints.NOTIFICATIONS.UPDATE_PREFERENCES).toBeUndefined();
+    expect(endpoints.CONVERSATIONS.GET_PARTICIPANTS).toBeUndefined();
+    expect(endpoints.CONVERSATIONS.ADD_PARTICIPANT).toBeUndefined();
+    expect(endpoints.CONVERSATIONS.REMOVE_PARTICIPANT).toBeUndefined();
+    expect(endpoints.CONVERSATIONS.GET_MESSAGES).toBeUndefined();
+    expect(endpoints.CONVERSATIONS.ADD_MESSAGE).toBeUndefined();
+    expect(endpoints.MESSAGES.GET_BY_CONVERSATION).toBeUndefined();
+    expect(endpoints.MESSAGES.GET_MEDIA).toBeUndefined();
   });
 
   it('does not expose deprecated unmounted commerce endpoint groups', () => {

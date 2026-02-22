@@ -7,9 +7,7 @@ import {
   createMessage,
   deleteMessage,
   getMessage,
-  getMessageMedia,
   listMessages,
-  listMessagesByConversation,
   updateMessage,
 } from '@features/message';
 
@@ -20,8 +18,6 @@ const useMessage = () =>
     create: createMessage,
     update: updateMessage,
     remove: deleteMessage,
-    listByConversation: listMessagesByConversation,
-    getMedia: getMessageMedia,
   });
 
 export default useMessage;

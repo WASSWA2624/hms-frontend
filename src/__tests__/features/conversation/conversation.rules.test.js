@@ -5,9 +5,6 @@
 import {
   parseConversationId,
   parseConversationListParams,
-  parseConversationMessagePayload,
-  parseConversationParticipantId,
-  parseConversationParticipantPayload,
   parseConversationPayload,
 } from '@features/conversation';
 import { expectIdParser, expectListParamsParser, expectPayloadParser } from '../../helpers/crud-assertions';
@@ -15,13 +12,10 @@ import { expectIdParser, expectListParamsParser, expectPayloadParser } from '../
 describe('conversation.rules', () => {
   it('parses ids', () => {
     expectIdParser(parseConversationId);
-    expectIdParser(parseConversationParticipantId);
   });
 
   it('parses payloads', () => {
     expectPayloadParser(parseConversationPayload);
-    expectPayloadParser(parseConversationParticipantPayload);
-    expectPayloadParser(parseConversationMessagePayload);
   });
 
   it('parses list params', () => {

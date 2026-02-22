@@ -12,11 +12,11 @@ describe('useNotification', () => {
     expectCrudHook(result, [
       'list',
       'get',
+      'create',
+      'update',
+      'remove',
       'markRead',
       'markUnread',
-      'listTargets',
-      'getPreferences',
-      'updatePreferences',
     ]);
   });
 });

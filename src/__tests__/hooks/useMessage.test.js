@@ -15,8 +15,6 @@ describe('useMessage', () => {
       'create',
       'update',
       'remove',
-      'listByConversation',
-      'getMedia',
     ]);
   });
 });

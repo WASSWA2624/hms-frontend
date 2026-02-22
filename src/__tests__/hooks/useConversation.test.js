@@ -15,11 +15,6 @@ describe('useConversation', () => {
       'create',
       'update',
       'remove',
-      'listParticipants',
-      'addParticipant',
-      'removeParticipant',
-      'listMessages',
-      'addMessage',
     ]);
   });
 });

@@ -8,7 +8,8 @@ import {
   getMaintenanceRequest,
   createMaintenanceRequest,
   updateMaintenanceRequest,
-  deleteMaintenanceRequest
+  deleteMaintenanceRequest,
+  triageMaintenanceRequest,
 } from '@features/maintenance-request';
 
 const useMaintenanceRequest = () =>
@@ -18,6 +19,7 @@ const useMaintenanceRequest = () =>
     create: createMaintenanceRequest,
     update: updateMaintenanceRequest,
     remove: deleteMaintenanceRequest,
+    triage: triageMaintenanceRequest,
   });
 
 export default useMaintenanceRequest;

@@ -5,13 +5,13 @@
 import { useMemo } from 'react';
 import useCrud from '@hooks/useCrud';
 import {
+  createNotification,
+  deleteNotification,
   getNotification,
-  getNotificationPreferences,
   listNotifications,
-  listNotificationTargets,
   markNotificationRead,
   markNotificationUnread,
-  updateNotificationPreferences,
+  updateNotification,
 } from '@features/notification';
 
 const useNotification = () => {
@@ -19,11 +19,11 @@ const useNotification = () => {
     () => ({
       list: listNotifications,
       get: getNotification,
+      create: createNotification,
+      update: updateNotification,
+      remove: deleteNotification,
       markRead: markNotificationRead,
       markUnread: markNotificationUnread,
-      listTargets: listNotificationTargets,
-      getPreferences: getNotificationPreferences,
-      updatePreferences: updateNotificationPreferences,
     }),
     []
   );

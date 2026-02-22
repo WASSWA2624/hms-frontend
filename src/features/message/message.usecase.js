@@ -5,10 +5,9 @@
 import { endpoints } from '@config/endpoints';
 import { handleError } from '@errors';
 import { queueRequestIfOffline } from '@offline/request';
-import { getMessageMediaApi, getMessagesByConversationApi, messageApi } from './message.api';
+import { messageApi } from './message.api';
 import { normalizeMessage, normalizeMessageList } from './message.model';
 import {
-  parseMessageConversationId,
   parseMessageId,
   parseMessageListParams,
   parseMessagePayload,
@@ -81,26 +80,10 @@ const deleteMessage = async (id) =>
     return normalizeMessage(response.data);
   });
 
-const listMessagesByConversation = async (conversationId) =>
-  execute(async () => {
-    const parsedId = parseMessageConversationId(conversationId);
-    const response = await getMessagesByConversationApi(parsedId);
-    return normalizeMessageList(response.data);
-  });
-
-const getMessageMedia = async (id) =>
-  execute(async () => {
-    const parsedId = parseMessageId(id);
-    const response = await getMessageMediaApi(parsedId);
-    return normalizeMessage(response.data);
-  });
-
 export {
   listMessages,
   getMessage,
   createMessage,
   updateMessage,
   deleteMessage,
-  listMessagesByConversation,
-  getMessageMedia,
 };
