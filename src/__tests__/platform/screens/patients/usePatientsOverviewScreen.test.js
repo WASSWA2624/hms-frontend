@@ -26,6 +26,7 @@ const translationMap = {
   'patients.overview.unnamedPatient': 'Patient record {{position}}',
   'patients.overview.unknownDemographics': 'Profile details pending',
   'patients.overview.scopeSummaryAllTenants': 'Scope: all authorized tenants',
+  'patients.overview.scopeSummaryFacility': 'Scope: current tenant and facility',
   'patients.overview.scopeSummaryTenant': 'Scope: current tenant only',
   'patients.overview.accessSummaryReadWrite': 'Access: read and register patients',
   'patients.overview.accessSummaryReadOnly': 'Access: read-only patient workspace',
@@ -56,6 +57,7 @@ describe('usePatientsOverviewScreen', () => {
       canCreatePatientRecords: true,
       canManageAllTenants: true,
       tenantId: null,
+      facilityId: null,
       isResolved: true,
     });
     usePatient.mockReturnValue({
@@ -85,6 +87,7 @@ describe('usePatientsOverviewScreen', () => {
       canCreatePatientRecords: true,
       canManageAllTenants: false,
       tenantId: 'tenant-12',
+      facilityId: null,
       isResolved: true,
     });
 
@@ -93,12 +96,34 @@ describe('usePatientsOverviewScreen', () => {
     expect(mockList).toHaveBeenCalledWith({ page: 1, limit: 20, tenant_id: 'tenant-12' });
   });
 
+  it('includes facility scope for scoped users and reflects facility summary copy', () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-12',
+      facilityId: 'facility-22',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePatientsOverviewScreen());
+
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      tenant_id: 'tenant-12',
+      facility_id: 'facility-22',
+    });
+    expect(result.current.overviewSummary.scope).toBe('Scope: current tenant and facility');
+  });
+
   it('does not load list data before access resolution', () => {
     usePatientAccess.mockReturnValue({
       canAccessPatients: true,
       canCreatePatientRecords: true,
       canManageAllTenants: true,
       tenantId: null,
+      facilityId: null,
       isResolved: false,
     });
 
@@ -143,6 +168,7 @@ describe('usePatientsOverviewScreen', () => {
       canCreatePatientRecords: false,
       canManageAllTenants: true,
       tenantId: null,
+      facilityId: null,
       isResolved: true,
     });
 
@@ -172,6 +198,7 @@ describe('usePatientsOverviewScreen', () => {
       canCreatePatientRecords: false,
       canManageAllTenants: false,
       tenantId: null,
+      facilityId: null,
       isResolved: true,
     });
 
@@ -179,4 +206,3 @@ describe('usePatientsOverviewScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/dashboard');
   });
 });
-

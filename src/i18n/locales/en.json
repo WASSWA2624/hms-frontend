@@ -5703,6 +5703,7 @@
       "registerPatientHint": "Open the patient registration form",
       "summaryTitle": "Patient overview summary",
       "scopeSummaryAllTenants": "Scope: all authorized tenants",
+      "scopeSummaryFacility": "Scope: current tenant and facility",
       "scopeSummaryTenant": "Scope: current tenant only",
       "accessSummaryReadWrite": "Access: read and register patients",
       "accessSummaryReadOnly": "Access: read-only patient workspace",

@@ -81,6 +81,8 @@ describe('PatientsOverviewScreen', () => {
           'patients.overview.recentPatientsTitle': 'Recent Patients',
           'patients.overview.openResourceButton': 'Open',
           'patients.overview.loadErrorTitle': 'Unable to load patient overview',
+          'patients.overview.emptyTitle': 'No patients yet',
+          'patients.overview.emptyMessage': 'Register your first patient to start using linked records.',
           'shell.banners.offline.title': 'Offline',
           'shell.banners.offline.message': 'Connection unavailable',
           'common.loading': 'Loading',
@@ -108,6 +110,49 @@ describe('PatientsOverviewScreen', () => {
 
     const { queryByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
     expect(queryByTestId('patients-overview-register')).toBeNull();
+  });
+
+  it('renders loading state on web', () => {
+    const hookValue = buildBaseHook();
+    hookValue.isLoading = true;
+    usePatientsOverviewScreen.mockReturnValue(hookValue);
+
+    const { getByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
+    expect(getByTestId('patients-overview-loading')).toBeTruthy();
+  });
+
+  it('renders recoverable error state on web', () => {
+    const hookValue = buildBaseHook();
+    hookValue.hasError = true;
+    hookValue.errorMessage = 'Unable to load patient overview data.';
+    usePatientsOverviewScreen.mockReturnValue(hookValue);
+
+    const { getByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
+
+    expect(getByTestId('patients-overview-error')).toBeTruthy();
+  });
+
+  it('renders offline recovery state on web', () => {
+    const hookValue = buildBaseHook();
+    hookValue.isOffline = true;
+    usePatientsOverviewScreen.mockReturnValue(hookValue);
+
+    const { getByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
+
+    expect(getByTestId('patients-overview-offline')).toBeTruthy();
+  });
+
+  it('renders empty state on web when no recent patients are available', () => {
+    const hookValue = buildBaseHook();
+    hookValue.recentPatients = [];
+    hookValue.overviewSummary = {
+      ...hookValue.overviewSummary,
+      recentCount: 'Recent records shown: 0',
+    };
+    usePatientsOverviewScreen.mockReturnValue(hookValue);
+
+    const { getByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
+    expect(getByTestId('patients-overview-empty')).toBeTruthy();
   });
 
   it('opens help modal on android', () => {

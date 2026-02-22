@@ -9,6 +9,7 @@ const mockScreens = {
   PatientResourceListScreen: jest.fn(() => null),
   PatientResourceDetailScreen: jest.fn(() => null),
   PatientResourceFormScreen: jest.fn(() => null),
+  NotFoundScreen: jest.fn(() => null),
 };
 const mockSlot = jest.fn(() => null);
 const mockUsePathname = jest.fn(() => '/patients');
@@ -42,6 +43,7 @@ jest.mock('@platform/screens', () => ({
   PatientResourceListScreen: (...args) => mockScreens.PatientResourceListScreen(...args),
   PatientResourceDetailScreen: (...args) => mockScreens.PatientResourceDetailScreen(...args),
   PatientResourceFormScreen: (...args) => mockScreens.PatientResourceFormScreen(...args),
+  NotFoundScreen: (...args) => mockScreens.NotFoundScreen(...args),
 }));
 
 const RESOURCES_WITH_EDIT = [
@@ -94,6 +96,10 @@ const PATIENT_ROUTE_CASES = [
   {
     routePath: '../../../app/(main)/patients/index',
     screenKey: 'PatientsOverviewScreen',
+  },
+  {
+    routePath: '../../../app/(main)/patients/[...missing]',
+    screenKey: 'NotFoundScreen',
   },
   ...RESOURCES_WITH_EDIT.flatMap((resourceId) => buildRouteCases(resourceId, true)),
   ...RESOURCES_WITHOUT_EDIT.flatMap((resourceId) => buildRouteCases(resourceId, false)),

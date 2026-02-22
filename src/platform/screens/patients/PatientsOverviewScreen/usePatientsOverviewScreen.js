@@ -81,12 +81,14 @@ const usePatientsOverviewScreen = () => {
     canCreatePatientRecords,
     canManageAllTenants,
     tenantId,
+    facilityId,
     isResolved,
   } = usePatientAccess();
 
   const { list, data, isLoading, errorCode, reset } = usePatient();
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
+  const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canViewOverview = isResolved && canAccessPatients && hasScope;
 
@@ -138,13 +140,15 @@ const usePatientsOverviewScreen = () => {
     () => ({
       scope: canManageAllTenants
         ? t('patients.overview.scopeSummaryAllTenants')
+        : normalizedFacilityId
+          ? t('patients.overview.scopeSummaryFacility')
         : t('patients.overview.scopeSummaryTenant'),
       access: canCreatePatientRecords
         ? t('patients.overview.accessSummaryReadWrite')
         : t('patients.overview.accessSummaryReadOnly'),
       recentCount: t('patients.overview.recentPatientsCount', { count: recentPatients.length }),
     }),
-    [canManageAllTenants, canCreatePatientRecords, recentPatients.length, t]
+    [canManageAllTenants, normalizedFacilityId, canCreatePatientRecords, recentPatients.length, t]
   );
 
   const helpContent = useMemo(
@@ -171,6 +175,9 @@ const usePatientsOverviewScreen = () => {
     };
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
+      if (normalizedFacilityId) {
+        params.facility_id = normalizedFacilityId;
+      }
     }
     reset();
     list(params);
@@ -178,6 +185,7 @@ const usePatientsOverviewScreen = () => {
     canViewOverview,
     canManageAllTenants,
     normalizedTenantId,
+    normalizedFacilityId,
     reset,
     list,
   ]);
