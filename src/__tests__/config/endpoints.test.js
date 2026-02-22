@@ -72,4 +72,13 @@ describe('endpoints.js', () => {
       /\/patients\/id\/documents$/
     );
   });
+
+  test('should expose scheduling workflow action endpoints', () => {
+    expect(endpoints.APPOINTMENTS.CANCEL('id')).toMatch(
+      /\/appointments\/id\/cancel$/
+    );
+    expect(endpoints.VISIT_QUEUES.PRIORITIZE('id')).toMatch(
+      /\/visit-queues\/id\/prioritize$/
+    );
+  });
 });

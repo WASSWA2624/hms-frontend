@@ -76,4 +76,27 @@ const deleteVisitQueue = async (id) =>
     return { id: parsedId };
   });
 
-export { listVisitQueues, getVisitQueue, createVisitQueue, updateVisitQueue, deleteVisitQueue };
+const prioritizeVisitQueue = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseVisitQueueId(id);
+    const parsed = parseVisitQueuePayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.VISIT_QUEUES.PRIORITIZE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeVisitQueue({ id: parsedId, ...parsed });
+    }
+    const response = await visitQueueApi.prioritize(parsedId, parsed);
+    return normalizeVisitQueue(response.data);
+  });
+
+export {
+  listVisitQueues,
+  getVisitQueue,
+  createVisitQueue,
+  updateVisitQueue,
+  deleteVisitQueue,
+  prioritizeVisitQueue,
+};

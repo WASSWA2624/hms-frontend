@@ -9,6 +9,7 @@ import {
   deleteVisitQueue,
   getVisitQueue,
   listVisitQueues,
+  prioritizeVisitQueue,
   updateVisitQueue,
 } from '@features/visit-queue';
 
@@ -20,6 +21,7 @@ const useVisitQueue = () => {
       create: createVisitQueue,
       update: updateVisitQueue,
       remove: deleteVisitQueue,
+      prioritize: prioritizeVisitQueue,
     }),
     []
   );

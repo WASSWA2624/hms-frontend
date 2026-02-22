@@ -51,6 +51,15 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes scheduling workflow action endpoints', () => {
+    expect(endpoints.APPOINTMENTS.CANCEL('id')).toMatch(
+      /\/appointments\/id\/cancel$/
+    );
+    expect(endpoints.VISIT_QUEUES.PRIORITIZE('id')).toMatch(
+      /\/visit-queues\/id\/prioritize$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();

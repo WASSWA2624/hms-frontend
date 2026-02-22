@@ -272,6 +272,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/visit-queues/${id}`,
     UPDATE: (id) => `${baseUrl}/visit-queues/${id}`,
     DELETE: (id) => `${baseUrl}/visit-queues/${id}`,
+    PRIORITIZE: (id) => `${baseUrl}/visit-queues/${id}/prioritize`,
   },
   ENCOUNTERS: {
     LIST: `${baseUrl}/encounters`,
