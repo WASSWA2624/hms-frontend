@@ -14,13 +14,36 @@ describe('patientResourceConfigs', () => {
     expect(consentIndex).toBeLessThan(termsIndex);
   });
 
-  it('configures consents as patient-linked editable records', () => {
+  it('configures consents for contextless navigation with patient label display', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.CONSENTS);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
 
     expect(config).toBeTruthy();
     expect(config.requiresPatientSelection).toBe(true);
     expect(config.supportsPatientFilter).toBe(true);
-    expect(config.supportsEdit).not.toBe(false);
+    expect(config.allowListWithoutPatientContext).toBe(true);
+    expect(config.allowCreateWithoutPatientContext).toBe(true);
+    expect(config.allowEditWithoutPatientContext).toBe(true);
+    expect(config.hidePatientSelectorOnEdit).toBe(true);
+    expect(config.hidePatientSelectorWhenContextProvided).toBe(true);
+    expect(config.resolvePatientLabels).toBe(true);
+    expect(fieldByName.consent_type?.type).toBe('select');
+    expect((fieldByName.consent_type?.options || []).map((option) => option.value)).toEqual([
+      'TREATMENT',
+      'DATA_SHARING',
+      'RESEARCH',
+      'BILLING',
+      'OTHER',
+    ]);
+    expect(fieldByName.status?.type).toBe('select');
+    expect((fieldByName.status?.options || []).map((option) => option.value)).toEqual([
+      'GRANTED',
+      'REVOKED',
+      'PENDING',
+    ]);
+
+    const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
+    expect(detailValueKeys).toContain('patient_display_label');
   });
 
   it('configures terms acceptances as read-only for edit action', () => {

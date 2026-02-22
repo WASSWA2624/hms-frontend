@@ -6347,6 +6347,7 @@
           "deleteHint": "Delete this consent",
           "idLabel": "Consent ID",
           "tenantLabel": "Tenant ID",
+          "patientNameLabel": "Patient",
           "patientLabel": "Patient ID",
           "consentTypeLabel": "Consent type",
           "statusLabel": "Status",

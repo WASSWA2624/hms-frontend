@@ -461,4 +461,112 @@ describe('usePatientResourceFormScreen', () => {
     const payload = mockUpdate.mock.calls[0][1];
     expect(payload).not.toHaveProperty('patient_id');
   });
+
+  it('hides patient selector when patient context is preselected for consents', async () => {
+    mockParams = { patientId: 'patient-context-id' };
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('consents'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-context-id');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+    expect(mockListPatients).not.toHaveBeenCalled();
+  });
+
+  it('hides patient selector on edit for consents', async () => {
+    mockParams = { id: 'consent-1' };
+    mockCrudData = {
+      id: 'consent-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-1',
+      consent_type: 'TREATMENT',
+      status: 'GRANTED',
+      granted_at: '2024-05-01T00:00:00.000Z',
+      revoked_at: null,
+    };
+    mockUpdate.mockResolvedValue({ id: 'consent-1' });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('consents'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-1');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+    const payload = mockUpdate.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('patient_id');
+  });
+
+  it('keeps create and edit writable fields aligned for consents form', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    const createHook = renderHook(() => usePatientResourceFormScreen('consents'));
+    const createFields = createHook.result.current.visibleFields
+      .map((field) => field.name)
+      .filter((name) => name !== 'patient_id');
+
+    mockParams = { id: 'consent-2' };
+    mockCrudData = {
+      id: 'consent-2',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-2',
+      consent_type: 'RESEARCH',
+      status: 'PENDING',
+      granted_at: '2024-07-01T00:00:00.000Z',
+      revoked_at: null,
+    };
+
+    const editHook = renderHook(() => usePatientResourceFormScreen('consents'));
+    await waitFor(() => {
+      expect(editHook.result.current.isEdit).toBe(true);
+    });
+
+    const editFields = editHook.result.current.visibleFields
+      .map((field) => field.name)
+      .filter((name) => name !== 'patient_id');
+    expect(editFields).toEqual(createFields);
+  });
+
+  it('redirects consents create route to access denied notice for read-only users', async () => {
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: false,
+      canEditPatientRecords: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientResourceFormScreen('consents'));
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/patients/consents?notice=accessDenied');
+    });
+  });
 });

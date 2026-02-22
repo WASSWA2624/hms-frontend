@@ -275,4 +275,30 @@ describe('usePatientResourceDetailScreen', () => {
     expect(valueKeys).toContain('patient_display_label');
     expect(valueKeys).not.toContain('patient_id');
   });
+
+  it('hydrates consents detail with a human-readable patient label', () => {
+    mockParams = { id: 'consent-1' };
+    mockCrudData = {
+      id: 'consent-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-e',
+      consent_type: 'TREATMENT',
+      status: 'GRANTED',
+    };
+    usePatient.mockReturnValue({
+      get: mockGetPatientById,
+      data: { id: 'patient-e', first_name: 'Peter', last_name: 'Mwangi' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPatientLookup,
+    });
+
+    const { result } = renderHook(() => usePatientResourceDetailScreen('consents'));
+    const valueKeys = result.current.detailRows.map((row) => row.valueKey);
+
+    expect(mockGetPatientById).toHaveBeenCalledWith('patient-e');
+    expect(result.current.item.patient_display_label).toBe('Peter Mwangi');
+    expect(valueKeys).toContain('patient_display_label');
+    expect(valueKeys).not.toContain('patient_id');
+  });
 });

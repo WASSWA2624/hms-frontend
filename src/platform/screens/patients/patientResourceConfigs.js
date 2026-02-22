@@ -726,6 +726,12 @@ const resourceConfigs = {
     i18nKey: 'patients.resources.consents',
     supportsPatientFilter: true,
     requiresPatientSelection: true,
+    allowListWithoutPatientContext: true,
+    allowCreateWithoutPatientContext: true,
+    allowEditWithoutPatientContext: true,
+    resolvePatientLabels: true,
+    hidePatientSelectorOnEdit: true,
+    hidePatientSelectorWhenContextProvided: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
@@ -781,8 +787,21 @@ const resourceConfigs = {
     ),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
-      if (!status) return '';
-      return `${t('patients.resources.consents.detail.statusLabel')}: ${status}`;
+      const patientLabel = resolveFirstReadable(
+        item?.patient_display_label,
+        item?.patient_name,
+        item?.patient_label
+      );
+      if (status && patientLabel) {
+        return `${t('patients.resources.consents.detail.statusLabel')}: ${status} | ${t('patients.resources.consents.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      if (status) {
+        return `${t('patients.resources.consents.detail.statusLabel')}: ${status}`;
+      }
+      if (patientLabel) {
+        return `${t('patients.resources.consents.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      return '';
     },
     getInitialValues: (record) => ({
       consent_type: sanitizeString(record?.consent_type),
@@ -799,6 +818,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.consents.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.consents.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.consents.detail.patientNameLabel', valueKey: 'patient_display_label' },
       { labelKey: 'patients.resources.consents.detail.patientLabel', valueKey: 'patient_id' },
       { labelKey: 'patients.resources.consents.detail.consentTypeLabel', valueKey: 'consent_type' },
       { labelKey: 'patients.resources.consents.detail.statusLabel', valueKey: 'status' },
