@@ -6223,6 +6223,7 @@
           "deleteHint": "Delete this patient medical history",
           "idLabel": "Medical history ID",
           "tenantLabel": "Tenant ID",
+          "patientNameLabel": "Patient",
           "patientLabel": "Patient ID",
           "conditionLabel": "Condition",
           "diagnosedOnLabel": "Diagnosed on",

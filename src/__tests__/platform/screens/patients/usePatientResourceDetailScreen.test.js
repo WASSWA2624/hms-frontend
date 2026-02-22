@@ -222,4 +222,30 @@ describe('usePatientResourceDetailScreen', () => {
     expect(valueKeys).toContain('patient_display_label');
     expect(valueKeys).not.toContain('patient_id');
   });
+
+  it('hydrates patient-medical-histories detail with a human-readable patient label', () => {
+    mockParams = { id: 'history-1' };
+    mockCrudData = {
+      id: 'history-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-c',
+      condition: 'Hypertension',
+      diagnosis_date: '2024-03-10T00:00:00.000Z',
+    };
+    usePatient.mockReturnValue({
+      get: mockGetPatientById,
+      data: { id: 'patient-c', first_name: 'Rita', last_name: 'Kimani' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPatientLookup,
+    });
+
+    const { result } = renderHook(() => usePatientResourceDetailScreen('patient-medical-histories'));
+    const valueKeys = result.current.detailRows.map((row) => row.valueKey);
+
+    expect(mockGetPatientById).toHaveBeenCalledWith('patient-c');
+    expect(result.current.item.patient_display_label).toBe('Rita Kimani');
+    expect(valueKeys).toContain('patient_display_label');
+    expect(valueKeys).not.toContain('patient_id');
+  });
 });

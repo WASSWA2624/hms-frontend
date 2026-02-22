@@ -540,6 +540,12 @@ const resourceConfigs = {
     i18nKey: 'patients.resources.patientMedicalHistories',
     supportsPatientFilter: true,
     requiresPatientSelection: true,
+    allowListWithoutPatientContext: true,
+    allowCreateWithoutPatientContext: true,
+    allowEditWithoutPatientContext: true,
+    resolvePatientLabels: true,
+    hidePatientSelectorOnEdit: true,
+    hidePatientSelectorWhenContextProvided: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
@@ -576,8 +582,21 @@ const resourceConfigs = {
     ),
     getItemSubtitle: (item, t) => {
       const diagnosedOn = toDateOnly(item?.diagnosis_date);
-      if (!diagnosedOn) return '';
-      return `${t('patients.resources.patientMedicalHistories.detail.diagnosedOnLabel')}: ${diagnosedOn}`;
+      const patientLabel = resolveFirstReadable(
+        item?.patient_display_label,
+        item?.patient_name,
+        item?.patient_label
+      );
+      if (diagnosedOn && patientLabel) {
+        return `${t('patients.resources.patientMedicalHistories.detail.diagnosedOnLabel')}: ${diagnosedOn} | ${t('patients.resources.patientMedicalHistories.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      if (diagnosedOn) {
+        return `${t('patients.resources.patientMedicalHistories.detail.diagnosedOnLabel')}: ${diagnosedOn}`;
+      }
+      if (patientLabel) {
+        return `${t('patients.resources.patientMedicalHistories.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      return '';
     },
     getInitialValues: (record) => ({
       condition: sanitizeString(record?.condition),
@@ -592,6 +611,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.patientMedicalHistories.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.patientMedicalHistories.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.patientMedicalHistories.detail.patientNameLabel', valueKey: 'patient_display_label' },
       { labelKey: 'patients.resources.patientMedicalHistories.detail.patientLabel', valueKey: 'patient_id' },
       { labelKey: 'patients.resources.patientMedicalHistories.detail.conditionLabel', valueKey: 'condition' },
       { labelKey: 'patients.resources.patientMedicalHistories.detail.diagnosedOnLabel', valueKey: 'diagnosis_date' },
