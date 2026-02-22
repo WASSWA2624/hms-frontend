@@ -306,4 +306,56 @@ describe('usePatientResourceFormScreen', () => {
     const payload = mockUpdate.mock.calls[0][1];
     expect(payload).not.toHaveProperty('patient_id');
   });
+
+  it('hides patient selector when patient context is preselected for patient allergies', async () => {
+    mockParams = { patientId: 'patient-context-id' };
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canCreatePatientRecords: true,
+      canEditPatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: null,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('patient-allergies'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-context-id');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+    expect(mockListPatients).not.toHaveBeenCalled();
+  });
+
+  it('hides patient selector on edit for patient allergies', async () => {
+    mockParams = { id: 'allergy-1' };
+    mockCrudData = {
+      id: 'allergy-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-1',
+      allergen: 'Peanuts',
+      severity: 'SEVERE',
+      reaction: 'Hives',
+      notes: 'Carries epipen',
+    };
+    mockUpdate.mockResolvedValue({ id: 'allergy-1' });
+
+    const { result } = renderHook(() => usePatientResourceFormScreen('patient-allergies'));
+
+    await waitFor(() => {
+      expect(result.current.values.patient_id).toBe('patient-1');
+    });
+
+    expect(result.current.showPatientField).toBe(false);
+
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+    const payload = mockUpdate.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('patient_id');
+  });
 });

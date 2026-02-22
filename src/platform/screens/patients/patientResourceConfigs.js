@@ -438,6 +438,12 @@ const resourceConfigs = {
     i18nKey: 'patients.resources.patientAllergies',
     supportsPatientFilter: true,
     requiresPatientSelection: true,
+    allowListWithoutPatientContext: true,
+    allowCreateWithoutPatientContext: true,
+    allowEditWithoutPatientContext: true,
+    resolvePatientLabels: true,
+    hidePatientSelectorOnEdit: true,
+    hidePatientSelectorWhenContextProvided: true,
     listParams: { page: 1, limit: 20 },
     fields: [
       {
@@ -487,8 +493,21 @@ const resourceConfigs = {
     ),
     getItemSubtitle: (item, t) => {
       const severity = sanitizeString(item?.severity);
-      if (!severity) return '';
-      return `${t('patients.resources.patientAllergies.detail.severityLabel')}: ${severity}`;
+      const patientLabel = resolveFirstReadable(
+        item?.patient_display_label,
+        item?.patient_name,
+        item?.patient_label
+      );
+      if (severity && patientLabel) {
+        return `${t('patients.resources.patientAllergies.detail.severityLabel')}: ${severity} | ${t('patients.resources.patientAllergies.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      if (severity) {
+        return `${t('patients.resources.patientAllergies.detail.severityLabel')}: ${severity}`;
+      }
+      if (patientLabel) {
+        return `${t('patients.resources.patientAllergies.detail.patientNameLabel')}: ${patientLabel}`;
+      }
+      return '';
     },
     getInitialValues: (record) => ({
       allergen: sanitizeString(record?.allergen),
@@ -505,6 +524,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'patients.resources.patientAllergies.detail.idLabel', valueKey: 'id' },
       { labelKey: 'patients.resources.patientAllergies.detail.tenantLabel', valueKey: 'tenant_id' },
+      { labelKey: 'patients.resources.patientAllergies.detail.patientNameLabel', valueKey: 'patient_display_label' },
       { labelKey: 'patients.resources.patientAllergies.detail.patientLabel', valueKey: 'patient_id' },
       { labelKey: 'patients.resources.patientAllergies.detail.allergenLabel', valueKey: 'allergen' },
       { labelKey: 'patients.resources.patientAllergies.detail.severityLabel', valueKey: 'severity' },

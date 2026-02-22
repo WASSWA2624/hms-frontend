@@ -196,4 +196,30 @@ describe('usePatientResourceDetailScreen', () => {
     expect(valueKeys).toContain('patient_display_label');
     expect(valueKeys).not.toContain('patient_id');
   });
+
+  it('hydrates patient-allergies detail with a human-readable patient label', () => {
+    mockParams = { id: 'allergy-1' };
+    mockCrudData = {
+      id: 'allergy-1',
+      tenant_id: 'tenant-1',
+      patient_id: 'patient-b',
+      allergen: 'Dust',
+      severity: 'MILD',
+    };
+    usePatient.mockReturnValue({
+      get: mockGetPatientById,
+      data: { id: 'patient-b', first_name: 'Asha', last_name: 'Moraa' },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPatientLookup,
+    });
+
+    const { result } = renderHook(() => usePatientResourceDetailScreen('patient-allergies'));
+    const valueKeys = result.current.detailRows.map((row) => row.valueKey);
+
+    expect(mockGetPatientById).toHaveBeenCalledWith('patient-b');
+    expect(result.current.item.patient_display_label).toBe('Asha Moraa');
+    expect(valueKeys).toContain('patient_display_label');
+    expect(valueKeys).not.toContain('patient_id');
+  });
 });

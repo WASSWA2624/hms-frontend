@@ -356,4 +356,63 @@ describe('usePatientResourceListScreen', () => {
     expect(subtitle).toContain('patients.resources.patientIdentifiers.detail.patientNameLabel');
     expect(subtitle).toContain('Jane Doe');
   });
+
+  it('supports patient-allergies list and create without route patient context', () => {
+    usePatient.mockReturnValue({
+      list: mockListPatients,
+      data: {
+        items: [
+          {
+            id: 'patient-1',
+            first_name: 'Jane',
+            last_name: 'Doe',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockResetPatientLookup,
+    });
+    usePatientResourceCrud.mockReturnValue({
+      list: mockList,
+      remove: mockRemove,
+      data: {
+        items: [
+          {
+            id: 'allergy-1',
+            tenant_id: 'tenant-1',
+            patient_id: 'patient-1',
+            allergen: 'Peanuts',
+            severity: 'SEVERE',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePatientResourceListScreen('patient-allergies'));
+
+    expect(result.current.onAdd).toEqual(expect.any(Function));
+    expect(mockReset).toHaveBeenCalledTimes(1);
+    expect(mockList).toHaveBeenCalledTimes(1);
+    expect(mockListPatients).toHaveBeenCalledTimes(1);
+
+    const listParams = mockList.mock.calls[0][0];
+    expect(listParams).toMatchObject({
+      tenant_id: 'tenant-1',
+    });
+    expect(listParams.patient_id).toBeUndefined();
+    expect(listParams.limit).toBeLessThanOrEqual(100);
+
+    const subtitle = result.current.config.getItemSubtitle(
+      result.current.items[0],
+      (key) => key
+    );
+    expect(subtitle).toContain('patients.resources.patientAllergies.detail.severityLabel');
+    expect(subtitle).toContain('SEVERE');
+    expect(subtitle).toContain('patients.resources.patientAllergies.detail.patientNameLabel');
+    expect(subtitle).toContain('Jane Doe');
+  });
 });

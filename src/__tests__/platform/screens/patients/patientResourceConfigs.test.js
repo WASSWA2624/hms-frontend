@@ -47,6 +47,29 @@ describe('patientResourceConfigs', () => {
     expect(detailValueKeys).toContain('patient_display_label');
   });
 
+  it('configures patient allergies for contextless navigation and patient label display', () => {
+    const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_ALLERGIES);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
+
+    expect(config).toBeTruthy();
+    expect(config.requiresPatientSelection).toBe(true);
+    expect(config.allowListWithoutPatientContext).toBe(true);
+    expect(config.allowCreateWithoutPatientContext).toBe(true);
+    expect(config.allowEditWithoutPatientContext).toBe(true);
+    expect(config.hidePatientSelectorOnEdit).toBe(true);
+    expect(config.hidePatientSelectorWhenContextProvided).toBe(true);
+    expect(config.resolvePatientLabels).toBe(true);
+    expect(fieldByName.severity?.type).toBe('select');
+    expect((fieldByName.severity?.options || []).map((option) => option.value)).toEqual([
+      'MILD',
+      'MODERATE',
+      'SEVERE',
+    ]);
+
+    const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
+    expect(detailValueKeys).toContain('patient_display_label');
+  });
+
   it('captures core writable patient fields and uses selector controls for enum/table-backed values', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENTS);
     const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));

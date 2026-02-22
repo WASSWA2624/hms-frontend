@@ -43,6 +43,7 @@ const PatientResourceFormScreenIOS = ({ resourceId }) => {
     helpContent,
     visibleFields,
     showTenantField,
+    showPatientField,
     isEdit,
     values,
     setFieldValue,
@@ -217,7 +218,7 @@ const PatientResourceFormScreenIOS = ({ resourceId }) => {
                   </StyledFullRow>
                 ) : null}
 
-                {config.requiresPatientSelection ? (
+                {showPatientField ? (
                   <StyledFullRow>
                     <StyledFieldGroup>
                       {patientListLoading ? (

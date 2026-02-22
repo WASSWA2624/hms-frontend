@@ -6152,6 +6152,7 @@
           "deleteHint": "Delete this patient allergy",
           "idLabel": "Allergy ID",
           "tenantLabel": "Tenant ID",
+          "patientNameLabel": "Patient",
           "patientLabel": "Patient ID",
           "allergenLabel": "Allergen",
           "severityLabel": "Severity",
