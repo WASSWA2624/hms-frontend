@@ -1,6 +1,12 @@
-import { PatientResourceDetailScreen } from '@platform/screens';
+import { LegacyWorkspaceRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function PatientAllergiesDetailRoute() {
-  return <PatientResourceDetailScreen resourceId="patient-allergies" />;
+export default function PatientsLegacyRoute() {
+  return (
+    <LegacyWorkspaceRedirect
+      tab="care"
+      panel="allergies"
+      testID="patients-legacy-allergies-detail-redirect"
+    />
+  );
 }
 

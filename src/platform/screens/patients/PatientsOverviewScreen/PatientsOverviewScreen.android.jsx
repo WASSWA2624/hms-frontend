@@ -169,19 +169,26 @@ const PatientsOverviewScreenAndroid = () => {
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.resourcesTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>{t('patients.overview.quickPathsTitle')}</StyledSectionTitle>
           </StyledSectionHeader>
           <StyledCardGrid>
             {cards.map((card) => (
               <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`patients-card-${card.id}`}>
                 <StyledTileTitle>{card.label}</StyledTileTitle>
                 <StyledTileDescription>{card.description}</StyledTileDescription>
+                {(() => {
+                  const actionLabel = card.id === 'legal'
+                    ? t('patients.overview.openLegalHub')
+                    : t('patients.overview.openDirectory');
+                  return (
                 <StyledTileAction
                   onPress={() => onOpenResource(card.routePath)}
-                  accessibilityLabel={t('patients.overview.openResource', { resource: card.label })}
+                  accessibilityLabel={actionLabel}
                 >
-                  <Text variant="body">{t('patients.overview.openResourceButton')}</Text>
+                      <Text variant="body">{actionLabel}</Text>
                 </StyledTileAction>
+                  );
+                })()}
               </Card>
             ))}
           </StyledCardGrid>

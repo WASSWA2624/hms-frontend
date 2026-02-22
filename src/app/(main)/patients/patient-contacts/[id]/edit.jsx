@@ -1,6 +1,12 @@
-import { PatientResourceFormScreen } from '@platform/screens';
+import { LegacyWorkspaceRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function PatientContactsEditRoute() {
-  return <PatientResourceFormScreen resourceId="patient-contacts" />;
+export default function PatientsLegacyRoute() {
+  return (
+    <LegacyWorkspaceRedirect
+      tab="identity"
+      panel="contacts"
+      testID="patients-legacy-contacts-edit-redirect"
+    />
+  );
 }
 

@@ -1,5 +1,6 @@
-import { PatientResourceFormScreen } from '@platform/screens';
+import { LegacyLegalHubRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function TermsAcceptancesCreateRoute() {
-  return <PatientResourceFormScreen resourceId="terms-acceptances" />;
+export default function PatientsLegacyRoute() {
+  return <LegacyLegalHubRedirect tab="terms" testID="patients-legacy-terms-create-redirect" />;
 }
+

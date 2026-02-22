@@ -1,6 +1,12 @@
-import { PatientResourceListScreen } from '@platform/screens';
+import { LegacyWorkspaceRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function PatientDocumentsListRoute() {
-  return <PatientResourceListScreen resourceId="patient-documents" />;
+export default function PatientsLegacyRoute() {
+  return (
+    <LegacyWorkspaceRedirect
+      tab="documents"
+      panel="documents"
+      testID="patients-legacy-documents-index-redirect"
+    />
+  );
 }
 

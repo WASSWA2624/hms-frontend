@@ -22,10 +22,16 @@ const PatientsOverviewScreenIOS = require('@platform/screens/patients/PatientsOv
 const buildBaseHook = () => ({
   cards: [
     {
-      id: 'patients',
+      id: 'directory',
       routePath: '/patients/patients',
-      label: 'Patients',
-      description: 'Core patient demographics and activation state.',
+      label: 'Patient Directory',
+      description: 'Search and open patient workspaces.',
+    },
+    {
+      id: 'legal',
+      routePath: '/patients/legal',
+      label: 'Legal Hub',
+      description: 'Manage global consent and terms operations.',
     },
   ],
   overviewSummary: {
@@ -77,9 +83,10 @@ describe('PatientsOverviewScreen', () => {
           'patients.overview.registerPatient': 'Register Patient',
           'patients.overview.registerPatientHint': 'Open the patient registration form',
           'patients.overview.summaryTitle': 'Patient overview summary',
-          'patients.overview.resourcesTitle': 'Patient Resources',
+          'patients.overview.quickPathsTitle': 'Quick Paths',
+          'patients.overview.openDirectory': 'Open directory',
+          'patients.overview.openLegalHub': 'Open legal hub',
           'patients.overview.recentPatientsTitle': 'Recent Patients',
-          'patients.overview.openResourceButton': 'Open',
           'patients.overview.loadErrorTitle': 'Unable to load patient overview',
           'patients.overview.emptyTitle': 'No patients yet',
           'patients.overview.emptyMessage': 'Register your first patient to start using linked records.',

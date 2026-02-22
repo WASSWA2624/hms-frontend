@@ -1,6 +1,12 @@
-import { PatientResourceDetailScreen } from '@platform/screens';
+import { LegacyWorkspaceRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function PatientIdentifiersDetailRoute() {
-  return <PatientResourceDetailScreen resourceId="patient-identifiers" />;
+export default function PatientsLegacyRoute() {
+  return (
+    <LegacyWorkspaceRedirect
+      tab="identity"
+      panel="identifiers"
+      testID="patients-legacy-identifiers-detail-redirect"
+    />
+  );
 }
 

@@ -1,5 +1,6 @@
-import { PatientResourceDetailScreen } from '@platform/screens';
+import { LegacyLegalHubRedirect } from '@platform/screens/patients/legacyRouteRedirects';
 
-export default function ConsentsDetailRoute() {
-  return <PatientResourceDetailScreen resourceId="consents" />;
+export default function PatientsLegacyRoute() {
+  return <LegacyLegalHubRedirect tab="consents" testID="patients-legacy-consents-detail-redirect" />;
 }
+

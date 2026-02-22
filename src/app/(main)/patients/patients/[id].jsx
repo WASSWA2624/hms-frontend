@@ -1,6 +1,5 @@
-import { PatientResourceDetailScreen } from '@platform/screens';
+import { PatientWorkspaceScreen } from '@platform/screens';
 
 export default function PatientRecordsDetailRoute() {
-  return <PatientResourceDetailScreen resourceId="patients" />;
+  return <PatientWorkspaceScreen />;
 }
-

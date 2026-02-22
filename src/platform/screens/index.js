@@ -93,9 +93,10 @@ export { default as OauthAccountFormScreen } from './settings/OauthAccountFormSc
 // Patients screens
 export { default as PatientsScreen } from './patients/PatientsScreen/PatientsScreen';
 export { default as PatientsOverviewScreen } from './patients/PatientsOverviewScreen/PatientsOverviewScreen';
-export { default as PatientResourceListScreen } from './patients/PatientResourceListScreen/PatientResourceListScreen';
-export { default as PatientResourceDetailScreen } from './patients/PatientResourceDetailScreen/PatientResourceDetailScreen';
-export { default as PatientResourceFormScreen } from './patients/PatientResourceFormScreen/PatientResourceFormScreen';
+export { default as PatientDirectoryScreen } from './patients/PatientDirectoryScreen';
+export { default as PatientQuickCreateScreen } from './patients/PatientQuickCreateScreen';
+export { default as PatientWorkspaceScreen } from './patients/PatientWorkspaceScreen';
+export { default as PatientLegalHubScreen } from './patients/PatientLegalHubScreen';
 
 // Scheduling screens
 export { default as SchedulingScreen } from './scheduling/SchedulingScreen';

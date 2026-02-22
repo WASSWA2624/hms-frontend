@@ -39,6 +39,10 @@ const translationMap = {
   'patients.overview.helpItems.sequence': 'Sequence item',
   'patients.overview.helpItems.access': 'Access item',
   'patients.overview.helpItems.recovery': 'Recovery item',
+  'patients.overview.quickPaths.directoryTitle': 'Patient directory',
+  'patients.overview.quickPaths.directoryDescription': 'Search and open patient workspaces.',
+  'patients.overview.quickPaths.legalTitle': 'Legal hub',
+  'patients.overview.quickPaths.legalDescription': 'Manage global consent and terms operations.',
 };
 
 const mockTranslate = (key, values = {}) => {
@@ -189,7 +193,22 @@ describe('usePatientsOverviewScreen', () => {
       result.current.onOpenPatient('patient-55');
     });
 
-    expect(mockPush).toHaveBeenCalledWith('/patients/patients/patient-55?patientId=patient-55');
+    expect(mockPush).toHaveBeenCalledWith('/patients/patients/patient-55');
+  });
+
+  it('returns two quick-path cards for directory and legal hub', () => {
+    const { result } = renderHook(() => usePatientsOverviewScreen());
+
+    expect(result.current.cards).toEqual([
+      expect.objectContaining({
+        id: 'directory',
+        routePath: '/patients/patients',
+      }),
+      expect.objectContaining({
+        id: 'legal',
+        routePath: '/patients/legal',
+      }),
+    ]);
   });
 
   it('redirects to dashboard when route access is denied', () => {

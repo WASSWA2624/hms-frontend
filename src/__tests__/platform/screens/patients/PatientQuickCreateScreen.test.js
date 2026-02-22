@@ -1,0 +1,81 @@
+const React = require('react');
+const { render } = require('@testing-library/react-native');
+const { ThemeProvider } = require('styled-components/native');
+const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
+
+jest.mock('@hooks', () => ({
+  useI18n: jest.fn(),
+}));
+
+jest.mock('@platform/screens/patients/PatientQuickCreateScreen/usePatientQuickCreateScreen', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+const { useI18n } = require('@hooks');
+const usePatientQuickCreateScreen = require('@platform/screens/patients/PatientQuickCreateScreen/usePatientQuickCreateScreen').default;
+const PatientQuickCreateScreen = require('@platform/screens/patients/PatientQuickCreateScreen/PatientQuickCreateScreen').default;
+
+const renderWithTheme = (component) => render(
+  <ThemeProvider theme={lightTheme}>
+    {component}
+  </ThemeProvider>
+);
+
+describe('PatientQuickCreateScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useI18n.mockReturnValue({ t: (key) => key });
+    usePatientQuickCreateScreen.mockReturnValue({
+      values: {
+        tenant_id: 'tenant-1',
+        first_name: 'Jane',
+        last_name: 'Doe',
+        date_of_birth: '1990-01-01',
+        gender: 'FEMALE',
+        facility_id: 'facility-1',
+        is_active: true,
+      },
+      errors: {},
+      genderOptions: [{ value: 'FEMALE', label: 'Female' }],
+      tenantOptions: [{ value: 'tenant-1', label: 'Tenant One' }],
+      facilityOptions: [{ value: 'facility-1', label: 'Facility One' }],
+      isLoading: false,
+      isOffline: false,
+      hasError: false,
+      errorMessage: null,
+      isEntitlementBlocked: false,
+      tenantErrorCode: null,
+      tenantErrorMessage: null,
+      facilityErrorCode: null,
+      facilityErrorMessage: null,
+      isTenantLoading: false,
+      isFacilityLoading: false,
+      requiresTenantSelection: true,
+      canCreatePatientRecords: true,
+      onChange: jest.fn(),
+      onCancel: jest.fn(),
+      onRetry: jest.fn(),
+      onSubmit: jest.fn(),
+      onGoToSubscriptions: jest.fn(),
+    });
+  });
+
+  it('renders field help triggers and inline guides for quick-create form fields', () => {
+    const { getByTestId, getByText } = renderWithTheme(<PatientQuickCreateScreen />);
+
+    expect(getByTestId('patient-quick-create-help-tenant')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-first_name')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-last_name')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-date_of_birth')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-gender')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-facility')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-help-is-active')).toBeTruthy();
+
+    expect(getByTestId('patient-quick-create-guide-first_name')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-guide-last_name')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-guide-date_of_birth')).toBeTruthy();
+    expect(getByText('patients.resources.patients.form.genderHint')).toBeTruthy();
+  });
+});
+

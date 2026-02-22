@@ -5710,7 +5710,13 @@
       "accessSummaryReadWrite": "Access: read and register patients",
       "accessSummaryReadOnly": "Access: read-only patient workspace",
       "recentPatientsCount": "Recent records shown: {{count}}",
-      "resourcesTitle": "Patient Resources",
+      "quickPathsTitle": "Quick Paths",
+      "quickPaths": {
+        "directoryTitle": "Patient Directory",
+        "directoryDescription": "Search and open patient workspaces with deep relational lookup.",
+        "legalTitle": "Legal Hub",
+        "legalDescription": "Manage global consent and terms acceptance workflows."
+      },
       "recentPatientsTitle": "Recent Patients",
       "emptyTitle": "No patients yet",
       "emptyMessage": "Register your first patient to start using linked records.",
@@ -5718,6 +5724,8 @@
       "unknownDemographics": "Profile details pending",
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
+      "openDirectory": "Open directory",
+      "openLegalHub": "Open legal hub",
       "openPatient": "Open patient {{patient}}",
       "helpLabel": "Open patient registry guidance",
       "helpTooltip": "Open guidance for patient overview, permissions, and recovery.",
@@ -5735,10 +5743,55 @@
       "description": "Search patients by demographics, identifiers, contacts, guardians, care context, documents, and consents.",
       "searchLabel": "Deep search",
       "searchPlaceholder": "Name, patient ID, contact, guardian, allergy, history, document, consent...",
+      "showFilters": "Show filters",
+      "hideFilters": "Hide filters",
+      "applyFilters": "Apply filters",
+      "clearFilters": "Clear filters",
+      "filteredResults": "Filters are active",
       "sortLabel": "Sort by",
       "orderLabel": "Order",
       "pageSizeLabel": "Rows",
       "pageSummary": "Page {{page}} of {{totalPages}} ({{total}} total)",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "patientIdLabel": "Patient ID",
+      "patientIdPlaceholder": "PAT-0001",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "First name",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Last name",
+      "genderLabel": "Gender",
+      "anyGender": "Any gender",
+      "dateOfBirthLabel": "Date of birth",
+      "dateOfBirthPlaceholder": "YYYY-MM-DD",
+      "contactLabel": "Contact",
+      "contactPlaceholder": "Phone, email, or contact value",
+      "appointmentStatusLabel": "Appointment status",
+      "anyAppointmentStatus": "Any appointment status",
+      "createdRangeLabel": "Created date range",
+      "createdRangeHint": "Filter by patient creation date.",
+      "appointmentRangeLabel": "Appointment date range",
+      "appointmentRangeHint": "Filter by linked appointment scheduled start dates.",
+      "dateRangePresetLabel": "Quick range",
+      "dateRangeFromLabel": "From",
+      "dateRangeToLabel": "To",
+      "clearDateRange": "Clear range",
+      "dateRangePresets": {
+        "CUSTOM": "Custom",
+        "TODAY": "Today",
+        "LAST_7_DAYS": "Last 7 days",
+        "LAST_30_DAYS": "Last 30 days",
+        "THIS_MONTH": "This month",
+        "LAST_MONTH": "Last month"
+      },
+      "appointmentStatusOptions": {
+        "SCHEDULED": "Scheduled",
+        "CONFIRMED": "Confirmed",
+        "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "NO_SHOW": "No show"
+      },
       "emptyTitle": "No patients found",
       "emptyMessage": "Try another search term or adjust filters.",
       "openWorkspace": "Open workspace",
@@ -5748,6 +5801,8 @@
       "sortOptions": {
         "updated_at": "Last updated",
         "created_at": "Date created",
+        "date_of_birth": "Date of birth",
+        "gender": "Gender",
         "first_name": "First name",
         "last_name": "Last name",
         "human_friendly_id": "Patient ID"
@@ -5815,8 +5870,23 @@
         "terms": "Terms Acceptances"
       },
       "actions": {
-        "newConsent": "Add consent",
-        "newTerms": "Add terms acceptance"
+        "refresh": "Refresh",
+        "newRecord": "Add record",
+        "editRecord": "Edit",
+        "deleteRecord": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "state": {
+        "emptyTab": "No records available for this legal view.",
+        "loadError": "Unable to load legal hub records.",
+        "deleteConfirm": "Delete this legal record?"
+      },
+      "labels": {
+        "recordId": "Record ID",
+        "patient": "Patient",
+        "user": "User",
+        "version": "Version"
       }
     },
     "entitlement": {

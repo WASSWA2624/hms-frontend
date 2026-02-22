@@ -6,6 +6,7 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
+  GlobalDateRangeField,
   Icon,
   LoadingSpinner,
   OfflineState,
@@ -36,6 +37,13 @@ const StyledHeaderRow = styled.View`
 
 const StyledToolbarCard = styled(Card)`
   gap: 12px;
+`;
+
+const StyledAdvancedFilters = styled.View`
+  gap: 10px;
+  border-top-width: 1px;
+  border-top-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
+  padding-top: 10px;
 `;
 
 const StyledToolbarGrid = styled.View`
@@ -84,6 +92,13 @@ const StyledPaginationActions = styled.View`
   gap: 8px;
 `;
 
+const StyledFilterActions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+`;
+
 const PatientDirectoryScreen = () => {
   const { t } = useI18n();
   const {
@@ -104,6 +119,13 @@ const PatientDirectoryScreen = () => {
     isEntitlementBlocked,
     canCreatePatientRecords,
     hasResults,
+    isFilterPanelOpen,
+    filters,
+    dateRangePresets,
+    hasActiveFilters,
+    genderFilterValues,
+    appointmentStatusFilterValues,
+    datePresetValues,
     onSearch,
     onSortBy,
     onOrder,
@@ -114,6 +136,13 @@ const PatientDirectoryScreen = () => {
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,
+    onToggleFilterPanel,
+    onFilterChange,
+    onDateRangePresetChange,
+    onDateRangeValueChange,
+    onClearDateRange,
+    onApplyFilters,
+    onClearFilters,
   } = usePatientDirectoryScreen();
 
   const sortSelectOptions = sortOptions.map((value) => ({
@@ -127,6 +156,22 @@ const PatientDirectoryScreen = () => {
   const pageSizeSelectOptions = pageSizeOptions.map((value) => ({
     value: String(value),
     label: String(value),
+  }));
+  const genderOptions = genderFilterValues.map((value) => ({
+    value,
+    label: value
+      ? t(`patients.resources.patients.options.gender.${value.toLowerCase()}`)
+      : t('patients.directory.anyGender'),
+  }));
+  const appointmentStatusOptions = appointmentStatusFilterValues.map((value) => ({
+    value,
+    label: value
+      ? t(`patients.directory.appointmentStatusOptions.${value}`)
+      : t('patients.directory.anyAppointmentStatus'),
+  }));
+  const datePresetOptions = datePresetValues.map((value) => ({
+    value,
+    label: t(`patients.directory.dateRangePresets.${value}`),
   }));
 
   return (
@@ -145,6 +190,22 @@ const PatientDirectoryScreen = () => {
               icon={<Icon glyph="?" size="xs" decorative />}
             >
               {t('patients.directory.refresh')}
+            </Button>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onToggleFilterPanel}
+              accessibilityLabel={t(
+                isFilterPanelOpen
+                  ? 'patients.directory.hideFilters'
+                  : 'patients.directory.showFilters'
+              )}
+              icon={<Icon glyph="?" size="xs" decorative />}
+              testID="patient-directory-toggle-filters"
+            >
+              {isFilterPanelOpen
+                ? t('patients.directory.hideFilters')
+                : t('patients.directory.showFilters')}
             </Button>
             {canCreatePatientRecords ? (
               <Button
@@ -221,6 +282,154 @@ const PatientDirectoryScreen = () => {
             />
           </StyledToolbarField>
         </StyledToolbarGrid>
+
+        {isFilterPanelOpen ? (
+          <StyledAdvancedFilters>
+            <StyledToolbarGrid>
+              <StyledToolbarField>
+                <TextField
+                  label={t('patients.directory.patientIdLabel')}
+                  value={filters.patient_id}
+                  placeholder={t('patients.directory.patientIdPlaceholder')}
+                  onChange={(event) => onFilterChange('patient_id', event?.target?.value)}
+                  onChangeText={(value) => onFilterChange('patient_id', value)}
+                  density="compact"
+                  testID="patient-directory-filter-patient-id"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <TextField
+                  label={t('patients.directory.firstNameLabel')}
+                  value={filters.first_name}
+                  placeholder={t('patients.directory.firstNamePlaceholder')}
+                  onChange={(event) => onFilterChange('first_name', event?.target?.value)}
+                  onChangeText={(value) => onFilterChange('first_name', value)}
+                  density="compact"
+                  testID="patient-directory-filter-first-name"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <TextField
+                  label={t('patients.directory.lastNameLabel')}
+                  value={filters.last_name}
+                  placeholder={t('patients.directory.lastNamePlaceholder')}
+                  onChange={(event) => onFilterChange('last_name', event?.target?.value)}
+                  onChangeText={(value) => onFilterChange('last_name', value)}
+                  density="compact"
+                  testID="patient-directory-filter-last-name"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <Select
+                  label={t('patients.directory.genderLabel')}
+                  value={filters.gender}
+                  options={genderOptions}
+                  onValueChange={(value) => onFilterChange('gender', value)}
+                  compact
+                  testID="patient-directory-filter-gender"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <TextField
+                  type="date"
+                  label={t('patients.directory.dateOfBirthLabel')}
+                  value={filters.date_of_birth}
+                  placeholder={t('patients.directory.dateOfBirthPlaceholder')}
+                  onChange={(event) => onFilterChange('date_of_birth', event?.target?.value)}
+                  onChangeText={(value) => onFilterChange('date_of_birth', value)}
+                  density="compact"
+                  testID="patient-directory-filter-dob"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <TextField
+                  label={t('patients.directory.contactLabel')}
+                  value={filters.contact}
+                  placeholder={t('patients.directory.contactPlaceholder')}
+                  onChange={(event) => onFilterChange('contact', event?.target?.value)}
+                  onChangeText={(value) => onFilterChange('contact', value)}
+                  density="compact"
+                  testID="patient-directory-filter-contact"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <Select
+                  label={t('patients.directory.appointmentStatusLabel')}
+                  value={filters.appointment_status}
+                  options={appointmentStatusOptions}
+                  onValueChange={(value) => onFilterChange('appointment_status', value)}
+                  compact
+                  testID="patient-directory-filter-appointment-status"
+                />
+              </StyledToolbarField>
+            </StyledToolbarGrid>
+
+            <GlobalDateRangeField
+              label={t('patients.directory.createdRangeLabel')}
+              helperText={t('patients.directory.createdRangeHint')}
+              presetLabel={t('patients.directory.dateRangePresetLabel')}
+              preset={dateRangePresets.created}
+              presetOptions={datePresetOptions}
+              onPresetChange={(value) => onDateRangePresetChange('created', value)}
+              fromLabel={t('patients.directory.dateRangeFromLabel')}
+              toLabel={t('patients.directory.dateRangeToLabel')}
+              fromValue={filters.created_from}
+              toValue={filters.created_to}
+              onFromChange={(value) => onDateRangeValueChange('created', 'from', value)}
+              onToChange={(value) => onDateRangeValueChange('created', 'to', value)}
+              clearLabel={t('patients.directory.clearDateRange')}
+              onClear={() => onClearDateRange('created')}
+              testID="patient-directory-created-range"
+            />
+
+            <GlobalDateRangeField
+              label={t('patients.directory.appointmentRangeLabel')}
+              helperText={t('patients.directory.appointmentRangeHint')}
+              presetLabel={t('patients.directory.dateRangePresetLabel')}
+              preset={dateRangePresets.appointments}
+              presetOptions={datePresetOptions}
+              onPresetChange={(value) => onDateRangePresetChange('appointments', value)}
+              fromLabel={t('patients.directory.dateRangeFromLabel')}
+              toLabel={t('patients.directory.dateRangeToLabel')}
+              fromValue={filters.appointment_from}
+              toValue={filters.appointment_to}
+              onFromChange={(value) => onDateRangeValueChange('appointments', 'from', value)}
+              onToChange={(value) => onDateRangeValueChange('appointments', 'to', value)}
+              clearLabel={t('patients.directory.clearDateRange')}
+              onClear={() => onClearDateRange('appointments')}
+              testID="patient-directory-appointment-range"
+            />
+
+            <StyledFilterActions>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onClearFilters}
+                accessibilityLabel={t('patients.directory.clearFilters')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+                testID="patient-directory-clear-filters"
+              >
+                {t('patients.directory.clearFilters')}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onApplyFilters}
+                accessibilityLabel={t('patients.directory.applyFilters')}
+                icon={<Icon glyph="?" size="xs" decorative />}
+                testID="patient-directory-apply-filters"
+              >
+                {t('patients.directory.applyFilters')}
+              </Button>
+            </StyledFilterActions>
+          </StyledAdvancedFilters>
+        ) : null}
       </StyledToolbarCard>
 
       {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
@@ -280,6 +489,9 @@ const PatientDirectoryScreen = () => {
         <StyledListCard variant="outlined">
           {hasResults ? (
             <>
+              {hasActiveFilters ? (
+                <Text variant="caption">{t('patients.directory.filteredResults')}</Text>
+              ) : null}
               {items.map((item) => (
                 <StyledListRow key={item.id || item.displayName}>
                   <StyledRowMeta>

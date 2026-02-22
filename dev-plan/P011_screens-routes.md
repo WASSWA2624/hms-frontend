@@ -181,15 +181,15 @@ src/app/
 
 ### Tier 4: Patient Registry and Consent
 - **11.4.1** Patients home - `(main)/patients`
-- **11.4.2** Patients - `(main)/patients/patients` - backend `patient`
-- **11.4.3** Patient identifiers - `(main)/patients/patient-identifiers` - backend `patient-identifier`
-- **11.4.4** Patient contacts - `(main)/patients/patient-contacts` - backend `patient-contact`
-- **11.4.5** Patient guardians - `(main)/patients/patient-guardians` - backend `patient-guardian`
-- **11.4.6** Patient allergies - `(main)/patients/patient-allergies` - backend `patient-allergy`
-- **11.4.7** Patient medical histories - `(main)/patients/patient-medical-histories` - backend `patient-medical-history`
-- **11.4.8** Patient documents - `(main)/patients/patient-documents` - backend `patient-document`
-- **11.4.9** Consents - `(main)/patients/consents` - backend `consent`
-- **11.4.10** Terms acceptances - `(main)/patients/terms-acceptances` - backend `terms-acceptance`
+- **11.4.2** Patient directory + quick create - `(main)/patients/patients` and `(main)/patients/patients/create` - backend `patient`
+- **11.4.3** Identity & reachability workspace surface (identifiers, contacts, guardians) - `(main)/patients/patients/[id]?tab=identity` - backend `patient-identifier`, `patient-contact`, `patient-guardian`
+- **11.4.4** Deprecated compatibility routes for patient contacts -> redirect to workspace identity tab
+- **11.4.5** Deprecated compatibility routes for patient guardians -> redirect to workspace identity tab
+- **11.4.6** Care context workspace surface (allergies, medical histories) - `(main)/patients/patients/[id]?tab=care` - backend `patient-allergy`, `patient-medical-history`
+- **11.4.7** Deprecated compatibility routes for patient medical histories -> redirect to workspace care tab
+- **11.4.8** Workspace documents + patient consents surfaces - `(main)/patients/patients/[id]?tab=documents|consents` - backend `patient-document`, `consent`
+- **11.4.9** Deprecated compatibility routes for standalone consents -> redirect to legal hub
+- **11.4.10** Global legal hub (consents + terms acceptances) - `(main)/patients/legal` - backend `consent`, `terms-acceptance`
 
 ### Tier 5: Scheduling, Availability, and Queues
 - **11.5.1** Scheduling home - `(main)/scheduling`

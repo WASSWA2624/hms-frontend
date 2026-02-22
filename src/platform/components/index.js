@@ -24,6 +24,7 @@ export { default as Select } from './forms/Select';
 export { default as Dropdown } from './forms/Dropdown';
 export { default as Slider } from './forms/Slider';
 export { default as SearchBar, useSearchBar } from './forms/SearchBar';
+export { default as GlobalDateRangeField } from './forms/GlobalDateRangeField';
 
 // Navigation Components
 export { default as Header } from './navigation/Header';

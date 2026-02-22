@@ -180,20 +180,27 @@ const PatientsOverviewScreenWeb = () => {
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.resourcesTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>{t('patients.overview.quickPathsTitle')}</StyledSectionTitle>
           </StyledSectionHeader>
           <StyledCardGrid>
             {cards.map((card) => (
               <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`patients-card-${card.id}`}>
                 <StyledTileTitle>{card.label}</StyledTileTitle>
                 <StyledTileDescription>{card.description}</StyledTileDescription>
+                {(() => {
+                  const actionLabel = card.id === 'legal'
+                    ? t('patients.overview.openLegalHub')
+                    : t('patients.overview.openDirectory');
+                  return (
                 <StyledTileAction
                   type="button"
                   onClick={() => onOpenResource(card.routePath)}
-                  aria-label={t('patients.overview.openResource', { resource: card.label })}
+                  aria-label={actionLabel}
                 >
-                  {t('patients.overview.openResourceButton')}
+                      {actionLabel}
                 </StyledTileAction>
+                  );
+                })()}
               </Card>
             ))}
           </StyledCardGrid>

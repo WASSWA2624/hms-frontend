@@ -1,42 +1,40 @@
-Step file for **11.4.6** - Patient allergies.
+Step file for **11.4.6** - Care Context (Merged Workspace Surface).
 Load `../00_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.4.6`
-- Route: `(main)/patients/patient-allergies`
-- Backend module: `patient-allergy`
-- Action mode: Full route surface (list/detail/create/edit).
+- Primary route: `(main)/patients/patients/[id]?tab=care`
+- Backend modules: `patient-allergy`, `patient-medical-history`
+- Action mode: In-workspace merged CRUD + compatibility redirects.
 
-## Mounted Route Surface
-- `src/app/(main)/patients/patient-allergies/index.jsx`
-- `src/app/(main)/patients/patient-allergies/[id].jsx`
-- `src/app/(main)/patients/patient-allergies/create.jsx`
-- `src/app/(main)/patients/patient-allergies/[id]/edit.jsx`
+## Owned Route Surface
+- Workspace tab/panels:
+  - `/patients/patients/[id]?tab=care&panel=allergies`
+  - `/patients/patients/[id]?tab=care&panel=histories`
+- Legacy compatibility redirects:
+  - `src/app/(main)/patients/patient-allergies/**`
+  - `src/app/(main)/patients/patient-medical-histories/**`
 
 ## Platform Screen Surface
-- `src/platform/screens/**/*PatientallergiesListScreen/**`
-- `src/platform/screens/**/*PatientallergiesDetailScreen/**`
-- `src/platform/screens/**/*PatientallergiesFormScreen/**`
+- `src/platform/screens/patients/PatientWorkspaceScreen/**`
+- `src/platform/screens/patients/components/**` (field help + inline guide)
 
 ## Test Surface
 - `src/__tests__/app/(main)/patients-routes.test.js`
+- `src/__tests__/platform/screens/patients/usePatientWorkspaceScreen.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `../00_shared-contracts.mdc` with no omissions.
-- Implement only this step route surface unless explicitly selecting additional step IDs.
-- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
-- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
-- List route (`index`): compact toolbar/actions and deterministic loading/empty/error/offline states.
-- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
-- Form routes (`create` / `[id]/edit` where mounted): enforce validation, role-aware submit, and clear cancel/back handoff.
-- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+- Implement allergies/histories as merged in-tab operations only.
+- Do not re-introduce standalone care-context patient subresource screens.
+- Keep role-guarded actions and entitlement-safe blocked UX.
+- Keep clinical identity display human-readable in UI output.
 
 ## Completion Checklist
-- [ ] Route wiring and guards are correct for this step only.
-- [ ] Loading, empty, error, offline, and recovery states are covered.
-- [ ] UI is compact, novice-first, and role-aware with contextual help support.
-- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
-- [ ] Tests are updated for allowed and denied/read-only paths.
+- [ ] Care tab supports merged CRUD for allergies and medical histories.
+- [ ] Legacy care routes redirect correctly with and without patient context.
+- [ ] Help icon and inline guide cover care fields.
+- [ ] Tests cover redirect mapping and in-tab action behavior.
+
 ## Shared Contract Enforcement (Mandatory)
 - This file inherits and must fully comply with ../00_shared-contracts.mdc.
 - All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.

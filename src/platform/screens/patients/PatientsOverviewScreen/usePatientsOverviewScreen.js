@@ -5,10 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
 import {
-  getPatientResourceConfig,
-  PATIENT_RESOURCE_LIST_ORDER,
   sanitizeString,
-  withPatientContext,
 } from '../patientResourceConfigs';
 import { resolveErrorMessage } from '../patientScreenUtils';
 
@@ -118,16 +115,20 @@ const usePatientsOverviewScreen = () => {
   );
 
   const cards = useMemo(
-    () =>
-      PATIENT_RESOURCE_LIST_ORDER.map((resourceId) => {
-        const config = getPatientResourceConfig(resourceId);
-        return {
-          id: resourceId,
-          routePath: config?.routePath || '/patients',
-          label: t(`${config?.i18nKey}.pluralLabel`),
-          description: t(`${config?.i18nKey}.overviewDescription`),
-        };
-      }),
+    () => [
+      {
+        id: 'directory',
+        routePath: '/patients/patients',
+        label: t('patients.overview.quickPaths.directoryTitle'),
+        description: t('patients.overview.quickPaths.directoryDescription'),
+      },
+      {
+        id: 'legal',
+        routePath: '/patients/legal',
+        label: t('patients.overview.quickPaths.legalTitle'),
+        description: t('patients.overview.quickPaths.legalDescription'),
+      },
+    ],
     [t]
   );
 
@@ -218,7 +219,7 @@ const usePatientsOverviewScreen = () => {
       if (!canViewOverview) return;
       const safeId = sanitizeString(patientId);
       if (!safeId) return;
-      router.push(withPatientContext(`/patients/patients/${safeId}`, safeId));
+      router.push(`/patients/patients/${safeId}`);
     },
     [canViewOverview, router]
   );

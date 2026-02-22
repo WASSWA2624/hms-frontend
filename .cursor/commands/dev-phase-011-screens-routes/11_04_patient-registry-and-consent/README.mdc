@@ -5,17 +5,29 @@ Load order:
 2. One or more step files (`11_04_XX_*.mdc`)
 3. If the tier is selected as a whole, execute all steps in numeric order.
 
-Step files:
-- `11_04_01_patients-home.mdc` -> **11.4.1** Patients home (`(main)/patients`)
-- `11_04_02_patients.mdc` -> **11.4.2** Patients (`(main)/patients/patients`)
-- `11_04_03_patient-identifiers.mdc` -> **11.4.3** Patient identifiers (`(main)/patients/patient-identifiers`)
-- `11_04_04_patient-contacts.mdc` -> **11.4.4** Patient contacts (`(main)/patients/patient-contacts`)
-- `11_04_05_patient-guardians.mdc` -> **11.4.5** Patient guardians (`(main)/patients/patient-guardians`)
-- `11_04_06_patient-allergies.mdc` -> **11.4.6** Patient allergies (`(main)/patients/patient-allergies`)
-- `11_04_07_patient-medical-histories.mdc` -> **11.4.7** Patient medical histories (`(main)/patients/patient-medical-histories`)
-- `11_04_08_patient-documents.mdc` -> **11.4.8** Patient documents (`(main)/patients/patient-documents`)
-- `11_04_09_consents.mdc` -> **11.4.9** Consents (`(main)/patients/consents`)
-- `11_04_10_terms-acceptances.mdc` -> **11.4.10** Terms acceptances (`(main)/patients/terms-acceptances`)
+## Tier 4 Consolidation Contract (Current)
+- Primary patient architecture is consolidated around:
+  - `/patients/patients` (directory + deep relational search)
+  - `/patients/patients/create` (quick-create)
+  - `/patients/patients/[id]` (unified workspace tabs)
+  - `/patients/legal` (global legal hub)
+- Legacy patient subresource routes are compatibility redirects only for one cycle.
+- New patient work must target merged surfaces, not standalone CRUD screens.
+
+## Step Ownership (Merged)
+- `11_04_01_patients-home.mdc` -> Patients home (`/patients` overview)
+- `11_04_02_patients.mdc` -> Patient directory + quick-create + workspace entry
+- `11_04_03_patient-identifiers.mdc` -> Identity & Reachability merged workspace surface (`tab=identity`, panels: identifiers/contacts/guardians)
+- `11_04_06_patient-allergies.mdc` -> Care Context merged workspace surface (`tab=care`, panels: allergies/histories)
+- `11_04_08_patient-documents.mdc` -> Documents + patient consents merged workspace surface (`tab=documents|consents`)
+- `11_04_10_terms-acceptances.mdc` -> Global legal hub ownership (`/patients/legal`, tabs: consents/terms)
+
+## Deprecated Compatibility Stubs
+- `11_04_04_patient-contacts.mdc` -> deprecated; redirect-compatible scope now owned by `11_04_03`
+- `11_04_05_patient-guardians.mdc` -> deprecated; redirect-compatible scope now owned by `11_04_03`
+- `11_04_07_patient-medical-histories.mdc` -> deprecated; redirect-compatible scope now owned by `11_04_06`
+- `11_04_09_consents.mdc` -> deprecated; redirect-compatible scope now owned by `11_04_08` and `11_04_10`
+
 ## Shared Contract Enforcement (Mandatory)
 - This file inherits and must fully comply with ../00_shared-contracts.mdc.
 - All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.

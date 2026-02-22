@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useDebounce, useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
 import { isEntitlementDeniedError, resolveErrorMessage } from '../patientScreenUtils';
@@ -7,11 +7,50 @@ const PAGE_SIZE_OPTIONS = Object.freeze([20, 50, 100]);
 const SORT_FIELDS = Object.freeze([
   'updated_at',
   'created_at',
+  'human_friendly_id',
   'first_name',
   'last_name',
-  'human_friendly_id',
+  'date_of_birth',
+  'gender',
 ]);
 const ORDER_FIELDS = Object.freeze(['asc', 'desc']);
+const GENDER_FILTER_VALUES = Object.freeze(['', 'MALE', 'FEMALE', 'OTHER', 'UNKNOWN']);
+const APPOINTMENT_STATUS_FILTER_VALUES = Object.freeze([
+  '',
+  'SCHEDULED',
+  'CONFIRMED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'CANCELLED',
+  'NO_SHOW',
+]);
+const DATE_PRESET_VALUES = Object.freeze([
+  'CUSTOM',
+  'TODAY',
+  'LAST_7_DAYS',
+  'LAST_30_DAYS',
+  'THIS_MONTH',
+  'LAST_MONTH',
+]);
+
+const DEFAULT_FILTERS = Object.freeze({
+  patient_id: '',
+  first_name: '',
+  last_name: '',
+  date_of_birth: '',
+  gender: '',
+  contact: '',
+  appointment_status: '',
+  created_from: '',
+  created_to: '',
+  appointment_from: '',
+  appointment_to: '',
+});
+
+const DEFAULT_RANGE_PRESETS = Object.freeze({
+  created: 'CUSTOM',
+  appointments: 'CUSTOM',
+});
 
 const sanitizeString = (value) => String(value || '').trim();
 const sanitizeNumber = (value, fallback) => {
@@ -70,6 +109,84 @@ const resolveContextLabel = (context, fallback) => {
   return label || friendlyId || fallback;
 };
 
+const formatDateInput = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const resolveDatePresetRange = (preset) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  switch (preset) {
+    case 'TODAY':
+      return {
+        from: formatDateInput(today),
+        to: formatDateInput(today),
+      };
+    case 'LAST_7_DAYS': {
+      const fromDate = new Date(today);
+      fromDate.setDate(fromDate.getDate() - 6);
+      return {
+        from: formatDateInput(fromDate),
+        to: formatDateInput(today),
+      };
+    }
+    case 'LAST_30_DAYS': {
+      const fromDate = new Date(today);
+      fromDate.setDate(fromDate.getDate() - 29);
+      return {
+        from: formatDateInput(fromDate),
+        to: formatDateInput(today),
+      };
+    }
+    case 'THIS_MONTH': {
+      const fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      return {
+        from: formatDateInput(fromDate),
+        to: formatDateInput(today),
+      };
+    }
+    case 'LAST_MONTH': {
+      const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+      return {
+        from: formatDateInput(fromDate),
+        to: formatDateInput(toDate),
+      };
+    }
+    default:
+      return {
+        from: '',
+        to: '',
+      };
+  }
+};
+
+const normalizeFilterState = (filters = {}) => ({
+  patient_id: sanitizeString(filters.patient_id),
+  first_name: sanitizeString(filters.first_name),
+  last_name: sanitizeString(filters.last_name),
+  date_of_birth: sanitizeString(filters.date_of_birth),
+  gender: sanitizeString(filters.gender),
+  contact: sanitizeString(filters.contact),
+  appointment_status: sanitizeString(filters.appointment_status),
+  created_from: sanitizeString(filters.created_from),
+  created_to: sanitizeString(filters.created_to),
+  appointment_from: sanitizeString(filters.appointment_from),
+  appointment_to: sanitizeString(filters.appointment_to),
+});
+
+const toFilterQuery = (filters = {}) =>
+  Object.entries(normalizeFilterState(filters)).reduce((acc, [key, value]) => {
+    if (value) acc[key] = value;
+    return acc;
+  }, {});
+
 const usePatientDirectoryScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
@@ -89,12 +206,22 @@ const usePatientDirectoryScreen = () => {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('updated_at');
   const [order, setOrder] = useState('desc');
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
+  const [dateRangePresets, setDateRangePresets] = useState(DEFAULT_RANGE_PRESETS);
+  const draftFiltersRef = useRef(DEFAULT_FILTERS);
   const debouncedSearch = useDebounce(searchValue, 300);
 
   const normalizedTenantId = sanitizeString(tenantId);
   const normalizedFacilityId = sanitizeString(facilityId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const isEntitlementBlocked = isEntitlementDeniedError(errorCode);
+  const normalizedAppliedFilters = useMemo(
+    () => toFilterQuery(appliedFilters),
+    [appliedFilters]
+  );
+  const hasActiveFilters = Object.keys(normalizedAppliedFilters).length > 0;
 
   const fetchList = useCallback(() => {
     if (!canAccessPatients || !hasScope || isOffline) return;
@@ -106,6 +233,7 @@ const usePatientDirectoryScreen = () => {
       sort_by: SORT_FIELDS.includes(sortBy) ? sortBy : 'updated_at',
       order: ORDER_FIELDS.includes(order) ? order : 'desc',
       search: sanitizeString(debouncedSearch) || undefined,
+      ...normalizedAppliedFilters,
     };
 
     if (!canManageAllTenants) {
@@ -126,6 +254,7 @@ const usePatientDirectoryScreen = () => {
     sortBy,
     order,
     debouncedSearch,
+    normalizedAppliedFilters,
     canManageAllTenants,
     normalizedTenantId,
     normalizedFacilityId,
@@ -236,6 +365,90 @@ const usePatientDirectoryScreen = () => {
     router.push('/subscriptions/subscriptions');
   }, [router]);
 
+  const onToggleFilterPanel = useCallback(() => {
+    setIsFilterPanelOpen((current) => !current);
+  }, []);
+
+  const commitDraftFilters = useCallback((nextFiltersOrUpdater) => {
+    const nextFilters = typeof nextFiltersOrUpdater === 'function'
+      ? nextFiltersOrUpdater(draftFiltersRef.current)
+      : nextFiltersOrUpdater;
+    const normalized = normalizeFilterState(nextFilters);
+    draftFiltersRef.current = normalized;
+    setDraftFilters(normalized);
+  }, []);
+
+  const onFilterChange = useCallback((name, value) => {
+    commitDraftFilters((current) => ({
+      ...current,
+      [name]: sanitizeString(value),
+    }));
+  }, [commitDraftFilters]);
+
+  const onDateRangePresetChange = useCallback((scope, preset) => {
+    const normalizedPreset = DATE_PRESET_VALUES.includes(preset) ? preset : 'CUSTOM';
+    const fromKey = scope === 'created' ? 'created_from' : 'appointment_from';
+    const toKey = scope === 'created' ? 'created_to' : 'appointment_to';
+
+    setDateRangePresets((current) => ({
+      ...current,
+      [scope]: normalizedPreset,
+    }));
+
+    if (normalizedPreset === 'CUSTOM') return;
+
+    const { from, to } = resolveDatePresetRange(normalizedPreset);
+    commitDraftFilters((current) => ({
+      ...current,
+      [fromKey]: from,
+      [toKey]: to,
+    }));
+  }, [commitDraftFilters]);
+
+  const onDateRangeValueChange = useCallback((scope, boundary, value) => {
+    const targetKey = scope === 'created'
+      ? (boundary === 'from' ? 'created_from' : 'created_to')
+      : (boundary === 'from' ? 'appointment_from' : 'appointment_to');
+    const normalizedValue = sanitizeString(value);
+
+    setDateRangePresets((current) => ({
+      ...current,
+      [scope]: 'CUSTOM',
+    }));
+    commitDraftFilters((current) => ({
+      ...current,
+      [targetKey]: normalizedValue,
+    }));
+  }, [commitDraftFilters]);
+
+  const onClearDateRange = useCallback((scope) => {
+    const fromKey = scope === 'created' ? 'created_from' : 'appointment_from';
+    const toKey = scope === 'created' ? 'created_to' : 'appointment_to';
+
+    setDateRangePresets((current) => ({
+      ...current,
+      [scope]: 'CUSTOM',
+    }));
+    commitDraftFilters((current) => ({
+      ...current,
+      [fromKey]: '',
+      [toKey]: '',
+    }));
+  }, [commitDraftFilters]);
+
+  const onApplyFilters = useCallback(() => {
+    setAppliedFilters(normalizeFilterState(draftFiltersRef.current));
+    setPage(1);
+  }, []);
+
+  const onClearFilters = useCallback(() => {
+    draftFiltersRef.current = DEFAULT_FILTERS;
+    setDraftFilters(DEFAULT_FILTERS);
+    setAppliedFilters(DEFAULT_FILTERS);
+    setDateRangePresets(DEFAULT_RANGE_PRESETS);
+    setPage(1);
+  }, []);
+
   return {
     items,
     searchValue,
@@ -254,6 +467,13 @@ const usePatientDirectoryScreen = () => {
     isEntitlementBlocked,
     canCreatePatientRecords,
     hasResults: items.length > 0,
+    isFilterPanelOpen,
+    filters: draftFilters,
+    dateRangePresets,
+    hasActiveFilters,
+    genderFilterValues: GENDER_FILTER_VALUES,
+    appointmentStatusFilterValues: APPOINTMENT_STATUS_FILTER_VALUES,
+    datePresetValues: DATE_PRESET_VALUES,
     onSearch,
     onSortBy,
     onOrder,
@@ -264,6 +484,13 @@ const usePatientDirectoryScreen = () => {
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,
+    onToggleFilterPanel,
+    onFilterChange,
+    onDateRangePresetChange,
+    onDateRangeValueChange,
+    onClearDateRange,
+    onApplyFilters,
+    onClearFilters,
   };
 };
 

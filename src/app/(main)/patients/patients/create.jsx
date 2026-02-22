@@ -1,6 +1,5 @@
-import { PatientResourceFormScreen } from '@platform/screens';
+import { PatientQuickCreateScreen } from '@platform/screens';
 
 export default function PatientRecordsCreateRoute() {
-  return <PatientResourceFormScreen resourceId="patients" />;
+  return <PatientQuickCreateScreen />;
 }
-

@@ -1,41 +1,39 @@
-Step file for **11.4.10** - Terms acceptances.
+Step file for **11.4.10** - Terms Acceptances (Global Legal Hub).
 Load `../00_shared-contracts.mdc` first.
 
 ## Step Metadata
 - Step ID: `11.4.10`
-- Route: `(main)/patients/terms-acceptances`
-- Backend module: `terms-acceptance`
-- Action mode: Partial action surface (only mounted routes/actions are allowed).
+- Primary route: `(main)/patients/legal?tab=terms`
+- Backend modules: `terms-acceptance` (plus global legal orchestration with `consent`)
+- Action mode: Global legal hub operations with role + entitlement guards.
 
-## Mounted Route Surface
-- `src/app/(main)/patients/terms-acceptances/index.jsx`
-- `src/app/(main)/patients/terms-acceptances/[id].jsx`
-- `src/app/(main)/patients/terms-acceptances/create.jsx`
+## Owned Route Surface
+- Global legal hub route:
+  - `src/app/(main)/patients/legal/index.jsx`
+- Legacy compatibility redirects:
+  - `src/app/(main)/patients/terms-acceptances/**`
+  - `src/app/(main)/patients/consents/**` (legal hub redirect compatibility)
 
 ## Platform Screen Surface
-- `src/platform/screens/**/*TermsacceptancesListScreen/**`
-- `src/platform/screens/**/*TermsacceptancesDetailScreen/**`
-- `src/platform/screens/**/*TermsacceptancesFormScreen/**`
+- `src/platform/screens/patients/PatientLegalHubScreen/**`
+- `src/platform/screens/patients/components/**` (field help + inline guide)
 
 ## Test Surface
 - `src/__tests__/app/(main)/patients-routes.test.js`
+- `src/__tests__/platform/screens/patients/usePatientLegalHubScreen.test.js`
 
 ## Implementation Granularity
-- Apply all mandatory contracts from `../00_shared-contracts.mdc` with no omissions.
-- Implement only this step route surface unless explicitly selecting additional step IDs.
-- Use mounted backend actions only; do not invent endpoints or unsupported write flows.
-- Keep mobile parity (web/android/ios), concise contextual help, and human-readable identity display.
-- List route (`index`): compact toolbar/actions and deterministic loading/empty/error/offline states.
-- Detail route (`[id]`): human-readable field rendering, role-aware actions, and explicit recovery/back navigation.
-- Form routes (`create` / `[id]/edit` where mounted): enforce validation, role-aware submit, and clear cancel/back handoff.
-- Enforce route-level and action-level authorization; never expose unauthorized controls or execution paths.
+- Terms acceptances are managed in global legal context, not patient workspace tabs.
+- Keep legal hub role-guarded and entitlement-aware with deterministic subscription CTA.
+- Keep user/record identity display human-readable.
+- Keep legacy terms/consent standalone routes as redirect-only compatibility wrappers.
 
 ## Completion Checklist
-- [ ] Route wiring and guards are correct for this step only.
-- [ ] Loading, empty, error, offline, and recovery states are covered.
-- [ ] UI is compact, novice-first, and role-aware with contextual help support.
-- [ ] IDs shown to standard users are human-readable (no raw UUID/GUID/internal IDs).
-- [ ] Tests are updated for allowed and denied/read-only paths.
+- [ ] Legal hub renders global consents + terms tabs.
+- [ ] Terms actions are constrained to mounted backend capability (no unsupported update flow).
+- [ ] Legacy legal routes redirect to `/patients/legal` tab targets.
+- [ ] Tests cover legal hub routing, entitlement block, and create/delete behavior.
+
 ## Shared Contract Enforcement (Mandatory)
 - This file inherits and must fully comply with ../00_shared-contracts.mdc.
 - All mandatory contracts in ../00_shared-contracts.mdc are required for work executed from this prompt.
