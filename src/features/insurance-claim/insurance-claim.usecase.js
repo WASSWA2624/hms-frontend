@@ -80,10 +80,44 @@ const deleteInsuranceClaim = async (id) =>
     return normalizeInsuranceClaim(response.data);
   });
 
+const submitInsuranceClaim = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseInsuranceClaimId(id);
+    const parsed = parseInsuranceClaimPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.INSURANCE_CLAIMS.SUBMIT(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeInsuranceClaim({ id: parsedId, ...parsed });
+    }
+    const response = await insuranceClaimApi.submit(parsedId, parsed);
+    return normalizeInsuranceClaim(response.data);
+  });
+
+const reconcileInsuranceClaim = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseInsuranceClaimId(id);
+    const parsed = parseInsuranceClaimPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.INSURANCE_CLAIMS.RECONCILE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeInsuranceClaim({ id: parsedId, ...parsed });
+    }
+    const response = await insuranceClaimApi.reconcile(parsedId, parsed);
+    return normalizeInsuranceClaim(response.data);
+  });
+
 export {
   listInsuranceClaims,
   getInsuranceClaim,
   createInsuranceClaim,
   updateInsuranceClaim,
   deleteInsuranceClaim,
+  submitInsuranceClaim,
+  reconcileInsuranceClaim,
 };

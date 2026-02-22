@@ -714,6 +714,8 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/insurance-claims/${id}`,
     UPDATE: (id) => `${baseUrl}/insurance-claims/${id}`,
     DELETE: (id) => `${baseUrl}/insurance-claims/${id}`,
+    SUBMIT: (id) => `${baseUrl}/insurance-claims/${id}/submit`,
+    RECONCILE: (id) => `${baseUrl}/insurance-claims/${id}/reconcile`,
   },
   PRE_AUTHORIZATIONS: {
     LIST: `${baseUrl}/pre-authorizations`,
@@ -975,8 +977,8 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/payments/${id}`,
     UPDATE: (id) => `${baseUrl}/payments/${id}`,
     DELETE: (id) => `${baseUrl}/payments/${id}`,
-    GET_REFUNDS: (id) => `${baseUrl}/payments/${id}/refunds`,
-    REFUND: (id) => `${baseUrl}/payments/${id}/refund`,
+    RECONCILE: (id) => `${baseUrl}/payments/${id}/reconcile`,
+    CHANNEL_BREAKDOWN: (id) => `${baseUrl}/payments/${id}/channel-breakdown`,
   },
   SUBSCRIPTIONS: {
     GET_PLANS: `${baseUrl}/subscriptions/plans`,

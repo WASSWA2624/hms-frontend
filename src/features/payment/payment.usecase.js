@@ -76,4 +76,35 @@ const deletePayment = async (id) =>
     return normalizePayment(response.data);
   });
 
-export { listPayments, getPayment, createPayment, updatePayment, deletePayment };
+const reconcilePayment = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parsePaymentId(id);
+    const parsed = parsePaymentPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.PAYMENTS.RECONCILE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizePayment({ id: parsedId, ...parsed });
+    }
+    const response = await paymentApi.reconcile(parsedId, parsed);
+    return normalizePayment(response.data);
+  });
+
+const getPaymentChannelBreakdown = async (id) =>
+  execute(async () => {
+    const parsedId = parsePaymentId(id);
+    const response = await paymentApi.getChannelBreakdown(parsedId);
+    return response?.data ?? {};
+  });
+
+export {
+  listPayments,
+  getPayment,
+  createPayment,
+  updatePayment,
+  deletePayment,
+  reconcilePayment,
+  getPaymentChannelBreakdown,
+};

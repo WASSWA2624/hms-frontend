@@ -8,7 +8,9 @@ import {
   getPayment,
   createPayment,
   updatePayment,
-  deletePayment
+  deletePayment,
+  reconcilePayment,
+  getPaymentChannelBreakdown,
 } from '@features/payment';
 
 const usePayment = () =>
@@ -18,6 +20,8 @@ const usePayment = () =>
     create: createPayment,
     update: updatePayment,
     remove: deletePayment,
+    reconcile: reconcilePayment,
+    channelBreakdown: getPaymentChannelBreakdown,
   });
 
 export default usePayment;

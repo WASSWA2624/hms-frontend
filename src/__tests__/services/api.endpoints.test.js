@@ -90,6 +90,21 @@ describe('services/api/endpoints', () => {
     );
   });
 
+  it('includes billing and claim workflow action endpoints', () => {
+    expect(endpoints.INSURANCE_CLAIMS.SUBMIT('id')).toMatch(
+      /\/insurance-claims\/id\/submit$/
+    );
+    expect(endpoints.INSURANCE_CLAIMS.RECONCILE('id')).toMatch(
+      /\/insurance-claims\/id\/reconcile$/
+    );
+    expect(endpoints.PAYMENTS.RECONCILE('id')).toMatch(
+      /\/payments\/id\/reconcile$/
+    );
+    expect(endpoints.PAYMENTS.CHANNEL_BREAKDOWN('id')).toMatch(
+      /\/payments\/id\/channel-breakdown$/
+    );
+  });
+
   it('does not expose deprecated unmounted commerce endpoint groups', () => {
     expect(endpoints.PRODUCTS).toBeUndefined();
     expect(endpoints.CARTS).toBeUndefined();

@@ -8,7 +8,9 @@ import {
   getInsuranceClaim,
   createInsuranceClaim,
   updateInsuranceClaim,
-  deleteInsuranceClaim
+  deleteInsuranceClaim,
+  submitInsuranceClaim,
+  reconcileInsuranceClaim,
 } from '@features/insurance-claim';
 
 const useInsuranceClaim = () =>
@@ -18,6 +20,8 @@ const useInsuranceClaim = () =>
     create: createInsuranceClaim,
     update: updateInsuranceClaim,
     remove: deleteInsuranceClaim,
+    submit: submitInsuranceClaim,
+    reconcile: reconcileInsuranceClaim,
   });
 
 export default useInsuranceClaim;

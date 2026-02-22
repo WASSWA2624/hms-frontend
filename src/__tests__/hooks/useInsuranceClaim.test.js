@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useInsuranceClaim', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useInsuranceClaim);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'submit', 'reconcile']);
   });
 });

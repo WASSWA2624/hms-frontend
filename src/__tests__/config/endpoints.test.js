@@ -111,4 +111,19 @@ describe('endpoints.js', () => {
       /\/pharmacy-orders\/id\/dispense$/
     );
   });
+
+  test('should expose billing and claim workflow action endpoints', () => {
+    expect(endpoints.INSURANCE_CLAIMS.SUBMIT('id')).toMatch(
+      /\/insurance-claims\/id\/submit$/
+    );
+    expect(endpoints.INSURANCE_CLAIMS.RECONCILE('id')).toMatch(
+      /\/insurance-claims\/id\/reconcile$/
+    );
+    expect(endpoints.PAYMENTS.RECONCILE('id')).toMatch(
+      /\/payments\/id\/reconcile$/
+    );
+    expect(endpoints.PAYMENTS.CHANNEL_BREAKDOWN('id')).toMatch(
+      /\/payments\/id\/channel-breakdown$/
+    );
+  });
 });
