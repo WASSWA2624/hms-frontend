@@ -5698,11 +5698,11 @@
   },
   "patients": {
     "screen": {
-      "label": "Patients workspace"
+      "label": "Patients"
     },
     "overview": {
       "title": "Patient Registry",
-      "description": "Access patient records and manage linked patient resources from one workspace.",
+      "description": "Access patient records and manage linked patient resources in one place.",
       "loadErrorTitle": "Unable to load patient overview",
       "loadError": "Unable to load patient overview data. Check your connection and try again.",
       "registerPatient": "Register Patient",
@@ -5712,12 +5712,12 @@
       "scopeSummaryFacility": "Scope: current tenant and facility",
       "scopeSummaryTenant": "Scope: current tenant only",
       "accessSummaryReadWrite": "Access: read and register patients",
-      "accessSummaryReadOnly": "Access: read-only patient workspace",
+      "accessSummaryReadOnly": "Access: read-only patient details",
       "recentPatientsCount": "Recent records shown: {{count}}",
       "quickPathsTitle": "Quick Paths",
       "quickPaths": {
         "directoryTitle": "Patient Directory",
-        "directoryDescription": "Search and open patient workspaces with deep relational lookup.",
+        "directoryDescription": "Search and open patient detail views with deep relational lookup.",
         "legalTitle": "Legal Hub",
         "legalDescription": "Manage global consent and terms acceptance workflows."
       },
@@ -5840,8 +5840,8 @@
       }
     },
     "workspace": {
-      "title": "Patient Workspace",
-      "description": "Manage this patient through one organized workflow.",
+      "title": "Patient Details",
+      "description": "Manage this patient from one organized details page.",
       "tabs": {
         "summary": "Summary",
         "identity": "Identity & Reachability",
@@ -5889,13 +5889,13 @@
       },
       "state": {
         "emptyPanel": "No records yet for this panel.",
-        "loadError": "Unable to load patient workspace data.",
+        "loadError": "Unable to load patient details data.",
         "saveError": "Unable to save this record.",
         "deleteConfirm": "Delete this record?",
         "deletePatientConfirm": "Delete this patient profile and related records?"
       },
       "access": {
-        "readOnly": "You have read-only access for this patient profile."
+        "readOnly": "You have read-only access for this patient details view."
       }
     },
     "legal": {

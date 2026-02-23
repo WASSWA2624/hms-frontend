@@ -748,7 +748,7 @@ const PatientDetailsScreen = () => {
     <StyledContainer>
       <Card variant="outlined" testID="patient-details-page-navigation">
         <StyledPageNavigation>
-          <StyledPageNavigationTitle>{t('patients.screen.label')}</StyledPageNavigationTitle>
+          <StyledPageNavigationTitle>{t('patients.workspace.title')}</StyledPageNavigationTitle>
 
           <StyledChromeTabsRail accessibilityRole="radiogroup">
             {screenTabs.map((tab) => (
