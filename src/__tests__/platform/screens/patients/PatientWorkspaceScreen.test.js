@@ -1,5 +1,5 @@
 const React = require('react');
-const { render } = require('@testing-library/react-native');
+const { fireEvent, render } = require('@testing-library/react-native');
 const { ThemeProvider } = require('styled-components/native');
 const lightTheme = require('@theme/light.theme').default || require('@theme/light.theme');
 
@@ -24,9 +24,17 @@ const renderWithTheme = (component) => render(
 
 describe('PatientWorkspaceScreen', () => {
   const mockUuid = '550e8400-e29b-41d4-a716-446655440000';
+  let onOpenPatientsOverviewMock;
+  let onOpenPatientDirectoryMock;
+  let onOpenPatientCreateMock;
+  let onOpenPatientLegalHubMock;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    onOpenPatientsOverviewMock = jest.fn();
+    onOpenPatientDirectoryMock = jest.fn();
+    onOpenPatientCreateMock = jest.fn();
+    onOpenPatientLegalHubMock = jest.fn();
     useI18n.mockReturnValue({ t: (key) => key });
     usePatientWorkspaceScreen.mockReturnValue({
       patientId: 'patient-1',
@@ -63,6 +71,10 @@ describe('PatientWorkspaceScreen', () => {
       isEntitlementBlocked: false,
       canManagePatientRecords: true,
       canDeletePatientRecords: true,
+      onOpenPatientsOverview: onOpenPatientsOverviewMock,
+      onOpenPatientDirectory: onOpenPatientDirectoryMock,
+      onOpenPatientCreate: onOpenPatientCreateMock,
+      onOpenPatientLegalHub: onOpenPatientLegalHubMock,
       onSelectTab: jest.fn(),
       onSelectPanel: jest.fn(),
       onRetry: jest.fn(),
@@ -91,5 +103,14 @@ describe('PatientWorkspaceScreen', () => {
     expect(getByTestId('patient-workspace-page-tab-workspace')).toBeTruthy();
     expect(getByText('patients.resources.patients.form.firstNameHint')).toBeTruthy();
     expect(queryByText(mockUuid)).toBeNull();
+  });
+
+  it('switches top nav tab content locally without triggering route handlers', () => {
+    const { getByTestId, queryByTestId } = renderWithTheme(<PatientWorkspaceScreen />);
+
+    expect(queryByTestId('patient-workspace-page-content-overview')).toBeNull();
+    fireEvent.press(getByTestId('patient-workspace-page-tab-overview'));
+    expect(getByTestId('patient-workspace-page-content-overview')).toBeTruthy();
+    expect(onOpenPatientsOverviewMock).not.toHaveBeenCalled();
   });
 });

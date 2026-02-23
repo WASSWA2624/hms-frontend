@@ -18,6 +18,53 @@ const StyledPageNavigationTitle = styled.Text`
   text-transform: uppercase;
 `;
 
+const StyledChromeTabsRail = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+`;
+
+const StyledChromeTab = styled.Pressable`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  min-height: 28px;
+  min-width: ${({ $isCompact }) => ($isCompact ? '48%' : '140px')};
+  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
+  padding-horizontal: ${({ theme, $isCompact }) => (
+    $isCompact ? theme.spacing.sm : theme.spacing.md
+  )}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border.light};
+  border-top-left-radius: ${({ theme }) => theme.radius.lg + 4}px;
+  border-top-right-radius: ${({ theme }) => theme.radius.lg + 4}px;
+  border-bottom-left-radius: ${({ theme }) => theme.radius.xs}px;
+  border-bottom-right-radius: ${({ theme }) => theme.radius.xs}px;
+  border-bottom-width: ${({ $isActive }) => ($isActive ? 0 : 1)}px;
+  background-color: ${({ theme, $isActive }) => (
+    $isActive ? theme.colors.background.primary : theme.colors.background.tertiary
+  )};
+  margin-bottom: ${({ $isActive }) => ($isActive ? '-1px' : '0px')};
+  opacity: ${({ $isActive }) => ($isActive ? 1 : 0.95)};
+`;
+
+const StyledChromeTabLabel = styled.Text`
+  color: ${({ theme, $isActive }) => (
+    $isActive ? theme.colors.text.primary : theme.colors.text.secondary
+  )};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme, $isActive }) => (
+    $isActive ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.medium
+  )};
+`;
+
 const StyledPageTabsRow = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
@@ -133,6 +180,9 @@ const StyledBadgeText = styled.Text`
 export {
   StyledActions,
   StyledBadgeText,
+  StyledChromeTab,
+  StyledChromeTabLabel,
+  StyledChromeTabsRail,
   StyledContainer,
   StyledFieldBlock,
   StyledFormActions,

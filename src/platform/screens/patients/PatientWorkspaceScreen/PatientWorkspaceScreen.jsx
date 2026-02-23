@@ -23,6 +23,9 @@ import FieldHelpTrigger from '../components/FieldHelpTrigger';
 import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
   StyledActions,
+  StyledChromeTab,
+  StyledChromeTabLabel,
+  StyledChromeTabsRail,
   StyledContainer,
   StyledFieldBlock,
   StyledFormActions,
@@ -32,7 +35,6 @@ import {
   StyledPageActionsRow,
   StyledPageNavigation,
   StyledPageNavigationTitle,
-  StyledPageTabsRow,
   StyledPanelRow,
   StyledReadOnlyNotice,
   StyledSummaryLabel,
@@ -175,8 +177,9 @@ const PatientWorkspaceScreen = () => {
   const { t, locale } = useI18n();
   const { width } = useWindowDimensions();
   const isCompactLayout = width < breakpoints.tablet;
-  const topNavButtonSize = width < breakpoints.desktop ? 'small' : 'medium';
+  const topNavButtonSize = 'small';
   const compactButtonStyle = isCompactLayout ? { flexGrow: 1 } : undefined;
+  const [selectedPageTab, setSelectedPageTab] = React.useState('workspace');
   const {
     patient,
     tabs,
@@ -202,7 +205,6 @@ const PatientWorkspaceScreen = () => {
     onOpenPatientDirectory,
     onOpenPatientCreate,
     onOpenPatientLegalHub,
-    onOpenCurrentWorkspace,
     onSelectTab,
     onSelectPanel,
     onRetry,
@@ -270,54 +272,90 @@ const PatientWorkspaceScreen = () => {
     {
       key: 'overview',
       label: t('patients.overview.title'),
-      icon: '\u2302',
-      onPress: onOpenPatientsOverview,
-      isActive: false,
+      description: t('patients.overview.description'),
     },
     {
       key: 'directory',
       label: t('patients.directory.title'),
-      icon: '\u2630',
-      onPress: onOpenPatientDirectory,
-      isActive: false,
+      description: t('patients.directory.description'),
     },
     {
       key: 'workspace',
       label: t('patients.workspace.title'),
-      icon: '\u25A3',
-      onPress: onOpenCurrentWorkspace,
-      isActive: true,
+      description: t('patients.workspace.description'),
     },
     {
       key: 'legal',
       label: t('patients.legal.title'),
-      icon: '\u2696',
-      onPress: onOpenPatientLegalHub,
-      isActive: false,
+      description: t('patients.legal.description'),
     },
   ];
-  const screenActions = [
-    {
-      key: 'open-directory',
-      label: t('patients.overview.openDirectory'),
-      icon: '\u2630',
-      onPress: onOpenPatientDirectory,
-    },
-    canManagePatientRecords
-      ? {
-        key: 'register-patient',
-        label: t('patients.overview.registerPatient'),
-        icon: '\u2795',
-        onPress: onOpenPatientCreate,
-      }
-      : null,
-    {
-      key: 'open-legal',
-      label: t('patients.overview.openLegalHub'),
-      icon: '\u2696',
-      onPress: onOpenPatientLegalHub,
-    },
-  ].filter(Boolean);
+  const selectedPageTabConfig = (
+    screenTabs.find((tab) => tab.key === selectedPageTab)
+    || screenTabs.find((tab) => tab.key === 'workspace')
+    || screenTabs[0]
+  );
+  const selectedPageActions = (() => {
+    if (selectedPageTab === 'overview') {
+      return [
+        {
+          key: 'open-overview',
+          label: t('patients.overview.openResource', { resource: t('patients.overview.title') }),
+          icon: '\u2302',
+          onPress: onOpenPatientsOverview,
+        },
+        {
+          key: 'open-directory',
+          label: t('patients.overview.openDirectory'),
+          icon: '\u2630',
+          onPress: onOpenPatientDirectory,
+        },
+        {
+          key: 'open-legal',
+          label: t('patients.overview.openLegalHub'),
+          icon: '\u2696',
+          onPress: onOpenPatientLegalHub,
+        },
+        canManagePatientRecords
+          ? {
+            key: 'register-patient',
+            label: t('patients.overview.registerPatient'),
+            icon: '\u2795',
+            onPress: onOpenPatientCreate,
+          }
+          : null,
+      ].filter(Boolean);
+    }
+    if (selectedPageTab === 'directory') {
+      return [
+        {
+          key: 'open-directory',
+          label: t('patients.overview.openDirectory'),
+          icon: '\u2630',
+          onPress: onOpenPatientDirectory,
+        },
+        canManagePatientRecords
+          ? {
+            key: 'register-patient',
+            label: t('patients.overview.registerPatient'),
+            icon: '\u2795',
+            onPress: onOpenPatientCreate,
+          }
+          : null,
+      ].filter(Boolean);
+    }
+    if (selectedPageTab === 'legal') {
+      return [
+        {
+          key: 'open-legal',
+          label: t('patients.overview.openLegalHub'),
+          icon: '\u2696',
+          onPress: onOpenPatientLegalHub,
+        },
+      ];
+    }
+    return [];
+  })();
 
   const summaryAboutRows = [
     { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
@@ -612,209 +650,231 @@ const PatientWorkspaceScreen = () => {
         <StyledPageNavigation>
           <StyledPageNavigationTitle>{t('patients.screen.label')}</StyledPageNavigationTitle>
 
-          <StyledPageTabsRow>
+          <StyledChromeTabsRail accessibilityRole="radiogroup">
             {screenTabs.map((tab) => (
-              <Button
+              <StyledChromeTab
                 key={tab.key}
-                variant={tab.isActive ? 'primary' : 'surface'}
-                size={topNavButtonSize}
-                onPress={tab.onPress}
+                onPress={() => setSelectedPageTab(tab.key)}
+                $isActive={selectedPageTab === tab.key}
+                $isCompact={isCompactLayout}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: selectedPageTab === tab.key }}
                 accessibilityLabel={tab.label}
-                icon={<Icon glyph={tab.icon} size="xs" decorative />}
-                style={compactButtonStyle}
                 testID={`patient-workspace-page-tab-${tab.key}`}
               >
-                {tab.label}
-              </Button>
+                <Icon
+                  glyph={selectedPageTab === tab.key ? '\u25c9' : '\u25cb'}
+                  size="xs"
+                  decorative
+                />
+                <StyledChromeTabLabel $isActive={selectedPageTab === tab.key}>
+                  {tab.label}
+                </StyledChromeTabLabel>
+              </StyledChromeTab>
             ))}
-          </StyledPageTabsRow>
-
-          <StyledPageActionsRow>
-            {screenActions.map((action) => (
-              <Button
-                key={action.key}
-                variant="surface"
-                size={topNavButtonSize}
-                onPress={action.onPress}
-                accessibilityLabel={action.label}
-                icon={<Icon glyph={action.icon} size="xs" decorative />}
-                style={compactButtonStyle}
-                testID={`patient-workspace-page-action-${action.key}`}
-              >
-                {action.label}
-              </Button>
-            ))}
-          </StyledPageActionsRow>
+          </StyledChromeTabsRail>
         </StyledPageNavigation>
       </Card>
 
-      <StyledTabRow>
-        {tabs.map((tab) => (
-          <Button
-            key={tab}
-            variant="surface"
-            size="medium"
-            onPress={() => onSelectTab(tab)}
-            accessibilityLabel={t(`patients.workspace.tabs.${tab}`)}
-            icon={<Icon glyph="?" size="xs" decorative />}
-          >
-            {t(`patients.workspace.tabs.${tab}`)}
-          </Button>
-        ))}
-      </StyledTabRow>
+      {selectedPageTab !== 'workspace' ? (
+        <Card variant="outlined" testID={`patient-workspace-page-content-${selectedPageTab}`}>
+          <StyledPageNavigation>
+            <Text variant="h3">{selectedPageTabConfig?.label}</Text>
+            <Text variant="body">{selectedPageTabConfig?.description}</Text>
 
-      {activeTab !== 'summary' ? (
-        <StyledPanelRow>
-          {panelOptions.map((panel) => (
+            {selectedPageActions.length > 0 ? (
+              <StyledPageActionsRow>
+                {selectedPageActions.map((action) => (
+                  <Button
+                    key={action.key}
+                    variant="surface"
+                    size={topNavButtonSize}
+                    onPress={action.onPress}
+                    accessibilityLabel={action.label}
+                    icon={<Icon glyph={action.icon} size="xs" decorative />}
+                    style={compactButtonStyle}
+                    testID={`patient-workspace-page-action-${action.key}`}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </StyledPageActionsRow>
+            ) : null}
+          </StyledPageNavigation>
+        </Card>
+      ) : null}
+
+      {selectedPageTab === 'workspace' ? (
+        <>
+          <StyledTabRow>
+            {tabs.map((tab) => (
+              <Button
+                key={tab}
+                variant="surface"
+                size="medium"
+                onPress={() => onSelectTab(tab)}
+                accessibilityLabel={t(`patients.workspace.tabs.${tab}`)}
+                icon={<Icon glyph="?" size="xs" decorative />}
+              >
+                {t(`patients.workspace.tabs.${tab}`)}
+              </Button>
+            ))}
+          </StyledTabRow>
+
+          {activeTab !== 'summary' ? (
+            <StyledPanelRow>
+              {panelOptions.map((panel) => (
+                <Button
+                  key={panel}
+                  variant="surface"
+                  size="medium"
+                  onPress={() => onSelectPanel(panel)}
+                  accessibilityLabel={t(`patients.workspace.panels.${panel}`)}
+                  icon={<Icon glyph="?" size="xs" decorative />}
+                >
+                  {t(`patients.workspace.panels.${panel}`)}
+                </Button>
+              ))}
+            </StyledPanelRow>
+          ) : null}
+
+          <StyledActions>
             <Button
-              key={panel}
               variant="surface"
               size="medium"
-              onPress={() => onSelectPanel(panel)}
-              accessibilityLabel={t(`patients.workspace.panels.${panel}`)}
-              icon={<Icon glyph="?" size="xs" decorative />}
+              onPress={onRetry}
+              accessibilityLabel={t('patients.workspace.actions.refresh')}
+              icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
             >
-              {t(`patients.workspace.panels.${panel}`)}
+              {t('patients.workspace.actions.refresh')}
             </Button>
-          ))}
-        </StyledPanelRow>
-      ) : null}
+            {activeTab === 'summary' && !isSummaryEditMode && canManagePatientRecords ? (
+              <Button
+                variant="surface"
+                size="medium"
+                onPress={onStartSummaryEdit}
+                accessibilityLabel={t('patients.workspace.actions.editPatient')}
+                icon={<Icon glyph={'\u270e'} size="xs" decorative />}
+                testID="patient-workspace-edit-patient"
+              >
+                {t('patients.workspace.actions.editPatient')}
+              </Button>
+            ) : null}
+            {activeTab === 'summary' && !isSummaryEditMode && canDeletePatientProfile ? (
+              <Button
+                variant="surface"
+                size="medium"
+                onPress={onDeletePatient}
+                accessibilityLabel={t('patients.workspace.actions.deletePatient')}
+                icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+                testID="patient-workspace-delete-patient"
+              >
+                {t('patients.workspace.actions.deletePatient')}
+              </Button>
+            ) : null}
+            {activeTab !== 'summary' && canManagePatientRecords ? (
+              <Button
+                variant="surface"
+                size="medium"
+                onPress={onStartCreate}
+                accessibilityLabel={t('patients.workspace.actions.newRecord')}
+                icon={<Icon glyph="+" size="xs" decorative />}
+              >
+                {t('patients.workspace.actions.newRecord')}
+              </Button>
+            ) : null}
+          </StyledActions>
 
-      <StyledActions>
-        <Button
-          variant="surface"
-          size="medium"
-          onPress={onRetry}
-          accessibilityLabel={t('patients.workspace.actions.refresh')}
-          icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
-        >
-          {t('patients.workspace.actions.refresh')}
-        </Button>
-        {activeTab === 'summary' && !isSummaryEditMode && canManagePatientRecords ? (
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onStartSummaryEdit}
-            accessibilityLabel={t('patients.workspace.actions.editPatient')}
-            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
-            testID="patient-workspace-edit-patient"
-          >
-            {t('patients.workspace.actions.editPatient')}
-          </Button>
-        ) : null}
-        {activeTab === 'summary' && !isSummaryEditMode && canDeletePatientProfile ? (
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onDeletePatient}
-            accessibilityLabel={t('patients.workspace.actions.deletePatient')}
-            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-            testID="patient-workspace-delete-patient"
-          >
-            {t('patients.workspace.actions.deletePatient')}
-          </Button>
-        ) : null}
-        {activeTab !== 'summary' && canManagePatientRecords ? (
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onStartCreate}
-            accessibilityLabel={t('patients.workspace.actions.newRecord')}
-            icon={<Icon glyph="+" size="xs" decorative />}
-          >
-            {t('patients.workspace.actions.newRecord')}
-          </Button>
-        ) : null}
-      </StyledActions>
+          {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
 
-      {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
+          {!isLoading && isEntitlementBlocked ? (
+            <EntitlementBlockedState
+              title={t('patients.entitlement.title')}
+              description={t('patients.entitlement.description')}
+              actionLabel={t('patients.entitlement.cta')}
+              actionHint={t('patients.entitlement.ctaHint')}
+              onAction={onGoToSubscriptions}
+              testID="patient-workspace-entitlement-blocked"
+            />
+          ) : null}
 
-      {!isLoading && isEntitlementBlocked ? (
-        <EntitlementBlockedState
-          title={t('patients.entitlement.title')}
-          description={t('patients.entitlement.description')}
-          actionLabel={t('patients.entitlement.cta')}
-          actionHint={t('patients.entitlement.ctaHint')}
-          onAction={onGoToSubscriptions}
-          testID="patient-workspace-entitlement-blocked"
-        />
-      ) : null}
+          {!isLoading && !isEntitlementBlocked && hasError ? (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('patients.workspace.state.loadError')}
+              description={errorMessage}
+              testID="patient-workspace-error"
+            />
+          ) : null}
 
-      {!isLoading && !isEntitlementBlocked && hasError ? (
-        <ErrorState
-          size={ErrorStateSizes.SMALL}
-          title={t('patients.workspace.state.loadError')}
-          description={errorMessage}
-          testID="patient-workspace-error"
-        />
-      ) : null}
+          {!isLoading && !isEntitlementBlocked && isOffline ? (
+            <OfflineState
+              size={OfflineStateSizes.SMALL}
+              title={t('shell.banners.offline.title')}
+              description={t('shell.banners.offline.message')}
+              testID="patient-workspace-offline"
+            />
+          ) : null}
 
-      {!isLoading && !isEntitlementBlocked && isOffline ? (
-        <OfflineState
-          size={OfflineStateSizes.SMALL}
-          title={t('shell.banners.offline.title')}
-          description={t('shell.banners.offline.message')}
-          testID="patient-workspace-offline"
-        />
-      ) : null}
-
-      {!isLoading && !isEntitlementBlocked && !hasError ? (
-        <>
-          {activeTab === 'summary' ? (
-            isSummaryEditMode ? renderSummaryEdit() : renderSummaryReadonly()
-          ) : (
-            <Card variant="outlined">
-              {panelRows.length === 0 ? (
-                <EmptyState
-                  title={t('patients.workspace.state.emptyPanel')}
-                  description={t('patients.workspace.state.emptyPanel')}
-                  testID="patient-workspace-empty-panel"
-                />
+          {!isLoading && !isEntitlementBlocked && !hasError ? (
+            <>
+              {activeTab === 'summary' ? (
+                isSummaryEditMode ? renderSummaryEdit() : renderSummaryReadonly()
               ) : (
-                <StyledFormGrid>
-                  {panelRows.map((row) => (
-                    <StyledListItem key={row.id || row.title}>
-                      <StyledItemHeader>
-                        <Text variant="label">{row.title}</Text>
-                        <StyledActions>
-                          {canManagePatientRecords ? (
-                            <Button
-                              variant="surface"
-                              size="medium"
-                              onPress={() => onStartEditRecord(row.id)}
-                              accessibilityLabel={t('patients.workspace.actions.editRecord')}
-                              icon={<Icon glyph={'\u270e'} size="xs" decorative />}
-                            >
-                              {t('patients.workspace.actions.editRecord')}
-                            </Button>
+                <Card variant="outlined">
+                  {panelRows.length === 0 ? (
+                    <EmptyState
+                      title={t('patients.workspace.state.emptyPanel')}
+                      description={t('patients.workspace.state.emptyPanel')}
+                      testID="patient-workspace-empty-panel"
+                    />
+                  ) : (
+                    <StyledFormGrid>
+                      {panelRows.map((row) => (
+                        <StyledListItem key={row.id || row.title}>
+                          <StyledItemHeader>
+                            <Text variant="label">{row.title}</Text>
+                            <StyledActions>
+                              {canManagePatientRecords ? (
+                                <Button
+                                  variant="surface"
+                                  size="medium"
+                                  onPress={() => onStartEditRecord(row.id)}
+                                  accessibilityLabel={t('patients.workspace.actions.editRecord')}
+                                  icon={<Icon glyph={'\u270e'} size="xs" decorative />}
+                                >
+                                  {t('patients.workspace.actions.editRecord')}
+                                </Button>
+                              ) : null}
+                              {canDeletePatientRecords ? (
+                                <Button
+                                  variant="surface"
+                                  size="medium"
+                                  onPress={() => onDeleteRecord(row.id)}
+                                  accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
+                                  icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+                                >
+                                  {t('patients.workspace.actions.deleteRecord')}
+                                </Button>
+                              ) : null}
+                            </StyledActions>
+                          </StyledItemHeader>
+                          {row.humanFriendlyId ? (
+                            <Text variant="caption">
+                              {t('patients.workspace.patientSummary.patientId')}: {row.humanFriendlyId}
+                            </Text>
                           ) : null}
-                          {canDeletePatientRecords ? (
-                            <Button
-                              variant="surface"
-                              size="medium"
-                              onPress={() => onDeleteRecord(row.id)}
-                              accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
-                              icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-                            >
-                              {t('patients.workspace.actions.deleteRecord')}
-                            </Button>
-                          ) : null}
-                        </StyledActions>
-                      </StyledItemHeader>
-                      {row.humanFriendlyId ? (
-                        <Text variant="caption">
-                          {t('patients.workspace.patientSummary.patientId')}: {row.humanFriendlyId}
-                        </Text>
-                      ) : null}
-                      {row.subtitle ? <Text variant="caption">{row.subtitle}</Text> : null}
-                    </StyledListItem>
-                  ))}
-                </StyledFormGrid>
+                          {row.subtitle ? <Text variant="caption">{row.subtitle}</Text> : null}
+                        </StyledListItem>
+                      ))}
+                    </StyledFormGrid>
+                  )}
+                </Card>
               )}
-            </Card>
-          )}
 
-          {activeTab !== 'summary' ? renderPanelForm() : null}
+              {activeTab !== 'summary' ? renderPanelForm() : null}
+            </>
+          ) : null}
         </>
       ) : null}
     </StyledContainer>
