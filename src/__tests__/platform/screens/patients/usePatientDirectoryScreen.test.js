@@ -118,7 +118,7 @@ describe('usePatientDirectoryScreen', () => {
 
     const latestParams = mockList.mock.calls[mockList.mock.calls.length - 1][0];
     expect(latestParams.sort_by).toBe('updated_at');
-    expect(latestParams.order).toBe('desc');
+    expect(latestParams.order).toBe('asc');
     expect(latestParams.limit).toBe(20);
   });
 

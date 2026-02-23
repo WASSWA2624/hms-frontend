@@ -6,7 +6,6 @@ import {
   ErrorState,
   ErrorStateSizes,
   Icon,
-  ListItem,
   LoadingSpinner,
   Modal,
   OfflineState,
@@ -14,6 +13,7 @@ import {
   Text,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { PatientListCards } from '../components';
 import {
   StyledCardGrid,
   StyledContainer,
@@ -26,11 +26,9 @@ import {
   StyledHelpModalBody,
   StyledHelpModalItem,
   StyledHelpModalTitle,
-  StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
-  StyledSeparator,
   StyledSummaryChip,
   StyledSummaryList,
   StyledSummaryText,
@@ -56,6 +54,8 @@ const PatientsOverviewScreenIOS = () => {
     onRetry,
     onOpenResource,
     onOpenPatient,
+    onEditPatient,
+    onDeletePatient,
     onRegisterPatient,
   } = usePatientsOverviewScreen();
 
@@ -210,22 +210,34 @@ const PatientsOverviewScreenIOS = () => {
                 testID="patients-overview-empty"
               />
             ) : (
-              <StyledRecentList>
-                {recentPatients.map((patient, index) => {
-                  return (
-                    <React.Fragment key={patient.listKey}>
-                      <ListItem
-                        title={patient.displayName}
-                        subtitle={patient.subtitle}
-                        onPress={() => onOpenPatient(patient.id)}
-                        accessibilityLabel={t('patients.overview.openPatient', { patient: patient.displayName })}
-                        testID={`patients-overview-item-${index + 1}`}
-                      />
-                      {index < recentPatients.length - 1 ? <StyledSeparator /> : null}
-                    </React.Fragment>
-                  );
-                })}
-              </StyledRecentList>
+              <PatientListCards
+                items={recentPatients}
+                onOpenPatient={onOpenPatient}
+                onEditPatient={onEditPatient}
+                onDeletePatient={onDeletePatient}
+                patientLabel={t('patients.directory.columns.patient')}
+                patientIdLabel={t('patients.directory.columns.patientId')}
+                tenantLabel={t('patients.directory.columns.tenant')}
+                facilityLabel={t('patients.directory.columns.facility')}
+                actionsLabel={t('patients.common.list.columnActions')}
+                openButtonLabel={t('patients.directory.openWorkspace')}
+                editButtonLabel={t('common.edit')}
+                deleteButtonLabel={t('common.delete')}
+                resolveOpenAccessibilityLabel={(patient) =>
+                  t('patients.overview.openPatient', { patient: patient.displayName })
+                }
+                resolveEditAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.editHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                resolveDeleteAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.deleteHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                testIdPrefix="patients-overview-item-"
+              />
             )}
           </Card>
         </StyledSection>

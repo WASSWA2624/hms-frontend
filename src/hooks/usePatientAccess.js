@@ -47,6 +47,38 @@ const resolveTenantId = (user) => {
   return normalized || null;
 };
 
+const resolveTenantName = (user) => {
+  const candidates = [
+    user?.tenant_name,
+    user?.tenantName,
+    user?.tenant?.name,
+    user?.tenant?.label,
+    user?.profile?.tenant_name,
+    user?.profile?.tenantName,
+    user?.profile?.tenant?.name,
+    user?.profile?.tenant?.label,
+  ];
+  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
+  const normalized = value != null ? String(value).trim() : '';
+  return normalized || null;
+};
+
+const resolveTenantHumanFriendlyId = (user) => {
+  const candidates = [
+    user?.tenant_human_friendly_id,
+    user?.tenantHumanFriendlyId,
+    user?.tenant?.human_friendly_id,
+    user?.tenant?.humanFriendlyId,
+    user?.profile?.tenant_human_friendly_id,
+    user?.profile?.tenantHumanFriendlyId,
+    user?.profile?.tenant?.human_friendly_id,
+    user?.profile?.tenant?.humanFriendlyId,
+  ];
+  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
+  const normalized = value != null ? String(value).trim() : '';
+  return normalized || null;
+};
+
 const resolveFacilityId = (user) => {
   const candidates = [
     user?.facility_id,
@@ -55,6 +87,38 @@ const resolveFacilityId = (user) => {
     user?.facility?.facility_id,
     user?.profile?.facility_id,
     user?.profile?.facilityId,
+  ];
+  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
+  const normalized = value != null ? String(value).trim() : '';
+  return normalized || null;
+};
+
+const resolveFacilityName = (user) => {
+  const candidates = [
+    user?.facility_name,
+    user?.facilityName,
+    user?.facility?.name,
+    user?.facility?.label,
+    user?.profile?.facility_name,
+    user?.profile?.facilityName,
+    user?.profile?.facility?.name,
+    user?.profile?.facility?.label,
+  ];
+  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
+  const normalized = value != null ? String(value).trim() : '';
+  return normalized || null;
+};
+
+const resolveFacilityHumanFriendlyId = (user) => {
+  const candidates = [
+    user?.facility_human_friendly_id,
+    user?.facilityHumanFriendlyId,
+    user?.facility?.human_friendly_id,
+    user?.facility?.humanFriendlyId,
+    user?.profile?.facility_human_friendly_id,
+    user?.profile?.facilityHumanFriendlyId,
+    user?.profile?.facility?.human_friendly_id,
+    user?.profile?.facility?.humanFriendlyId,
   ];
   const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
   const normalized = value != null ? String(value).trim() : '';
@@ -182,7 +246,11 @@ const usePatientAccess = () => {
     || [...LEGAL_MODULE_SLUGS].some((slug) => entitledModules.has(slug))
   );
   const tenantId = resolveTenantId(user);
+  const tenantName = resolveTenantName(user);
+  const tenantHumanFriendlyId = resolveTenantHumanFriendlyId(user);
   const facilityId = resolveFacilityId(user);
+  const facilityName = resolveFacilityName(user);
+  const facilityHumanFriendlyId = resolveFacilityHumanFriendlyId(user);
 
   return {
     canAccessPatients,
@@ -196,7 +264,11 @@ const usePatientAccess = () => {
     hasDeletePermission,
     canManageAllTenants,
     tenantId,
+    tenantName,
+    tenantHumanFriendlyId,
     facilityId,
+    facilityName,
+    facilityHumanFriendlyId,
     isResolved,
   };
 };

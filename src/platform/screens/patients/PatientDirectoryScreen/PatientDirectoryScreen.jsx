@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components/native';
 import {
   Button,
@@ -7,15 +7,22 @@ import {
   ErrorState,
   ErrorStateSizes,
   GlobalDateRangeField,
+  Icon,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Select,
   Text,
   TextField,
+  Tooltip,
 } from '@platform/components';
+import { useMainRouteHeaderActions } from '@platform/layouts/RouteLayouts/MainRouteLayout';
 import { useI18n } from '@hooks';
-import { EntitlementBlockedState, FieldHelpTrigger, InlineFieldGuide } from '../components';
+import {
+  EntitlementBlockedState,
+  PatientListCards,
+} from '../components';
 import usePatientDirectoryScreen from './usePatientDirectoryScreen';
 
 const StyledContainer = styled.View`
@@ -26,21 +33,18 @@ const StyledContainer = styled.View`
   padding-bottom: 16px;
 `;
 
-const StyledHeader = styled.View`
-  gap: 8px;
-`;
-
-const StyledHeaderRow = styled.View`
+const StyledBreadcrumbActionGroup = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 8px;
 `;
 
 const StyledToolbarCard = styled(Card)`
-  gap: 12px;
-  padding: 12px;
+  gap: 4px;
+  padding: 4px;
+  overflow: visible;
 `;
 
 const StyledAdvancedFilters = styled.View`
@@ -53,38 +57,59 @@ const StyledAdvancedFilters = styled.View`
 const StyledToolbarGrid = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 `;
 
 const StyledToolbarField = styled.View`
-  flex-basis: 220px;
+  flex-basis: 280px;
   flex-grow: 1;
   min-width: 180px;
 `;
 
-const StyledListCard = styled(Card)`
-  gap: 10px;
-  padding: 12px;
-`;
-
-const StyledListRow = styled.View`
+const StyledSearchRow = styled.View`
   flex-direction: row;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background-color: ${({ theme }) => theme.colors.background?.primary || '#ffffff'};
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-  border-radius: 10px;
-  padding: 12px;
+  gap: 8px;
 `;
 
-const StyledRowMeta = styled.View`
+const StyledSearchInputSlot = styled.View`
   flex: 1;
-  min-width: 240px;
-  gap: 2px;
+  min-width: 220px;
+`;
+
+const StyledSearchHelpAnchor = styled.View`
+  position: relative;
+  z-index: 2147483002;
+`;
+
+const StyledSearchHelpButton = styled.Pressable`
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border?.default || '#b8c2d4'};
+  background-color: ${({ theme }) => theme.colors.background?.surface || '#ffffff'};
+`;
+
+const StyledSearchHelpBody = styled(Text)`
+  margin-top: 8px;
+`;
+
+const StyledSearchHelpList = styled.View`
+  margin-top: 10px;
+  gap: 6px;
+`;
+
+const StyledSearchHelpItem = styled(Text)`
+  font-size: 12px;
+`;
+
+const StyledListCard = styled(Card)`
+  gap: 6px;
+  padding: 4px;
 `;
 
 const StyledPaginationRow = styled.View`
@@ -103,6 +128,16 @@ const StyledPaginationActions = styled.View`
   gap: 8px;
 `;
 
+const StyledRowsControl = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+`;
+
+const StyledRowsSelectSlot = styled.View`
+  width: 96px;
+`;
+
 const StyledFilterActions = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
@@ -112,6 +147,10 @@ const StyledFilterActions = styled.View`
 
 const PatientDirectoryScreen = () => {
   const { t } = useI18n();
+  const { setBeforeBackActions, clearBeforeBackActions } = useMainRouteHeaderActions();
+  const [isSearchTooltipVisible, setIsSearchTooltipVisible] = useState(false);
+  const [isSearchHelpOpen, setIsSearchHelpOpen] = useState(false);
+  const searchHelpButtonRef = useRef(null);
   const {
     items,
     searchValue,
@@ -144,6 +183,8 @@ const PatientDirectoryScreen = () => {
     onPreviousPage,
     onNextPage,
     onOpenPatient,
+    onEditPatient,
+    onDeletePatient,
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,
@@ -185,109 +226,96 @@ const PatientDirectoryScreen = () => {
     label: t(`patients.directory.dateRangePresets.${value}`),
   }));
 
+  useEffect(() => {
+    setBeforeBackActions(
+      <StyledBreadcrumbActionGroup>
+        <Button
+          variant="surface"
+          size="small"
+          onPress={onRetry}
+          accessibilityLabel={t('patients.directory.refresh')}
+        >
+          {t('patients.directory.refresh')}
+        </Button>
+        <Button
+          variant="surface"
+          size="small"
+          onPress={onToggleFilterPanel}
+          accessibilityLabel={t(
+            isFilterPanelOpen
+              ? 'patients.directory.hideFilters'
+              : 'patients.directory.showFilters'
+          )}
+          testID="patient-directory-toggle-filters"
+        >
+          {isFilterPanelOpen
+            ? t('patients.directory.hideFilters')
+            : t('patients.directory.showFilters')}
+        </Button>
+        {canCreatePatientRecords ? (
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onQuickCreate}
+            accessibilityLabel={t('patients.directory.createPatient')}
+          >
+            {t('patients.directory.createPatient')}
+          </Button>
+        ) : null}
+      </StyledBreadcrumbActionGroup>
+    );
+
+    return () => {
+      clearBeforeBackActions();
+    };
+  }, [
+    canCreatePatientRecords,
+    clearBeforeBackActions,
+    isFilterPanelOpen,
+    onQuickCreate,
+    onRetry,
+    onToggleFilterPanel,
+    setBeforeBackActions,
+    t,
+  ]);
+
   return (
     <StyledContainer>
-      <StyledHeader>
-        <StyledHeaderRow>
-          <Text variant="h2" accessibilityRole="header">
-            {t('patients.directory.title')}
-          </Text>
-          <StyledPaginationActions>
-            <Button
-              variant="surface"
-              size="small"
-              onPress={onRetry}
-              accessibilityLabel={t('patients.directory.refresh')}
-            >
-              {t('patients.directory.refresh')}
-            </Button>
-            <Button
-              variant="surface"
-              size="small"
-              onPress={onToggleFilterPanel}
-              accessibilityLabel={t(
-                isFilterPanelOpen
-                  ? 'patients.directory.hideFilters'
-                  : 'patients.directory.showFilters'
-              )}
-              testID="patient-directory-toggle-filters"
-            >
-              {isFilterPanelOpen
-                ? t('patients.directory.hideFilters')
-                : t('patients.directory.showFilters')}
-            </Button>
-            {canCreatePatientRecords ? (
-              <Button
-                variant="surface"
-                size="small"
-                onPress={onQuickCreate}
-                accessibilityLabel={t('patients.directory.createPatient')}
-              >
-                {t('patients.directory.createPatient')}
-              </Button>
-            ) : null}
-          </StyledPaginationActions>
-        </StyledHeaderRow>
-        <Text variant="body">{t('patients.directory.description')}</Text>
-      </StyledHeader>
-
       <StyledToolbarCard variant="outlined">
         <StyledToolbarGrid>
           <StyledToolbarField>
-            <FieldHelpTrigger
-              label={t('patients.directory.searchLabel')}
-              tooltip={t('patients.common.list.helpTooltip')}
-              helpTitle={t('patients.common.list.helpTitle')}
-              helpBody={t('patients.common.list.helpBody', {
-                resource: t('patients.resources.patients.pluralLabel'),
-              })}
-              helpItems={[
-                t('patients.common.list.helpItems.search'),
-                t('patients.common.list.helpItems.filter'),
-              ]}
-              testID="patient-directory-search-help"
-            />
-            <InlineFieldGuide text={t('patients.common.list.searchPlaceholder')} />
-            <TextField
-              value={searchValue}
-              placeholder={t('patients.directory.searchPlaceholder')}
-              onChange={(event) => onSearch(event?.target?.value)}
-              density="compact"
-              testID="patient-directory-search"
-            />
-          </StyledToolbarField>
-
-          <StyledToolbarField>
-            <Select
-              label={t('patients.directory.sortLabel')}
-              value={sortBy}
-              options={sortSelectOptions}
-              onValueChange={onSortBy}
-              compact
-              testID="patient-directory-sort-by"
-            />
-          </StyledToolbarField>
-
-          <StyledToolbarField>
-            <Select
-              label={t('patients.directory.orderLabel')}
-              value={order}
-              options={orderSelectOptions}
-              onValueChange={onOrder}
-              compact
-              testID="patient-directory-order"
-            />
-          </StyledToolbarField>
-
-          <StyledToolbarField>
-            <Select
-              label={t('patients.directory.pageSizeLabel')}
-              value={String(pageSize)}
-              options={pageSizeSelectOptions}
-              onValueChange={onPageSize}
-              compact
-              testID="patient-directory-page-size"
-            />
+            <StyledSearchRow>
+              <StyledSearchInputSlot>
+                <TextField
+                  value={searchValue}
+                  placeholder={t('patients.directory.searchPlaceholder')}
+                  onChange={(event) => onSearch(event?.target?.value)}
+                  density="compact"
+                  testID="patient-directory-search"
+                />
+              </StyledSearchInputSlot>
+              <StyledSearchHelpAnchor>
+                <StyledSearchHelpButton
+                  ref={searchHelpButtonRef}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('patients.directory.searchHelpTitle')}
+                  onPress={() => setIsSearchHelpOpen(true)}
+                  onHoverIn={() => setIsSearchTooltipVisible(true)}
+                  onHoverOut={() => setIsSearchTooltipVisible(false)}
+                  onFocus={() => setIsSearchTooltipVisible(true)}
+                  onBlur={() => setIsSearchTooltipVisible(false)}
+                  testID="patient-directory-search-help"
+                >
+                  <Icon glyph="?" size="xs" decorative />
+                </StyledSearchHelpButton>
+                <Tooltip
+                  visible={isSearchTooltipVisible && !isSearchHelpOpen}
+                  text={t('patients.directory.searchHelpTooltip')}
+                  position="right"
+                  anchorRef={searchHelpButtonRef}
+                />
+              </StyledSearchHelpAnchor>
+            </StyledSearchRow>
           </StyledToolbarField>
         </StyledToolbarGrid>
 
@@ -376,6 +404,28 @@ const PatientDirectoryScreen = () => {
                   testID="patient-directory-filter-appointment-status"
                 />
               </StyledToolbarField>
+
+              <StyledToolbarField>
+                <Select
+                  label={t('patients.directory.sortLabel')}
+                  value={sortBy}
+                  options={sortSelectOptions}
+                  onValueChange={onSortBy}
+                  compact
+                  testID="patient-directory-sort-by"
+                />
+              </StyledToolbarField>
+
+              <StyledToolbarField>
+                <Select
+                  label={t('patients.directory.orderLabel')}
+                  value={order}
+                  options={orderSelectOptions}
+                  onValueChange={onOrder}
+                  compact
+                  testID="patient-directory-order"
+                />
+              </StyledToolbarField>
             </StyledToolbarGrid>
 
             <GlobalDateRangeField
@@ -438,6 +488,29 @@ const PatientDirectoryScreen = () => {
         ) : null}
       </StyledToolbarCard>
 
+      <Modal
+        visible={isSearchHelpOpen}
+        onDismiss={() => setIsSearchHelpOpen(false)}
+        size="small"
+        accessibilityLabel={t('patients.directory.searchHelpTitle')}
+        accessibilityHint={t('patients.directory.searchHelpBody')}
+        testID="patient-directory-search-help-modal"
+      >
+        <Text variant="h4">{t('patients.directory.searchHelpTitle')}</Text>
+        <StyledSearchHelpBody variant="body">{t('patients.directory.searchHelpBody')}</StyledSearchHelpBody>
+        <StyledSearchHelpList>
+          <StyledSearchHelpItem variant="caption">
+            - {t('patients.directory.searchHelpItems.global')}
+          </StyledSearchHelpItem>
+          <StyledSearchHelpItem variant="caption">
+            - {t('patients.directory.searchHelpItems.advanced')}
+          </StyledSearchHelpItem>
+          <StyledSearchHelpItem variant="caption">
+            - {t('patients.directory.searchHelpItems.actions')}
+          </StyledSearchHelpItem>
+        </StyledSearchHelpList>
+      </Modal>
+
       {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
 
       {!isLoading && isEntitlementBlocked ? (
@@ -496,30 +569,36 @@ const PatientDirectoryScreen = () => {
               {hasActiveFilters ? (
                 <Text variant="caption">{t('patients.directory.filteredResults')}</Text>
               ) : null}
-              {items.map((item) => (
-                <StyledListRow key={item.id || item.displayName}>
-                  <StyledRowMeta>
-                    <Text variant="label">{item.displayName}</Text>
-                    <Text variant="caption">
-                      {t('patients.directory.columns.patientId')}: {item.humanFriendlyId}
-                    </Text>
-                    <Text variant="caption">
-                      {t('patients.directory.columns.tenant')}: {item.tenantLabel}
-                    </Text>
-                    <Text variant="caption">
-                      {t('patients.directory.columns.facility')}: {item.facilityLabel}
-                    </Text>
-                  </StyledRowMeta>
-                  <Button
-                    variant="surface"
-                    size="small"
-                    onPress={() => onOpenPatient(item.id)}
-                    accessibilityLabel={t('patients.directory.openWorkspace')}
-                  >
-                    {t('patients.directory.openWorkspace')}
-                  </Button>
-                </StyledListRow>
-              ))}
+              <PatientListCards
+                items={items}
+                onOpenPatient={onOpenPatient}
+                onEditPatient={onEditPatient}
+                onDeletePatient={onDeletePatient}
+                patientLabel={t('patients.directory.columns.patient')}
+                patientIdLabel={t('patients.directory.columns.patientId')}
+                tenantLabel={t('patients.directory.columns.tenant')}
+                facilityLabel={t('patients.directory.columns.facility')}
+                actionsLabel={t('patients.common.list.columnActions')}
+                openButtonLabel={t('patients.directory.openWorkspace')}
+                editButtonLabel={t('common.edit')}
+                deleteButtonLabel={t('common.delete')}
+                resolveOpenAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.detailsHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                resolveEditAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.editHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                resolveDeleteAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.deleteHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                testIdPrefix="patient-directory-item-"
+              />
 
               <StyledPaginationRow>
                 <Text variant="caption">
@@ -530,6 +609,19 @@ const PatientDirectoryScreen = () => {
                   })}
                 </Text>
                 <StyledPaginationActions>
+                  <StyledRowsControl>
+                    <Text variant="caption">{t('patients.directory.pageSizeLabel')}</Text>
+                    <StyledRowsSelectSlot>
+                      <Select
+                        value={String(pageSize)}
+                        options={pageSizeSelectOptions}
+                        onValueChange={onPageSize}
+                        accessibilityLabel={t('patients.directory.pageSizeLabel')}
+                        compact
+                        testID="patient-directory-page-size"
+                      />
+                    </StyledRowsSelectSlot>
+                  </StyledRowsControl>
                   <Button
                     variant="surface"
                     size="small"

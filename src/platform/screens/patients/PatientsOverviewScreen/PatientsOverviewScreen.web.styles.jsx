@@ -225,17 +225,6 @@ const StyledTileAction = styled.button.withConfig({
   padding: 0;
 `;
 
-const StyledRecentList = styled.ul.withConfig({
-  displayName: 'PatientsOverviewScreen_StyledRecentList',
-  componentId: 'PatientsOverviewScreen_StyledRecentList',
-})`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-`;
-
 export {
   StyledCardGrid,
   StyledContainer,
@@ -249,7 +238,6 @@ export {
   StyledHelpItem,
   StyledHelpModalBody,
   StyledHelpModalTitle,
-  StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,

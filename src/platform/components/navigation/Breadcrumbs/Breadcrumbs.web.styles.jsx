@@ -42,6 +42,7 @@ const StyledBreadcrumbsActions = styled.div.withConfig({
   componentId: 'StyledBreadcrumbsActions',
 })`
   display: flex;
+  gap: ${({ theme }) => theme.spacing.xs}px;
   align-items: center;
   justify-content: flex-end;
   flex-shrink: 0;

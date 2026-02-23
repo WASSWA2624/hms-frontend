@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { StyledBackdrop, StyledModalContainer, StyledCloseButton, StyledContent, StyledDescription } from './Modal.web.styles';
 import useModal from './useModal';
 import { useI18n } from '@hooks';
@@ -105,7 +106,7 @@ const ModalWeb = ({
 
   if (!visible) return null;
 
-  return (
+  const modalContent = (
     <StyledBackdrop
       onClick={handleBackdropPress}
       role="dialog"
@@ -144,6 +145,12 @@ const ModalWeb = ({
       </StyledModalContainer>
     </StyledBackdrop>
   );
+
+  if (typeof document === 'undefined' || !document.body) {
+    return modalContent;
+  }
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ModalWeb;

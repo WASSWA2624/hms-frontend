@@ -52,6 +52,9 @@ const buildBaseHook = () => ({
       listKey: 'patient-1',
       displayName: 'Jane Doe',
       subtitle: 'FEMALE - 1990-01-01',
+      humanFriendlyId: 'PAT-0001',
+      tenantLabel: 'Main Tenant (TEN0001)',
+      facilityLabel: 'Main Facility (FAC0001)',
     },
   ],
   canCreatePatientRecords: true,
@@ -90,6 +93,12 @@ describe('PatientsOverviewScreen', () => {
           'patients.overview.loadErrorTitle': 'Unable to load patient overview',
           'patients.overview.emptyTitle': 'No patients yet',
           'patients.overview.emptyMessage': 'Register your first patient to start using linked records.',
+          'patients.directory.columns.patientId': 'Patient ID',
+          'patients.directory.columns.patient': 'Patient',
+          'patients.directory.columns.tenant': 'Tenant',
+          'patients.directory.columns.facility': 'Facility',
+          'patients.common.list.columnActions': 'Actions',
+          'patients.directory.openWorkspace': 'Details',
           'shell.banners.offline.title': 'Offline',
           'shell.banners.offline.message': 'Connection unavailable',
           'common.loading': 'Loading',
@@ -103,11 +112,15 @@ describe('PatientsOverviewScreen', () => {
   });
 
   it('renders web overview with help trigger and register action', () => {
-    const { getByTestId } = renderWithTheme(<PatientsOverviewScreenWeb />);
+    const { getByTestId, getByText } = renderWithTheme(<PatientsOverviewScreenWeb />);
 
     expect(getByTestId('patients-overview-help-trigger')).toBeTruthy();
     expect(getByTestId('patients-overview-register')).toBeTruthy();
-    expect(getByTestId('patients-overview-item-1').props.title).toBe('Jane Doe');
+    expect(getByTestId('patients-overview-item-1')).toBeTruthy();
+    expect(getByText('Jane Doe')).toBeTruthy();
+    expect(getByText('PAT-0001')).toBeTruthy();
+    expect(getByText('Main Tenant (TEN0001)')).toBeTruthy();
+    expect(getByText('Main Facility (FAC0001)')).toBeTruthy();
   });
 
   it('hides register action on web when user is read-only', () => {

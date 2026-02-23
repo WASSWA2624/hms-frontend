@@ -21,6 +21,7 @@ import React from 'react';
 import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
 import { useSessionRestore } from '@hooks';
 import { MainRouteLayout } from '@platform/layouts';
+import { MainRouteHeaderActionsProvider } from '@platform/layouts/RouteLayouts/MainRouteLayout';
 
 /**
  * Main group layout wrapper.
@@ -30,7 +31,11 @@ function MainGroupLayout() {
   useAuthGuard({ skipRedirect: !isSessionReady });
   const { hasAccess, isPending } = useRouteAccessGuard();
   if (!isSessionReady || isPending || !hasAccess) return null;
-  return <MainRouteLayout />;
+  return (
+    <MainRouteHeaderActionsProvider>
+      <MainRouteLayout />
+    </MainRouteHeaderActionsProvider>
+  );
 }
 
 export default MainGroupLayout;

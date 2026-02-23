@@ -42,7 +42,7 @@ const StyledBackdrop = styled.div.withConfig({
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2147483000;
   animation: fadeIn 0.2s ease;
   
   @keyframes fadeIn {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Button,
   Card,
@@ -6,7 +6,6 @@ import {
   ErrorState,
   ErrorStateSizes,
   Icon,
-  ListItem,
   LoadingSpinner,
   Modal,
   OfflineState,
@@ -15,6 +14,7 @@ import {
   Tooltip,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import { PatientListCards } from '../components';
 import {
   StyledCardGrid,
   StyledContainer,
@@ -28,7 +28,6 @@ import {
   StyledHelpItem,
   StyledHelpModalBody,
   StyledHelpModalTitle,
-  StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
@@ -44,6 +43,7 @@ const PatientsOverviewScreenWeb = () => {
   const { t } = useI18n();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const helpButtonRef = useRef(null);
   const {
     cards,
     overviewSummary,
@@ -57,6 +57,8 @@ const PatientsOverviewScreenWeb = () => {
     onRetry,
     onOpenResource,
     onOpenPatient,
+    onEditPatient,
+    onDeletePatient,
     onRegisterPatient,
   } = usePatientsOverviewScreen();
 
@@ -71,6 +73,7 @@ const PatientsOverviewScreenWeb = () => {
             </StyledHeaderCopy>
             <StyledHelpAnchor>
               <StyledHelpButton
+                ref={helpButtonRef}
                 type="button"
                 aria-label={helpContent.label}
                 aria-describedby="patients-overview-help-tooltip"
@@ -89,6 +92,7 @@ const PatientsOverviewScreenWeb = () => {
                 visible={isTooltipVisible && !isHelpOpen}
                 position="bottom"
                 text={helpContent.tooltip}
+                anchorRef={helpButtonRef}
                 testID="patients-overview-help-tooltip"
               />
             </StyledHelpAnchor>
@@ -222,21 +226,34 @@ const PatientsOverviewScreenWeb = () => {
                 testID="patients-overview-empty"
               />
             ) : (
-              <StyledRecentList role="list">
-                {recentPatients.map((patient, index) => {
-                  return (
-                    <li key={patient.listKey} role="listitem">
-                      <ListItem
-                        title={patient.displayName}
-                        subtitle={patient.subtitle}
-                        onPress={() => onOpenPatient(patient.id)}
-                        accessibilityLabel={t('patients.overview.openPatient', { patient: patient.displayName })}
-                        testID={`patients-overview-item-${index + 1}`}
-                      />
-                    </li>
-                  );
-                })}
-              </StyledRecentList>
+              <PatientListCards
+                items={recentPatients}
+                onOpenPatient={onOpenPatient}
+                onEditPatient={onEditPatient}
+                onDeletePatient={onDeletePatient}
+                patientLabel={t('patients.directory.columns.patient')}
+                patientIdLabel={t('patients.directory.columns.patientId')}
+                tenantLabel={t('patients.directory.columns.tenant')}
+                facilityLabel={t('patients.directory.columns.facility')}
+                actionsLabel={t('patients.common.list.columnActions')}
+                openButtonLabel={t('patients.directory.openWorkspace')}
+                editButtonLabel={t('common.edit')}
+                deleteButtonLabel={t('common.delete')}
+                resolveOpenAccessibilityLabel={(patient) =>
+                  t('patients.overview.openPatient', { patient: patient.displayName })
+                }
+                resolveEditAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.editHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                resolveDeleteAccessibilityLabel={(patient) =>
+                  t('patients.directory.actions.deleteHint', {
+                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                  })
+                }
+                testIdPrefix="patients-overview-item-"
+              />
             )}
           </Card>
         </StyledSection>

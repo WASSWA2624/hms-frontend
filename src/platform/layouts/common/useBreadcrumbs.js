@@ -4,10 +4,11 @@
  * File: useBreadcrumbs.js
  */
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'expo-router';
 import { useI18n } from '@hooks';
 import { getMenuIconGlyph, getNavItemLabel } from '@config/sideMenu';
+import { getPatient } from '@features/patient';
 
 /**
  * Find main nav item by exact path.
@@ -64,6 +65,16 @@ const formatSegmentLabel = (segment, t) => {
     .join(' ');
 };
 
+const resolvePathSegments = (pathname) => String(pathname || '').split('/').filter(Boolean);
+
+const resolvePatientRouteIdFromPath = (pathname) => {
+  const segments = resolvePathSegments(pathname);
+  const [moduleSegment, resourceSegment, candidateId] = segments;
+  if (moduleSegment !== 'patients' || resourceSegment !== 'patients') return null;
+  if (!candidateId || candidateId === 'create') return null;
+  return candidateId;
+};
+
 /**
  * Generates breadcrumb items from pathname with navigation item integration
  * @param {Array} navigationItems - Navigation items from config/sideMenu (e.g. SIDE_MENU_ITEMS)
@@ -74,13 +85,42 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
   // Some tests mock expo-router without usePathname; keep breadcrumb generation resilient.
   const pathname = typeof usePathname === 'function' ? usePathname() : '';
   const { t } = useI18n();
+  const [patientBreadcrumbLabel, setPatientBreadcrumbLabel] = useState('');
+  const patientRouteId = useMemo(() => resolvePatientRouteIdFromPath(pathname), [pathname]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    if (!patientRouteId) {
+      setPatientBreadcrumbLabel('');
+      return undefined;
+    }
+
+    const loadPatientBreadcrumbLabel = async () => {
+      try {
+        const patient = await getPatient(patientRouteId);
+        const humanFriendlyId = String(patient?.human_friendly_id || '').trim();
+        if (!isActive) return;
+        setPatientBreadcrumbLabel(humanFriendlyId);
+      } catch {
+        if (!isActive) return;
+        setPatientBreadcrumbLabel('');
+      }
+    };
+
+    loadPatientBreadcrumbLabel();
+
+    return () => {
+      isActive = false;
+    };
+  }, [patientRouteId]);
 
   const breadcrumbItems = useMemo(() => {
     if (!pathname || pathname === '/') {
       return [];
     }
 
-    const segments = pathname.split('/').filter(Boolean);
+    const segments = resolvePathSegments(pathname);
     if (segments.length === 0) {
       return [];
     }
@@ -95,7 +135,15 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
       const mainItem = index === 0 ? findMainItemByPath(navigationItems, currentPath) : null;
       const childItem = index > 0 ? findChildItemByPath(navigationItems, currentPath) : null;
       const navItem = mainItem ?? childItem;
+      const isPatientRecordSegment = (
+        index === 2
+        && segments[0] === 'patients'
+        && segments[1] === 'patients'
+        && segment === patientRouteId
+      );
+      const resolvedPatientLabel = isPatientRecordSegment ? patientBreadcrumbLabel : '';
       const label = (navItem ? (navItem.label ?? getNavItemLabel(t, navItem, itemsI18nPrefix)) : '')
+        || resolvedPatientLabel
         || formatSegmentLabel(segment, t);
       const iconSource = (index === 0 ? (deepestChild?.icon ?? mainItem?.icon) : childItem?.icon) ?? null;
       const icon = index === 0 && iconSource ? getMenuIconGlyph(iconSource) : null;
@@ -108,7 +156,7 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
     });
 
     return items;
-  }, [pathname, navigationItems, itemsI18nPrefix, t]);
+  }, [pathname, navigationItems, itemsI18nPrefix, patientBreadcrumbLabel, patientRouteId, t]);
 
   return breadcrumbItems;
 };

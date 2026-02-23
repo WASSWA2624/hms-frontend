@@ -49,6 +49,7 @@ const isActivationKey = (key) => key === 'Enter' || key === ' ' || key === 'Spac
  * @param {Object} props.style - Additional styles
  * @param {boolean} props.showBackButton - Whether to show back button
  * @param {Function} props.onBack - Optional back handler
+ * @param {React.ReactNode} props.actionsBeforeBack - Optional actions rendered before back button
  */
 const BreadcrumbsWeb = ({
   items = [],
@@ -61,6 +62,7 @@ const BreadcrumbsWeb = ({
   maxItems = 5, // Maximum items to show before truncation
   showBackButton = true,
   onBack,
+  actionsBeforeBack,
   ...rest
 }) => {
   const { t } = useI18n();
@@ -244,19 +246,22 @@ const BreadcrumbsWeb = ({
           );
         })}
       </StyledBreadcrumbsList>
-      {showBackButton ? (
+      {showBackButton || actionsBeforeBack ? (
         <StyledBreadcrumbsActions>
-          <StyledBackButton
-            type="button"
-            onClick={canGoBack ? handleBack : undefined}
-            disabled={!canGoBack}
-            aria-label={t('common.back')}
-            data-testid={testID ? `${testID}-back` : undefined}
-            testID={testID ? `${testID}-back` : undefined}
-          >
-            <Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />
-            <StyledBackLabel>{t('common.back')}</StyledBackLabel>
-          </StyledBackButton>
+          {actionsBeforeBack || null}
+          {showBackButton ? (
+            <StyledBackButton
+              type="button"
+              onClick={canGoBack ? handleBack : undefined}
+              disabled={!canGoBack}
+              aria-label={t('common.back')}
+              data-testid={testID ? `${testID}-back` : undefined}
+              testID={testID ? `${testID}-back` : undefined}
+            >
+              <Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />
+              <StyledBackLabel>{t('common.back')}</StyledBackLabel>
+            </StyledBackButton>
+          ) : null}
         </StyledBreadcrumbsActions>
       ) : null}
     </StyledBreadcrumbs>

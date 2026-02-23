@@ -31,6 +31,7 @@ const StyledBreadcrumbsActions = styled(View).withConfig({
   componentId: 'StyledBreadcrumbsActions',
 })`
   flex-direction: row;
+  gap: ${({ theme }) => theme.spacing.xs}px;
   align-items: center;
   justify-content: flex-end;
 `;

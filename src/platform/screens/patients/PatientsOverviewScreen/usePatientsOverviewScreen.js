@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
+import { confirmAction } from '@utils';
 import {
   sanitizeString,
 } from '../patientResourceConfigs';
@@ -12,6 +13,7 @@ import { resolveErrorMessage } from '../patientScreenUtils';
 const DEFAULT_OVERVIEW_PAGE = 1;
 const DEFAULT_OVERVIEW_LIMIT = 20;
 const MAX_OVERVIEW_LIMIT = 100;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const normalizeBoundedLimit = (value) => {
   const numeric = Number(value);
@@ -52,6 +54,25 @@ const resolvePatientSubtitle = (patient, fallbackLabel) => {
   return fallbackLabel;
 };
 
+const resolveContextLabel = (context, fallback) => {
+  const label = sanitizeString(context?.label || context?.name);
+  const contextId = sanitizeString(context?.id);
+  const friendlyId = sanitizeString(
+    context?.human_friendly_id
+    || context?.humanFriendlyId
+    || (contextId && !UUID_PATTERN.test(contextId) ? contextId : '')
+  );
+  if (label && friendlyId) return `${label} (${friendlyId})`;
+  return label || friendlyId || fallback;
+};
+
+const composeContextLabel = (label, humanFriendlyId, fallback) => {
+  const normalizedLabel = sanitizeString(label);
+  const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
+  if (normalizedLabel && normalizedHumanFriendlyId) return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
+  return normalizedLabel || normalizedHumanFriendlyId || fallback;
+};
+
 const compareRecentPatients = (left, right) => {
   const updatedAtDiff = toTimestamp(right?.updated_at) - toTimestamp(left?.updated_at);
   if (updatedAtDiff !== 0) return updatedAtDiff;
@@ -78,16 +99,28 @@ const usePatientsOverviewScreen = () => {
     canCreatePatientRecords,
     canManageAllTenants,
     tenantId,
+    tenantName,
+    tenantHumanFriendlyId,
     facilityId,
+    facilityName,
+    facilityHumanFriendlyId,
     isResolved,
   } = usePatientAccess();
 
-  const { list, data, isLoading, errorCode, reset } = usePatient();
+  const { list, data, isLoading, errorCode, reset, remove } = usePatient();
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canViewOverview = isResolved && canAccessPatients && hasScope;
+  const scopedTenantFallbackLabel = useMemo(
+    () => composeContextLabel(tenantName, tenantHumanFriendlyId, t('patients.directory.unassignedTenant')),
+    [tenantHumanFriendlyId, tenantName, t]
+  );
+  const scopedFacilityFallbackLabel = useMemo(
+    () => composeContextLabel(facilityName, facilityHumanFriendlyId, t('patients.directory.unassignedFacility')),
+    [facilityHumanFriendlyId, facilityName, t]
+  );
 
   const patientItems = useMemo(() => {
     if (Array.isArray(data)) return data;
@@ -108,10 +141,25 @@ const usePatientsOverviewScreen = () => {
             ...patient,
             displayName: resolvePatientDisplayName(patient, fallbackName),
             subtitle: resolvePatientSubtitle(patient, t('patients.overview.unknownDemographics')),
+            humanFriendlyId: sanitizeString(patient?.human_friendly_id) || '-',
+            tenantLabel: resolveContextLabel(
+              patient?.tenant_context || {
+                label: patient?.tenant_label,
+                human_friendly_id: patient?.tenant_human_friendly_id,
+              },
+              scopedTenantFallbackLabel
+            ),
+            facilityLabel: resolveContextLabel(
+              patient?.facility_context || {
+                label: patient?.facility_label,
+                human_friendly_id: patient?.facility_human_friendly_id,
+              },
+              scopedFacilityFallbackLabel
+            ),
             listKey: sanitizeString(patient?.id) || `recent-patient-${index + 1}`,
           };
         }),
-    [patientItems, t]
+    [patientItems, scopedFacilityFallbackLabel, scopedTenantFallbackLabel, t]
   );
 
   const cards = useMemo(
@@ -224,6 +272,30 @@ const usePatientsOverviewScreen = () => {
     [canViewOverview, router]
   );
 
+  const handleEditPatient = useCallback(
+    (patientId) => {
+      if (!canViewOverview || !canCreatePatientRecords) return;
+      const safeId = sanitizeString(patientId);
+      if (!safeId) return;
+      router.push(`/patients/patients/${safeId}/edit`);
+    },
+    [canCreatePatientRecords, canViewOverview, router]
+  );
+
+  const handleDeletePatient = useCallback(
+    async (patientId) => {
+      if (!canViewOverview || !canCreatePatientRecords) return;
+      const safeId = sanitizeString(patientId);
+      if (!safeId) return;
+      if (!confirmAction(t('common.confirmDelete'))) return;
+
+      const result = await remove(safeId);
+      if (result === undefined) return;
+      loadPatients();
+    },
+    [canCreatePatientRecords, canViewOverview, loadPatients, remove, t]
+  );
+
   const handleRegisterPatient = useCallback(() => {
     if (!canViewOverview || !canCreatePatientRecords) return;
     router.push('/patients/patients/create');
@@ -243,6 +315,8 @@ const usePatientsOverviewScreen = () => {
     onRetry: handleRetry,
     onOpenResource: handleOpenResource,
     onOpenPatient: handleOpenPatient,
+    onEditPatient: handleEditPatient,
+    onDeletePatient: handleDeletePatient,
     onRegisterPatient: handleRegisterPatient,
   };
 };

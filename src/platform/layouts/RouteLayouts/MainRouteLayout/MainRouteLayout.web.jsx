@@ -31,6 +31,7 @@ import HamburgerIcon from './HamburgerIcon';
 import HeaderUtility, { HeaderStatusCluster } from './HeaderUtility';
 import MobileSidebar from './MobileSidebar';
 import useBreadcrumbs from '@platform/layouts/common/useBreadcrumbs';
+import { useMainRouteHeaderActions } from './MainRouteHeaderActionsContext';
 import {
   StyledHeaderRevealButton,
   StyledSidebarResizeHandle,
@@ -41,6 +42,7 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH } from '.
 const MainRouteLayoutWeb = () => {
   useAuthGuard();
   const layout = useMainRouteLayoutWeb();
+  const { beforeBackActions } = useMainRouteHeaderActions();
   const banners = useShellBanners();
   const bannerSlot = banners.length ? (
     <ShellBanners banners={banners} testID="main-shell-banners" />
@@ -193,6 +195,7 @@ const MainRouteLayoutWeb = () => {
       items={breadcrumbItems}
       testID="main-breadcrumbs"
       accessibilityLabel={t('navigation.breadcrumbs.title')}
+      actionsBeforeBack={beforeBackActions}
     />
   ) : null;
 

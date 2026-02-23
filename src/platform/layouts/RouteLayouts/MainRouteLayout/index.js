@@ -16,6 +16,10 @@ export { default as useBreadcrumbs } from './useBreadcrumbs';
 export { default as useMainRouteLayoutNative } from './useMainRouteLayoutNative';
 export { default as useMainRouteLayoutWeb } from './useMainRouteLayoutWeb';
 export {
+  MainRouteHeaderActionsProvider,
+  useMainRouteHeaderActions,
+} from './MainRouteHeaderActionsContext';
+export {
   SIDEBAR_ICON_SIZE,
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_MIN_WIDTH,

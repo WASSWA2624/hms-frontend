@@ -186,21 +186,6 @@ const StyledTileAction = styled.Pressable.withConfig({
   margin-top: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledRecentList = styled.View.withConfig({
-  displayName: 'PatientsOverviewScreen_StyledRecentList',
-  componentId: 'PatientsOverviewScreen_StyledRecentList',
-})`
-  width: 100%;
-`;
-
-const StyledSeparator = styled.View.withConfig({
-  displayName: 'PatientsOverviewScreen_StyledSeparator',
-  componentId: 'PatientsOverviewScreen_StyledSeparator',
-})`
-  width: 100%;
-  height: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 export {
   StyledCardGrid,
   StyledContainer,
@@ -213,11 +198,9 @@ export {
   StyledHelpModalBody,
   StyledHelpModalItem,
   StyledHelpModalTitle,
-  StyledRecentList,
   StyledSection,
   StyledSectionHeader,
   StyledSectionTitle,
-  StyledSeparator,
   StyledSummaryChip,
   StyledSummaryList,
   StyledSummaryText,

@@ -10,14 +10,21 @@ const StyledTooltip = styled.div.withConfig({
   displayName: 'StyledTooltip',
   componentId: 'StyledTooltip',
 })`
+  --tooltip-gap: ${({ theme }) => theme?.spacing?.sm ?? 8}px;
+  --tooltip-arrow-size: ${({ theme }) => {
+    const spacingXs = theme?.spacing?.xs ?? 4;
+    return spacingXs + spacingXs / 2;
+  }}px;
+  --tooltip-bg: ${({ theme }) => theme?.colors?.tooltip?.background || 'rgba(0, 0, 0, 0.85)'};
+
   position: absolute;
-  z-index: 10000;
+  z-index: 2147483001;
   padding-left: ${({ theme }) => theme?.spacing?.md ?? 12}px;
   padding-right: ${({ theme }) => theme?.spacing?.md ?? 12}px;
   padding-top: ${({ theme }) => theme?.spacing?.sm ?? 8}px;
   padding-bottom: ${({ theme }) => theme?.spacing?.sm ?? 8}px;
   border-radius: ${({ theme }) => theme?.radius?.sm ?? 6}px;
-  background-color: ${({ theme }) => theme?.colors?.tooltip?.background || 'rgba(0, 0, 0, 0.85)'};
+  background-color: var(--tooltip-bg);
   max-width: ${({ theme }) => (theme?.spacing?.xxl ?? 40) * 4}px;
   animation: fadeIn 0.2s ease-out;
   
@@ -34,78 +41,73 @@ const StyledTooltip = styled.div.withConfig({
     animation: none;
   }
 
-  ${({ position, theme }) => {
-    const margin = theme?.spacing?.sm ?? 8;
-    const spacingXs = theme?.spacing?.xs ?? 4;
-    const arrowSize = spacingXs + spacingXs / 2;
-    const bgColor = theme?.colors?.tooltip?.background || 'rgba(0, 0, 0, 0.85)';
-    if (position === 'top') {
-      return `
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-bottom: ${margin}px;
-        &::after {
-          content: '';
-          position: absolute;
-          top: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          border: ${arrowSize}px solid transparent;
-          border-top-color: ${bgColor};
-        }
-      `;
-    }
-    if (position === 'bottom') {
-      return `
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-top: ${margin}px;
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          border: ${arrowSize}px solid transparent;
-          border-bottom-color: ${bgColor};
-        }
-      `;
-    }
-    if (position === 'left') {
-      return `
-        right: 100%;
-        top: 50%;
-        transform: translateY(-50%);
-        margin-right: ${margin}px;
-        &::after {
-          content: '';
-          position: absolute;
-          left: 100%;
-          top: 50%;
-          transform: translateY(-50%);
-          border: ${arrowSize}px solid transparent;
-          border-left-color: ${bgColor};
-        }
-      `;
-    }
-    return `
-      left: 100%;
-      top: 50%;
-      transform: translateY(-50%);
-      margin-left: ${margin}px;
-      &::after {
-        content: '';
-        position: absolute;
-        right: 100%;
-        top: 50%;
-        transform: translateY(-50%);
-        border: ${arrowSize}px solid transparent;
-        border-right-color: ${bgColor};
-      }
-    `;
-  }}
+  &[data-mode='anchored'] {
+    position: fixed;
+    margin: 0;
+    transform: none;
+  }
+
+  &[data-mode='relative'][data-placement='top'] {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: var(--tooltip-gap);
+  }
+
+  &[data-mode='relative'][data-placement='bottom'] {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: var(--tooltip-gap);
+  }
+
+  &[data-mode='relative'][data-placement='left'] {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: var(--tooltip-gap);
+  }
+
+  &[data-mode='relative'][data-placement='right'] {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: var(--tooltip-gap);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    border: var(--tooltip-arrow-size) solid transparent;
+  }
+
+  &[data-placement='top']::after {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: var(--tooltip-bg);
+  }
+
+  &[data-placement='bottom']::after {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: var(--tooltip-bg);
+  }
+
+  &[data-placement='left']::after {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: var(--tooltip-bg);
+  }
+
+  &[data-placement='right']::after {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: var(--tooltip-bg);
+  }
 `;
 
 const StyledTooltipText = styled.span.withConfig({

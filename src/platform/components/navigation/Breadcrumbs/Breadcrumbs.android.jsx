@@ -31,6 +31,7 @@ import {
  * @param {Object} props.style - Additional styles
  * @param {boolean} props.showBackButton - Whether to show back button
  * @param {Function} props.onBack - Optional back handler
+ * @param {React.ReactNode} props.actionsBeforeBack - Optional actions rendered before back button
  */
 const BreadcrumbsAndroid = ({
   items = [],
@@ -41,6 +42,7 @@ const BreadcrumbsAndroid = ({
   style,
   showBackButton = true,
   onBack,
+  actionsBeforeBack,
   ...rest
 }) => {
   const { t } = useI18n();
@@ -144,18 +146,21 @@ const BreadcrumbsAndroid = ({
           );
         })}
       </StyledBreadcrumbsList>
-      {showBackButton ? (
+      {showBackButton || actionsBeforeBack ? (
         <StyledBreadcrumbsActions>
-          <StyledBackButton
-            onPress={canGoBack ? handleBack : undefined}
-            disabled={!canGoBack}
-            accessibilityRole="button"
-            accessibilityLabel={t('common.back')}
-            testID={testID ? `${testID}-back` : undefined}
-          >
-            <Icon glyph="<" size="xs" decorative />
-            <StyledBackLabel>{t('common.back')}</StyledBackLabel>
-          </StyledBackButton>
+          {actionsBeforeBack || null}
+          {showBackButton ? (
+            <StyledBackButton
+              onPress={canGoBack ? handleBack : undefined}
+              disabled={!canGoBack}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.back')}
+              testID={testID ? `${testID}-back` : undefined}
+            >
+              <Icon glyph="<" size="xs" decorative />
+              <StyledBackLabel>{t('common.back')}</StyledBackLabel>
+            </StyledBackButton>
+          ) : null}
         </StyledBreadcrumbsActions>
       ) : null}
     </StyledBreadcrumbs>

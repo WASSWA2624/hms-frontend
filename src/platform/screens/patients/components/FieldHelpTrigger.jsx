@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components/native';
 import { Icon, Modal, Text, Tooltip } from '@platform/components';
 
@@ -12,6 +12,11 @@ const StyledLabelRow = styled.View`
 
 const StyledLabelText = styled(Text)`
   flex: 1;
+`;
+
+const StyledHelpAnchor = styled.View`
+  position: relative;
+  z-index: 21000;
 `;
 
 const StyledHelpButton = styled.Pressable`
@@ -48,6 +53,7 @@ const FieldHelpTrigger = ({
 }) => {
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const helpButtonRef = useRef(null);
 
   const normalizedItems = useMemo(
     () => (Array.isArray(helpItems) ? helpItems.filter(Boolean) : []),
@@ -57,23 +63,27 @@ const FieldHelpTrigger = ({
   return (
     <StyledLabelRow>
       <StyledLabelText variant="label">{label}</StyledLabelText>
-      <StyledHelpButton
-        accessibilityRole="button"
-        accessibilityLabel={helpTitle || tooltip || label}
-        onPress={() => setIsHelpOpen(true)}
-        onHoverIn={() => setIsTooltipVisible(true)}
-        onHoverOut={() => setIsTooltipVisible(false)}
-        onFocus={() => setIsTooltipVisible(true)}
-        onBlur={() => setIsTooltipVisible(false)}
-        testID={testID}
-      >
-        <Icon glyph="?" size="xs" decorative />
-      </StyledHelpButton>
-      <Tooltip
-        visible={isTooltipVisible && !isHelpOpen}
-        position="bottom"
-        text={tooltip || ''}
-      />
+      <StyledHelpAnchor>
+        <StyledHelpButton
+          ref={helpButtonRef}
+          accessibilityRole="button"
+          accessibilityLabel={helpTitle || tooltip || label}
+          onPress={() => setIsHelpOpen(true)}
+          onHoverIn={() => setIsTooltipVisible(true)}
+          onHoverOut={() => setIsTooltipVisible(false)}
+          onFocus={() => setIsTooltipVisible(true)}
+          onBlur={() => setIsTooltipVisible(false)}
+          testID={testID}
+        >
+          <Icon glyph="?" size="xs" decorative />
+        </StyledHelpButton>
+        <Tooltip
+          visible={isTooltipVisible && !isHelpOpen}
+          position="bottom"
+          text={tooltip || ''}
+          anchorRef={helpButtonRef}
+        />
+      </StyledHelpAnchor>
 
       <Modal
         visible={isHelpOpen}

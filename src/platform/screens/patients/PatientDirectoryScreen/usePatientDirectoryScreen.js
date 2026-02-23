@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useDebounce, useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
+import { confirmAction } from '@utils';
 import { isEntitlementDeniedError, resolveErrorMessage } from '../patientScreenUtils';
 
 const PAGE_SIZE_OPTIONS = Object.freeze([20, 50, 100]);
@@ -53,6 +54,7 @@ const DEFAULT_RANGE_PRESETS = Object.freeze({
 });
 
 const sanitizeString = (value) => String(value || '').trim();
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const sanitizeNumber = (value, fallback) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
@@ -107,9 +109,23 @@ const resolvePatientName = (patient, fallback) => {
 
 const resolveContextLabel = (context, fallback) => {
   const label = sanitizeString(context?.label || context?.name);
-  const friendlyId = sanitizeString(context?.id);
+  const contextId = sanitizeString(context?.id);
+  const friendlyId = sanitizeString(
+    context?.human_friendly_id
+    || context?.humanFriendlyId
+    || (contextId && !UUID_PATTERN.test(contextId) ? contextId : '')
+  );
   if (label && friendlyId) return `${label} (${friendlyId})`;
   return label || friendlyId || fallback;
+};
+
+const composeContextLabel = (label, humanFriendlyId, fallback) => {
+  const normalizedLabel = sanitizeString(label);
+  const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
+  if (normalizedLabel && normalizedHumanFriendlyId) {
+    return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
+  }
+  return normalizedLabel || normalizedHumanFriendlyId || fallback;
 };
 
 const formatDateInput = (value) => {
@@ -194,13 +210,17 @@ const usePatientDirectoryScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
-  const { list, data, isLoading, errorCode, reset } = usePatient();
+  const { list, data, isLoading, errorCode, reset, remove } = usePatient();
   const {
     canAccessPatients,
     canCreatePatientRecords,
     canManageAllTenants,
     tenantId,
+    tenantName,
+    tenantHumanFriendlyId,
     facilityId,
+    facilityName,
+    facilityHumanFriendlyId,
     isResolved,
   } = usePatientAccess();
 
@@ -208,7 +228,7 @@ const usePatientDirectoryScreen = () => {
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('updated_at');
-  const [order, setOrder] = useState('desc');
+  const [order, setOrder] = useState('asc');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
@@ -225,6 +245,14 @@ const usePatientDirectoryScreen = () => {
     [appliedFilters]
   );
   const hasActiveFilters = Object.keys(normalizedAppliedFilters).length > 0;
+  const scopedTenantFallbackLabel = useMemo(
+    () => composeContextLabel(tenantName, tenantHumanFriendlyId, t('patients.directory.unassignedTenant')),
+    [tenantHumanFriendlyId, tenantName, t]
+  );
+  const scopedFacilityFallbackLabel = useMemo(
+    () => composeContextLabel(facilityName, facilityHumanFriendlyId, t('patients.directory.unassignedFacility')),
+    [facilityHumanFriendlyId, facilityName, t]
+  );
 
   const fetchList = useCallback(() => {
     if (!canAccessPatients || !hasScope || isOffline) return;
@@ -234,7 +262,7 @@ const usePatientDirectoryScreen = () => {
       page: page > 0 ? page : 1,
       limit: boundedPageSize,
       sort_by: SORT_FIELDS.includes(sortBy) ? sortBy : 'updated_at',
-      order: ORDER_FIELDS.includes(order) ? order : 'desc',
+      order: ORDER_FIELDS.includes(order) ? order : 'asc',
       search: sanitizeString(debouncedSearch) || undefined,
       ...normalizedAppliedFilters,
     };
@@ -289,20 +317,20 @@ const usePatientDirectoryScreen = () => {
         tenantLabel: resolveContextLabel(
           patient?.tenant_context || {
             label: patient?.tenant_label,
-            id: patient?.tenant_human_friendly_id,
+            human_friendly_id: patient?.tenant_human_friendly_id,
           },
-          '-'
+          scopedTenantFallbackLabel
         ),
         facilityLabel: resolveContextLabel(
           patient?.facility_context || {
             label: patient?.facility_label,
-            id: patient?.facility_human_friendly_id,
+            human_friendly_id: patient?.facility_human_friendly_id,
           },
-          '-'
+          scopedFacilityFallbackLabel
         ),
         updatedAt: sanitizeString(patient?.updated_at) || '-',
       })),
-    [rawItems, t]
+    [rawItems, scopedFacilityFallbackLabel, scopedTenantFallbackLabel, t]
   );
 
   const pagination = useMemo(
@@ -328,7 +356,7 @@ const usePatientDirectoryScreen = () => {
   }, []);
 
   const onOrder = useCallback((value) => {
-    setOrder(ORDER_FIELDS.includes(value) ? value : 'desc');
+    setOrder(ORDER_FIELDS.includes(value) ? value : 'asc');
     setPage(1);
   }, []);
 
@@ -353,6 +381,30 @@ const usePatientDirectoryScreen = () => {
       router.push(`/patients/patients/${normalizedId}`);
     },
     [router]
+  );
+
+  const onEditPatient = useCallback(
+    (patientId) => {
+      if (!canCreatePatientRecords) return;
+      const normalizedId = sanitizeString(patientId);
+      if (!normalizedId) return;
+      router.push(`/patients/patients/${normalizedId}/edit`);
+    },
+    [canCreatePatientRecords, router]
+  );
+
+  const onDeletePatient = useCallback(
+    async (patientId) => {
+      if (!canCreatePatientRecords) return;
+      const normalizedId = sanitizeString(patientId);
+      if (!normalizedId) return;
+      if (!confirmAction(t('common.confirmDelete'))) return;
+
+      const result = await remove(normalizedId);
+      if (result === undefined) return;
+      fetchList();
+    },
+    [canCreatePatientRecords, fetchList, remove, t]
   );
 
   const onQuickCreate = useCallback(() => {
@@ -484,6 +536,8 @@ const usePatientDirectoryScreen = () => {
     onPreviousPage,
     onNextPage,
     onOpenPatient,
+    onEditPatient,
+    onDeletePatient,
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,
