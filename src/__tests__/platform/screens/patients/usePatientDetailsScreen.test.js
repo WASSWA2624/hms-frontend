@@ -184,12 +184,8 @@ describe('usePatientDetailsScreen', () => {
     renderHook(() => usePatientDetailsScreen());
 
     await waitFor(() => {
-      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
     });
-    expect(mockPatientList).toHaveBeenCalledWith(expect.objectContaining({
-      patient_id: 'PAT-001',
-      tenant_id: 'tenant-1',
-    }));
 
     expect(mockListIdentifiers).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1',
@@ -213,16 +209,8 @@ describe('usePatientDetailsScreen', () => {
     }));
   });
 
-  it('maps human-friendly route IDs to internal UUIDs with scoped facility filters', async () => {
+  it('resolves human-friendly route IDs via direct patient get call', async () => {
     mockSearchParams = { id: 'PAT0000001' };
-    mockPatientList.mockResolvedValue({
-      items: [
-        {
-          id: 'patient-99',
-          human_friendly_id: 'PAT-0000001',
-        },
-      ],
-    });
     mockPatientGet.mockResolvedValue({
       id: 'patient-99',
       first_name: 'Mapped',
@@ -243,13 +231,8 @@ describe('usePatientDetailsScreen', () => {
     renderHook(() => usePatientDetailsScreen());
 
     await waitFor(() => {
-      expect(mockPatientGet).toHaveBeenCalledWith('patient-99');
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT0000001');
     });
-    expect(mockPatientList).toHaveBeenCalledWith(expect.objectContaining({
-      patient_id: 'PAT0000001',
-      tenant_id: 'tenant-1',
-      facility_id: 'facility-1',
-    }));
   });
 
   it('normalizes route tab query into patient details tab keys', async () => {
@@ -268,7 +251,7 @@ describe('usePatientDetailsScreen', () => {
     const { result } = renderHook(() => usePatientDetailsScreen());
 
     await waitFor(() => {
-      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
     });
 
     act(() => {
@@ -321,7 +304,7 @@ describe('usePatientDetailsScreen', () => {
 
     const { result } = renderHook(() => usePatientDetailsScreen());
     await waitFor(() => {
-      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
     });
 
     act(() => {
@@ -343,6 +326,67 @@ describe('usePatientDetailsScreen', () => {
       last_name: 'Doe',
     }));
     expect(result.current.isSummaryEditMode).toBe(false);
+  });
+
+  it('shows a success notice after saving summary updates', async () => {
+    mockPatientUpdate.mockResolvedValue({ id: 'patient-1' });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
+    });
+    await waitFor(() => {
+      expect(result.current.patientId).toBe('patient-1');
+    });
+
+    await act(async () => {
+      await result.current.onSaveSummary();
+    });
+
+    await waitFor(() => {
+      expect(result.current.noticeVariant).toBe('success');
+      expect(result.current.noticeMessage).toBe('patients.workspace.state.patientUpdatedSuccess');
+    });
+  });
+
+  it('shows an error notice when a resource save fails', async () => {
+    mockCreateIdentifiers.mockResolvedValue(null);
+    usePatientIdentifier.mockReturnValue({
+      list: mockListIdentifiers,
+      create: mockCreateIdentifiers,
+      update: mockUpdateIdentifiers,
+      remove: mockRemoveIdentifiers,
+      reset: mockResetIdentifiers,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: 'NETWORK_ERROR',
+    });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
+    });
+
+    act(() => {
+      result.current.onResourceCreate(result.current.resourceKeys.IDENTIFIERS);
+      result.current.onResourceFieldChange(
+        result.current.resourceKeys.IDENTIFIERS,
+        'identifier_type',
+        'MRN'
+      );
+      result.current.onResourceFieldChange(
+        result.current.resourceKeys.IDENTIFIERS,
+        'identifier_value',
+        'MRN-1001'
+      );
+    });
+
+    await act(async () => {
+      await result.current.onResourceSubmit(result.current.resourceKeys.IDENTIFIERS);
+    });
+
+    expect(result.current.noticeVariant).toBe('error');
+    expect(result.current.noticeMessage).toBe('patients.workspace.state.saveError');
   });
 
   it('surfaces entitlement blocked state when backend returns MODULE_NOT_ENTITLED', async () => {
@@ -391,7 +435,10 @@ describe('usePatientDetailsScreen', () => {
 
     const { result } = renderHook(() => usePatientDetailsScreen());
     await waitFor(() => {
-      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+      expect(mockPatientGet).toHaveBeenCalledWith('PAT-001');
+    });
+    await waitFor(() => {
+      expect(result.current.patientId).toBe('patient-1');
     });
 
     await act(async () => {

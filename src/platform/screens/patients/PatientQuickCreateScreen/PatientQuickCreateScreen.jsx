@@ -4,10 +4,12 @@ import {
   Card,
   ErrorState,
   ErrorStateSizes,
+  GlobalSmartDateField,
   Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Snackbar,
   Select,
   Switch,
   Text,
@@ -26,6 +28,12 @@ import {
 } from './PatientQuickCreateScreen.styles';
 import usePatientQuickCreateScreen from './usePatientQuickCreateScreen';
 
+const resolveTextValue = (event) => (
+  event?.target?.value
+  ?? event?.nativeEvent?.text
+  ?? ''
+);
+
 const PatientQuickCreateScreen = () => {
   const { t } = useI18n();
   const {
@@ -35,6 +43,7 @@ const PatientQuickCreateScreen = () => {
     tenantOptions,
     facilityOptions,
     isLoading,
+    isSubmitting = false,
     isOffline,
     hasError,
     errorMessage,
@@ -47,12 +56,27 @@ const PatientQuickCreateScreen = () => {
     isFacilityLoading,
     requiresTenantSelection,
     canCreatePatientRecords,
+    isSubmitDisabled = false,
+    noticeMessage = '',
+    noticeVariant = 'info',
     onChange,
     onCancel,
     onRetry,
+    onRetryTenants,
+    onRetryFacilities,
     onSubmit,
+    onDismissNotice,
     onGoToSubscriptions,
   } = usePatientQuickCreateScreen();
+  const isFormBusy = Boolean(isSubmitting || isLoading);
+  const hasTenantSelection = !requiresTenantSelection || Boolean(values.tenant_id);
+
+  const facilityHelperText = (
+    errors.facility_id
+    || (!hasTenantSelection
+      ? t('patients.common.form.facilityRequiresTenantMessage')
+      : t('patients.resources.patients.form.facilityHint'))
+  );
 
   const renderTextField = (name, labelKey, placeholderKey, hintKey, maxLength) => (
     <StyledFieldBlock key={name}>
@@ -67,18 +91,30 @@ const PatientQuickCreateScreen = () => {
       <TextField
         value={values[name] || ''}
         placeholder={t(placeholderKey)}
-        onChange={(event) => onChange(name, event?.target?.value || '')}
+        onChange={(event) => onChange(name, resolveTextValue(event))}
         helperText={errors[name] || t(hintKey)}
         errorMessage={errors[name]}
         maxLength={maxLength}
         density="compact"
         testID={`patient-quick-create-${name}`}
+        disabled={isFormBusy}
       />
     </StyledFieldBlock>
   );
 
   return (
     <StyledContainer>
+      {noticeMessage ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant={noticeVariant || 'info'}
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="patient-quick-create-notice"
+        />
+      ) : null}
+
       <StyledHeader>
         <Text variant="h2" accessibilityRole="header">
           {t('patients.resources.patients.form.createTitle')}
@@ -141,28 +177,60 @@ const PatientQuickCreateScreen = () => {
                   testID="patient-quick-create-help-tenant"
                 />
                 <InlineFieldGuide text={t('patients.common.form.tenantHint')} />
-                {isTenantLoading ? (
-                  <LoadingSpinner accessibilityLabel={t('common.loading')} />
-                ) : tenantErrorCode ? (
-                  <ErrorState
-                    size={ErrorStateSizes.SMALL}
-                    title={t('patients.common.form.tenantLoadErrorTitle')}
-                    description={tenantErrorMessage}
-                    testID="patient-quick-create-tenant-error"
-                  />
-                ) : (
-                  <Select
-                    value={values.tenant_id || ''}
-                    options={tenantOptions}
-                    onValueChange={(value) => onChange('tenant_id', value)}
-                    helperText={errors.tenant_id || t('patients.common.form.tenantHint')}
-                    errorMessage={errors.tenant_id}
-                    compact
-                    testID="patient-quick-create-tenant"
-                  />
-                )}
-              </StyledFieldBlock>
-            ) : null}
+              {isTenantLoading ? (
+                <LoadingSpinner accessibilityLabel={t('common.loading')} />
+              ) : tenantErrorCode ? (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('patients.common.form.tenantLoadErrorTitle')}
+                  description={tenantErrorMessage}
+                  action={(
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onRetryTenants}
+                      accessibilityLabel={t('common.retry')}
+                      icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
+                      disabled={isFormBusy}
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  )}
+                  testID="patient-quick-create-tenant-error"
+                />
+              ) : tenantOptions.length === 0 ? (
+                <ErrorState
+                  size={ErrorStateSizes.SMALL}
+                  title={t('patients.common.form.tenantLoadErrorTitle')}
+                  description={t('patients.common.form.noTenantsMessage')}
+                  action={(
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onRetryTenants}
+                      accessibilityLabel={t('common.retry')}
+                      icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
+                      disabled={isFormBusy}
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  )}
+                  testID="patient-quick-create-tenant-empty"
+                />
+              ) : (
+                <Select
+                  value={values.tenant_id || ''}
+                  options={tenantOptions}
+                  onValueChange={(value) => onChange('tenant_id', value)}
+                  helperText={errors.tenant_id || t('patients.common.form.tenantHint')}
+                  errorMessage={errors.tenant_id}
+                  compact
+                  testID="patient-quick-create-tenant"
+                  disabled={isFormBusy}
+                />
+              )}
+            </StyledFieldBlock>
+          ) : null}
 
             {renderTextField(
               'first_name',
@@ -178,13 +246,29 @@ const PatientQuickCreateScreen = () => {
               'patients.resources.patients.form.lastNameHint',
               120
             )}
-            {renderTextField(
-              'date_of_birth',
-              'patients.resources.patients.form.dateOfBirthLabel',
-              'patients.resources.patients.form.dateOfBirthPlaceholder',
-              'patients.resources.patients.form.dateOfBirthHint',
-              10
-            )}
+            <StyledFieldBlock>
+              <FieldHelpTrigger
+                label={t('patients.resources.patients.form.dateOfBirthLabel')}
+                tooltip={t('patients.resources.patients.form.dateOfBirthHint')}
+                helpTitle={t('patients.resources.patients.form.dateOfBirthLabel')}
+                helpBody={t('patients.resources.patients.form.dateOfBirthHint')}
+                testID="patient-quick-create-help-date_of_birth"
+              />
+              <InlineFieldGuide
+                text={t('patients.resources.patients.form.dateOfBirthHint')}
+                testID="patient-quick-create-guide-date_of_birth"
+              />
+              <GlobalSmartDateField
+                value={values.date_of_birth || ''}
+                placeholder={t('patients.resources.patients.form.dateOfBirthPlaceholder')}
+                onValueChange={(value) => onChange('date_of_birth', value)}
+                helperText={errors.date_of_birth || t('patients.resources.patients.form.dateOfBirthHint')}
+                errorMessage={errors.date_of_birth}
+                density="compact"
+                testID="patient-quick-create-date_of_birth"
+                disabled={isFormBusy}
+              />
+            </StyledFieldBlock>
 
             <StyledFieldBlock>
               <FieldHelpTrigger
@@ -201,6 +285,7 @@ const PatientQuickCreateScreen = () => {
                 onValueChange={(value) => onChange('gender', value)}
                 compact
                 testID="patient-quick-create-gender"
+                disabled={isFormBusy}
               />
             </StyledFieldBlock>
 
@@ -213,13 +298,36 @@ const PatientQuickCreateScreen = () => {
                 testID="patient-quick-create-help-facility"
               />
               <InlineFieldGuide text={t('patients.resources.patients.form.facilityHint')} />
-              {isFacilityLoading ? (
+              {!hasTenantSelection ? (
+                <Select
+                  value={values.facility_id || ''}
+                  options={facilityOptions}
+                  onValueChange={(value) => onChange('facility_id', value)}
+                  helperText={facilityHelperText}
+                  errorMessage={errors.facility_id}
+                  compact
+                  testID="patient-quick-create-facility"
+                  disabled
+                />
+              ) : isFacilityLoading ? (
                 <LoadingSpinner accessibilityLabel={t('common.loading')} />
               ) : facilityErrorCode ? (
                 <ErrorState
                   size={ErrorStateSizes.SMALL}
                   title={t('patients.common.form.facilityLoadErrorTitle')}
                   description={facilityErrorMessage}
+                  action={(
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={onRetryFacilities}
+                      accessibilityLabel={t('common.retry')}
+                      icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
+                      disabled={isFormBusy}
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  )}
                   testID="patient-quick-create-facility-error"
                 />
               ) : (
@@ -227,8 +335,11 @@ const PatientQuickCreateScreen = () => {
                   value={values.facility_id || ''}
                   options={facilityOptions}
                   onValueChange={(value) => onChange('facility_id', value)}
+                  helperText={facilityHelperText}
+                  errorMessage={errors.facility_id}
                   compact
                   testID="patient-quick-create-facility"
+                  disabled={isFormBusy}
                 />
               )}
             </StyledFieldBlock>
@@ -247,6 +358,7 @@ const PatientQuickCreateScreen = () => {
                 onValueChange={(value) => onChange('is_active', value)}
                 label={t('patients.resources.patients.form.activeLabel')}
                 testID="patient-quick-create-is-active"
+                disabled={isFormBusy}
               />
             </StyledFieldBlock>
           </StyledFormGrid>
@@ -261,6 +373,8 @@ const PatientQuickCreateScreen = () => {
             onPress={onCancel}
             accessibilityLabel={t('patients.resources.patients.form.cancel')}
             icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+            disabled={isFormBusy}
+            testID="patient-quick-create-cancel"
           >
             {t('patients.resources.patients.form.cancel')}
           </Button>
@@ -268,8 +382,8 @@ const PatientQuickCreateScreen = () => {
             variant="surface"
             size="medium"
             onPress={onSubmit}
-            disabled={!canCreatePatientRecords || isLoading}
-            loading={isLoading}
+            disabled={!canCreatePatientRecords || isSubmitDisabled}
+            loading={isSubmitting}
             accessibilityLabel={t('patients.resources.patients.form.submitCreate')}
             icon={<Icon glyph={'\u2713'} size="xs" decorative />}
             testID="patient-quick-create-submit"

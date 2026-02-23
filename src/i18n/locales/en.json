@@ -5891,6 +5891,12 @@
         "emptyPanel": "No records yet for this panel.",
         "loadError": "Unable to load patient details data.",
         "saveError": "Unable to save this record.",
+        "deleteError": "Unable to delete this record.",
+        "recordCreatedSuccess": "{{resource}} record added successfully.",
+        "recordUpdatedSuccess": "{{resource}} record updated successfully.",
+        "recordDeletedSuccess": "{{resource}} record deleted successfully.",
+        "patientUpdatedSuccess": "Patient details updated successfully.",
+        "patientDeletedSuccess": "Patient profile deleted successfully.",
         "deleteConfirm": "Delete this record?",
         "deletePatientConfirm": "Delete this patient profile and related records?"
       },
@@ -5985,6 +5991,10 @@
         "requiredField": "This field is required.",
         "maxLength": "Must be {{max}} characters or fewer.",
         "dateFormat": "Use YYYY-MM-DD format.",
+        "dateNotInFuture": "Date cannot be in the future.",
+        "invalidTenantSelection": "Select a valid tenant from the list.",
+        "invalidFacilitySelection": "Select a valid facility from the list.",
+        "validationErrors": "Fix the highlighted fields and try again.",
         "createBlockedMessage": "Create a patient first to continue with linked records."
       },
       "list": {

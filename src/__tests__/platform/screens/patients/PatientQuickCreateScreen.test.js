@@ -22,46 +22,55 @@ const renderWithTheme = (component) => render(
   </ThemeProvider>
 );
 
+const buildHookState = () => ({
+  values: {
+    tenant_id: 'tenant-1',
+    first_name: 'Jane',
+    last_name: 'Doe',
+    date_of_birth: '1990-01-01',
+    gender: 'FEMALE',
+    facility_id: 'facility-1',
+    is_active: true,
+  },
+  errors: {},
+  genderOptions: [{ value: 'FEMALE', label: 'Female' }],
+  tenantOptions: [{ value: 'tenant-1', label: 'Tenant One' }],
+  facilityOptions: [{ value: 'facility-1', label: 'Facility One' }],
+  isLoading: false,
+  isSubmitting: false,
+  isOffline: false,
+  hasError: false,
+  errorMessage: null,
+  isEntitlementBlocked: false,
+  tenantErrorCode: null,
+  tenantErrorMessage: null,
+  facilityErrorCode: null,
+  facilityErrorMessage: null,
+  isTenantLoading: false,
+  isFacilityLoading: false,
+  requiresTenantSelection: true,
+  canCreatePatientRecords: true,
+  isSubmitDisabled: false,
+  noticeMessage: '',
+  noticeVariant: 'info',
+  onChange: jest.fn(),
+  onCancel: jest.fn(),
+  onRetry: jest.fn(),
+  onRetryTenants: jest.fn(),
+  onRetryFacilities: jest.fn(),
+  onSubmit: jest.fn(),
+  onDismissNotice: jest.fn(),
+  onGoToSubscriptions: jest.fn(),
+});
+
 describe('PatientQuickCreateScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useI18n.mockReturnValue({ t: (key) => key });
-    usePatientQuickCreateScreen.mockReturnValue({
-      values: {
-        tenant_id: 'tenant-1',
-        first_name: 'Jane',
-        last_name: 'Doe',
-        date_of_birth: '1990-01-01',
-        gender: 'FEMALE',
-        facility_id: 'facility-1',
-        is_active: true,
-      },
-      errors: {},
-      genderOptions: [{ value: 'FEMALE', label: 'Female' }],
-      tenantOptions: [{ value: 'tenant-1', label: 'Tenant One' }],
-      facilityOptions: [{ value: 'facility-1', label: 'Facility One' }],
-      isLoading: false,
-      isOffline: false,
-      hasError: false,
-      errorMessage: null,
-      isEntitlementBlocked: false,
-      tenantErrorCode: null,
-      tenantErrorMessage: null,
-      facilityErrorCode: null,
-      facilityErrorMessage: null,
-      isTenantLoading: false,
-      isFacilityLoading: false,
-      requiresTenantSelection: true,
-      canCreatePatientRecords: true,
-      onChange: jest.fn(),
-      onCancel: jest.fn(),
-      onRetry: jest.fn(),
-      onSubmit: jest.fn(),
-      onGoToSubscriptions: jest.fn(),
-    });
+    usePatientQuickCreateScreen.mockReturnValue(buildHookState());
   });
 
-  it('renders field help triggers and inline guides for quick-create form fields', () => {
+  it('renders field help triggers, smart date field, and inline guides for quick-create form fields', () => {
     const { getByTestId, getByText } = renderWithTheme(<PatientQuickCreateScreen />);
 
     expect(getByTestId('patient-quick-create-help-tenant')).toBeTruthy();
@@ -75,7 +84,18 @@ describe('PatientQuickCreateScreen', () => {
     expect(getByTestId('patient-quick-create-guide-first_name')).toBeTruthy();
     expect(getByTestId('patient-quick-create-guide-last_name')).toBeTruthy();
     expect(getByTestId('patient-quick-create-guide-date_of_birth')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-date_of_birth')).toBeTruthy();
     expect(getByText('patients.resources.patients.form.genderHint')).toBeTruthy();
   });
-});
 
+  it('renders notice snackbar when notice message is present', () => {
+    usePatientQuickCreateScreen.mockReturnValue({
+      ...buildHookState(),
+      noticeMessage: 'Saved',
+      noticeVariant: 'success',
+    });
+
+    const { getByTestId } = renderWithTheme(<PatientQuickCreateScreen />);
+    expect(getByTestId('patient-quick-create-notice')).toBeTruthy();
+  });
+});

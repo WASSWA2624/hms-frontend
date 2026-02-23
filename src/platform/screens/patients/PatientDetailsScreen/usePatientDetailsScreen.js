@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
 import { confirmAction } from '@utils';
@@ -34,25 +34,12 @@ const EMPTY_RESOURCE_EDITORS = Object.freeze({
   [RESOURCE_KEYS.DOCUMENTS]: null,
 });
 const DEFAULT_TAB_KEY = 'details';
+const REALTIME_SYNC_INTERVAL_MS = 10000;
+const NOTICE_AUTO_DISMISS_MS = 4500;
+const EMPTY_NOTICE_STATE = Object.freeze({ message: '', variant: 'info' });
+const EMPTY_RESOURCE_DELETE_STATE = Object.freeze({ resourceKey: '', recordId: '' });
 
 const sanitizeString = (value) => String(value || '').trim();
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const normalizeRouteIdentifier = (value) =>
-  sanitizeString(value).replace(/[^a-z0-9]/gi, '').toLowerCase();
-const buildRouteLookupCandidates = (routePatientId) => {
-  const normalized = sanitizeString(routePatientId);
-  if (!normalized) return [];
-
-  const compact = normalized.replace(/[^a-z0-9]/gi, '');
-  return [...new Set([
-    normalized,
-    normalized.toUpperCase(),
-    normalized.toLowerCase(),
-    compact,
-    compact.toUpperCase(),
-    compact.toLowerCase(),
-  ].filter(Boolean))];
-};
 
 const normalizeRouteTabKey = (value) => {
   const normalized = sanitizeString(value).toLowerCase();
@@ -75,24 +62,10 @@ const getScalarParam = (value) => {
 const resolveItems = (value) => {
   if (Array.isArray(value?.items)) return value.items;
   if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object' && sanitizeString(value?.id)) {
+    return [value];
+  }
   return [];
-};
-
-const resolvePatientByRouteId = (items, routePatientId) => {
-  const normalizedRouteId = normalizeRouteIdentifier(routePatientId);
-  if (!normalizedRouteId || !Array.isArray(items) || items.length === 0) return null;
-
-  const exactFriendlyIdMatch = items.find(
-    (item) => normalizeRouteIdentifier(item?.human_friendly_id) === normalizedRouteId
-  );
-  if (exactFriendlyIdMatch) return exactFriendlyIdMatch;
-
-  const exactInternalIdMatch = items.find(
-    (item) => normalizeRouteIdentifier(item?.id) === normalizedRouteId
-  );
-  if (exactInternalIdMatch) return exactInternalIdMatch;
-
-  return null;
 };
 
 const validateValues = (fields, values, t) => {
@@ -135,6 +108,25 @@ const resolvePatientSummaryValues = (patient) => ({
   gender: sanitizeString(patient?.gender),
   is_active: patient?.is_active !== false,
 });
+
+const resolveResourceLabel = (resourceKey, t) => {
+  if (resourceKey === RESOURCE_KEYS.IDENTIFIERS) {
+    return t('patients.workspace.panels.identifiers');
+  }
+  if (resourceKey === RESOURCE_KEYS.GUARDIANS) {
+    return t('patients.workspace.panels.guardians');
+  }
+  if (resourceKey === RESOURCE_KEYS.CONTACTS) {
+    return t('patients.workspace.panels.contacts');
+  }
+  if (resourceKey === RESOURCE_KEYS.ADDRESSES) {
+    return t('address.list.title');
+  }
+  if (resourceKey === RESOURCE_KEYS.DOCUMENTS) {
+    return t('patients.workspace.panels.documents');
+  }
+  return t('patients.workspace.actions.newRecord');
+};
 
 const ADDRESS_RESOURCE_CONFIG = Object.freeze({
   id: RESOURCE_KEYS.ADDRESSES,
@@ -249,7 +241,6 @@ const usePatientDetailsScreen = () => {
     canDeletePatientRecords,
     canManageAllTenants,
     tenantId,
-    facilityId,
     isResolved,
   } = usePatientAccess();
 
@@ -263,7 +254,6 @@ const usePatientDetailsScreen = () => {
   const {
     data: patientData,
     errorCode: patientErrorCode,
-    list: listPatients,
     get: getPatientRecord,
     update: updatePatientRecord,
     remove: removePatientRecord,
@@ -329,7 +319,6 @@ const usePatientDetailsScreen = () => {
   const routeTabKey = normalizeRouteTabKey(getScalarParam(searchParams?.tab));
   const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
-  const normalizedFacilityId = sanitizeString(facilityId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
   const patient = useMemo(
@@ -444,84 +433,30 @@ const usePatientDetailsScreen = () => {
     normalizedTenantId,
   ]);
 
-  const resolveInternalPatientId = useCallback(async () => {
-    if (!routePatientId || isOffline || !canAccessPatients || !hasScope) return '';
-
-    if (UUID_PATTERN.test(routePatientId)) {
-      return routePatientId;
-    }
-
-    const baseParams = {
-      page: 1,
-      limit: 50,
-      sort_by: 'updated_at',
-      order: 'desc',
-    };
-    if (!canManageAllTenants) {
-      if (normalizedTenantId) {
-        baseParams.tenant_id = normalizedTenantId;
-      }
-      if (normalizedFacilityId) {
-        baseParams.facility_id = normalizedFacilityId;
-      }
-    }
-
-    const lookupCandidates = buildRouteLookupCandidates(routePatientId);
-    for (let index = 0; index < lookupCandidates.length; index += 1) {
-      const candidate = lookupCandidates[index];
-      const lookupResult = await listPatients({
-        ...baseParams,
-        patient_id: candidate,
-      });
-      const matchedPatient = resolvePatientByRouteId(resolveItems(lookupResult), routePatientId);
-      const matchedPatientId = sanitizeString(matchedPatient?.id);
-      if (matchedPatientId) return matchedPatientId;
-    }
-
-    const fallbackSearchResult = await listPatients({
-      ...baseParams,
-      search: routePatientId,
-    });
-    const fallbackMatch = resolvePatientByRouteId(resolveItems(fallbackSearchResult), routePatientId);
-    return sanitizeString(fallbackMatch?.id);
-  }, [
-    routePatientId,
-    isOffline,
-    canAccessPatients,
-    hasScope,
-    canManageAllTenants,
-    normalizedTenantId,
-    normalizedFacilityId,
-    listPatients,
-  ]);
-
   const fetchPatient = useCallback(async () => {
     if (!routePatientId || isOffline || !canAccessPatients || !hasScope) {
       setResolvedPatientId('');
       return '';
     }
 
-    resetPatientRecord();
-    const internalPatientId = await resolveInternalPatientId();
-    if (!internalPatientId) {
-      setResolvedPatientId('');
-      return '';
-    }
-    const patientRecord = await getPatientRecord(internalPatientId);
-    if (!patientRecord) {
+    const patientRecord = await getPatientRecord(routePatientId);
+    const internalPatientId = sanitizeString(patientRecord?.id);
+    if (!patientRecord || !internalPatientId) {
       setResolvedPatientId('');
       return '';
     }
 
-    setResolvedPatientId(internalPatientId);
+    setResolvedPatientId((current) => (
+      current === internalPatientId
+        ? current
+        : internalPatientId
+    ));
     return internalPatientId;
   }, [
     routePatientId,
     isOffline,
     canAccessPatients,
     hasScope,
-    resetPatientRecord,
-    resolveInternalPatientId,
     getPatientRecord,
   ]);
 
@@ -532,7 +467,6 @@ const usePatientDetailsScreen = () => {
     const resourceCrud = crudByResource[resourceKey];
     if (!resourceCrud || typeof resourceCrud.list !== 'function') return undefined;
 
-    resourceCrud.reset();
     return resourceCrud.list(params);
   }, [buildCollectionParams, crudByResource, resolvedPatientId]);
 
@@ -548,6 +482,30 @@ const usePatientDetailsScreen = () => {
     ]);
   }, [fetchResourceCollection, resolvedPatientId]);
 
+  const liveSyncInFlightRef = useRef(false);
+  const refreshWorkspaceData = useCallback(async () => {
+    if (!routePatientId || isOffline || !canAccessPatients || !hasScope) return '';
+    if (liveSyncInFlightRef.current) return '';
+
+    liveSyncInFlightRef.current = true;
+    try {
+      const internalPatientId = await fetchPatient();
+      if (internalPatientId) {
+        await fetchAllCollections(internalPatientId);
+      }
+      return internalPatientId;
+    } finally {
+      liveSyncInFlightRef.current = false;
+    }
+  }, [
+    routePatientId,
+    isOffline,
+    canAccessPatients,
+    hasScope,
+    fetchPatient,
+    fetchAllCollections,
+  ]);
+
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const loadInitialData = useCallback(async () => {
@@ -561,10 +519,7 @@ const usePatientDetailsScreen = () => {
 
     setIsInitialLoading(true);
     try {
-      const internalPatientId = await fetchPatient();
-      if (internalPatientId) {
-        await fetchAllCollections(internalPatientId);
-      }
+      await refreshWorkspaceData();
     } finally {
       setIsInitialLoading(false);
     }
@@ -573,8 +528,7 @@ const usePatientDetailsScreen = () => {
     canAccessPatients,
     hasScope,
     routePatientId,
-    fetchPatient,
-    fetchAllCollections,
+    refreshWorkspaceData,
   ]);
 
   useEffect(() => {
@@ -593,6 +547,10 @@ const usePatientDetailsScreen = () => {
   const [isSummaryEditMode, setIsSummaryEditMode] = useState(false);
   const [summaryValues, setSummaryValues] = useState(resolvePatientSummaryValues(patient));
   const [summaryErrors, setSummaryErrors] = useState({});
+  const [isSavingSummary, setIsSavingSummary] = useState(false);
+  const [isDeletingPatient, setIsDeletingPatient] = useState(false);
+  const [noticeState, setNoticeState] = useState(EMPTY_NOTICE_STATE);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   useEffect(() => {
     setSummaryValues(resolvePatientSummaryValues(patient));
@@ -606,9 +564,107 @@ const usePatientDetailsScreen = () => {
   }, [canManagePatientRecords]);
 
   const [resourceEditors, setResourceEditors] = useState(EMPTY_RESOURCE_EDITORS);
+  const [activeResourceSubmitKey, setActiveResourceSubmitKey] = useState('');
+  const [activeResourceDelete, setActiveResourceDelete] = useState(EMPTY_RESOURCE_DELETE_STATE);
   useEffect(() => {
     setResourceEditors(EMPTY_RESOURCE_EDITORS);
   }, [routePatientId]);
+  const hasActiveResourceEditors = useMemo(
+    () => Object.values(resourceEditors || {}).some(Boolean),
+    [resourceEditors]
+  );
+
+  const setActionNotice = useCallback((message, variant = 'info') => {
+    const normalizedMessage = sanitizeString(message);
+    if (!normalizedMessage) return;
+
+    setNoticeState({
+      message: normalizedMessage,
+      variant: sanitizeString(variant) || 'info',
+    });
+  }, []);
+
+  const onDismissNotice = useCallback(() => {
+    setNoticeState(EMPTY_NOTICE_STATE);
+  }, []);
+
+  useEffect(() => {
+    if (!noticeState?.message) return undefined;
+    const timerId = setTimeout(() => {
+      setNoticeState(EMPTY_NOTICE_STATE);
+    }, NOTICE_AUTO_DISMISS_MS);
+    return () => clearTimeout(timerId);
+  }, [noticeState?.message]);
+
+  useEffect(() => {
+    setNoticeState(EMPTY_NOTICE_STATE);
+    setIsSavingSummary(false);
+    setIsDeletingPatient(false);
+    setIsRetrying(false);
+    setActiveResourceSubmitKey('');
+    setActiveResourceDelete(EMPTY_RESOURCE_DELETE_STATE);
+  }, [routePatientId]);
+
+  useEffect(() => {
+    if (
+      !isResolved
+      || !routePatientId
+      || !canAccessPatients
+      || !hasScope
+      || isOffline
+      || isPatientDeleted
+      || isInitialLoading
+      || isSummaryEditMode
+      || hasActiveResourceEditors
+      || isSavingSummary
+      || isDeletingPatient
+      || Boolean(activeResourceSubmitKey)
+      || Boolean(activeResourceDelete?.recordId)
+    ) {
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      void refreshWorkspaceData();
+    }, REALTIME_SYNC_INTERVAL_MS);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [
+    isResolved,
+    routePatientId,
+    canAccessPatients,
+    hasScope,
+    isOffline,
+    isPatientDeleted,
+    isInitialLoading,
+    isSummaryEditMode,
+    hasActiveResourceEditors,
+    isSavingSummary,
+    isDeletingPatient,
+    activeResourceSubmitKey,
+    activeResourceDelete,
+    refreshWorkspaceData,
+  ]);
+
+  const resourceErrorCodes = useMemo(
+    () => ({
+      [RESOURCE_KEYS.IDENTIFIERS]: identifierErrorCode,
+      [RESOURCE_KEYS.GUARDIANS]: guardianErrorCode,
+      [RESOURCE_KEYS.CONTACTS]: contactErrorCode,
+      [RESOURCE_KEYS.ADDRESSES]: addressErrorCode,
+      [RESOURCE_KEYS.DOCUMENTS]: documentErrorCode,
+    }),
+    [
+      identifierErrorCode,
+      guardianErrorCode,
+      contactErrorCode,
+      addressErrorCode,
+      documentErrorCode,
+    ]
+  );
 
   const onResourceCreate = useCallback((resourceKey) => {
     if (!canManagePatientRecords) return;
@@ -691,32 +747,53 @@ const usePatientDetailsScreen = () => {
       return;
     }
 
-    const payloadBase = config.toPayload
-      ? config.toPayload(editor.values)
-      : { ...editor.values };
+    if (activeResourceSubmitKey) return;
+    setActiveResourceSubmitKey(resourceKey);
 
-    const payload = {
-      ...payloadBase,
-      patient_id: resolvedPatientId,
-    };
+    try {
+      const payloadBase = config.toPayload
+        ? config.toPayload(editor.values)
+        : { ...editor.values };
 
-    const tenantForPayload = sanitizeString(patient?.tenant_id) || normalizedTenantId;
-    if (tenantForPayload) {
-      payload.tenant_id = tenantForPayload;
+      const payload = {
+        ...payloadBase,
+        patient_id: resolvedPatientId,
+      };
+
+      const tenantForPayload = sanitizeString(patient?.tenant_id) || normalizedTenantId;
+      if (tenantForPayload) {
+        payload.tenant_id = tenantForPayload;
+      }
+
+      const result = editor.mode === 'edit'
+        ? await resourceCrud.update(editor.recordId, payload)
+        : await resourceCrud.create(payload);
+
+      if (!result) {
+        const errorMessage = resolveErrorMessage(
+          t,
+          resourceErrorCodes[resourceKey],
+          'patients.workspace.state.saveError'
+        );
+        setActionNotice(errorMessage, 'error');
+        return;
+      }
+
+      setResourceEditors((current) => ({
+        ...current,
+        [resourceKey]: null,
+      }));
+
+      await refreshWorkspaceData();
+
+      const resourceLabel = resolveResourceLabel(resourceKey, t);
+      const successKey = editor.mode === 'edit'
+        ? 'patients.workspace.state.recordUpdatedSuccess'
+        : 'patients.workspace.state.recordCreatedSuccess';
+      setActionNotice(t(successKey, { resource: resourceLabel }), 'success');
+    } finally {
+      setActiveResourceSubmitKey((current) => (current === resourceKey ? '' : current));
     }
-
-    const result = editor.mode === 'edit'
-      ? await resourceCrud.update(editor.recordId, payload)
-      : await resourceCrud.create(payload);
-
-    if (!result) return;
-
-    setResourceEditors((current) => ({
-      ...current,
-      [resourceKey]: null,
-    }));
-
-    await fetchResourceCollection(resourceKey, resolvedPatientId);
   }, [
     canManagePatientRecords,
     resolvedPatientId,
@@ -726,7 +803,10 @@ const usePatientDetailsScreen = () => {
     t,
     patient?.tenant_id,
     normalizedTenantId,
-    fetchResourceCollection,
+    refreshWorkspaceData,
+    activeResourceSubmitKey,
+    resourceErrorCodes,
+    setActionNotice,
   ]);
 
   const onResourceDelete = useCallback(async (resourceKey, recordId) => {
@@ -737,24 +817,55 @@ const usePatientDetailsScreen = () => {
 
     if (!resourceCrud || !normalizedRecordId) return;
     if (!confirmAction(t('patients.workspace.state.deleteConfirm'))) return;
+    if (activeResourceDelete?.recordId) return;
 
-    const result = await resourceCrud.remove(normalizedRecordId);
-    if (!result) return;
+    setActiveResourceDelete({ resourceKey, recordId: normalizedRecordId });
 
-    setResourceEditors((current) => {
-      if (current?.[resourceKey]?.recordId !== normalizedRecordId) return current;
-      return {
-        ...current,
-        [resourceKey]: null,
-      };
-    });
+    try {
+      const result = await resourceCrud.remove(normalizedRecordId);
+      if (!result) {
+        const errorMessage = resolveErrorMessage(
+          t,
+          resourceErrorCodes[resourceKey],
+          'patients.workspace.state.deleteError'
+        );
+        setActionNotice(errorMessage, 'error');
+        return;
+      }
 
-    await fetchResourceCollection(resourceKey);
+      setResourceEditors((current) => {
+        if (current?.[resourceKey]?.recordId !== normalizedRecordId) return current;
+        return {
+          ...current,
+          [resourceKey]: null,
+        };
+      });
+
+      await refreshWorkspaceData();
+
+      setActionNotice(
+        t('patients.workspace.state.recordDeletedSuccess', {
+          resource: resolveResourceLabel(resourceKey, t),
+        }),
+        'success'
+      );
+    } finally {
+      setActiveResourceDelete((current) => {
+        const isCurrentDelete = (
+          current?.resourceKey === resourceKey
+          && current?.recordId === normalizedRecordId
+        );
+        return isCurrentDelete ? EMPTY_RESOURCE_DELETE_STATE : current;
+      });
+    }
   }, [
     canDeletePatientRecords,
     crudByResource,
     t,
-    fetchResourceCollection,
+    refreshWorkspaceData,
+    activeResourceDelete,
+    resourceErrorCodes,
+    setActionNotice,
   ]);
 
   const onSummaryFieldChange = useCallback((name, value) => {
@@ -775,6 +886,7 @@ const usePatientDetailsScreen = () => {
 
   const onSaveSummary = useCallback(async () => {
     if (!canManagePatientRecords || !resolvedPatientId) return;
+    if (isSavingSummary) return;
 
     const nextErrors = validateValues(
       [
@@ -790,49 +902,79 @@ const usePatientDetailsScreen = () => {
       return;
     }
 
-    const payload = {
-      first_name: sanitizeString(summaryValues.first_name),
-      last_name: sanitizeString(summaryValues.last_name),
-      date_of_birth: sanitizeString(summaryValues.date_of_birth)
-        ? `${sanitizeString(summaryValues.date_of_birth)}T00:00:00.000Z`
-        : undefined,
-      gender: sanitizeString(summaryValues.gender) || undefined,
-      is_active: summaryValues.is_active !== false,
-    };
+    setIsSavingSummary(true);
 
-    const result = await updatePatientRecord(resolvedPatientId, payload);
-    if (!result) return;
+    try {
+      const payload = {
+        first_name: sanitizeString(summaryValues.first_name),
+        last_name: sanitizeString(summaryValues.last_name),
+        date_of_birth: sanitizeString(summaryValues.date_of_birth)
+          ? `${sanitizeString(summaryValues.date_of_birth)}T00:00:00.000Z`
+          : undefined,
+        gender: sanitizeString(summaryValues.gender) || undefined,
+        is_active: summaryValues.is_active !== false,
+      };
 
-    await fetchPatient();
-    setIsSummaryEditMode(false);
+      const result = await updatePatientRecord(resolvedPatientId, payload);
+      if (!result) {
+        setActionNotice(
+          resolveErrorMessage(t, patientErrorCode, 'patients.workspace.state.saveError'),
+          'error'
+        );
+        return;
+      }
+
+      await refreshWorkspaceData();
+      setIsSummaryEditMode(false);
+      setActionNotice(t('patients.workspace.state.patientUpdatedSuccess'), 'success');
+    } finally {
+      setIsSavingSummary(false);
+    }
   }, [
     canManagePatientRecords,
     resolvedPatientId,
     summaryValues,
     t,
     updatePatientRecord,
-    fetchPatient,
+    refreshWorkspaceData,
+    isSavingSummary,
+    patientErrorCode,
+    setActionNotice,
   ]);
 
   const onDeletePatient = useCallback(async () => {
     if (!canDeletePatientRecords || !resolvedPatientId) return;
     if (typeof removePatientRecord !== 'function') return;
     if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
+    if (isDeletingPatient) return;
 
-    const result = await removePatientRecord(resolvedPatientId);
-    if (!result) return;
+    setIsDeletingPatient(true);
+    try {
+      const result = await removePatientRecord(resolvedPatientId);
+      if (!result) {
+        setActionNotice(
+          resolveErrorMessage(t, patientErrorCode, 'patients.workspace.state.deleteError'),
+          'error'
+        );
+        return;
+      }
 
-    setIsSummaryEditMode(false);
-    setSummaryErrors({});
-    setResourceEditors(EMPTY_RESOURCE_EDITORS);
-    setIsPatientDeleted(true);
+      setIsSummaryEditMode(false);
+      setSummaryErrors({});
+      setResourceEditors(EMPTY_RESOURCE_EDITORS);
+      setIsPatientDeleted(true);
 
-    resetPatientRecord();
-    resetIdentifiers();
-    resetGuardians();
-    resetContacts();
-    resetAddresses();
-    resetDocuments();
+      resetPatientRecord();
+      resetIdentifiers();
+      resetGuardians();
+      resetContacts();
+      resetAddresses();
+      resetDocuments();
+
+      setActionNotice(t('patients.workspace.state.patientDeletedSuccess'), 'success');
+    } finally {
+      setIsDeletingPatient(false);
+    }
   }, [
     canDeletePatientRecords,
     resolvedPatientId,
@@ -844,6 +986,9 @@ const usePatientDetailsScreen = () => {
     resetAddresses,
     resetDocuments,
     t,
+    isDeletingPatient,
+    patientErrorCode,
+    setActionNotice,
   ]);
 
   const genderOptions = useMemo(
@@ -952,10 +1097,11 @@ const usePatientDetailsScreen = () => {
     || documentErrorCode
   );
   const isEntitlementBlocked = isEntitlementDeniedError(activeEntitlementErrorCode);
+  const hasPatientLevelError = Boolean(patientErrorCode) && !patient;
   const hasError = (
     !isPatientDeleted
     && !isEntitlementBlocked
-    && (hasMissingContext || hasUnresolvedPatient || Boolean(patientErrorCode))
+    && (hasMissingContext || hasUnresolvedPatient || hasPatientLevelError)
   );
   const errorMessage = useMemo(() => {
     if (hasMissingContext || hasUnresolvedPatient) return t('patients.workspace.state.loadError');
@@ -966,10 +1112,15 @@ const usePatientDetailsScreen = () => {
     );
   }, [t, patientErrorCode, hasMissingContext, hasUnresolvedPatient]);
 
-  const onRetry = useCallback(() => {
-    if (isPatientDeleted) return;
-    loadInitialData();
-  }, [isPatientDeleted, loadInitialData]);
+  const onRetry = useCallback(async () => {
+    if (isPatientDeleted || isRetrying) return;
+    setIsRetrying(true);
+    try {
+      await loadInitialData();
+    } finally {
+      setIsRetrying(false);
+    }
+  }, [isPatientDeleted, isRetrying, loadInitialData]);
 
   return {
     patientId: resolvedPatientId,
@@ -986,17 +1137,25 @@ const usePatientDetailsScreen = () => {
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
+    isSavingSummary,
+    isDeletingPatient,
+    activeResourceSubmitKey,
+    activeResourceDelete,
     genderOptions,
     isLoading: !isResolved || isInitialLoading,
+    isRetrying,
     isOffline,
     hasError,
     errorMessage,
     isEntitlementBlocked,
     isPatientDeleted,
+    noticeMessage: noticeState.message,
+    noticeVariant: noticeState.variant,
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
     onRetry,
+    onDismissNotice,
     onGoToSubscriptions: () => router.push('/subscriptions/subscriptions'),
     onDeletePatient,
     onSummaryFieldChange,

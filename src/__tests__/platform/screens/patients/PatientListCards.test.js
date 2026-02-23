@@ -27,17 +27,11 @@ const hashToPositiveInteger = (value) => {
 describe('PatientListCards', () => {
   const baseProps = {
     onOpenPatient: jest.fn(),
-    onEditPatient: jest.fn(),
-    onDeletePatient: jest.fn(),
     patientLabel: 'Patient',
     patientIdLabel: 'Patient ID',
     contactLabel: 'Contact',
     tenantLabel: 'Tenant',
     facilityLabel: 'Facility',
-    actionsLabel: 'Actions',
-    openButtonLabel: 'Details',
-    editButtonLabel: 'Edit',
-    deleteButtonLabel: 'Delete',
     testIdPrefix: 'patient-list-',
   };
 
@@ -112,7 +106,7 @@ describe('PatientListCards', () => {
     expect(within(getByTestId('patient-list-number-patient-bravo')).getByText(bravoNumber)).toBeTruthy();
   });
 
-  it('renders details, edit, and delete row actions and invokes the matching handlers', () => {
+  it('opens patient details when a row is pressed and does not render action buttons', () => {
     const item = {
       id: 'patient-1',
       routePatientId: 'PAT000050',
@@ -122,7 +116,7 @@ describe('PatientListCards', () => {
       tenantLabel: 'Tenant One (TEN-01)',
       facilityLabel: 'Facility One (FAC-01)',
     };
-    const { getByTestId } = renderWithTheme(
+    const { getByTestId, queryByTestId } = renderWithTheme(
       <PatientListCards
         {...baseProps}
         items={[item]}
@@ -130,12 +124,11 @@ describe('PatientListCards', () => {
     );
 
     fireEvent.press(getByTestId('patient-list-1'));
-    fireEvent.press(getByTestId('patient-list-edit-1'));
-    fireEvent.press(getByTestId('patient-list-delete-1'));
 
     expect(baseProps.onOpenPatient).toHaveBeenCalledWith('PAT000050');
-    expect(baseProps.onEditPatient).toHaveBeenCalledWith('PAT000050');
-    expect(baseProps.onDeletePatient).toHaveBeenCalledWith('patient-1');
+    expect(getByTestId('patient-list-1')).toBeTruthy();
+    expect(queryByTestId('patient-list-edit-1')).toBeNull();
+    expect(queryByTestId('patient-list-delete-1')).toBeNull();
   });
 
   it('renders contact values in card fields when provided', () => {

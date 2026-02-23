@@ -7,7 +7,6 @@ const RESIZE_HANDLE_WIDTH = 44;
 const resolveCellFlex = (columnId) => {
   if (columnId === 'patient') return 1.4;
   if (columnId === 'contact') return 1.15;
-  if (columnId === 'actions') return 1.45;
   if (columnId === 'number') return 0.45;
   return 1;
 };
@@ -31,7 +30,7 @@ const StyledHeaderRow = styled.View`
   border-bottom-color: ${({ theme }) => theme.colors.border.light};
 `;
 
-const StyledDataRow = styled.View`
+const StyledDataRow = styled(Pressable)`
   flex-direction: row;
   align-items: center;
   border-bottom-width: ${({ $isLastRow }) => ($isLastRow ? 0 : 1)}px;
@@ -42,6 +41,7 @@ const StyledDataRow = styled.View`
       ? theme.colors.background.primary
       : theme.colors.background.secondary;
   }};
+  cursor: ${({ $isPressable }) => ($isPressable ? 'pointer' : 'default')};
 `;
 
 const StyledCell = styled.View`
@@ -97,24 +97,6 @@ const StyledCellText = styled(Text)`
   width: 100%;
 `;
 
-const StyledActionButtonsRow = styled.View`
-  width: 100%;
-  min-width: 0;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: ${({ $isCompact }) => ($isCompact ? 'space-between' : 'flex-start')};
-  gap: ${({ theme }) => theme.spacing.xs / 2}px;
-`;
-
-const StyledActionButtonSlot = styled.View`
-  margin-left: ${({ $isFirst, $isCompact, theme }) => (
-    $isCompact ? 0 : ($isFirst ? 0 : theme.spacing.xs / 2)
-  )}px;
-  flex: ${({ $isCompact }) => ($isCompact ? 1 : 0)};
-  min-width: ${({ $isCompact, theme }) => ($isCompact ? `${theme.spacing.xxl + theme.spacing.sm}px` : 'auto')};
-`;
-
 const StyledRowNumberBadge = styled.View`
   min-width: 20px;
   min-height: 20px;
@@ -136,7 +118,7 @@ const StyledCardsGrid = styled.View`
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledPatientCard = styled.View`
+const StyledPatientCard = styled(Pressable)`
   width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
   flex-basis: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
   max-width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
@@ -153,6 +135,7 @@ const StyledPatientCard = styled.View`
   )}px;
   gap: ${({ $isCompact, theme }) => ($isCompact ? theme.spacing.xs : theme.spacing.sm)}px;
   overflow: hidden;
+  cursor: ${({ $isPressable }) => ($isPressable ? 'pointer' : 'default')};
 `;
 
 const StyledPatientCardHeader = styled.View`
@@ -202,8 +185,6 @@ const StyledPatientCardFieldValue = styled(Text)`
 
 export {
   RESIZE_HANDLE_WIDTH,
-  StyledActionButtonsRow,
-  StyledActionButtonSlot,
   StyledCardsGrid,
   StyledCell,
   StyledCellText,

@@ -85,8 +85,6 @@ const PatientDirectoryScreen = () => {
     onPreviousPage,
     onNextPage,
     onOpenPatient,
-    onEditPatient,
-    onDeletePatient,
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,
@@ -488,29 +486,13 @@ const PatientDirectoryScreen = () => {
               <PatientListCards
                 items={items}
                 onOpenPatient={onOpenPatient}
-                onEditPatient={onEditPatient}
-                onDeletePatient={onDeletePatient}
                 patientLabel={t('patients.directory.columns.patient')}
                 patientIdLabel={t('patients.directory.columns.patientId')}
                 tenantLabel={t('patients.directory.columns.tenant')}
                 facilityLabel={t('patients.directory.columns.facility')}
                 contactLabel={t('patients.directory.contactLabel')}
-                actionsLabel={t('patients.common.list.columnActions')}
-                openButtonLabel={t('patients.directory.openWorkspace')}
-                editButtonLabel={t('common.edit')}
-                deleteButtonLabel={t('common.delete')}
                 resolveOpenAccessibilityLabel={(patient) =>
                   t('patients.directory.actions.detailsHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
-                  })
-                }
-                resolveEditAccessibilityLabel={(patient) =>
-                  t('patients.directory.actions.editHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
-                  })
-                }
-                resolveDeleteAccessibilityLabel={(patient) =>
-                  t('patients.directory.actions.deleteHint', {
                     patient: patient?.displayName || t('patients.directory.columns.patient'),
                   })
                 }

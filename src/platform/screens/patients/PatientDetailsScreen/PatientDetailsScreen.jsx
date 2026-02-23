@@ -6,10 +6,12 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
+  GlobalSmartDateField,
   Icon,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  Snackbar,
   Select,
   Switch,
   Text,
@@ -47,6 +49,7 @@ import {
 import usePatientDetailsScreen from './usePatientDetailsScreen';
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_FIELD_NAME_REGEX = /(date|_at)$/i;
 
 const sanitizeString = (value) => String(value || '').trim();
 
@@ -97,7 +100,26 @@ const resolveContactEntryValue = (entry) => {
     .find(Boolean) || '';
 };
 
-const resolvePatientContactLabel = (patient, fallback = '') => {
+const resolveCollectionContactValue = (collection) => {
+  if (!Array.isArray(collection) || collection.length === 0) return '';
+
+  const resolvedEntries = collection
+    .map((entry) => ({
+      isPrimary: Boolean(entry?.is_primary),
+      value: resolveContactEntryValue(entry),
+    }))
+    .filter((entry) => Boolean(entry.value));
+
+  if (resolvedEntries.length === 0) return '';
+
+  const primaryEntry = resolvedEntries.find((entry) => entry.isPrimary);
+  return primaryEntry?.value || resolvedEntries[0].value;
+};
+
+const resolvePatientContactLabel = (patient, fallback = '', contactRecords = []) => {
+  const contactRecordsValue = resolveCollectionContactValue(contactRecords);
+  if (contactRecordsValue) return contactRecordsValue;
+
   const directContactValue = [
     patient?.contact,
     patient?.contact_label,
@@ -137,10 +159,7 @@ const resolvePatientContactLabel = (patient, fallback = '') => {
 
   for (let index = 0; index < contactCollections.length; index += 1) {
     const collection = contactCollections[index];
-    if (!Array.isArray(collection) || collection.length === 0) continue;
-    const value = collection
-      .map((entry) => resolveContactEntryValue(entry))
-      .find(Boolean);
+    const value = resolveCollectionContactValue(collection);
     if (value) return value;
   }
 
@@ -204,6 +223,65 @@ const resolveSelectOptions = (field, t) => (
   }))
 );
 
+const isDateField = (fieldName, fieldType) => (
+  fieldType === 'date' || DATE_FIELD_NAME_REGEX.test(sanitizeString(fieldName))
+);
+
+const resolveBooleanValue = (value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+
+  const normalized = sanitizeString(value).toLowerCase();
+  if (!normalized) return null;
+  if (['true', '1', 'yes', 'y'].includes(normalized)) return true;
+  if (['false', '0', 'no', 'n'].includes(normalized)) return false;
+  return null;
+};
+
+const resolveOptionLabel = (field, value, t) => {
+  const normalizedValue = sanitizeString(value);
+  if (!normalizedValue) return '';
+
+  const option = (field?.options || []).find((candidate) => (
+    sanitizeString(candidate?.value).toLowerCase() === normalizedValue.toLowerCase()
+  ));
+  if (!option) return normalizedValue;
+  return resolveTranslation(t, option?.labelKey, sanitizeString(option?.value) || normalizedValue);
+};
+
+const resolveRecordFieldDisplayValue = ({
+  record,
+  field,
+  t,
+  locale,
+  fallbackLabel,
+}) => {
+  const fieldName = sanitizeString(field?.name);
+  if (!fieldName) return fallbackLabel;
+
+  const rawValue = record?.[fieldName];
+
+  if (field?.type === 'switch') {
+    const boolValue = resolveBooleanValue(rawValue);
+    if (boolValue == null) return fallbackLabel;
+    return boolValue ? t('common.boolean.true') : t('common.boolean.false');
+  }
+
+  if (field?.type === 'select') {
+    const optionLabel = resolveOptionLabel(field, rawValue, t);
+    return optionLabel || fallbackLabel;
+  }
+
+  if (isDateField(fieldName, field?.type)) {
+    const dateOnly = resolveDateOnly(rawValue);
+    if (dateOnly) return dateOnly;
+    return resolveDateTimeLabel(rawValue, locale) || fallbackLabel;
+  }
+
+  const normalized = sanitizeString(rawValue);
+  return normalized || fallbackLabel;
+};
+
 const PatientDetailsScreen = () => {
   const { t, locale } = useI18n();
   const { width } = useWindowDimensions();
@@ -214,21 +292,30 @@ const PatientDetailsScreen = () => {
     routePatientId,
     initialTabKey,
     patient,
+    contactRecords,
     resourceSections,
     resourceKeys,
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
+    isSavingSummary = false,
+    isDeletingPatient = false,
+    activeResourceSubmitKey = '',
+    activeResourceDelete = null,
     genderOptions,
     isLoading,
+    isRetrying = false,
     isOffline,
     hasError,
     errorMessage,
     isEntitlementBlocked,
     isPatientDeleted,
+    noticeMessage = '',
+    noticeVariant = 'info',
     canManagePatientRecords,
     canDeletePatientRecords,
     onRetry,
+    onDismissNotice,
     onGoToSubscriptions,
     onDeletePatient,
     onSummaryFieldChange,
@@ -267,7 +354,7 @@ const PatientDetailsScreen = () => {
   const patientIsActive = patient?.is_active === false
     ? t('common.boolean.false')
     : t('common.boolean.true');
-  const patientContact = resolvePatientContactLabel(patient, fallbackLabel);
+  const patientContact = resolvePatientContactLabel(patient, fallbackLabel, contactRecords);
   const patientTenant = resolveContextLabel({
     label: patient?.tenant_label || patient?.tenant_name || patient?.tenant_context?.label,
     humanFriendlyId: (
@@ -292,6 +379,15 @@ const PatientDetailsScreen = () => {
   const patientUpdatedAt = resolveDateTimeLabel(patient?.updated_at, locale) || fallbackLabel;
   const canDeletePatientProfile = (
     canDeletePatientRecords && typeof onDeletePatient === 'function'
+  );
+  const activeResourceDeleteState = activeResourceDelete || {};
+  const hasPendingResourceSubmit = Boolean(activeResourceSubmitKey);
+  const hasPendingResourceDelete = Boolean(activeResourceDeleteState?.recordId);
+  const hasGlobalMutationInFlight = (
+    isSavingSummary
+    || isDeletingPatient
+    || hasPendingResourceSubmit
+    || hasPendingResourceDelete
   );
 
   const screenTabs = [
@@ -433,6 +529,7 @@ const PatientDetailsScreen = () => {
             helperText={summaryErrors.first_name || t('patients.resources.patients.form.firstNameHint')}
             errorMessage={summaryErrors.first_name}
             density="compact"
+            disabled={isSavingSummary}
           />
         </StyledFieldBlock>
 
@@ -444,17 +541,20 @@ const PatientDetailsScreen = () => {
             helperText={summaryErrors.last_name || t('patients.resources.patients.form.lastNameHint')}
             errorMessage={summaryErrors.last_name}
             density="compact"
+            disabled={isSavingSummary}
           />
         </StyledFieldBlock>
 
         <StyledFieldBlock>
           <Text variant="label">{t('patients.resources.patients.form.dateOfBirthLabel')}</Text>
-          <TextField
+          <GlobalSmartDateField
             value={summaryValues.date_of_birth || ''}
-            onChange={(event) => onSummaryFieldChange('date_of_birth', resolveTextValue(event))}
+            onValueChange={(nextValue) => onSummaryFieldChange('date_of_birth', nextValue)}
             helperText={summaryErrors.date_of_birth || t('patients.resources.patients.form.dateOfBirthHint')}
             errorMessage={summaryErrors.date_of_birth}
+            placeholder={t('patients.resources.patients.form.dateOfBirthPlaceholder')}
             density="compact"
+            disabled={isSavingSummary}
           />
         </StyledFieldBlock>
 
@@ -465,6 +565,7 @@ const PatientDetailsScreen = () => {
             options={genderOptions}
             onValueChange={(value) => onSummaryFieldChange('gender', value)}
             compact
+            disabled={isSavingSummary}
           />
         </StyledFieldBlock>
 
@@ -473,6 +574,7 @@ const PatientDetailsScreen = () => {
             value={Boolean(summaryValues.is_active)}
             onValueChange={(value) => onSummaryFieldChange('is_active', value)}
             label={t('patients.resources.patients.form.activeLabel')}
+            disabled={isSavingSummary}
           />
         </StyledFieldBlock>
       </StyledFormGrid>
@@ -484,6 +586,7 @@ const PatientDetailsScreen = () => {
           onPress={onCancelSummaryEdit}
           accessibilityLabel={t('patients.workspace.actions.cancel')}
           icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+          disabled={isSavingSummary}
         >
           {t('patients.workspace.actions.cancel')}
         </Button>
@@ -493,6 +596,8 @@ const PatientDetailsScreen = () => {
           onPress={onSaveSummary}
           accessibilityLabel={t('patients.workspace.actions.save')}
           icon={<Icon glyph={'\u2713'} size="xs" decorative />}
+          loading={isSavingSummary}
+          disabled={isSavingSummary}
         >
           {t('patients.workspace.actions.save')}
         </Button>
@@ -500,7 +605,7 @@ const PatientDetailsScreen = () => {
     </Card>
   );
 
-  const renderResourceEditorField = (resourceKey, field, editor, sectionTestID) => {
+  const renderResourceEditorField = (resourceKey, field, editor, sectionTestID, isDisabled = false) => {
     const fieldName = sanitizeString(field?.name);
     if (!fieldName) return null;
 
@@ -517,6 +622,7 @@ const PatientDetailsScreen = () => {
             value={Boolean(value)}
             onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
             label={label}
+            disabled={isDisabled}
           />
           {errorMessage ? <Text variant="caption">{errorMessage}</Text> : null}
         </StyledFieldBlock>
@@ -536,6 +642,25 @@ const PatientDetailsScreen = () => {
             placeholder={placeholder}
             compact
             testID={`${sectionTestID}-field-${fieldName}`}
+            disabled={isDisabled}
+          />
+        </StyledFieldBlock>
+      );
+    }
+
+    if (isDateField(fieldName, field?.type)) {
+      return (
+        <StyledFieldBlock key={fieldName}>
+          <Text variant="label">{label}</Text>
+          <GlobalSmartDateField
+            value={sanitizeString(value)}
+            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            helperText={errorMessage || hint}
+            errorMessage={errorMessage}
+            placeholder={placeholder}
+            density="compact"
+            testID={`${sectionTestID}-field-${fieldName}`}
+            disabled={isDisabled}
           />
         </StyledFieldBlock>
       );
@@ -553,6 +678,7 @@ const PatientDetailsScreen = () => {
           maxLength={field?.maxLength}
           density="compact"
           testID={`${sectionTestID}-field-${fieldName}`}
+          disabled={isDisabled}
         />
       </StyledFieldBlock>
     );
@@ -576,6 +702,19 @@ const PatientDetailsScreen = () => {
     const shouldShowSectionLoading = Boolean(section.isLoading)
       && records.length === 0
       && !shouldShowSectionError;
+    const resourceFields = (section.config.fields || []).filter((field) => (
+      Boolean(sanitizeString(field?.name))
+    ));
+    const isResourceSubmitting = activeResourceSubmitKey === resourceKey;
+    const deletingResourceKey = sanitizeString(activeResourceDeleteState?.resourceKey);
+    const deletingRecordId = sanitizeString(activeResourceDeleteState?.recordId);
+    const isDeletingWithinResource = deletingResourceKey === resourceKey;
+    const isResourceBusy = (
+      isResourceSubmitting
+      || isDeletingWithinResource
+      || isSavingSummary
+      || isDeletingPatient
+    );
 
     return (
       <StyledResourceSection key={resourceKey}>
@@ -595,6 +734,7 @@ const PatientDetailsScreen = () => {
                   accessibilityLabel={t('patients.workspace.actions.newRecord')}
                   icon={<Icon glyph={'+'} size="xs" decorative />}
                   testID={`${testID}-add`}
+                  disabled={isResourceBusy}
                 >
                   {t('patients.workspace.actions.newRecord')}
                 </Button>
@@ -632,6 +772,7 @@ const PatientDetailsScreen = () => {
                   || '';
                 const rowId = sanitizeString(record?.id);
                 const rowKey = rowId || `${resourceKey}-${index + 1}`;
+                const isDeletingRow = isDeletingWithinResource && deletingRecordId === rowId;
 
                 return (
                   <StyledListItem key={rowKey}>
@@ -646,7 +787,7 @@ const PatientDetailsScreen = () => {
                             accessibilityLabel={t('patients.workspace.actions.editRecord')}
                             icon={<Icon glyph={'\u270e'} size="xs" decorative />}
                             testID={`${testID}-edit-${index + 1}`}
-                            disabled={!rowId}
+                            disabled={!rowId || isResourceBusy}
                           >
                             {t('patients.workspace.actions.editRecord')}
                           </Button>
@@ -659,7 +800,8 @@ const PatientDetailsScreen = () => {
                             accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
                             icon={<Icon glyph={'\u2715'} size="xs" decorative />}
                             testID={`${testID}-delete-${index + 1}`}
-                            disabled={!rowId}
+                            loading={isDeletingRow}
+                            disabled={!rowId || (isResourceBusy && !isDeletingRow)}
                           >
                             {t('patients.workspace.actions.deleteRecord')}
                           </Button>
@@ -668,6 +810,33 @@ const PatientDetailsScreen = () => {
                     </StyledItemHeader>
                     <Text variant="caption">{rowSubtitle}</Text>
                     {sanitizeString(rowMeta) ? <Text variant="caption">{rowMeta}</Text> : null}
+                    {resourceFields.length > 0 ? (
+                      <StyledSummaryGrid>
+                        {resourceFields.map((field) => (
+                          <StyledSummaryRow
+                            key={`${rowKey}-${sanitizeString(field?.name)}`}
+                            $isCompact={isCompactLayout}
+                          >
+                            <StyledSummaryLabel numberOfLines={1} ellipsizeMode="tail">
+                              {resolveFieldLabel(field, t)}
+                            </StyledSummaryLabel>
+                            <StyledSummaryValue
+                              numberOfLines={isCompactLayout ? 3 : 2}
+                              ellipsizeMode="tail"
+                              $isCompact={isCompactLayout}
+                            >
+                              {resolveRecordFieldDisplayValue({
+                                record,
+                                field,
+                                t,
+                                locale,
+                                fallbackLabel,
+                              })}
+                            </StyledSummaryValue>
+                          </StyledSummaryRow>
+                        ))}
+                      </StyledSummaryGrid>
+                    ) : null}
                   </StyledListItem>
                 );
               })}
@@ -692,7 +861,7 @@ const PatientDetailsScreen = () => {
 
             <StyledFormGrid>
               {(section.config.fields || []).map((field) => (
-                renderResourceEditorField(resourceKey, field, editor, testID)
+                renderResourceEditorField(resourceKey, field, editor, testID, isResourceSubmitting)
               ))}
             </StyledFormGrid>
 
@@ -704,6 +873,7 @@ const PatientDetailsScreen = () => {
                 accessibilityLabel={t('patients.workspace.actions.cancel')}
                 icon={<Icon glyph={'\u2715'} size="xs" decorative />}
                 testID={`${testID}-cancel`}
+                disabled={isResourceSubmitting}
               >
                 {t('patients.workspace.actions.cancel')}
               </Button>
@@ -714,6 +884,8 @@ const PatientDetailsScreen = () => {
                 accessibilityLabel={t('patients.workspace.actions.save')}
                 icon={<Icon glyph={'\u2713'} size="xs" decorative />}
                 testID={`${testID}-save`}
+                loading={isResourceSubmitting}
+                disabled={isResourceSubmitting}
               >
                 {t('patients.workspace.actions.save')}
               </Button>
@@ -804,6 +976,17 @@ const PatientDetailsScreen = () => {
 
   return (
     <StyledContainer>
+      {sanitizeString(noticeMessage) ? (
+        <Snackbar
+          visible={Boolean(noticeMessage)}
+          message={noticeMessage}
+          variant={sanitizeString(noticeVariant) || 'info'}
+          position="bottom"
+          onDismiss={onDismissNotice}
+          testID="patient-details-notice"
+        />
+      ) : null}
+
       <Card
         variant="outlined"
         testID="patient-details-page-navigation"
@@ -867,6 +1050,8 @@ const PatientDetailsScreen = () => {
           accessibilityLabel={t('patients.workspace.actions.refresh')}
           icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
           style={compactButtonStyle}
+          loading={isRetrying}
+          disabled={isLoading || isRetrying || hasGlobalMutationInFlight}
         >
           {t('patients.workspace.actions.refresh')}
         </Button>
@@ -880,6 +1065,7 @@ const PatientDetailsScreen = () => {
             icon={<Icon glyph={'\u270e'} size="xs" decorative />}
             testID="patient-details-edit-patient"
             style={compactButtonStyle}
+            disabled={hasGlobalMutationInFlight}
           >
             {t('patients.workspace.actions.editPatient')}
           </Button>
@@ -894,6 +1080,8 @@ const PatientDetailsScreen = () => {
             icon={<Icon glyph={'\u2715'} size="xs" decorative />}
             testID="patient-details-delete-patient"
             style={compactButtonStyle}
+            loading={isDeletingPatient}
+            disabled={hasGlobalMutationInFlight}
           >
             {t('patients.workspace.actions.deletePatient')}
           </Button>

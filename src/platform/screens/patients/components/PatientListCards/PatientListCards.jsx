@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Icon, Text } from '@platform/components';
+import { Text } from '@platform/components';
 import { Platform, useWindowDimensions } from 'react-native';
 import {
-  StyledActionButtonsRow,
-  StyledActionButtonSlot,
   StyledCardsGrid,
   StyledCell,
   StyledCellText,
@@ -27,7 +25,6 @@ import {
 const sanitizeString = (value) => String(value || '').trim();
 const IS_WEB = Platform.OS === 'web';
 const DEFAULT_WEB_TABLE_WIDTH = 980;
-const ACTION_LABEL_COLLAPSE_WIDTH = 255;
 const SMALL_SCREEN_MAX_WIDTH = 767;
 const TABLET_MAX_WIDTH = 1023;
 
@@ -40,7 +37,6 @@ const clampValue = (value, min, max) => {
 const resolveCellFlex = (columnId) => {
   if (columnId === 'patient') return 1.4;
   if (columnId === 'contact') return 1.15;
-  if (columnId === 'actions') return 1.45;
   if (columnId === 'number') return 0.45;
   return 1;
 };
@@ -110,22 +106,14 @@ const hashToPositiveInteger = (value) => {
 const PatientListCards = ({
   items = [],
   onOpenPatient,
-  onEditPatient,
-  onDeletePatient,
   patientLabel = '',
   patientIdLabel = '',
   contactLabel = '',
   tenantLabel = '',
   facilityLabel = '',
-  openButtonLabel = '',
-  editButtonLabel = '',
-  deleteButtonLabel = '',
-  actionsLabel = '',
   numberLabel = '#',
   emptyValueLabel = '-',
   resolveOpenAccessibilityLabel,
-  resolveEditAccessibilityLabel,
-  resolveDeleteAccessibilityLabel,
   resolveResizeAccessibilityLabel,
   resolveUnnamedPatientLabel,
   testIdPrefix,
@@ -189,10 +177,6 @@ const PatientListCards = ({
         id: 'facility',
         label: facilityLabel,
       },
-      {
-        id: 'actions',
-        label: actionsLabel,
-      },
     ];
 
     if (!showNumbers) return tableColumns;
@@ -203,7 +187,7 @@ const PatientListCards = ({
       },
       ...tableColumns,
     ];
-  }, [actionsLabel, contactLabel, facilityLabel, numberLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
+  }, [contactLabel, facilityLabel, numberLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
 
   const totalColumnFlex = useMemo(
     () => columns.reduce((sum, column) => sum + resolveCellFlex(column.id), 0),
@@ -234,19 +218,6 @@ const PatientListCards = ({
     const width = resolvedColumnWidths[columnId] || resolveDefaultWebWidth(columnId);
     return width;
   }, [resolvedColumnWidths, resolveDefaultWebWidth]);
-
-  const actionColumnWidth = useMemo(() => {
-    if (!IS_WEB) return null;
-    const explicit = resolvedColumnWidths.actions;
-    if (Number.isFinite(explicit) && explicit > 0) return explicit;
-    return resolveDefaultWebWidth('actions');
-  }, [resolvedColumnWidths.actions, resolveDefaultWebWidth]);
-
-  const showActionLabels = (
-    !isSmallScreen
-    && !isTabletScreen
-    && (!IS_WEB || actionColumnWidth >= ACTION_LABEL_COLLAPSE_WIDTH)
-  );
 
   const handleColumnResizeStart = useCallback((event, columnIndex) => {
     if (!IS_WEB || typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -383,93 +354,19 @@ const PatientListCards = ({
     if (!hasHoveredRow) setHoveredRowKey(null);
   }, [hoveredRowKey, normalizedItems]);
 
-  const renderActionButtons = useCallback(({
-    openPatientId,
-    editPatientId,
-    deletePatientId,
-    index,
-    canOpenPatient,
-    canEditPatient,
-    canDeletePatient,
-    openAccessibilityLabel,
-    editAccessibilityLabel,
-    deleteAccessibilityLabel,
-    isCompactLayout,
-  }) => (
-    <StyledActionButtonsRow $isCompact={isCompactLayout}>
-      <StyledActionButtonSlot $isFirst $isCompact={isCompactLayout}>
-        <Button
-          variant="surface"
-          size="medium"
-          onPress={() => onOpenPatient?.(openPatientId)}
-          disabled={!canOpenPatient}
-          accessibilityLabel={openAccessibilityLabel}
-          icon={<Icon glyph={'\u2139'} size="xs" tone="primary" decorative />}
-          testID={testIdPrefix ? `${testIdPrefix}${index + 1}` : undefined}
-        >
-          {showActionLabels ? openButtonLabel : null}
-        </Button>
-      </StyledActionButtonSlot>
-      <StyledActionButtonSlot $isCompact={isCompactLayout}>
-        <Button
-          variant="surface"
-          size="medium"
-          onPress={() => onEditPatient?.(editPatientId)}
-          disabled={!canEditPatient}
-          accessibilityLabel={editAccessibilityLabel}
-          icon={<Icon glyph={'\u270e'} size="xs" tone="primary" decorative />}
-          testID={testIdPrefix ? `${testIdPrefix}edit-${index + 1}` : undefined}
-        >
-          {showActionLabels ? editButtonLabel : null}
-        </Button>
-      </StyledActionButtonSlot>
-      <StyledActionButtonSlot $isCompact={isCompactLayout}>
-        <Button
-          variant="surface"
-          size="medium"
-          onPress={() => onDeletePatient?.(deletePatientId)}
-          disabled={!canDeletePatient}
-          accessibilityLabel={deleteAccessibilityLabel}
-          icon={<Icon glyph={'\u2715'} size="xs" tone="error" decorative />}
-          testID={testIdPrefix ? `${testIdPrefix}delete-${index + 1}` : undefined}
-        >
-          {showActionLabels ? deleteButtonLabel : null}
-        </Button>
-      </StyledActionButtonSlot>
-    </StyledActionButtonsRow>
-  ), [
-    onDeletePatient,
-    onEditPatient,
-    onOpenPatient,
-    deleteButtonLabel,
-    editButtonLabel,
-    openButtonLabel,
-    showActionLabels,
-    testIdPrefix,
-  ]);
-
   if (useResponsiveCards) {
     return (
       <StyledCardsGrid $isTablet={isTabletScreen}>
         {normalizedItems.map((item, index) => {
-          const internalPatientId = sanitizeString(item?.id);
           const routePatientId = resolveRoutePatientId(item);
-          const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
-            ? resolveOpenAccessibilityLabel(item, index)
-            : openButtonLabel;
-          const editAccessibilityLabel = typeof resolveEditAccessibilityLabel === 'function'
-            ? resolveEditAccessibilityLabel(item, index)
-            : editButtonLabel;
-          const deleteAccessibilityLabel = typeof resolveDeleteAccessibilityLabel === 'function'
-            ? resolveDeleteAccessibilityLabel(item, index)
-            : deleteButtonLabel;
           const canOpenPatient = Boolean(routePatientId) && typeof onOpenPatient === 'function';
-          const canEditPatient = Boolean(routePatientId) && typeof onEditPatient === 'function';
-          const canDeletePatient = Boolean(internalPatientId) && typeof onDeletePatient === 'function';
           const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
             ? resolveUnnamedPatientLabel(index)
             : resolveLabel(patientLabel, emptyValueLabel);
           const patientName = resolveLabel(item?.displayName, unnamedPatientLabel);
+          const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
+            ? resolveOpenAccessibilityLabel(item, index)
+            : patientName;
           const fieldRows = [
             {
               key: 'patientId',
@@ -498,7 +395,12 @@ const PatientListCards = ({
               key={item.__rowKey}
               $isTablet={isTabletScreen}
               $isCompact={isSmallScreen}
-              testID={testIdPrefix ? `${testIdPrefix}row-${toTestIdSegment(item.__rowKey)}` : undefined}
+              $isPressable={canOpenPatient}
+              accessibilityRole={canOpenPatient ? 'button' : undefined}
+              accessibilityLabel={canOpenPatient ? openAccessibilityLabel : undefined}
+              onPress={canOpenPatient ? () => onOpenPatient(routePatientId) : undefined}
+              disabled={!canOpenPatient}
+              testID={testIdPrefix ? `${testIdPrefix}${index + 1}` : undefined}
             >
               <StyledPatientCardHeader>
                 <StyledPatientCardTitle
@@ -534,20 +436,6 @@ const PatientListCards = ({
                   ))}
                 </StyledPatientCardFields>
               ) : null}
-
-              {renderActionButtons({
-                openPatientId: routePatientId,
-                editPatientId: routePatientId,
-                deletePatientId: internalPatientId,
-                index,
-                canOpenPatient,
-                canEditPatient,
-                canDeletePatient,
-                openAccessibilityLabel,
-                editAccessibilityLabel,
-                deleteAccessibilityLabel,
-                isCompactLayout: isSmallScreen || isTabletScreen,
-              })}
             </StyledPatientCard>
           );
         })}
@@ -595,25 +483,17 @@ const PatientListCards = ({
       </StyledHeaderRow>
 
       {normalizedItems.map((item, index) => {
-        const internalPatientId = sanitizeString(item?.id);
         const routePatientId = resolveRoutePatientId(item);
-        const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
-          ? resolveOpenAccessibilityLabel(item, index)
-          : openButtonLabel;
-        const editAccessibilityLabel = typeof resolveEditAccessibilityLabel === 'function'
-          ? resolveEditAccessibilityLabel(item, index)
-          : editButtonLabel;
-        const deleteAccessibilityLabel = typeof resolveDeleteAccessibilityLabel === 'function'
-          ? resolveDeleteAccessibilityLabel(item, index)
-          : deleteButtonLabel;
         const canOpenPatient = Boolean(routePatientId) && typeof onOpenPatient === 'function';
-        const canEditPatient = Boolean(routePatientId) && typeof onEditPatient === 'function';
-        const canDeletePatient = Boolean(internalPatientId) && typeof onDeletePatient === 'function';
-        const isLastRow = index === normalizedItems.length - 1;
-        const isHovered = hoveredRowKey === item.__rowKey;
         const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
           ? resolveUnnamedPatientLabel(index)
           : resolveLabel(patientLabel, emptyValueLabel);
+        const patientName = resolveLabel(item?.displayName, unnamedPatientLabel);
+        const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
+          ? resolveOpenAccessibilityLabel(item, index)
+          : patientName;
+        const isLastRow = index === normalizedItems.length - 1;
+        const isHovered = hoveredRowKey === item.__rowKey;
 
         return (
           <StyledDataRow
@@ -621,9 +501,14 @@ const PatientListCards = ({
             $isLastRow={isLastRow}
             $rowIndex={index}
             $isHovered={isHovered}
+            $isPressable={canOpenPatient}
+            accessibilityRole={canOpenPatient ? 'button' : undefined}
+            accessibilityLabel={canOpenPatient ? openAccessibilityLabel : undefined}
+            onPress={canOpenPatient ? () => onOpenPatient(routePatientId) : undefined}
+            disabled={!canOpenPatient}
             onMouseEnter={IS_WEB ? () => setHoveredRowKey(item.__rowKey) : undefined}
             onMouseLeave={IS_WEB ? () => setHoveredRowKey((current) => (current === item.__rowKey ? null : current)) : undefined}
-            testID={testIdPrefix ? `${testIdPrefix}row-${toTestIdSegment(item.__rowKey)}` : undefined}
+            testID={testIdPrefix ? `${testIdPrefix}${index + 1}` : undefined}
           >
             {columns.map((column, columnIndex) => {
               const isLastColumn = columnIndex === columns.length - 1;
@@ -645,32 +530,6 @@ const PatientListCards = ({
                     <StyledRowNumberBadge testID={numberBadgeTestId}>
                       <Text variant="caption">{item.__cardNumber}</Text>
                     </StyledRowNumberBadge>
-                  </StyledCell>
-                );
-              }
-
-              if (column.id === 'actions') {
-                return (
-                  <StyledCell
-                    key={`${item.__rowKey}-${column.id}`}
-                    $columnId={column.id}
-                    $isLastColumn={isLastColumn}
-                    $isWeb={IS_WEB}
-                    $columnWidth={resolveColumnWidth(column.id)}
-                  >
-                    {renderActionButtons({
-                      openPatientId: routePatientId,
-                      editPatientId: routePatientId,
-                      deletePatientId: internalPatientId,
-                      index,
-                      canOpenPatient,
-                      canEditPatient,
-                      canDeletePatient,
-                      openAccessibilityLabel,
-                      editAccessibilityLabel,
-                      deleteAccessibilityLabel,
-                      isCompactLayout: false,
-                    })}
                   </StyledCell>
                 );
               }

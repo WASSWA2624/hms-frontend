@@ -1,7 +1,9 @@
 import styled from 'styled-components/native';
 
 const StyledContainer = styled.View`
-  flex: 1;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
   gap: ${({ theme }) => theme.spacing.md}px;
 `;
 
@@ -19,6 +21,7 @@ const StyledFieldBlock = styled.View`
 
 const StyledActions = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing.sm}px;
   justify-content: flex-end;
 `;
