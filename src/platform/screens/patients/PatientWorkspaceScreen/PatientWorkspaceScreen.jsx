@@ -23,12 +23,10 @@ import FieldHelpTrigger from '../components/FieldHelpTrigger';
 import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
   StyledActions,
-  StyledBadgeText,
   StyledContainer,
   StyledFieldBlock,
   StyledFormActions,
   StyledFormGrid,
-  StyledHeader,
   StyledItemHeader,
   StyledListItem,
   StyledPanelRow,
@@ -547,14 +545,6 @@ const PatientWorkspaceScreen = () => {
 
   return (
     <StyledContainer>
-      <StyledHeader>
-        <Text variant="h2" accessibilityRole="header">{t('patients.workspace.title')}</Text>
-        <Text variant="body">{t('patients.workspace.description')}</Text>
-        <StyledBadgeText>
-          {patientName} {patient?.human_friendly_id ? `(${patient.human_friendly_id})` : ''}
-        </StyledBadgeText>
-      </StyledHeader>
-
       <StyledTabRow>
         {tabs.map((tab) => (
           <Button
