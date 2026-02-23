@@ -17,6 +17,12 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   gap: ${({ theme }) => theme.spacing.md}px;
   width: 100%;
   min-width: 0;
+  flex-wrap: wrap;
+
+  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet || 768) - 1}px) {
+    align-items: flex-start;
+    gap: ${({ theme }) => theme.spacing.xs}px;
+  }
 `;
 
 const StyledBreadcrumbsList = styled.div.withConfig({
@@ -30,6 +36,7 @@ const StyledBreadcrumbsList = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
   padding: 0;
   min-width: 0;
+  flex: 1 1 auto;
 
   @media (max-width: ${({ theme }) => theme.breakpoints?.tablet || 768}px) {
     padding: 0;
@@ -46,6 +53,12 @@ const StyledBreadcrumbsActions = styled.div.withConfig({
   align-items: center;
   justify-content: flex-end;
   flex-shrink: 0;
+
+  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet || 768) - 1}px) {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
 `;
 
 const StyledBackButton = styled.button.withConfig({

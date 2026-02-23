@@ -48,6 +48,7 @@ const PatientDirectoryScreen = () => {
   const { t } = useI18n();
   const { width } = useWindowDimensions();
   const isCompactHeaderActions = width < breakpoints.tablet;
+  const isCompactLayout = width < breakpoints.tablet;
   const { setBeforeBackActions, clearBeforeBackActions } = useMainRouteHeaderActions();
   const [isSearchTooltipVisible, setIsSearchTooltipVisible] = useState(false);
   const [isSearchHelpOpen, setIsSearchHelpOpen] = useState(false);
@@ -148,7 +149,7 @@ const PatientDirectoryScreen = () => {
               ? 'patients.directory.hideFilters'
               : 'patients.directory.showFilters'
           )}
-          icon={<Icon glyph={'\u2699'} size="xs" decorative />}
+          icon={<Icon glyph={'\u2315'} size="xs" decorative />}
           testID="patient-directory-toggle-filters"
         >
           {!isCompactHeaderActions
@@ -187,7 +188,7 @@ const PatientDirectoryScreen = () => {
   ]);
 
   return (
-    <StyledContainer>
+    <StyledContainer $isCompact={isCompactLayout}>
       <StyledToolbarCard variant="outlined">
         <StyledToolbarGrid>
           <StyledToolbarField>
@@ -214,7 +215,7 @@ const PatientDirectoryScreen = () => {
                   onBlur={() => setIsSearchTooltipVisible(false)}
                   testID="patient-directory-search-help"
                 >
-                  <Icon glyph="?" size="xs" decorative />
+                  <Icon glyph="?" size="lg" decorative />
                 </StyledSearchHelpButton>
                 <Tooltip
                   visible={isSearchTooltipVisible && !isSearchHelpOpen}
@@ -406,17 +407,20 @@ const PatientDirectoryScreen = () => {
         accessibilityHint={t('patients.directory.searchHelpBody')}
         testID="patient-directory-search-help-modal"
       >
-        <Text variant="h4">{t('patients.directory.searchHelpTitle')}</Text>
+        <Text variant="h3" align="left">{t('patients.directory.searchHelpTitle')}</Text>
         <StyledSearchHelpBody variant="body">{t('patients.directory.searchHelpBody')}</StyledSearchHelpBody>
         <StyledSearchHelpList>
           <StyledSearchHelpItem variant="caption">
-            - {t('patients.directory.searchHelpItems.global')}
+            {'\u2022 '}
+            {t('patients.directory.searchHelpItems.global')}
           </StyledSearchHelpItem>
           <StyledSearchHelpItem variant="caption">
-            - {t('patients.directory.searchHelpItems.advanced')}
+            {'\u2022 '}
+            {t('patients.directory.searchHelpItems.advanced')}
           </StyledSearchHelpItem>
           <StyledSearchHelpItem variant="caption">
-            - {t('patients.directory.searchHelpItems.actions')}
+            {'\u2022 '}
+            {t('patients.directory.searchHelpItems.actions')}
           </StyledSearchHelpItem>
         </StyledSearchHelpList>
       </Modal>
@@ -475,7 +479,7 @@ const PatientDirectoryScreen = () => {
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && !hasError ? (
-        <StyledListCard variant="outlined">
+        <StyledListCard variant="outlined" $isCompact={isCompactLayout}>
           {hasResults ? (
             <>
               {hasActiveFilters ? (

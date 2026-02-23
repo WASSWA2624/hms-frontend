@@ -5,7 +5,9 @@
  */
 
 import React from 'react';
+import { useWindowDimensions } from 'react-native';
 import { useI18n } from '@hooks';
+import breakpoints from '@theme/breakpoints';
 import {
   StyledBody,
   StyledBanner,
@@ -56,6 +58,8 @@ const AppFrameWeb = ({
   className,
 }) => {
   const { t } = useI18n();
+  const { width } = useWindowDimensions();
+  const isMobileViewport = width < breakpoints.tablet;
   const { hasBanner, hasBreadcrumbs, hasFooter, hasHeader, hasOverlay, hasSidebar } = useAppFrame({
     header,
     footer,
@@ -64,6 +68,7 @@ const AppFrameWeb = ({
     overlay,
     banner,
   });
+  const shouldRenderSidebar = hasSidebar && !isMobileViewport;
 
   return (
     <StyledContainer
@@ -86,7 +91,7 @@ const AppFrameWeb = ({
         </StyledBanner>
       )}
       <StyledBody>
-        {hasSidebar && (
+        {shouldRenderSidebar && (
           <StyledSidebar
             role="complementary"
             aria-label={t('navigation.sidebar.label')}
@@ -97,7 +102,7 @@ const AppFrameWeb = ({
             {sidebar}
           </StyledSidebar>
         )}
-        <StyledContent id="main-content" hasSidebar={hasSidebar} hasFooter={hasFooter}>
+        <StyledContent id="main-content" hasSidebar={shouldRenderSidebar} hasFooter={hasFooter}>
           <StyledContentBody>
             {hasBreadcrumbs && (
               <StyledBreadcrumbs aria-label={t('navigation.breadcrumbs.label')}>

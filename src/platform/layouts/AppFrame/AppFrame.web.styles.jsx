@@ -52,6 +52,11 @@ const StyledBreadcrumbs = styled.nav.withConfig({
   align-self: stretch;
   flex: 0 0 auto;
   box-sizing: border-box;
+
+  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet || 768) - 1}px) {
+    padding-left: ${({ theme }) => theme.spacing.xs}px;
+    padding-right: ${({ theme }) => theme.spacing.xs}px;
+  }
 `;
 
 const StyledBody = styled.div.withConfig({
@@ -169,6 +174,11 @@ const StyledScreenSlot = styled.div.withConfig({
   width: 100%;
   padding: ${({ theme }) => theme.spacing.xs * 2}px;
   box-sizing: border-box;
+
+  @media (max-width: ${({ theme }) => (theme.breakpoints?.tablet || 768) - 1}px) {
+    padding-left: ${({ theme }) => theme.spacing.xs}px;
+    padding-right: ${({ theme }) => theme.spacing.xs}px;
+  }
 `;
 
 const StyledEndSpacer = styled.div.withConfig({

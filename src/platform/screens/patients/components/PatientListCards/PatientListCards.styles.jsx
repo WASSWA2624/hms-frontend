@@ -99,6 +99,7 @@ const StyledCellText = styled(Text)`
 
 const StyledActionButtonsRow = styled.View`
   width: 100%;
+  min-width: 0;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
@@ -107,8 +108,10 @@ const StyledActionButtonsRow = styled.View`
 `;
 
 const StyledActionButtonSlot = styled.View`
-  margin-left: ${({ $isFirst, theme }) => ($isFirst ? 0 : theme.spacing.xs / 2)}px;
-  flex: ${({ $isCompact }) => ($isCompact ? 1 : 'initial')};
+  margin-left: ${({ $isFirst, $isCompact, theme }) => (
+    $isCompact ? 0 : ($isFirst ? 0 : theme.spacing.xs / 2)
+  )}px;
+  flex: ${({ $isCompact }) => ($isCompact ? 1 : 0)};
   min-width: ${({ $isCompact, theme }) => ($isCompact ? `${theme.spacing.xxl + theme.spacing.sm}px` : 'auto')};
 `;
 
@@ -126,6 +129,7 @@ const StyledRowNumberBadge = styled.View`
 
 const StyledCardsGrid = styled.View`
   width: 100%;
+  min-width: 0;
   flex-direction: ${({ $isTablet }) => ($isTablet ? 'row' : 'column')};
   flex-wrap: wrap;
   justify-content: ${({ $isTablet }) => ($isTablet ? 'space-between' : 'flex-start')};
@@ -136,6 +140,7 @@ const StyledPatientCard = styled.View`
   width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
   flex-basis: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
   max-width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
+  min-width: 0;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border.light};
   border-radius: ${({ theme }) => theme.radius.md}px;

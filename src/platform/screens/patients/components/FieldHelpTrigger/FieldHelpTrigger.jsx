@@ -42,7 +42,7 @@ const FieldHelpTrigger = ({
           onBlur={() => setIsTooltipVisible(false)}
           testID={testID}
         >
-          <Icon glyph="?" size="xs" decorative />
+          <Icon glyph="?" size="lg" decorative />
         </StyledHelpButton>
         <Tooltip
           visible={isTooltipVisible && !isHelpOpen}
@@ -58,7 +58,7 @@ const FieldHelpTrigger = ({
         size="medium"
         accessibilityLabel={helpTitle || tooltip || label}
       >
-        <Text variant="h4">{helpTitle || label}</Text>
+        <Text variant="h3" align="left">{helpTitle || label}</Text>
         {helpBody ? <StyledHelpBody variant="body">{helpBody}</StyledHelpBody> : null}
         {normalizedItems.length > 0 ? (
           <StyledHelpList>

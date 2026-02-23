@@ -19,19 +19,20 @@ const StyledHelpAnchor = styled.View`
 `;
 
 const StyledHelpButton = styled.Pressable`
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
+  min-width: 32px;
+  min-height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   align-items: center;
   justify-content: center;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border.medium};
-  background-color: ${({ theme }) => theme.colors.background.surface};
+  border-width: 0;
+  background-color: transparent;
 `;
 
-const StyledHelpBody = styled(Text)`
+const StyledHelpBody = styled(Text).attrs({
+  align: 'left',
+})`
   margin-top: ${({ theme }) => theme.spacing.sm}px;
 `;
 
@@ -40,8 +41,11 @@ const StyledHelpList = styled.View`
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
-const StyledHelpListItem = styled(Text)`
+const StyledHelpListItem = styled(Text).attrs({
+  align: 'left',
+})`
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
 export {
