@@ -211,16 +211,80 @@ const usePatientDetailsScreen = () => {
   const guardianCrud = usePatientGuardian();
   const documentCrud = usePatientDocument();
 
+  const {
+    data: patientData,
+    errorCode: patientErrorCode,
+    get: getPatientRecord,
+    update: updatePatientRecord,
+    remove: removePatientRecord,
+    reset: resetPatientRecord,
+  } = patientCrud;
+
+  const {
+    data: identifierData,
+    isLoading: isIdentifierLoading,
+    errorCode: identifierErrorCode,
+    list: listIdentifiers,
+    create: createIdentifier,
+    update: updateIdentifier,
+    remove: removeIdentifier,
+    reset: resetIdentifiers,
+  } = identifierCrud;
+
+  const {
+    data: guardianData,
+    isLoading: isGuardianLoading,
+    errorCode: guardianErrorCode,
+    list: listGuardians,
+    create: createGuardian,
+    update: updateGuardian,
+    remove: removeGuardian,
+    reset: resetGuardians,
+  } = guardianCrud;
+
+  const {
+    data: contactData,
+    isLoading: isContactLoading,
+    errorCode: contactErrorCode,
+    list: listContacts,
+    create: createContact,
+    update: updateContact,
+    remove: removeContact,
+    reset: resetContacts,
+  } = contactCrud;
+
+  const {
+    data: addressData,
+    isLoading: isAddressLoading,
+    errorCode: addressErrorCode,
+    list: listAddresses,
+    create: createAddress,
+    update: updateAddress,
+    remove: removeAddress,
+    reset: resetAddresses,
+  } = addressCrud;
+
+  const {
+    data: documentData,
+    isLoading: isDocumentLoading,
+    errorCode: documentErrorCode,
+    list: listDocuments,
+    create: createDocument,
+    update: updateDocument,
+    remove: removeDocument,
+    reset: resetDocuments,
+  } = documentCrud;
+
   const patientId = sanitizeString(getScalarParam(searchParams?.id));
   const normalizedTenantId = sanitizeString(tenantId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
-  const patient = useMemo(() => patientCrud.data || null, [patientCrud.data]);
-  const identifierRecords = useMemo(() => resolveItems(identifierCrud.data), [identifierCrud.data]);
-  const guardianRecords = useMemo(() => resolveItems(guardianCrud.data), [guardianCrud.data]);
-  const contactRecords = useMemo(() => resolveItems(contactCrud.data), [contactCrud.data]);
-  const documentRecords = useMemo(() => resolveItems(documentCrud.data), [documentCrud.data]);
-  const addressRecords = useMemo(() => resolveItems(addressCrud.data), [addressCrud.data]);
+  const patient = useMemo(() => patientData || null, [patientData]);
+  const identifierRecords = useMemo(() => resolveItems(identifierData), [identifierData]);
+  const guardianRecords = useMemo(() => resolveItems(guardianData), [guardianData]);
+  const contactRecords = useMemo(() => resolveItems(contactData), [contactData]);
+  const documentRecords = useMemo(() => resolveItems(documentData), [documentData]);
+  const addressRecords = useMemo(() => resolveItems(addressData), [addressData]);
 
   const resourceConfigs = useMemo(
     () => ({
@@ -235,18 +299,68 @@ const usePatientDetailsScreen = () => {
 
   const crudByResource = useMemo(
     () => ({
-      [RESOURCE_KEYS.IDENTIFIERS]: identifierCrud,
-      [RESOURCE_KEYS.GUARDIANS]: guardianCrud,
-      [RESOURCE_KEYS.CONTACTS]: contactCrud,
-      [RESOURCE_KEYS.DOCUMENTS]: documentCrud,
-      [RESOURCE_KEYS.ADDRESSES]: addressCrud,
+      [RESOURCE_KEYS.IDENTIFIERS]: {
+        list: listIdentifiers,
+        create: createIdentifier,
+        update: updateIdentifier,
+        remove: removeIdentifier,
+        reset: resetIdentifiers,
+      },
+      [RESOURCE_KEYS.GUARDIANS]: {
+        list: listGuardians,
+        create: createGuardian,
+        update: updateGuardian,
+        remove: removeGuardian,
+        reset: resetGuardians,
+      },
+      [RESOURCE_KEYS.CONTACTS]: {
+        list: listContacts,
+        create: createContact,
+        update: updateContact,
+        remove: removeContact,
+        reset: resetContacts,
+      },
+      [RESOURCE_KEYS.DOCUMENTS]: {
+        list: listDocuments,
+        create: createDocument,
+        update: updateDocument,
+        remove: removeDocument,
+        reset: resetDocuments,
+      },
+      [RESOURCE_KEYS.ADDRESSES]: {
+        list: listAddresses,
+        create: createAddress,
+        update: updateAddress,
+        remove: removeAddress,
+        reset: resetAddresses,
+      },
     }),
     [
-      identifierCrud,
-      guardianCrud,
-      contactCrud,
-      documentCrud,
-      addressCrud,
+      listIdentifiers,
+      createIdentifier,
+      updateIdentifier,
+      removeIdentifier,
+      resetIdentifiers,
+      listGuardians,
+      createGuardian,
+      updateGuardian,
+      removeGuardian,
+      resetGuardians,
+      listContacts,
+      createContact,
+      updateContact,
+      removeContact,
+      resetContacts,
+      listDocuments,
+      createDocument,
+      updateDocument,
+      removeDocument,
+      resetDocuments,
+      listAddresses,
+      createAddress,
+      updateAddress,
+      removeAddress,
+      resetAddresses,
     ]
   );
 
@@ -277,9 +391,16 @@ const usePatientDetailsScreen = () => {
 
   const fetchPatient = useCallback(async () => {
     if (!patientId || isOffline || !canAccessPatients || !hasScope) return undefined;
-    patientCrud.reset();
-    return patientCrud.get(patientId);
-  }, [patientId, isOffline, canAccessPatients, hasScope, patientCrud]);
+    resetPatientRecord();
+    return getPatientRecord(patientId);
+  }, [
+    patientId,
+    isOffline,
+    canAccessPatients,
+    hasScope,
+    resetPatientRecord,
+    getPatientRecord,
+  ]);
 
   const fetchResourceCollection = useCallback(async (resourceKey) => {
     const params = buildCollectionParams();
@@ -543,7 +664,7 @@ const usePatientDetailsScreen = () => {
       is_active: summaryValues.is_active !== false,
     };
 
-    const result = await patientCrud.update(patientId, payload);
+    const result = await updatePatientRecord(patientId, payload);
     if (!result) return;
 
     await fetchPatient();
@@ -553,16 +674,16 @@ const usePatientDetailsScreen = () => {
     patientId,
     summaryValues,
     t,
-    patientCrud,
+    updatePatientRecord,
     fetchPatient,
   ]);
 
   const onDeletePatient = useCallback(async () => {
     if (!canDeletePatientRecords || !patientId) return;
-    if (typeof patientCrud.remove !== 'function') return;
+    if (typeof removePatientRecord !== 'function') return;
     if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
 
-    const result = await patientCrud.remove(patientId);
+    const result = await removePatientRecord(patientId);
     if (!result) return;
 
     setIsSummaryEditMode(false);
@@ -570,21 +691,22 @@ const usePatientDetailsScreen = () => {
     setResourceEditors(EMPTY_RESOURCE_EDITORS);
     setIsPatientDeleted(true);
 
-    patientCrud.reset();
-    identifierCrud.reset();
-    guardianCrud.reset();
-    contactCrud.reset();
-    addressCrud.reset();
-    documentCrud.reset();
+    resetPatientRecord();
+    resetIdentifiers();
+    resetGuardians();
+    resetContacts();
+    resetAddresses();
+    resetDocuments();
   }, [
     canDeletePatientRecords,
     patientId,
-    patientCrud,
-    identifierCrud,
-    guardianCrud,
-    contactCrud,
-    addressCrud,
-    documentCrud,
+    removePatientRecord,
+    resetPatientRecord,
+    resetIdentifiers,
+    resetGuardians,
+    resetContacts,
+    resetAddresses,
+    resetDocuments,
     t,
   ]);
 
@@ -605,35 +727,35 @@ const usePatientDetailsScreen = () => {
         config: resourceConfigs[RESOURCE_KEYS.IDENTIFIERS],
         records: identifierRecords,
         editor: resourceEditors[RESOURCE_KEYS.IDENTIFIERS],
-        isLoading: identifierCrud.isLoading,
+        isLoading: isIdentifierLoading,
       },
       [RESOURCE_KEYS.GUARDIANS]: {
         key: RESOURCE_KEYS.GUARDIANS,
         config: resourceConfigs[RESOURCE_KEYS.GUARDIANS],
         records: guardianRecords,
         editor: resourceEditors[RESOURCE_KEYS.GUARDIANS],
-        isLoading: guardianCrud.isLoading,
+        isLoading: isGuardianLoading,
       },
       [RESOURCE_KEYS.CONTACTS]: {
         key: RESOURCE_KEYS.CONTACTS,
         config: resourceConfigs[RESOURCE_KEYS.CONTACTS],
         records: contactRecords,
         editor: resourceEditors[RESOURCE_KEYS.CONTACTS],
-        isLoading: contactCrud.isLoading,
+        isLoading: isContactLoading,
       },
       [RESOURCE_KEYS.ADDRESSES]: {
         key: RESOURCE_KEYS.ADDRESSES,
         config: resourceConfigs[RESOURCE_KEYS.ADDRESSES],
         records: addressRecords,
         editor: resourceEditors[RESOURCE_KEYS.ADDRESSES],
-        isLoading: addressCrud.isLoading,
+        isLoading: isAddressLoading,
       },
       [RESOURCE_KEYS.DOCUMENTS]: {
         key: RESOURCE_KEYS.DOCUMENTS,
         config: resourceConfigs[RESOURCE_KEYS.DOCUMENTS],
         records: documentRecords,
         editor: resourceEditors[RESOURCE_KEYS.DOCUMENTS],
-        isLoading: documentCrud.isLoading,
+        isLoading: isDocumentLoading,
       },
     }),
     [
@@ -644,22 +766,22 @@ const usePatientDetailsScreen = () => {
       addressRecords,
       documentRecords,
       resourceEditors,
-      identifierCrud.isLoading,
-      guardianCrud.isLoading,
-      contactCrud.isLoading,
-      addressCrud.isLoading,
-      documentCrud.isLoading,
+      isIdentifierLoading,
+      isGuardianLoading,
+      isContactLoading,
+      isAddressLoading,
+      isDocumentLoading,
     ]
   );
 
   const hasMissingContext = !patientId || !canAccessPatients || !hasScope;
   const activeErrorCode = (
-    patientCrud.errorCode
-    || identifierCrud.errorCode
-    || guardianCrud.errorCode
-    || contactCrud.errorCode
-    || addressCrud.errorCode
-    || documentCrud.errorCode
+    patientErrorCode
+    || identifierErrorCode
+    || guardianErrorCode
+    || contactErrorCode
+    || addressErrorCode
+    || documentErrorCode
   );
   const isEntitlementBlocked = isEntitlementDeniedError(activeErrorCode);
   const hasError = !isPatientDeleted && !isEntitlementBlocked && (hasMissingContext || Boolean(activeErrorCode));
