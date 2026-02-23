@@ -5,10 +5,14 @@ const StyledContainer = styled.View`
   width: 100%;
   min-width: 0;
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs + 2}px;
+  overflow: visible;
 `;
 
 const StyledPageNavigation = styled.View`
+  width: 100%;
+  min-width: 0;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  overflow: visible;
 `;
 
 const StyledPageNavigationTitle = styled.Text`
@@ -19,6 +23,8 @@ const StyledPageNavigationTitle = styled.Text`
 `;
 
 const StyledChromeTabsRail = styled.View`
+  width: 100%;
+  min-height: ${({ theme }) => theme.spacing.lg + theme.spacing.md}px;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: stretch;
@@ -28,41 +34,14 @@ const StyledChromeTabsRail = styled.View`
   border-color: ${({ theme }) => theme.colors.border.medium};
   border-radius: ${({ theme }) => theme.radius.lg}px;
   background-color: ${({ theme }) => theme.colors.background.tertiary};
+  overflow: visible;
 `;
 
-const StyledChromeTabButton = styled.Pressable`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  min-height: ${({ theme }) => theme.spacing.lg + theme.spacing.sm + 4}px;
+const StyledChromeTabSlot = styled.View`
+  min-height: ${({ theme }) => theme.spacing.lg + theme.spacing.xs}px;
   min-width: ${({ $isCompact }) => ($isCompact ? '48%' : '136px')};
-  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
-  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
-  border-width: 1px;
-  border-color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.primary : theme.colors.border.medium
-  )};
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  background-color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.primary : theme.colors.background.secondary
-  )};
-`;
-
-const StyledChromeTabIcon = styled.Text`
-  color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.text.inverse : theme.colors.text.primary
-  )};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  margin-right: ${({ theme }) => theme.spacing.xs}px;
-`;
-
-const StyledChromeTabLabel = styled.Text`
-  color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.text.inverse : theme.colors.text.primary
-  )};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  text-align: center;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 const StyledSummaryGrid = styled.View`
@@ -116,11 +95,13 @@ const StyledActions = styled.View`
   flex-wrap: wrap;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  overflow: visible;
 `;
 
 const StyledResourceSection = styled.View`
   width: 100%;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  overflow: visible;
 `;
 
 const StyledResourceSectionHeader = styled.View`
@@ -173,6 +154,7 @@ const StyledFieldBlock = styled.View`
 const StyledFormGrid = styled.View`
   width: 100%;
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs}px;
+  overflow: visible;
 `;
 
 const StyledFormActions = styled.View`
@@ -185,9 +167,7 @@ const StyledFormActions = styled.View`
 
 export {
   StyledActions,
-  StyledChromeTabButton,
-  StyledChromeTabIcon,
-  StyledChromeTabLabel,
+  StyledChromeTabSlot,
   StyledChromeTabsRail,
   StyledContainer,
   StyledFieldBlock,

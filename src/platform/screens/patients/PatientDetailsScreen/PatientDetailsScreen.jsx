@@ -21,9 +21,7 @@ import { formatDateTime } from '@utils';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import {
   StyledActions,
-  StyledChromeTabButton,
-  StyledChromeTabIcon,
-  StyledChromeTabLabel,
+  StyledChromeTabSlot,
   StyledChromeTabsRail,
   StyledContainer,
   StyledFieldBlock,
@@ -350,6 +348,8 @@ const PatientDetailsScreen = () => {
     || screenTabs.find((tab) => tab.key === 'details')
     || screenTabs[0]
   );
+  const pageTitle = resolveTranslation(t, 'patients.workspace.title', 'Patient Details');
+  const cardContainerStyle = React.useMemo(() => ({ overflow: 'visible' }), []);
 
   const summaryAboutRows = [
     { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
@@ -394,7 +394,11 @@ const PatientDetailsScreen = () => {
   );
 
   const renderSummaryReadonly = () => (
-    <Card variant="outlined" testID="patient-details-summary-view">
+    <Card
+      variant="outlined"
+      testID="patient-details-summary-view"
+      style={cardContainerStyle}
+    >
       {renderSummarySection(
         t('patients.workspace.summarySections.about'),
         summaryAboutRows,
@@ -415,7 +419,11 @@ const PatientDetailsScreen = () => {
   );
 
   const renderSummaryEdit = () => (
-    <Card variant="outlined" testID="patient-details-summary-editor">
+    <Card
+      variant="outlined"
+      testID="patient-details-summary-editor"
+      style={cardContainerStyle}
+    >
       <StyledFormGrid>
         <StyledFieldBlock>
           <Text variant="label">{t('patients.resources.patients.form.firstNameLabel')}</Text>
@@ -571,7 +579,11 @@ const PatientDetailsScreen = () => {
 
     return (
       <StyledResourceSection key={resourceKey}>
-        <Card variant="outlined" testID={testID}>
+        <Card
+          variant="outlined"
+          testID={testID}
+          style={cardContainerStyle}
+        >
           <StyledResourceSectionHeader>
             <StyledResourceSectionTitle>{title}</StyledResourceSectionTitle>
             <StyledItemActions>
@@ -664,7 +676,11 @@ const PatientDetailsScreen = () => {
         </Card>
 
         {editor ? (
-          <Card variant="outlined" testID={`${testID}-editor`}>
+          <Card
+            variant="outlined"
+            testID={`${testID}-editor`}
+            style={cardContainerStyle}
+          >
             <StyledResourceSectionHeader>
               <StyledResourceSectionTitle>
                 {editor.mode === 'edit'
@@ -739,7 +755,11 @@ const PatientDetailsScreen = () => {
     if (selectedPageTab === 'contacts') {
       return (
         <>
-          <Card variant="outlined" testID="patient-details-contacts-primary">
+          <Card
+            variant="outlined"
+            testID="patient-details-contacts-primary"
+            style={cardContainerStyle}
+          >
             <StyledSummarySection>
               <StyledSummarySectionTitle>{t('patients.workspace.patientSummary.contact')}</StyledSummarySectionTitle>
               <Text variant="body">{patientContact}</Text>
@@ -784,39 +804,55 @@ const PatientDetailsScreen = () => {
 
   return (
     <StyledContainer>
-      <Card variant="outlined" testID="patient-details-page-navigation">
+      <Card
+        variant="outlined"
+        testID="patient-details-page-navigation"
+        style={cardContainerStyle}
+      >
         <StyledPageNavigation>
-          <StyledPageNavigationTitle>{t('patients.workspace.title')}</StyledPageNavigationTitle>
+          <StyledPageNavigationTitle>{pageTitle}</StyledPageNavigationTitle>
 
           <StyledChromeTabsRail accessibilityRole="radiogroup">
             {screenTabs.map((tab) => (
-              <StyledChromeTabButton
+              <StyledChromeTabSlot
                 key={tab.key}
-                onPress={() => setSelectedPageTab(tab.key)}
-                $isActive={selectedPageTab === tab.key}
                 $isCompact={isCompactLayout}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: selectedPageTab === tab.key }}
-                accessibilityLabel={tab.label}
-                testID={`patient-details-page-tab-${tab.key}`}
               >
-                <StyledChromeTabIcon $isActive={selectedPageTab === tab.key}>
-                  {tab.icon}
-                </StyledChromeTabIcon>
-                <StyledChromeTabLabel
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  $isActive={selectedPageTab === tab.key}
+                <Button
+                  onPress={() => setSelectedPageTab(tab.key)}
+                  variant={selectedPageTab === tab.key ? 'primary' : 'surface'}
+                  size="small"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: selectedPageTab === tab.key }}
+                  accessibilityLabel={tab.label}
+                  testID={`patient-details-page-tab-${tab.key}`}
+                  style={{
+                    width: '100%',
+                    minHeight: isCompactLayout ? 34 : 36,
+                    justifyContent: 'center',
+                  }}
+                  icon={(
+                    <Icon
+                      glyph={tab.icon}
+                      size="xs"
+                      decorative
+                      tone={selectedPageTab === tab.key ? 'inverse' : 'default'}
+                    />
+                  )}
                 >
                   {tab.label}
-                </StyledChromeTabLabel>
-              </StyledChromeTabButton>
+                </Button>
+              </StyledChromeTabSlot>
             ))}
           </StyledChromeTabsRail>
         </StyledPageNavigation>
       </Card>
 
-      <Card variant="outlined" testID={`patient-details-page-content-${selectedPageTab}`}>
+      <Card
+        variant="outlined"
+        testID={`patient-details-page-content-${selectedPageTab}`}
+        style={cardContainerStyle}
+      >
         <StyledPageNavigation>
           <Text variant="h3">{selectedPageTabConfig?.label}</Text>
           <Text variant="body">{selectedPageTabConfig?.description}</Text>
@@ -896,7 +932,11 @@ const PatientDetailsScreen = () => {
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && !hasError && isPatientDeleted ? (
-        <Card variant="outlined" testID="patient-details-deleted">
+        <Card
+          variant="outlined"
+          testID="patient-details-deleted"
+          style={cardContainerStyle}
+        >
           <EmptyState
             title={t('patients.workspace.state.emptyPanel')}
             description={t('patients.workspace.state.emptyPanel')}
