@@ -2,6 +2,8 @@ import styled from 'styled-components/native';
 
 const StyledContainer = styled.View`
   flex: 1;
+  width: 100%;
+  min-width: 0;
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs + 2}px;
 `;
 
@@ -22,10 +24,46 @@ const StyledPanelRow = styled.View`
 `;
 
 const StyledSummaryGrid = styled.View`
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+`;
+
+const StyledSummarySection = styled.View`
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledSummarySectionTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledSummaryRow = styled.View`
+  flex-direction: ${({ $isCompact }) => ($isCompact ? 'column' : 'row')};
+  align-items: ${({ $isCompact }) => ($isCompact ? 'flex-start' : 'center')};
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding-vertical: ${({ theme }) => theme.spacing.xs / 2}px;
+  border-bottom-width: 1px;
+  border-bottom-color: ${({ theme }) => theme.colors.border.light};
+`;
+
+const StyledSummaryLabel = styled.Text`
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  text-transform: uppercase;
 `;
 
 const StyledSummaryValue = styled.Text`
+  flex: 1;
+  width: 100%;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  text-align: ${({ $isCompact }) => ($isCompact ? 'left' : 'right')};
+`;
+
+const StyledReadOnlyNotice = styled.Text`
+  margin-top: ${({ theme }) => theme.spacing.sm}px;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
@@ -80,7 +118,12 @@ export {
   StyledItemHeader,
   StyledListItem,
   StyledPanelRow,
+  StyledReadOnlyNotice,
+  StyledSummaryLabel,
   StyledSummaryGrid,
+  StyledSummaryRow,
+  StyledSummarySection,
+  StyledSummarySectionTitle,
   StyledSummaryValue,
   StyledTabRow,
 };

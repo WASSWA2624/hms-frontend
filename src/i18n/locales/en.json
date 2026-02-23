@@ -5858,19 +5858,31 @@
         "documents": "Documents",
         "consents": "Consents"
       },
+      "summarySections": {
+        "about": "About patient",
+        "record": "Record context"
+      },
       "patientSummary": {
         "name": "Name",
         "patientId": "Patient ID",
+        "contact": "Contact",
         "tenant": "Tenant",
         "facility": "Facility",
         "dob": "Date of birth",
+        "age": "Age",
+        "ageValue": "{{age}} years",
         "gender": "Gender",
-        "active": "Active"
+        "active": "Active",
+        "createdAt": "Created",
+        "updatedAt": "Last updated",
+        "internalId": "Internal ID"
       },
       "actions": {
         "newRecord": "Add record",
         "editRecord": "Edit",
         "deleteRecord": "Delete",
+        "editPatient": "Edit patient",
+        "deletePatient": "Delete patient",
         "save": "Save",
         "cancel": "Cancel",
         "refresh": "Refresh"
@@ -5879,7 +5891,11 @@
         "emptyPanel": "No records yet for this panel.",
         "loadError": "Unable to load patient workspace data.",
         "saveError": "Unable to save this record.",
-        "deleteConfirm": "Delete this record?"
+        "deleteConfirm": "Delete this record?",
+        "deletePatientConfirm": "Delete this patient profile and related records?"
+      },
+      "access": {
+        "readOnly": "You have read-only access for this patient profile."
       }
     },
     "legal": {

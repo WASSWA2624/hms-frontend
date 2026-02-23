@@ -144,7 +144,9 @@ const usePatientWorkspaceScreen = () => {
 
   const activeTab = sanitizeTab(requestedTab);
   const activePanel = sanitizePanel(requestedPanel, activeTab);
-  const mode = sanitizeMode(requestedMode);
+  const mode = (!isResolved || canManagePatientRecords)
+    ? sanitizeMode(requestedMode)
+    : '';
 
   const normalizedTenantId = sanitizeString(tenantId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
@@ -449,6 +451,17 @@ const usePatientWorkspaceScreen = () => {
     ]
   );
 
+  const onDeletePatient = useCallback(async () => {
+    if (!canDeletePatientRecords || !patientId) return;
+    if (typeof patientCrud.remove !== 'function') return;
+    if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
+
+    const result = await patientCrud.remove(patientId);
+    if (result === undefined) return;
+
+    router.replace('/patients/patients');
+  }, [canDeletePatientRecords, patientCrud, patientId, router, t]);
+
   const onPanelDraftChange = useCallback((name, value) => {
     setPanelDraft((current) => {
       if (!current) return current;
@@ -623,6 +636,7 @@ const usePatientWorkspaceScreen = () => {
     isEntitlementBlocked,
     canManagePatientRecords,
     canDeletePatientRecords,
+    canManageAllTenants,
     onSelectTab,
     onSelectPanel,
     onRetry: () => {
@@ -631,6 +645,7 @@ const usePatientWorkspaceScreen = () => {
     },
     onGoToSubscriptions: () => router.push('/subscriptions/subscriptions'),
     onStartCreate,
+    onDeletePatient,
     onStartEditRecord,
     onDeleteRecord,
     onPanelDraftChange,

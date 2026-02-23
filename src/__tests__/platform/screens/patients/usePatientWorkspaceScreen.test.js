@@ -6,6 +6,7 @@ let mockSearchParams = {};
 
 const mockPatientGet = jest.fn();
 const mockPatientUpdate = jest.fn();
+const mockPatientRemove = jest.fn();
 const mockPatientReset = jest.fn();
 
 const mockListIdentifiers = jest.fn();
@@ -109,6 +110,7 @@ describe('usePatientWorkspaceScreen', () => {
     usePatient.mockReturnValue({
       get: mockPatientGet,
       update: mockPatientUpdate,
+      remove: mockPatientRemove,
       reset: mockPatientReset,
       data: {
         id: 'patient-1',
@@ -245,6 +247,7 @@ describe('usePatientWorkspaceScreen', () => {
     usePatient.mockReturnValue({
       get: mockPatientGet,
       update: mockPatientUpdate,
+      remove: mockPatientRemove,
       reset: mockPatientReset,
       data: null,
       isLoading: false,
@@ -253,5 +256,35 @@ describe('usePatientWorkspaceScreen', () => {
 
     const { result } = renderHook(() => usePatientWorkspaceScreen());
     expect(result.current.isEntitlementBlocked).toBe(true);
+  });
+
+  it('strips edit mode from route params for read-only access', () => {
+    mockSearchParams = { id: 'patient-1', tab: 'summary', mode: 'edit' };
+
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canManagePatientRecords: false,
+      canDeletePatientRecords: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientWorkspaceScreen());
+
+    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
+  });
+
+  it('deletes patient and returns to directory when RBAC allows', async () => {
+    mockPatientRemove.mockResolvedValue({ id: 'patient-1' });
+
+    const { result } = renderHook(() => usePatientWorkspaceScreen());
+
+    await act(async () => {
+      await result.current.onDeletePatient();
+    });
+
+    expect(mockPatientRemove).toHaveBeenCalledWith('patient-1');
+    expect(mockReplace).toHaveBeenCalledWith('/patients/patients');
   });
 });

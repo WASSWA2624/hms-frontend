@@ -1,4 +1,5 @@
 import React from 'react';
+import { useWindowDimensions } from 'react-native';
 import {
   Button,
   Card,
@@ -15,6 +16,8 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import breakpoints from '@theme/breakpoints';
+import { formatDateTime } from '@utils';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import FieldHelpTrigger from '../components/FieldHelpTrigger';
 import InlineFieldGuide from '../components/InlineFieldGuide';
@@ -29,14 +32,147 @@ import {
   StyledItemHeader,
   StyledListItem,
   StyledPanelRow,
+  StyledReadOnlyNotice,
+  StyledSummaryLabel,
+  StyledSummaryRow,
+  StyledSummarySection,
+  StyledSummarySectionTitle,
   StyledSummaryGrid,
   StyledSummaryValue,
   StyledTabRow,
 } from './PatientWorkspaceScreen.styles';
 import usePatientWorkspaceScreen from './usePatientWorkspaceScreen';
 
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+const sanitizeString = (value) => String(value || '').trim();
+
+const resolveDateOnly = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  if (DATE_ONLY_REGEX.test(normalized)) return normalized;
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toISOString().slice(0, 10);
+};
+
+const resolveContextLabel = ({ label, humanFriendlyId, fallbackId, fallbackValue }) => {
+  const normalizedLabel = sanitizeString(label);
+  const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
+  const normalizedFallbackId = sanitizeString(fallbackId);
+  const normalizedFallbackValue = sanitizeString(fallbackValue);
+
+  if (normalizedLabel && normalizedHumanFriendlyId) {
+    return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
+  }
+  if (normalizedLabel) return normalizedLabel;
+  if (normalizedHumanFriendlyId) return normalizedHumanFriendlyId;
+  if (normalizedFallbackId) return normalizedFallbackId;
+  return normalizedFallbackValue;
+};
+
+const resolveContactEntryValue = (entry) => {
+  if (entry == null) return '';
+  if (typeof entry === 'string' || typeof entry === 'number') {
+    return sanitizeString(entry);
+  }
+
+  return [
+    entry?.value,
+    entry?.contact_value,
+    entry?.contact,
+    entry?.phone,
+    entry?.phone_number,
+    entry?.mobile,
+    entry?.mobile_number,
+    entry?.telephone,
+    entry?.tel,
+    entry?.email,
+    entry?.email_address,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean) || '';
+};
+
+const resolvePatientContactLabel = (patient, fallback = '') => {
+  const directContactValue = [
+    patient?.contact,
+    patient?.contact_label,
+    patient?.contact_value,
+    patient?.primary_contact,
+    patient?.phone,
+    patient?.phone_number,
+    patient?.mobile,
+    patient?.mobile_number,
+    patient?.telephone,
+    patient?.tel,
+    patient?.email,
+    patient?.email_address,
+    patient?.primary_phone,
+    patient?.primary_phone_number,
+  ]
+    .map((value) => sanitizeString(value))
+    .find(Boolean);
+  if (directContactValue) return directContactValue;
+
+  const nestedContactValue = [
+    patient?.primary_contact_details,
+    patient?.primary_contact_detail,
+    patient?.primaryContact,
+    patient?.contact,
+  ]
+    .map((entry) => resolveContactEntryValue(entry))
+    .find(Boolean);
+  if (nestedContactValue) return nestedContactValue;
+
+  const contactCollections = [
+    patient?.contacts,
+    patient?.patient_contacts,
+    patient?.contact_entries,
+    patient?.contact_list,
+  ];
+
+  for (let index = 0; index < contactCollections.length; index += 1) {
+    const collection = contactCollections[index];
+    if (!Array.isArray(collection) || collection.length === 0) continue;
+    const value = collection
+      .map((entry) => resolveContactEntryValue(entry))
+      .find(Boolean);
+    if (value) return value;
+  }
+
+  return fallback;
+};
+
+const resolveAge = (dateOfBirth) => {
+  const dateOnly = resolveDateOnly(dateOfBirth);
+  if (!dateOnly) return null;
+
+  const parsed = new Date(`${dateOnly}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  const now = new Date();
+  let years = now.getFullYear() - parsed.getUTCFullYear();
+  const hasNotReachedBirthday = (
+    now.getMonth() < parsed.getUTCMonth()
+    || (now.getMonth() === parsed.getUTCMonth() && now.getDate() < parsed.getUTCDate())
+  );
+  if (hasNotReachedBirthday) years -= 1;
+  if (years < 0) return null;
+  return years;
+};
+
+const resolveDateTimeLabel = (value, locale) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  const formatted = formatDateTime(normalized, locale || 'en-US');
+  return sanitizeString(formatted) || normalized;
+};
+
 const PatientWorkspaceScreen = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { width } = useWindowDimensions();
+  const isCompactLayout = width < breakpoints.tablet;
   const {
     patient,
     tabs,
@@ -57,11 +193,13 @@ const PatientWorkspaceScreen = () => {
     isEntitlementBlocked,
     canManagePatientRecords,
     canDeletePatientRecords,
+    canManageAllTenants,
     onSelectTab,
     onSelectPanel,
     onRetry,
     onGoToSubscriptions,
     onStartCreate,
+    onDeletePatient,
     onStartEditRecord,
     onDeleteRecord,
     onPanelDraftChange,
@@ -73,44 +211,119 @@ const PatientWorkspaceScreen = () => {
     onSaveSummary,
   } = usePatientWorkspaceScreen();
 
-  const patientName = [patient?.first_name, patient?.last_name].filter(Boolean).join(' ').trim()
-    || patient?.human_friendly_id
+  const fallbackLabel = t('common.notAvailable');
+  const patientName = [patient?.first_name, patient?.last_name]
+    .map((value) => sanitizeString(value))
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+    || sanitizeString(patient?.human_friendly_id)
     || t('patients.overview.unnamedPatient', { position: 1 });
+  const patientHumanFriendlyId = sanitizeString(patient?.human_friendly_id) || fallbackLabel;
+  const patientInternalId = sanitizeString(patient?.id) || fallbackLabel;
+  const patientDateOfBirth = resolveDateOnly(patient?.date_of_birth) || fallbackLabel;
+  const patientAge = (() => {
+    const age = resolveAge(patient?.date_of_birth);
+    if (age == null) return fallbackLabel;
+    return t('patients.workspace.patientSummary.ageValue', { age });
+  })();
+  const patientGender = sanitizeString(patient?.gender) || fallbackLabel;
+  const patientIsActive = patient?.is_active === false
+    ? t('common.boolean.false')
+    : t('common.boolean.true');
+  const patientContact = resolvePatientContactLabel(patient, fallbackLabel);
+  const patientTenant = resolveContextLabel({
+    label: patient?.tenant_label || patient?.tenant_name || patient?.tenant_context?.label,
+    humanFriendlyId: (
+      patient?.tenant_human_friendly_id
+      || patient?.tenant_context?.human_friendly_id
+      || patient?.tenant_context?.humanFriendlyId
+    ),
+    fallbackId: patient?.tenant_id,
+    fallbackValue: fallbackLabel,
+  });
+  const patientFacility = resolveContextLabel({
+    label: patient?.facility_label || patient?.facility_name || patient?.facility_context?.label,
+    humanFriendlyId: (
+      patient?.facility_human_friendly_id
+      || patient?.facility_context?.human_friendly_id
+      || patient?.facility_context?.humanFriendlyId
+    ),
+    fallbackId: patient?.facility_id,
+    fallbackValue: fallbackLabel,
+  });
+  const patientCreatedAt = resolveDateTimeLabel(patient?.created_at, locale) || fallbackLabel;
+  const patientUpdatedAt = resolveDateTimeLabel(patient?.updated_at, locale) || fallbackLabel;
+  const canDeletePatientProfile = (
+    canDeletePatientRecords && typeof onDeletePatient === 'function'
+  );
+
+  const summaryAboutRows = [
+    { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
+    { key: 'patientId', label: t('patients.workspace.patientSummary.patientId'), value: patientHumanFriendlyId },
+    { key: 'contact', label: t('patients.workspace.patientSummary.contact'), value: patientContact },
+    { key: 'dob', label: t('patients.workspace.patientSummary.dob'), value: patientDateOfBirth },
+    { key: 'age', label: t('patients.workspace.patientSummary.age'), value: patientAge },
+    { key: 'gender', label: t('patients.workspace.patientSummary.gender'), value: patientGender },
+    { key: 'active', label: t('patients.workspace.patientSummary.active'), value: patientIsActive },
+  ];
+
+  const summaryContextRows = [
+    { key: 'tenant', label: t('patients.workspace.patientSummary.tenant'), value: patientTenant },
+    { key: 'facility', label: t('patients.workspace.patientSummary.facility'), value: patientFacility },
+    { key: 'createdAt', label: t('patients.workspace.patientSummary.createdAt'), value: patientCreatedAt },
+    { key: 'updatedAt', label: t('patients.workspace.patientSummary.updatedAt'), value: patientUpdatedAt },
+  ];
+  if (canManageAllTenants) {
+    summaryContextRows.push({
+      key: 'internalId',
+      label: t('patients.workspace.patientSummary.internalId'),
+      value: patientInternalId,
+    });
+  }
+
+  const renderSummarySection = (sectionTitle, rows, testID) => (
+    <StyledSummarySection testID={testID}>
+      <StyledSummarySectionTitle>{sectionTitle}</StyledSummarySectionTitle>
+      <StyledSummaryGrid>
+        {rows.map((row) => (
+          <StyledSummaryRow key={row.key} $isCompact={isCompactLayout}>
+            <StyledSummaryLabel
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {row.label}
+            </StyledSummaryLabel>
+            <StyledSummaryValue
+              numberOfLines={isCompactLayout ? 3 : 2}
+              ellipsizeMode="tail"
+              $isCompact={isCompactLayout}
+            >
+              {row.value}
+            </StyledSummaryValue>
+          </StyledSummaryRow>
+        ))}
+      </StyledSummaryGrid>
+    </StyledSummarySection>
+  );
 
   const renderSummaryReadonly = () => (
     <Card variant="outlined">
-      <StyledSummaryGrid>
-        <Text variant="label">{t('patients.workspace.patientSummary.name')}</Text>
-        <StyledSummaryValue>{patientName}</StyledSummaryValue>
+      {renderSummarySection(
+        t('patients.workspace.summarySections.about'),
+        summaryAboutRows,
+        'patient-workspace-summary-about'
+      )}
+      {renderSummarySection(
+        t('patients.workspace.summarySections.record'),
+        summaryContextRows,
+        'patient-workspace-summary-record'
+      )}
 
-        <Text variant="label">{t('patients.workspace.patientSummary.patientId')}</Text>
-        <StyledSummaryValue>{patient?.human_friendly_id || '-'}</StyledSummaryValue>
-
-        <Text variant="label">{t('patients.workspace.patientSummary.tenant')}</Text>
-        <StyledSummaryValue>{patient?.tenant_label || patient?.tenant_human_friendly_id || '-'}</StyledSummaryValue>
-
-        <Text variant="label">{t('patients.workspace.patientSummary.facility')}</Text>
-        <StyledSummaryValue>{patient?.facility_label || patient?.facility_human_friendly_id || '-'}</StyledSummaryValue>
-
-        <Text variant="label">{t('patients.workspace.patientSummary.dob')}</Text>
-        <StyledSummaryValue>{String(patient?.date_of_birth || '').slice(0, 10) || '-'}</StyledSummaryValue>
-
-        <Text variant="label">{t('patients.workspace.patientSummary.gender')}</Text>
-        <StyledSummaryValue>{patient?.gender || '-'}</StyledSummaryValue>
-      </StyledSummaryGrid>
-
-      {canManagePatientRecords ? (
-        <StyledActions>
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onStartSummaryEdit}
-            accessibilityLabel={t('patients.workspace.actions.editRecord')}
-            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
-          >
-            {t('patients.workspace.actions.editRecord')}
-          </Button>
-        </StyledActions>
+      {!canManagePatientRecords ? (
+        <StyledReadOnlyNotice>
+          {t('patients.workspace.access.readOnly')}
+        </StyledReadOnlyNotice>
       ) : null}
     </Card>
   );
@@ -384,6 +597,30 @@ const PatientWorkspaceScreen = () => {
         >
           {t('patients.workspace.actions.refresh')}
         </Button>
+        {activeTab === 'summary' && !isSummaryEditMode && canManagePatientRecords ? (
+          <Button
+            variant="surface"
+            size="medium"
+            onPress={onStartSummaryEdit}
+            accessibilityLabel={t('patients.workspace.actions.editPatient')}
+            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
+            testID="patient-workspace-edit-patient"
+          >
+            {t('patients.workspace.actions.editPatient')}
+          </Button>
+        ) : null}
+        {activeTab === 'summary' && !isSummaryEditMode && canDeletePatientProfile ? (
+          <Button
+            variant="surface"
+            size="medium"
+            onPress={onDeletePatient}
+            accessibilityLabel={t('patients.workspace.actions.deletePatient')}
+            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+            testID="patient-workspace-delete-patient"
+          >
+            {t('patients.workspace.actions.deletePatient')}
+          </Button>
+        ) : null}
         {activeTab !== 'summary' && canManagePatientRecords ? (
           <Button
             variant="surface"
