@@ -36,6 +36,22 @@ const EMPTY_RESOURCE_EDITORS = Object.freeze({
 
 const sanitizeString = (value) => String(value || '').trim();
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const normalizeRouteIdentifier = (value) =>
+  sanitizeString(value).replace(/[^a-z0-9]/gi, '').toLowerCase();
+const buildRouteLookupCandidates = (routePatientId) => {
+  const normalized = sanitizeString(routePatientId);
+  if (!normalized) return [];
+
+  const compact = normalized.replace(/[^a-z0-9]/gi, '');
+  return [...new Set([
+    normalized,
+    normalized.toUpperCase(),
+    normalized.toLowerCase(),
+    compact,
+    compact.toUpperCase(),
+    compact.toLowerCase(),
+  ].filter(Boolean))];
+};
 
 const getScalarParam = (value) => {
   if (Array.isArray(value)) return value[0];
@@ -49,20 +65,20 @@ const resolveItems = (value) => {
 };
 
 const resolvePatientByRouteId = (items, routePatientId) => {
-  const normalizedRouteId = sanitizeString(routePatientId).toLowerCase();
+  const normalizedRouteId = normalizeRouteIdentifier(routePatientId);
   if (!normalizedRouteId || !Array.isArray(items) || items.length === 0) return null;
 
   const exactFriendlyIdMatch = items.find(
-    (item) => sanitizeString(item?.human_friendly_id).toLowerCase() === normalizedRouteId
+    (item) => normalizeRouteIdentifier(item?.human_friendly_id) === normalizedRouteId
   );
   if (exactFriendlyIdMatch) return exactFriendlyIdMatch;
 
   const exactInternalIdMatch = items.find(
-    (item) => sanitizeString(item?.id).toLowerCase() === normalizedRouteId
+    (item) => normalizeRouteIdentifier(item?.id) === normalizedRouteId
   );
   if (exactInternalIdMatch) return exactInternalIdMatch;
 
-  return items[0] || null;
+  return null;
 };
 
 const validateValues = (fields, values, t) => {
@@ -219,6 +235,7 @@ const usePatientDetailsScreen = () => {
     canDeletePatientRecords,
     canManageAllTenants,
     tenantId,
+    facilityId,
     isResolved,
   } = usePatientAccess();
 
@@ -297,6 +314,7 @@ const usePatientDetailsScreen = () => {
   const routePatientId = sanitizeString(getScalarParam(searchParams?.id));
   const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
+  const normalizedFacilityId = sanitizeString(facilityId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
   const patient = useMemo(
@@ -418,20 +436,39 @@ const usePatientDetailsScreen = () => {
       return routePatientId;
     }
 
-    const params = {
+    const baseParams = {
       page: 1,
-      limit: 20,
+      limit: 50,
       sort_by: 'updated_at',
       order: 'desc',
-      patient_id: routePatientId,
     };
-    if (!canManageAllTenants && normalizedTenantId) {
-      params.tenant_id = normalizedTenantId;
+    if (!canManageAllTenants) {
+      if (normalizedTenantId) {
+        baseParams.tenant_id = normalizedTenantId;
+      }
+      if (normalizedFacilityId) {
+        baseParams.facility_id = normalizedFacilityId;
+      }
     }
 
-    const lookupResult = await listPatients(params);
-    const matchedPatient = resolvePatientByRouteId(resolveItems(lookupResult), routePatientId);
-    return sanitizeString(matchedPatient?.id);
+    const lookupCandidates = buildRouteLookupCandidates(routePatientId);
+    for (let index = 0; index < lookupCandidates.length; index += 1) {
+      const candidate = lookupCandidates[index];
+      const lookupResult = await listPatients({
+        ...baseParams,
+        patient_id: candidate,
+      });
+      const matchedPatient = resolvePatientByRouteId(resolveItems(lookupResult), routePatientId);
+      const matchedPatientId = sanitizeString(matchedPatient?.id);
+      if (matchedPatientId) return matchedPatientId;
+    }
+
+    const fallbackSearchResult = await listPatients({
+      ...baseParams,
+      search: routePatientId,
+    });
+    const fallbackMatch = resolvePatientByRouteId(resolveItems(fallbackSearchResult), routePatientId);
+    return sanitizeString(fallbackMatch?.id);
   }, [
     routePatientId,
     isOffline,
@@ -439,6 +476,7 @@ const usePatientDetailsScreen = () => {
     hasScope,
     canManageAllTenants,
     normalizedTenantId,
+    normalizedFacilityId,
     listPatients,
   ]);
 

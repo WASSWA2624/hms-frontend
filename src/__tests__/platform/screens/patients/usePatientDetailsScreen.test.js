@@ -213,6 +213,45 @@ describe('usePatientDetailsScreen', () => {
     }));
   });
 
+  it('maps human-friendly route IDs to internal UUIDs with scoped facility filters', async () => {
+    mockSearchParams = { id: 'PAT0000001' };
+    mockPatientList.mockResolvedValue({
+      items: [
+        {
+          id: 'patient-99',
+          human_friendly_id: 'PAT-0000001',
+        },
+      ],
+    });
+    mockPatientGet.mockResolvedValue({
+      id: 'patient-99',
+      first_name: 'Mapped',
+      last_name: 'Patient',
+      human_friendly_id: 'PAT-0000001',
+      tenant_id: 'tenant-1',
+    });
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canManagePatientRecords: true,
+      canDeletePatientRecords: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: 'facility-1',
+      isResolved: true,
+    });
+
+    renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('patient-99');
+    });
+    expect(mockPatientList).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'PAT0000001',
+      tenant_id: 'tenant-1',
+      facility_id: 'facility-1',
+    }));
+  });
+
   it('manages resource editor lifecycle locally and submits create payload', async () => {
     mockCreateIdentifiers.mockResolvedValue({ id: 'identifier-1' });
 
