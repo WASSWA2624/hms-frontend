@@ -22,12 +22,24 @@ const renderWithTheme = (component) => render(
   </ThemeProvider>
 );
 
+const buildResourceSection = (key) => ({
+  key,
+  config: {
+    fields: [],
+    getItemTitle: () => '',
+    getItemSubtitle: () => '',
+  },
+  records: [],
+  editor: null,
+  isLoading: false,
+});
+
 describe('PatientDetailsScreen', () => {
   const mockUuid = '550e8400-e29b-41d4-a716-446655440000';
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useI18n.mockReturnValue({ t: (key) => key });
+    useI18n.mockReturnValue({ t: (key) => key, locale: 'en-US' });
     usePatientDetailsScreen.mockReturnValue({
       patientId: 'patient-1',
       patient: {
@@ -38,14 +50,20 @@ describe('PatientDetailsScreen', () => {
         tenant_label: 'Alpha Tenant',
         facility_label: 'Central Facility',
       },
-      tabs: ['summary', 'identity'],
-      activeTab: 'summary',
-      panelOptions: ['summary'],
-      activePanel: 'summary',
-      panelRows: [],
-      activePanelConfig: null,
-      panelDraft: null,
-      mode: 'edit',
+      resourceSections: {
+        identifiers: buildResourceSection('identifiers'),
+        guardians: buildResourceSection('guardians'),
+        contacts: buildResourceSection('contacts'),
+        addresses: buildResourceSection('addresses'),
+        documents: buildResourceSection('documents'),
+      },
+      resourceKeys: {
+        IDENTIFIERS: 'identifiers',
+        GUARDIANS: 'guardians',
+        CONTACTS: 'contacts',
+        ADDRESSES: 'addresses',
+        DOCUMENTS: 'documents',
+      },
       isSummaryEditMode: true,
       summaryValues: {
         first_name: 'Jane',
@@ -61,35 +79,40 @@ describe('PatientDetailsScreen', () => {
       hasError: false,
       errorMessage: null,
       isEntitlementBlocked: false,
+      isPatientDeleted: false,
       canManagePatientRecords: true,
       canDeletePatientRecords: true,
+      canManageAllTenants: false,
       onRetry: jest.fn(),
       onGoToSubscriptions: jest.fn(),
+      onDeletePatient: jest.fn(),
       onSummaryFieldChange: jest.fn(),
       onStartSummaryEdit: jest.fn(),
       onCancelSummaryEdit: jest.fn(),
       onSaveSummary: jest.fn(),
+      onResourceCreate: jest.fn(),
+      onResourceEdit: jest.fn(),
+      onResourceDelete: jest.fn(),
+      onResourceFieldChange: jest.fn(),
+      onResourceSubmit: jest.fn(),
+      onResourceCancel: jest.fn(),
     });
   });
 
-  it('renders summary field guidance and prefers human-friendly identifiers over UUID display', () => {
+  it('renders summary editor with new patient-details test IDs and hides UUID in summary labels', () => {
     const { getByTestId, getByText, queryByText } = renderWithTheme(<PatientDetailsScreen />);
 
-    expect(getByTestId('patient-workspace-summary-help-first-name')).toBeTruthy();
-    expect(getByTestId('patient-workspace-summary-help-last-name')).toBeTruthy();
-    expect(getByTestId('patient-workspace-summary-help-dob')).toBeTruthy();
-    expect(getByTestId('patient-workspace-summary-help-gender')).toBeTruthy();
-    expect(getByTestId('patient-workspace-summary-help-active')).toBeTruthy();
-    expect(getByTestId('patient-workspace-page-tab-details')).toBeTruthy();
-    expect(getByText('patients.resources.patients.form.firstNameHint')).toBeTruthy();
+    expect(getByTestId('patient-details-page-tab-details')).toBeTruthy();
+    expect(getByTestId('patient-details-summary-editor')).toBeTruthy();
+    expect(getByText('patients.resources.patients.form.firstNameLabel')).toBeTruthy();
     expect(queryByText(mockUuid)).toBeNull();
   });
 
-  it('switches top nav tab content locally', () => {
+  it('switches top nav tab content locally without route navigation', () => {
     const { getByTestId, queryByTestId } = renderWithTheme(<PatientDetailsScreen />);
 
-    expect(queryByTestId('patient-workspace-page-content-contacts')).toBeNull();
-    fireEvent.press(getByTestId('patient-workspace-page-tab-contacts'));
-    expect(getByTestId('patient-workspace-page-content-contacts')).toBeTruthy();
+    expect(queryByTestId('patient-details-page-content-contacts')).toBeNull();
+    fireEvent.press(getByTestId('patient-details-page-tab-contacts'));
+    expect(getByTestId('patient-details-page-content-contacts')).toBeTruthy();
   });
 });

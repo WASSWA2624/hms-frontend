@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
 import { confirmAction } from '@utils';
+import useAddress from '@hooks/useAddress';
+import usePatientContact from '@hooks/usePatientContact';
+import usePatientDocument from '@hooks/usePatientDocument';
+import usePatientGuardian from '@hooks/usePatientGuardian';
+import usePatientIdentifier from '@hooks/usePatientIdentifier';
 import {
   getPatientResourceConfig,
   PATIENT_RESOURCE_IDS,
@@ -10,37 +15,26 @@ import {
   isEntitlementDeniedError,
   resolveErrorMessage,
 } from '../patientScreenUtils';
-import usePatientAllergy from '@hooks/usePatientAllergy';
-import useAddress from '@hooks/useAddress';
-import usePatientContact from '@hooks/usePatientContact';
-import usePatientDocument from '@hooks/usePatientDocument';
-import usePatientGuardian from '@hooks/usePatientGuardian';
-import usePatientIdentifier from '@hooks/usePatientIdentifier';
-import usePatientMedicalHistory from '@hooks/usePatientMedicalHistory';
-import useConsent from '@hooks/useConsent';
 
-const TAB_TO_PANELS = Object.freeze({
-  summary: ['summary'],
-  identity: ['identifiers', 'contacts', 'guardians'],
-  care: ['allergies', 'histories'],
-  documents: ['documents'],
-  consents: ['consents'],
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+const RESOURCE_KEYS = Object.freeze({
+  IDENTIFIERS: 'identifiers',
+  GUARDIANS: 'guardians',
+  CONTACTS: 'contacts',
+  ADDRESSES: 'addresses',
+  DOCUMENTS: 'documents',
 });
 
-const PANEL_TO_RESOURCE_ID = Object.freeze({
-  identifiers: PATIENT_RESOURCE_IDS.PATIENT_IDENTIFIERS,
-  contacts: PATIENT_RESOURCE_IDS.PATIENT_CONTACTS,
-  guardians: PATIENT_RESOURCE_IDS.PATIENT_GUARDIANS,
-  allergies: PATIENT_RESOURCE_IDS.PATIENT_ALLERGIES,
-  histories: PATIENT_RESOURCE_IDS.PATIENT_MEDICAL_HISTORIES,
-  documents: PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS,
-  consents: PATIENT_RESOURCE_IDS.CONSENTS,
+const EMPTY_RESOURCE_EDITORS = Object.freeze({
+  [RESOURCE_KEYS.IDENTIFIERS]: null,
+  [RESOURCE_KEYS.GUARDIANS]: null,
+  [RESOURCE_KEYS.CONTACTS]: null,
+  [RESOURCE_KEYS.ADDRESSES]: null,
+  [RESOURCE_KEYS.DOCUMENTS]: null,
 });
-
-const VALID_MODES = new Set(['create', 'edit']);
 
 const sanitizeString = (value) => String(value || '').trim();
-const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const getScalarParam = (value) => {
   if (Array.isArray(value)) return value[0];
@@ -51,25 +45,6 @@ const resolveItems = (value) => {
   if (Array.isArray(value?.items)) return value.items;
   if (Array.isArray(value)) return value;
   return [];
-};
-
-const sanitizeTab = (value) => {
-  const normalized = sanitizeString(value).toLowerCase();
-  return Object.prototype.hasOwnProperty.call(TAB_TO_PANELS, normalized)
-    ? normalized
-    : 'summary';
-};
-
-const sanitizePanel = (value, tab) => {
-  const normalized = sanitizeString(value).toLowerCase();
-  const panelCandidates = TAB_TO_PANELS[tab] || TAB_TO_PANELS.summary;
-  if (panelCandidates.includes(normalized)) return normalized;
-  return panelCandidates[0];
-};
-
-const sanitizeMode = (value) => {
-  const normalized = sanitizeString(value).toLowerCase();
-  return VALID_MODES.has(normalized) ? normalized : '';
 };
 
 const validateValues = (fields, values, t) => {
@@ -113,6 +88,107 @@ const resolvePatientSummaryValues = (patient) => ({
   is_active: patient?.is_active !== false,
 });
 
+const ADDRESS_RESOURCE_CONFIG = Object.freeze({
+  id: RESOURCE_KEYS.ADDRESSES,
+  i18nKey: 'address',
+  fields: [
+    {
+      name: 'address_type',
+      type: 'select',
+      required: true,
+      labelKey: 'address.form.typeLabel',
+      placeholderKey: 'address.form.typePlaceholder',
+      hintKey: 'address.form.typeHint',
+      options: [
+        { value: 'HOME', labelKey: 'address.types.HOME' },
+        { value: 'WORK', labelKey: 'address.types.WORK' },
+        { value: 'BILLING', labelKey: 'address.types.BILLING' },
+        { value: 'SHIPPING', labelKey: 'address.types.SHIPPING' },
+        { value: 'OTHER', labelKey: 'address.types.OTHER' },
+      ],
+    },
+    {
+      name: 'line1',
+      type: 'text',
+      required: true,
+      maxLength: 255,
+      labelKey: 'address.form.line1Label',
+      placeholderKey: 'address.form.line1Placeholder',
+      hintKey: 'address.form.line1Hint',
+    },
+    {
+      name: 'line2',
+      type: 'text',
+      required: false,
+      maxLength: 255,
+      labelKey: 'address.form.line2Label',
+      placeholderKey: 'address.form.line2Placeholder',
+      hintKey: 'address.form.line2Hint',
+    },
+    {
+      name: 'city',
+      type: 'text',
+      required: false,
+      maxLength: 120,
+      labelKey: 'address.form.cityLabel',
+      placeholderKey: 'address.form.cityPlaceholder',
+      hintKey: 'address.form.cityHint',
+    },
+    {
+      name: 'state',
+      type: 'text',
+      required: false,
+      maxLength: 120,
+      labelKey: 'address.form.stateLabel',
+      placeholderKey: 'address.form.statePlaceholder',
+      hintKey: 'address.form.stateHint',
+    },
+    {
+      name: 'postal_code',
+      type: 'text',
+      required: false,
+      maxLength: 40,
+      labelKey: 'address.form.postalCodeLabel',
+      placeholderKey: 'address.form.postalCodePlaceholder',
+      hintKey: 'address.form.postalCodeHint',
+    },
+    {
+      name: 'country',
+      type: 'text',
+      required: false,
+      maxLength: 120,
+      labelKey: 'address.form.countryLabel',
+      placeholderKey: 'address.form.countryPlaceholder',
+      hintKey: 'address.form.countryHint',
+    },
+  ],
+  getInitialValues: (record) => ({
+    address_type: sanitizeString(record?.address_type),
+    line1: sanitizeString(record?.line1 || record?.line_1),
+    line2: sanitizeString(record?.line2 || record?.line_2),
+    city: sanitizeString(record?.city),
+    state: sanitizeString(record?.state),
+    postal_code: sanitizeString(record?.postal_code),
+    country: sanitizeString(record?.country),
+  }),
+  toPayload: (values) => ({
+    address_type: sanitizeString(values.address_type),
+    line1: sanitizeString(values.line1),
+    line2: sanitizeString(values.line2) || undefined,
+    city: sanitizeString(values.city) || undefined,
+    state: sanitizeString(values.state) || undefined,
+    postal_code: sanitizeString(values.postal_code) || undefined,
+    country: sanitizeString(values.country) || undefined,
+  }),
+  getItemTitle: (item, t) => sanitizeString(item?.line1 || item?.line_1) || t('address.list.unnamed'),
+  getItemSubtitle: (item) => [
+    sanitizeString(item?.city),
+    sanitizeString(item?.state),
+    sanitizeString(item?.postal_code),
+    sanitizeString(item?.country),
+  ].filter(Boolean).join(', '),
+});
+
 const usePatientDetailsScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
@@ -133,164 +209,49 @@ const usePatientDetailsScreen = () => {
   const identifierCrud = usePatientIdentifier();
   const contactCrud = usePatientContact();
   const guardianCrud = usePatientGuardian();
-  const allergyCrud = usePatientAllergy();
-  const historyCrud = usePatientMedicalHistory();
   const documentCrud = usePatientDocument();
-  const consentCrud = useConsent();
 
   const patientId = sanitizeString(getScalarParam(searchParams?.id));
-  const requestedTab = sanitizeString(getScalarParam(searchParams?.tab));
-  const requestedPanel = sanitizeString(getScalarParam(searchParams?.panel));
-  const requestedMode = sanitizeString(getScalarParam(searchParams?.mode));
-  const requestedRecordId = sanitizeString(getScalarParam(searchParams?.recordId));
-
-  const activeTab = sanitizeTab(requestedTab);
-  const activePanel = sanitizePanel(requestedPanel, activeTab);
-  const mode = (!isResolved || canManagePatientRecords)
-    ? sanitizeMode(requestedMode)
-    : '';
-
   const normalizedTenantId = sanitizeString(tenantId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
-  const isSummaryEditMode = activeTab === 'summary' && mode === 'edit';
 
-  const panelHookMap = useMemo(
+  const patient = useMemo(() => patientCrud.data || null, [patientCrud.data]);
+  const identifierRecords = useMemo(() => resolveItems(identifierCrud.data), [identifierCrud.data]);
+  const guardianRecords = useMemo(() => resolveItems(guardianCrud.data), [guardianCrud.data]);
+  const contactRecords = useMemo(() => resolveItems(contactCrud.data), [contactCrud.data]);
+  const documentRecords = useMemo(() => resolveItems(documentCrud.data), [documentCrud.data]);
+  const addressRecords = useMemo(() => resolveItems(addressCrud.data), [addressCrud.data]);
+
+  const resourceConfigs = useMemo(
     () => ({
-      identifiers: identifierCrud,
-      contacts: contactCrud,
-      guardians: guardianCrud,
-      allergies: allergyCrud,
-      histories: historyCrud,
-      documents: documentCrud,
-      consents: consentCrud,
+      [RESOURCE_KEYS.IDENTIFIERS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_IDENTIFIERS),
+      [RESOURCE_KEYS.GUARDIANS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_GUARDIANS),
+      [RESOURCE_KEYS.CONTACTS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_CONTACTS),
+      [RESOURCE_KEYS.DOCUMENTS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS),
+      [RESOURCE_KEYS.ADDRESSES]: ADDRESS_RESOURCE_CONFIG,
+    }),
+    []
+  );
+
+  const crudByResource = useMemo(
+    () => ({
+      [RESOURCE_KEYS.IDENTIFIERS]: identifierCrud,
+      [RESOURCE_KEYS.GUARDIANS]: guardianCrud,
+      [RESOURCE_KEYS.CONTACTS]: contactCrud,
+      [RESOURCE_KEYS.DOCUMENTS]: documentCrud,
+      [RESOURCE_KEYS.ADDRESSES]: addressCrud,
     }),
     [
       identifierCrud,
-      contactCrud,
       guardianCrud,
-      allergyCrud,
-      historyCrud,
+      contactCrud,
       documentCrud,
-      consentCrud,
+      addressCrud,
     ]
   );
 
-  const activePanelHook = panelHookMap[activePanel] || null;
-  const activeResourceId = PANEL_TO_RESOURCE_ID[activePanel];
-  const activePanelConfig = activeResourceId
-    ? getPatientResourceConfig(activeResourceId)
-    : null;
-
-  const buildWorkspacePath = useCallback(
-    ({ tab = activeTab, panel = activePanel, nextMode = '', recordId = '' } = {}) => {
-      const normalizedTab = sanitizeTab(tab);
-      const normalizedPanel = sanitizePanel(panel, normalizedTab);
-      const params = new URLSearchParams();
-
-      if (normalizedTab && normalizedTab !== 'summary') {
-        params.set('tab', normalizedTab);
-      }
-      if (normalizedPanel && normalizedPanel !== TAB_TO_PANELS[normalizedTab][0]) {
-        params.set('panel', normalizedPanel);
-      }
-      if (sanitizeMode(nextMode)) {
-        params.set('mode', sanitizeMode(nextMode));
-      }
-      if (sanitizeMode(nextMode) === 'edit' && sanitizeString(recordId)) {
-        params.set('recordId', sanitizeString(recordId));
-      }
-
-      const query = params.toString();
-      return query
-        ? `/patients/patients/${patientId}?${query}`
-        : `/patients/patients/${patientId}`;
-    },
-    [activePanel, activeTab, patientId]
-  );
-
-  useEffect(() => {
-    if (!isResolved) return;
-    if (!canAccessPatients || !hasScope) {
-      router.replace('/dashboard');
-      return;
-    }
-    if (!patientId) {
-      router.replace('/patients/patients');
-      return;
-    }
-
-    const expectedPath = buildWorkspacePath({
-      tab: activeTab,
-      panel: activePanel,
-      nextMode: mode,
-      recordId: requestedRecordId,
-    });
-    const expectedSuffix = expectedPath.split(`/patients/patients/${patientId}`)[1] || '';
-    const currentSuffix = (() => {
-      const params = new URLSearchParams();
-      if (requestedTab) params.set('tab', requestedTab);
-      if (requestedPanel) params.set('panel', requestedPanel);
-      if (requestedMode) params.set('mode', requestedMode);
-      if (requestedRecordId) params.set('recordId', requestedRecordId);
-      const raw = params.toString();
-      return raw ? `?${raw}` : '';
-    })();
-    if (expectedSuffix !== currentSuffix) {
-      router.replace(expectedPath);
-    }
-  }, [
-    isResolved,
-    canAccessPatients,
-    hasScope,
-    patientId,
-    requestedTab,
-    requestedPanel,
-    requestedMode,
-    requestedRecordId,
-    activeTab,
-    activePanel,
-    mode,
-    buildWorkspacePath,
-    router,
-  ]);
-
-  const fetchPatient = useCallback(() => {
-    if (!patientId || isOffline || !canAccessPatients) return;
-    patientCrud.reset();
-    patientCrud.get(patientId);
-  }, [patientId, isOffline, canAccessPatients, patientCrud]);
-
-  const fetchPanelRecords = useCallback(
-    (panelKey = activePanel) => {
-      if (panelKey === 'summary' || !panelHookMap[panelKey] || isOffline || !patientId) return;
-
-      const params = {
-        page: 1,
-        limit: 100,
-        sort_by: 'updated_at',
-        order: 'desc',
-        patient_id: patientId,
-      };
-      if (!canManageAllTenants && normalizedTenantId) {
-        params.tenant_id = normalizedTenantId;
-      }
-
-      const hook = panelHookMap[panelKey];
-      hook.reset();
-      hook.list(params);
-    },
-    [
-      activePanel,
-      panelHookMap,
-      isOffline,
-      patientId,
-      canManageAllTenants,
-      normalizedTenantId,
-    ]
-  );
-
-  const fetchPatientDetailCollections = useCallback(() => {
-    if (!patientId || isOffline || !canAccessPatients) return;
+  const buildCollectionParams = useCallback(() => {
+    if (!patientId || isOffline || !canAccessPatients || !hasScope) return null;
 
     const params = {
       page: 1,
@@ -299,235 +260,184 @@ const usePatientDetailsScreen = () => {
       order: 'desc',
       patient_id: patientId,
     };
+
     if (!canManageAllTenants && normalizedTenantId) {
       params.tenant_id = normalizedTenantId;
     }
 
-    identifierCrud.list(params);
-    guardianCrud.list(params);
-    contactCrud.list(params);
-    documentCrud.list(params);
-    addressCrud.list(params);
+    return params;
   }, [
     patientId,
     isOffline,
     canAccessPatients,
+    hasScope,
     canManageAllTenants,
     normalizedTenantId,
-    identifierCrud,
-    guardianCrud,
-    contactCrud,
-    documentCrud,
-    addressCrud,
+  ]);
+
+  const fetchPatient = useCallback(async () => {
+    if (!patientId || isOffline || !canAccessPatients || !hasScope) return undefined;
+    patientCrud.reset();
+    return patientCrud.get(patientId);
+  }, [patientId, isOffline, canAccessPatients, hasScope, patientCrud]);
+
+  const fetchResourceCollection = useCallback(async (resourceKey) => {
+    const params = buildCollectionParams();
+    if (!params) return undefined;
+
+    const resourceCrud = crudByResource[resourceKey];
+    if (!resourceCrud || typeof resourceCrud.list !== 'function') return undefined;
+
+    resourceCrud.reset();
+    return resourceCrud.list(params);
+  }, [buildCollectionParams, crudByResource]);
+
+  const fetchAllCollections = useCallback(async () => {
+    await Promise.all([
+      fetchResourceCollection(RESOURCE_KEYS.IDENTIFIERS),
+      fetchResourceCollection(RESOURCE_KEYS.GUARDIANS),
+      fetchResourceCollection(RESOURCE_KEYS.CONTACTS),
+      fetchResourceCollection(RESOURCE_KEYS.ADDRESSES),
+      fetchResourceCollection(RESOURCE_KEYS.DOCUMENTS),
+    ]);
+  }, [fetchResourceCollection]);
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  const loadInitialData = useCallback(async () => {
+    if (!isResolved) return;
+
+    if (!canAccessPatients || !hasScope || !patientId) {
+      setIsInitialLoading(false);
+      return;
+    }
+
+    setIsInitialLoading(true);
+    await Promise.all([fetchPatient(), fetchAllCollections()]);
+    setIsInitialLoading(false);
+  }, [
+    isResolved,
+    canAccessPatients,
+    hasScope,
+    patientId,
+    fetchPatient,
+    fetchAllCollections,
   ]);
 
   useEffect(() => {
-    fetchPatient();
-  }, [fetchPatient]);
+    loadInitialData();
+  }, [loadInitialData]);
 
+  const [isPatientDeleted, setIsPatientDeleted] = useState(false);
   useEffect(() => {
-    fetchPatientDetailCollections();
-  }, [fetchPatientDetailCollections]);
+    setIsPatientDeleted(false);
+  }, [patientId]);
 
-  useEffect(() => {
-    fetchPanelRecords(activePanel);
-  }, [activePanel, fetchPanelRecords]);
-
-  const patient = useMemo(() => patientCrud.data || null, [patientCrud.data]);
-  const panelItems = useMemo(
-    () => resolveItems(activePanelHook?.data),
-    [activePanelHook?.data]
-  );
-  const identifierRecords = useMemo(() => resolveItems(identifierCrud.data), [identifierCrud.data]);
-  const guardianRecords = useMemo(() => resolveItems(guardianCrud.data), [guardianCrud.data]);
-  const contactRecords = useMemo(() => resolveItems(contactCrud.data), [contactCrud.data]);
-  const documentRecords = useMemo(() => resolveItems(documentCrud.data), [documentCrud.data]);
-  const addressRecords = useMemo(() => resolveItems(addressCrud.data), [addressCrud.data]);
-
+  const [isSummaryEditMode, setIsSummaryEditMode] = useState(false);
   const [summaryValues, setSummaryValues] = useState(resolvePatientSummaryValues(patient));
   const [summaryErrors, setSummaryErrors] = useState({});
+
   useEffect(() => {
     setSummaryValues(resolvePatientSummaryValues(patient));
     setSummaryErrors({});
   }, [patient]);
 
-  const [panelDraft, setPanelDraft] = useState(null);
-  const draftSignatureRef = useRef('');
-
   useEffect(() => {
-    if (!activePanelConfig || activePanel === 'summary') {
-      setPanelDraft(null);
-      draftSignatureRef.current = '';
-      return;
+    if (!canManagePatientRecords) {
+      setIsSummaryEditMode(false);
     }
+  }, [canManagePatientRecords]);
 
-    if (!mode) {
-      setPanelDraft(null);
-      draftSignatureRef.current = '';
-      return;
-    }
+  const [resourceEditors, setResourceEditors] = useState(EMPTY_RESOURCE_EDITORS);
+  useEffect(() => {
+    setResourceEditors(EMPTY_RESOURCE_EDITORS);
+  }, [patientId]);
 
-    const signature = `${activePanel}:${mode}:${requestedRecordId}`;
-    if (signature === draftSignatureRef.current) return;
+  const onResourceCreate = useCallback((resourceKey) => {
+    if (!canManagePatientRecords) return;
 
-    if (mode === 'create') {
-      const baseValues = activePanelConfig.getInitialValues
-        ? activePanelConfig.getInitialValues({}, {})
-        : {};
-      setPanelDraft({
-        panel: activePanel,
+    const config = resourceConfigs[resourceKey];
+    if (!config) return;
+
+    const values = config.getInitialValues ? config.getInitialValues({}, {}) : {};
+    setResourceEditors((current) => ({
+      ...current,
+      [resourceKey]: {
         mode: 'create',
         recordId: '',
-        values: baseValues,
+        values,
         errors: {},
-      });
-      draftSignatureRef.current = signature;
-      return;
-    }
+      },
+    }));
+  }, [canManagePatientRecords, resourceConfigs]);
 
-    const existing = panelItems.find((item) => sanitizeString(item?.id) === requestedRecordId);
-    if (!existing) return;
+  const onResourceEdit = useCallback((resourceKey, record) => {
+    if (!canManagePatientRecords) return;
 
-    const baseValues = activePanelConfig.getInitialValues
-      ? activePanelConfig.getInitialValues(existing, {})
-      : {};
-    setPanelDraft({
-      panel: activePanel,
-      mode: 'edit',
-      recordId: requestedRecordId,
-      values: baseValues,
-      errors: {},
-    });
-    draftSignatureRef.current = signature;
-  }, [activePanelConfig, activePanel, mode, requestedRecordId, panelItems]);
+    const config = resourceConfigs[resourceKey];
+    const recordId = sanitizeString(record?.id);
+    if (!config || !recordId) return;
 
-  const genderOptions = useMemo(
-    () => [
-      { value: 'MALE', label: t('patients.resources.patients.options.gender.male') },
-      { value: 'FEMALE', label: t('patients.resources.patients.options.gender.female') },
-      { value: 'OTHER', label: t('patients.resources.patients.options.gender.other') },
-      { value: 'UNKNOWN', label: t('patients.resources.patients.options.gender.unknown') },
-    ],
-    [t]
-  );
+    const values = config.getInitialValues ? config.getInitialValues(record, {}) : {};
+    setResourceEditors((current) => ({
+      ...current,
+      [resourceKey]: {
+        mode: 'edit',
+        recordId,
+        values,
+        errors: {},
+      },
+    }));
+  }, [canManagePatientRecords, resourceConfigs]);
 
-  const onSelectTab = useCallback(
-    (tab) => {
-      const normalizedTab = sanitizeTab(tab);
-      const defaultPanel = TAB_TO_PANELS[normalizedTab][0];
-      router.replace(
-        buildWorkspacePath({
-          tab: normalizedTab,
-          panel: defaultPanel,
-        })
-      );
-    },
-    [buildWorkspacePath, router]
-  );
+  const onResourceFieldChange = useCallback((resourceKey, name, value) => {
+    setResourceEditors((current) => {
+      const editor = current?.[resourceKey];
+      if (!editor) return current;
 
-  const onSelectPanel = useCallback(
-    (panel) => {
-      router.replace(
-        buildWorkspacePath({
-          tab: activeTab,
-          panel,
-        })
-      );
-    },
-    [activeTab, buildWorkspacePath, router]
-  );
-
-  const closeEditor = useCallback(() => {
-    setPanelDraft(null);
-    draftSignatureRef.current = '';
-    router.replace(
-      buildWorkspacePath({
-        tab: activeTab,
-        panel: activePanel,
-      })
-    );
-  }, [activePanel, activeTab, buildWorkspacePath, router]);
-
-  const onStartCreate = useCallback(() => {
-    if (!canManagePatientRecords || activePanel === 'summary') return;
-    router.replace(
-      buildWorkspacePath({
-        tab: activeTab,
-        panel: activePanel,
-        nextMode: 'create',
-      })
-    );
-  }, [activePanel, activeTab, buildWorkspacePath, canManagePatientRecords, router]);
-
-  const onStartEditRecord = useCallback(
-    (recordId) => {
-      if (!canManagePatientRecords || activePanel === 'summary') return;
-      const normalizedRecordId = sanitizeString(recordId);
-      if (!normalizedRecordId) return;
-      router.replace(
-        buildWorkspacePath({
-          tab: activeTab,
-          panel: activePanel,
-          nextMode: 'edit',
-          recordId: normalizedRecordId,
-        })
-      );
-    },
-    [activePanel, activeTab, buildWorkspacePath, canManagePatientRecords, router]
-  );
-
-  const onDeleteRecord = useCallback(
-    async (recordId) => {
-      if (!canDeletePatientRecords || !activePanelHook || activePanel === 'summary') return;
-      const normalizedRecordId = sanitizeString(recordId);
-      if (!normalizedRecordId) return;
-      if (!confirmAction(t('patients.workspace.state.deleteConfirm'))) return;
-      await activePanelHook.remove(normalizedRecordId);
-      fetchPanelRecords(activePanel);
-    },
-    [
-      canDeletePatientRecords,
-      activePanelHook,
-      activePanel,
-      t,
-      fetchPanelRecords,
-    ]
-  );
-
-  const onDeletePatient = useCallback(async () => {
-    if (!canDeletePatientRecords || !patientId) return;
-    if (typeof patientCrud.remove !== 'function') return;
-    if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
-
-    const result = await patientCrud.remove(patientId);
-    if (result === undefined) return;
-
-    router.replace('/patients/patients');
-  }, [canDeletePatientRecords, patientCrud, patientId, router, t]);
-
-  const onPanelDraftChange = useCallback((name, value) => {
-    setPanelDraft((current) => {
-      if (!current) return current;
       return {
         ...current,
-        values: { ...current.values, [name]: value },
-        errors: { ...current.errors, [name]: undefined },
+        [resourceKey]: {
+          ...editor,
+          values: { ...editor.values, [name]: value },
+          errors: { ...editor.errors, [name]: undefined },
+        },
       };
     });
   }, []);
 
-  const onPanelSubmit = useCallback(async () => {
-    if (!panelDraft || !activePanelConfig || !activePanelHook || !canManagePatientRecords) return;
-    const fields = activePanelConfig.fields || [];
-    const nextErrors = validateValues(fields, panelDraft.values, t);
+  const onResourceCancel = useCallback((resourceKey) => {
+    setResourceEditors((current) => ({
+      ...current,
+      [resourceKey]: null,
+    }));
+  }, []);
+
+  const onResourceSubmit = useCallback(async (resourceKey) => {
+    if (!canManagePatientRecords || !patientId) return;
+
+    const editor = resourceEditors?.[resourceKey];
+    const config = resourceConfigs[resourceKey];
+    const resourceCrud = crudByResource[resourceKey];
+
+    if (!editor || !config || !resourceCrud) return;
+
+    const nextErrors = validateValues(config.fields || [], editor.values, t);
     if (Object.keys(nextErrors).length > 0) {
-      setPanelDraft((current) => (current ? { ...current, errors: nextErrors } : current));
+      setResourceEditors((current) => ({
+        ...current,
+        [resourceKey]: {
+          ...editor,
+          errors: nextErrors,
+        },
+      }));
       return;
     }
 
-    const payloadBase = activePanelConfig.toPayload
-      ? activePanelConfig.toPayload(panelDraft.values)
-      : { ...panelDraft.values };
+    const payloadBase = config.toPayload
+      ? config.toPayload(editor.values)
+      : { ...editor.values };
+
     const payload = {
       ...payloadBase,
       patient_id: patientId,
@@ -538,26 +448,56 @@ const usePatientDetailsScreen = () => {
       payload.tenant_id = tenantForPayload;
     }
 
-    if (panelDraft.mode === 'edit') {
-      await activePanelHook.update(panelDraft.recordId, payload);
-    } else {
-      await activePanelHook.create(payload);
-    }
+    const result = editor.mode === 'edit'
+      ? await resourceCrud.update(editor.recordId, payload)
+      : await resourceCrud.create(payload);
 
-    closeEditor();
-    fetchPanelRecords(activePanel);
+    if (!result) return;
+
+    setResourceEditors((current) => ({
+      ...current,
+      [resourceKey]: null,
+    }));
+
+    await fetchResourceCollection(resourceKey);
   }, [
-    panelDraft,
-    activePanelConfig,
-    activePanelHook,
     canManagePatientRecords,
-    t,
     patientId,
+    resourceEditors,
+    resourceConfigs,
+    crudByResource,
+    t,
     patient?.tenant_id,
     normalizedTenantId,
-    closeEditor,
-    fetchPanelRecords,
-    activePanel,
+    fetchResourceCollection,
+  ]);
+
+  const onResourceDelete = useCallback(async (resourceKey, recordId) => {
+    if (!canDeletePatientRecords) return;
+
+    const resourceCrud = crudByResource[resourceKey];
+    const normalizedRecordId = sanitizeString(recordId);
+
+    if (!resourceCrud || !normalizedRecordId) return;
+    if (!confirmAction(t('patients.workspace.state.deleteConfirm'))) return;
+
+    const result = await resourceCrud.remove(normalizedRecordId);
+    if (!result) return;
+
+    setResourceEditors((current) => {
+      if (current?.[resourceKey]?.recordId !== normalizedRecordId) return current;
+      return {
+        ...current,
+        [resourceKey]: null,
+      };
+    });
+
+    await fetchResourceCollection(resourceKey);
+  }, [
+    canDeletePatientRecords,
+    crudByResource,
+    t,
+    fetchResourceCollection,
   ]);
 
   const onSummaryFieldChange = useCallback((name, value) => {
@@ -567,28 +507,18 @@ const usePatientDetailsScreen = () => {
 
   const onStartSummaryEdit = useCallback(() => {
     if (!canManagePatientRecords) return;
-    router.replace(
-      buildWorkspacePath({
-        tab: 'summary',
-        panel: 'summary',
-        nextMode: 'edit',
-      })
-    );
-  }, [buildWorkspacePath, canManagePatientRecords, router]);
+    setIsSummaryEditMode(true);
+  }, [canManagePatientRecords]);
 
   const onCancelSummaryEdit = useCallback(() => {
     setSummaryErrors({});
     setSummaryValues(resolvePatientSummaryValues(patient));
-    router.replace(
-      buildWorkspacePath({
-        tab: 'summary',
-        panel: 'summary',
-      })
-    );
-  }, [buildWorkspacePath, patient, router]);
+    setIsSummaryEditMode(false);
+  }, [patient]);
 
   const onSaveSummary = useCallback(async () => {
     if (!canManagePatientRecords || !patientId) return;
+
     const nextErrors = validateValues(
       [
         { name: 'first_name', required: true, maxLength: 120 },
@@ -613,9 +543,11 @@ const usePatientDetailsScreen = () => {
       is_active: summaryValues.is_active !== false,
     };
 
-    await patientCrud.update(patientId, payload);
-    fetchPatient();
-    onCancelSummaryEdit();
+    const result = await patientCrud.update(patientId, payload);
+    if (!result) return;
+
+    await fetchPatient();
+    setIsSummaryEditMode(false);
   }, [
     canManagePatientRecords,
     patientId,
@@ -623,39 +555,127 @@ const usePatientDetailsScreen = () => {
     t,
     patientCrud,
     fetchPatient,
-    onCancelSummaryEdit,
   ]);
 
-  const panelRows = useMemo(() => {
-    if (!activePanelConfig) return [];
-    return panelItems.map((item, index) => {
-      const title = sanitizeString(activePanelConfig.getItemTitle?.(item, t))
-        || t('patients.common.list.unnamedRecord', { position: index + 1 });
-      const subtitle = sanitizeString(activePanelConfig.getItemSubtitle?.(item, t));
-      return {
-        id: sanitizeString(item?.id),
-        title,
-        subtitle,
-        humanFriendlyId: sanitizeString(item?.human_friendly_id) || '',
-      };
-    });
-  }, [activePanelConfig, panelItems, t]);
+  const onDeletePatient = useCallback(async () => {
+    if (!canDeletePatientRecords || !patientId) return;
+    if (typeof patientCrud.remove !== 'function') return;
+    if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
 
-  const isEntitlementBlocked = isEntitlementDeniedError(
-    patientCrud.errorCode || activePanelHook?.errorCode
+    const result = await patientCrud.remove(patientId);
+    if (!result) return;
+
+    setIsSummaryEditMode(false);
+    setSummaryErrors({});
+    setResourceEditors(EMPTY_RESOURCE_EDITORS);
+    setIsPatientDeleted(true);
+
+    patientCrud.reset();
+    identifierCrud.reset();
+    guardianCrud.reset();
+    contactCrud.reset();
+    addressCrud.reset();
+    documentCrud.reset();
+  }, [
+    canDeletePatientRecords,
+    patientId,
+    patientCrud,
+    identifierCrud,
+    guardianCrud,
+    contactCrud,
+    addressCrud,
+    documentCrud,
+    t,
+  ]);
+
+  const genderOptions = useMemo(
+    () => [
+      { value: 'MALE', label: t('patients.resources.patients.options.gender.male') },
+      { value: 'FEMALE', label: t('patients.resources.patients.options.gender.female') },
+      { value: 'OTHER', label: t('patients.resources.patients.options.gender.other') },
+      { value: 'UNKNOWN', label: t('patients.resources.patients.options.gender.unknown') },
+    ],
+    [t]
   );
-  const hasError = Boolean(patientCrud.errorCode || activePanelHook?.errorCode) && !isEntitlementBlocked;
-  const errorMessage = useMemo(
-    () => resolveErrorMessage(
+
+  const resourceSections = useMemo(
+    () => ({
+      [RESOURCE_KEYS.IDENTIFIERS]: {
+        key: RESOURCE_KEYS.IDENTIFIERS,
+        config: resourceConfigs[RESOURCE_KEYS.IDENTIFIERS],
+        records: identifierRecords,
+        editor: resourceEditors[RESOURCE_KEYS.IDENTIFIERS],
+        isLoading: identifierCrud.isLoading,
+      },
+      [RESOURCE_KEYS.GUARDIANS]: {
+        key: RESOURCE_KEYS.GUARDIANS,
+        config: resourceConfigs[RESOURCE_KEYS.GUARDIANS],
+        records: guardianRecords,
+        editor: resourceEditors[RESOURCE_KEYS.GUARDIANS],
+        isLoading: guardianCrud.isLoading,
+      },
+      [RESOURCE_KEYS.CONTACTS]: {
+        key: RESOURCE_KEYS.CONTACTS,
+        config: resourceConfigs[RESOURCE_KEYS.CONTACTS],
+        records: contactRecords,
+        editor: resourceEditors[RESOURCE_KEYS.CONTACTS],
+        isLoading: contactCrud.isLoading,
+      },
+      [RESOURCE_KEYS.ADDRESSES]: {
+        key: RESOURCE_KEYS.ADDRESSES,
+        config: resourceConfigs[RESOURCE_KEYS.ADDRESSES],
+        records: addressRecords,
+        editor: resourceEditors[RESOURCE_KEYS.ADDRESSES],
+        isLoading: addressCrud.isLoading,
+      },
+      [RESOURCE_KEYS.DOCUMENTS]: {
+        key: RESOURCE_KEYS.DOCUMENTS,
+        config: resourceConfigs[RESOURCE_KEYS.DOCUMENTS],
+        records: documentRecords,
+        editor: resourceEditors[RESOURCE_KEYS.DOCUMENTS],
+        isLoading: documentCrud.isLoading,
+      },
+    }),
+    [
+      resourceConfigs,
+      identifierRecords,
+      guardianRecords,
+      contactRecords,
+      addressRecords,
+      documentRecords,
+      resourceEditors,
+      identifierCrud.isLoading,
+      guardianCrud.isLoading,
+      contactCrud.isLoading,
+      addressCrud.isLoading,
+      documentCrud.isLoading,
+    ]
+  );
+
+  const hasMissingContext = !patientId || !canAccessPatients || !hasScope;
+  const activeErrorCode = (
+    patientCrud.errorCode
+    || identifierCrud.errorCode
+    || guardianCrud.errorCode
+    || contactCrud.errorCode
+    || addressCrud.errorCode
+    || documentCrud.errorCode
+  );
+  const isEntitlementBlocked = isEntitlementDeniedError(activeErrorCode);
+  const hasError = !isPatientDeleted && !isEntitlementBlocked && (hasMissingContext || Boolean(activeErrorCode));
+  const errorMessage = useMemo(() => {
+    if (hasMissingContext) return t('patients.workspace.state.loadError');
+    return resolveErrorMessage(
       t,
-      patientCrud.errorCode || activePanelHook?.errorCode,
+      activeErrorCode,
       'patients.workspace.state.loadError'
-    ),
-    [t, patientCrud.errorCode, activePanelHook?.errorCode]
-  );
+    );
+  }, [t, activeErrorCode, hasMissingContext]);
 
-  const panelOptions = TAB_TO_PANELS[activeTab];
-  const tabs = Object.keys(TAB_TO_PANELS);
+  const onRetry = useCallback(() => {
+    if (isPatientDeleted) return;
+    loadInitialData();
+  }, [isPatientDeleted, loadInitialData]);
 
   return {
     patientId,
@@ -665,54 +685,34 @@ const usePatientDetailsScreen = () => {
     contactRecords,
     documentRecords,
     addressRecords,
-    tabs,
-    activeTab,
-    panelOptions,
-    activePanel,
-    panelRows,
-    activePanelConfig,
-    panelDraft,
-    mode,
+    resourceSections,
+    resourceKeys: RESOURCE_KEYS,
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
     genderOptions,
-    isLoading: (
-      !isResolved
-      || patientCrud.isLoading
-      || activePanelHook?.isLoading
-      || identifierCrud.isLoading
-      || guardianCrud.isLoading
-      || contactCrud.isLoading
-      || documentCrud.isLoading
-      || addressCrud.isLoading
-    ),
+    isLoading: !isResolved || isInitialLoading,
     isOffline,
     hasError,
     errorMessage,
     isEntitlementBlocked,
+    isPatientDeleted,
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
-    onSelectTab,
-    onSelectPanel,
-    onRetry: () => {
-      fetchPatient();
-      fetchPanelRecords(activePanel);
-      fetchPatientDetailCollections();
-    },
+    onRetry,
     onGoToSubscriptions: () => router.push('/subscriptions/subscriptions'),
-    onStartCreate,
     onDeletePatient,
-    onStartEditRecord,
-    onDeleteRecord,
-    onPanelDraftChange,
-    onPanelSubmit,
-    onClosePanelEditor: closeEditor,
     onSummaryFieldChange,
     onStartSummaryEdit,
     onCancelSummaryEdit,
     onSaveSummary,
+    onResourceCreate,
+    onResourceEdit,
+    onResourceDelete,
+    onResourceFieldChange,
+    onResourceSubmit,
+    onResourceCancel,
   };
 };
 

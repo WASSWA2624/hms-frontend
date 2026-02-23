@@ -65,34 +65,6 @@ const StyledChromeTabLabel = styled.Text`
   )};
 `;
 
-const StyledPageTabsRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
-`;
-
-const StyledPageActionsRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
-`;
-
-const StyledHeader = styled.View`
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
-`;
-
-const StyledTabRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
-const StyledPanelRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-`;
-
 const StyledSummaryGrid = styled.View`
   gap: ${({ theme }) => theme.spacing.xs + 2}px;
 `;
@@ -143,6 +115,29 @@ const StyledActions = styled.View`
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
+const StyledResourceSection = styled.View`
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledResourceSectionHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  margin-bottom: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledResourceSectionTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+`;
+
+const StyledResourceSectionDescription = styled.Text`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  margin-bottom: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 const StyledListItem = styled.View`
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border.light};
@@ -156,6 +151,12 @@ const StyledItemHeader = styled.View`
   align-items: center;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledItemActions = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledFieldBlock = styled.View`
@@ -172,14 +173,8 @@ const StyledFormActions = styled.View`
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
-const StyledBadgeText = styled.Text`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-`;
-
 export {
   StyledActions,
-  StyledBadgeText,
   StyledChromeTab,
   StyledChromeTabLabel,
   StyledChromeTabsRail,
@@ -187,20 +182,20 @@ export {
   StyledFieldBlock,
   StyledFormActions,
   StyledFormGrid,
-  StyledHeader,
+  StyledItemActions,
   StyledItemHeader,
   StyledListItem,
-  StyledPageActionsRow,
   StyledPageNavigation,
   StyledPageNavigationTitle,
-  StyledPageTabsRow,
-  StyledPanelRow,
   StyledReadOnlyNotice,
+  StyledResourceSection,
+  StyledResourceSectionDescription,
+  StyledResourceSectionHeader,
+  StyledResourceSectionTitle,
   StyledSummaryLabel,
   StyledSummaryGrid,
   StyledSummaryRow,
   StyledSummarySection,
   StyledSummarySectionTitle,
   StyledSummaryValue,
-  StyledTabRow,
 };

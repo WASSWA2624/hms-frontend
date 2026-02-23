@@ -1,4 +1,4 @@
-const { renderHook, act } = require('@testing-library/react-native');
+const { renderHook, act, waitFor } = require('@testing-library/react-native');
 
 const mockReplace = jest.fn();
 const mockPush = jest.fn();
@@ -27,18 +27,6 @@ const mockUpdateGuardians = jest.fn();
 const mockRemoveGuardians = jest.fn();
 const mockResetGuardians = jest.fn();
 
-const mockListAllergies = jest.fn();
-const mockCreateAllergies = jest.fn();
-const mockUpdateAllergies = jest.fn();
-const mockRemoveAllergies = jest.fn();
-const mockResetAllergies = jest.fn();
-
-const mockListHistories = jest.fn();
-const mockCreateHistories = jest.fn();
-const mockUpdateHistories = jest.fn();
-const mockRemoveHistories = jest.fn();
-const mockResetHistories = jest.fn();
-
 const mockListDocuments = jest.fn();
 const mockCreateDocuments = jest.fn();
 const mockUpdateDocuments = jest.fn();
@@ -50,12 +38,6 @@ const mockCreateAddresses = jest.fn();
 const mockUpdateAddresses = jest.fn();
 const mockRemoveAddresses = jest.fn();
 const mockResetAddresses = jest.fn();
-
-const mockListConsents = jest.fn();
-const mockCreateConsents = jest.fn();
-const mockUpdateConsents = jest.fn();
-const mockRemoveConsents = jest.fn();
-const mockResetConsents = jest.fn();
 
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => mockSearchParams,
@@ -76,11 +58,8 @@ jest.mock('@hooks', () => ({
 jest.mock('@hooks/usePatientIdentifier', () => jest.fn());
 jest.mock('@hooks/usePatientContact', () => jest.fn());
 jest.mock('@hooks/usePatientGuardian', () => jest.fn());
-jest.mock('@hooks/usePatientAllergy', () => jest.fn());
-jest.mock('@hooks/usePatientMedicalHistory', () => jest.fn());
 jest.mock('@hooks/usePatientDocument', () => jest.fn());
 jest.mock('@hooks/useAddress', () => jest.fn());
-jest.mock('@hooks/useConsent', () => jest.fn());
 
 jest.mock('@utils', () => {
   const actual = jest.requireActual('@utils');
@@ -95,11 +74,8 @@ const { usePatient, usePatientAccess } = require('@hooks');
 const usePatientIdentifier = require('@hooks/usePatientIdentifier');
 const usePatientContact = require('@hooks/usePatientContact');
 const usePatientGuardian = require('@hooks/usePatientGuardian');
-const usePatientAllergy = require('@hooks/usePatientAllergy');
-const usePatientMedicalHistory = require('@hooks/usePatientMedicalHistory');
 const usePatientDocument = require('@hooks/usePatientDocument');
 const useAddress = require('@hooks/useAddress');
-const useConsent = require('@hooks/useConsent');
 
 describe('usePatientDetailsScreen', () => {
   beforeEach(() => {
@@ -141,6 +117,7 @@ describe('usePatientDetailsScreen', () => {
       isLoading: false,
       errorCode: null,
     });
+
     usePatientContact.mockReturnValue({
       list: mockListContacts,
       create: mockCreateContacts,
@@ -151,6 +128,7 @@ describe('usePatientDetailsScreen', () => {
       isLoading: false,
       errorCode: null,
     });
+
     usePatientGuardian.mockReturnValue({
       list: mockListGuardians,
       create: mockCreateGuardians,
@@ -161,26 +139,7 @@ describe('usePatientDetailsScreen', () => {
       isLoading: false,
       errorCode: null,
     });
-    usePatientAllergy.mockReturnValue({
-      list: mockListAllergies,
-      create: mockCreateAllergies,
-      update: mockUpdateAllergies,
-      remove: mockRemoveAllergies,
-      reset: mockResetAllergies,
-      data: { items: [] },
-      isLoading: false,
-      errorCode: null,
-    });
-    usePatientMedicalHistory.mockReturnValue({
-      list: mockListHistories,
-      create: mockCreateHistories,
-      update: mockUpdateHistories,
-      remove: mockRemoveHistories,
-      reset: mockResetHistories,
-      data: { items: [] },
-      isLoading: false,
-      errorCode: null,
-    });
+
     usePatientDocument.mockReturnValue({
       list: mockListDocuments,
       create: mockCreateDocuments,
@@ -191,6 +150,7 @@ describe('usePatientDetailsScreen', () => {
       isLoading: false,
       errorCode: null,
     });
+
     useAddress.mockReturnValue({
       list: mockListAddresses,
       create: mockCreateAddresses,
@@ -201,119 +161,24 @@ describe('usePatientDetailsScreen', () => {
       isLoading: false,
       errorCode: null,
     });
-    useConsent.mockReturnValue({
-      list: mockListConsents,
-      create: mockCreateConsents,
-      update: mockUpdateConsents,
-      remove: mockRemoveConsents,
-      reset: mockResetConsents,
-      data: { items: [] },
-      isLoading: false,
-      errorCode: null,
-    });
   });
 
-  it('normalizes invalid tab/panel params and redirects to canonical workspace path', () => {
-    mockSearchParams = { id: 'patient-1', tab: 'invalid-tab', panel: 'unknown-panel' };
-
+  it('loads patient and patient-scoped resource collections on mount', async () => {
     renderHook(() => usePatientDetailsScreen());
 
-    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
-  });
-
-  it('loads active panel records and supports create mode routing in tabbed workspace', () => {
-    mockSearchParams = { id: 'patient-1', tab: 'care', panel: 'allergies' };
-
-    usePatientAllergy.mockReturnValue({
-      list: mockListAllergies,
-      create: mockCreateAllergies,
-      update: mockUpdateAllergies,
-      remove: mockRemoveAllergies,
-      reset: mockResetAllergies,
-      data: {
-        items: [
-          {
-            id: 'allergy-1',
-            human_friendly_id: 'ALG-001',
-            allergen: 'Peanuts',
-            severity: 'SEVERE',
-          },
-        ],
-      },
-      isLoading: false,
-      errorCode: null,
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
     });
-
-    const { result } = renderHook(() => usePatientDetailsScreen());
-
-    expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
-    expect(mockListAllergies).toHaveBeenCalledWith(expect.objectContaining({
-      patient_id: 'patient-1',
-      tenant_id: 'tenant-1',
-    }));
-    expect(result.current.panelRows).toHaveLength(1);
-    expect(result.current.panelRows[0]).toEqual(expect.objectContaining({ id: 'allergy-1' }));
-
-    act(() => {
-      result.current.onStartCreate();
-    });
-
-    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1?tab=care&mode=create');
-  });
-
-  it('surfaces entitlement blocked state when backend returns MODULE_NOT_ENTITLED', () => {
-    usePatient.mockReturnValue({
-      get: mockPatientGet,
-      update: mockPatientUpdate,
-      remove: mockPatientRemove,
-      reset: mockPatientReset,
-      data: null,
-      isLoading: false,
-      errorCode: 'MODULE_NOT_ENTITLED',
-    });
-
-    const { result } = renderHook(() => usePatientDetailsScreen());
-    expect(result.current.isEntitlementBlocked).toBe(true);
-  });
-
-  it('strips edit mode from route params for read-only access', () => {
-    mockSearchParams = { id: 'patient-1', tab: 'summary', mode: 'edit' };
-
-    usePatientAccess.mockReturnValue({
-      canAccessPatients: true,
-      canManagePatientRecords: false,
-      canDeletePatientRecords: false,
-      canManageAllTenants: false,
-      tenantId: 'tenant-1',
-      isResolved: true,
-    });
-
-    renderHook(() => usePatientDetailsScreen());
-
-    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
-  });
-
-  it('deletes patient and returns to directory when RBAC allows', async () => {
-    mockPatientRemove.mockResolvedValue({ id: 'patient-1' });
-
-    const { result } = renderHook(() => usePatientDetailsScreen());
-
-    await act(async () => {
-      await result.current.onDeletePatient();
-    });
-
-    expect(mockPatientRemove).toHaveBeenCalledWith('patient-1');
-    expect(mockReplace).toHaveBeenCalledWith('/patients/patients');
-  });
-
-  it('fetches patient-scoped identity, contact, document, and address collections', () => {
-    const { result } = renderHook(() => usePatientDetailsScreen());
 
     expect(mockListIdentifiers).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1',
       tenant_id: 'tenant-1',
     }));
     expect(mockListContacts).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListGuardians).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1',
       tenant_id: 'tenant-1',
     }));
@@ -325,9 +190,117 @@ describe('usePatientDetailsScreen', () => {
       patient_id: 'patient-1',
       tenant_id: 'tenant-1',
     }));
-    expect(result.current.identifierRecords).toEqual([]);
-    expect(result.current.contactRecords).toEqual([]);
-    expect(result.current.documentRecords).toEqual([]);
-    expect(result.current.addressRecords).toEqual([]);
+  });
+
+  it('manages resource editor lifecycle locally and submits create payload', async () => {
+    mockCreateIdentifiers.mockResolvedValue({ id: 'identifier-1' });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.resourceSections.identifiers).toBeTruthy();
+    });
+
+    act(() => {
+      result.current.onResourceCreate(result.current.resourceKeys.IDENTIFIERS);
+    });
+
+    expect(result.current.resourceSections.identifiers.editor.mode).toBe('create');
+
+    act(() => {
+      result.current.onResourceFieldChange(
+        result.current.resourceKeys.IDENTIFIERS,
+        'identifier_type',
+        'MRN'
+      );
+      result.current.onResourceFieldChange(
+        result.current.resourceKeys.IDENTIFIERS,
+        'identifier_value',
+        'MRN-1001'
+      );
+    });
+
+    await act(async () => {
+      await result.current.onResourceSubmit(result.current.resourceKeys.IDENTIFIERS);
+    });
+
+    expect(mockCreateIdentifiers).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+      identifier_type: 'MRN',
+      identifier_value: 'MRN-1001',
+    }));
+    expect(result.current.resourceSections.identifiers.editor).toBeNull();
+  });
+
+  it('supports resource delete and refresh without route navigation', async () => {
+    mockRemoveContacts.mockResolvedValue({ id: 'contact-1' });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await act(async () => {
+      await result.current.onResourceDelete(result.current.resourceKeys.CONTACTS, 'contact-1');
+    });
+
+    expect(mockRemoveContacts).toHaveBeenCalledWith('contact-1');
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('supports local summary edit state and saves patient changes', async () => {
+    mockPatientUpdate.mockResolvedValue({ id: 'patient-1' });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    act(() => {
+      result.current.onStartSummaryEdit();
+    });
+
+    expect(result.current.isSummaryEditMode).toBe(true);
+
+    act(() => {
+      result.current.onSummaryFieldChange('first_name', 'Janet');
+    });
+
+    await act(async () => {
+      await result.current.onSaveSummary();
+    });
+
+    expect(mockPatientUpdate).toHaveBeenCalledWith('patient-1', expect.objectContaining({
+      first_name: 'Janet',
+      last_name: 'Doe',
+    }));
+    expect(result.current.isSummaryEditMode).toBe(false);
+  });
+
+  it('surfaces entitlement blocked state when backend returns MODULE_NOT_ENTITLED', async () => {
+    usePatient.mockReturnValue({
+      get: mockPatientGet,
+      update: mockPatientUpdate,
+      remove: mockPatientRemove,
+      reset: mockPatientReset,
+      data: null,
+      isLoading: false,
+      errorCode: 'MODULE_NOT_ENTITLED',
+    });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.isEntitlementBlocked).toBe(true);
+    });
+  });
+
+  it('deletes patient locally without redirecting to another screen', async () => {
+    mockPatientRemove.mockResolvedValue({ id: 'patient-1' });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await act(async () => {
+      await result.current.onDeletePatient();
+    });
+
+    expect(mockPatientRemove).toHaveBeenCalledWith('patient-1');
+    expect(result.current.isPatientDeleted).toBe(true);
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });
