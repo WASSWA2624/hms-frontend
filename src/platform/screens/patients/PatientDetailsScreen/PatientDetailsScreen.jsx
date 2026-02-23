@@ -227,7 +227,6 @@ const PatientDetailsScreen = () => {
     isPatientDeleted,
     canManagePatientRecords,
     canDeletePatientRecords,
-    canManageAllTenants,
     onRetry,
     onGoToSubscriptions,
     onDeletePatient,
@@ -252,7 +251,6 @@ const PatientDetailsScreen = () => {
     || sanitizeString(patient?.human_friendly_id)
     || t('patients.overview.unnamedPatient', { position: 1 });
   const patientHumanFriendlyId = sanitizeString(patient?.human_friendly_id) || fallbackLabel;
-  const patientInternalId = sanitizeString(patient?.id) || fallbackLabel;
   const patientDateOfBirth = resolveDateOnly(patient?.date_of_birth) || fallbackLabel;
   const patientAge = (() => {
     const age = resolveAge(patient?.date_of_birth);
@@ -345,13 +343,6 @@ const PatientDetailsScreen = () => {
     { key: 'createdAt', label: t('patients.workspace.patientSummary.createdAt'), value: patientCreatedAt },
     { key: 'updatedAt', label: t('patients.workspace.patientSummary.updatedAt'), value: patientUpdatedAt },
   ];
-  if (canManageAllTenants) {
-    summaryContextRows.push({
-      key: 'internalId',
-      label: t('patients.workspace.patientSummary.internalId'),
-      value: patientInternalId,
-    });
-  }
 
   const renderSummarySection = (sectionTitle, rows, testID) => (
     <StyledSummarySection testID={testID}>

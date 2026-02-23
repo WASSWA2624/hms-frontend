@@ -185,10 +185,10 @@ describe('usePatientDirectoryScreen', () => {
     const { result } = renderHook(() => usePatientDirectoryScreen());
 
     act(() => {
-      result.current.onOpenPatient('patient-9');
+      result.current.onOpenPatient('PAT-0009');
     });
 
-    expect(mockPush).toHaveBeenCalledWith('/patients/patients/patient-9');
+    expect(mockPush).toHaveBeenCalledWith('/patients/patients/PAT-0009');
   });
 
   it('maps directory item contact labels from available patient contact fields', () => {

@@ -5,6 +5,7 @@ const mockPush = jest.fn();
 let mockSearchParams = {};
 
 const mockPatientGet = jest.fn();
+const mockPatientList = jest.fn();
 const mockPatientUpdate = jest.fn();
 const mockPatientRemove = jest.fn();
 const mockPatientReset = jest.fn();
@@ -80,7 +81,22 @@ const useAddress = require('@hooks/useAddress');
 describe('usePatientDetailsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSearchParams = { id: 'patient-1' };
+    mockSearchParams = { id: 'PAT-001' };
+    mockPatientList.mockResolvedValue({
+      items: [
+        {
+          id: 'patient-1',
+          human_friendly_id: 'PAT-001',
+        },
+      ],
+    });
+    mockPatientGet.mockResolvedValue({
+      id: 'patient-1',
+      first_name: 'Jane',
+      last_name: 'Doe',
+      human_friendly_id: 'PAT-001',
+      tenant_id: 'tenant-1',
+    });
 
     usePatientAccess.mockReturnValue({
       canAccessPatients: true,
@@ -92,6 +108,7 @@ describe('usePatientDetailsScreen', () => {
     });
 
     usePatient.mockReturnValue({
+      list: mockPatientList,
       get: mockPatientGet,
       update: mockPatientUpdate,
       remove: mockPatientRemove,
@@ -169,6 +186,10 @@ describe('usePatientDetailsScreen', () => {
     await waitFor(() => {
       expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
     });
+    expect(mockPatientList).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'PAT-001',
+      tenant_id: 'tenant-1',
+    }));
 
     expect(mockListIdentifiers).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1',
@@ -198,7 +219,7 @@ describe('usePatientDetailsScreen', () => {
     const { result } = renderHook(() => usePatientDetailsScreen());
 
     await waitFor(() => {
-      expect(result.current.resourceSections.identifiers).toBeTruthy();
+      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
     });
 
     act(() => {
@@ -250,6 +271,9 @@ describe('usePatientDetailsScreen', () => {
     mockPatientUpdate.mockResolvedValue({ id: 'patient-1' });
 
     const { result } = renderHook(() => usePatientDetailsScreen());
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+    });
 
     act(() => {
       result.current.onStartSummaryEdit();
@@ -274,6 +298,7 @@ describe('usePatientDetailsScreen', () => {
 
   it('surfaces entitlement blocked state when backend returns MODULE_NOT_ENTITLED', async () => {
     usePatient.mockReturnValue({
+      list: mockPatientList,
       get: mockPatientGet,
       update: mockPatientUpdate,
       remove: mockPatientRemove,
@@ -294,6 +319,9 @@ describe('usePatientDetailsScreen', () => {
     mockPatientRemove.mockResolvedValue({ id: 'patient-1' });
 
     const { result } = renderHook(() => usePatientDetailsScreen());
+    await waitFor(() => {
+      expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
+    });
 
     await act(async () => {
       await result.current.onDeletePatient();

@@ -115,6 +115,7 @@ describe('PatientListCards', () => {
   it('renders details, edit, and delete row actions and invokes the matching handlers', () => {
     const item = {
       id: 'patient-1',
+      routePatientId: 'PAT000050',
       displayName: 'Jane Doe',
       humanFriendlyId: 'PAT000050',
       contactLabel: '+256700000010',
@@ -132,8 +133,8 @@ describe('PatientListCards', () => {
     fireEvent.press(getByTestId('patient-list-edit-1'));
     fireEvent.press(getByTestId('patient-list-delete-1'));
 
-    expect(baseProps.onOpenPatient).toHaveBeenCalledWith('patient-1');
-    expect(baseProps.onEditPatient).toHaveBeenCalledWith('patient-1');
+    expect(baseProps.onOpenPatient).toHaveBeenCalledWith('PAT000050');
+    expect(baseProps.onEditPatient).toHaveBeenCalledWith('PAT000050');
     expect(baseProps.onDeletePatient).toHaveBeenCalledWith('patient-1');
   });
 

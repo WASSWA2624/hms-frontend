@@ -212,9 +212,9 @@ const usePatientQuickCreateScreen = () => {
     };
 
     const created = await create(payload);
-    const createdId = sanitizeString(created?.id);
-    if (createdId) {
-      router.replace(`/patients/patients/${createdId}?tab=summary`);
+    const createdRoutePatientId = sanitizeString(created?.human_friendly_id);
+    if (createdRoutePatientId) {
+      router.replace(`/patients/patients/${encodeURIComponent(createdRoutePatientId)}?tab=summary`);
       return;
     }
 

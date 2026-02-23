@@ -385,30 +385,34 @@ const usePatientDirectoryScreen = () => {
   const rawItems = useMemo(() => resolveItems(data), [data]);
   const items = useMemo(
     () =>
-      rawItems.map((patient, index) => ({
-        id: sanitizeString(patient?.id),
-        displayName: resolvePatientName(
-          patient,
-          t('patients.overview.unnamedPatient', { position: index + 1 })
-        ),
-        humanFriendlyId: sanitizeString(patient?.human_friendly_id) || '-',
-        tenantLabel: resolveContextLabel(
-          patient?.tenant_context || {
-            label: patient?.tenant_label,
-            human_friendly_id: patient?.tenant_human_friendly_id,
-          },
-          scopedTenantFallbackLabel
-        ),
-        facilityLabel: resolveContextLabel(
-          patient?.facility_context || {
-            label: patient?.facility_label,
-            human_friendly_id: patient?.facility_human_friendly_id,
-          },
-          scopedFacilityFallbackLabel
-        ),
-        contactLabel: resolvePatientContactLabel(patient, ''),
-        updatedAt: sanitizeString(patient?.updated_at) || '-',
-      })),
+      rawItems.map((patient, index) => {
+        const routePatientId = sanitizeString(patient?.human_friendly_id);
+        return {
+          id: sanitizeString(patient?.id),
+          routePatientId,
+          displayName: resolvePatientName(
+            patient,
+            t('patients.overview.unnamedPatient', { position: index + 1 })
+          ),
+          humanFriendlyId: routePatientId || '-',
+          tenantLabel: resolveContextLabel(
+            patient?.tenant_context || {
+              label: patient?.tenant_label,
+              human_friendly_id: patient?.tenant_human_friendly_id,
+            },
+            scopedTenantFallbackLabel
+          ),
+          facilityLabel: resolveContextLabel(
+            patient?.facility_context || {
+              label: patient?.facility_label,
+              human_friendly_id: patient?.facility_human_friendly_id,
+            },
+            scopedFacilityFallbackLabel
+          ),
+          contactLabel: resolvePatientContactLabel(patient, ''),
+          updatedAt: sanitizeString(patient?.updated_at) || '-',
+        };
+      }),
     [rawItems, scopedFacilityFallbackLabel, scopedTenantFallbackLabel, t]
   );
 
@@ -454,20 +458,20 @@ const usePatientDirectoryScreen = () => {
   }, [totalPages]);
 
   const onOpenPatient = useCallback(
-    (patientId) => {
-      const normalizedId = sanitizeString(patientId);
+    (routePatientId) => {
+      const normalizedId = sanitizeString(routePatientId);
       if (!normalizedId) return;
-      router.push(`/patients/patients/${normalizedId}`);
+      router.push(`/patients/patients/${encodeURIComponent(normalizedId)}`);
     },
     [router]
   );
 
   const onEditPatient = useCallback(
-    (patientId) => {
+    (routePatientId) => {
       if (!canCreatePatientRecords) return;
-      const normalizedId = sanitizeString(patientId);
+      const normalizedId = sanitizeString(routePatientId);
       if (!normalizedId) return;
-      router.push(`/patients/patients/${normalizedId}/edit`);
+      router.push(`/patients/patients/${encodeURIComponent(normalizedId)}/edit`);
     },
     [canCreatePatientRecords, router]
   );

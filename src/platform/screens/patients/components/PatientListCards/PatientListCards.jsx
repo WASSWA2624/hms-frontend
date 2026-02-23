@@ -65,9 +65,27 @@ const resolveNumericSuffix = (value) => {
   return toPositiveInteger(match[1]);
 };
 
+const resolveRoutePatientId = (item) => {
+  const candidates = [
+    item?.routePatientId,
+    item?.human_friendly_id,
+    item?.humanFriendlyId,
+    item?.patient_human_friendly_id,
+  ];
+
+  for (let index = 0; index < candidates.length; index += 1) {
+    const normalized = sanitizeString(candidates[index]);
+    if (!normalized || normalized === '-') continue;
+    return normalized;
+  }
+
+  return '';
+};
+
 const resolveStableIdentity = (item) => (
   sanitizeString(item?.id)
   || sanitizeString(item?.listKey)
+  || resolveRoutePatientId(item)
   || sanitizeString(item?.humanFriendlyId)
   || sanitizeString(item?.displayName)
 );
@@ -366,7 +384,9 @@ const PatientListCards = ({
   }, [hoveredRowKey, normalizedItems]);
 
   const renderActionButtons = useCallback(({
-    patientId,
+    openPatientId,
+    editPatientId,
+    deletePatientId,
     index,
     canOpenPatient,
     canEditPatient,
@@ -381,7 +401,7 @@ const PatientListCards = ({
         <Button
           variant="surface"
           size="medium"
-          onPress={() => onOpenPatient?.(patientId)}
+          onPress={() => onOpenPatient?.(openPatientId)}
           disabled={!canOpenPatient}
           accessibilityLabel={openAccessibilityLabel}
           icon={<Icon glyph={'\u2139'} size="xs" tone="primary" decorative />}
@@ -394,7 +414,7 @@ const PatientListCards = ({
         <Button
           variant="surface"
           size="medium"
-          onPress={() => onEditPatient?.(patientId)}
+          onPress={() => onEditPatient?.(editPatientId)}
           disabled={!canEditPatient}
           accessibilityLabel={editAccessibilityLabel}
           icon={<Icon glyph={'\u270e'} size="xs" tone="primary" decorative />}
@@ -407,7 +427,7 @@ const PatientListCards = ({
         <Button
           variant="surface"
           size="medium"
-          onPress={() => onDeletePatient?.(patientId)}
+          onPress={() => onDeletePatient?.(deletePatientId)}
           disabled={!canDeletePatient}
           accessibilityLabel={deleteAccessibilityLabel}
           icon={<Icon glyph={'\u2715'} size="xs" tone="error" decorative />}
@@ -432,7 +452,8 @@ const PatientListCards = ({
     return (
       <StyledCardsGrid $isTablet={isTabletScreen}>
         {normalizedItems.map((item, index) => {
-          const patientId = sanitizeString(item?.id);
+          const internalPatientId = sanitizeString(item?.id);
+          const routePatientId = resolveRoutePatientId(item);
           const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
             ? resolveOpenAccessibilityLabel(item, index)
             : openButtonLabel;
@@ -442,9 +463,9 @@ const PatientListCards = ({
           const deleteAccessibilityLabel = typeof resolveDeleteAccessibilityLabel === 'function'
             ? resolveDeleteAccessibilityLabel(item, index)
             : deleteButtonLabel;
-          const canOpenPatient = Boolean(patientId) && typeof onOpenPatient === 'function';
-          const canEditPatient = Boolean(patientId) && typeof onEditPatient === 'function';
-          const canDeletePatient = Boolean(patientId) && typeof onDeletePatient === 'function';
+          const canOpenPatient = Boolean(routePatientId) && typeof onOpenPatient === 'function';
+          const canEditPatient = Boolean(routePatientId) && typeof onEditPatient === 'function';
+          const canDeletePatient = Boolean(internalPatientId) && typeof onDeletePatient === 'function';
           const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
             ? resolveUnnamedPatientLabel(index)
             : resolveLabel(patientLabel, emptyValueLabel);
@@ -515,7 +536,9 @@ const PatientListCards = ({
               ) : null}
 
               {renderActionButtons({
-                patientId,
+                openPatientId: routePatientId,
+                editPatientId: routePatientId,
+                deletePatientId: internalPatientId,
                 index,
                 canOpenPatient,
                 canEditPatient,
@@ -572,7 +595,8 @@ const PatientListCards = ({
       </StyledHeaderRow>
 
       {normalizedItems.map((item, index) => {
-        const patientId = sanitizeString(item?.id);
+        const internalPatientId = sanitizeString(item?.id);
+        const routePatientId = resolveRoutePatientId(item);
         const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
           ? resolveOpenAccessibilityLabel(item, index)
           : openButtonLabel;
@@ -582,9 +606,9 @@ const PatientListCards = ({
         const deleteAccessibilityLabel = typeof resolveDeleteAccessibilityLabel === 'function'
           ? resolveDeleteAccessibilityLabel(item, index)
           : deleteButtonLabel;
-        const canOpenPatient = Boolean(patientId) && typeof onOpenPatient === 'function';
-        const canEditPatient = Boolean(patientId) && typeof onEditPatient === 'function';
-        const canDeletePatient = Boolean(patientId) && typeof onDeletePatient === 'function';
+        const canOpenPatient = Boolean(routePatientId) && typeof onOpenPatient === 'function';
+        const canEditPatient = Boolean(routePatientId) && typeof onEditPatient === 'function';
+        const canDeletePatient = Boolean(internalPatientId) && typeof onDeletePatient === 'function';
         const isLastRow = index === normalizedItems.length - 1;
         const isHovered = hoveredRowKey === item.__rowKey;
         const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
@@ -635,7 +659,9 @@ const PatientListCards = ({
                     $columnWidth={resolveColumnWidth(column.id)}
                   >
                     {renderActionButtons({
-                      patientId,
+                      openPatientId: routePatientId,
+                      editPatientId: routePatientId,
+                      deletePatientId: internalPatientId,
                       index,
                       canOpenPatient,
                       canEditPatient,

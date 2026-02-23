@@ -214,10 +214,10 @@ describe('usePatientsOverviewScreen', () => {
     const { result } = renderHook(() => usePatientsOverviewScreen());
 
     act(() => {
-      result.current.onOpenPatient('patient-55');
+      result.current.onOpenPatient('PAT-0055');
     });
 
-    expect(mockPush).toHaveBeenCalledWith('/patients/patients/patient-55');
+    expect(mockPush).toHaveBeenCalledWith('/patients/patients/PAT-0055');
   });
 
   it('returns two quick-path cards for directory and legal hub', () => {

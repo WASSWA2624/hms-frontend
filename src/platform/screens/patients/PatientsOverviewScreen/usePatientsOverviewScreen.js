@@ -215,11 +215,13 @@ const usePatientsOverviewScreen = () => {
           const fallbackName = t('patients.overview.unnamedPatient', {
             position: index + 1,
           });
+          const routePatientId = sanitizeString(patient?.human_friendly_id);
           return {
             ...patient,
             displayName: resolvePatientDisplayName(patient, fallbackName),
             subtitle: resolvePatientSubtitle(patient, t('patients.overview.unknownDemographics')),
-            humanFriendlyId: sanitizeString(patient?.human_friendly_id) || '-',
+            routePatientId,
+            humanFriendlyId: routePatientId || '-',
             tenantLabel: resolveContextLabel(
               patient?.tenant_context || {
                 label: patient?.tenant_label,
@@ -342,21 +344,21 @@ const usePatientsOverviewScreen = () => {
   );
 
   const handleOpenPatient = useCallback(
-    (patientId) => {
+    (routePatientId) => {
       if (!canViewOverview) return;
-      const safeId = sanitizeString(patientId);
+      const safeId = sanitizeString(routePatientId);
       if (!safeId) return;
-      router.push(`/patients/patients/${safeId}`);
+      router.push(`/patients/patients/${encodeURIComponent(safeId)}`);
     },
     [canViewOverview, router]
   );
 
   const handleEditPatient = useCallback(
-    (patientId) => {
+    (routePatientId) => {
       if (!canViewOverview || !canCreatePatientRecords) return;
-      const safeId = sanitizeString(patientId);
+      const safeId = sanitizeString(routePatientId);
       if (!safeId) return;
-      router.push(`/patients/patients/${safeId}/edit`);
+      router.push(`/patients/patients/${encodeURIComponent(safeId)}/edit`);
     },
     [canCreatePatientRecords, canViewOverview, router]
   );

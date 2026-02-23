@@ -35,6 +35,7 @@ const EMPTY_RESOURCE_EDITORS = Object.freeze({
 });
 
 const sanitizeString = (value) => String(value || '').trim();
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const getScalarParam = (value) => {
   if (Array.isArray(value)) return value[0];
@@ -45,6 +46,23 @@ const resolveItems = (value) => {
   if (Array.isArray(value?.items)) return value.items;
   if (Array.isArray(value)) return value;
   return [];
+};
+
+const resolvePatientByRouteId = (items, routePatientId) => {
+  const normalizedRouteId = sanitizeString(routePatientId).toLowerCase();
+  if (!normalizedRouteId || !Array.isArray(items) || items.length === 0) return null;
+
+  const exactFriendlyIdMatch = items.find(
+    (item) => sanitizeString(item?.human_friendly_id).toLowerCase() === normalizedRouteId
+  );
+  if (exactFriendlyIdMatch) return exactFriendlyIdMatch;
+
+  const exactInternalIdMatch = items.find(
+    (item) => sanitizeString(item?.id).toLowerCase() === normalizedRouteId
+  );
+  if (exactInternalIdMatch) return exactInternalIdMatch;
+
+  return items[0] || null;
 };
 
 const validateValues = (fields, values, t) => {
@@ -214,6 +232,7 @@ const usePatientDetailsScreen = () => {
   const {
     data: patientData,
     errorCode: patientErrorCode,
+    list: listPatients,
     get: getPatientRecord,
     update: updatePatientRecord,
     remove: removePatientRecord,
@@ -275,11 +294,15 @@ const usePatientDetailsScreen = () => {
     reset: resetDocuments,
   } = documentCrud;
 
-  const patientId = sanitizeString(getScalarParam(searchParams?.id));
+  const routePatientId = sanitizeString(getScalarParam(searchParams?.id));
+  const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
-  const patient = useMemo(() => patientData || null, [patientData]);
+  const patient = useMemo(
+    () => (patientData && !Array.isArray(patientData?.items) ? patientData : null),
+    [patientData]
+  );
   const identifierRecords = useMemo(() => resolveItems(identifierData), [identifierData]);
   const guardianRecords = useMemo(() => resolveItems(guardianData), [guardianData]);
   const contactRecords = useMemo(() => resolveItems(contactData), [contactData]);
@@ -364,15 +387,15 @@ const usePatientDetailsScreen = () => {
     ]
   );
 
-  const buildCollectionParams = useCallback(() => {
-    if (!patientId || isOffline || !canAccessPatients || !hasScope) return null;
+  const buildCollectionParams = useCallback((internalPatientId) => {
+    if (!internalPatientId || isOffline || !canAccessPatients || !hasScope) return null;
 
     const params = {
       page: 1,
       limit: 100,
       sort_by: 'updated_at',
       order: 'desc',
-      patient_id: patientId,
+      patient_id: internalPatientId,
     };
 
     if (!canManageAllTenants && normalizedTenantId) {
@@ -381,7 +404,6 @@ const usePatientDetailsScreen = () => {
 
     return params;
   }, [
-    patientId,
     isOffline,
     canAccessPatients,
     hasScope,
@@ -389,21 +411,69 @@ const usePatientDetailsScreen = () => {
     normalizedTenantId,
   ]);
 
-  const fetchPatient = useCallback(async () => {
-    if (!patientId || isOffline || !canAccessPatients || !hasScope) return undefined;
-    resetPatientRecord();
-    return getPatientRecord(patientId);
+  const resolveInternalPatientId = useCallback(async () => {
+    if (!routePatientId || isOffline || !canAccessPatients || !hasScope) return '';
+
+    if (UUID_PATTERN.test(routePatientId)) {
+      return routePatientId;
+    }
+
+    const params = {
+      page: 1,
+      limit: 20,
+      sort_by: 'updated_at',
+      order: 'desc',
+      patient_id: routePatientId,
+    };
+    if (!canManageAllTenants && normalizedTenantId) {
+      params.tenant_id = normalizedTenantId;
+    }
+
+    const lookupResult = await listPatients(params);
+    const matchedPatient = resolvePatientByRouteId(resolveItems(lookupResult), routePatientId);
+    return sanitizeString(matchedPatient?.id);
   }, [
-    patientId,
+    routePatientId,
+    isOffline,
+    canAccessPatients,
+    hasScope,
+    canManageAllTenants,
+    normalizedTenantId,
+    listPatients,
+  ]);
+
+  const fetchPatient = useCallback(async () => {
+    if (!routePatientId || isOffline || !canAccessPatients || !hasScope) {
+      setResolvedPatientId('');
+      return '';
+    }
+
+    resetPatientRecord();
+    const internalPatientId = await resolveInternalPatientId();
+    if (!internalPatientId) {
+      setResolvedPatientId('');
+      return '';
+    }
+    const patientRecord = await getPatientRecord(internalPatientId);
+    if (!patientRecord) {
+      setResolvedPatientId('');
+      return '';
+    }
+
+    setResolvedPatientId(internalPatientId);
+    return internalPatientId;
+  }, [
+    routePatientId,
     isOffline,
     canAccessPatients,
     hasScope,
     resetPatientRecord,
+    resolveInternalPatientId,
     getPatientRecord,
   ]);
 
-  const fetchResourceCollection = useCallback(async (resourceKey) => {
-    const params = buildCollectionParams();
+  const fetchResourceCollection = useCallback(async (resourceKey, internalPatientId = resolvedPatientId) => {
+    const params = buildCollectionParams(internalPatientId);
     if (!params) return undefined;
 
     const resourceCrud = crudByResource[resourceKey];
@@ -411,36 +481,45 @@ const usePatientDetailsScreen = () => {
 
     resourceCrud.reset();
     return resourceCrud.list(params);
-  }, [buildCollectionParams, crudByResource]);
+  }, [buildCollectionParams, crudByResource, resolvedPatientId]);
 
-  const fetchAllCollections = useCallback(async () => {
+  const fetchAllCollections = useCallback(async (internalPatientId = resolvedPatientId) => {
+    if (!internalPatientId) return;
+
     await Promise.all([
-      fetchResourceCollection(RESOURCE_KEYS.IDENTIFIERS),
-      fetchResourceCollection(RESOURCE_KEYS.GUARDIANS),
-      fetchResourceCollection(RESOURCE_KEYS.CONTACTS),
-      fetchResourceCollection(RESOURCE_KEYS.ADDRESSES),
-      fetchResourceCollection(RESOURCE_KEYS.DOCUMENTS),
+      fetchResourceCollection(RESOURCE_KEYS.IDENTIFIERS, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.GUARDIANS, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.CONTACTS, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.ADDRESSES, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.DOCUMENTS, internalPatientId),
     ]);
-  }, [fetchResourceCollection]);
+  }, [fetchResourceCollection, resolvedPatientId]);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const loadInitialData = useCallback(async () => {
     if (!isResolved) return;
 
-    if (!canAccessPatients || !hasScope || !patientId) {
+    if (!canAccessPatients || !hasScope || !routePatientId) {
+      setResolvedPatientId('');
       setIsInitialLoading(false);
       return;
     }
 
     setIsInitialLoading(true);
-    await Promise.all([fetchPatient(), fetchAllCollections()]);
-    setIsInitialLoading(false);
+    try {
+      const internalPatientId = await fetchPatient();
+      if (internalPatientId) {
+        await fetchAllCollections(internalPatientId);
+      }
+    } finally {
+      setIsInitialLoading(false);
+    }
   }, [
     isResolved,
     canAccessPatients,
     hasScope,
-    patientId,
+    routePatientId,
     fetchPatient,
     fetchAllCollections,
   ]);
@@ -449,10 +528,14 @@ const usePatientDetailsScreen = () => {
     loadInitialData();
   }, [loadInitialData]);
 
+  useEffect(() => {
+    setResolvedPatientId('');
+  }, [routePatientId]);
+
   const [isPatientDeleted, setIsPatientDeleted] = useState(false);
   useEffect(() => {
     setIsPatientDeleted(false);
-  }, [patientId]);
+  }, [routePatientId]);
 
   const [isSummaryEditMode, setIsSummaryEditMode] = useState(false);
   const [summaryValues, setSummaryValues] = useState(resolvePatientSummaryValues(patient));
@@ -472,7 +555,7 @@ const usePatientDetailsScreen = () => {
   const [resourceEditors, setResourceEditors] = useState(EMPTY_RESOURCE_EDITORS);
   useEffect(() => {
     setResourceEditors(EMPTY_RESOURCE_EDITORS);
-  }, [patientId]);
+  }, [routePatientId]);
 
   const onResourceCreate = useCallback((resourceKey) => {
     if (!canManagePatientRecords) return;
@@ -535,7 +618,7 @@ const usePatientDetailsScreen = () => {
   }, []);
 
   const onResourceSubmit = useCallback(async (resourceKey) => {
-    if (!canManagePatientRecords || !patientId) return;
+    if (!canManagePatientRecords || !resolvedPatientId) return;
 
     const editor = resourceEditors?.[resourceKey];
     const config = resourceConfigs[resourceKey];
@@ -561,7 +644,7 @@ const usePatientDetailsScreen = () => {
 
     const payload = {
       ...payloadBase,
-      patient_id: patientId,
+      patient_id: resolvedPatientId,
     };
 
     const tenantForPayload = sanitizeString(patient?.tenant_id) || normalizedTenantId;
@@ -580,10 +663,10 @@ const usePatientDetailsScreen = () => {
       [resourceKey]: null,
     }));
 
-    await fetchResourceCollection(resourceKey);
+    await fetchResourceCollection(resourceKey, resolvedPatientId);
   }, [
     canManagePatientRecords,
-    patientId,
+    resolvedPatientId,
     resourceEditors,
     resourceConfigs,
     crudByResource,
@@ -638,7 +721,7 @@ const usePatientDetailsScreen = () => {
   }, [patient]);
 
   const onSaveSummary = useCallback(async () => {
-    if (!canManagePatientRecords || !patientId) return;
+    if (!canManagePatientRecords || !resolvedPatientId) return;
 
     const nextErrors = validateValues(
       [
@@ -664,14 +747,14 @@ const usePatientDetailsScreen = () => {
       is_active: summaryValues.is_active !== false,
     };
 
-    const result = await updatePatientRecord(patientId, payload);
+    const result = await updatePatientRecord(resolvedPatientId, payload);
     if (!result) return;
 
     await fetchPatient();
     setIsSummaryEditMode(false);
   }, [
     canManagePatientRecords,
-    patientId,
+    resolvedPatientId,
     summaryValues,
     t,
     updatePatientRecord,
@@ -679,11 +762,11 @@ const usePatientDetailsScreen = () => {
   ]);
 
   const onDeletePatient = useCallback(async () => {
-    if (!canDeletePatientRecords || !patientId) return;
+    if (!canDeletePatientRecords || !resolvedPatientId) return;
     if (typeof removePatientRecord !== 'function') return;
     if (!confirmAction(t('patients.workspace.state.deletePatientConfirm'))) return;
 
-    const result = await removePatientRecord(patientId);
+    const result = await removePatientRecord(resolvedPatientId);
     if (!result) return;
 
     setIsSummaryEditMode(false);
@@ -699,7 +782,7 @@ const usePatientDetailsScreen = () => {
     resetDocuments();
   }, [
     canDeletePatientRecords,
-    patientId,
+    resolvedPatientId,
     removePatientRecord,
     resetPatientRecord,
     resetIdentifiers,
@@ -774,7 +857,13 @@ const usePatientDetailsScreen = () => {
     ]
   );
 
-  const hasMissingContext = !patientId || !canAccessPatients || !hasScope;
+  const hasMissingContext = !routePatientId || !canAccessPatients || !hasScope;
+  const hasUnresolvedPatient = (
+    Boolean(routePatientId)
+    && !resolvedPatientId
+    && !patient
+    && !isInitialLoading
+  );
   const activeErrorCode = (
     patientErrorCode
     || identifierErrorCode
@@ -784,15 +873,19 @@ const usePatientDetailsScreen = () => {
     || documentErrorCode
   );
   const isEntitlementBlocked = isEntitlementDeniedError(activeErrorCode);
-  const hasError = !isPatientDeleted && !isEntitlementBlocked && (hasMissingContext || Boolean(activeErrorCode));
+  const hasError = (
+    !isPatientDeleted
+    && !isEntitlementBlocked
+    && (hasMissingContext || hasUnresolvedPatient || Boolean(activeErrorCode))
+  );
   const errorMessage = useMemo(() => {
-    if (hasMissingContext) return t('patients.workspace.state.loadError');
+    if (hasMissingContext || hasUnresolvedPatient) return t('patients.workspace.state.loadError');
     return resolveErrorMessage(
       t,
       activeErrorCode,
       'patients.workspace.state.loadError'
     );
-  }, [t, activeErrorCode, hasMissingContext]);
+  }, [t, activeErrorCode, hasMissingContext, hasUnresolvedPatient]);
 
   const onRetry = useCallback(() => {
     if (isPatientDeleted) return;
@@ -800,7 +893,8 @@ const usePatientDetailsScreen = () => {
   }, [isPatientDeleted, loadInitialData]);
 
   return {
-    patientId,
+    patientId: resolvedPatientId,
+    routePatientId,
     patient,
     identifierRecords,
     guardianRecords,
