@@ -13,7 +13,7 @@ const StyledHeader = styled.header.withConfig({
 })`
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
   min-height: ${({ theme }) => theme.spacing.lg}px;
   position: sticky;
   top: 0;
@@ -29,12 +29,12 @@ const StyledHeader = styled.header.withConfig({
 
   @media (min-width: ${({ theme }) => theme.breakpoints.tablet}px) and (max-width: ${({ theme }) => theme.breakpoints.desktop - 1}px) {
     min-height: ${({ theme }) => theme.spacing.lg}px;
-    padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+    padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet - 1}px) {
     min-height: ${({ theme }) => theme.spacing.lg}px;
-    padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+    padding: ${({ theme }) => theme.spacing.xs / 2}px ${({ theme }) => theme.spacing.xs}px;
   }
 `;
 

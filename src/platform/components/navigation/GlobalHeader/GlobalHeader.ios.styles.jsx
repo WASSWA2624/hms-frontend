@@ -13,8 +13,8 @@ const StyledHeader = styled(View).withConfig({
   background-color: ${({ theme }) => theme.colors.background.primary};
   border-bottom-width: 1px;
   border-bottom-color: ${({ theme }) => theme.colors.background.tertiary};
-  padding: ${({ theme }) => theme.spacing.sm}px;
-  padding-top: ${({ theme, topInset }) => theme.spacing.sm + (topInset || 0)}px;
+  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding-top: ${({ theme, topInset }) => theme.spacing.xs + (topInset || 0)}px;
   shadow-color: ${({ theme }) => theme.shadows?.md?.shadowColor ?? theme.shadows?.sm?.shadowColor ?? 'rgba(0,0,0,0.15)'};
   shadow-offset: ${({ theme }) => `${theme.shadows?.md?.shadowOffset?.width ?? 0}px ${theme.shadows?.md?.shadowOffset?.height ?? 2}px`};
   shadow-opacity: ${({ theme }) => theme.shadows?.md?.shadowOpacity ?? theme.shadows?.sm?.shadowOpacity ?? 0.08};

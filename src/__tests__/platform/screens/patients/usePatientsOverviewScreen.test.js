@@ -166,6 +166,30 @@ describe('usePatientsOverviewScreen', () => {
     expect(firstRecentPatient.subtitle).toBe('Profile details pending');
   });
 
+  it('maps patient contact labels from available contact fields', () => {
+    usePatient.mockReturnValue({
+      list: mockList,
+      data: {
+        items: [
+          {
+            id: 'patient-44',
+            first_name: 'Jane',
+            last_name: 'Doe',
+            phone_number: '+256700000010',
+            created_at: '2026-02-20T08:10:00.000Z',
+            updated_at: '2026-02-22T08:10:00.000Z',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePatientsOverviewScreen());
+    expect(result.current.recentPatients[0].contactLabel).toBe('+256700000010');
+  });
+
   it('blocks register navigation when the user is read-only', () => {
     usePatientAccess.mockReturnValue({
       canAccessPatients: true,

@@ -54,6 +54,11 @@ const DEFAULT_RANGE_PRESETS = Object.freeze({
 });
 
 const sanitizeString = (value) => String(value || '').trim();
+const sanitizePrimitiveValue = (value) => {
+  if (value == null) return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value).trim();
+  return '';
+};
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const sanitizeNumber = (value, fallback) => {
   const numeric = Number(value);
@@ -126,6 +131,79 @@ const composeContextLabel = (label, humanFriendlyId, fallback) => {
     return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
   }
   return normalizedLabel || normalizedHumanFriendlyId || fallback;
+};
+
+const resolveContactEntryValue = (entry) => {
+  if (entry == null) return '';
+  if (typeof entry === 'string' || typeof entry === 'number') {
+    return sanitizePrimitiveValue(entry);
+  }
+
+  return [
+    entry?.value,
+    entry?.contact_value,
+    entry?.contact,
+    entry?.phone,
+    entry?.phone_number,
+    entry?.mobile,
+    entry?.mobile_number,
+    entry?.telephone,
+    entry?.tel,
+    entry?.email,
+    entry?.email_address,
+  ]
+    .map((value) => sanitizePrimitiveValue(value))
+    .find(Boolean) || '';
+};
+
+const resolvePatientContactLabel = (patient, fallback = '') => {
+  const directContactValue = [
+    patient?.contact,
+    patient?.contact_label,
+    patient?.contact_value,
+    patient?.primary_contact,
+    patient?.phone,
+    patient?.phone_number,
+    patient?.mobile,
+    patient?.mobile_number,
+    patient?.telephone,
+    patient?.tel,
+    patient?.email,
+    patient?.email_address,
+    patient?.primary_phone,
+    patient?.primary_phone_number,
+  ]
+    .map((value) => sanitizePrimitiveValue(value))
+    .find(Boolean);
+  if (directContactValue) return directContactValue;
+
+  const nestedContactValue = [
+    patient?.primary_contact_details,
+    patient?.primary_contact_detail,
+    patient?.primaryContact,
+    patient?.contact,
+  ]
+    .map((entry) => resolveContactEntryValue(entry))
+    .find(Boolean);
+  if (nestedContactValue) return nestedContactValue;
+
+  const contactCollections = [
+    patient?.contacts,
+    patient?.patient_contacts,
+    patient?.contact_entries,
+    patient?.contact_list,
+  ];
+
+  for (let index = 0; index < contactCollections.length; index += 1) {
+    const collection = contactCollections[index];
+    if (!Array.isArray(collection) || collection.length === 0) continue;
+    const value = collection
+      .map((entry) => resolveContactEntryValue(entry))
+      .find(Boolean);
+    if (value) return value;
+  }
+
+  return fallback;
 };
 
 const formatDateInput = (value) => {
@@ -328,6 +406,7 @@ const usePatientDirectoryScreen = () => {
           },
           scopedFacilityFallbackLabel
         ),
+        contactLabel: resolvePatientContactLabel(patient, ''),
         updatedAt: sanitizeString(patient?.updated_at) || '-',
       })),
     [rawItems, scopedFacilityFallbackLabel, scopedTenantFallbackLabel, t]

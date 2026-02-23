@@ -39,6 +39,7 @@ const clampValue = (value, min, max) => {
 
 const resolveCellFlex = (columnId) => {
   if (columnId === 'patient') return 1.4;
+  if (columnId === 'contact') return 1.15;
   if (columnId === 'actions') return 1.45;
   if (columnId === 'number') return 0.45;
   return 1;
@@ -95,6 +96,7 @@ const PatientListCards = ({
   onDeletePatient,
   patientLabel = '',
   patientIdLabel = '',
+  contactLabel = '',
   tenantLabel = '',
   facilityLabel = '',
   openButtonLabel = '',
@@ -158,6 +160,10 @@ const PatientListCards = ({
         label: patientIdLabel,
       },
       {
+        id: 'contact',
+        label: contactLabel,
+      },
+      {
         id: 'tenant',
         label: tenantLabel,
       },
@@ -179,7 +185,7 @@ const PatientListCards = ({
       },
       ...tableColumns,
     ];
-  }, [actionsLabel, facilityLabel, numberLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
+  }, [actionsLabel, contactLabel, facilityLabel, numberLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
 
   const totalColumnFlex = useMemo(
     () => columns.reduce((sum, column) => sum + resolveCellFlex(column.id), 0),
@@ -218,7 +224,11 @@ const PatientListCards = ({
     return resolveDefaultWebWidth('actions');
   }, [resolvedColumnWidths.actions, resolveDefaultWebWidth]);
 
-  const showActionLabels = !isSmallScreen && (!IS_WEB || actionColumnWidth >= ACTION_LABEL_COLLAPSE_WIDTH);
+  const showActionLabels = (
+    !isSmallScreen
+    && !isTabletScreen
+    && (!IS_WEB || actionColumnWidth >= ACTION_LABEL_COLLAPSE_WIDTH)
+  );
 
   const handleColumnResizeStart = useCallback((event, columnIndex) => {
     if (!IS_WEB || typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -364,9 +374,10 @@ const PatientListCards = ({
     openAccessibilityLabel,
     editAccessibilityLabel,
     deleteAccessibilityLabel,
+    isCompactLayout,
   }) => (
-    <StyledActionButtonsRow>
-      <StyledActionButtonSlot $isFirst>
+    <StyledActionButtonsRow $isCompact={isCompactLayout}>
+      <StyledActionButtonSlot $isFirst $isCompact={isCompactLayout}>
         <Button
           variant="surface"
           size="medium"
@@ -379,7 +390,7 @@ const PatientListCards = ({
           {showActionLabels ? openButtonLabel : null}
         </Button>
       </StyledActionButtonSlot>
-      <StyledActionButtonSlot>
+      <StyledActionButtonSlot $isCompact={isCompactLayout}>
         <Button
           variant="surface"
           size="medium"
@@ -392,7 +403,7 @@ const PatientListCards = ({
           {showActionLabels ? editButtonLabel : null}
         </Button>
       </StyledActionButtonSlot>
-      <StyledActionButtonSlot>
+      <StyledActionButtonSlot $isCompact={isCompactLayout}>
         <Button
           variant="surface"
           size="medium"
@@ -445,6 +456,11 @@ const PatientListCards = ({
               value: resolveLabel(item?.humanFriendlyId, emptyValueLabel),
             },
             {
+              key: 'contact',
+              label: contactLabel,
+              value: resolveLabel(item?.contactLabel, emptyValueLabel),
+            },
+            {
               key: 'tenant',
               label: tenantLabel,
               value: resolveLabel(item?.tenantLabel, emptyValueLabel),
@@ -460,10 +476,15 @@ const PatientListCards = ({
             <StyledPatientCard
               key={item.__rowKey}
               $isTablet={isTabletScreen}
+              $isCompact={isSmallScreen}
               testID={testIdPrefix ? `${testIdPrefix}row-${toTestIdSegment(item.__rowKey)}` : undefined}
             >
               <StyledPatientCardHeader>
-                <StyledPatientCardTitle variant="label" numberOfLines={1} ellipsizeMode="tail">
+                <StyledPatientCardTitle
+                  variant="label"
+                  numberOfLines={isSmallScreen ? 2 : 1}
+                  ellipsizeMode="tail"
+                >
                   {patientName}
                 </StyledPatientCardTitle>
                 {showNumbers ? (
@@ -476,11 +497,16 @@ const PatientListCards = ({
               {fieldRows.length > 0 ? (
                 <StyledPatientCardFields>
                   {fieldRows.map((field) => (
-                    <StyledPatientCardFieldRow key={field.key}>
+                    <StyledPatientCardFieldRow key={field.key} $isCompact={isSmallScreen}>
                       <StyledPatientCardFieldLabel variant="caption">
                         {field.label}
                       </StyledPatientCardFieldLabel>
-                      <StyledPatientCardFieldValue variant="caption" numberOfLines={1} ellipsizeMode="tail">
+                      <StyledPatientCardFieldValue
+                        variant="caption"
+                        numberOfLines={isSmallScreen ? 2 : 1}
+                        ellipsizeMode="tail"
+                        $isCompact={isSmallScreen}
+                      >
                         {field.value}
                       </StyledPatientCardFieldValue>
                     </StyledPatientCardFieldRow>
@@ -497,6 +523,7 @@ const PatientListCards = ({
                 openAccessibilityLabel,
                 editAccessibilityLabel,
                 deleteAccessibilityLabel,
+                isCompactLayout: isSmallScreen || isTabletScreen,
               })}
             </StyledPatientCard>
           );
@@ -616,6 +643,7 @@ const PatientListCards = ({
                       openAccessibilityLabel,
                       editAccessibilityLabel,
                       deleteAccessibilityLabel,
+                      isCompactLayout: false,
                     })}
                   </StyledCell>
                 );
@@ -632,6 +660,8 @@ const PatientListCards = ({
                 value = resolveLabel(item?.tenantLabel, emptyValueLabel);
               } else if (column.id === 'facility') {
                 value = resolveLabel(item?.facilityLabel, emptyValueLabel);
+              } else if (column.id === 'contact') {
+                value = resolveLabel(item?.contactLabel, emptyValueLabel);
               }
 
               return (

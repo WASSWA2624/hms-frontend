@@ -191,6 +191,29 @@ describe('usePatientDirectoryScreen', () => {
     expect(mockPush).toHaveBeenCalledWith('/patients/patients/patient-9');
   });
 
+  it('maps directory item contact labels from available patient contact fields', () => {
+    usePatient.mockReturnValue({
+      list: mockList,
+      data: {
+        items: [
+          {
+            id: 'patient-7',
+            first_name: 'Alice',
+            last_name: 'Jones',
+            human_friendly_id: 'PAT-0007',
+            phone_number: '+256700000077',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+      reset: mockReset,
+    });
+
+    const { result } = renderHook(() => usePatientDirectoryScreen());
+    expect(result.current.items[0].contactLabel).toBe('+256700000077');
+  });
+
   it('flags entitlement blocked state for MODULE_NOT_ENTITLED errors', () => {
     usePatient.mockReturnValue({
       list: mockList,

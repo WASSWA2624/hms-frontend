@@ -52,6 +52,7 @@ const buildBaseHook = () => ({
       displayName: 'Jane Doe',
       subtitle: 'FEMALE - 1990-01-01',
       humanFriendlyId: 'PAT-0001',
+      contactLabel: '+256700000010',
       tenantLabel: 'Main Tenant (TEN0001)',
       facilityLabel: 'Main Facility (FAC0001)',
     },
@@ -96,6 +97,7 @@ describe('PatientsOverviewScreen', () => {
           'patients.directory.columns.patient': 'Patient',
           'patients.directory.columns.tenant': 'Tenant',
           'patients.directory.columns.facility': 'Facility',
+          'patients.directory.contactLabel': 'Contact',
           'patients.common.list.columnActions': 'Actions',
           'patients.directory.openWorkspace': 'Details',
           'shell.banners.offline.title': 'Offline',
@@ -118,6 +120,7 @@ describe('PatientsOverviewScreen', () => {
     expect(getByTestId('patients-overview-item-1')).toBeTruthy();
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('PAT-0001')).toBeTruthy();
+    expect(getByText('+256700000010')).toBeTruthy();
     expect(getByText('Main Tenant (TEN0001)')).toBeTruthy();
     expect(getByText('Main Facility (FAC0001)')).toBeTruthy();
   });

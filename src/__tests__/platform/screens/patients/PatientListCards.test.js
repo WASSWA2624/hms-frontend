@@ -31,6 +31,7 @@ describe('PatientListCards', () => {
     onDeletePatient: jest.fn(),
     patientLabel: 'Patient',
     patientIdLabel: 'Patient ID',
+    contactLabel: 'Contact',
     tenantLabel: 'Tenant',
     facilityLabel: 'Facility',
     actionsLabel: 'Actions',
@@ -53,6 +54,7 @@ describe('PatientListCards', () => {
             id: 'patient-1',
             displayName: 'Jane Doe',
             humanFriendlyId: 'PAT000050',
+            contactLabel: '+256700000010',
             tenantLabel: 'Tenant One (TEN-01)',
             facilityLabel: 'Facility One (FAC-01)',
           },
@@ -70,6 +72,7 @@ describe('PatientListCards', () => {
         id: 'patient-alpha',
         displayName: 'Alpha Patient',
         humanFriendlyId: '-',
+        contactLabel: '+256700000010',
         tenantLabel: 'Tenant One',
         facilityLabel: 'Facility One',
       },
@@ -77,6 +80,7 @@ describe('PatientListCards', () => {
         id: 'patient-bravo',
         displayName: 'Bravo Patient',
         humanFriendlyId: '-',
+        contactLabel: '+256700000011',
         tenantLabel: 'Tenant One',
         facilityLabel: 'Facility One',
       },
@@ -113,6 +117,7 @@ describe('PatientListCards', () => {
       id: 'patient-1',
       displayName: 'Jane Doe',
       humanFriendlyId: 'PAT000050',
+      contactLabel: '+256700000010',
       tenantLabel: 'Tenant One (TEN-01)',
       facilityLabel: 'Facility One (FAC-01)',
     };
@@ -130,5 +135,25 @@ describe('PatientListCards', () => {
     expect(baseProps.onOpenPatient).toHaveBeenCalledWith('patient-1');
     expect(baseProps.onEditPatient).toHaveBeenCalledWith('patient-1');
     expect(baseProps.onDeletePatient).toHaveBeenCalledWith('patient-1');
+  });
+
+  it('renders contact values in card fields when provided', () => {
+    const item = {
+      id: 'patient-2',
+      displayName: 'John Doe',
+      humanFriendlyId: 'PAT000051',
+      contactLabel: 'john@example.com',
+      tenantLabel: 'Tenant One',
+      facilityLabel: 'Facility One',
+    };
+    const { getByText } = renderWithTheme(
+      <PatientListCards
+        {...baseProps}
+        items={[item]}
+      />
+    );
+
+    expect(getByText('Contact')).toBeTruthy();
+    expect(getByText('john@example.com')).toBeTruthy();
   });
 });

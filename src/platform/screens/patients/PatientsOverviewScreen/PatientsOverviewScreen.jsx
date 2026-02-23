@@ -219,6 +219,7 @@ const PatientsOverviewScreen = () => {
                 patientIdLabel={t('patients.directory.columns.patientId')}
                 tenantLabel={t('patients.directory.columns.tenant')}
                 facilityLabel={t('patients.directory.columns.facility')}
+                contactLabel={t('patients.directory.contactLabel')}
                 actionsLabel={t('patients.common.list.columnActions')}
                 openButtonLabel={t('patients.directory.openWorkspace')}
                 editButtonLabel={t('common.edit')}

@@ -19,7 +19,7 @@ const StyledBreadcrumbActionGroup = styled.View`
 
 const StyledToolbarCard = styled(Card)`
   gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => theme.spacing.xs}px;
+  padding: 0;
   overflow: visible;
 `;
 

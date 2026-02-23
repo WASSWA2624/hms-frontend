@@ -6,6 +6,7 @@ const RESIZE_HANDLE_WIDTH = 44;
 
 const resolveCellFlex = (columnId) => {
   if (columnId === 'patient') return 1.4;
+  if (columnId === 'contact') return 1.15;
   if (columnId === 'actions') return 1.45;
   if (columnId === 'number') return 0.45;
   return 1;
@@ -101,12 +102,14 @@ const StyledActionButtonsRow = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: ${({ $isCompact }) => ($isCompact ? 'space-between' : 'flex-start')};
   gap: ${({ theme }) => theme.spacing.xs / 2}px;
 `;
 
 const StyledActionButtonSlot = styled.View`
   margin-left: ${({ $isFirst, theme }) => ($isFirst ? 0 : theme.spacing.xs / 2)}px;
+  flex: ${({ $isCompact }) => ($isCompact ? 1 : 'initial')};
+  min-width: ${({ $isCompact, theme }) => ($isCompact ? `${theme.spacing.xxl + theme.spacing.sm}px` : 'auto')};
 `;
 
 const StyledRowNumberBadge = styled.View`
@@ -125,48 +128,71 @@ const StyledCardsGrid = styled.View`
   width: 100%;
   flex-direction: ${({ $isTablet }) => ($isTablet ? 'row' : 'column')};
   flex-wrap: wrap;
+  justify-content: ${({ $isTablet }) => ($isTablet ? 'space-between' : 'flex-start')};
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledPatientCard = styled.View`
-  width: ${({ $isTablet }) => ($isTablet ? '49%' : '100%')};
+  width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
+  flex-basis: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
+  max-width: ${({ $isTablet }) => ($isTablet ? '48%' : '100%')};
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border.light};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.background.primary};
-  padding: ${({ theme }) => theme.spacing.sm}px;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  padding-vertical: ${({ $isCompact, theme }) => (
+    $isCompact ? theme.spacing.xs + 1 : theme.spacing.sm
+  )}px;
+  padding-horizontal: ${({ $isCompact, theme }) => (
+    $isCompact ? theme.spacing.xs + 2 : theme.spacing.sm
+  )}px;
+  gap: ${({ $isCompact, theme }) => ($isCompact ? theme.spacing.xs : theme.spacing.sm)}px;
+  overflow: hidden;
 `;
 
 const StyledPatientCardHeader = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledPatientCardTitle = styled(Text)`
   flex: 1;
+  line-height: ${({ theme }) => theme.typography.lineHeight?.tight || 22}px;
 `;
 
 const StyledPatientCardFields = styled.View`
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => Math.max(2, Math.floor(theme.spacing.xs / 2))}px;
 `;
 
 const StyledPatientCardFieldRow = styled.View`
   flex-direction: row;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  justify-content: flex-start;
+  gap: ${({ $isCompact, theme }) => (
+    $isCompact ? Math.max(6, Math.floor(theme.spacing.xs + 1)) : theme.spacing.sm
+  )}px;
+  min-width: 0;
 `;
 
 const StyledPatientCardFieldLabel = styled(Text)`
-  flex: 0.9;
+  flex-basis: ${({ $isCompact }) => ($isCompact ? '36%' : '33%')};
+  flex-grow: 0;
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => Math.max(10, theme.typography.fontSize.xs - 1)}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  text-transform: uppercase;
 `;
 
 const StyledPatientCardFieldValue = styled(Text)`
-  flex: 1.1;
-  text-align: right;
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  text-align: left;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
 `;
 
 export {

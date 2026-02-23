@@ -26,7 +26,6 @@ const StyledIconText = styled.Text.withConfig({
   displayName: 'StyledIconText',
   componentId: 'StyledIconText',
 })`
-  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${(props) => resolveFontSize(props)}px;
   line-height: ${(props) => Math.round(resolveFontSize(props) * 1.2)}px;
   color: ${(props) => resolveColor(props)};
