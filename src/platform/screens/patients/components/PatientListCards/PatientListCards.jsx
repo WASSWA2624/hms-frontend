@@ -1,13 +1,35 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import styled, { useTheme } from 'styled-components/native';
 import { Button, Icon, Text } from '@platform/components';
-import { Platform, Pressable } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
+import {
+  StyledActionButtonsRow,
+  StyledActionButtonSlot,
+  StyledCardsGrid,
+  StyledCell,
+  StyledCellText,
+  StyledDataRow,
+  StyledHeaderCellContent,
+  StyledHeaderCellText,
+  StyledHeaderRow,
+  StyledPatientCard,
+  StyledPatientCardFieldLabel,
+  StyledPatientCardFieldRow,
+  StyledPatientCardFields,
+  StyledPatientCardFieldValue,
+  StyledPatientCardHeader,
+  StyledPatientCardTitle,
+  StyledResizeHandle,
+  StyledResizeRail,
+  StyledRowNumberBadge,
+  StyledTable,
+} from './PatientListCards.styles';
 
 const sanitizeString = (value) => String(value || '').trim();
 const IS_WEB = Platform.OS === 'web';
-const RESIZE_HANDLE_WIDTH = 14;
 const DEFAULT_WEB_TABLE_WIDTH = 980;
 const ACTION_LABEL_COLLAPSE_WIDTH = 255;
+const SMALL_SCREEN_MAX_WIDTH = 767;
+const TABLET_MAX_WIDTH = 1023;
 
 const clampValue = (value, min, max) => {
   const boundedMin = Number.isFinite(min) ? min : -Infinity;
@@ -15,120 +37,12 @@ const clampValue = (value, min, max) => {
   return Math.min(boundedMax, Math.max(boundedMin, value));
 };
 
-const StyledTable = styled.View`
-  width: 100%;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-`;
-
-const StyledHeaderRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  background-color: ${({ theme }) => theme.colors.background?.secondary || '#f8fafc'};
-  border-bottom-width: 1px;
-  border-bottom-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-`;
-
-const StyledDataRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  border-bottom-width: ${({ $isLastRow }) => ($isLastRow ? 0 : 1)}px;
-  border-bottom-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-  background-color: ${({ $rowIndex, $isHovered, theme }) => {
-    if ($isHovered) {
-      return theme.colors.background?.tertiary || '#eef2f7';
-    }
-    return $rowIndex % 2 === 0
-      ? theme.colors.background?.primary || '#ffffff'
-      : theme.colors.background?.secondary || '#f8fafc';
-  }};
-`;
-
 const resolveCellFlex = (columnId) => {
   if (columnId === 'patient') return 1.4;
   if (columnId === 'actions') return 1.45;
   if (columnId === 'number') return 0.45;
   return 1;
 };
-
-const resolveCellAlignment = (columnId) => {
-  if (columnId === 'actions') return 'flex-start';
-  if (columnId === 'number') return 'center';
-  return 'flex-start';
-};
-
-const StyledCell = styled.View`
-  flex: ${({ $columnId }) => resolveCellFlex($columnId)};
-  min-width: 0;
-  padding: 4px 8px;
-  justify-content: center;
-  align-items: ${({ $columnId }) => resolveCellAlignment($columnId)};
-  border-right-width: ${({ $isLastColumn }) => ($isLastColumn ? 0 : 1)}px;
-  border-right-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-`;
-
-const StyledHeaderCellContent = styled.View`
-  width: 100%;
-  position: relative;
-  padding-right: ${({ $isResizable }) => ($isResizable ? 10 : 0)}px;
-`;
-
-const StyledHeaderCellText = styled(Text)`
-  width: 100%;
-  font-size: 11px;
-  font-weight: ${({ theme }) => theme?.typography?.fontWeight?.semibold || '600'};
-`;
-
-const StyledResizeHandle = styled(Pressable)`
-  position: absolute;
-  top: -4px;
-  right: -8px;
-  bottom: -4px;
-  width: ${RESIZE_HANDLE_WIDTH}px;
-  align-items: center;
-  justify-content: center;
-  z-index: 3;
-  cursor: col-resize;
-`;
-
-const StyledResizeRail = styled.View`
-  width: 2px;
-  height: 70%;
-  border-radius: 999px;
-  background-color: ${({ theme, $active }) => (
-    $active
-      ? theme.colors.primary
-      : theme.colors.border?.default || '#94a3b8'
-  )};
-  opacity: ${({ $active }) => ($active ? 0.98 : 0.8)};
-`;
-
-const StyledCellText = styled(Text)`
-  width: 100%;
-`;
-
-const StyledActionButtonsRow = styled.View`
-  width: 100%;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const StyledActionButtonSlot = styled.View`
-  margin-left: ${({ $isFirst }) => ($isFirst ? 0 : 2)}px;
-`;
-
-const StyledRowNumberBadge = styled.View`
-  min-width: 20px;
-  height: 18px;
-  padding-horizontal: 5px;
-  border-radius: 999px;
-  align-items: center;
-  justify-content: center;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-  background-color: ${({ theme }) => theme.colors.background?.primary || '#ffffff'};
-`;
 
 const resolveLabel = (value, fallback = '-') => {
   const normalized = sanitizeString(value);
@@ -150,14 +64,16 @@ const resolveNumericSuffix = (value) => {
   return toPositiveInteger(match[1]);
 };
 
-const resolveStableIdentity = (item) =>
+const resolveStableIdentity = (item) => (
   sanitizeString(item?.id)
   || sanitizeString(item?.listKey)
   || sanitizeString(item?.humanFriendlyId)
-  || sanitizeString(item?.displayName);
+  || sanitizeString(item?.displayName)
+);
 
-const toTestIdSegment = (value) =>
-  sanitizeString(value).replace(/[^a-z0-9_-]+/gi, '-');
+const toTestIdSegment = (value) => (
+  sanitizeString(value).replace(/[^a-z0-9_-]+/gi, '-')
+);
 
 const hashToPositiveInteger = (value) => {
   const normalized = sanitizeString(value);
@@ -177,85 +93,42 @@ const PatientListCards = ({
   onOpenPatient,
   onEditPatient,
   onDeletePatient,
-  patientLabel = 'Patient',
-  patientIdLabel,
-  tenantLabel,
-  facilityLabel,
-  openButtonLabel,
-  editButtonLabel = 'Edit',
-  deleteButtonLabel = 'Delete',
-  actionsLabel = 'Actions',
+  patientLabel = '',
+  patientIdLabel = '',
+  tenantLabel = '',
+  facilityLabel = '',
+  openButtonLabel = '',
+  editButtonLabel = '',
+  deleteButtonLabel = '',
+  actionsLabel = '',
+  numberLabel = '#',
+  emptyValueLabel = '-',
   resolveOpenAccessibilityLabel,
   resolveEditAccessibilityLabel,
   resolveDeleteAccessibilityLabel,
+  resolveResizeAccessibilityLabel,
+  resolveUnnamedPatientLabel,
   testIdPrefix,
   showNumbers = true,
 }) => {
-  const theme = useTheme();
+  const { width: viewportWidth } = useWindowDimensions();
   const tableRef = useRef(null);
   const resizeCleanupRef = useRef(null);
   const [tableWidth, setTableWidth] = useState(0);
   const [columnWidths, setColumnWidths] = useState({});
   const [activeResizeColumnId, setActiveResizeColumnId] = useState(null);
   const [hoveredRowKey, setHoveredRowKey] = useState(null);
-  const compactActionButtonStyle = useMemo(
-    () => ({
-      minHeight: 28,
-      paddingLeft: 8,
-      paddingRight: 8,
-      paddingTop: 2,
-      paddingBottom: 2,
-    }),
-    []
-  );
-  const compactIconActionButtonStyle = useMemo(
-    () => ({
-      ...compactActionButtonStyle,
-      minWidth: 30,
-      paddingLeft: 6,
-      paddingRight: 6,
-    }),
-    [compactActionButtonStyle]
-  );
-  const editButtonStyle = useMemo(
-    () => ({
-      ...compactIconActionButtonStyle,
-      borderColor: `${theme?.colors?.primary || '#2563eb'}66`,
-      backgroundColor: theme?.colors?.background?.primary || '#ffffff',
-    }),
-    [compactIconActionButtonStyle, theme]
-  );
-  const editButtonStyleWithLabel = useMemo(
-    () => ({
-      ...compactActionButtonStyle,
-      borderColor: `${theme?.colors?.primary || '#2563eb'}66`,
-      backgroundColor: theme?.colors?.background?.primary || '#ffffff',
-    }),
-    [compactActionButtonStyle, theme]
-  );
-  const deleteButtonStyle = useMemo(
-    () => ({
-      ...compactIconActionButtonStyle,
-      borderColor: `${theme?.colors?.error || '#dc2626'}66`,
-      backgroundColor: theme?.colors?.background?.primary || '#ffffff',
-    }),
-    [compactIconActionButtonStyle, theme]
-  );
-  const deleteButtonStyleWithLabel = useMemo(
-    () => ({
-      ...compactActionButtonStyle,
-      borderColor: `${theme?.colors?.error || '#dc2626'}66`,
-      backgroundColor: theme?.colors?.background?.primary || '#ffffff',
-    }),
-    [compactActionButtonStyle, theme]
-  );
+  const safeViewportWidth = Number.isFinite(viewportWidth) ? viewportWidth : 0;
+  const isSmallScreen = safeViewportWidth > 0 && safeViewportWidth <= SMALL_SCREEN_MAX_WIDTH;
+  const isTabletScreen = safeViewportWidth > SMALL_SCREEN_MAX_WIDTH && safeViewportWidth <= TABLET_MAX_WIDTH;
+  const useResponsiveCards = !IS_WEB || isSmallScreen || isTabletScreen;
 
   const normalizedItems = useMemo(() => {
     const sourceItems = Array.isArray(items) ? items : [];
 
     return sourceItems.map((item, index) => {
       const stableIdentity = resolveStableIdentity(item);
-      const rowKey = stableIdentity || `${resolveLabel(item?.displayName, 'Patient')}-${index + 1}`;
+      const rowKey = stableIdentity || `${resolveLabel(item?.displayName, 'row')}-${index + 1}`;
 
       const explicitNumber = (
         toPositiveInteger(item?.cardNumber)
@@ -302,11 +175,11 @@ const PatientListCards = ({
     return [
       {
         id: 'number',
-        label: '#',
+        label: numberLabel,
       },
       ...tableColumns,
     ];
-  }, [actionsLabel, facilityLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
+  }, [actionsLabel, facilityLabel, numberLabel, patientIdLabel, patientLabel, showNumbers, tenantLabel]);
 
   const totalColumnFlex = useMemo(
     () => columns.reduce((sum, column) => sum + resolveCellFlex(column.id), 0),
@@ -332,15 +205,10 @@ const PatientListCards = ({
     return widthMap;
   }, [columnWidths, columns, resolveDefaultWebWidth]);
 
-  const resolveColumnStyle = useCallback((columnId) => {
-    if (!IS_WEB) return undefined;
+  const resolveColumnWidth = useCallback((columnId) => {
+    if (!IS_WEB) return null;
     const width = resolvedColumnWidths[columnId] || resolveDefaultWebWidth(columnId);
-    return {
-      width,
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: width,
-    };
+    return width;
   }, [resolvedColumnWidths, resolveDefaultWebWidth]);
 
   const actionColumnWidth = useMemo(() => {
@@ -350,7 +218,7 @@ const PatientListCards = ({
     return resolveDefaultWebWidth('actions');
   }, [resolvedColumnWidths.actions, resolveDefaultWebWidth]);
 
-  const showActionLabels = !IS_WEB || actionColumnWidth >= ACTION_LABEL_COLLAPSE_WIDTH;
+  const showActionLabels = !isSmallScreen && (!IS_WEB || actionColumnWidth >= ACTION_LABEL_COLLAPSE_WIDTH);
 
   const handleColumnResizeStart = useCallback((event, columnIndex) => {
     if (!IS_WEB || typeof window === 'undefined' || typeof document === 'undefined') return;
@@ -487,18 +355,173 @@ const PatientListCards = ({
     if (!hasHoveredRow) setHoveredRowKey(null);
   }, [hoveredRowKey, normalizedItems]);
 
+  const renderActionButtons = useCallback(({
+    patientId,
+    index,
+    canOpenPatient,
+    canEditPatient,
+    canDeletePatient,
+    openAccessibilityLabel,
+    editAccessibilityLabel,
+    deleteAccessibilityLabel,
+  }) => (
+    <StyledActionButtonsRow>
+      <StyledActionButtonSlot $isFirst>
+        <Button
+          variant="surface"
+          size="medium"
+          onPress={() => onOpenPatient?.(patientId)}
+          disabled={!canOpenPatient}
+          accessibilityLabel={openAccessibilityLabel}
+          icon={<Icon glyph={'\u2139'} size="xs" tone="primary" decorative />}
+          testID={testIdPrefix ? `${testIdPrefix}${index + 1}` : undefined}
+        >
+          {showActionLabels ? openButtonLabel : null}
+        </Button>
+      </StyledActionButtonSlot>
+      <StyledActionButtonSlot>
+        <Button
+          variant="surface"
+          size="medium"
+          onPress={() => onEditPatient?.(patientId)}
+          disabled={!canEditPatient}
+          accessibilityLabel={editAccessibilityLabel}
+          icon={<Icon glyph={'\u270e'} size="xs" tone="primary" decorative />}
+          testID={testIdPrefix ? `${testIdPrefix}edit-${index + 1}` : undefined}
+        >
+          {showActionLabels ? editButtonLabel : null}
+        </Button>
+      </StyledActionButtonSlot>
+      <StyledActionButtonSlot>
+        <Button
+          variant="surface"
+          size="medium"
+          onPress={() => onDeletePatient?.(patientId)}
+          disabled={!canDeletePatient}
+          accessibilityLabel={deleteAccessibilityLabel}
+          icon={<Icon glyph={'\u2715'} size="xs" tone="error" decorative />}
+          testID={testIdPrefix ? `${testIdPrefix}delete-${index + 1}` : undefined}
+        >
+          {showActionLabels ? deleteButtonLabel : null}
+        </Button>
+      </StyledActionButtonSlot>
+    </StyledActionButtonsRow>
+  ), [
+    onDeletePatient,
+    onEditPatient,
+    onOpenPatient,
+    deleteButtonLabel,
+    editButtonLabel,
+    openButtonLabel,
+    showActionLabels,
+    testIdPrefix,
+  ]);
+
+  if (useResponsiveCards) {
+    return (
+      <StyledCardsGrid $isTablet={isTabletScreen}>
+        {normalizedItems.map((item, index) => {
+          const patientId = sanitizeString(item?.id);
+          const openAccessibilityLabel = typeof resolveOpenAccessibilityLabel === 'function'
+            ? resolveOpenAccessibilityLabel(item, index)
+            : openButtonLabel;
+          const editAccessibilityLabel = typeof resolveEditAccessibilityLabel === 'function'
+            ? resolveEditAccessibilityLabel(item, index)
+            : editButtonLabel;
+          const deleteAccessibilityLabel = typeof resolveDeleteAccessibilityLabel === 'function'
+            ? resolveDeleteAccessibilityLabel(item, index)
+            : deleteButtonLabel;
+          const canOpenPatient = Boolean(patientId) && typeof onOpenPatient === 'function';
+          const canEditPatient = Boolean(patientId) && typeof onEditPatient === 'function';
+          const canDeletePatient = Boolean(patientId) && typeof onDeletePatient === 'function';
+          const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
+            ? resolveUnnamedPatientLabel(index)
+            : resolveLabel(patientLabel, emptyValueLabel);
+          const patientName = resolveLabel(item?.displayName, unnamedPatientLabel);
+          const fieldRows = [
+            {
+              key: 'patientId',
+              label: patientIdLabel,
+              value: resolveLabel(item?.humanFriendlyId, emptyValueLabel),
+            },
+            {
+              key: 'tenant',
+              label: tenantLabel,
+              value: resolveLabel(item?.tenantLabel, emptyValueLabel),
+            },
+            {
+              key: 'facility',
+              label: facilityLabel,
+              value: resolveLabel(item?.facilityLabel, emptyValueLabel),
+            },
+          ].filter((field) => sanitizeString(field.label));
+
+          return (
+            <StyledPatientCard
+              key={item.__rowKey}
+              $isTablet={isTabletScreen}
+              testID={testIdPrefix ? `${testIdPrefix}row-${toTestIdSegment(item.__rowKey)}` : undefined}
+            >
+              <StyledPatientCardHeader>
+                <StyledPatientCardTitle variant="label" numberOfLines={1} ellipsizeMode="tail">
+                  {patientName}
+                </StyledPatientCardTitle>
+                {showNumbers ? (
+                  <StyledRowNumberBadge testID={testIdPrefix ? `${testIdPrefix}number-${toTestIdSegment(item.__rowKey)}` : undefined}>
+                    <Text variant="caption">{item.__cardNumber}</Text>
+                  </StyledRowNumberBadge>
+                ) : null}
+              </StyledPatientCardHeader>
+
+              {fieldRows.length > 0 ? (
+                <StyledPatientCardFields>
+                  {fieldRows.map((field) => (
+                    <StyledPatientCardFieldRow key={field.key}>
+                      <StyledPatientCardFieldLabel variant="caption">
+                        {field.label}
+                      </StyledPatientCardFieldLabel>
+                      <StyledPatientCardFieldValue variant="caption" numberOfLines={1} ellipsizeMode="tail">
+                        {field.value}
+                      </StyledPatientCardFieldValue>
+                    </StyledPatientCardFieldRow>
+                  ))}
+                </StyledPatientCardFields>
+              ) : null}
+
+              {renderActionButtons({
+                patientId,
+                index,
+                canOpenPatient,
+                canEditPatient,
+                canDeletePatient,
+                openAccessibilityLabel,
+                editAccessibilityLabel,
+                deleteAccessibilityLabel,
+              })}
+            </StyledPatientCard>
+          );
+        })}
+      </StyledCardsGrid>
+    );
+  }
+
   return (
     <StyledTable ref={tableRef}>
       <StyledHeaderRow>
         {columns.map((column, columnIndex) => {
           const isLastColumn = columnIndex === columns.length - 1;
           const canResizeColumn = IS_WEB && !isLastColumn;
+          const resizeAccessibilityLabel = typeof resolveResizeAccessibilityLabel === 'function'
+            ? resolveResizeAccessibilityLabel(column, columnIndex)
+            : column.label;
+
           return (
             <StyledCell
               key={column.id}
               $columnId={column.id}
               $isLastColumn={isLastColumn}
-              style={resolveColumnStyle(column.id)}
+              $isWeb={IS_WEB}
+              $columnWidth={resolveColumnWidth(column.id)}
             >
               <StyledHeaderCellContent $isResizable={canResizeColumn}>
                 <StyledHeaderCellText variant="caption" numberOfLines={1} ellipsizeMode="tail">
@@ -507,7 +530,7 @@ const PatientListCards = ({
                 {canResizeColumn ? (
                   <StyledResizeHandle
                     accessibilityRole="button"
-                    accessibilityLabel={`Resize ${column.label}`}
+                    accessibilityLabel={resizeAccessibilityLabel}
                     onMouseDown={(event) => handleColumnResizeStart(event, columnIndex)}
                     onPress={(pressEvent) => pressEvent?.stopPropagation?.()}
                     testID={`patient-table-resize-${column.id}`}
@@ -537,6 +560,9 @@ const PatientListCards = ({
         const canDeletePatient = Boolean(patientId) && typeof onDeletePatient === 'function';
         const isLastRow = index === normalizedItems.length - 1;
         const isHovered = hoveredRowKey === item.__rowKey;
+        const unnamedPatientLabel = typeof resolveUnnamedPatientLabel === 'function'
+          ? resolveUnnamedPatientLabel(index)
+          : resolveLabel(patientLabel, emptyValueLabel);
 
         return (
           <StyledDataRow
@@ -552,8 +578,8 @@ const PatientListCards = ({
               const isLastColumn = columnIndex === columns.length - 1;
               const numberBadgeTestId = (
                 column.id === 'number'
-                ? `${testIdPrefix || ''}number-${toTestIdSegment(item.__rowKey)}`
-                : undefined
+                  ? `${testIdPrefix || ''}number-${toTestIdSegment(item.__rowKey)}`
+                  : undefined
               );
 
               if (column.id === 'number') {
@@ -562,7 +588,8 @@ const PatientListCards = ({
                     key={`${item.__rowKey}-${column.id}`}
                     $columnId={column.id}
                     $isLastColumn={isLastColumn}
-                    style={resolveColumnStyle(column.id)}
+                    $isWeb={IS_WEB}
+                    $columnWidth={resolveColumnWidth(column.id)}
                   >
                     <StyledRowNumberBadge testID={numberBadgeTestId}>
                       <Text variant="caption">{item.__cardNumber}</Text>
@@ -572,81 +599,39 @@ const PatientListCards = ({
               }
 
               if (column.id === 'actions') {
-                const detailsButtonStyle = showActionLabels
-                  ? compactActionButtonStyle
-                  : compactIconActionButtonStyle;
-                const editActionStyle = showActionLabels
-                  ? editButtonStyleWithLabel
-                  : editButtonStyle;
-                const deleteActionStyle = showActionLabels
-                  ? deleteButtonStyleWithLabel
-                  : deleteButtonStyle;
                 return (
                   <StyledCell
                     key={`${item.__rowKey}-${column.id}`}
                     $columnId={column.id}
                     $isLastColumn={isLastColumn}
-                    style={resolveColumnStyle(column.id)}
+                    $isWeb={IS_WEB}
+                    $columnWidth={resolveColumnWidth(column.id)}
                   >
-                    <StyledActionButtonsRow>
-                      <StyledActionButtonSlot $isFirst>
-                        <Button
-                          variant="surface"
-                          size="small"
-                          onPress={() => onOpenPatient?.(patientId)}
-                          disabled={!canOpenPatient}
-                          accessibilityLabel={openAccessibilityLabel}
-                          icon={<Icon glyph={'\u2139'} size="xs" tone="primary" decorative />}
-                          style={detailsButtonStyle}
-                          testID={testIdPrefix ? `${testIdPrefix}${index + 1}` : undefined}
-                        >
-                          {showActionLabels ? openButtonLabel : null}
-                        </Button>
-                      </StyledActionButtonSlot>
-                      <StyledActionButtonSlot>
-                        <Button
-                          variant="surface"
-                          size="small"
-                          onPress={() => onEditPatient?.(patientId)}
-                          disabled={!canEditPatient}
-                          accessibilityLabel={editAccessibilityLabel}
-                          icon={<Icon glyph={'\u270e'} size="xs" tone="primary" decorative />}
-                          style={editActionStyle}
-                          testID={testIdPrefix ? `${testIdPrefix}edit-${index + 1}` : undefined}
-                        >
-                          {showActionLabels ? editButtonLabel : null}
-                        </Button>
-                      </StyledActionButtonSlot>
-                      <StyledActionButtonSlot>
-                        <Button
-                          variant="surface"
-                          size="small"
-                          onPress={() => onDeletePatient?.(patientId)}
-                          disabled={!canDeletePatient}
-                          accessibilityLabel={deleteAccessibilityLabel}
-                          icon={<Icon glyph={'\u2715'} size="xs" tone="error" decorative />}
-                          style={deleteActionStyle}
-                          testID={testIdPrefix ? `${testIdPrefix}delete-${index + 1}` : undefined}
-                        >
-                          {showActionLabels ? deleteButtonLabel : null}
-                        </Button>
-                      </StyledActionButtonSlot>
-                    </StyledActionButtonsRow>
+                    {renderActionButtons({
+                      patientId,
+                      index,
+                      canOpenPatient,
+                      canEditPatient,
+                      canDeletePatient,
+                      openAccessibilityLabel,
+                      editAccessibilityLabel,
+                      deleteAccessibilityLabel,
+                    })}
                   </StyledCell>
                 );
               }
 
-              let value = '-';
+              let value = emptyValueLabel;
               let variant = 'caption';
               if (column.id === 'patient') {
-                value = resolveLabel(item?.displayName, `Patient ${index + 1}`);
+                value = resolveLabel(item?.displayName, unnamedPatientLabel);
                 variant = 'label';
               } else if (column.id === 'patientId') {
-                value = resolveLabel(item?.humanFriendlyId);
+                value = resolveLabel(item?.humanFriendlyId, emptyValueLabel);
               } else if (column.id === 'tenant') {
-                value = resolveLabel(item?.tenantLabel);
+                value = resolveLabel(item?.tenantLabel, emptyValueLabel);
               } else if (column.id === 'facility') {
-                value = resolveLabel(item?.facilityLabel);
+                value = resolveLabel(item?.facilityLabel, emptyValueLabel);
               }
 
               return (
@@ -654,7 +639,8 @@ const PatientListCards = ({
                   key={`${item.__rowKey}-${column.id}`}
                   $columnId={column.id}
                   $isLastColumn={isLastColumn}
-                  style={resolveColumnStyle(column.id)}
+                  $isWeb={IS_WEB}
+                  $columnWidth={resolveColumnWidth(column.id)}
                 >
                   <StyledCellText variant={variant} numberOfLines={1} ellipsizeMode="tail">
                     {value}

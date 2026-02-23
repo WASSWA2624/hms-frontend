@@ -6,6 +6,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useWindowDimensions } from 'react-native';
+import Button from '@platform/components/forms/Button';
 import Text from '@platform/components/display/Text';
 import Icon from '@platform/components/display/Icon';
 import { useI18n } from '@hooks';
@@ -14,8 +15,6 @@ import {
   StyledBreadcrumbs,
   StyledBreadcrumbsList,
   StyledBreadcrumbsActions,
-  StyledBackButton,
-  StyledBackLabel,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledBreadcrumbLink,
@@ -25,7 +24,7 @@ import {
 } from './Breadcrumbs.web.styles';
 
 const ELLIPSIS_I18N_KEY = 'navigation.breadcrumbs.ellipsis';
-const BACK_ICON_GLYPH = '<';
+const BACK_ICON_GLYPH = '\u2190';
 const isActivationKey = (key) => key === 'Enter' || key === ' ' || key === 'Spacebar';
 
 /**
@@ -250,17 +249,17 @@ const BreadcrumbsWeb = ({
         <StyledBreadcrumbsActions>
           {actionsBeforeBack || null}
           {showBackButton ? (
-            <StyledBackButton
-              type="button"
-              onClick={canGoBack ? handleBack : undefined}
+            <Button
+              variant="surface"
+              size="medium"
+              onPress={canGoBack ? handleBack : undefined}
               disabled={!canGoBack}
-              aria-label={t('common.back')}
-              data-testid={testID ? `${testID}-back` : undefined}
+              accessibilityLabel={t('common.back')}
               testID={testID ? `${testID}-back` : undefined}
+              icon={<Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />}
             >
-              <Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />
-              <StyledBackLabel>{t('common.back')}</StyledBackLabel>
-            </StyledBackButton>
+              {!isMobile ? t('common.back') : null}
+            </Button>
           ) : null}
         </StyledBreadcrumbsActions>
       ) : null}

@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components/native';
 import {
   Button,
   Card,
@@ -15,35 +14,17 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import EntitlementBlockedState from '../components/EntitlementBlockedState';
+import FieldHelpTrigger from '../components/FieldHelpTrigger';
+import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
-  EntitlementBlockedState,
-  FieldHelpTrigger,
-  InlineFieldGuide,
-} from '../components';
+  StyledActions,
+  StyledContainer,
+  StyledFieldBlock,
+  StyledFormGrid,
+  StyledHeader,
+} from './PatientQuickCreateScreen.styles';
 import usePatientQuickCreateScreen from './usePatientQuickCreateScreen';
-
-const StyledContainer = styled.View`
-  flex: 1;
-  gap: 16px;
-`;
-
-const StyledHeader = styled.View`
-  gap: 8px;
-`;
-
-const StyledFormGrid = styled.View`
-  gap: 12px;
-`;
-
-const StyledFieldBlock = styled.View`
-  gap: 4px;
-`;
-
-const StyledActions = styled.View`
-  flex-direction: row;
-  gap: 8px;
-  justify-content: flex-end;
-`;
 
 const PatientQuickCreateScreen = () => {
   const { t } = useI18n();
@@ -126,10 +107,10 @@ const PatientQuickCreateScreen = () => {
           action={
             <Button
               variant="surface"
-              size="small"
+              size="medium"
               onPress={onRetry}
               accessibilityLabel={t('common.retry')}
-              icon={<Icon glyph="?" size="xs" decorative />}
+              icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
             >
               {t('common.retry')}
             </Button>
@@ -276,21 +257,21 @@ const PatientQuickCreateScreen = () => {
         <StyledActions>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onCancel}
             accessibilityLabel={t('patients.resources.patients.form.cancel')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
           >
             {t('patients.resources.patients.form.cancel')}
           </Button>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onSubmit}
             disabled={!canCreatePatientRecords || isLoading}
             loading={isLoading}
             accessibilityLabel={t('patients.resources.patients.form.submitCreate')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2713'} size="xs" decorative />}
             testID="patient-quick-create-submit"
           >
             {t('patients.resources.patients.form.submitCreate')}
@@ -302,3 +283,4 @@ const PatientQuickCreateScreen = () => {
 };
 
 export default PatientQuickCreateScreen;
+

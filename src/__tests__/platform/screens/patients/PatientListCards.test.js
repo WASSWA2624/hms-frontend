@@ -29,10 +29,14 @@ describe('PatientListCards', () => {
     onOpenPatient: jest.fn(),
     onEditPatient: jest.fn(),
     onDeletePatient: jest.fn(),
+    patientLabel: 'Patient',
     patientIdLabel: 'Patient ID',
     tenantLabel: 'Tenant',
     facilityLabel: 'Facility',
+    actionsLabel: 'Actions',
     openButtonLabel: 'Details',
+    editButtonLabel: 'Edit',
+    deleteButtonLabel: 'Delete',
     testIdPrefix: 'patient-list-',
   };
 

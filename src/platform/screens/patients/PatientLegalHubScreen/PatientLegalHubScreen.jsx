@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components/native';
 import {
   Button,
   Card,
@@ -15,66 +14,22 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import EntitlementBlockedState from '../components/EntitlementBlockedState';
+import FieldHelpTrigger from '../components/FieldHelpTrigger';
+import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
-  EntitlementBlockedState,
-  FieldHelpTrigger,
-  InlineFieldGuide,
-} from '../components';
+  StyledActions,
+  StyledContainer,
+  StyledField,
+  StyledForm,
+  StyledFormActions,
+  StyledHeader,
+  StyledList,
+  StyledListItem,
+  StyledListItemHeader,
+  StyledTabRow,
+} from './PatientLegalHubScreen.styles';
 import usePatientLegalHubScreen from './usePatientLegalHubScreen';
-
-const StyledContainer = styled.View`
-  flex: 1;
-  gap: 14px;
-`;
-
-const StyledHeader = styled.View`
-  gap: 6px;
-`;
-
-const StyledTabRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const StyledActions = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const StyledList = styled.View`
-  gap: 8px;
-`;
-
-const StyledListItem = styled.View`
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-  border-radius: 10px;
-  padding: 10px;
-  gap: 4px;
-`;
-
-const StyledListItemHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
-const StyledForm = styled.View`
-  gap: 12px;
-`;
-
-const StyledField = styled.View`
-  gap: 4px;
-`;
-
-const StyledFormActions = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 8px;
-`;
 
 const PatientLegalHubScreen = () => {
   const { t } = useI18n();
@@ -256,19 +211,19 @@ const PatientLegalHubScreen = () => {
         <StyledFormActions>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onCloseEditor}
             accessibilityLabel={t('patients.legal.actions.cancel')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
           >
             {t('patients.legal.actions.cancel')}
           </Button>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onSubmitEditor}
             accessibilityLabel={t('patients.legal.actions.save')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2713'} size="xs" decorative />}
           >
             {t('patients.legal.actions.save')}
           </Button>
@@ -289,7 +244,7 @@ const PatientLegalHubScreen = () => {
           <Button
             key={tab}
             variant="surface"
-            size="small"
+            size="medium"
             onPress={() => onSelectTab(tab)}
             accessibilityLabel={t(`patients.legal.tabs.${tab}`)}
             icon={<Icon glyph="?" size="xs" decorative />}
@@ -302,17 +257,17 @@ const PatientLegalHubScreen = () => {
       <StyledActions>
         <Button
           variant="surface"
-          size="small"
+          size="medium"
           onPress={onRetry}
           accessibilityLabel={t('patients.legal.actions.refresh')}
-          icon={<Icon glyph="?" size="xs" decorative />}
+          icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
         >
           {t('patients.legal.actions.refresh')}
         </Button>
         {canManagePatientRecords ? (
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onStartCreate}
             accessibilityLabel={t('patients.legal.actions.newRecord')}
             icon={<Icon glyph="+" size="xs" decorative />}
@@ -371,10 +326,10 @@ const PatientLegalHubScreen = () => {
                       {activeTab === 'consents' && canManagePatientRecords ? (
                         <Button
                           variant="surface"
-                          size="small"
+                          size="medium"
                           onPress={() => onStartEdit(row)}
                           accessibilityLabel={t('patients.legal.actions.editRecord')}
-                          icon={<Icon glyph="?" size="xs" decorative />}
+                          icon={<Icon glyph={'\u270e'} size="xs" decorative />}
                         >
                           {t('patients.legal.actions.editRecord')}
                         </Button>
@@ -382,10 +337,10 @@ const PatientLegalHubScreen = () => {
                       {canDeletePatientRecords ? (
                         <Button
                           variant="surface"
-                          size="small"
+                          size="medium"
                           onPress={() => onDeleteRecord(row)}
                           accessibilityLabel={t('patients.legal.actions.deleteRecord')}
-                          icon={<Icon glyph="?" size="xs" decorative />}
+                          icon={<Icon glyph={'\u2715'} size="xs" decorative />}
                         >
                           {t('patients.legal.actions.deleteRecord')}
                         </Button>
@@ -417,3 +372,4 @@ const PatientLegalHubScreen = () => {
 };
 
 export default PatientLegalHubScreen;
+

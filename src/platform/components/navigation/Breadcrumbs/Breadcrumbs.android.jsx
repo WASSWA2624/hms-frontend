@@ -5,20 +5,23 @@
  */
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import { useWindowDimensions } from 'react-native';
+import Button from '@platform/components/forms/Button';
 import Icon from '@platform/components/display/Icon';
 import { useI18n } from '@hooks';
+import breakpoints from '@theme/breakpoints';
 import {
   StyledBreadcrumbs,
   StyledBreadcrumbsList,
   StyledBreadcrumbsActions,
-  StyledBackButton,
-  StyledBackLabel,
   StyledBreadcrumbItem,
   StyledSeparator,
   StyledLink,
   StyledBreadcrumbText,
   StyledBreadcrumbIcon,
 } from './Breadcrumbs.android.styles';
+
+const BACK_ICON_GLYPH = '\u2190';
 
 /**
  * Breadcrumbs component for Android
@@ -47,6 +50,8 @@ const BreadcrumbsAndroid = ({
 }) => {
   const { t } = useI18n();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isCompact = width < breakpoints.tablet;
 
   if (!items || items.length === 0) return null;
 
@@ -150,16 +155,18 @@ const BreadcrumbsAndroid = ({
         <StyledBreadcrumbsActions>
           {actionsBeforeBack || null}
           {showBackButton ? (
-            <StyledBackButton
+            <Button
+              variant="surface"
+              size="medium"
               onPress={canGoBack ? handleBack : undefined}
               disabled={!canGoBack}
               accessibilityRole="button"
               accessibilityLabel={t('common.back')}
               testID={testID ? `${testID}-back` : undefined}
+              icon={<Icon glyph={BACK_ICON_GLYPH} size="xs" decorative />}
             >
-              <Icon glyph="<" size="xs" decorative />
-              <StyledBackLabel>{t('common.back')}</StyledBackLabel>
-            </StyledBackButton>
+              {!isCompact ? t('common.back') : null}
+            </Button>
           ) : null}
         </StyledBreadcrumbsActions>
       ) : null}

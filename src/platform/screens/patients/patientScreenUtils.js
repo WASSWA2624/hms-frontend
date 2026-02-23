@@ -60,14 +60,23 @@ const filterDetailRowsByIdentityPolicy = (rows, canViewTechnicalIds) => {
   return normalizedRows.filter((row) => !isTechnicalFieldKey(row?.valueKey));
 };
 
-const formatFieldValue = (value, type, locale, formatDateTime) => {
-  if (value == null || value === '') return '-';
-  if (type === 'boolean') return value ? 'true' : 'false';
+const resolveFallbackValue = (t) => (
+  typeof t === 'function' ? t('common.notAvailable') : '-'
+);
+
+const formatFieldValue = (value, type, locale, formatDateTime, t) => {
+  if (value == null || value === '') return resolveFallbackValue(t);
+  if (type === 'boolean') {
+    if (typeof t === 'function') {
+      return value ? t('common.boolean.true') : t('common.boolean.false');
+    }
+    return value ? 'true' : 'false';
+  }
   if (type === 'datetime') {
     return formatDateTime(value, locale);
   }
   const readable = humanizeDisplayText(value);
-  return readable || '-';
+  return readable || resolveFallbackValue(t);
 };
 
 const normalizePatientContextId = (searchParamValue) => {

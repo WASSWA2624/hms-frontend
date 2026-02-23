@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components/native';
 import {
   Button,
   Card,
@@ -16,81 +15,25 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import EntitlementBlockedState from '../components/EntitlementBlockedState';
+import FieldHelpTrigger from '../components/FieldHelpTrigger';
+import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
-  EntitlementBlockedState,
-  FieldHelpTrigger,
-  InlineFieldGuide,
-} from '../components';
+  StyledActions,
+  StyledBadgeText,
+  StyledContainer,
+  StyledFieldBlock,
+  StyledFormActions,
+  StyledFormGrid,
+  StyledHeader,
+  StyledItemHeader,
+  StyledListItem,
+  StyledPanelRow,
+  StyledSummaryGrid,
+  StyledSummaryValue,
+  StyledTabRow,
+} from './PatientWorkspaceScreen.styles';
 import usePatientWorkspaceScreen from './usePatientWorkspaceScreen';
-
-const StyledContainer = styled.View`
-  flex: 1;
-  gap: 14px;
-`;
-
-const StyledHeader = styled.View`
-  gap: 6px;
-`;
-
-const StyledTabRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const StyledPanelRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const StyledSummaryGrid = styled.View`
-  gap: 8px;
-`;
-
-const StyledSummaryValue = styled.Text`
-  color: ${({ theme }) => theme.colors.text?.muted || '#5b677a'};
-`;
-
-const StyledActions = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const StyledListItem = styled.View`
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border?.subtle || '#e2e8f0'};
-  border-radius: 10px;
-  padding: 10px;
-  gap: 4px;
-`;
-
-const StyledItemHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
-const StyledFieldBlock = styled.View`
-  gap: 4px;
-`;
-
-const StyledFormGrid = styled.View`
-  gap: 12px;
-`;
-
-const StyledFormActions = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 8px;
-`;
-
-const StyledBadgeText = styled.Text`
-  color: ${({ theme }) => theme.colors.text?.muted || '#5b677a'};
-  font-size: 12px;
-`;
 
 const PatientWorkspaceScreen = () => {
   const { t } = useI18n();
@@ -160,10 +103,10 @@ const PatientWorkspaceScreen = () => {
         <StyledActions>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onStartSummaryEdit}
             accessibilityLabel={t('patients.workspace.actions.editRecord')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
           >
             {t('patients.workspace.actions.editRecord')}
           </Button>
@@ -266,19 +209,19 @@ const PatientWorkspaceScreen = () => {
       <StyledFormActions>
         <Button
           variant="surface"
-          size="small"
+          size="medium"
           onPress={onCancelSummaryEdit}
           accessibilityLabel={t('patients.workspace.actions.cancel')}
-          icon={<Icon glyph="?" size="xs" decorative />}
+          icon={<Icon glyph={'\u2715'} size="xs" decorative />}
         >
           {t('patients.workspace.actions.cancel')}
         </Button>
         <Button
           variant="surface"
-          size="small"
+          size="medium"
           onPress={onSaveSummary}
           accessibilityLabel={t('patients.workspace.actions.save')}
-          icon={<Icon glyph="?" size="xs" decorative />}
+          icon={<Icon glyph={'\u2713'} size="xs" decorative />}
         >
           {t('patients.workspace.actions.save')}
         </Button>
@@ -368,19 +311,19 @@ const PatientWorkspaceScreen = () => {
         <StyledFormActions>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onClosePanelEditor}
             accessibilityLabel={t('patients.workspace.actions.cancel')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
           >
             {t('patients.workspace.actions.cancel')}
           </Button>
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onPanelSubmit}
             accessibilityLabel={t('patients.workspace.actions.save')}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            icon={<Icon glyph={'\u2713'} size="xs" decorative />}
           >
             {t('patients.workspace.actions.save')}
           </Button>
@@ -404,7 +347,7 @@ const PatientWorkspaceScreen = () => {
           <Button
             key={tab}
             variant="surface"
-            size="small"
+            size="medium"
             onPress={() => onSelectTab(tab)}
             accessibilityLabel={t(`patients.workspace.tabs.${tab}`)}
             icon={<Icon glyph="?" size="xs" decorative />}
@@ -420,7 +363,7 @@ const PatientWorkspaceScreen = () => {
             <Button
               key={panel}
               variant="surface"
-              size="small"
+              size="medium"
               onPress={() => onSelectPanel(panel)}
               accessibilityLabel={t(`patients.workspace.panels.${panel}`)}
               icon={<Icon glyph="?" size="xs" decorative />}
@@ -434,17 +377,17 @@ const PatientWorkspaceScreen = () => {
       <StyledActions>
         <Button
           variant="surface"
-          size="small"
+          size="medium"
           onPress={onRetry}
           accessibilityLabel={t('patients.workspace.actions.refresh')}
-          icon={<Icon glyph="?" size="xs" decorative />}
+          icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
         >
           {t('patients.workspace.actions.refresh')}
         </Button>
         {activeTab !== 'summary' && canManagePatientRecords ? (
           <Button
             variant="surface"
-            size="small"
+            size="medium"
             onPress={onStartCreate}
             accessibilityLabel={t('patients.workspace.actions.newRecord')}
             icon={<Icon glyph="+" size="xs" decorative />}
@@ -507,10 +450,10 @@ const PatientWorkspaceScreen = () => {
                           {canManagePatientRecords ? (
                             <Button
                               variant="surface"
-                              size="small"
+                              size="medium"
                               onPress={() => onStartEditRecord(row.id)}
                               accessibilityLabel={t('patients.workspace.actions.editRecord')}
-                              icon={<Icon glyph="?" size="xs" decorative />}
+                              icon={<Icon glyph={'\u270e'} size="xs" decorative />}
                             >
                               {t('patients.workspace.actions.editRecord')}
                             </Button>
@@ -518,10 +461,10 @@ const PatientWorkspaceScreen = () => {
                           {canDeletePatientRecords ? (
                             <Button
                               variant="surface"
-                              size="small"
+                              size="medium"
                               onPress={() => onDeleteRecord(row.id)}
                               accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
-                              icon={<Icon glyph="?" size="xs" decorative />}
+                              icon={<Icon glyph={'\u2715'} size="xs" decorative />}
                             >
                               {t('patients.workspace.actions.deleteRecord')}
                             </Button>
@@ -549,3 +492,4 @@ const PatientWorkspaceScreen = () => {
 };
 
 export default PatientWorkspaceScreen;
+

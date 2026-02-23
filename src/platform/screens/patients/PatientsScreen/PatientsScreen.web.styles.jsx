@@ -12,7 +12,7 @@ const StyledContainer = styled.main.withConfig({
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: ${({ theme }) => theme?.colors?.background?.primary || '#FFFFFF'};
+  background-color: ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledContent = styled.div.withConfig({
@@ -30,9 +30,9 @@ const StyledContent = styled.div.withConfig({
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  padding: ${({ theme }) => theme?.spacing?.sm ?? 8}px ${({ theme }) => theme?.spacing?.md ?? 12}px
-    ${({ theme }) => theme?.spacing?.lg ?? 16}px;
-  gap: ${({ theme }) => theme?.spacing?.lg ?? 16}px;
+  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px
+    ${({ theme }) => theme.spacing.lg}px;
+  gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
 export { StyledContainer, StyledContent };

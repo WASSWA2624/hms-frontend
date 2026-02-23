@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from '@platform/components';
 import { useI18n } from '@hooks';
-import { PatientListCards } from '../components';
+import PatientListCards from '../components/PatientListCards';
 import {
   StyledCardGrid,
   StyledContainer,
@@ -107,7 +107,7 @@ const PatientsOverviewScreenWeb = () => {
           {showRegisterPatientAction ? (
             <Button
               variant="surface"
-              size="small"
+              size="medium"
               onPress={onRegisterPatient}
               accessibilityLabel={t('patients.overview.registerPatient')}
               accessibilityHint={t('patients.overview.registerPatientHint')}
@@ -122,7 +122,7 @@ const PatientsOverviewScreenWeb = () => {
         <Modal
           visible={isHelpOpen}
           onDismiss={() => setIsHelpOpen(false)}
-          size="small"
+          size="medium"
           accessibilityLabel={helpContent.title}
           accessibilityHint={helpContent.body}
           testID="patients-overview-help-modal"
@@ -148,11 +148,11 @@ const PatientsOverviewScreenWeb = () => {
             action={
               <Button
                 variant="surface"
-                size="small"
+                size="medium"
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="?" size="xs" decorative />}
+                icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -169,11 +169,11 @@ const PatientsOverviewScreenWeb = () => {
             action={
               <Button
                 variant="surface"
-                size="small"
+                size="medium"
                 onPress={onRetry}
                 accessibilityLabel={t('common.retry')}
                 accessibilityHint={t('common.retryHint')}
-                icon={<Icon glyph="?" size="xs" decorative />}
+                icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
               >
                 {t('common.retry')}
               </Button>
@@ -263,3 +263,4 @@ const PatientsOverviewScreenWeb = () => {
 };
 
 export default PatientsOverviewScreenWeb;
+

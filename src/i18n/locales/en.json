@@ -56,6 +56,10 @@
     "modal": "Dialog",
     "modalHint": "Dialog content",
     "notAvailable": "Not available",
+    "boolean": {
+      "true": "True",
+      "false": "False"
+    },
     "dataTable": {
       "controls": {
         "showFilters": "Show filters",

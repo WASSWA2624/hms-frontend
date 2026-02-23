@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, ErrorState, ErrorStateSizes, Icon } from '@platform/components';
+import { ErrorState, ErrorStateSizes, Icon } from '@platform/components';
+import { StyledActionButton } from './EntitlementBlockedState.styles';
 
 const EntitlementBlockedState = ({
   title,
@@ -14,19 +15,20 @@ const EntitlementBlockedState = ({
     title={title}
     description={description}
     action={
-      <Button
+      <StyledActionButton
         variant="surface"
-        size="small"
+        size="medium"
         onPress={onAction}
         accessibilityLabel={actionLabel}
         accessibilityHint={actionHint}
-        icon={<Icon glyph="?" size="xs" decorative />}
+        icon={<Icon glyph={'\u2699'} size="xs" decorative />}
       >
         {actionLabel}
-      </Button>
+      </StyledActionButton>
     }
     testID={testID}
   />
 );
 
 export default EntitlementBlockedState;
+

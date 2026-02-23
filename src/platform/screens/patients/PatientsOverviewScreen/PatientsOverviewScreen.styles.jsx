@@ -184,6 +184,11 @@ const StyledTileAction = styled.Pressable.withConfig({
   componentId: 'PatientsOverviewScreen_StyledTileAction',
 })`
   margin-top: ${({ theme }) => theme.spacing.sm}px;
+  min-width: 44px;
+  min-height: 44px;
+  padding-vertical: ${({ theme }) => theme.spacing.xs}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
+  justify-content: center;
 `;
 
 export {

@@ -217,12 +217,17 @@ const StyledTileAction = styled.button.withConfig({
   componentId: 'PatientsOverviewScreen_StyledTileAction',
 })`
   margin-top: ${({ theme }) => theme.spacing.sm}px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
   border: none;
   background: transparent;
   color: ${({ theme }) => theme.colors.primary};
   cursor: pointer;
   text-align: left;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
 `;
 
 export {

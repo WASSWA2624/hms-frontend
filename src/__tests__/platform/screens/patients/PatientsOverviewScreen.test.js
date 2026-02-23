@@ -16,8 +16,7 @@ const { useI18n } = require('@hooks');
 const usePatientsOverviewScreen = require('@platform/screens/patients/PatientsOverviewScreen/usePatientsOverviewScreen').default;
 
 const PatientsOverviewScreenWeb = require('@platform/screens/patients/PatientsOverviewScreen/PatientsOverviewScreen.web').default;
-const PatientsOverviewScreenAndroid = require('@platform/screens/patients/PatientsOverviewScreen/PatientsOverviewScreen.android').default;
-const PatientsOverviewScreenIOS = require('@platform/screens/patients/PatientsOverviewScreen/PatientsOverviewScreen.ios').default;
+const PatientsOverviewScreen = require('@platform/screens/patients/PatientsOverviewScreen/PatientsOverviewScreen').default;
 
 const buildBaseHook = () => ({
   cards: [
@@ -175,16 +174,8 @@ describe('PatientsOverviewScreen', () => {
     expect(getByTestId('patients-overview-empty')).toBeTruthy();
   });
 
-  it('opens help modal on android', () => {
-    const { getByTestId, queryByTestId } = renderWithTheme(<PatientsOverviewScreenAndroid />);
-
-    expect(queryByTestId('patients-overview-help-modal')).toBeNull();
-    fireEvent.press(getByTestId('patients-overview-help-trigger'));
-    expect(getByTestId('patients-overview-help-modal')).toBeTruthy();
-  });
-
-  it('opens help modal on ios', () => {
-    const { getByTestId, queryByTestId } = renderWithTheme(<PatientsOverviewScreenIOS />);
+  it('opens help modal on native shared overview screen', () => {
+    const { getByTestId, queryByTestId } = renderWithTheme(<PatientsOverviewScreen />);
 
     expect(queryByTestId('patients-overview-help-modal')).toBeNull();
     fireEvent.press(getByTestId('patients-overview-help-trigger'));

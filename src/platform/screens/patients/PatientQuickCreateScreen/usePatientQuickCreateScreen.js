@@ -19,15 +19,15 @@ const resolveItems = (value) => {
   return [];
 };
 
-const resolveTenantLabel = (tenant, fallbackIndex) =>
+const resolveTenantLabel = (tenant, fallbackLabel) =>
   sanitizeString(tenant?.name)
   || sanitizeString(tenant?.human_friendly_id)
-  || `Tenant ${fallbackIndex + 1}`;
+  || sanitizeString(fallbackLabel);
 
-const resolveFacilityLabel = (facility, fallbackIndex) =>
+const resolveFacilityLabel = (facility, fallbackLabel) =>
   sanitizeString(facility?.name)
   || sanitizeString(facility?.human_friendly_id)
-  || `Facility ${fallbackIndex + 1}`;
+  || sanitizeString(fallbackLabel);
 
 const validate = (values, t, requiresTenantSelection) => {
   const errors = {};
@@ -54,7 +54,7 @@ const usePatientQuickCreateScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
-  const { create, isLoading, errorCode, data, reset } = usePatient();
+  const { create, isLoading, errorCode, reset } = usePatient();
   const {
     canAccessPatients,
     canCreatePatientRecords,
@@ -130,17 +130,23 @@ const usePatientQuickCreateScreen = () => {
     () =>
       resolveItems(tenantData).map((tenant, index) => ({
         value: sanitizeString(tenant?.id),
-        label: resolveTenantLabel(tenant, index),
+        label: resolveTenantLabel(
+          tenant,
+          t('patients.common.form.unnamedTenant', { position: index + 1 })
+        ),
       })),
-    [tenantData]
+    [tenantData, t]
   );
   const facilityOptions = useMemo(
     () =>
       resolveItems(facilityData).map((facility, index) => ({
         value: sanitizeString(facility?.id),
-        label: resolveFacilityLabel(facility, index),
+        label: resolveFacilityLabel(
+          facility,
+          t('patients.common.form.unnamedFacility', { position: index + 1 })
+        ),
       })),
-    [facilityData]
+    [facilityData, t]
   );
   const genderOptions = useMemo(
     () => [

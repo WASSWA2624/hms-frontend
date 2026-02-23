@@ -1,12 +1,5 @@
 import React from 'react';
-import styled from 'styled-components/native';
-import { Text } from '@platform/components';
-
-const StyledGuideText = styled(Text)`
-  margin-top: 4px;
-  margin-bottom: 6px;
-  color: ${({ theme }) => theme.colors.text?.muted || '#5b677a'};
-`;
+import { StyledGuideText } from './InlineFieldGuide.styles';
 
 const InlineFieldGuide = ({ text, testID }) => {
   if (!text) return null;
