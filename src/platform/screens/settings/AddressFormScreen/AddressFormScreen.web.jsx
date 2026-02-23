@@ -11,6 +11,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  CountrySelectField,
   Select,
   Text,
   TextField,
@@ -493,16 +494,15 @@ const AddressFormScreenWeb = () => {
             </StyledFieldGroup>
 
             <StyledFieldGroup>
-              <TextField
+              <CountrySelectField
                 label={t('address.form.countryLabel')}
                 placeholder={t('address.form.countryPlaceholder')}
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                onValueChange={setCountry}
                 accessibilityLabel={t('address.form.countryLabel')}
                 accessibilityHint={t('address.form.countryHint')}
                 errorMessage={countryError}
                 helperText={countryHelperText}
-                maxLength={120}
                 density="compact"
                 disabled={isFormDisabled}
                 testID="address-form-country"

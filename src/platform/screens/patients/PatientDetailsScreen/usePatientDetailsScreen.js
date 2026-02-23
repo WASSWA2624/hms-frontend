@@ -194,7 +194,7 @@ const ADDRESS_RESOURCE_CONFIG = Object.freeze({
     },
     {
       name: 'country',
-      type: 'text',
+      type: 'country',
       required: false,
       maxLength: 120,
       labelKey: 'address.form.countryLabel',

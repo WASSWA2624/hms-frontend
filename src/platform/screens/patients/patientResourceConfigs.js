@@ -215,12 +215,21 @@ const resourceConfigs = {
     fields: [
       {
         name: 'identifier_type',
-        type: 'text',
+        type: 'select',
         required: true,
-        maxLength: 80,
         labelKey: 'patients.resources.patientIdentifiers.form.identifierTypeLabel',
         placeholderKey: 'patients.resources.patientIdentifiers.form.identifierTypePlaceholder',
         hintKey: 'patients.resources.patientIdentifiers.form.identifierTypeHint',
+        options: [
+          { value: 'MRN', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.mrn' },
+          { value: 'NATIONAL_ID', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.nationalId' },
+          { value: 'PASSPORT', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.passport' },
+          { value: 'DRIVING_PERMIT', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.drivingPermit' },
+          { value: 'BIRTH_CERTIFICATE', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.birthCertificate' },
+          { value: 'INSURANCE_ID', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.insuranceId' },
+          { value: 'VOTER_ID', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.voterId' },
+          { value: 'OTHER', labelKey: 'patients.resources.patientIdentifiers.options.identifierType.other' },
+        ],
       },
       {
         name: 'identifier_value',

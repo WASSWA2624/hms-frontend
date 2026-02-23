@@ -64,6 +64,7 @@ describe('patientResourceConfigs', () => {
 
   it('configures patient identifiers for contextless list navigation and patient label display', () => {
     const config = getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_IDENTIFIERS);
+    const fieldByName = Object.fromEntries((config?.fields || []).map((field) => [field.name, field]));
 
     expect(config).toBeTruthy();
     expect(config.requiresPatientSelection).toBe(true);
@@ -72,6 +73,17 @@ describe('patientResourceConfigs', () => {
     expect(config.hidePatientSelectorOnEdit).toBe(true);
     expect(config.hidePatientSelectorWhenContextProvided).toBe(true);
     expect(config.resolvePatientLabels).toBe(true);
+    expect(fieldByName.identifier_type?.type).toBe('select');
+    expect((fieldByName.identifier_type?.options || []).map((option) => option.value)).toEqual([
+      'MRN',
+      'NATIONAL_ID',
+      'PASSPORT',
+      'DRIVING_PERMIT',
+      'BIRTH_CERTIFICATE',
+      'INSURANCE_ID',
+      'VOTER_ID',
+      'OTHER',
+    ]);
 
     const detailValueKeys = (config.detailRows || []).map((row) => row.valueKey);
     expect(detailValueKeys).toContain('patient_display_label');

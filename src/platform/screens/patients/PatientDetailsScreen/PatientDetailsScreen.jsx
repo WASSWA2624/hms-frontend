@@ -3,6 +3,7 @@ import { useWindowDimensions } from 'react-native';
 import {
   Button,
   Card,
+  CountrySelectField,
   EmptyState,
   ErrorState,
   ErrorStateSizes,
@@ -636,6 +637,24 @@ const PatientDetailsScreen = () => {
           <Select
             value={sanitizeString(value)}
             options={resolveSelectOptions(field, t)}
+            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            helperText={errorMessage || hint}
+            errorMessage={errorMessage}
+            placeholder={placeholder}
+            compact
+            testID={`${sectionTestID}-field-${fieldName}`}
+            disabled={isDisabled}
+          />
+        </StyledFieldBlock>
+      );
+    }
+
+    if (field?.type === 'country' || fieldName === 'country') {
+      return (
+        <StyledFieldBlock key={fieldName}>
+          <Text variant="label">{label}</Text>
+          <CountrySelectField
+            value={sanitizeString(value)}
             onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
             helperText={errorMessage || hint}
             errorMessage={errorMessage}

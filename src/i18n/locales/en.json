@@ -6185,6 +6185,18 @@
           "createdLabel": "Created",
           "updatedLabel": "Updated"
         },
+        "options": {
+          "identifierType": {
+            "mrn": "Medical Record Number (MRN)",
+            "nationalId": "National ID",
+            "passport": "Passport",
+            "drivingPermit": "Driving Permit",
+            "birthCertificate": "Birth Certificate",
+            "insuranceId": "Insurance ID",
+            "voterId": "Voter ID",
+            "other": "Other"
+          }
+        },
         "form": {
           "createTitle": "Create Patient Identifier",
           "editTitle": "Edit Patient Identifier",
@@ -6198,7 +6210,7 @@
           "cancelHint": "Return without saving",
           "patientLoadErrorMessage": "Unable to load patients for identifier assignment.",
           "identifierTypeLabel": "Identifier type",
-          "identifierTypePlaceholder": "e.g. MRN",
+          "identifierTypePlaceholder": "Select identifier type",
           "identifierTypeHint": "Required",
           "identifierValueLabel": "Identifier value",
           "identifierValuePlaceholder": "Enter identifier value",
