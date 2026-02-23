@@ -2,7 +2,7 @@ export { default as PatientsScreen } from './PatientsScreen';
 export { default as PatientsOverviewScreen } from './PatientsOverviewScreen';
 export { default as PatientDirectoryScreen } from './PatientDirectoryScreen';
 export { default as PatientQuickCreateScreen } from './PatientQuickCreateScreen';
-export { default as PatientWorkspaceScreen } from './PatientWorkspaceScreen';
+export { default as PatientDetailsScreen } from './PatientDetailsScreen';
 export { default as PatientLegalHubScreen } from './PatientLegalHubScreen';
 export { LegacyWorkspaceRedirect, LegacyLegalHubRedirect } from './legacyRouteRedirects';
 export {

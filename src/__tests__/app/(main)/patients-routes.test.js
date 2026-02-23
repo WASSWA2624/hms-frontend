@@ -8,7 +8,7 @@ const mockScreens = {
   PatientsOverviewScreen: jest.fn(() => null),
   PatientDirectoryScreen: jest.fn(() => null),
   PatientQuickCreateScreen: jest.fn(() => null),
-  PatientWorkspaceScreen: jest.fn(() => null),
+  PatientDetailsScreen: jest.fn(() => null),
   PatientLegalHubScreen: jest.fn(() => null),
   NotFoundScreen: jest.fn(() => null),
 };
@@ -45,7 +45,7 @@ jest.mock('@platform/screens', () => ({
   PatientsOverviewScreen: (...args) => mockScreens.PatientsOverviewScreen(...args),
   PatientDirectoryScreen: (...args) => mockScreens.PatientDirectoryScreen(...args),
   PatientQuickCreateScreen: (...args) => mockScreens.PatientQuickCreateScreen(...args),
-  PatientWorkspaceScreen: (...args) => mockScreens.PatientWorkspaceScreen(...args),
+  PatientDetailsScreen: (...args) => mockScreens.PatientDetailsScreen(...args),
   PatientLegalHubScreen: (...args) => mockScreens.PatientLegalHubScreen(...args),
   NotFoundScreen: (...args) => mockScreens.NotFoundScreen(...args),
 }));
@@ -65,7 +65,7 @@ const DIRECT_ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/patients/patients/[id]',
-    screenKey: 'PatientWorkspaceScreen',
+    screenKey: 'PatientDetailsScreen',
   },
   {
     routePath: '../../../app/(main)/patients/legal/index',

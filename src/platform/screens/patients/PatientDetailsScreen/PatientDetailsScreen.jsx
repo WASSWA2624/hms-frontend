@@ -32,10 +32,8 @@ import {
   StyledFormGrid,
   StyledItemHeader,
   StyledListItem,
-  StyledPageActionsRow,
   StyledPageNavigation,
   StyledPageNavigationTitle,
-  StyledPanelRow,
   StyledReadOnlyNotice,
   StyledSummaryLabel,
   StyledSummaryRow,
@@ -43,9 +41,8 @@ import {
   StyledSummarySectionTitle,
   StyledSummaryGrid,
   StyledSummaryValue,
-  StyledTabRow,
-} from './PatientWorkspaceScreen.styles';
-import usePatientWorkspaceScreen from './usePatientWorkspaceScreen';
+} from './PatientDetailsScreen.styles';
+import usePatientDetailsScreen from './usePatientDetailsScreen';
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -173,22 +170,20 @@ const resolveDateTimeLabel = (value, locale) => {
   return sanitizeString(formatted) || normalized;
 };
 
-const PatientWorkspaceScreen = () => {
+const PatientDetailsScreen = () => {
   const { t, locale } = useI18n();
   const { width } = useWindowDimensions();
   const isCompactLayout = width < breakpoints.tablet;
   const topNavButtonSize = 'small';
   const compactButtonStyle = isCompactLayout ? { flexGrow: 1 } : undefined;
-  const [selectedPageTab, setSelectedPageTab] = React.useState('workspace');
+  const [selectedPageTab, setSelectedPageTab] = React.useState('details');
   const {
     patient,
-    tabs,
-    activeTab,
-    panelOptions,
-    activePanel,
-    panelRows,
-    activePanelConfig,
-    panelDraft,
+    identifierRecords = [],
+    guardianRecords = [],
+    contactRecords = [],
+    documentRecords = [],
+    addressRecords = [],
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
@@ -201,26 +196,14 @@ const PatientWorkspaceScreen = () => {
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
-    onOpenPatientsOverview,
-    onOpenPatientDirectory,
-    onOpenPatientCreate,
-    onOpenPatientLegalHub,
-    onSelectTab,
-    onSelectPanel,
     onRetry,
     onGoToSubscriptions,
-    onStartCreate,
     onDeletePatient,
-    onStartEditRecord,
-    onDeleteRecord,
-    onPanelDraftChange,
-    onPanelSubmit,
-    onClosePanelEditor,
     onSummaryFieldChange,
     onStartSummaryEdit,
     onCancelSummaryEdit,
     onSaveSummary,
-  } = usePatientWorkspaceScreen();
+  } = usePatientDetailsScreen();
 
   const fallbackLabel = t('common.notAvailable');
   const patientName = [patient?.first_name, patient?.last_name]
@@ -270,92 +253,41 @@ const PatientWorkspaceScreen = () => {
   );
   const screenTabs = [
     {
-      key: 'overview',
-      label: t('patients.overview.title'),
-      description: t('patients.overview.description'),
+      key: 'details',
+      label: t('patients.workspace.tabs.summary'),
+      icon: '\u2139',
+      description: t('patients.workspace.summarySections.about'),
     },
     {
-      key: 'directory',
-      label: t('patients.directory.title'),
-      description: t('patients.directory.description'),
+      key: 'identity',
+      label: t('patients.workspace.tabs.identity'),
+      icon: '\ud83d\udd11',
+      description: t('patients.workspace.panels.identifiers'),
     },
     {
-      key: 'workspace',
-      label: t('patients.workspace.title'),
-      description: t('patients.workspace.description'),
+      key: 'contacts',
+      label: t('patients.workspace.panels.contacts'),
+      icon: '\u260e',
+      description: t('patients.workspace.patientSummary.contact'),
     },
     {
-      key: 'legal',
-      label: t('patients.legal.title'),
-      description: t('patients.legal.description'),
+      key: 'address',
+      label: 'Address',
+      icon: '\ud83d\udccd',
+      description: 'Address records linked to this patient.',
+    },
+    {
+      key: 'documents',
+      label: t('patients.workspace.panels.documents'),
+      icon: '\ud83d\udcc4',
+      description: t('patients.resources.patientDocuments.overviewDescription'),
     },
   ];
   const selectedPageTabConfig = (
     screenTabs.find((tab) => tab.key === selectedPageTab)
-    || screenTabs.find((tab) => tab.key === 'workspace')
+    || screenTabs.find((tab) => tab.key === 'details')
     || screenTabs[0]
   );
-  const selectedPageActions = (() => {
-    if (selectedPageTab === 'overview') {
-      return [
-        {
-          key: 'open-overview',
-          label: t('patients.overview.openResource', { resource: t('patients.overview.title') }),
-          icon: '\u2302',
-          onPress: onOpenPatientsOverview,
-        },
-        {
-          key: 'open-directory',
-          label: t('patients.overview.openDirectory'),
-          icon: '\u2630',
-          onPress: onOpenPatientDirectory,
-        },
-        {
-          key: 'open-legal',
-          label: t('patients.overview.openLegalHub'),
-          icon: '\u2696',
-          onPress: onOpenPatientLegalHub,
-        },
-        canManagePatientRecords
-          ? {
-            key: 'register-patient',
-            label: t('patients.overview.registerPatient'),
-            icon: '\u2795',
-            onPress: onOpenPatientCreate,
-          }
-          : null,
-      ].filter(Boolean);
-    }
-    if (selectedPageTab === 'directory') {
-      return [
-        {
-          key: 'open-directory',
-          label: t('patients.overview.openDirectory'),
-          icon: '\u2630',
-          onPress: onOpenPatientDirectory,
-        },
-        canManagePatientRecords
-          ? {
-            key: 'register-patient',
-            label: t('patients.overview.registerPatient'),
-            icon: '\u2795',
-            onPress: onOpenPatientCreate,
-          }
-          : null,
-      ].filter(Boolean);
-    }
-    if (selectedPageTab === 'legal') {
-      return [
-        {
-          key: 'open-legal',
-          label: t('patients.overview.openLegalHub'),
-          icon: '\u2696',
-          onPress: onOpenPatientLegalHub,
-        },
-      ];
-    }
-    return [];
-  })();
 
   const summaryAboutRows = [
     { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
@@ -380,6 +312,83 @@ const PatientWorkspaceScreen = () => {
       value: patientInternalId,
     });
   }
+
+  const identityRows = React.useMemo(
+    () => [
+      ...identifierRecords.map((record, index) => ({
+        key: sanitizeString(record?.id) || `identifier-${index + 1}`,
+        title: sanitizeString(record?.identifier_type) || t('patients.workspace.panels.identifiers'),
+        subtitle: sanitizeString(record?.identifier_value) || fallbackLabel,
+        meta: record?.is_primary ? t('patients.resources.patientIdentifiers.detail.primaryLabel') : '',
+      })),
+      ...guardianRecords.map((record, index) => ({
+        key: sanitizeString(record?.id) || `guardian-${index + 1}`,
+        title: sanitizeString(record?.name) || t('patients.workspace.panels.guardians'),
+        subtitle: sanitizeString(record?.relationship) || fallbackLabel,
+        meta: sanitizeString(record?.phone || record?.email),
+      })),
+    ],
+    [identifierRecords, guardianRecords, fallbackLabel, t]
+  );
+
+  const contactRows = React.useMemo(
+    () => contactRecords.map((record, index) => ({
+      key: sanitizeString(record?.id) || `contact-${index + 1}`,
+      title: sanitizeString(record?.contact_type) || t('patients.workspace.panels.contacts'),
+      subtitle: sanitizeString(record?.value) || fallbackLabel,
+      meta: record?.is_primary ? t('patients.resources.patientContacts.detail.primaryLabel') : '',
+    })),
+    [contactRecords, fallbackLabel, t]
+  );
+
+  const addressRows = React.useMemo(() => {
+    const normalizedAddressEntries = addressRecords.map((record, index) => ({
+      key: sanitizeString(record?.id) || `address-${index + 1}`,
+      title: sanitizeString(record?.address_type) || 'Address',
+      subtitle: [
+        sanitizeString(record?.line1),
+        sanitizeString(record?.line2),
+        sanitizeString(record?.city),
+        sanitizeString(record?.state),
+        sanitizeString(record?.postal_code),
+        sanitizeString(record?.country),
+      ].filter(Boolean).join(', ') || fallbackLabel,
+      meta: sanitizeString(record?.human_friendly_id),
+    }));
+
+    if (normalizedAddressEntries.length > 0) {
+      return normalizedAddressEntries;
+    }
+
+    const extensionAddress = patient?.extension_json?.address || patient?.extension_json?.addresses;
+    const extensionCandidates = Array.isArray(extensionAddress) ? extensionAddress : [extensionAddress];
+    const extensionRows = extensionCandidates
+      .filter(Boolean)
+      .map((record, index) => ({
+        key: sanitizeString(record?.id) || `address-extension-${index + 1}`,
+        title: sanitizeString(record?.address_type || record?.type) || 'Address',
+        subtitle: [
+          sanitizeString(record?.line1),
+          sanitizeString(record?.line2),
+          sanitizeString(record?.city),
+          sanitizeString(record?.state),
+          sanitizeString(record?.postal_code || record?.postalCode),
+          sanitizeString(record?.country),
+        ].filter(Boolean).join(', ') || fallbackLabel,
+        meta: '',
+      }));
+    return extensionRows;
+  }, [addressRecords, patient, fallbackLabel]);
+
+  const documentRows = React.useMemo(
+    () => documentRecords.map((record, index) => ({
+      key: sanitizeString(record?.id) || `document-${index + 1}`,
+      title: sanitizeString(record?.document_type) || t('patients.workspace.panels.documents'),
+      subtitle: sanitizeString(record?.file_name || record?.storage_key) || fallbackLabel,
+      meta: resolveDateTimeLabel(record?.updated_at || record?.created_at, locale),
+    })),
+    [documentRecords, fallbackLabel, locale, t]
+  );
 
   const renderSummarySection = (sectionTitle, rows, testID) => (
     <StyledSummarySection testID={testID}>
@@ -541,108 +550,29 @@ const PatientWorkspaceScreen = () => {
     </Card>
   );
 
-  const renderPanelForm = () => {
-    if (!panelDraft || !activePanelConfig) return null;
-    const fields = activePanelConfig.fields || [];
-
-    return (
-      <Card variant="outlined">
+  const renderRecordCollectionCard = (rows, emptyMessage, testID) => (
+    <Card variant="outlined" testID={testID}>
+      {rows.length === 0 ? (
+        <EmptyState
+          title={emptyMessage}
+          description={emptyMessage}
+          testID={`${testID}-empty`}
+        />
+      ) : (
         <StyledFormGrid>
-          {fields.map((field) => {
-            const fieldError = panelDraft.errors?.[field.name];
-            if (field.type === 'switch') {
-              return (
-                <StyledFieldBlock key={field.name}>
-                  <FieldHelpTrigger
-                    label={t(field.labelKey)}
-                    tooltip={t(field.hintKey)}
-                    helpTitle={t(field.labelKey)}
-                    helpBody={t(field.hintKey)}
-                    testID={`patient-workspace-help-${field.name}`}
-                  />
-                  <InlineFieldGuide text={t(field.hintKey)} />
-                  <Switch
-                    value={Boolean(panelDraft.values?.[field.name])}
-                    onValueChange={(value) => onPanelDraftChange(field.name, value)}
-                    label={t(field.labelKey)}
-                  />
-                </StyledFieldBlock>
-              );
-            }
-
-            if (field.type === 'select') {
-              const options = (field.options || []).map((option) => ({
-                value: option.value,
-                label: option.labelKey ? t(option.labelKey) : option.label || option.value,
-              }));
-              return (
-                <StyledFieldBlock key={field.name}>
-                  <FieldHelpTrigger
-                    label={t(field.labelKey)}
-                    tooltip={t(field.hintKey)}
-                    helpTitle={t(field.labelKey)}
-                    helpBody={t(field.hintKey)}
-                    testID={`patient-workspace-help-${field.name}`}
-                  />
-                  <InlineFieldGuide text={t(field.hintKey)} />
-                  <Select
-                    value={panelDraft.values?.[field.name] || ''}
-                    options={options}
-                    onValueChange={(value) => onPanelDraftChange(field.name, value)}
-                    helperText={fieldError || t(field.hintKey)}
-                    errorMessage={fieldError}
-                    compact
-                  />
-                </StyledFieldBlock>
-              );
-            }
-
-            return (
-              <StyledFieldBlock key={field.name}>
-                <FieldHelpTrigger
-                  label={t(field.labelKey)}
-                  tooltip={t(field.hintKey)}
-                  helpTitle={t(field.labelKey)}
-                  helpBody={t(field.hintKey)}
-                  testID={`patient-workspace-help-${field.name}`}
-                />
-                <InlineFieldGuide text={t(field.hintKey)} />
-                <TextField
-                  value={panelDraft.values?.[field.name] || ''}
-                  onChange={(event) => onPanelDraftChange(field.name, event?.target?.value || '')}
-                  helperText={fieldError || t(field.hintKey)}
-                  errorMessage={fieldError}
-                  maxLength={field.maxLength}
-                  density="compact"
-                />
-              </StyledFieldBlock>
-            );
-          })}
+          {rows.map((row) => (
+            <StyledListItem key={row.key}>
+              <StyledItemHeader>
+                <Text variant="label">{row.title}</Text>
+              </StyledItemHeader>
+              <Text variant="caption">{row.subtitle}</Text>
+              {sanitizeString(row.meta) ? <Text variant="caption">{row.meta}</Text> : null}
+            </StyledListItem>
+          ))}
         </StyledFormGrid>
-
-        <StyledFormActions>
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onClosePanelEditor}
-            accessibilityLabel={t('patients.workspace.actions.cancel')}
-            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-          >
-            {t('patients.workspace.actions.cancel')}
-          </Button>
-          <Button
-            variant="surface"
-            size="medium"
-            onPress={onPanelSubmit}
-            accessibilityLabel={t('patients.workspace.actions.save')}
-            icon={<Icon glyph={'\u2713'} size="xs" decorative />}
-          >
-            {t('patients.workspace.actions.save')}
-          </Button>
-        </StyledFormActions>
-      </Card>
-    );
-  };
+      )}
+    </Card>
+  );
 
   return (
     <StyledContainer>
@@ -662,11 +592,7 @@ const PatientWorkspaceScreen = () => {
                 accessibilityLabel={tab.label}
                 testID={`patient-workspace-page-tab-${tab.key}`}
               >
-                <Icon
-                  glyph={selectedPageTab === tab.key ? '\u25c9' : '\u25cb'}
-                  size="xs"
-                  decorative
-                />
+                <Icon glyph={tab.icon} size="xs" decorative />
                 <StyledChromeTabLabel $isActive={selectedPageTab === tab.key}>
                   {tab.label}
                 </StyledChromeTabLabel>
@@ -676,210 +602,133 @@ const PatientWorkspaceScreen = () => {
         </StyledPageNavigation>
       </Card>
 
-      {selectedPageTab !== 'workspace' ? (
-        <Card variant="outlined" testID={`patient-workspace-page-content-${selectedPageTab}`}>
-          <StyledPageNavigation>
-            <Text variant="h3">{selectedPageTabConfig?.label}</Text>
-            <Text variant="body">{selectedPageTabConfig?.description}</Text>
+      <Card variant="outlined" testID={`patient-workspace-page-content-${selectedPageTab}`}>
+        <StyledPageNavigation>
+          <Text variant="h3">{selectedPageTabConfig?.label}</Text>
+          <Text variant="body">{selectedPageTabConfig?.description}</Text>
+        </StyledPageNavigation>
+      </Card>
 
-            {selectedPageActions.length > 0 ? (
-              <StyledPageActionsRow>
-                {selectedPageActions.map((action) => (
-                  <Button
-                    key={action.key}
-                    variant="surface"
-                    size={topNavButtonSize}
-                    onPress={action.onPress}
-                    accessibilityLabel={action.label}
-                    icon={<Icon glyph={action.icon} size="xs" decorative />}
-                    style={compactButtonStyle}
-                    testID={`patient-workspace-page-action-${action.key}`}
-                  >
-                    {action.label}
-                  </Button>
-                ))}
-              </StyledPageActionsRow>
-            ) : null}
-          </StyledPageNavigation>
-        </Card>
+      <StyledActions>
+        <Button
+          variant="surface"
+          size={topNavButtonSize}
+          onPress={onRetry}
+          accessibilityLabel={t('patients.workspace.actions.refresh')}
+          icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
+          style={compactButtonStyle}
+        >
+          {t('patients.workspace.actions.refresh')}
+        </Button>
+        {selectedPageTab === 'details' && !isSummaryEditMode && canManagePatientRecords ? (
+          <Button
+            variant="surface"
+            size={topNavButtonSize}
+            onPress={onStartSummaryEdit}
+            accessibilityLabel={t('patients.workspace.actions.editPatient')}
+            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
+            testID="patient-workspace-edit-patient"
+            style={compactButtonStyle}
+          >
+            {t('patients.workspace.actions.editPatient')}
+          </Button>
+        ) : null}
+        {selectedPageTab === 'details' && !isSummaryEditMode && canDeletePatientProfile ? (
+          <Button
+            variant="surface"
+            size={topNavButtonSize}
+            onPress={onDeletePatient}
+            accessibilityLabel={t('patients.workspace.actions.deletePatient')}
+            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+            testID="patient-workspace-delete-patient"
+            style={compactButtonStyle}
+          >
+            {t('patients.workspace.actions.deletePatient')}
+          </Button>
+        ) : null}
+      </StyledActions>
+
+      {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
+
+      {!isLoading && isEntitlementBlocked ? (
+        <EntitlementBlockedState
+          title={t('patients.entitlement.title')}
+          description={t('patients.entitlement.description')}
+          actionLabel={t('patients.entitlement.cta')}
+          actionHint={t('patients.entitlement.ctaHint')}
+          onAction={onGoToSubscriptions}
+          testID="patient-workspace-entitlement-blocked"
+        />
       ) : null}
 
-      {selectedPageTab === 'workspace' ? (
+      {!isLoading && !isEntitlementBlocked && hasError ? (
+        <ErrorState
+          size={ErrorStateSizes.SMALL}
+          title={t('patients.workspace.state.loadError')}
+          description={errorMessage}
+          testID="patient-workspace-error"
+        />
+      ) : null}
+
+      {!isLoading && !isEntitlementBlocked && isOffline ? (
+        <OfflineState
+          size={OfflineStateSizes.SMALL}
+          title={t('shell.banners.offline.title')}
+          description={t('shell.banners.offline.message')}
+          testID="patient-workspace-offline"
+        />
+      ) : null}
+
+      {!isLoading && !isEntitlementBlocked && !hasError ? (
         <>
-          <StyledTabRow>
-            {tabs.map((tab) => (
-              <Button
-                key={tab}
-                variant="surface"
-                size="medium"
-                onPress={() => onSelectTab(tab)}
-                accessibilityLabel={t(`patients.workspace.tabs.${tab}`)}
-                icon={<Icon glyph="?" size="xs" decorative />}
-              >
-                {t(`patients.workspace.tabs.${tab}`)}
-              </Button>
-            ))}
-          </StyledTabRow>
-
-          {activeTab !== 'summary' ? (
-            <StyledPanelRow>
-              {panelOptions.map((panel) => (
-                <Button
-                  key={panel}
-                  variant="surface"
-                  size="medium"
-                  onPress={() => onSelectPanel(panel)}
-                  accessibilityLabel={t(`patients.workspace.panels.${panel}`)}
-                  icon={<Icon glyph="?" size="xs" decorative />}
-                >
-                  {t(`patients.workspace.panels.${panel}`)}
-                </Button>
-              ))}
-            </StyledPanelRow>
+          {selectedPageTab === 'details' ? (
+            isSummaryEditMode ? renderSummaryEdit() : renderSummaryReadonly()
           ) : null}
 
-          <StyledActions>
-            <Button
-              variant="surface"
-              size="medium"
-              onPress={onRetry}
-              accessibilityLabel={t('patients.workspace.actions.refresh')}
-              icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
-            >
-              {t('patients.workspace.actions.refresh')}
-            </Button>
-            {activeTab === 'summary' && !isSummaryEditMode && canManagePatientRecords ? (
-              <Button
-                variant="surface"
-                size="medium"
-                onPress={onStartSummaryEdit}
-                accessibilityLabel={t('patients.workspace.actions.editPatient')}
-                icon={<Icon glyph={'\u270e'} size="xs" decorative />}
-                testID="patient-workspace-edit-patient"
-              >
-                {t('patients.workspace.actions.editPatient')}
-              </Button>
-            ) : null}
-            {activeTab === 'summary' && !isSummaryEditMode && canDeletePatientProfile ? (
-              <Button
-                variant="surface"
-                size="medium"
-                onPress={onDeletePatient}
-                accessibilityLabel={t('patients.workspace.actions.deletePatient')}
-                icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-                testID="patient-workspace-delete-patient"
-              >
-                {t('patients.workspace.actions.deletePatient')}
-              </Button>
-            ) : null}
-            {activeTab !== 'summary' && canManagePatientRecords ? (
-              <Button
-                variant="surface"
-                size="medium"
-                onPress={onStartCreate}
-                accessibilityLabel={t('patients.workspace.actions.newRecord')}
-                icon={<Icon glyph="+" size="xs" decorative />}
-              >
-                {t('patients.workspace.actions.newRecord')}
-              </Button>
-            ) : null}
-          </StyledActions>
+          {selectedPageTab === 'identity'
+            ? renderRecordCollectionCard(
+              identityRows,
+              t('patients.resources.patientIdentifiers.list.emptyMessage'),
+              'patient-workspace-identity'
+            )
+            : null}
 
-          {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
-
-          {!isLoading && isEntitlementBlocked ? (
-            <EntitlementBlockedState
-              title={t('patients.entitlement.title')}
-              description={t('patients.entitlement.description')}
-              actionLabel={t('patients.entitlement.cta')}
-              actionHint={t('patients.entitlement.ctaHint')}
-              onAction={onGoToSubscriptions}
-              testID="patient-workspace-entitlement-blocked"
-            />
-          ) : null}
-
-          {!isLoading && !isEntitlementBlocked && hasError ? (
-            <ErrorState
-              size={ErrorStateSizes.SMALL}
-              title={t('patients.workspace.state.loadError')}
-              description={errorMessage}
-              testID="patient-workspace-error"
-            />
-          ) : null}
-
-          {!isLoading && !isEntitlementBlocked && isOffline ? (
-            <OfflineState
-              size={OfflineStateSizes.SMALL}
-              title={t('shell.banners.offline.title')}
-              description={t('shell.banners.offline.message')}
-              testID="patient-workspace-offline"
-            />
-          ) : null}
-
-          {!isLoading && !isEntitlementBlocked && !hasError ? (
+          {selectedPageTab === 'contacts' ? (
             <>
-              {activeTab === 'summary' ? (
-                isSummaryEditMode ? renderSummaryEdit() : renderSummaryReadonly()
-              ) : (
-                <Card variant="outlined">
-                  {panelRows.length === 0 ? (
-                    <EmptyState
-                      title={t('patients.workspace.state.emptyPanel')}
-                      description={t('patients.workspace.state.emptyPanel')}
-                      testID="patient-workspace-empty-panel"
-                    />
-                  ) : (
-                    <StyledFormGrid>
-                      {panelRows.map((row) => (
-                        <StyledListItem key={row.id || row.title}>
-                          <StyledItemHeader>
-                            <Text variant="label">{row.title}</Text>
-                            <StyledActions>
-                              {canManagePatientRecords ? (
-                                <Button
-                                  variant="surface"
-                                  size="medium"
-                                  onPress={() => onStartEditRecord(row.id)}
-                                  accessibilityLabel={t('patients.workspace.actions.editRecord')}
-                                  icon={<Icon glyph={'\u270e'} size="xs" decorative />}
-                                >
-                                  {t('patients.workspace.actions.editRecord')}
-                                </Button>
-                              ) : null}
-                              {canDeletePatientRecords ? (
-                                <Button
-                                  variant="surface"
-                                  size="medium"
-                                  onPress={() => onDeleteRecord(row.id)}
-                                  accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
-                                  icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-                                >
-                                  {t('patients.workspace.actions.deleteRecord')}
-                                </Button>
-                              ) : null}
-                            </StyledActions>
-                          </StyledItemHeader>
-                          {row.humanFriendlyId ? (
-                            <Text variant="caption">
-                              {t('patients.workspace.patientSummary.patientId')}: {row.humanFriendlyId}
-                            </Text>
-                          ) : null}
-                          {row.subtitle ? <Text variant="caption">{row.subtitle}</Text> : null}
-                        </StyledListItem>
-                      ))}
-                    </StyledFormGrid>
-                  )}
-                </Card>
+              <Card variant="outlined" testID="patient-workspace-contacts-primary">
+                <StyledSummarySection>
+                  <StyledSummarySectionTitle>{t('patients.workspace.patientSummary.contact')}</StyledSummarySectionTitle>
+                  <Text variant="body">{patientContact}</Text>
+                </StyledSummarySection>
+              </Card>
+              {renderRecordCollectionCard(
+                contactRows,
+                t('patients.resources.patientContacts.list.emptyMessage'),
+                'patient-workspace-contacts'
               )}
-
-              {activeTab !== 'summary' ? renderPanelForm() : null}
             </>
           ) : null}
+
+          {selectedPageTab === 'address'
+            ? renderRecordCollectionCard(
+              addressRows,
+              'No patient address records are available yet.',
+              'patient-workspace-address'
+            )
+            : null}
+
+          {selectedPageTab === 'documents'
+            ? renderRecordCollectionCard(
+              documentRows,
+              t('patients.resources.patientDocuments.list.emptyMessage'),
+              'patient-workspace-documents'
+            )
+            : null}
         </>
       ) : null}
     </StyledContainer>
   );
 };
 
-export default PatientWorkspaceScreen;
+export default PatientDetailsScreen;
 

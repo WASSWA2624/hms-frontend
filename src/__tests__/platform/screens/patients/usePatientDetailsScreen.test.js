@@ -45,6 +45,12 @@ const mockUpdateDocuments = jest.fn();
 const mockRemoveDocuments = jest.fn();
 const mockResetDocuments = jest.fn();
 
+const mockListAddresses = jest.fn();
+const mockCreateAddresses = jest.fn();
+const mockUpdateAddresses = jest.fn();
+const mockRemoveAddresses = jest.fn();
+const mockResetAddresses = jest.fn();
+
 const mockListConsents = jest.fn();
 const mockCreateConsents = jest.fn();
 const mockUpdateConsents = jest.fn();
@@ -73,6 +79,7 @@ jest.mock('@hooks/usePatientGuardian', () => jest.fn());
 jest.mock('@hooks/usePatientAllergy', () => jest.fn());
 jest.mock('@hooks/usePatientMedicalHistory', () => jest.fn());
 jest.mock('@hooks/usePatientDocument', () => jest.fn());
+jest.mock('@hooks/useAddress', () => jest.fn());
 jest.mock('@hooks/useConsent', () => jest.fn());
 
 jest.mock('@utils', () => {
@@ -83,7 +90,7 @@ jest.mock('@utils', () => {
   };
 });
 
-const usePatientWorkspaceScreen = require('@platform/screens/patients/PatientWorkspaceScreen/usePatientWorkspaceScreen').default;
+const usePatientDetailsScreen = require('@platform/screens/patients/PatientDetailsScreen/usePatientDetailsScreen').default;
 const { usePatient, usePatientAccess } = require('@hooks');
 const usePatientIdentifier = require('@hooks/usePatientIdentifier');
 const usePatientContact = require('@hooks/usePatientContact');
@@ -91,9 +98,10 @@ const usePatientGuardian = require('@hooks/usePatientGuardian');
 const usePatientAllergy = require('@hooks/usePatientAllergy');
 const usePatientMedicalHistory = require('@hooks/usePatientMedicalHistory');
 const usePatientDocument = require('@hooks/usePatientDocument');
+const useAddress = require('@hooks/useAddress');
 const useConsent = require('@hooks/useConsent');
 
-describe('usePatientWorkspaceScreen', () => {
+describe('usePatientDetailsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSearchParams = { id: 'patient-1' };
@@ -183,6 +191,16 @@ describe('usePatientWorkspaceScreen', () => {
       isLoading: false,
       errorCode: null,
     });
+    useAddress.mockReturnValue({
+      list: mockListAddresses,
+      create: mockCreateAddresses,
+      update: mockUpdateAddresses,
+      remove: mockRemoveAddresses,
+      reset: mockResetAddresses,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+    });
     useConsent.mockReturnValue({
       list: mockListConsents,
       create: mockCreateConsents,
@@ -198,7 +216,7 @@ describe('usePatientWorkspaceScreen', () => {
   it('normalizes invalid tab/panel params and redirects to canonical workspace path', () => {
     mockSearchParams = { id: 'patient-1', tab: 'invalid-tab', panel: 'unknown-panel' };
 
-    renderHook(() => usePatientWorkspaceScreen());
+    renderHook(() => usePatientDetailsScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
   });
@@ -226,7 +244,7 @@ describe('usePatientWorkspaceScreen', () => {
       errorCode: null,
     });
 
-    const { result } = renderHook(() => usePatientWorkspaceScreen());
+    const { result } = renderHook(() => usePatientDetailsScreen());
 
     expect(mockPatientGet).toHaveBeenCalledWith('patient-1');
     expect(mockListAllergies).toHaveBeenCalledWith(expect.objectContaining({
@@ -254,7 +272,7 @@ describe('usePatientWorkspaceScreen', () => {
       errorCode: 'MODULE_NOT_ENTITLED',
     });
 
-    const { result } = renderHook(() => usePatientWorkspaceScreen());
+    const { result } = renderHook(() => usePatientDetailsScreen());
     expect(result.current.isEntitlementBlocked).toBe(true);
   });
 
@@ -270,7 +288,7 @@ describe('usePatientWorkspaceScreen', () => {
       isResolved: true,
     });
 
-    renderHook(() => usePatientWorkspaceScreen());
+    renderHook(() => usePatientDetailsScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
   });
@@ -278,7 +296,7 @@ describe('usePatientWorkspaceScreen', () => {
   it('deletes patient and returns to directory when RBAC allows', async () => {
     mockPatientRemove.mockResolvedValue({ id: 'patient-1' });
 
-    const { result } = renderHook(() => usePatientWorkspaceScreen());
+    const { result } = renderHook(() => usePatientDetailsScreen());
 
     await act(async () => {
       await result.current.onDeletePatient();
@@ -288,21 +306,28 @@ describe('usePatientWorkspaceScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/patients/patients');
   });
 
-  it('exposes top navigation actions for patient pages', () => {
-    const { result } = renderHook(() => usePatientWorkspaceScreen());
+  it('fetches patient-scoped identity, contact, document, and address collections', () => {
+    const { result } = renderHook(() => usePatientDetailsScreen());
 
-    act(() => {
-      result.current.onOpenPatientsOverview();
-      result.current.onOpenPatientDirectory();
-      result.current.onOpenPatientCreate();
-      result.current.onOpenPatientLegalHub();
-      result.current.onOpenCurrentWorkspace();
-    });
-
-    expect(mockPush).toHaveBeenCalledWith('/patients');
-    expect(mockPush).toHaveBeenCalledWith('/patients/patients');
-    expect(mockPush).toHaveBeenCalledWith('/patients/patients/create');
-    expect(mockPush).toHaveBeenCalledWith('/patients/legal');
-    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
+    expect(mockListIdentifiers).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListContacts).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListDocuments).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListAddresses).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(result.current.identifierRecords).toEqual([]);
+    expect(result.current.contactRecords).toEqual([]);
+    expect(result.current.documentRecords).toEqual([]);
+    expect(result.current.addressRecords).toEqual([]);
   });
 });

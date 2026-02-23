@@ -95,7 +95,7 @@ export { default as PatientsScreen } from './patients/PatientsScreen/PatientsScr
 export { default as PatientsOverviewScreen } from './patients/PatientsOverviewScreen/PatientsOverviewScreen';
 export { default as PatientDirectoryScreen } from './patients/PatientDirectoryScreen';
 export { default as PatientQuickCreateScreen } from './patients/PatientQuickCreateScreen';
-export { default as PatientWorkspaceScreen } from './patients/PatientWorkspaceScreen';
+export { default as PatientDetailsScreen } from './patients/PatientDetailsScreen';
 export { default as PatientLegalHubScreen } from './patients/PatientLegalHubScreen';
 
 // Scheduling screens

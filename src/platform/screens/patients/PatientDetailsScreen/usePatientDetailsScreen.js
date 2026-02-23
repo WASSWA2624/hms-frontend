@@ -11,6 +11,7 @@ import {
   resolveErrorMessage,
 } from '../patientScreenUtils';
 import usePatientAllergy from '@hooks/usePatientAllergy';
+import useAddress from '@hooks/useAddress';
 import usePatientContact from '@hooks/usePatientContact';
 import usePatientDocument from '@hooks/usePatientDocument';
 import usePatientGuardian from '@hooks/usePatientGuardian';
@@ -112,7 +113,7 @@ const resolvePatientSummaryValues = (patient) => ({
   is_active: patient?.is_active !== false,
 });
 
-const usePatientWorkspaceScreen = () => {
+const usePatientDetailsScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
@@ -128,6 +129,7 @@ const usePatientWorkspaceScreen = () => {
   } = usePatientAccess();
 
   const patientCrud = usePatient();
+  const addressCrud = useAddress();
   const identifierCrud = usePatientIdentifier();
   const contactCrud = usePatientContact();
   const guardianCrud = usePatientGuardian();
@@ -287,9 +289,45 @@ const usePatientWorkspaceScreen = () => {
     ]
   );
 
+  const fetchPatientDetailCollections = useCallback(() => {
+    if (!patientId || isOffline || !canAccessPatients) return;
+
+    const params = {
+      page: 1,
+      limit: 100,
+      sort_by: 'updated_at',
+      order: 'desc',
+      patient_id: patientId,
+    };
+    if (!canManageAllTenants && normalizedTenantId) {
+      params.tenant_id = normalizedTenantId;
+    }
+
+    identifierCrud.list(params);
+    guardianCrud.list(params);
+    contactCrud.list(params);
+    documentCrud.list(params);
+    addressCrud.list(params);
+  }, [
+    patientId,
+    isOffline,
+    canAccessPatients,
+    canManageAllTenants,
+    normalizedTenantId,
+    identifierCrud,
+    guardianCrud,
+    contactCrud,
+    documentCrud,
+    addressCrud,
+  ]);
+
   useEffect(() => {
     fetchPatient();
   }, [fetchPatient]);
+
+  useEffect(() => {
+    fetchPatientDetailCollections();
+  }, [fetchPatientDetailCollections]);
 
   useEffect(() => {
     fetchPanelRecords(activePanel);
@@ -300,6 +338,11 @@ const usePatientWorkspaceScreen = () => {
     () => resolveItems(activePanelHook?.data),
     [activePanelHook?.data]
   );
+  const identifierRecords = useMemo(() => resolveItems(identifierCrud.data), [identifierCrud.data]);
+  const guardianRecords = useMemo(() => resolveItems(guardianCrud.data), [guardianCrud.data]);
+  const contactRecords = useMemo(() => resolveItems(contactCrud.data), [contactCrud.data]);
+  const documentRecords = useMemo(() => resolveItems(documentCrud.data), [documentCrud.data]);
+  const addressRecords = useMemo(() => resolveItems(addressCrud.data), [addressCrud.data]);
 
   const [summaryValues, setSummaryValues] = useState(resolvePatientSummaryValues(patient));
   const [summaryErrors, setSummaryErrors] = useState({});
@@ -393,31 +436,6 @@ const usePatientWorkspaceScreen = () => {
     },
     [activeTab, buildWorkspacePath, router]
   );
-
-  const onOpenPatientsOverview = useCallback(() => {
-    router.push('/patients');
-  }, [router]);
-
-  const onOpenPatientDirectory = useCallback(() => {
-    router.push('/patients/patients');
-  }, [router]);
-
-  const onOpenPatientCreate = useCallback(() => {
-    if (!canManagePatientRecords) return;
-    router.push('/patients/patients/create');
-  }, [canManagePatientRecords, router]);
-
-  const onOpenPatientLegalHub = useCallback(() => {
-    router.push('/patients/legal');
-  }, [router]);
-
-  const onOpenCurrentWorkspace = useCallback(() => {
-    if (!patientId) {
-      router.push('/patients/patients');
-      return;
-    }
-    router.replace(`/patients/patients/${patientId}`);
-  }, [patientId, router]);
 
   const closeEditor = useCallback(() => {
     setPanelDraft(null);
@@ -642,6 +660,11 @@ const usePatientWorkspaceScreen = () => {
   return {
     patientId,
     patient,
+    identifierRecords,
+    guardianRecords,
+    contactRecords,
+    documentRecords,
+    addressRecords,
     tabs,
     activeTab,
     panelOptions,
@@ -654,7 +677,16 @@ const usePatientWorkspaceScreen = () => {
     summaryValues,
     summaryErrors,
     genderOptions,
-    isLoading: !isResolved || patientCrud.isLoading || activePanelHook?.isLoading,
+    isLoading: (
+      !isResolved
+      || patientCrud.isLoading
+      || activePanelHook?.isLoading
+      || identifierCrud.isLoading
+      || guardianCrud.isLoading
+      || contactCrud.isLoading
+      || documentCrud.isLoading
+      || addressCrud.isLoading
+    ),
     isOffline,
     hasError,
     errorMessage,
@@ -662,16 +694,12 @@ const usePatientWorkspaceScreen = () => {
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
-    onOpenPatientsOverview,
-    onOpenPatientDirectory,
-    onOpenPatientCreate,
-    onOpenPatientLegalHub,
-    onOpenCurrentWorkspace,
     onSelectTab,
     onSelectPanel,
     onRetry: () => {
       fetchPatient();
       fetchPanelRecords(activePanel);
+      fetchPatientDetailCollections();
     },
     onGoToSubscriptions: () => router.push('/subscriptions/subscriptions'),
     onStartCreate,
@@ -688,4 +716,4 @@ const usePatientWorkspaceScreen = () => {
   };
 };
 
-export default usePatientWorkspaceScreen;
+export default usePatientDetailsScreen;
