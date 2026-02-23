@@ -21,7 +21,8 @@ import { formatDateTime } from '@utils';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import {
   StyledActions,
-  StyledChromeTab,
+  StyledChromeTabButton,
+  StyledChromeTabIcon,
   StyledChromeTabLabel,
   StyledChromeTabsRail,
   StyledContainer,
@@ -182,7 +183,8 @@ const resolveTextValue = (event) => (
 const resolveTranslation = (t, key, fallback = '') => {
   if (!key) return fallback;
   const translated = t(key);
-  if (translated === key) return fallback || key;
+  const normalized = sanitizeString(translated);
+  if (!normalized || normalized === key) return fallback || key;
   return translated;
 };
 
@@ -209,9 +211,10 @@ const PatientDetailsScreen = () => {
   const { width } = useWindowDimensions();
   const isCompactLayout = width < breakpoints.tablet;
   const compactButtonStyle = isCompactLayout ? { flexGrow: 1 } : undefined;
-  const [selectedPageTab, setSelectedPageTab] = React.useState('details');
 
   const {
+    routePatientId,
+    initialTabKey,
     patient,
     resourceSections,
     resourceKeys,
@@ -241,6 +244,11 @@ const PatientDetailsScreen = () => {
     onResourceSubmit,
     onResourceCancel,
   } = usePatientDetailsScreen();
+  const [selectedPageTab, setSelectedPageTab] = React.useState(initialTabKey || 'details');
+
+  React.useEffect(() => {
+    setSelectedPageTab(initialTabKey || 'details');
+  }, [initialTabKey, routePatientId]);
 
   const fallbackLabel = t('common.notAvailable');
   const patientName = [patient?.first_name, patient?.last_name]
@@ -291,33 +299,49 @@ const PatientDetailsScreen = () => {
   const screenTabs = [
     {
       key: 'details',
-      label: t('patients.workspace.tabs.summary'),
+      label: resolveTranslation(t, 'patients.workspace.tabs.summary', 'Summary'),
       icon: '\u2139',
-      description: t('patients.workspace.summarySections.about'),
+      description: resolveTranslation(
+        t,
+        'patients.workspace.summarySections.about',
+        'About patient'
+      ),
     },
     {
       key: 'identity',
-      label: t('patients.workspace.tabs.identity'),
+      label: resolveTranslation(t, 'patients.workspace.tabs.identity', 'Identity & Reachability'),
       icon: '\ud83d\udd11',
-      description: t('patients.resources.patientIdentifiers.overviewDescription'),
+      description: resolveTranslation(
+        t,
+        'patients.resources.patientIdentifiers.overviewDescription',
+        'Patient identifiers and guardian records.'
+      ),
     },
     {
       key: 'contacts',
-      label: t('patients.workspace.panels.contacts'),
+      label: resolveTranslation(t, 'patients.workspace.panels.contacts', 'Contacts'),
       icon: '\u260e',
-      description: t('patients.resources.patientContacts.overviewDescription'),
+      description: resolveTranslation(
+        t,
+        'patients.resources.patientContacts.overviewDescription',
+        'Patient communication channels and contact values.'
+      ),
     },
     {
       key: 'address',
-      label: t('address.list.title'),
+      label: resolveTranslation(t, 'address.list.title', 'Addresses'),
       icon: '\ud83d\udccd',
-      description: t('address.list.accessibilityLabel'),
+      description: resolveTranslation(t, 'address.list.accessibilityLabel', 'Patient addresses'),
     },
     {
       key: 'documents',
-      label: t('patients.workspace.panels.documents'),
+      label: resolveTranslation(t, 'patients.workspace.panels.documents', 'Documents'),
       icon: '\ud83d\udcc4',
-      description: t('patients.resources.patientDocuments.overviewDescription'),
+      description: resolveTranslation(
+        t,
+        'patients.resources.patientDocuments.overviewDescription',
+        'Document metadata linked to patient records.'
+      ),
     },
   ];
 
@@ -539,6 +563,11 @@ const PatientDetailsScreen = () => {
     const resourceKey = section.key;
     const records = Array.isArray(section.records) ? section.records : [];
     const editor = section.editor;
+    const sectionErrorMessage = sanitizeString(section.errorMessage);
+    const shouldShowSectionError = Boolean(sectionErrorMessage) && records.length === 0;
+    const shouldShowSectionLoading = Boolean(section.isLoading)
+      && records.length === 0
+      && !shouldShowSectionError;
 
     return (
       <StyledResourceSection key={resourceKey}>
@@ -564,7 +593,16 @@ const PatientDetailsScreen = () => {
             <StyledResourceSectionDescription>{description}</StyledResourceSectionDescription>
           ) : null}
 
-          {records.length === 0 ? (
+          {shouldShowSectionLoading ? (
+            <LoadingSpinner accessibilityLabel={t('common.loading')} />
+          ) : shouldShowSectionError ? (
+            <ErrorState
+              size={ErrorStateSizes.SMALL}
+              title={t('patients.workspace.state.loadError')}
+              description={sectionErrorMessage}
+              testID={`${testID}-error`}
+            />
+          ) : records.length === 0 ? (
             <EmptyState
               title={emptyMessage}
               description={emptyMessage}
@@ -752,7 +790,7 @@ const PatientDetailsScreen = () => {
 
           <StyledChromeTabsRail accessibilityRole="radiogroup">
             {screenTabs.map((tab) => (
-              <StyledChromeTab
+              <StyledChromeTabButton
                 key={tab.key}
                 onPress={() => setSelectedPageTab(tab.key)}
                 $isActive={selectedPageTab === tab.key}
@@ -762,11 +800,17 @@ const PatientDetailsScreen = () => {
                 accessibilityLabel={tab.label}
                 testID={`patient-details-page-tab-${tab.key}`}
               >
-                <Icon glyph={tab.icon} size="xs" decorative />
-                <StyledChromeTabLabel $isActive={selectedPageTab === tab.key}>
+                <StyledChromeTabIcon $isActive={selectedPageTab === tab.key}>
+                  {tab.icon}
+                </StyledChromeTabIcon>
+                <StyledChromeTabLabel
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  $isActive={selectedPageTab === tab.key}
+                >
                   {tab.label}
                 </StyledChromeTabLabel>
-              </StyledChromeTab>
+              </StyledChromeTabButton>
             ))}
           </StyledChromeTabsRail>
         </StyledPageNavigation>

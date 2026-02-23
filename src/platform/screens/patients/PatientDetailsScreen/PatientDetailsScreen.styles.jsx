@@ -21,55 +21,57 @@ const StyledPageNavigationTitle = styled.Text`
 const StyledChromeTabsRail = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: stretch;
   gap: ${({ theme }) => theme.spacing.xs}px;
   padding: ${({ theme }) => theme.spacing.xs}px;
   border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border.light};
+  border-color: ${({ theme }) => theme.colors.border.medium};
   border-radius: ${({ theme }) => theme.radius.lg}px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
+  background-color: ${({ theme }) => theme.colors.background.tertiary};
 `;
 
-const StyledChromeTab = styled.Pressable`
+const StyledChromeTabButton = styled.Pressable`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  min-height: 28px;
-  min-width: ${({ $isCompact }) => ($isCompact ? '48%' : '140px')};
+  min-height: ${({ theme }) => theme.spacing.lg + theme.spacing.sm + 4}px;
+  min-width: ${({ $isCompact }) => ($isCompact ? '48%' : '136px')};
   padding-vertical: ${({ theme }) => theme.spacing.xs}px;
-  padding-horizontal: ${({ theme, $isCompact }) => (
-    $isCompact ? theme.spacing.sm : theme.spacing.md
-  )}px;
+  padding-horizontal: ${({ theme }) => theme.spacing.sm}px;
   border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border.light};
-  border-top-left-radius: ${({ theme }) => theme.radius.lg + 4}px;
-  border-top-right-radius: ${({ theme }) => theme.radius.lg + 4}px;
-  border-bottom-left-radius: ${({ theme }) => theme.radius.xs}px;
-  border-bottom-right-radius: ${({ theme }) => theme.radius.xs}px;
-  border-bottom-width: ${({ $isActive }) => ($isActive ? 0 : 1)}px;
-  background-color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.background.primary : theme.colors.background.tertiary
+  border-color: ${({ theme, $isActive }) => (
+    $isActive ? theme.colors.primary : theme.colors.border.medium
   )};
-  margin-bottom: ${({ $isActive }) => ($isActive ? '-1px' : '0px')};
-  opacity: ${({ $isActive }) => ($isActive ? 1 : 0.95)};
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  background-color: ${({ theme, $isActive }) => (
+    $isActive ? theme.colors.primary : theme.colors.background.secondary
+  )};
+`;
+
+const StyledChromeTabIcon = styled.Text`
+  color: ${({ theme, $isActive }) => (
+    $isActive ? theme.colors.text.inverse : theme.colors.text.primary
+  )};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  margin-right: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledChromeTabLabel = styled.Text`
   color: ${({ theme, $isActive }) => (
-    $isActive ? theme.colors.text.primary : theme.colors.text.secondary
+    $isActive ? theme.colors.text.inverse : theme.colors.text.primary
   )};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  font-weight: ${({ theme, $isActive }) => (
-    $isActive ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.medium
-  )};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  text-align: center;
 `;
 
 const StyledSummaryGrid = styled.View`
+  width: 100%;
   gap: ${({ theme }) => theme.spacing.xs + 2}px;
 `;
 
 const StyledSummarySection = styled.View`
+  width: 100%;
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
@@ -112,10 +114,12 @@ const StyledReadOnlyNotice = styled.Text`
 const StyledActions = styled.View`
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: center;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledResourceSection = styled.View`
+  width: 100%;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
@@ -148,7 +152,8 @@ const StyledListItem = styled.View`
 
 const StyledItemHeader = styled.View`
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
@@ -160,22 +165,28 @@ const StyledItemActions = styled.View`
 `;
 
 const StyledFieldBlock = styled.View`
+  width: 100%;
+  min-width: 0;
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledFormGrid = styled.View`
+  width: 100%;
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs}px;
 `;
 
 const StyledFormActions = styled.View`
   flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 export {
   StyledActions,
-  StyledChromeTab,
+  StyledChromeTabButton,
+  StyledChromeTabIcon,
   StyledChromeTabLabel,
   StyledChromeTabsRail,
   StyledContainer,

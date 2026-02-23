@@ -42,6 +42,8 @@ describe('PatientDetailsScreen', () => {
     useI18n.mockReturnValue({ t: (key) => key, locale: 'en-US' });
     usePatientDetailsScreen.mockReturnValue({
       patientId: 'patient-1',
+      routePatientId: 'PAT-0101',
+      initialTabKey: 'details',
       patient: {
         id: mockUuid,
         first_name: 'Jane',
@@ -114,5 +116,16 @@ describe('PatientDetailsScreen', () => {
     expect(queryByTestId('patient-details-page-content-contacts')).toBeNull();
     fireEvent.press(getByTestId('patient-details-page-tab-contacts'));
     expect(getByTestId('patient-details-page-content-contacts')).toBeTruthy();
+  });
+
+  it('falls back to readable tab labels when translations are blank', () => {
+    useI18n.mockReturnValue({
+      t: () => '',
+      locale: 'en-US',
+    });
+
+    const { getAllByText, getByText } = renderWithTheme(<PatientDetailsScreen />);
+    expect(getAllByText('Summary').length).toBeGreaterThan(0);
+    expect(getByText('Identity & Reachability')).toBeTruthy();
   });
 });

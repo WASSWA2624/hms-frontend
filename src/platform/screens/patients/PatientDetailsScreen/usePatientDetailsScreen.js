@@ -33,6 +33,7 @@ const EMPTY_RESOURCE_EDITORS = Object.freeze({
   [RESOURCE_KEYS.ADDRESSES]: null,
   [RESOURCE_KEYS.DOCUMENTS]: null,
 });
+const DEFAULT_TAB_KEY = 'details';
 
 const sanitizeString = (value) => String(value || '').trim();
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -51,6 +52,19 @@ const buildRouteLookupCandidates = (routePatientId) => {
     compact.toUpperCase(),
     compact.toLowerCase(),
   ].filter(Boolean))];
+};
+
+const normalizeRouteTabKey = (value) => {
+  const normalized = sanitizeString(value).toLowerCase();
+  if (!normalized) return DEFAULT_TAB_KEY;
+
+  if (normalized === 'summary' || normalized === 'details') return 'details';
+  if (normalized === 'identity' || normalized === 'identifiers') return 'identity';
+  if (normalized === 'contacts') return 'contacts';
+  if (normalized === 'address' || normalized === 'addresses') return 'address';
+  if (normalized === 'documents' || normalized === 'docs') return 'documents';
+
+  return DEFAULT_TAB_KEY;
 };
 
 const getScalarParam = (value) => {
@@ -312,6 +326,7 @@ const usePatientDetailsScreen = () => {
   } = documentCrud;
 
   const routePatientId = sanitizeString(getScalarParam(searchParams?.id));
+  const routeTabKey = normalizeRouteTabKey(getScalarParam(searchParams?.tab));
   const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
   const normalizedFacilityId = sanitizeString(facilityId);
@@ -849,6 +864,10 @@ const usePatientDetailsScreen = () => {
         records: identifierRecords,
         editor: resourceEditors[RESOURCE_KEYS.IDENTIFIERS],
         isLoading: isIdentifierLoading,
+        errorCode: identifierErrorCode,
+        errorMessage: identifierErrorCode
+          ? resolveErrorMessage(t, identifierErrorCode, 'patients.workspace.state.loadError')
+          : '',
       },
       [RESOURCE_KEYS.GUARDIANS]: {
         key: RESOURCE_KEYS.GUARDIANS,
@@ -856,6 +875,10 @@ const usePatientDetailsScreen = () => {
         records: guardianRecords,
         editor: resourceEditors[RESOURCE_KEYS.GUARDIANS],
         isLoading: isGuardianLoading,
+        errorCode: guardianErrorCode,
+        errorMessage: guardianErrorCode
+          ? resolveErrorMessage(t, guardianErrorCode, 'patients.workspace.state.loadError')
+          : '',
       },
       [RESOURCE_KEYS.CONTACTS]: {
         key: RESOURCE_KEYS.CONTACTS,
@@ -863,6 +886,10 @@ const usePatientDetailsScreen = () => {
         records: contactRecords,
         editor: resourceEditors[RESOURCE_KEYS.CONTACTS],
         isLoading: isContactLoading,
+        errorCode: contactErrorCode,
+        errorMessage: contactErrorCode
+          ? resolveErrorMessage(t, contactErrorCode, 'patients.workspace.state.loadError')
+          : '',
       },
       [RESOURCE_KEYS.ADDRESSES]: {
         key: RESOURCE_KEYS.ADDRESSES,
@@ -870,6 +897,10 @@ const usePatientDetailsScreen = () => {
         records: addressRecords,
         editor: resourceEditors[RESOURCE_KEYS.ADDRESSES],
         isLoading: isAddressLoading,
+        errorCode: addressErrorCode,
+        errorMessage: addressErrorCode
+          ? resolveErrorMessage(t, addressErrorCode, 'patients.workspace.state.loadError')
+          : '',
       },
       [RESOURCE_KEYS.DOCUMENTS]: {
         key: RESOURCE_KEYS.DOCUMENTS,
@@ -877,6 +908,10 @@ const usePatientDetailsScreen = () => {
         records: documentRecords,
         editor: resourceEditors[RESOURCE_KEYS.DOCUMENTS],
         isLoading: isDocumentLoading,
+        errorCode: documentErrorCode,
+        errorMessage: documentErrorCode
+          ? resolveErrorMessage(t, documentErrorCode, 'patients.workspace.state.loadError')
+          : '',
       },
     }),
     [
@@ -892,6 +927,12 @@ const usePatientDetailsScreen = () => {
       isContactLoading,
       isAddressLoading,
       isDocumentLoading,
+      identifierErrorCode,
+      guardianErrorCode,
+      contactErrorCode,
+      addressErrorCode,
+      documentErrorCode,
+      t,
     ]
   );
 
@@ -902,7 +943,7 @@ const usePatientDetailsScreen = () => {
     && !patient
     && !isInitialLoading
   );
-  const activeErrorCode = (
+  const activeEntitlementErrorCode = (
     patientErrorCode
     || identifierErrorCode
     || guardianErrorCode
@@ -910,20 +951,20 @@ const usePatientDetailsScreen = () => {
     || addressErrorCode
     || documentErrorCode
   );
-  const isEntitlementBlocked = isEntitlementDeniedError(activeErrorCode);
+  const isEntitlementBlocked = isEntitlementDeniedError(activeEntitlementErrorCode);
   const hasError = (
     !isPatientDeleted
     && !isEntitlementBlocked
-    && (hasMissingContext || hasUnresolvedPatient || Boolean(activeErrorCode))
+    && (hasMissingContext || hasUnresolvedPatient || Boolean(patientErrorCode))
   );
   const errorMessage = useMemo(() => {
     if (hasMissingContext || hasUnresolvedPatient) return t('patients.workspace.state.loadError');
     return resolveErrorMessage(
       t,
-      activeErrorCode,
+      patientErrorCode,
       'patients.workspace.state.loadError'
     );
-  }, [t, activeErrorCode, hasMissingContext, hasUnresolvedPatient]);
+  }, [t, patientErrorCode, hasMissingContext, hasUnresolvedPatient]);
 
   const onRetry = useCallback(() => {
     if (isPatientDeleted) return;
@@ -933,6 +974,7 @@ const usePatientDetailsScreen = () => {
   return {
     patientId: resolvedPatientId,
     routePatientId,
+    initialTabKey: routeTabKey,
     patient,
     identifierRecords,
     guardianRecords,

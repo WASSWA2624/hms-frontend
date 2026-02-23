@@ -252,6 +252,16 @@ describe('usePatientDetailsScreen', () => {
     }));
   });
 
+  it('normalizes route tab query into patient details tab keys', async () => {
+    mockSearchParams = { id: 'PAT-001', tab: 'addresses' };
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.initialTabKey).toBe('address');
+    });
+  });
+
   it('manages resource editor lifecycle locally and submits create payload', async () => {
     mockCreateIdentifiers.mockResolvedValue({ id: 'identifier-1' });
 
@@ -352,6 +362,28 @@ describe('usePatientDetailsScreen', () => {
     await waitFor(() => {
       expect(result.current.isEntitlementBlocked).toBe(true);
     });
+  });
+
+  it('keeps the page available when a resource collection fails', async () => {
+    usePatientContact.mockReturnValue({
+      list: mockListContacts,
+      create: mockCreateContacts,
+      update: mockUpdateContacts,
+      remove: mockRemoveContacts,
+      reset: mockResetContacts,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: 'errors.network.timeout',
+    });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.hasError).toBe(false);
+    });
+
+    expect(result.current.resourceSections.contacts.errorCode).toBe('errors.network.timeout');
+    expect(result.current.resourceSections.contacts.errorMessage).toBeTruthy();
   });
 
   it('deletes patient locally without redirecting to another screen', async () => {
