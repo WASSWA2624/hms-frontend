@@ -394,6 +394,31 @@ const usePatientWorkspaceScreen = () => {
     [activeTab, buildWorkspacePath, router]
   );
 
+  const onOpenPatientsOverview = useCallback(() => {
+    router.push('/patients');
+  }, [router]);
+
+  const onOpenPatientDirectory = useCallback(() => {
+    router.push('/patients/patients');
+  }, [router]);
+
+  const onOpenPatientCreate = useCallback(() => {
+    if (!canManagePatientRecords) return;
+    router.push('/patients/patients/create');
+  }, [canManagePatientRecords, router]);
+
+  const onOpenPatientLegalHub = useCallback(() => {
+    router.push('/patients/legal');
+  }, [router]);
+
+  const onOpenCurrentWorkspace = useCallback(() => {
+    if (!patientId) {
+      router.push('/patients/patients');
+      return;
+    }
+    router.replace(`/patients/patients/${patientId}`);
+  }, [patientId, router]);
+
   const closeEditor = useCallback(() => {
     setPanelDraft(null);
     draftSignatureRef.current = '';
@@ -637,6 +662,11 @@ const usePatientWorkspaceScreen = () => {
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
+    onOpenPatientsOverview,
+    onOpenPatientDirectory,
+    onOpenPatientCreate,
+    onOpenPatientLegalHub,
+    onOpenCurrentWorkspace,
     onSelectTab,
     onSelectPanel,
     onRetry: () => {

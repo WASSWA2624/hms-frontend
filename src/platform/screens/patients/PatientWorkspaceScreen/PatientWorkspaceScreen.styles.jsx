@@ -7,6 +7,29 @@ const StyledContainer = styled.View`
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs + 2}px;
 `;
 
+const StyledPageNavigation = styled.View`
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledPageNavigationTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  text-transform: uppercase;
+`;
+
+const StyledPageTabsRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+`;
+
+const StyledPageActionsRow = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+`;
+
 const StyledHeader = styled.View`
   gap: ${({ theme }) => theme.spacing.xs + 2}px;
 `;
@@ -117,6 +140,10 @@ export {
   StyledHeader,
   StyledItemHeader,
   StyledListItem,
+  StyledPageActionsRow,
+  StyledPageNavigation,
+  StyledPageNavigationTitle,
+  StyledPageTabsRow,
   StyledPanelRow,
   StyledReadOnlyNotice,
   StyledSummaryLabel,

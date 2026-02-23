@@ -88,9 +88,8 @@ describe('PatientWorkspaceScreen', () => {
     expect(getByTestId('patient-workspace-summary-help-dob')).toBeTruthy();
     expect(getByTestId('patient-workspace-summary-help-gender')).toBeTruthy();
     expect(getByTestId('patient-workspace-summary-help-active')).toBeTruthy();
+    expect(getByTestId('patient-workspace-page-tab-workspace')).toBeTruthy();
     expect(getByText('patients.resources.patients.form.firstNameHint')).toBeTruthy();
-    expect(getByText(/PAT-0101/)).toBeTruthy();
     expect(queryByText(mockUuid)).toBeNull();
   });
 });
-

@@ -29,6 +29,10 @@ import {
   StyledFormGrid,
   StyledItemHeader,
   StyledListItem,
+  StyledPageActionsRow,
+  StyledPageNavigation,
+  StyledPageNavigationTitle,
+  StyledPageTabsRow,
   StyledPanelRow,
   StyledReadOnlyNotice,
   StyledSummaryLabel,
@@ -171,6 +175,8 @@ const PatientWorkspaceScreen = () => {
   const { t, locale } = useI18n();
   const { width } = useWindowDimensions();
   const isCompactLayout = width < breakpoints.tablet;
+  const topNavButtonSize = width < breakpoints.desktop ? 'small' : 'medium';
+  const compactButtonStyle = isCompactLayout ? { flexGrow: 1 } : undefined;
   const {
     patient,
     tabs,
@@ -192,6 +198,11 @@ const PatientWorkspaceScreen = () => {
     canManagePatientRecords,
     canDeletePatientRecords,
     canManageAllTenants,
+    onOpenPatientsOverview,
+    onOpenPatientDirectory,
+    onOpenPatientCreate,
+    onOpenPatientLegalHub,
+    onOpenCurrentWorkspace,
     onSelectTab,
     onSelectPanel,
     onRetry,
@@ -255,6 +266,58 @@ const PatientWorkspaceScreen = () => {
   const canDeletePatientProfile = (
     canDeletePatientRecords && typeof onDeletePatient === 'function'
   );
+  const screenTabs = [
+    {
+      key: 'overview',
+      label: t('patients.overview.title'),
+      icon: '\u2302',
+      onPress: onOpenPatientsOverview,
+      isActive: false,
+    },
+    {
+      key: 'directory',
+      label: t('patients.directory.title'),
+      icon: '\u2630',
+      onPress: onOpenPatientDirectory,
+      isActive: false,
+    },
+    {
+      key: 'workspace',
+      label: t('patients.workspace.title'),
+      icon: '\u25A3',
+      onPress: onOpenCurrentWorkspace,
+      isActive: true,
+    },
+    {
+      key: 'legal',
+      label: t('patients.legal.title'),
+      icon: '\u2696',
+      onPress: onOpenPatientLegalHub,
+      isActive: false,
+    },
+  ];
+  const screenActions = [
+    {
+      key: 'open-directory',
+      label: t('patients.overview.openDirectory'),
+      icon: '\u2630',
+      onPress: onOpenPatientDirectory,
+    },
+    canManagePatientRecords
+      ? {
+        key: 'register-patient',
+        label: t('patients.overview.registerPatient'),
+        icon: '\u2795',
+        onPress: onOpenPatientCreate,
+      }
+      : null,
+    {
+      key: 'open-legal',
+      label: t('patients.overview.openLegalHub'),
+      icon: '\u2696',
+      onPress: onOpenPatientLegalHub,
+    },
+  ].filter(Boolean);
 
   const summaryAboutRows = [
     { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
@@ -545,6 +608,46 @@ const PatientWorkspaceScreen = () => {
 
   return (
     <StyledContainer>
+      <Card variant="outlined" testID="patient-workspace-page-navigation">
+        <StyledPageNavigation>
+          <StyledPageNavigationTitle>{t('patients.screen.label')}</StyledPageNavigationTitle>
+
+          <StyledPageTabsRow>
+            {screenTabs.map((tab) => (
+              <Button
+                key={tab.key}
+                variant={tab.isActive ? 'primary' : 'surface'}
+                size={topNavButtonSize}
+                onPress={tab.onPress}
+                accessibilityLabel={tab.label}
+                icon={<Icon glyph={tab.icon} size="xs" decorative />}
+                style={compactButtonStyle}
+                testID={`patient-workspace-page-tab-${tab.key}`}
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </StyledPageTabsRow>
+
+          <StyledPageActionsRow>
+            {screenActions.map((action) => (
+              <Button
+                key={action.key}
+                variant="surface"
+                size={topNavButtonSize}
+                onPress={action.onPress}
+                accessibilityLabel={action.label}
+                icon={<Icon glyph={action.icon} size="xs" decorative />}
+                style={compactButtonStyle}
+                testID={`patient-workspace-page-action-${action.key}`}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </StyledPageActionsRow>
+        </StyledPageNavigation>
+      </Card>
+
       <StyledTabRow>
         {tabs.map((tab) => (
           <Button

@@ -287,4 +287,22 @@ describe('usePatientWorkspaceScreen', () => {
     expect(mockPatientRemove).toHaveBeenCalledWith('patient-1');
     expect(mockReplace).toHaveBeenCalledWith('/patients/patients');
   });
+
+  it('exposes top navigation actions for patient pages', () => {
+    const { result } = renderHook(() => usePatientWorkspaceScreen());
+
+    act(() => {
+      result.current.onOpenPatientsOverview();
+      result.current.onOpenPatientDirectory();
+      result.current.onOpenPatientCreate();
+      result.current.onOpenPatientLegalHub();
+      result.current.onOpenCurrentWorkspace();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/patients');
+    expect(mockPush).toHaveBeenCalledWith('/patients/patients');
+    expect(mockPush).toHaveBeenCalledWith('/patients/patients/create');
+    expect(mockPush).toHaveBeenCalledWith('/patients/legal');
+    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/patient-1');
+  });
 });
