@@ -85,6 +85,20 @@ describe('useRoleGuard', () => {
     });
   });
 
+  it('normalizes ambulance role aliases for access checks', async () => {
+    mockState.auth.user = { id: '1', role: 'ambulance_driver' };
+
+    let api;
+    render(
+      <TestComponent options={{ requiredRoles: 'AMBULANCE_OPERATOR' }} onResult={(v) => (api = v)} />
+    );
+
+    await waitFor(() => {
+      expect(api.hasAccess).toBe(true);
+      expect(api.errorCode).toBeNull();
+    });
+  });
+
   it('denies access and redirects when user lacks role', async () => {
     mockState.auth.user = { id: '1', role: 'BILLING' };
 

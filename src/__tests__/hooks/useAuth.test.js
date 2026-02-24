@@ -133,4 +133,28 @@ describe('useAuth', () => {
     expect(result.roles).toEqual(['tenant_admin', 'super_admin']);
     expect(result.role).toBe('tenant_admin');
   });
+
+  it('normalizes ambulance aliases to ambulance_operator', () => {
+    const store = createStore({
+      auth: {
+        user: {
+          id: '1',
+          role: 'paramedic',
+          roles: ['ambulance_driver', 'EMT'],
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        errorCode: null,
+        lastUpdated: null,
+      },
+    });
+    let result;
+    render(
+      <Provider store={store}>
+        <TestComponent onResult={(value) => (result = value)} />
+      </Provider>
+    );
+    expect(result.roles).toEqual(['ambulance_operator']);
+    expect(result.role).toBe('ambulance_operator');
+  });
 });

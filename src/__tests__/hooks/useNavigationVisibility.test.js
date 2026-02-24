@@ -89,6 +89,22 @@ describe('useNavigationVisibility', () => {
     expect(result.isItemVisible(findMainItem('settings'))).toBe(false);
   });
 
+  it('shows dashboard/emergency/communications to AMBULANCE_OPERATOR only', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['AMBULANCE_OPERATOR'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('dashboard'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('emergency'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('communications'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('billing'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('hr'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('settings'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('lab'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('radiology'))).toBe(false);
+  });
+
   it('shows housekeeping to HOUSE_KEEPER but hides biomedical', () => {
     useResolvedRoles.mockReturnValue({ roles: ['HOUSE_KEEPER'], isResolved: true });
 
