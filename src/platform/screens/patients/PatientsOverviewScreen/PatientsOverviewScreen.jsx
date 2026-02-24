@@ -65,7 +65,9 @@ const PatientsOverviewScreen = () => {
         <StyledHeader>
           <StyledHeaderTop>
             <StyledHeaderCopy>
-              <Text variant="h2" accessibilityRole="header">{t('patients.overview.title')}</Text>
+              <Text variant="h2" accessibilityRole="header">
+                {t('patients.overview.title')}
+              </Text>
               <Text variant="body">{t('patients.overview.description')}</Text>
             </StyledHeaderCopy>
             <StyledHelpButton
@@ -79,7 +81,9 @@ const PatientsOverviewScreen = () => {
             </StyledHelpButton>
           </StyledHeaderTop>
 
-          <StyledSummaryList accessibilityLabel={t('patients.overview.summaryTitle')}>
+          <StyledSummaryList
+            accessibilityLabel={t('patients.overview.summaryTitle')}
+          >
             <StyledSummaryChip>
               <StyledSummaryText>{overviewSummary.scope}</StyledSummaryText>
             </StyledSummaryChip>
@@ -87,7 +91,9 @@ const PatientsOverviewScreen = () => {
               <StyledSummaryText>{overviewSummary.access}</StyledSummaryText>
             </StyledSummaryChip>
             <StyledSummaryChip>
-              <StyledSummaryText>{overviewSummary.recentCount}</StyledSummaryText>
+              <StyledSummaryText>
+                {overviewSummary.recentCount}
+              </StyledSummaryText>
             </StyledSummaryChip>
           </StyledSummaryList>
 
@@ -122,7 +128,10 @@ const PatientsOverviewScreen = () => {
         </Modal>
 
         {isLoading ? (
-          <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patients-overview-loading" />
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="patients-overview-loading"
+          />
         ) : null}
 
         {!isLoading && hasError && !isOffline ? (
@@ -169,34 +178,44 @@ const PatientsOverviewScreen = () => {
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.quickPathsTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>
+              {t('patients.overview.quickPathsTitle')}
+            </StyledSectionTitle>
           </StyledSectionHeader>
           <StyledCardGrid>
-            {cards.map((card) => (
-              <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`patients-card-${card.id}`}>
-                <StyledTileTitle>{card.label}</StyledTileTitle>
-                <StyledTileDescription>{card.description}</StyledTileDescription>
-                {(() => {
-                  const actionLabel = card.id === 'legal'
-                    ? t('patients.overview.openLegalHub')
-                    : t('patients.overview.openDirectory');
-                  return (
-                <StyledTileAction
-                  onPress={() => onOpenResource(card.routePath)}
-                  accessibilityLabel={actionLabel}
+            {cards.map((card) => {
+              const actionLabel =
+                card.id === 'legal'
+                  ? t('patients.overview.openLegalHub')
+                  : t('patients.overview.openDirectory');
+              return (
+                <Card
+                  key={card.id}
+                  variant="outlined"
+                  accessibilityLabel={card.label}
+                  testID={`patients-card-${card.id}`}
                 >
-                      <Text variant="body">{actionLabel}</Text>
-                </StyledTileAction>
-                  );
-                })()}
-              </Card>
-            ))}
+                  <StyledTileTitle>{card.label}</StyledTileTitle>
+                  <StyledTileDescription>
+                    {card.description}
+                  </StyledTileDescription>
+                  <StyledTileAction
+                    onPress={() => onOpenResource(card.routePath)}
+                    accessibilityLabel={actionLabel}
+                  >
+                    <Text variant="body">{actionLabel}</Text>
+                  </StyledTileAction>
+                </Card>
+              );
+            })}
           </StyledCardGrid>
         </StyledSection>
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.recentPatientsTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>
+              {t('patients.overview.recentPatientsTitle')}
+            </StyledSectionTitle>
           </StyledSectionHeader>
           <Card
             variant="outlined"
@@ -225,16 +244,22 @@ const PatientsOverviewScreen = () => {
                 editButtonLabel={t('common.edit')}
                 deleteButtonLabel={t('common.delete')}
                 resolveOpenAccessibilityLabel={(patient) =>
-                  t('patients.overview.openPatient', { patient: patient.displayName })
+                  t('patients.overview.openPatient', {
+                    patient: patient.displayName,
+                  })
                 }
                 resolveEditAccessibilityLabel={(patient) =>
                   t('patients.directory.actions.editHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                    patient:
+                      patient?.displayName ||
+                      t('patients.directory.columns.patient'),
                   })
                 }
                 resolveDeleteAccessibilityLabel={(patient) =>
                   t('patients.directory.actions.deleteHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                    patient:
+                      patient?.displayName ||
+                      t('patients.directory.columns.patient'),
                   })
                 }
                 testIdPrefix="patients-overview-item-"

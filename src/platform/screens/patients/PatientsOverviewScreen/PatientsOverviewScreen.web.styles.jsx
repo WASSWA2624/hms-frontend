@@ -101,7 +101,8 @@ const StyledSummaryListItem = styled.li.withConfig({
   displayName: 'PatientsOverviewScreen_StyledSummaryListItem',
   componentId: 'PatientsOverviewScreen_StyledSummaryListItem',
 })`
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs}px
+    ${({ theme }) => theme.spacing.sm}px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   background-color: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};
@@ -128,7 +129,8 @@ const StyledHelpModalBody = styled.p.withConfig({
   color: ${({ theme }) => theme.colors.text.secondary};
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
 `;
 
 const StyledHelpChecklist = styled.ul.withConfig({
@@ -149,7 +151,8 @@ const StyledHelpItem = styled.li.withConfig({
   color: ${({ theme }) => theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  line-height: ${({ theme }) => theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.sm * theme.typography.lineHeight.normal}px;
 `;
 
 const StyledSection = styled.section.withConfig({
@@ -219,7 +222,8 @@ const StyledTileAction = styled.button.withConfig({
   margin-top: ${({ theme }) => theme.spacing.sm}px;
   min-width: 44px;
   min-height: 44px;
-  padding: ${({ theme }) => theme.spacing.xs}px ${({ theme }) => theme.spacing.sm}px;
+  padding: ${({ theme }) => theme.spacing.xs}px
+    ${({ theme }) => theme.spacing.sm}px;
   border: none;
   background: transparent;
   color: ${({ theme }) => theme.colors.primary};
@@ -228,6 +232,16 @@ const StyledTileAction = styled.button.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+    border-radius: ${({ theme }) => theme.radius.sm}px;
+  }
 `;
 
 export {

@@ -68,7 +68,9 @@ const PatientsOverviewScreenWeb = () => {
         <StyledHeader>
           <StyledHeaderTop>
             <StyledHeaderCopy>
-              <Text variant="h2" accessibilityRole="header">{t('patients.overview.title')}</Text>
+              <Text variant="h2" accessibilityRole="header">
+                {t('patients.overview.title')}
+              </Text>
               <Text variant="body">{t('patients.overview.description')}</Text>
             </StyledHeaderCopy>
             <StyledHelpAnchor>
@@ -98,10 +100,19 @@ const PatientsOverviewScreenWeb = () => {
             </StyledHelpAnchor>
           </StyledHeaderTop>
 
-          <StyledSummaryList role="list" aria-label={t('patients.overview.summaryTitle')}>
-            <StyledSummaryListItem role="listitem">{overviewSummary.scope}</StyledSummaryListItem>
-            <StyledSummaryListItem role="listitem">{overviewSummary.access}</StyledSummaryListItem>
-            <StyledSummaryListItem role="listitem">{overviewSummary.recentCount}</StyledSummaryListItem>
+          <StyledSummaryList
+            role="list"
+            aria-label={t('patients.overview.summaryTitle')}
+          >
+            <StyledSummaryListItem role="listitem">
+              {overviewSummary.scope}
+            </StyledSummaryListItem>
+            <StyledSummaryListItem role="listitem">
+              {overviewSummary.access}
+            </StyledSummaryListItem>
+            <StyledSummaryListItem role="listitem">
+              {overviewSummary.recentCount}
+            </StyledSummaryListItem>
           </StyledSummaryList>
 
           {showRegisterPatientAction ? (
@@ -137,7 +148,10 @@ const PatientsOverviewScreenWeb = () => {
         </Modal>
 
         {isLoading ? (
-          <LoadingSpinner accessibilityLabel={t('common.loading')} testID="patients-overview-loading" />
+          <LoadingSpinner
+            accessibilityLabel={t('common.loading')}
+            testID="patients-overview-loading"
+          />
         ) : null}
 
         {!isLoading && hasError && !isOffline ? (
@@ -184,35 +198,45 @@ const PatientsOverviewScreenWeb = () => {
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.quickPathsTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>
+              {t('patients.overview.quickPathsTitle')}
+            </StyledSectionTitle>
           </StyledSectionHeader>
           <StyledCardGrid>
-            {cards.map((card) => (
-              <Card key={card.id} variant="outlined" accessibilityLabel={card.label} testID={`patients-card-${card.id}`}>
-                <StyledTileTitle>{card.label}</StyledTileTitle>
-                <StyledTileDescription>{card.description}</StyledTileDescription>
-                {(() => {
-                  const actionLabel = card.id === 'legal'
-                    ? t('patients.overview.openLegalHub')
-                    : t('patients.overview.openDirectory');
-                  return (
-                <StyledTileAction
-                  type="button"
-                  onClick={() => onOpenResource(card.routePath)}
-                  aria-label={actionLabel}
+            {cards.map((card) => {
+              const actionLabel =
+                card.id === 'legal'
+                  ? t('patients.overview.openLegalHub')
+                  : t('patients.overview.openDirectory');
+              return (
+                <Card
+                  key={card.id}
+                  variant="outlined"
+                  accessibilityLabel={card.label}
+                  testID={`patients-card-${card.id}`}
                 >
-                      {actionLabel}
-                </StyledTileAction>
-                  );
-                })()}
-              </Card>
-            ))}
+                  <StyledTileTitle>{card.label}</StyledTileTitle>
+                  <StyledTileDescription>
+                    {card.description}
+                  </StyledTileDescription>
+                  <StyledTileAction
+                    type="button"
+                    onClick={() => onOpenResource(card.routePath)}
+                    aria-label={actionLabel}
+                  >
+                    {actionLabel}
+                  </StyledTileAction>
+                </Card>
+              );
+            })}
           </StyledCardGrid>
         </StyledSection>
 
         <StyledSection>
           <StyledSectionHeader>
-            <StyledSectionTitle>{t('patients.overview.recentPatientsTitle')}</StyledSectionTitle>
+            <StyledSectionTitle>
+              {t('patients.overview.recentPatientsTitle')}
+            </StyledSectionTitle>
           </StyledSectionHeader>
           <Card
             variant="outlined"
@@ -241,16 +265,22 @@ const PatientsOverviewScreenWeb = () => {
                 editButtonLabel={t('common.edit')}
                 deleteButtonLabel={t('common.delete')}
                 resolveOpenAccessibilityLabel={(patient) =>
-                  t('patients.overview.openPatient', { patient: patient.displayName })
+                  t('patients.overview.openPatient', {
+                    patient: patient.displayName,
+                  })
                 }
                 resolveEditAccessibilityLabel={(patient) =>
                   t('patients.directory.actions.editHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                    patient:
+                      patient?.displayName ||
+                      t('patients.directory.columns.patient'),
                   })
                 }
                 resolveDeleteAccessibilityLabel={(patient) =>
                   t('patients.directory.actions.deleteHint', {
-                    patient: patient?.displayName || t('patients.directory.columns.patient'),
+                    patient:
+                      patient?.displayName ||
+                      t('patients.directory.columns.patient'),
                   })
                 }
                 testIdPrefix="patients-overview-item-"
@@ -264,4 +294,3 @@ const PatientsOverviewScreenWeb = () => {
 };
 
 export default PatientsOverviewScreenWeb;
-

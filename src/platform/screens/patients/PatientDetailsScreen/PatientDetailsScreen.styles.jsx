@@ -1,10 +1,15 @@
 import styled from 'styled-components/native';
+import { Button, Card } from '@platform/components';
 
 const StyledContainer = styled.View`
   flex: 1;
   width: 100%;
   min-width: 0;
   gap: ${({ theme }) => theme.spacing.sm + theme.spacing.xs + 2}px;
+  overflow: visible;
+`;
+
+const StyledOverflowCard = styled(Card)`
   overflow: visible;
 `;
 
@@ -42,6 +47,15 @@ const StyledChromeTabSlot = styled.View`
   min-width: ${({ $isCompact }) => ($isCompact ? '48%' : '136px')};
   flex-grow: 0;
   flex-shrink: 0;
+`;
+
+const StyledPageTabButton = styled(Button)`
+  width: 100%;
+  justify-content: center;
+  min-height: ${({ theme, $isCompact }) =>
+    $isCompact
+      ? theme.spacing.lg + theme.spacing.sm
+      : theme.spacing.lg + theme.spacing.sm + theme.spacing.xs}px;
 `;
 
 const StyledSummaryGrid = styled.View`
@@ -96,6 +110,10 @@ const StyledActions = styled.View`
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm}px;
   overflow: visible;
+`;
+
+const StyledCompactAwareActionButton = styled(Button)`
+  flex-grow: ${({ $isCompact }) => ($isCompact ? 1 : 0)};
 `;
 
 const StyledResourceSection = styled.View`
@@ -169,6 +187,7 @@ export {
   StyledActions,
   StyledChromeTabSlot,
   StyledChromeTabsRail,
+  StyledCompactAwareActionButton,
   StyledContainer,
   StyledFieldBlock,
   StyledFormActions,
@@ -176,7 +195,9 @@ export {
   StyledItemActions,
   StyledItemHeader,
   StyledListItem,
+  StyledOverflowCard,
   StyledPageNavigation,
+  StyledPageTabButton,
   StyledPageNavigationTitle,
   StyledReadOnlyNotice,
   StyledResourceSection,

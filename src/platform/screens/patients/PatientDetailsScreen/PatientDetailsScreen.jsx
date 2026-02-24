@@ -2,7 +2,6 @@ import React from 'react';
 import { useWindowDimensions } from 'react-native';
 import {
   Button,
-  Card,
   CountrySelectField,
   EmptyState,
   ErrorState,
@@ -27,6 +26,7 @@ import {
   StyledActions,
   StyledChromeTabSlot,
   StyledChromeTabsRail,
+  StyledCompactAwareActionButton,
   StyledContainer,
   StyledFieldBlock,
   StyledFormActions,
@@ -34,7 +34,9 @@ import {
   StyledItemActions,
   StyledItemHeader,
   StyledListItem,
+  StyledOverflowCard,
   StyledPageNavigation,
+  StyledPageTabButton,
   StyledPageNavigationTitle,
   StyledReadOnlyNotice,
   StyledResourceSection,
@@ -64,7 +66,12 @@ const resolveDateOnly = (value) => {
   return parsed.toISOString().slice(0, 10);
 };
 
-const resolveContextLabel = ({ label, humanFriendlyId, fallbackId, fallbackValue }) => {
+const resolveContextLabel = ({
+  label,
+  humanFriendlyId,
+  fallbackId,
+  fallbackValue,
+}) => {
   const normalizedLabel = sanitizeString(label);
   const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
   const normalizedFallbackId = sanitizeString(fallbackId);
@@ -85,21 +92,23 @@ const resolveContactEntryValue = (entry) => {
     return sanitizeString(entry);
   }
 
-  return [
-    entry?.value,
-    entry?.contact_value,
-    entry?.contact,
-    entry?.phone,
-    entry?.phone_number,
-    entry?.mobile,
-    entry?.mobile_number,
-    entry?.telephone,
-    entry?.tel,
-    entry?.email,
-    entry?.email_address,
-  ]
-    .map((value) => sanitizeString(value))
-    .find(Boolean) || '';
+  return (
+    [
+      entry?.value,
+      entry?.contact_value,
+      entry?.contact,
+      entry?.phone,
+      entry?.phone_number,
+      entry?.mobile,
+      entry?.mobile_number,
+      entry?.telephone,
+      entry?.tel,
+      entry?.email,
+      entry?.email_address,
+    ]
+      .map((value) => sanitizeString(value))
+      .find(Boolean) || ''
+  );
 };
 
 const resolveCollectionContactValue = (collection) => {
@@ -118,7 +127,11 @@ const resolveCollectionContactValue = (collection) => {
   return primaryEntry?.value || resolvedEntries[0].value;
 };
 
-const resolvePatientContactLabel = (patient, fallback = '', contactRecords = []) => {
+const resolvePatientContactLabel = (
+  patient,
+  fallback = '',
+  contactRecords = []
+) => {
   const contactRecordsValue = resolveCollectionContactValue(contactRecords);
   if (contactRecordsValue) return contactRecordsValue;
 
@@ -177,10 +190,10 @@ const resolveAge = (dateOfBirth) => {
 
   const now = new Date();
   let years = now.getFullYear() - parsed.getUTCFullYear();
-  const hasNotReachedBirthday = (
-    now.getMonth() < parsed.getUTCMonth()
-    || (now.getMonth() === parsed.getUTCMonth() && now.getDate() < parsed.getUTCDate())
-  );
+  const hasNotReachedBirthday =
+    now.getMonth() < parsed.getUTCMonth() ||
+    (now.getMonth() === parsed.getUTCMonth() &&
+      now.getDate() < parsed.getUTCDate());
   if (hasNotReachedBirthday) years -= 1;
   if (years < 0) return null;
   return years;
@@ -193,11 +206,8 @@ const resolveDateTimeLabel = (value, locale) => {
   return sanitizeString(formatted) || normalized;
 };
 
-const resolveTextValue = (event) => (
-  event?.target?.value
-  ?? event?.nativeEvent?.text
-  ?? ''
-);
+const resolveTextValue = (event) =>
+  event?.target?.value ?? event?.nativeEvent?.text ?? '';
 
 const resolveTranslation = (t, key, fallback = '') => {
   if (!key) return fallback;
@@ -214,27 +224,35 @@ const resolveFieldLabel = (field, t) => {
   return resolveTranslation(t, field?.labelKey, fallback);
 };
 
-const resolveFieldHint = (field, t) => resolveTranslation(t, field?.hintKey, '');
+const resolveFieldHint = (field, t) =>
+  resolveTranslation(t, field?.hintKey, '');
 
-const resolveFieldPlaceholder = (field, t) => resolveTranslation(t, field?.placeholderKey, '');
+const resolveFieldPlaceholder = (field, t) =>
+  resolveTranslation(t, field?.placeholderKey, '');
 
 const renderRequiredFieldLabel = (label, required = false) => (
   <Text variant="label">
     {label}
-    {required ? <Text variant="label" color="error">{' *'}</Text> : null}
+    {required ? (
+      <Text variant="label" color="error">
+        {' *'}
+      </Text>
+    ) : null}
   </Text>
 );
 
-const resolveSelectOptions = (field, t) => (
+const resolveSelectOptions = (field, t) =>
   (field?.options || []).map((option) => ({
     value: sanitizeString(option?.value),
-    label: resolveTranslation(t, option?.labelKey, sanitizeString(option?.value)),
-  }))
-);
+    label: resolveTranslation(
+      t,
+      option?.labelKey,
+      sanitizeString(option?.value)
+    ),
+  }));
 
-const isDateField = (fieldName, fieldType) => (
-  fieldType === 'date' || DATE_FIELD_NAME_REGEX.test(sanitizeString(fieldName))
-);
+const isDateField = (fieldName, fieldType) =>
+  fieldType === 'date' || DATE_FIELD_NAME_REGEX.test(sanitizeString(fieldName));
 
 const resolveBooleanValue = (value) => {
   if (typeof value === 'boolean') return value;
@@ -251,11 +269,17 @@ const resolveOptionLabel = (field, value, t) => {
   const normalizedValue = sanitizeString(value);
   if (!normalizedValue) return '';
 
-  const option = (field?.options || []).find((candidate) => (
-    sanitizeString(candidate?.value).toLowerCase() === normalizedValue.toLowerCase()
-  ));
+  const option = (field?.options || []).find(
+    (candidate) =>
+      sanitizeString(candidate?.value).toLowerCase() ===
+      normalizedValue.toLowerCase()
+  );
   if (!option) return normalizedValue;
-  return resolveTranslation(t, option?.labelKey, sanitizeString(option?.value) || normalizedValue);
+  return resolveTranslation(
+    t,
+    option?.labelKey,
+    sanitizeString(option?.value) || normalizedValue
+  );
 };
 
 const resolveRecordFieldDisplayValue = ({
@@ -295,7 +319,6 @@ const PatientDetailsScreen = () => {
   const { t, locale } = useI18n();
   const { width } = useWindowDimensions();
   const isCompactLayout = width < breakpoints.tablet;
-  const compactButtonStyle = isCompactLayout ? { flexGrow: 1 } : undefined;
 
   const {
     routePatientId,
@@ -341,71 +364,89 @@ const PatientDetailsScreen = () => {
     onResourceSubmit,
     onResourceCancel,
   } = usePatientDetailsScreen();
-  const [selectedPageTab, setSelectedPageTab] = React.useState(initialTabKey || 'details');
+  const [selectedPageTab, setSelectedPageTab] = React.useState(
+    initialTabKey || 'details'
+  );
 
   React.useEffect(() => {
     setSelectedPageTab(initialTabKey || 'details');
   }, [initialTabKey, routePatientId]);
 
   const fallbackLabel = t('common.notAvailable');
-  const patientName = [patient?.first_name, patient?.last_name]
-    .map((value) => sanitizeString(value))
-    .filter(Boolean)
-    .join(' ')
-    .trim()
-    || sanitizeString(patient?.human_friendly_id)
-    || t('patients.overview.unnamedPatient', { position: 1 });
-  const patientHumanFriendlyId = sanitizeString(patient?.human_friendly_id) || fallbackLabel;
-  const patientDateOfBirth = resolveDateOnly(patient?.date_of_birth) || fallbackLabel;
+  const patientName =
+    [patient?.first_name, patient?.last_name]
+      .map((value) => sanitizeString(value))
+      .filter(Boolean)
+      .join(' ')
+      .trim() ||
+    sanitizeString(patient?.human_friendly_id) ||
+    t('patients.overview.unnamedPatient', { position: 1 });
+  const patientHumanFriendlyId =
+    sanitizeString(patient?.human_friendly_id) || fallbackLabel;
+  const patientDateOfBirth =
+    resolveDateOnly(patient?.date_of_birth) || fallbackLabel;
   const patientAge = (() => {
     const age = resolveAge(patient?.date_of_birth);
     if (age == null) return fallbackLabel;
     return t('patients.workspace.patientSummary.ageValue', { age });
   })();
   const patientGender = sanitizeString(patient?.gender) || fallbackLabel;
-  const patientIsActive = patient?.is_active === false
-    ? t('common.boolean.false')
-    : t('common.boolean.true');
-  const patientContact = resolvePatientContactLabel(patient, fallbackLabel, contactRecords);
+  const patientIsActive =
+    patient?.is_active === false
+      ? t('common.boolean.false')
+      : t('common.boolean.true');
+  const patientContact = resolvePatientContactLabel(
+    patient,
+    fallbackLabel,
+    contactRecords
+  );
   const patientTenant = resolveContextLabel({
-    label: patient?.tenant_label || patient?.tenant_name || patient?.tenant_context?.label,
-    humanFriendlyId: (
-      patient?.tenant_human_friendly_id
-      || patient?.tenant_context?.human_friendly_id
-      || patient?.tenant_context?.humanFriendlyId
-    ),
+    label:
+      patient?.tenant_label ||
+      patient?.tenant_name ||
+      patient?.tenant_context?.label,
+    humanFriendlyId:
+      patient?.tenant_human_friendly_id ||
+      patient?.tenant_context?.human_friendly_id ||
+      patient?.tenant_context?.humanFriendlyId,
     fallbackId: patient?.tenant_id,
     fallbackValue: fallbackLabel,
   });
   const patientFacility = resolveContextLabel({
-    label: patient?.facility_label || patient?.facility_name || patient?.facility_context?.label,
-    humanFriendlyId: (
-      patient?.facility_human_friendly_id
-      || patient?.facility_context?.human_friendly_id
-      || patient?.facility_context?.humanFriendlyId
-    ),
+    label:
+      patient?.facility_label ||
+      patient?.facility_name ||
+      patient?.facility_context?.label,
+    humanFriendlyId:
+      patient?.facility_human_friendly_id ||
+      patient?.facility_context?.human_friendly_id ||
+      patient?.facility_context?.humanFriendlyId,
     fallbackId: patient?.facility_id,
     fallbackValue: fallbackLabel,
   });
-  const patientCreatedAt = resolveDateTimeLabel(patient?.created_at, locale) || fallbackLabel;
-  const patientUpdatedAt = resolveDateTimeLabel(patient?.updated_at, locale) || fallbackLabel;
-  const canDeletePatientProfile = (
-    canDeletePatientRecords && typeof onDeletePatient === 'function'
-  );
+  const patientCreatedAt =
+    resolveDateTimeLabel(patient?.created_at, locale) || fallbackLabel;
+  const patientUpdatedAt =
+    resolveDateTimeLabel(patient?.updated_at, locale) || fallbackLabel;
+  const canDeletePatientProfile =
+    canDeletePatientRecords && typeof onDeletePatient === 'function';
   const activeResourceDeleteState = activeResourceDelete || {};
   const hasPendingResourceSubmit = Boolean(activeResourceSubmitKey);
   const hasPendingResourceDelete = Boolean(activeResourceDeleteState?.recordId);
-  const hasGlobalMutationInFlight = (
-    isSavingSummary
-    || isDeletingPatient
-    || hasPendingResourceSubmit
-    || hasPendingResourceDelete
-  );
+  const hasGlobalMutationInFlight =
+    isSavingSummary ||
+    isDeletingPatient ||
+    hasPendingResourceSubmit ||
+    hasPendingResourceDelete;
 
   const screenTabs = [
     {
       key: 'details',
-      label: resolveTranslation(t, 'patients.workspace.tabs.summary', 'Summary'),
+      label: resolveTranslation(
+        t,
+        'patients.workspace.tabs.summary',
+        'Summary'
+      ),
       icon: '\u2139',
       description: resolveTranslation(
         t,
@@ -415,7 +456,11 @@ const PatientDetailsScreen = () => {
     },
     {
       key: 'identity',
-      label: resolveTranslation(t, 'patients.workspace.tabs.identity', 'Identity & Reachability'),
+      label: resolveTranslation(
+        t,
+        'patients.workspace.tabs.identity',
+        'Identity & Reachability'
+      ),
       icon: '\ud83d\udd11',
       description: resolveTranslation(
         t,
@@ -425,7 +470,11 @@ const PatientDetailsScreen = () => {
     },
     {
       key: 'contacts',
-      label: resolveTranslation(t, 'patients.workspace.panels.contacts', 'Contacts'),
+      label: resolveTranslation(
+        t,
+        'patients.workspace.panels.contacts',
+        'Contacts'
+      ),
       icon: '\u260e',
       description: resolveTranslation(
         t,
@@ -437,11 +486,19 @@ const PatientDetailsScreen = () => {
       key: 'address',
       label: resolveTranslation(t, 'address.list.title', 'Addresses'),
       icon: '\ud83d\udccd',
-      description: resolveTranslation(t, 'address.list.accessibilityLabel', 'Patient addresses'),
+      description: resolveTranslation(
+        t,
+        'address.list.accessibilityLabel',
+        'Patient addresses'
+      ),
     },
     {
       key: 'documents',
-      label: resolveTranslation(t, 'patients.workspace.panels.documents', 'Documents'),
+      label: resolveTranslation(
+        t,
+        'patients.workspace.panels.documents',
+        'Documents'
+      ),
       icon: '\ud83d\udcc4',
       description: resolveTranslation(
         t,
@@ -451,29 +508,75 @@ const PatientDetailsScreen = () => {
     },
   ];
 
-  const selectedPageTabConfig = (
-    screenTabs.find((tab) => tab.key === selectedPageTab)
-    || screenTabs.find((tab) => tab.key === 'details')
-    || screenTabs[0]
+  const selectedPageTabConfig =
+    screenTabs.find((tab) => tab.key === selectedPageTab) ||
+    screenTabs.find((tab) => tab.key === 'details') ||
+    screenTabs[0];
+  const pageTitle = resolveTranslation(
+    t,
+    'patients.workspace.title',
+    'Patient Details'
   );
-  const pageTitle = resolveTranslation(t, 'patients.workspace.title', 'Patient Details');
-  const cardContainerStyle = React.useMemo(() => ({ overflow: 'visible' }), []);
 
   const summaryAboutRows = [
-    { key: 'name', label: t('patients.workspace.patientSummary.name'), value: patientName },
-    { key: 'patientId', label: t('patients.workspace.patientSummary.patientId'), value: patientHumanFriendlyId },
-    { key: 'contact', label: t('patients.workspace.patientSummary.contact'), value: patientContact },
-    { key: 'dob', label: t('patients.workspace.patientSummary.dob'), value: patientDateOfBirth },
-    { key: 'age', label: t('patients.workspace.patientSummary.age'), value: patientAge },
-    { key: 'gender', label: t('patients.workspace.patientSummary.gender'), value: patientGender },
-    { key: 'active', label: t('patients.workspace.patientSummary.active'), value: patientIsActive },
+    {
+      key: 'name',
+      label: t('patients.workspace.patientSummary.name'),
+      value: patientName,
+    },
+    {
+      key: 'patientId',
+      label: t('patients.workspace.patientSummary.patientId'),
+      value: patientHumanFriendlyId,
+    },
+    {
+      key: 'contact',
+      label: t('patients.workspace.patientSummary.contact'),
+      value: patientContact,
+    },
+    {
+      key: 'dob',
+      label: t('patients.workspace.patientSummary.dob'),
+      value: patientDateOfBirth,
+    },
+    {
+      key: 'age',
+      label: t('patients.workspace.patientSummary.age'),
+      value: patientAge,
+    },
+    {
+      key: 'gender',
+      label: t('patients.workspace.patientSummary.gender'),
+      value: patientGender,
+    },
+    {
+      key: 'active',
+      label: t('patients.workspace.patientSummary.active'),
+      value: patientIsActive,
+    },
   ];
 
   const summaryContextRows = [
-    { key: 'tenant', label: t('patients.workspace.patientSummary.tenant'), value: patientTenant },
-    { key: 'facility', label: t('patients.workspace.patientSummary.facility'), value: patientFacility },
-    { key: 'createdAt', label: t('patients.workspace.patientSummary.createdAt'), value: patientCreatedAt },
-    { key: 'updatedAt', label: t('patients.workspace.patientSummary.updatedAt'), value: patientUpdatedAt },
+    {
+      key: 'tenant',
+      label: t('patients.workspace.patientSummary.tenant'),
+      value: patientTenant,
+    },
+    {
+      key: 'facility',
+      label: t('patients.workspace.patientSummary.facility'),
+      value: patientFacility,
+    },
+    {
+      key: 'createdAt',
+      label: t('patients.workspace.patientSummary.createdAt'),
+      value: patientCreatedAt,
+    },
+    {
+      key: 'updatedAt',
+      label: t('patients.workspace.patientSummary.updatedAt'),
+      value: patientUpdatedAt,
+    },
   ];
 
   const renderSummarySection = (sectionTitle, rows, testID) => (
@@ -482,10 +585,7 @@ const PatientDetailsScreen = () => {
       <StyledSummaryGrid>
         {rows.map((row) => (
           <StyledSummaryRow key={row.key} $isCompact={isCompactLayout}>
-            <StyledSummaryLabel
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
+            <StyledSummaryLabel numberOfLines={1} ellipsizeMode="tail">
               {row.label}
             </StyledSummaryLabel>
             <StyledSummaryValue
@@ -502,10 +602,9 @@ const PatientDetailsScreen = () => {
   );
 
   const renderSummaryReadonly = () => (
-    <Card
+    <StyledOverflowCard
       variant="outlined"
       testID="patient-details-summary-view"
-      style={cardContainerStyle}
     >
       {renderSummarySection(
         t('patients.workspace.summarySections.about'),
@@ -523,22 +622,28 @@ const PatientDetailsScreen = () => {
           {t('patients.workspace.access.readOnly')}
         </StyledReadOnlyNotice>
       ) : null}
-    </Card>
+    </StyledOverflowCard>
   );
 
   const renderSummaryEdit = () => (
-    <Card
+    <StyledOverflowCard
       variant="outlined"
       testID="patient-details-summary-editor"
-      style={cardContainerStyle}
     >
       <StyledFormGrid>
         <StyledFieldBlock>
-          <Text variant="label">{t('patients.resources.patients.form.firstNameLabel')}</Text>
+          <Text variant="label">
+            {t('patients.resources.patients.form.firstNameLabel')}
+          </Text>
           <TextField
             value={summaryValues.first_name || ''}
-            onChange={(event) => onSummaryFieldChange('first_name', resolveTextValue(event))}
-            helperText={summaryErrors.first_name || t('patients.resources.patients.form.firstNameHint')}
+            onChange={(event) =>
+              onSummaryFieldChange('first_name', resolveTextValue(event))
+            }
+            helperText={
+              summaryErrors.first_name ||
+              t('patients.resources.patients.form.firstNameHint')
+            }
             errorMessage={summaryErrors.first_name}
             density="compact"
             disabled={isSavingSummary}
@@ -546,11 +651,18 @@ const PatientDetailsScreen = () => {
         </StyledFieldBlock>
 
         <StyledFieldBlock>
-          <Text variant="label">{t('patients.resources.patients.form.lastNameLabel')}</Text>
+          <Text variant="label">
+            {t('patients.resources.patients.form.lastNameLabel')}
+          </Text>
           <TextField
             value={summaryValues.last_name || ''}
-            onChange={(event) => onSummaryFieldChange('last_name', resolveTextValue(event))}
-            helperText={summaryErrors.last_name || t('patients.resources.patients.form.lastNameHint')}
+            onChange={(event) =>
+              onSummaryFieldChange('last_name', resolveTextValue(event))
+            }
+            helperText={
+              summaryErrors.last_name ||
+              t('patients.resources.patients.form.lastNameHint')
+            }
             errorMessage={summaryErrors.last_name}
             density="compact"
             disabled={isSavingSummary}
@@ -558,20 +670,31 @@ const PatientDetailsScreen = () => {
         </StyledFieldBlock>
 
         <StyledFieldBlock>
-          <Text variant="label">{t('patients.resources.patients.form.dateOfBirthLabel')}</Text>
+          <Text variant="label">
+            {t('patients.resources.patients.form.dateOfBirthLabel')}
+          </Text>
           <GlobalSmartDateField
             value={summaryValues.date_of_birth || ''}
-            onValueChange={(nextValue) => onSummaryFieldChange('date_of_birth', nextValue)}
-            helperText={summaryErrors.date_of_birth || t('patients.resources.patients.form.dateOfBirthHint')}
+            onValueChange={(nextValue) =>
+              onSummaryFieldChange('date_of_birth', nextValue)
+            }
+            helperText={
+              summaryErrors.date_of_birth ||
+              t('patients.resources.patients.form.dateOfBirthHint')
+            }
             errorMessage={summaryErrors.date_of_birth}
-            placeholder={t('patients.resources.patients.form.dateOfBirthPlaceholder')}
+            placeholder={t(
+              'patients.resources.patients.form.dateOfBirthPlaceholder'
+            )}
             density="compact"
             disabled={isSavingSummary}
           />
         </StyledFieldBlock>
 
         <StyledFieldBlock>
-          <Text variant="label">{t('patients.resources.patients.form.genderLabel')}</Text>
+          <Text variant="label">
+            {t('patients.resources.patients.form.genderLabel')}
+          </Text>
           <Select
             value={summaryValues.gender || ''}
             options={genderOptions}
@@ -582,16 +705,20 @@ const PatientDetailsScreen = () => {
         </StyledFieldBlock>
 
         <StyledFieldBlock>
-          <Text variant="label">{t('patients.resources.patients.form.facilityLabel')}</Text>
+          <Text variant="label">
+            {t('patients.resources.patients.form.facilityLabel')}
+          </Text>
           <Select
             value={summaryValues.facility_id || ''}
             options={summaryFacilityOptions}
-            onValueChange={(value) => onSummaryFieldChange('facility_id', value)}
-            helperText={(
-              summaryErrors.facility_id
-              || sanitizeString(summaryFacilityErrorMessage)
-              || t('patients.resources.patients.form.facilityHint')
-            )}
+            onValueChange={(value) =>
+              onSummaryFieldChange('facility_id', value)
+            }
+            helperText={
+              summaryErrors.facility_id ||
+              sanitizeString(summaryFacilityErrorMessage) ||
+              t('patients.resources.patients.form.facilityHint')
+            }
             errorMessage={summaryErrors.facility_id}
             compact
             disabled={isSavingSummary || isSummaryFacilityLoading}
@@ -631,10 +758,16 @@ const PatientDetailsScreen = () => {
           {t('patients.workspace.actions.save')}
         </Button>
       </StyledFormActions>
-    </Card>
+    </StyledOverflowCard>
   );
 
-  const renderResourceEditorField = (resourceKey, field, editor, sectionTestID, isDisabled = false) => {
+  const renderResourceEditorField = (
+    resourceKey,
+    field,
+    editor,
+    sectionTestID,
+    isDisabled = false
+  ) => {
     const fieldName = sanitizeString(field?.name);
     if (!fieldName) return null;
 
@@ -651,11 +784,17 @@ const PatientDetailsScreen = () => {
         <StyledFieldBlock key={fieldName}>
           <Switch
             value={Boolean(value)}
-            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            onValueChange={(nextValue) =>
+              onResourceFieldChange(resourceKey, fieldName, nextValue)
+            }
             label={label}
             disabled={isDisabled}
           />
-          {errorMessage ? <Text variant="caption" color="error">{errorMessage}</Text> : null}
+          {errorMessage ? (
+            <Text variant="caption" color="error">
+              {errorMessage}
+            </Text>
+          ) : null}
         </StyledFieldBlock>
       );
     }
@@ -667,7 +806,9 @@ const PatientDetailsScreen = () => {
           <Select
             value={sanitizeString(value)}
             options={resolveSelectOptions(field, t)}
-            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            onValueChange={(nextValue) =>
+              onResourceFieldChange(resourceKey, fieldName, nextValue)
+            }
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
             required={isRequired}
@@ -686,7 +827,9 @@ const PatientDetailsScreen = () => {
           {renderRequiredFieldLabel(label, isRequired)}
           <CountrySelectField
             value={sanitizeString(value)}
-            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            onValueChange={(nextValue) =>
+              onResourceFieldChange(resourceKey, fieldName, nextValue)
+            }
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
             required={isRequired}
@@ -705,7 +848,9 @@ const PatientDetailsScreen = () => {
           {renderRequiredFieldLabel(label, isRequired)}
           <GlobalSmartDateField
             value={sanitizeString(value)}
-            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            onValueChange={(nextValue) =>
+              onResourceFieldChange(resourceKey, fieldName, nextValue)
+            }
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
             required={isRequired}
@@ -724,7 +869,9 @@ const PatientDetailsScreen = () => {
           {renderRequiredFieldLabel(label, isRequired)}
           <PhoneField
             value={sanitizeString(value)}
-            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            onValueChange={(nextValue) =>
+              onResourceFieldChange(resourceKey, fieldName, nextValue)
+            }
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
             required={isRequired}
@@ -744,7 +891,13 @@ const PatientDetailsScreen = () => {
         {renderRequiredFieldLabel(label, isRequired)}
         <TextField
           value={sanitizeString(value)}
-          onChange={(event) => onResourceFieldChange(resourceKey, fieldName, resolveTextValue(event))}
+          onChange={(event) =>
+            onResourceFieldChange(
+              resourceKey,
+              fieldName,
+              resolveTextValue(event)
+            )
+          }
           helperText={errorMessage || hint}
           errorMessage={errorMessage}
           required={isRequired}
@@ -773,31 +926,32 @@ const PatientDetailsScreen = () => {
     const records = Array.isArray(section.records) ? section.records : [];
     const editor = section.editor;
     const sectionErrorMessage = sanitizeString(section.errorMessage);
-    const shouldShowSectionError = Boolean(sectionErrorMessage) && records.length === 0;
-    const shouldShowSectionLoading = Boolean(section.isLoading)
-      && records.length === 0
-      && !shouldShowSectionError;
-    const resourceFields = (section.config.fields || []).filter((field) => (
+    const shouldShowSectionError =
+      Boolean(sectionErrorMessage) && records.length === 0;
+    const shouldShowSectionLoading =
+      Boolean(section.isLoading) &&
+      records.length === 0 &&
+      !shouldShowSectionError;
+    const resourceFields = (section.config.fields || []).filter((field) =>
       Boolean(sanitizeString(field?.name))
-    ));
-    const isResourceSubmitting = activeResourceSubmitKey === resourceKey;
-    const deletingResourceKey = sanitizeString(activeResourceDeleteState?.resourceKey);
-    const deletingRecordId = sanitizeString(activeResourceDeleteState?.recordId);
-    const isDeletingWithinResource = deletingResourceKey === resourceKey;
-    const isResourceBusy = (
-      isResourceSubmitting
-      || isDeletingWithinResource
-      || isSavingSummary
-      || isDeletingPatient
     );
+    const isResourceSubmitting = activeResourceSubmitKey === resourceKey;
+    const deletingResourceKey = sanitizeString(
+      activeResourceDeleteState?.resourceKey
+    );
+    const deletingRecordId = sanitizeString(
+      activeResourceDeleteState?.recordId
+    );
+    const isDeletingWithinResource = deletingResourceKey === resourceKey;
+    const isResourceBusy =
+      isResourceSubmitting ||
+      isDeletingWithinResource ||
+      isSavingSummary ||
+      isDeletingPatient;
 
     return (
       <StyledResourceSection key={resourceKey}>
-        <Card
-          variant="outlined"
-          testID={testID}
-          style={cardContainerStyle}
-        >
+        <StyledOverflowCard variant="outlined" testID={testID}>
           <StyledResourceSectionHeader>
             <StyledResourceSectionTitle>{title}</StyledResourceSectionTitle>
             <StyledItemActions>
@@ -817,7 +971,9 @@ const PatientDetailsScreen = () => {
             </StyledItemActions>
           </StyledResourceSectionHeader>
           {sanitizeString(description) ? (
-            <StyledResourceSectionDescription>{description}</StyledResourceSectionDescription>
+            <StyledResourceSectionDescription>
+              {description}
+            </StyledResourceSectionDescription>
           ) : null}
 
           {shouldShowSectionLoading ? (
@@ -838,16 +994,25 @@ const PatientDetailsScreen = () => {
           ) : (
             <StyledFormGrid>
               {records.map((record, index) => {
-                const rowTitle = sanitizeString(section.config.getItemTitle?.(record, t))
-                  || t('patients.common.list.unnamedRecord', { position: index + 1 });
-                const rowSubtitle = sanitizeString(section.config.getItemSubtitle?.(record, t))
-                  || fallbackLabel;
-                const rowMeta = sanitizeString(record?.human_friendly_id)
-                  || resolveDateTimeLabel(record?.updated_at || record?.created_at, locale)
-                  || '';
+                const rowTitle =
+                  sanitizeString(section.config.getItemTitle?.(record, t)) ||
+                  t('patients.common.list.unnamedRecord', {
+                    position: index + 1,
+                  });
+                const rowSubtitle =
+                  sanitizeString(section.config.getItemSubtitle?.(record, t)) ||
+                  fallbackLabel;
+                const rowMeta =
+                  sanitizeString(record?.human_friendly_id) ||
+                  resolveDateTimeLabel(
+                    record?.updated_at || record?.created_at,
+                    locale
+                  ) ||
+                  '';
                 const rowId = sanitizeString(record?.id);
                 const rowKey = rowId || `${resourceKey}-${index + 1}`;
-                const isDeletingRow = isDeletingWithinResource && deletingRecordId === rowId;
+                const isDeletingRow =
+                  isDeletingWithinResource && deletingRecordId === rowId;
 
                 return (
                   <StyledListItem key={rowKey}>
@@ -859,8 +1024,12 @@ const PatientDetailsScreen = () => {
                             variant="surface"
                             size="small"
                             onPress={() => onResourceEdit(resourceKey, record)}
-                            accessibilityLabel={t('patients.workspace.actions.editRecord')}
-                            icon={<Icon glyph={'\u270e'} size="xs" decorative />}
+                            accessibilityLabel={t(
+                              'patients.workspace.actions.editRecord'
+                            )}
+                            icon={
+                              <Icon glyph={'\u270e'} size="xs" decorative />
+                            }
                             testID={`${testID}-edit-${index + 1}`}
                             disabled={!rowId || isResourceBusy}
                           >
@@ -872,11 +1041,17 @@ const PatientDetailsScreen = () => {
                             variant="surface"
                             size="small"
                             onPress={() => onResourceDelete(resourceKey, rowId)}
-                            accessibilityLabel={t('patients.workspace.actions.deleteRecord')}
-                            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+                            accessibilityLabel={t(
+                              'patients.workspace.actions.deleteRecord'
+                            )}
+                            icon={
+                              <Icon glyph={'\u2715'} size="xs" decorative />
+                            }
                             testID={`${testID}-delete-${index + 1}`}
                             loading={isDeletingRow}
-                            disabled={!rowId || (isResourceBusy && !isDeletingRow)}
+                            disabled={
+                              !rowId || (isResourceBusy && !isDeletingRow)
+                            }
                           >
                             {t('patients.workspace.actions.deleteRecord')}
                           </Button>
@@ -884,7 +1059,9 @@ const PatientDetailsScreen = () => {
                       </StyledItemActions>
                     </StyledItemHeader>
                     <Text variant="caption">{rowSubtitle}</Text>
-                    {sanitizeString(rowMeta) ? <Text variant="caption">{rowMeta}</Text> : null}
+                    {sanitizeString(rowMeta) ? (
+                      <Text variant="caption">{rowMeta}</Text>
+                    ) : null}
                     {resourceFields.length > 0 ? (
                       <StyledSummaryGrid>
                         {resourceFields.map((field) => (
@@ -892,7 +1069,10 @@ const PatientDetailsScreen = () => {
                             key={`${rowKey}-${sanitizeString(field?.name)}`}
                             $isCompact={isCompactLayout}
                           >
-                            <StyledSummaryLabel numberOfLines={1} ellipsizeMode="tail">
+                            <StyledSummaryLabel
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
                               {resolveFieldLabel(field, t)}
                             </StyledSummaryLabel>
                             <StyledSummaryValue
@@ -917,14 +1097,10 @@ const PatientDetailsScreen = () => {
               })}
             </StyledFormGrid>
           )}
-        </Card>
+        </StyledOverflowCard>
 
         {editor ? (
-          <Card
-            variant="outlined"
-            testID={`${testID}-editor`}
-            style={cardContainerStyle}
-          >
+          <StyledOverflowCard variant="outlined" testID={`${testID}-editor`}>
             <StyledResourceSectionHeader>
               <StyledResourceSectionTitle>
                 {editor.mode === 'edit'
@@ -935,9 +1111,15 @@ const PatientDetailsScreen = () => {
             </StyledResourceSectionHeader>
 
             <StyledFormGrid>
-              {(section.config.fields || []).map((field) => (
-                renderResourceEditorField(resourceKey, field, editor, testID, isResourceSubmitting)
-              ))}
+              {(section.config.fields || []).map((field) =>
+                renderResourceEditorField(
+                  resourceKey,
+                  field,
+                  editor,
+                  testID,
+                  isResourceSubmitting
+                )
+              )}
             </StyledFormGrid>
 
             <StyledFormActions>
@@ -965,7 +1147,7 @@ const PatientDetailsScreen = () => {
                 {t('patients.workspace.actions.save')}
               </Button>
             </StyledFormActions>
-          </Card>
+          </StyledOverflowCard>
         ) : null}
       </StyledResourceSection>
     );
@@ -982,16 +1164,24 @@ const PatientDetailsScreen = () => {
           {renderResourceSection({
             section: resourceSections?.[resourceKeys.IDENTIFIERS],
             title: t('patients.workspace.panels.identifiers'),
-            description: t('patients.resources.patientIdentifiers.overviewDescription'),
-            emptyMessage: t('patients.resources.patientIdentifiers.list.emptyMessage'),
+            description: t(
+              'patients.resources.patientIdentifiers.overviewDescription'
+            ),
+            emptyMessage: t(
+              'patients.resources.patientIdentifiers.list.emptyMessage'
+            ),
             testID: 'patient-details-identifiers',
             icon: '\ud83d\udd11',
           })}
           {renderResourceSection({
             section: resourceSections?.[resourceKeys.GUARDIANS],
             title: t('patients.workspace.panels.guardians'),
-            description: t('patients.resources.patientGuardians.overviewDescription'),
-            emptyMessage: t('patients.resources.patientGuardians.list.emptyMessage'),
+            description: t(
+              'patients.resources.patientGuardians.overviewDescription'
+            ),
+            emptyMessage: t(
+              'patients.resources.patientGuardians.list.emptyMessage'
+            ),
             testID: 'patient-details-guardians',
             icon: '\ud83d\udc6a',
           })}
@@ -1002,21 +1192,26 @@ const PatientDetailsScreen = () => {
     if (selectedPageTab === 'contacts') {
       return (
         <>
-          <Card
+          <StyledOverflowCard
             variant="outlined"
             testID="patient-details-contacts-primary"
-            style={cardContainerStyle}
           >
             <StyledSummarySection>
-              <StyledSummarySectionTitle>{t('patients.workspace.patientSummary.contact')}</StyledSummarySectionTitle>
+              <StyledSummarySectionTitle>
+                {t('patients.workspace.patientSummary.contact')}
+              </StyledSummarySectionTitle>
               <Text variant="body">{patientContact}</Text>
             </StyledSummarySection>
-          </Card>
+          </StyledOverflowCard>
           {renderResourceSection({
             section: resourceSections?.[resourceKeys.CONTACTS],
             title: t('patients.workspace.panels.contacts'),
-            description: t('patients.resources.patientContacts.overviewDescription'),
-            emptyMessage: t('patients.resources.patientContacts.list.emptyMessage'),
+            description: t(
+              'patients.resources.patientContacts.overviewDescription'
+            ),
+            emptyMessage: t(
+              'patients.resources.patientContacts.list.emptyMessage'
+            ),
             testID: 'patient-details-contacts',
             icon: '\u260e',
           })}
@@ -1039,8 +1234,12 @@ const PatientDetailsScreen = () => {
       return renderResourceSection({
         section: resourceSections?.[resourceKeys.DOCUMENTS],
         title: t('patients.workspace.panels.documents'),
-        description: t('patients.resources.patientDocuments.overviewDescription'),
-        emptyMessage: t('patients.resources.patientDocuments.list.emptyMessage'),
+        description: t(
+          'patients.resources.patientDocuments.overviewDescription'
+        ),
+        emptyMessage: t(
+          'patients.resources.patientDocuments.list.emptyMessage'
+        ),
         testID: 'patient-details-documents',
         icon: '\ud83d\udcc4',
       });
@@ -1062,21 +1261,18 @@ const PatientDetailsScreen = () => {
         />
       ) : null}
 
-      <Card
+      <StyledOverflowCard
         variant="outlined"
         testID="patient-details-page-navigation"
-        style={cardContainerStyle}
       >
         <StyledPageNavigation>
           <StyledPageNavigationTitle>{pageTitle}</StyledPageNavigationTitle>
 
           <StyledChromeTabsRail accessibilityRole="radiogroup">
             {screenTabs.map((tab) => (
-              <StyledChromeTabSlot
-                key={tab.key}
-                $isCompact={isCompactLayout}
-              >
-                <Button
+              <StyledChromeTabSlot key={tab.key} $isCompact={isCompactLayout}>
+                <StyledPageTabButton
+                  $isCompact={isCompactLayout}
                   onPress={() => setSelectedPageTab(tab.key)}
                   variant={selectedPageTab === tab.key ? 'primary' : 'surface'}
                   size="small"
@@ -1084,86 +1280,86 @@ const PatientDetailsScreen = () => {
                   accessibilityState={{ selected: selectedPageTab === tab.key }}
                   accessibilityLabel={tab.label}
                   testID={`patient-details-page-tab-${tab.key}`}
-                  style={{
-                    width: '100%',
-                    minHeight: isCompactLayout ? 34 : 36,
-                    justifyContent: 'center',
-                  }}
-                  icon={(
+                  icon={
                     <Icon
                       glyph={tab.icon}
                       size="xs"
                       decorative
                       tone={selectedPageTab === tab.key ? 'inverse' : 'default'}
                     />
-                  )}
+                  }
                 >
                   {tab.label}
-                </Button>
+                </StyledPageTabButton>
               </StyledChromeTabSlot>
             ))}
           </StyledChromeTabsRail>
         </StyledPageNavigation>
-      </Card>
+      </StyledOverflowCard>
 
-      <Card
+      <StyledOverflowCard
         variant="outlined"
         testID={`patient-details-page-content-${selectedPageTab}`}
-        style={cardContainerStyle}
       >
         <StyledPageNavigation>
           <Text variant="h3">{selectedPageTabConfig?.label}</Text>
           <Text variant="body">{selectedPageTabConfig?.description}</Text>
         </StyledPageNavigation>
-      </Card>
+      </StyledOverflowCard>
 
       <StyledActions>
-        <Button
+        <StyledCompactAwareActionButton
+          $isCompact={isCompactLayout}
           variant="surface"
           size="small"
           onPress={onRetry}
           accessibilityLabel={t('patients.workspace.actions.refresh')}
           icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
-          style={compactButtonStyle}
           loading={isRetrying}
           disabled={isLoading || isRetrying || hasGlobalMutationInFlight}
         >
           {t('patients.workspace.actions.refresh')}
-        </Button>
+        </StyledCompactAwareActionButton>
 
-        {selectedPageTab === 'details' && !isSummaryEditMode && canManagePatientRecords ? (
-          <Button
+        {selectedPageTab === 'details' &&
+        !isSummaryEditMode &&
+        canManagePatientRecords ? (
+          <StyledCompactAwareActionButton
+            $isCompact={isCompactLayout}
             variant="surface"
             size="small"
             onPress={onStartSummaryEdit}
             accessibilityLabel={t('patients.workspace.actions.editPatient')}
             icon={<Icon glyph={'\u270e'} size="xs" decorative />}
             testID="patient-details-edit-patient"
-            style={compactButtonStyle}
             disabled={hasGlobalMutationInFlight}
           >
             {t('patients.workspace.actions.editPatient')}
-          </Button>
+          </StyledCompactAwareActionButton>
         ) : null}
 
-        {selectedPageTab === 'details' && !isSummaryEditMode && canDeletePatientProfile ? (
-          <Button
+        {selectedPageTab === 'details' &&
+        !isSummaryEditMode &&
+        canDeletePatientProfile ? (
+          <StyledCompactAwareActionButton
+            $isCompact={isCompactLayout}
             variant="surface"
             size="small"
             onPress={onDeletePatient}
             accessibilityLabel={t('patients.workspace.actions.deletePatient')}
             icon={<Icon glyph={'\u2715'} size="xs" decorative />}
             testID="patient-details-delete-patient"
-            style={compactButtonStyle}
             loading={isDeletingPatient}
             disabled={hasGlobalMutationInFlight}
           >
             {t('patients.workspace.actions.deletePatient')}
-          </Button>
+          </StyledCompactAwareActionButton>
         ) : null}
       </StyledActions>
 
-      {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
+      {isLoading ? (
+        <LoadingSpinner accessibilityLabel={t('common.loading')} />
+      ) : null}
 
       {!isLoading && isEntitlementBlocked ? (
         <EntitlementBlockedState
@@ -1195,16 +1391,12 @@ const PatientDetailsScreen = () => {
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && !hasError && isPatientDeleted ? (
-        <Card
-          variant="outlined"
-          testID="patient-details-deleted"
-          style={cardContainerStyle}
-        >
+        <StyledOverflowCard variant="outlined" testID="patient-details-deleted">
           <EmptyState
             title={t('patients.workspace.state.emptyPanel')}
             description={t('patients.workspace.state.emptyPanel')}
           />
-        </Card>
+        </StyledOverflowCard>
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && !hasError && !isPatientDeleted

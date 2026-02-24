@@ -8,7 +8,8 @@ const StyledContainer = styled.View`
   min-width: 0;
   gap: ${({ theme }) => theme.spacing.md}px;
   padding-bottom: ${({ theme }) => theme.spacing.md}px;
-  padding-horizontal: ${({ theme, $isCompact }) => ($isCompact ? 0 : theme.spacing.xs)}px;
+  padding-horizontal: ${({ theme, $isCompact }) =>
+    $isCompact ? 0 : theme.spacing.xs}px;
 `;
 
 const StyledBreadcrumbActionGroup = styled.View`
@@ -68,10 +69,14 @@ const StyledSearchHelpAnchor = styled.View`
 `;
 
 const StyledSearchHelpButton = styled.Pressable`
-  min-width: 32px;
-  min-height: 32px;
-  width: 32px;
-  height: 32px;
+  min-width: ${({ theme }) =>
+    theme.spacing.lg + theme.spacing.md + theme.spacing.xs}px;
+  min-height: ${({ theme }) =>
+    theme.spacing.lg + theme.spacing.md + theme.spacing.xs}px;
+  width: ${({ theme }) =>
+    theme.spacing.lg + theme.spacing.md + theme.spacing.xs}px;
+  height: ${({ theme }) =>
+    theme.spacing.lg + theme.spacing.md + theme.spacing.xs}px;
   border-radius: ${({ theme }) => theme.radius.full}px;
   align-items: center;
   justify-content: center;
@@ -83,9 +88,9 @@ const StyledSearchHelpBody = styled(Text).attrs({
   align: 'left',
 })`
   margin-top: ${({ theme }) => theme.spacing.sm}px;
-  line-height: ${({ theme }) => (
-    theme.typography.fontSize.sm * (theme.typography.lineHeight.normal || 1.35)
-  )}px;
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.sm *
+    (theme.typography.lineHeight.normal || 1.35)}px;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
@@ -99,9 +104,9 @@ const StyledSearchHelpItem = styled(Text).attrs({
   align: 'left',
 })`
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  line-height: ${({ theme }) => (
-    theme.typography.fontSize.xs * (theme.typography.lineHeight.normal || 1.35)
-  )}px;
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.xs *
+    (theme.typography.lineHeight.normal || 1.35)}px;
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
