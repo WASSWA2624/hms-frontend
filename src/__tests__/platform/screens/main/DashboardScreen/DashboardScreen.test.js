@@ -143,7 +143,9 @@ describe('DashboardScreen Component', () => {
 
     expect(android.getByTestId('dashboard-tenant-picker')).toBeTruthy();
     expect(ios.getByTestId('dashboard-tenant-picker')).toBeTruthy();
-    expect(web.getByText('Tenant context required')).toBeTruthy();
+    expect(
+      web.getByText('This account needs an active tenant context before dashboard data can be shown.')
+    ).toBeTruthy();
   });
 
   it('exports hook and constants from barrel', () => {

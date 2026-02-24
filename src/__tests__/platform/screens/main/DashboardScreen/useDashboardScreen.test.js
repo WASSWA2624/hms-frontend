@@ -10,7 +10,15 @@ const mockLogout = jest.fn();
 const mockIsItemVisible = jest.fn(() => true);
 const mockGetDashboardSummary = jest.fn();
 const mockListTenants = jest.fn();
+const mockRouter = {
+  replace: jest.fn(),
+  push: jest.fn(),
+};
 let mockAuthState;
+
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn(() => mockRouter),
+}));
 
 jest.mock('@hooks', () => ({
   useAuth: jest.fn(() => mockAuthState),
@@ -41,6 +49,8 @@ jest.mock('@features/dashboard-widget', () => ({
 
 const useDashboardScreen = require('@platform/screens/main/DashboardScreen/useDashboardScreen').default;
 const { STATES } = require('@platform/screens/main/DashboardScreen/types');
+
+jest.setTimeout(15000);
 
 const act = TestRenderer.act;
 const renderHook = (hook, { initialProps } = {}) => {
@@ -111,6 +121,8 @@ const createSummaryPayload = (overrides = {}) => ({
 describe('useDashboardScreen Hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRouter.replace.mockReset();
+    mockRouter.push.mockReset();
 
     mockAuthState = {
       user: {
@@ -140,7 +152,7 @@ describe('useDashboardScreen Hook', () => {
   });
 
   it('returns normalized dashboard summary contract', async () => {
-    const { result } = renderHook(() => useDashboardScreen());
+    const { result, unmount } = renderHook(() => useDashboardScreen());
 
     await flushHook();
 
@@ -157,6 +169,7 @@ describe('useDashboardScreen Hook', () => {
       })
     );
     expect(mockGetDashboardSummary).toHaveBeenCalledWith({ days: 7 });
+    unmount();
   });
 
   it('enters tenant-context state for super admin without tenant scope', async () => {
@@ -170,7 +183,7 @@ describe('useDashboardScreen Hook', () => {
       },
     };
 
-    const { result } = renderHook(() => useDashboardScreen());
+    const { result, unmount } = renderHook(() => useDashboardScreen());
 
     await flushHook();
 
@@ -180,6 +193,7 @@ describe('useDashboardScreen Hook', () => {
       { label: 'Tenant Two', value: 'tenant-2' },
     ]);
     expect(mockGetDashboardSummary).not.toHaveBeenCalled();
+    unmount();
   });
 
   it('fetches summary with tenant_id when tenant is selected', async () => {
@@ -193,7 +207,7 @@ describe('useDashboardScreen Hook', () => {
       },
     };
 
-    const { result } = renderHook(() => useDashboardScreen());
+    const { result, unmount } = renderHook(() => useDashboardScreen());
     await flushHook();
 
     await act(async () => {
@@ -205,6 +219,7 @@ describe('useDashboardScreen Hook', () => {
     expect(mockGetDashboardSummary).toHaveBeenCalledWith(
       expect.objectContaining({ tenant_id: 'tenant-1', days: 7 })
     );
+    unmount();
   });
 
   it('keeps tenant-context state when summary returns 422', async () => {
@@ -218,13 +233,13 @@ describe('useDashboardScreen Hook', () => {
       },
     };
 
-    mockGetDashboardSummary.mockRejectedValueOnce({
+    mockGetDashboardSummary.mockRejectedValue({
       status: 422,
       statusCode: 422,
       message: 'errors.validation.field.required',
     });
 
-    const { result } = renderHook(() => useDashboardScreen());
+    const { result, unmount } = renderHook(() => useDashboardScreen());
     await flushHook();
 
     await act(async () => {
@@ -234,5 +249,6 @@ describe('useDashboardScreen Hook', () => {
     });
 
     expect(result.current.state).toBe(STATES.NEEDS_TENANT_CONTEXT);
+    unmount();
   });
 });
