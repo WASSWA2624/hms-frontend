@@ -75,7 +75,7 @@ const useLoginScreen = () => {
     identifier: '',
     password: '',
     tenant_id: '',
-    rememberSession: false,
+    rememberSession: true,
     termsAccepted: false,
   });
   const [tenantOptions] = useState([]);

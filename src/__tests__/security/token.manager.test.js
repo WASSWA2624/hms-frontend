@@ -101,6 +101,7 @@ describe('Token Manager', () => {
     });
 
     it('stores session mode tokens when persist=false', async () => {
+      mockSecureStorage.removeItem.mockResolvedValue(true);
       mockSecureStorage.setItem.mockResolvedValue(true);
 
       const result = await tokenManager.setTokens(
@@ -110,13 +111,11 @@ describe('Token Manager', () => {
       );
 
       expect(result).toBe(true);
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+      expect(mockSecureStorage.removeItem).toHaveBeenCalledWith(
         'access_token',
-        'session-access'
       );
-      expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
+      expect(mockSecureStorage.removeItem).toHaveBeenCalledWith(
         'refresh_token',
-        'session-refresh'
       );
       expect(mockSecureStorage.setItem).toHaveBeenCalledWith(
         'token_storage_mode',

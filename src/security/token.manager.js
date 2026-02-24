@@ -53,8 +53,8 @@ const setTokens = async (accessToken, refreshToken, options = {}) => {
     inMemoryMode = STORAGE_MODES.SESSION;
     inMemoryTokens = { accessToken, refreshToken };
     const results = await Promise.all([
-      secure.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken),
-      secure.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken),
+      secure.removeItem(TOKEN_KEYS.ACCESS_TOKEN),
+      secure.removeItem(TOKEN_KEYS.REFRESH_TOKEN),
       secure.setItem(TOKEN_KEYS.STORAGE_MODE, STORAGE_MODES.SESSION),
     ]);
     return results.every(Boolean);

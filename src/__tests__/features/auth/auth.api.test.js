@@ -47,11 +47,13 @@ describe('auth.api', () => {
       url: endpoints.AUTH.IDENTIFY,
       method: 'POST',
       body: { identifier: 'user@example.com' },
+      skipAuthRefresh: true,
     });
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.LOGIN,
       method: 'POST',
       body: { email: 'user', password: 'pass' },
+      skipAuthRefresh: true,
     });
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.LOGOUT,
@@ -66,6 +68,13 @@ describe('auth.api', () => {
       url: endpoints.AUTH.REFRESH,
       method: 'POST',
       body: { refresh_token: 'token' },
+      skipAuthRefresh: true,
+    });
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.AUTH.REGISTER,
+      method: 'POST',
+      body: { email: 'user' },
+      skipAuthRefresh: true,
     });
     expect(apiClient).toHaveBeenCalledWith({
       url: endpoints.AUTH.ME,

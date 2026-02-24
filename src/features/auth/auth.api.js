@@ -11,6 +11,7 @@ const identifyApi = (payload) =>
     url: endpoints.AUTH.IDENTIFY,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const loginApi = (payload) =>
@@ -18,6 +19,7 @@ const loginApi = (payload) =>
     url: endpoints.AUTH.LOGIN,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const logoutApi = (payload) =>
@@ -32,6 +34,7 @@ const refreshApi = (payload) =>
     url: endpoints.AUTH.REFRESH,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const registerApi = (payload) =>
@@ -39,6 +42,7 @@ const registerApi = (payload) =>
     url: endpoints.AUTH.REGISTER,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const verifyEmailApi = (payload) =>
@@ -46,6 +50,7 @@ const verifyEmailApi = (payload) =>
     url: endpoints.AUTH.VERIFY_EMAIL,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const verifyPhoneApi = (payload) =>
@@ -53,6 +58,7 @@ const verifyPhoneApi = (payload) =>
     url: endpoints.AUTH.VERIFY_PHONE,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const resendVerificationApi = (payload) =>
@@ -60,6 +66,7 @@ const resendVerificationApi = (payload) =>
     url: endpoints.AUTH.RESEND_VERIFICATION,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const forgotPasswordApi = (payload) =>
@@ -67,6 +74,7 @@ const forgotPasswordApi = (payload) =>
     url: endpoints.AUTH.FORGOT_PASSWORD,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const resetPasswordApi = (payload) =>
@@ -74,6 +82,7 @@ const resetPasswordApi = (payload) =>
     url: endpoints.AUTH.RESET_PASSWORD,
     method: 'POST',
     body: payload,
+    skipAuthRefresh: true,
   });
 
 const changePasswordApi = (payload) =>

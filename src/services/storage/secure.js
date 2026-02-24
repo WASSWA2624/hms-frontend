@@ -14,7 +14,7 @@ const reportStorageError = (error, context) => {
 };
 
 // If SecureStore is unavailable:
-// - Web uses sessionStorage so values survive refreshes within the same tab.
+// - Web prefers localStorage (persistent), then falls back to sessionStorage.
 // - Native falls back to volatile in-memory storage only.
 const volatileStore = new Map();
 
@@ -32,33 +32,41 @@ const removeVolatileItem = (key) => {
   return true;
 };
 
-const getWebSessionStorage = () => {
+const getWebStorageList = () => {
   try {
-    if (typeof window === 'undefined' || !window.sessionStorage) return null;
-    return window.sessionStorage;
+    if (typeof window === 'undefined') return [];
+    const storages = [];
+    if (window.localStorage) {
+      storages.push(window.localStorage);
+    }
+    if (window.sessionStorage && window.sessionStorage !== window.localStorage) {
+      storages.push(window.sessionStorage);
+    }
+    return storages;
   } catch (error) {
     reportStorageError(error, { op: 'webSessionStorage' });
-    return null;
+    return [];
   }
 };
 
 const getWebSessionItem = (key) => {
-  const webStorage = getWebSessionStorage();
-  if (!webStorage) return null;
-  try {
-    const value = webStorage.getItem(key);
-    return value == null ? null : value;
-  } catch (error) {
-    reportStorageError(error, { op: 'getWebSessionItem', key });
-    return null;
+  const storages = getWebStorageList();
+  for (const storage of storages) {
+    try {
+      const value = storage.getItem(key);
+      if (value != null) return value;
+    } catch (error) {
+      reportStorageError(error, { op: 'getWebSessionItem', key });
+    }
   }
+  return null;
 };
 
 const setWebSessionItem = (key, value) => {
-  const webStorage = getWebSessionStorage();
-  if (!webStorage) return false;
+  const [primaryStorage] = getWebStorageList();
+  if (!primaryStorage) return false;
   try {
-    webStorage.setItem(key, value);
+    primaryStorage.setItem(key, value);
     return true;
   } catch (error) {
     reportStorageError(error, { op: 'setWebSessionItem', key });
@@ -67,15 +75,20 @@ const setWebSessionItem = (key, value) => {
 };
 
 const removeWebSessionItem = (key) => {
-  const webStorage = getWebSessionStorage();
-  if (!webStorage) return false;
-  try {
-    webStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    reportStorageError(error, { op: 'removeWebSessionItem', key });
-    return false;
+  const storages = getWebStorageList();
+  if (storages.length === 0) return false;
+  let removed = false;
+
+  for (const storage of storages) {
+    try {
+      storage.removeItem(key);
+      removed = true;
+    } catch (error) {
+      reportStorageError(error, { op: 'removeWebSessionItem', key });
+    }
   }
+
+  return removed;
 };
 
 const isSecureStoreAvailable = async () => {

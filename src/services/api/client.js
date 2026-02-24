@@ -108,10 +108,11 @@ const apiClient = async (config) => {
     body,
     headers = {},
     timeout = TIMEOUTS.API_REQUEST,
+    skipAuthRefresh = false,
   } = config;
   const normalizedMethod = String(method || 'GET').toUpperCase();
 
-  const execute = async (csrfRetried = false) => {
+  const execute = async (csrfRetried = false, authRetried = false) => {
     // Attach auth header
     const authConfig = await attachAuthHeader({
       url,
@@ -119,6 +120,7 @@ const apiClient = async (config) => {
       body,
       headers,
     });
+    const requestHasAuthHeader = Boolean(authConfig?.headers?.Authorization);
     const requestMethod = String(
       authConfig.method || normalizedMethod
     ).toUpperCase();
@@ -187,7 +189,7 @@ const apiClient = async (config) => {
           isCsrfFailure(response.status, errorData)
         ) {
           clearCsrfToken();
-          return execute(true);
+          return execute(true, authRetried);
         }
 
         const error = {
@@ -198,7 +200,20 @@ const apiClient = async (config) => {
             errorData?.message || `API request failed: ${response.statusText}`,
           errors: errorData?.errors || [],
         };
-        throw await handleAuthError(error);
+        try {
+          return await handleAuthError(error, {
+            canRetryAuth: !skipAuthRefresh && requestHasAuthHeader,
+            hasRetriedAuth: authRetried,
+            retryRequest: () => execute(csrfRetried, true),
+          });
+        } catch (authError) {
+          try {
+            authError.__authHandled = true;
+          } catch {
+            // Ignore tagging failures for non-extensible errors.
+          }
+          throw authError;
+        }
       }
 
       const payload = hasJson ? await response.json() : null;
@@ -206,14 +221,17 @@ const apiClient = async (config) => {
       return { ...normalized, status: response.status };
     } catch (error) {
       clearTimeout(timeoutId);
+      if (error?.__authHandled) {
+        throw error;
+      }
       if (error.name === 'AbortError') {
         throw handleError(new Error('Request timeout'), { url });
       }
-      throw await handleAuthError(error);
+      throw handleError(error);
     }
   };
 
-  return execute(false);
+  return execute(false, false);
 };
 
 export { apiClient };

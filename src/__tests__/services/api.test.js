@@ -9,6 +9,9 @@ global.fetch = jest.fn();
 jest.mock('@security', () => ({
   tokenManager: {
     getAccessToken: jest.fn(),
+    getRefreshToken: jest.fn(),
+    setTokens: jest.fn(),
+    shouldPersistTokens: jest.fn(),
     clearTokens: jest.fn(),
   },
 }));
@@ -54,6 +57,9 @@ describe('API Client', () => {
     global.fetch.mockClear();
     jest.useFakeTimers();
     asyncStorage.getItem.mockResolvedValue(null);
+    tokenManager.getRefreshToken.mockResolvedValue(null);
+    tokenManager.shouldPersistTokens.mockResolvedValue(true);
+    tokenManager.setTokens.mockResolvedValue(true);
 
     if (
       !global.AbortSignal ||
@@ -198,7 +204,7 @@ describe('API Client', () => {
       );
     });
 
-    it('should handle 401 unauthorized error', async () => {
+    it('should handle 401 unauthorized error without clearing tokens', async () => {
       global.fetch.mockResolvedValue({
         ok: false,
         status: 401,
@@ -213,8 +219,59 @@ describe('API Client', () => {
         apiClient({ url: 'https://api.example.com/test' })
       ).rejects.toBeDefined();
 
-      expect(tokenManager.clearTokens).toHaveBeenCalled();
+      expect(tokenManager.clearTokens).not.toHaveBeenCalled();
       expect(handleError).toHaveBeenCalled();
+    });
+
+    it('retries request after successful token refresh', async () => {
+      tokenManager.getAccessToken
+        .mockResolvedValueOnce('expired-access-token')
+        .mockResolvedValueOnce('fresh-access-token');
+      tokenManager.getRefreshToken.mockResolvedValue('refresh-token');
+      tokenManager.shouldPersistTokens.mockResolvedValue(true);
+      tokenManager.setTokens.mockResolvedValue(true);
+
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'Unauthorized', errors: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({
+            status: 200,
+            message: 'ok',
+            data: {
+              access_token: 'fresh-access-token',
+              refresh_token: 'fresh-refresh-token',
+            },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({ id: 1, recovered: true }),
+        });
+
+      const result = await apiClient({ url: 'https://api.example.com/test' });
+
+      expect(result).toEqual({
+        data: { id: 1, recovered: true },
+        raw: { id: 1, recovered: true },
+        status: 200,
+      });
+      expect(tokenManager.setTokens).toHaveBeenCalledWith(
+        'fresh-access-token',
+        'fresh-refresh-token',
+        { persist: true }
+      );
+      expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
     it('should handle request timeout', async () => {
