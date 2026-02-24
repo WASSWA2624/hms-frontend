@@ -11,6 +11,7 @@ import {
   EmptyState,
   ErrorState,
   OfflineState,
+  Select,
   Skeleton,
   Text,
 } from '@platform/components';
@@ -84,9 +85,7 @@ const DashboardScreenWeb = () => {
     dashboardRole,
     liveDashboard,
     quickActions,
-    workQueue,
-    attentionAlerts,
-    activityFeed,
+    tenantContext,
     lastUpdated,
     onRetry,
     onQuickAction,
@@ -96,9 +95,9 @@ const DashboardScreenWeb = () => {
   const trendPoints = liveDashboard?.trend?.points || [];
   const distribution = liveDashboard?.distribution || { total: 0, segments: [] };
   const highlightItems = liveDashboard?.highlights || [];
-  const queueItems = liveDashboard?.queue?.length ? liveDashboard.queue : workQueue;
-  const alertItems = liveDashboard?.alerts?.length ? liveDashboard.alerts : attentionAlerts;
-  const activityItems = liveDashboard?.activity?.length ? liveDashboard.activity : activityFeed;
+  const queueItems = liveDashboard?.queue || [];
+  const alertItems = liveDashboard?.alerts || [];
+  const activityItems = liveDashboard?.activity || [];
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const currencyFormatter = useMemo(
@@ -203,6 +202,36 @@ const DashboardScreenWeb = () => {
     </StyledStateWrapper>
   );
 
+  const renderTenantContextState = () => (
+    <StyledStateWrapper>
+      <Card
+        header={(
+          <StyledCardHeaderContent>
+            <Text variant="h3">Tenant context required</Text>
+            <Text variant="caption">
+              Select a tenant to load role-isolated dashboard data.
+            </Text>
+          </StyledCardHeaderContent>
+        )}
+      >
+        <StyledSectionBody>
+          <Text variant="body">
+            This account needs an active tenant context before dashboard data can be shown.
+          </Text>
+          <Select
+            label="Tenant"
+            placeholder={tenantContext?.isLoading ? 'Loading tenants...' : 'Select tenant'}
+            options={tenantContext?.options || []}
+            value={tenantContext?.selectedTenantId || ''}
+            onValueChange={tenantContext?.onSelectTenant}
+            disabled={tenantContext?.isLoading}
+            testID="dashboard-tenant-picker"
+          />
+        </StyledSectionBody>
+      </Card>
+    </StyledStateWrapper>
+  );
+
   if (state === STATES.LOADING) {
     return (
       <StyledHomeContainer role="main" aria-label={t('home.title')} data-testid="dashboard-screen">
@@ -215,6 +244,14 @@ const DashboardScreenWeb = () => {
     return (
       <StyledHomeContainer role="main" aria-label={t('home.title')} data-testid="dashboard-screen">
         <StyledContent>{renderErrorState()}</StyledContent>
+      </StyledHomeContainer>
+    );
+  }
+
+  if (state === STATES.NEEDS_TENANT_CONTEXT) {
+    return (
+      <StyledHomeContainer role="main" aria-label={t('home.title')} data-testid="dashboard-screen">
+        <StyledContent>{renderTenantContextState()}</StyledContent>
       </StyledHomeContainer>
     );
   }

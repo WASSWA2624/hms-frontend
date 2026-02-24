@@ -6,11 +6,11 @@
 import styled from 'styled-components/native';
 import { ScrollView, View } from 'react-native';
 
-const StyledScrollView = styled(ScrollView).attrs({
-  contentContainerStyle: { flexGrow: 1 },
-}).withConfig({
+const StyledScrollView = styled(ScrollView).withConfig({
   displayName: 'StyledScrollView',
   componentId: 'DashboardScreen_StyledScrollView',
+}).attrs({
+  contentContainerStyle: { flexGrow: 1 },
 })`
   flex: 1;
 `;

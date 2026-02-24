@@ -3,8 +3,17 @@
  * File: dashboard-widget.api.js
  */
 import { endpoints } from '@config/endpoints';
-import { createCrudApi } from '@services/api';
+import { apiClient, buildQueryString, createCrudApi } from '@services/api';
 
-const dashboardWidgetApi = createCrudApi(endpoints.DASHBOARD_WIDGETS);
+const baseApi = createCrudApi(endpoints.DASHBOARD_WIDGETS);
+
+const dashboardWidgetApi = {
+  ...baseApi,
+  summary: (params = {}) =>
+    apiClient({
+      url: `${endpoints.DASHBOARD_WIDGETS.SUMMARY}${buildQueryString(params)}`,
+      method: 'GET',
+    }),
+};
 
 export { dashboardWidgetApi };

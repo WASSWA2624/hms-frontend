@@ -1175,6 +1175,7 @@ export const endpoints = {
   DASHBOARD_WIDGETS: {
     LIST: `${baseUrl}/dashboard-widgets`,
     CREATE: `${baseUrl}/dashboard-widgets`,
+    SUMMARY: `${baseUrl}/dashboard-widgets/summary`,
     GET: (id) => `${baseUrl}/dashboard-widgets/${id}`,
     UPDATE: (id) => `${baseUrl}/dashboard-widgets/${id}`,
     DELETE: (id) => `${baseUrl}/dashboard-widgets/${id}`,

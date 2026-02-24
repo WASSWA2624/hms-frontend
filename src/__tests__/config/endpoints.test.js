@@ -188,6 +188,7 @@ describe('endpoints.js', () => {
 
     expect(endpoints.DASHBOARD_WIDGETS.LIST).toMatch(/\/dashboard-widgets$/);
     expect(endpoints.DASHBOARD_WIDGETS.CREATE).toMatch(/\/dashboard-widgets$/);
+    expect(endpoints.DASHBOARD_WIDGETS.SUMMARY).toMatch(/\/dashboard-widgets\/summary$/);
     expect(endpoints.DASHBOARD_WIDGETS.GET('id')).toMatch(
       /\/dashboard-widgets\/id$/
     );

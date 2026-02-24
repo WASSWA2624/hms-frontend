@@ -12,5 +12,6 @@ export const STATES = {
   LOADING: 'loading',
   ERROR: 'error',
   EMPTY: 'empty',
+  NEEDS_TENANT_CONTEXT: 'needs_tenant_context',
 };
 

@@ -3,10 +3,7 @@
  * Authenticated dashboard screen for iOS platform
  * File: DashboardScreen.ios.jsx
  */
-// 1. External dependencies
 import React, { useMemo } from 'react';
-
-// 2. Platform components (from barrel file)
 import {
   Badge,
   Button,
@@ -14,15 +11,11 @@ import {
   EmptyState,
   ErrorState,
   OfflineState,
-  ProgressBar,
+  Select,
   Skeleton,
   Text,
 } from '@platform/components';
-
-// 3. Hooks and utilities (absolute imports via aliases)
 import { useI18n } from '@hooks';
-
-// 4. Styles (relative import - platform-specific)
 import {
   StyledScrollView,
   StyledHomeContainer,
@@ -33,7 +26,6 @@ import {
   StyledSectionMeta,
   StyledSectionBody,
   StyledStatCardContent,
-  StyledStatValueRow,
   StyledSectionGrid,
   StyledCardHeaderContent,
   StyledList,
@@ -47,58 +39,50 @@ import {
   StyledBadgeRow,
   StyledStatusStrip,
   StyledQuickActions,
-  StyledChecklist,
-  StyledChecklistItemContent,
-  StyledChecklistFooter,
-  StyledValueGrid,
-  StyledModuleGrid,
-  StyledPlanRow,
-  StyledPlanActions,
   StyledActivityMeta,
-  StyledHelpGrid,
   StyledCardWrapper,
   StyledStateWrapper,
   StyledLoadingGrid,
   StyledLoadingBlock,
 } from './DashboardScreen.ios.styles';
-
-// 5. Component-specific hook (relative import)
 import useDashboardScreen from './useDashboardScreen';
-
-// 6. Types and constants (relative import)
 import { STATES } from './types';
 
-const getDeltaConfig = (delta) => {
-  if (delta > 0) return { variant: 'success', key: 'home.valueProof.deltaUp' };
-  if (delta < 0) return { variant: 'warning', key: 'home.valueProof.deltaDown' };
-  return { variant: 'primary', key: 'home.valueProof.deltaNeutral' };
+const resolveText = (item, directField, keyField, t) => {
+  const directValue = item?.[directField];
+  if (typeof directValue === 'string' && directValue.trim()) return directValue;
+  const keyValue = item?.[keyField];
+  if (typeof keyValue === 'string' && keyValue.trim()) return t(keyValue);
+  return '';
 };
 
-/**
- * DashboardScreen component for iOS
- * @param {Object} props - DashboardScreen props
- */
+const formatDistributionValue = (segmentValue, total) => {
+  if (!total) return '0%';
+  return `${Math.round((segmentValue / total) * 100)}%`;
+};
+
 const DashboardScreenIOS = () => {
   const { t, locale } = useI18n();
   const {
     state,
     isOffline,
     facilityContext,
-    smartStatusStrip,
-    onboardingChecklist,
+    dashboardRole,
+    liveDashboard,
     quickActions,
-    workQueue,
-    attentionAlerts,
-    valueProofs,
-    insights,
-    moduleDiscovery,
-    usagePlan,
-    activityFeed,
-    helpResources,
+    tenantContext,
     lastUpdated,
     onRetry,
     onQuickAction,
   } = useDashboardScreen();
+
+  const summaryCards = liveDashboard?.summaryCards || [];
+  const trendPoints = liveDashboard?.trend?.points || [];
+  const distribution = liveDashboard?.distribution || { total: 0, segments: [] };
+  const highlightItems = liveDashboard?.highlights || [];
+  const queueItems = liveDashboard?.queue || [];
+  const alertItems = liveDashboard?.alerts || [];
+  const activityItems = liveDashboard?.activity || [];
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const currencyFormatter = useMemo(
@@ -109,28 +93,29 @@ const DashboardScreenIOS = () => {
     () => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
     [locale]
   );
-  const formatNumber = (value) => numberFormatter.format(value);
-  const formatTime = (value) => timeFormatter.format(value);
-  const formatStatusValue = (item) =>
-    item.format === 'currency' ? currencyFormatter.format(item.value) : formatNumber(item.value);
-  const formatProofValue = (item) => {
-    if (item.format === 'currency') return currencyFormatter.format(item.value);
-    if (item.format === 'percent') return `${formatNumber(item.value)}%`;
-    if (item.format === 'minutes') return t('home.valueProof.minutes', { value: formatNumber(item.value) });
-    return formatNumber(item.value);
+  const dayFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { weekday: 'short' }),
+    [locale]
+  );
+
+  const formatMetricValue = (item) => {
+    if (!item) return '0';
+    if (item.format === 'currency') return currencyFormatter.format(item.value || 0);
+    if (item.format === 'percent') return `${numberFormatter.format(item.value || 0)}%`;
+    if (item.format === 'minutes') return `${numberFormatter.format(item.value || 0)} min`;
+    return numberFormatter.format(item.value || 0);
   };
 
-  const isEmpty =
-    smartStatusStrip.length === 0 &&
-    onboardingChecklist.length === 0 &&
-    quickActions.length === 0 &&
-    workQueue.length === 0 &&
-    attentionAlerts.length === 0 &&
-    valueProofs.length === 0 &&
-    insights.length === 0 &&
-    moduleDiscovery.length === 0 &&
-    activityFeed.length === 0 &&
-    helpResources.length === 0;
+  const distributionTotal = distribution.total
+    || distribution.segments.reduce((sum, item) => sum + Number(item.value || 0), 0);
+
+  const isEmpty = (
+    summaryCards.length === 0
+    && queueItems.length === 0
+    && alertItems.length === 0
+    && activityItems.length === 0
+    && quickActions.length === 0
+  );
 
   const renderLoadingState = () => (
     <StyledStateWrapper>
@@ -159,7 +144,7 @@ const DashboardScreenIOS = () => {
       <ErrorState
         title={t('home.states.errorTitle')}
         description={t('home.states.errorMessage')}
-        action={
+        action={(
           <Button
             onPress={onRetry}
             accessibilityLabel={t('home.states.retryLabel')}
@@ -167,9 +152,39 @@ const DashboardScreenIOS = () => {
           >
             {t('common.retry')}
           </Button>
-        }
+        )}
         testID="dashboard-error-state"
       />
+    </StyledStateWrapper>
+  );
+
+  const renderTenantContextState = () => (
+    <StyledStateWrapper>
+      <Card
+        header={(
+          <StyledCardHeaderContent>
+            <Text variant="h3">Tenant context required</Text>
+            <Text variant="caption">
+              Select a tenant to load role-isolated dashboard data.
+            </Text>
+          </StyledCardHeaderContent>
+        )}
+      >
+        <StyledSectionBody>
+          <Text variant="body">
+            This account needs an active tenant context before dashboard data can be shown.
+          </Text>
+          <Select
+            label="Tenant"
+            placeholder={tenantContext?.isLoading ? 'Loading tenants...' : 'Select tenant'}
+            options={tenantContext?.options || []}
+            value={tenantContext?.selectedTenantId || ''}
+            onValueChange={tenantContext?.onSelectTenant}
+            disabled={tenantContext?.isLoading}
+            testID="dashboard-tenant-picker"
+          />
+        </StyledSectionBody>
+      </Card>
     </StyledStateWrapper>
   );
 
@@ -203,6 +218,16 @@ const DashboardScreenIOS = () => {
     );
   }
 
+  if (state === STATES.NEEDS_TENANT_CONTEXT) {
+    return (
+      <StyledScrollView accessibilityLabel={t('home.title')} testID="dashboard-screen">
+        <StyledHomeContainer>
+          <StyledContent>{renderTenantContextState()}</StyledContent>
+        </StyledHomeContainer>
+      </StyledScrollView>
+    );
+  }
+
   if (state === STATES.EMPTY || isEmpty) {
     return (
       <StyledScrollView accessibilityLabel={t('home.title')} testID="dashboard-screen">
@@ -212,11 +237,6 @@ const DashboardScreenIOS = () => {
       </StyledScrollView>
     );
   }
-
-  const completedSteps = onboardingChecklist.filter((item) => item.completed).length;
-  const totalSteps = onboardingChecklist.length;
-  const checklistProgress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
-  const nextStep = onboardingChecklist.find((item) => !item.completed);
 
   return (
     <StyledScrollView accessibilityLabel={t('home.title')} testID="dashboard-screen">
@@ -246,7 +266,9 @@ const DashboardScreenIOS = () => {
                     })}
                   </Text>
                 </StyledWelcomeMessage>
+
                 <StyledWelcomeMeta>
+                  <Text variant="body">{dashboardRole?.subtitle}</Text>
                   <Text variant="caption">
                     {t('home.welcome.facilityMeta', {
                       facility: facilityContext.facilityName,
@@ -254,6 +276,9 @@ const DashboardScreenIOS = () => {
                     })}
                   </Text>
                   <StyledBadgeRow>
+                    <Badge variant={dashboardRole?.badgeVariant || 'primary'}>
+                      {dashboardRole?.title || 'Operations'}
+                    </Badge>
                     <Badge variant="primary">{t(facilityContext.facilityTypeKey)}</Badge>
                     <Badge variant="success">{t(facilityContext.planStatusKey)}</Badge>
                     <Badge variant="warning">
@@ -269,21 +294,23 @@ const DashboardScreenIOS = () => {
             <StyledSectionHeader>
               <StyledSectionTitleGroup>
                 <Text variant="h2" accessibilityRole="header">
-                  {t('home.statusStrip.title')}
+                  Live KPI Snapshot
                 </Text>
-                <Text variant="caption">{t('home.statusStrip.subtitle')}</Text>
+                <Text variant="caption">Updated continuously using real system records.</Text>
               </StyledSectionTitleGroup>
               <StyledSectionMeta>
-                <Text variant="caption">{t('home.lastUpdated', { time: formatTime(lastUpdated) })}</Text>
+                <Text variant="caption">
+                  {t('home.lastUpdated', { time: timeFormatter.format(lastUpdated) })}
+                </Text>
               </StyledSectionMeta>
             </StyledSectionHeader>
             <StyledSectionBody>
               <StyledStatusStrip>
-                {smartStatusStrip.map((item) => (
+                {summaryCards.map((item) => (
                   <Card key={item.id}>
                     <StyledStatCardContent>
-                      <Text variant="label">{t(item.labelKey)}</Text>
-                      <Text variant="h2">{formatStatusValue(item)}</Text>
+                      <Text variant="label">{item.label}</Text>
+                      <Text variant="h2">{formatMetricValue(item)}</Text>
                     </StyledStatCardContent>
                   </Card>
                 ))}
@@ -295,136 +322,152 @@ const DashboardScreenIOS = () => {
             <StyledSectionHeader>
               <StyledSectionTitleGroup>
                 <Text variant="h2" accessibilityRole="header">
-                  {t('home.startHere.title')}
+                  Visual Analytics
                 </Text>
-                <Text variant="caption">{t('home.startHere.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <Card
-                header={
-                  <StyledCardHeaderContent>
-                    <Text variant="h3">{t('home.startHere.progressTitle')}</Text>
-                    <Text variant="caption">{t('home.startHere.progressSubtitle')}</Text>
-                  </StyledCardHeaderContent>
-                }
-              >
-                <StyledChecklist>
-                  {onboardingChecklist.map((item) => (
-                    <StyledListItem key={item.id}>
-                      <StyledChecklistItemContent>
-                        <Text variant="body">{t(item.titleKey)}</Text>
-                        <StyledListItemMeta>
-                          <Text variant="caption">{t(item.metaKey)}</Text>
-                        </StyledListItemMeta>
-                      </StyledChecklistItemContent>
-                      <Badge variant={item.completed ? 'success' : 'warning'}>
-                        {t(item.completed ? 'home.startHere.status.done' : 'home.startHere.status.pending')}
-                      </Badge>
-                    </StyledListItem>
-                  ))}
-                </StyledChecklist>
-                <StyledChecklistFooter>
-                  <Text variant="caption">
-                    {t('home.startHere.progressLabel', { value: checklistProgress })}
-                  </Text>
-                  <ProgressBar
-                    value={checklistProgress}
-                    variant={checklistProgress >= 80 ? 'success' : 'primary'}
-                    accessibilityLabel={t('home.startHere.progressLabel', { value: checklistProgress })}
-                  />
-                  <Text variant="caption">
-                    {nextStep
-                      ? t('home.startHere.nextBest', { step: t(nextStep.titleKey) })
-                      : t('home.startHere.complete')}
-                  </Text>
-                  <Button variant="primary" size="small">
-                    {t('home.startHere.cta')}
-                  </Button>
-                </StyledChecklistFooter>
-              </Card>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.quickActions.title')}
-                </Text>
-                <Text variant="caption">{t('home.quickActions.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <StyledQuickActions>
-                {quickActions.map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={item.isEnabled ? 'outline' : 'surface'}
-                    size="small"
-                    onPress={() => onQuickAction(item)}
-                    disabled={!item.isEnabled}
-                    accessibilityHint={!item.isEnabled && item.blockedReasonKey ? t(item.blockedReasonKey) : undefined}
-                  >
-                    {t(item.labelKey)}
-                  </Button>
-                ))}
-              </StyledQuickActions>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.operations.title')}
-                </Text>
-                <Text variant="caption">{t('home.operations.subtitle')}</Text>
+                <Text variant="caption">Trend and status distribution for quick operational reading.</Text>
               </StyledSectionTitleGroup>
             </StyledSectionHeader>
             <StyledSectionBody>
               <StyledSectionGrid>
                 <Card
-                  header={
+                  header={(
                     <StyledCardHeaderContent>
-                      <Text variant="h3">{t('home.workQueue.title')}</Text>
-                      <Text variant="caption">{t('home.workQueue.subtitle')}</Text>
+                      <Text variant="h3">{liveDashboard?.trend?.title || '7-day trend'}</Text>
+                      <Text variant="caption">
+                        {liveDashboard?.trend?.subtitle || 'Activity trend for the current role.'}
+                      </Text>
                     </StyledCardHeaderContent>
-                  }
+                  )}
+                >
+                  {trendPoints.length > 0 ? (
+                    <StyledList>
+                      {trendPoints.map((point) => (
+                        <StyledListItem key={point.id}>
+                          <StyledListItemContent>
+                            <Text variant="body">{dayFormatter.format(new Date(point.date))}</Text>
+                          </StyledListItemContent>
+                          <Badge variant="primary">{numberFormatter.format(point.value || 0)}</Badge>
+                        </StyledListItem>
+                      ))}
+                    </StyledList>
+                  ) : (
+                    <Text variant="caption">No trend data available yet.</Text>
+                  )}
+                </Card>
+
+                <Card
+                  header={(
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">{distribution.title || 'Status distribution'}</Text>
+                      <Text variant="caption">
+                        {distribution.subtitle || 'Current status mix across active records.'}
+                      </Text>
+                    </StyledCardHeaderContent>
+                  )}
+                >
+                  {distribution.segments.length > 0 ? (
+                    <StyledList>
+                      {distribution.segments.map((segment) => (
+                        <StyledListItem key={segment.id}>
+                          <StyledListItemContent>
+                            <Text variant="body">{segment.label}</Text>
+                          </StyledListItemContent>
+                          <Badge variant="primary">
+                            {numberFormatter.format(segment.value)} ({formatDistributionValue(segment.value, distributionTotal)})
+                          </Badge>
+                        </StyledListItem>
+                      ))}
+                    </StyledList>
+                  ) : (
+                    <Text variant="caption">No distribution data available yet.</Text>
+                  )}
+                </Card>
+              </StyledSectionGrid>
+            </StyledSectionBody>
+          </StyledSection>
+
+          {highlightItems.length > 0 && (
+            <StyledSection>
+              <StyledSectionHeader>
+                <StyledSectionTitleGroup>
+                  <Text variant="h2" accessibilityRole="header">
+                    Role Performance Highlights
+                  </Text>
+                  <Text variant="caption">Metrics prioritized for your active role.</Text>
+                </StyledSectionTitleGroup>
+              </StyledSectionHeader>
+              <StyledSectionBody>
+                <StyledStatusStrip>
+                  {highlightItems.map((item) => (
+                    <Card key={item.id}>
+                      <StyledStatCardContent>
+                        <Text variant="label">{item.label}</Text>
+                        <Text variant="h2">{item.value}</Text>
+                        <Text variant="caption">{item.context}</Text>
+                      </StyledStatCardContent>
+                    </Card>
+                  ))}
+                </StyledStatusStrip>
+              </StyledSectionBody>
+            </StyledSection>
+          )}
+
+          <StyledSection>
+            <StyledSectionHeader>
+              <StyledSectionTitleGroup>
+                <Text variant="h2" accessibilityRole="header">
+                  Operations Queue
+                </Text>
+                <Text variant="caption">Current workload and items requiring immediate attention.</Text>
+              </StyledSectionTitleGroup>
+            </StyledSectionHeader>
+            <StyledSectionBody>
+              <StyledSectionGrid>
+                <Card
+                  header={(
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">Work queue</Text>
+                      <Text variant="caption">Tasks currently in motion.</Text>
+                    </StyledCardHeaderContent>
+                  )}
                 >
                   <StyledList>
-                    {workQueue.map((item) => (
+                    {queueItems.map((item) => (
                       <StyledListItem key={item.id}>
                         <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
+                          <Text variant="body">{resolveText(item, 'title', 'titleKey', t)}</Text>
                           <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
+                            <Text variant="caption">{resolveText(item, 'meta', 'metaKey', t)}</Text>
                           </StyledListItemMeta>
                         </StyledListItemContent>
-                        <Badge variant={item.statusVariant}>{t(item.statusKey)}</Badge>
+                        <Badge variant={item.statusVariant || 'primary'}>
+                          {item.statusLabel || resolveText(item, 'statusLabel', 'statusKey', t)}
+                        </Badge>
                       </StyledListItem>
                     ))}
                   </StyledList>
                 </Card>
 
                 <Card
-                  header={
+                  header={(
                     <StyledCardHeaderContent>
-                      <Text variant="h3">{t('home.attention.title')}</Text>
-                      <Text variant="caption">{t('home.attention.subtitle')}</Text>
+                      <Text variant="h3">Attention alerts</Text>
+                      <Text variant="caption">Potential risks and escalation points.</Text>
                     </StyledCardHeaderContent>
-                  }
+                  )}
                 >
                   <StyledList>
-                    {attentionAlerts.map((item) => (
+                    {alertItems.map((item) => (
                       <StyledListItem key={item.id}>
                         <StyledListItemContent>
-                          <Text variant="body">{t(item.titleKey)}</Text>
+                          <Text variant="body">{resolveText(item, 'title', 'titleKey', t)}</Text>
                           <StyledListItemMeta>
-                            <Text variant="caption">{t(item.metaKey)}</Text>
+                            <Text variant="caption">{resolveText(item, 'meta', 'metaKey', t)}</Text>
                           </StyledListItemMeta>
                         </StyledListItemContent>
-                        <Badge variant={item.severityVariant}>{t(item.severityKey)}</Badge>
+                        <Badge variant={item.severityVariant || 'warning'}>
+                          {item.severityLabel || resolveText(item, 'severityLabel', 'severityKey', t)}
+                        </Badge>
                       </StyledListItem>
                     ))}
                   </StyledList>
@@ -437,186 +480,64 @@ const DashboardScreenIOS = () => {
             <StyledSectionHeader>
               <StyledSectionTitleGroup>
                 <Text variant="h2" accessibilityRole="header">
-                  {t('home.valueProof.title')}
+                  Actions And Activity
                 </Text>
-                <Text variant="caption">{t('home.valueProof.subtitle')}</Text>
+                <Text variant="caption">Take action quickly and monitor recent events.</Text>
               </StyledSectionTitleGroup>
             </StyledSectionHeader>
             <StyledSectionBody>
-              <StyledValueGrid>
-                {valueProofs.map((item) => {
-                  const deltaConfig = item.delta != null ? getDeltaConfig(item.delta) : null;
-                  return (
-                    <Card key={item.id}>
-                      <StyledStatCardContent>
-                        <Text variant="label">{t(item.labelKey)}</Text>
-                        <StyledStatValueRow>
-                          <Text variant="h2">{formatProofValue(item)}</Text>
-                          {deltaConfig ? (
-                            <Badge variant={deltaConfig.variant}>
-                              {t(deltaConfig.key, { value: Math.abs(item.delta) })}
-                            </Badge>
-                          ) : null}
-                        </StyledStatValueRow>
-                        <Text variant="caption">{t(item.comparisonKey)}</Text>
-                      </StyledStatCardContent>
-                    </Card>
-                  );
-                })}
-              </StyledValueGrid>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.insights.title')}
-                </Text>
-                <Text variant="caption">{t('home.insights.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <Card>
-                <StyledList>
-                  {insights.map((item) => (
-                    <StyledListItem key={item.id}>
-                      <StyledListItemContent>
-                        <Text variant="body">{t(item.titleKey)}</Text>
-                        <StyledListItemMeta>
-                          <Text variant="caption">{t(item.metaKey)}</Text>
-                        </StyledListItemMeta>
-                      </StyledListItemContent>
-                      <Badge variant={item.variant}>{t('home.insights.badge')}</Badge>
-                    </StyledListItem>
-                  ))}
-                </StyledList>
-              </Card>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.modules.title')}
-                </Text>
-                <Text variant="caption">{t('home.modules.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <StyledModuleGrid>
-                {moduleDiscovery.map((module) => (
-                  <Card
-                    key={module.id}
-                    header={
-                      <StyledCardHeaderContent>
-                        <Text variant="h3">{t(module.titleKey)}</Text>
-                        <Text variant="caption">{t(module.whoKey)}</Text>
-                      </StyledCardHeaderContent>
-                    }
-                    footer={
-                      <Button variant="secondary" size="small">
-                        {t(module.ctaKey)}
+              <StyledSectionGrid>
+                <Card
+                  header={(
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">Quick actions</Text>
+                      <Text variant="caption">Role-aware shortcuts to common workflows.</Text>
+                    </StyledCardHeaderContent>
+                  )}
+                >
+                  <StyledQuickActions>
+                    {quickActions.map((item) => (
+                      <Button
+                        key={item.id}
+                        variant={item.isEnabled ? 'outline' : 'surface'}
+                        size="small"
+                        onPress={() => onQuickAction(item)}
+                        disabled={!item.isEnabled}
+                        accessibilityHint={!item.isEnabled && item.blockedReasonKey ? t(item.blockedReasonKey) : undefined}
+                      >
+                        {t(item.labelKey)}
                       </Button>
-                    }
-                  >
-                    <Text variant="body">{t(module.benefitKey)}</Text>
-                  </Card>
-                ))}
-              </StyledModuleGrid>
-            </StyledSectionBody>
-          </StyledSection>
+                    ))}
+                  </StyledQuickActions>
+                </Card>
 
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t(usagePlan.titleKey)}
-                </Text>
-                <Text variant="caption">{t(usagePlan.subtitleKey)}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <Card>
-                <StyledPlanRow>
-                  <Text variant="body">{t(usagePlan.statusKey)}</Text>
-                  <Badge variant="warning">{t(usagePlan.detailKey, { count: usagePlan.detailValue })}</Badge>
-                </StyledPlanRow>
-                <StyledPlanRow>
-                  <Text variant="body">{t(usagePlan.usageKey, { count: usagePlan.usageValue })}</Text>
-                  <Text variant="caption">{t(usagePlan.limitKey)}</Text>
-                </StyledPlanRow>
-                <StyledPlanActions>
-                  <Button variant="primary" size="small">
-                    {t(usagePlan.upgradeCtaKey)}
-                  </Button>
-                  <Button variant="text" size="small">
-                    {t(usagePlan.compareCtaKey)}
-                  </Button>
-                </StyledPlanActions>
-              </Card>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.activity.title')}
-                </Text>
-                <Text variant="caption">{t('home.activity.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <Card>
-                <StyledList>
-                  {activityFeed.map((item) => (
-                    <StyledListItem key={item.id}>
-                      <StyledListItemContent>
-                        <Text variant="body">{t(item.titleKey)}</Text>
-                        <StyledListItemMeta>
-                          <Text variant="caption">{t(item.metaKey)}</Text>
-                        </StyledListItemMeta>
-                      </StyledListItemContent>
-                      <StyledActivityMeta>
-                        <Text variant="caption">{t(item.timeKey)}</Text>
-                      </StyledActivityMeta>
-                    </StyledListItem>
-                  ))}
-                </StyledList>
-              </Card>
-            </StyledSectionBody>
-          </StyledSection>
-
-          <StyledSection>
-            <StyledSectionHeader>
-              <StyledSectionTitleGroup>
-                <Text variant="h2" accessibilityRole="header">
-                  {t('home.help.title')}
-                </Text>
-                <Text variant="caption">{t('home.help.subtitle')}</Text>
-              </StyledSectionTitleGroup>
-            </StyledSectionHeader>
-            <StyledSectionBody>
-              <StyledHelpGrid>
-                {helpResources.map((item) => (
-                  <Card
-                    key={item.id}
-                    header={
-                      <StyledCardHeaderContent>
-                        <Text variant="h3">{t(item.titleKey)}</Text>
-                        <Text variant="caption">{t(item.metaKey)}</Text>
-                      </StyledCardHeaderContent>
-                    }
-                    footer={
-                      <Button variant="text" size="small">
-                        {t(item.ctaKey)}
-                      </Button>
-                    }
-                  />
-                ))}
-              </StyledHelpGrid>
+                <Card
+                  header={(
+                    <StyledCardHeaderContent>
+                      <Text variant="h3">Recent live activity</Text>
+                      <Text variant="caption">Most recent updates from operational data streams.</Text>
+                    </StyledCardHeaderContent>
+                  )}
+                >
+                  <StyledList>
+                    {activityItems.map((item) => (
+                      <StyledListItem key={item.id}>
+                        <StyledListItemContent>
+                          <Text variant="body">{item.title || resolveText(item, 'title', 'titleKey', t)}</Text>
+                          <StyledListItemMeta>
+                            <Text variant="caption">{item.meta || resolveText(item, 'meta', 'metaKey', t)}</Text>
+                          </StyledListItemMeta>
+                        </StyledListItemContent>
+                        <StyledActivityMeta>
+                          <Text variant="caption">
+                            {item.timeLabel || (item.timeKey ? t(item.timeKey) : timeFormatter.format(lastUpdated))}
+                          </Text>
+                        </StyledActivityMeta>
+                      </StyledListItem>
+                    ))}
+                  </StyledList>
+                </Card>
+              </StyledSectionGrid>
             </StyledSectionBody>
           </StyledSection>
         </StyledContent>
