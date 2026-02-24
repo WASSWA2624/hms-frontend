@@ -46,21 +46,27 @@ const useSettingsScreen = () => {
 
   const visibleTabIds = useMemo(() => {
     if (!settingsNavItem || !isItemVisible(settingsNavItem)) return [];
-
-    const visibleSettingsPaths = new Set(['/settings']);
-    const children = Array.isArray(settingsNavItem.children) ? settingsNavItem.children : [];
-
-    children.forEach((child) => {
-      if (!isItemVisible(child)) return;
-      const childPath = child?.path;
-      if (typeof childPath === 'string' && childPath.startsWith('/settings')) {
-        visibleSettingsPaths.add(childPath);
-      }
-    });
+    const baseRoles = Array.isArray(settingsNavItem.roles)
+      ? settingsNavItem.roles
+      : settingsNavItem.roles
+        ? [settingsNavItem.roles]
+        : [];
 
     return SETTINGS_TAB_ORDER.filter((tabId) => {
       const route = SETTINGS_TAB_ROUTES[tabId];
-      return typeof route === 'string' && visibleSettingsPaths.has(route);
+      if (typeof route !== 'string' || !route.startsWith('/settings')) return false;
+
+      if (route === '/settings') {
+        return isItemVisible(settingsNavItem);
+      }
+
+      return isItemVisible({
+        ...settingsNavItem,
+        id: `${SETTINGS_NAV_ID}-${tabId}`,
+        path: route,
+        roles: baseRoles,
+        children: null,
+      });
     });
   }, [isItemVisible, settingsNavItem]);
 

@@ -34,6 +34,12 @@ const resolveRequiredRoles = (item) => {
 const hasPathMatch = (pathname, candidatePath) =>
   pathname === candidatePath || pathname.startsWith(`${candidatePath}/`);
 
+const resolveVisibilityTarget = (entry, pathname) => {
+  if (!entry?.item) return null;
+  if (entry.path === pathname) return entry.item;
+  return { ...entry.item, path: pathname };
+};
+
 const flattenNavigation = (mainItems) => {
   const flat = [];
   (mainItems || []).forEach((mainItem) => {
@@ -130,9 +136,13 @@ export function useRouteAccessGuard(options = {}) {
   const hasAccess = useMemo(() => {
     if (!isAuthenticated) return false;
     if (!resolvedTarget) return true;
+
+    const visibilityTarget = resolveVisibilityTarget(resolvedTarget, pathname);
+    if (!visibilityTarget) return false;
+
     if (resolvedTarget.parent && !isItemVisible(resolvedTarget.parent)) return false;
-    return isItemVisible(resolvedTarget.item);
-  }, [isAuthenticated, isItemVisible, resolvedTarget]);
+    return isItemVisible(visibilityTarget);
+  }, [isAuthenticated, isItemVisible, pathname, resolvedTarget]);
 
   const errorCode = hasAccess || isPending ? null : ROUTE_ACCESS_GUARD_ERRORS.ACCESS_DENIED;
 
@@ -158,4 +168,3 @@ export function useRouteAccessGuard(options = {}) {
     matchedPath: resolvedTarget?.path || null,
   };
 }
-

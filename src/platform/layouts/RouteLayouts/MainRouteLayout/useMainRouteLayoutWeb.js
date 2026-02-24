@@ -347,8 +347,12 @@ export default function useMainRouteLayoutWeb() {
       });
 
       if (!bestMatch) return true;
+      const visibilityTarget =
+        bestMatch.path === normalizedPath
+          ? bestMatch.item
+          : { ...bestMatch.item, path: normalizedPath };
       if (bestMatch.parent && !isItemVisible(bestMatch.parent)) return false;
-      return isItemVisible(bestMatch.item);
+      return isItemVisible(visibilityTarget);
     },
     [flattenedMainNavigation, isItemVisible]
   );

@@ -1,24 +1,28 @@
-import { CLINICAL_ITEMS, SCHEDULING_ITEMS } from '@config/sideMenu';
-import { SCOPE_KEYS, getScopeRoleKeys } from '@config/accessPolicy';
+import { MAIN_NAV_ITEMS, PATIENT_MENU_ITEMS } from '@config/sideMenu';
 
-const OPD_READ_ROLES = getScopeRoleKeys(SCOPE_KEYS.SCHEDULING, 'read');
+const hasUniquePaths = (items = []) => {
+  const seen = new Set();
 
-describe('sideMenu opd flow entries', () => {
-  it('adds canonical OPD route in scheduling and clinical menus', () => {
-    const schedulingOpdItem = SCHEDULING_ITEMS.find((item) => item.id === 'scheduling-opd-flows');
-    const clinicalOpdItem = CLINICAL_ITEMS.find((item) => item.id === 'clinical-opd-flows');
+  for (const item of items) {
+    const path = String(item?.path || '').trim();
+    if (!path) continue;
+    if (seen.has(path)) return false;
+    seen.add(path);
+  }
 
-    expect(schedulingOpdItem).toBeDefined();
-    expect(clinicalOpdItem).toBeDefined();
-    expect(schedulingOpdItem.path).toBe('/scheduling/opd-flows');
-    expect(clinicalOpdItem.path).toBe('/scheduling/opd-flows');
+  return true;
+};
+
+describe('sideMenu uniqueness and flatness', () => {
+  it('keeps unique route paths in MAIN_NAV_ITEMS', () => {
+    expect(hasUniquePaths(MAIN_NAV_ITEMS)).toBe(true);
   });
 
-  it('assigns OPD read access roles to scheduling and clinical OPD items', () => {
-    const schedulingOpdItem = SCHEDULING_ITEMS.find((item) => item.id === 'scheduling-opd-flows');
-    const clinicalOpdItem = CLINICAL_ITEMS.find((item) => item.id === 'clinical-opd-flows');
+  it('keeps unique route paths in PATIENT_MENU_ITEMS', () => {
+    expect(hasUniquePaths(PATIENT_MENU_ITEMS)).toBe(true);
+  });
 
-    expect(schedulingOpdItem.roles).toEqual(OPD_READ_ROLES);
-    expect(clinicalOpdItem.roles).toEqual(OPD_READ_ROLES);
+  it('keeps MAIN_NAV_ITEMS flat with no nested children', () => {
+    expect(MAIN_NAV_ITEMS.every((item) => item?.children == null)).toBe(true);
   });
 });
