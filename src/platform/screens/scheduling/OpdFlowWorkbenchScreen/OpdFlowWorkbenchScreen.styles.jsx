@@ -81,6 +81,7 @@ const StyledForm = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  overflow-anchor: none;
 `;
 
 const StyledFieldRow = styled.div.withConfig({

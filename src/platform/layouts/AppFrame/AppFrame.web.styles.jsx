@@ -15,7 +15,10 @@ const StyledContainer = styled.div.withConfig({
 }))`
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
   height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   position: relative;
   background-color: ${({ theme }) => theme.colors.background.primary};
   overflow: hidden;

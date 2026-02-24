@@ -13,17 +13,12 @@ const StyledSwitch = styled.label.withConfig({
   display: inline-flex;
   flex-direction: row;
   align-items: center;
+  position: relative;
   min-height: ${({ theme }) => theme.spacing.xxl - theme.spacing.xs}px;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   gap: ${({ theme }) => theme.spacing.sm}px;
   user-select: none;
-
-  &:focus-within {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-    border-radius: ${({ theme }) => theme.radius.full}px;
-  }
 `;
 
 const StyledSwitchInput = styled.input.withConfig({
@@ -31,12 +26,19 @@ const StyledSwitchInput = styled.input.withConfig({
   componentId: 'StyledSwitchInput',
 })`
   position: absolute;
+  top: 0;
+  left: 0;
   opacity: 0;
   width: 1px;
   height: 1px;
   margin: 0;
   padding: 0;
   pointer-events: none;
+
+  &:focus-visible + span {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+  }
 `;
 
 const StyledSwitchTrack = styled.span.withConfig({
