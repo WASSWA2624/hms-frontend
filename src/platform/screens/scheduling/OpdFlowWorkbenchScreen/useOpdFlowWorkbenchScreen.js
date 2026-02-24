@@ -210,7 +210,19 @@ const useOpdFlowWorkbenchScreen = () => {
     isResolved,
   } = useOpdFlowAccess();
 
-  const opdFlowCrud = useOpdFlow();
+  const {
+    list: listOpdFlows,
+    get: getOpdFlow,
+    start: startOpdFlow,
+    payConsultation,
+    recordVitals,
+    assignDoctor,
+    doctorReview,
+    disposition,
+    reset: resetOpdFlowCrud,
+    isLoading: isCrudLoading,
+    errorCode,
+  } = useOpdFlow();
 
   const [flowList, setFlowList] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -276,14 +288,14 @@ const useOpdFlowWorkbenchScreen = () => {
       }
     }
 
-    opdFlowCrud.reset();
-    const result = await opdFlowCrud.list(params);
+    resetOpdFlowCrud();
+    const result = await listOpdFlows(params);
     if (!result) return;
     const items = resolveListItems(result);
     setFlowList(items);
     setPagination(result?.pagination || null);
-    if (!selectedFlowId && items.length > 0) {
-      setSelectedFlowId(resolveEncounterId(items[0]));
+    if (items.length > 0) {
+      setSelectedFlowId((previous) => previous || resolveEncounterId(items[0]));
     }
   }, [
     canViewWorkbench,
@@ -291,17 +303,17 @@ const useOpdFlowWorkbenchScreen = () => {
     isOffline,
     normalizedTenantId,
     normalizedFacilityId,
-    selectedFlowId,
-    opdFlowCrud,
+    resetOpdFlowCrud,
+    listOpdFlows,
   ]);
 
   const loadSelectedFlow = useCallback(async () => {
     if (!canViewWorkbench || !selectedFlowId || isOffline) return;
-    const snapshot = await opdFlowCrud.get(selectedFlowId);
+    const snapshot = await getOpdFlow(selectedFlowId);
     if (!snapshot) return;
     setSelectedFlow(snapshot);
     upsertFlowInList(snapshot);
-  }, [canViewWorkbench, isOffline, opdFlowCrud, selectedFlowId, upsertFlowInList]);
+  }, [canViewWorkbench, isOffline, getOpdFlow, selectedFlowId, upsertFlowInList]);
 
   useEffect(() => {
     loadFlowList();
@@ -340,11 +352,11 @@ const useOpdFlowWorkbenchScreen = () => {
     stageAction,
   ]);
 
-  const isAccessDenied = ACCESS_DENIED_CODES.has(opdFlowCrud.errorCode);
-  const isEntitlementBlocked = ENTITLEMENT_DENIED_CODES.has(opdFlowCrud.errorCode);
+  const isAccessDenied = ACCESS_DENIED_CODES.has(errorCode);
+  const isEntitlementBlocked = ENTITLEMENT_DENIED_CODES.has(errorCode);
   const errorMessage = useMemo(
-    () => resolveErrorMessage(t, opdFlowCrud.errorCode, 'scheduling.opdFlow.states.loadError'),
-    [t, opdFlowCrud.errorCode]
+    () => resolveErrorMessage(t, errorCode, 'scheduling.opdFlow.states.loadError'),
+    [t, errorCode]
   );
 
   const resetDrafts = useCallback(() => {
@@ -451,7 +463,7 @@ const useOpdFlowWorkbenchScreen = () => {
       };
     }
 
-    const snapshot = await opdFlowCrud.start(payload);
+    const snapshot = await startOpdFlow(payload);
     if (!snapshot) return;
 
     applySnapshot(snapshot);
@@ -464,7 +476,7 @@ const useOpdFlowWorkbenchScreen = () => {
     normalizedFacilityId,
     normalizedTenantId,
     startDraft,
-    opdFlowCrud,
+    startOpdFlow,
     applySnapshot,
     loadFlowList,
     t,
@@ -489,7 +501,7 @@ const useOpdFlowWorkbenchScreen = () => {
       transaction_ref: sanitizeString(paymentDraft.transaction_ref) || undefined,
       notes: sanitizeString(paymentDraft.notes) || undefined,
     };
-    const snapshot = await opdFlowCrud.payConsultation(activeFlowId, payload);
+    const snapshot = await payConsultation(activeFlowId, payload);
     if (!snapshot) return;
     applySnapshot(snapshot, { pushRoute: false });
     await loadFlowList();
@@ -498,7 +510,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canPayConsultation,
     isOffline,
     paymentDraft,
-    opdFlowCrud,
+    payConsultation,
     applySnapshot,
     loadFlowList,
     t,
@@ -556,7 +568,7 @@ const useOpdFlowWorkbenchScreen = () => {
       triage_notes: sanitizeString(vitalsDraft.triage_notes) || undefined,
     };
 
-    const snapshot = await opdFlowCrud.recordVitals(activeFlowId, payload);
+    const snapshot = await recordVitals(activeFlowId, payload);
     if (!snapshot) return;
     applySnapshot(snapshot, { pushRoute: false });
     await loadFlowList();
@@ -565,7 +577,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canRecordVitals,
     isOffline,
     vitalsDraft,
-    opdFlowCrud,
+    recordVitals,
     applySnapshot,
     loadFlowList,
     t,
@@ -583,7 +595,7 @@ const useOpdFlowWorkbenchScreen = () => {
       setFormError(t('scheduling.opdFlow.validation.providerRequired'));
       return;
     }
-    const snapshot = await opdFlowCrud.assignDoctor(activeFlowId, {
+    const snapshot = await assignDoctor(activeFlowId, {
       provider_user_id: providerUserId,
     });
     if (!snapshot) return;
@@ -594,7 +606,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canAssignDoctor,
     isOffline,
     assignDraft.provider_user_id,
-    opdFlowCrud,
+    assignDoctor,
     applySnapshot,
     loadFlowList,
     t,
@@ -692,7 +704,7 @@ const useOpdFlowWorkbenchScreen = () => {
       notes: sanitizeString(reviewDraft.notes) || undefined,
     };
 
-    const snapshot = await opdFlowCrud.doctorReview(activeFlowId, payload);
+    const snapshot = await doctorReview(activeFlowId, payload);
     if (!snapshot) return;
     applySnapshot(snapshot, { pushRoute: false });
     await loadFlowList();
@@ -701,7 +713,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canDoctorReview,
     isOffline,
     reviewDraft,
-    opdFlowCrud,
+    doctorReview,
     applySnapshot,
     loadFlowList,
     t,
@@ -724,7 +736,7 @@ const useOpdFlowWorkbenchScreen = () => {
       admission_facility_id: sanitizeString(dispositionDraft.admission_facility_id) || undefined,
       notes: sanitizeString(dispositionDraft.notes) || undefined,
     };
-    const snapshot = await opdFlowCrud.disposition(activeFlowId, payload);
+    const snapshot = await disposition(activeFlowId, payload);
     if (!snapshot) return;
     applySnapshot(snapshot, { pushRoute: false });
     await loadFlowList();
@@ -733,7 +745,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canDisposition,
     isOffline,
     dispositionDraft,
-    opdFlowCrud,
+    disposition,
     applySnapshot,
     loadFlowList,
     t,
@@ -762,10 +774,10 @@ const useOpdFlowWorkbenchScreen = () => {
     canManageAllTenants,
     tenantId: normalizedTenantId || null,
     facilityId: normalizedFacilityId || null,
-    isLoading: !isResolved || opdFlowCrud.isLoading,
+    isLoading: !isResolved || isCrudLoading,
     isOffline,
-    hasError: Boolean(opdFlowCrud.errorCode),
-    errorCode: opdFlowCrud.errorCode,
+    hasError: Boolean(errorCode),
+    errorCode,
     errorMessage,
     isAccessDenied,
     isEntitlementBlocked,

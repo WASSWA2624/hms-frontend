@@ -132,6 +132,14 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
   });
 
+  it('does not continuously refetch the OPD flow list on stable renders', async () => {
+    const { rerender } = renderHook(() => useOpdFlowWorkbenchScreen());
+
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    rerender({});
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+  });
+
   it('redirects to dashboard when OPD route access is denied', async () => {
     useOpdFlowAccess.mockReturnValue({
       canAccessOpdFlow: false,
