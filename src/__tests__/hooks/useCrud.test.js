@@ -53,4 +53,57 @@ describe('useCrud', () => {
       expect(api.errorCode).toBe('UNAUTHORIZED');
     });
   });
+
+  it('keeps action handlers stable when action keys are unchanged', async () => {
+    const action = jest.fn().mockResolvedValue({ ok: true });
+    let api;
+
+    const { rerender } = render(
+      <TestComponent actions={{ list: action }} onResult={(value) => (api = value)} />
+    );
+
+    await waitFor(() => {
+      expect(typeof api.list).toBe('function');
+    });
+
+    const firstApiRef = api;
+    const firstListRef = api.list;
+
+    rerender(<TestComponent actions={{ list: action }} onResult={(value) => (api = value)} />);
+
+    await waitFor(() => {
+      expect(api).toBe(firstApiRef);
+      expect(api.list).toBe(firstListRef);
+    });
+  });
+
+  it('uses the latest action implementation behind stable handlers', async () => {
+    const firstAction = jest.fn().mockResolvedValue({ phase: 'first' });
+    const secondAction = jest.fn().mockResolvedValue({ phase: 'second' });
+    let api;
+
+    const { rerender } = render(
+      <TestComponent actions={{ list: firstAction }} onResult={(value) => (api = value)} />
+    );
+
+    await waitFor(() => {
+      expect(typeof api.list).toBe('function');
+    });
+
+    const stableListRef = api.list;
+    rerender(
+      <TestComponent actions={{ list: secondAction }} onResult={(value) => (api = value)} />
+    );
+
+    await waitFor(() => {
+      expect(api.list).toBe(stableListRef);
+    });
+
+    await act(async () => {
+      await api.list();
+    });
+
+    expect(secondAction).toHaveBeenCalledTimes(1);
+    expect(firstAction).toHaveBeenCalledTimes(0);
+  });
 });

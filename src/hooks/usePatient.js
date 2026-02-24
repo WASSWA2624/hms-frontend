@@ -42,10 +42,11 @@ const usePatient = () => {
     []
   );
 
-  return {
-    ...useCrud(actions),
-    ...relatedActions,
-  };
+  const api = useCrud(actions);
+  Object.keys(relatedActions).forEach((actionName) => {
+    api[actionName] = relatedActions[actionName];
+  });
+  return api;
 };
 
 export default usePatient;
