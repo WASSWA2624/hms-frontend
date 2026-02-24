@@ -82,6 +82,24 @@ const buildItemContext = (resourceId, item, baseContext) => {
 
   return baseContext;
 };
+
+const getSearchParamValue = (value) => (Array.isArray(value) ? value[0] : value);
+
+const buildSearchParamsSignature = (params = {}) => {
+  if (!params || typeof params !== 'object') return '';
+
+  return Object.keys(params)
+    .sort()
+    .map((key) => {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        return `${key}:${value.map((entry) => sanitizeString(entry)).join(',')}`;
+      }
+      return `${key}:${sanitizeString(value)}`;
+    })
+    .join('|');
+};
+
 const TABLE_MODE_BREAKPOINT = 768;
 const PREFS_STORAGE_PREFIX = 'hms.scheduling.resources.list.preferences';
 const MAX_FETCH_LIMIT = 100;
@@ -285,13 +303,40 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const searchParams = useLocalSearchParams();
-  const noticeValue = useMemo(
-    () => normalizeNoticeValue(searchParams?.notice),
+  const searchParamsSignature = useMemo(
+    () => buildSearchParamsSignature(searchParams),
     [searchParams]
   );
+  const patientParam = getSearchParamValue(searchParams?.patientId);
+  const providerUserParam = getSearchParamValue(searchParams?.providerUserId);
+  const scheduleParam = getSearchParamValue(searchParams?.scheduleId);
+  const appointmentParam = getSearchParamValue(searchParams?.appointmentId);
+  const statusParam = getSearchParamValue(searchParams?.status);
+  const dayOfWeekParam = getSearchParamValue(searchParams?.dayOfWeek);
+  const isAvailableParam = getSearchParamValue(searchParams?.isAvailable);
+  const noticeValue = useMemo(
+    () => normalizeNoticeValue(searchParams?.notice),
+    [searchParamsSignature]
+  );
   const schedulingContext = useMemo(
-    () => normalizeSchedulingContext(searchParams),
-    [searchParams]
+    () => normalizeSchedulingContext({
+      patientId: patientParam,
+      providerUserId: providerUserParam,
+      scheduleId: scheduleParam,
+      appointmentId: appointmentParam,
+      status: statusParam,
+      dayOfWeek: dayOfWeekParam,
+      isAvailable: isAvailableParam,
+    }),
+    [
+      patientParam,
+      providerUserParam,
+      scheduleParam,
+      appointmentParam,
+      statusParam,
+      dayOfWeekParam,
+      isAvailableParam,
+    ]
   );
   const { isOffline } = useNetwork();
   const {
@@ -339,6 +384,8 @@ const useSchedulingResourceListScreen = (resourceId) => {
     canCreateSchedulingRecords
       && config?.supportsCreate !== false
   );
+  const hasRequiredContext = !config?.requiresPatientContext
+    || Boolean(normalizeValue(schedulingContext?.patientId));
   const canEdit = Boolean(
     canEditSchedulingRecords
       && config?.supportsEdit !== false

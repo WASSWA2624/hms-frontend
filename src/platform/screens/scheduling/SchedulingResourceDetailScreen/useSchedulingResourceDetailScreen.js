@@ -34,7 +34,8 @@ const useSchedulingResourceDetailScreen = (resourceId) => {
   const statusParam = getSearchParamValue(searchParams?.status);
   const dayOfWeekParam = getSearchParamValue(searchParams?.dayOfWeek);
   const isAvailableParam = getSearchParamValue(searchParams?.isAvailable);
-  const routeRecordId = useMemo(() => normalizeRecordId(searchParams?.id), [searchParams?.id]);
+  const recordIdParam = getSearchParamValue(searchParams?.id);
+  const routeRecordId = useMemo(() => normalizeRecordId(recordIdParam), [recordIdParam]);
   const context = useMemo(
     () => normalizeSchedulingContext({
       patientId: patientParam,

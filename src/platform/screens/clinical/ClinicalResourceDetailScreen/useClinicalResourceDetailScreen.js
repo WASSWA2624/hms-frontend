@@ -19,13 +19,38 @@ import {
   resolveErrorMessage,
 } from '../ClinicalScreenUtils';
 
+const getSearchParamValue = (value) => (Array.isArray(value) ? value[0] : value);
+
+const buildSearchParamsSignature = (params = {}) => {
+  if (!params || typeof params !== 'object') return '';
+
+  return Object.keys(params)
+    .sort()
+    .map((key) => {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        return `${key}:${value.map((entry) => sanitizeString(entry)).join(',')}`;
+      }
+      return `${key}:${sanitizeString(value)}`;
+    })
+    .join('|');
+};
+
 const useClinicalResourceDetailScreen = (resourceId) => {
   const config = getClinicalResourceConfig(resourceId);
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
-  const routeRecordId = useMemo(() => normalizeRecordId(searchParams?.id), [searchParams?.id]);
-  const context = useMemo(() => normalizeClinicalContext(searchParams), [searchParams]);
+  const searchParamsSignature = useMemo(
+    () => buildSearchParamsSignature(searchParams),
+    [searchParams]
+  );
+  const recordIdParam = getSearchParamValue(searchParams?.id);
+  const routeRecordId = useMemo(() => normalizeRecordId(recordIdParam), [recordIdParam]);
+  const context = useMemo(
+    () => normalizeClinicalContext(searchParams),
+    [searchParamsSignature]
+  );
   const { isOffline } = useNetwork();
   const {
     canAccessClinical,

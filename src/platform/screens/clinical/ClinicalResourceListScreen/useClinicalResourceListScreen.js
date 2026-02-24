@@ -732,18 +732,40 @@ const buildItemContext = (resourceId, item, baseContext) => {
   return baseContext;
 };
 
+const getSearchParamValue = (value) => (Array.isArray(value) ? value[0] : value);
+
+const buildSearchParamsSignature = (params = {}) => {
+  if (!params || typeof params !== 'object') return '';
+
+  return Object.keys(params)
+    .sort()
+    .map((key) => {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        return `${key}:${value.map((entry) => sanitizeString(entry)).join(',')}`;
+      }
+      return `${key}:${sanitizeString(value)}`;
+    })
+    .join('|');
+};
+
 const useClinicalResourceListScreen = (resourceId) => {
   const config = getClinicalResourceConfig(resourceId);
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
-  const noticeValue = useMemo(
-    () => normalizeNoticeValue(searchParams?.notice),
+  const searchParamsSignature = useMemo(
+    () => buildSearchParamsSignature(searchParams),
     [searchParams]
+  );
+  const noticeParam = getSearchParamValue(searchParams?.notice);
+  const noticeValue = useMemo(
+    () => normalizeNoticeValue(noticeParam),
+    [noticeParam]
   );
   const context = useMemo(
     () => normalizeClinicalContext(searchParams),
-    [searchParams]
+    [searchParamsSignature]
   );
   const { isOffline } = useNetwork();
   const {
