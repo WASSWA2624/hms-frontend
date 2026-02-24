@@ -181,9 +181,9 @@ const resourceConfigs = {
     toPayload: (values) => ({
       first_name: sanitizeString(values.first_name),
       last_name: sanitizeString(values.last_name),
-      date_of_birth: toIsoDateTime(values.date_of_birth),
-      gender: sanitizeString(values.gender) || undefined,
-      facility_id: sanitizeString(values.facility_id) || undefined,
+      date_of_birth: toIsoDateTime(values.date_of_birth) || null,
+      gender: sanitizeString(values.gender) || null,
+      facility_id: sanitizeString(values.facility_id) || null,
       is_active: values.is_active !== false,
     }),
     detailRows: [
@@ -310,6 +310,17 @@ const resourceConfigs = {
         options: [
           { value: 'PHONE', labelKey: 'patients.resources.patientContacts.options.contactType.phone' },
           { value: 'EMAIL', labelKey: 'patients.resources.patientContacts.options.contactType.email' },
+          { value: 'WHATSAPP', labelKey: 'patients.resources.patientContacts.options.contactType.whatsapp' },
+          { value: 'TELEGRAM', labelKey: 'patients.resources.patientContacts.options.contactType.telegram' },
+          { value: 'TIKTOK', labelKey: 'patients.resources.patientContacts.options.contactType.tiktok' },
+          { value: 'INSTAGRAM', labelKey: 'patients.resources.patientContacts.options.contactType.instagram' },
+          { value: 'FACEBOOK', labelKey: 'patients.resources.patientContacts.options.contactType.facebook' },
+          { value: 'LINKEDIN', labelKey: 'patients.resources.patientContacts.options.contactType.linkedin' },
+          { value: 'X', labelKey: 'patients.resources.patientContacts.options.contactType.x' },
+          { value: 'YOUTUBE', labelKey: 'patients.resources.patientContacts.options.contactType.youtube' },
+          { value: 'PINTEREST', labelKey: 'patients.resources.patientContacts.options.contactType.pinterest' },
+          { value: 'REDDIT', labelKey: 'patients.resources.patientContacts.options.contactType.reddit' },
+          { value: 'DISCORD', labelKey: 'patients.resources.patientContacts.options.contactType.discord' },
           { value: 'FAX', labelKey: 'patients.resources.patientContacts.options.contactType.fax' },
           { value: 'OTHER', labelKey: 'patients.resources.patientContacts.options.contactType.other' },
         ],
@@ -389,7 +400,7 @@ const resourceConfigs = {
       },
       {
         name: 'phone',
-        type: 'text',
+        type: 'phone',
         required: false,
         maxLength: 40,
         labelKey: 'patients.resources.patientGuardians.form.phoneLabel',
@@ -425,9 +436,9 @@ const resourceConfigs = {
     }),
     toPayload: (values) => ({
       name: sanitizeString(values.name),
-      relationship: sanitizeString(values.relationship) || undefined,
-      phone: sanitizeString(values.phone) || undefined,
-      email: sanitizeString(values.email) || undefined,
+      relationship: sanitizeString(values.relationship) || null,
+      phone: sanitizeString(values.phone) || null,
+      email: sanitizeString(values.email) || null,
     }),
     detailRows: [
       { labelKey: 'patients.resources.patientGuardians.detail.idLabel', valueKey: 'id' },
@@ -527,8 +538,8 @@ const resourceConfigs = {
     toPayload: (values) => ({
       allergen: sanitizeString(values.allergen),
       severity: sanitizeString(values.severity),
-      reaction: sanitizeString(values.reaction) || undefined,
-      notes: sanitizeString(values.notes) || undefined,
+      reaction: sanitizeString(values.reaction) || null,
+      notes: sanitizeString(values.notes) || null,
     }),
     detailRows: [
       { labelKey: 'patients.resources.patientAllergies.detail.idLabel', valueKey: 'id' },
@@ -614,8 +625,8 @@ const resourceConfigs = {
     }),
     toPayload: (values) => ({
       condition: sanitizeString(values.condition),
-      diagnosis_date: toDateOnly(values.diagnosis_date) || undefined,
-      notes: sanitizeString(values.notes) || undefined,
+      diagnosis_date: toIsoDateTime(values.diagnosis_date) || null,
+      notes: sanitizeString(values.notes) || null,
     }),
     detailRows: [
       { labelKey: 'patients.resources.patientMedicalHistories.detail.idLabel', valueKey: 'id' },
@@ -713,8 +724,8 @@ const resourceConfigs = {
     toPayload: (values) => ({
       document_type: sanitizeString(values.document_type),
       storage_key: sanitizeString(values.storage_key),
-      file_name: sanitizeString(values.file_name) || undefined,
-      content_type: sanitizeString(values.content_type) || undefined,
+      file_name: sanitizeString(values.file_name) || null,
+      content_type: sanitizeString(values.content_type) || null,
     }),
     detailRows: [
       { labelKey: 'patients.resources.patientDocuments.detail.idLabel', valueKey: 'id' },
@@ -821,8 +832,8 @@ const resourceConfigs = {
     toPayload: (values) => ({
       consent_type: sanitizeString(values.consent_type),
       status: sanitizeString(values.status),
-      granted_at: toIsoDateTime(values.granted_at) || undefined,
-      revoked_at: toIsoDateTime(values.revoked_at) || undefined,
+      granted_at: toIsoDateTime(values.granted_at) || null,
+      revoked_at: toIsoDateTime(values.revoked_at) || null,
     }),
     detailRows: [
       { labelKey: 'patients.resources.consents.detail.idLabel', valueKey: 'id' },

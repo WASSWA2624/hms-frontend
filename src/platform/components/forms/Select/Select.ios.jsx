@@ -92,7 +92,7 @@ const SelectIOS = ({
   const {
     open,
     isFocused,
-    validationState: internalValidationState,
+    validationState: internalValidationState = VALIDATION_STATES.DEFAULT,
     errorMessage: internalErrorMessage,
     selectedOption,
     openSelect,
@@ -102,8 +102,12 @@ const SelectIOS = ({
     handleSelect,
   } = useSelect({ value, options: sanitizedOptions, onValueChange, required, validate });
 
-  const finalValidationState = validationState || (disabled ? VALIDATION_STATES.DISABLED : internalValidationState);
   const finalErrorMessage = errorMessage || internalErrorMessage;
+  const finalValidationState = validationState || (
+    disabled
+      ? VALIDATION_STATES.DISABLED
+      : (finalErrorMessage ? VALIDATION_STATES.ERROR : internalValidationState)
+  );
   const displayHelperText = finalErrorMessage || helperText;
 
   const triggerRef = useRef(null);

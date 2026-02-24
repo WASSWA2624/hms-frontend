@@ -9,7 +9,23 @@ import { humanizeIdentifier } from '@utils';
 
 const MAX_VALUE_LENGTH = 255;
 const MAX_REFERENCE_FETCH_LIMIT = 100;
-const CONTACT_TYPES = ['PHONE', 'EMAIL', 'FAX', 'OTHER'];
+const CONTACT_TYPES = [
+  'PHONE',
+  'EMAIL',
+  'WHATSAPP',
+  'TELEGRAM',
+  'TIKTOK',
+  'INSTAGRAM',
+  'FACEBOOK',
+  'LINKEDIN',
+  'X',
+  'YOUTUBE',
+  'PINTEREST',
+  'REDDIT',
+  'DISCORD',
+  'FAX',
+  'OTHER',
+];
 
 const resolveErrorMessage = (t, errorCode, fallbackKey) => {
   if (!errorCode) return null;

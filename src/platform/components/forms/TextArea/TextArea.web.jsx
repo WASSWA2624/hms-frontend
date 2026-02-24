@@ -42,7 +42,7 @@ const TextAreaWeb = ({
 }) => {
   const {
     value: internalValue,
-    validationState: internalValidationState,
+    validationState: internalValidationState = VALIDATION_STATES.DEFAULT,
     errorMessage: internalErrorMessage,
     isFocused,
     handleChange,
@@ -59,9 +59,12 @@ const TextAreaWeb = ({
     debounceMs,
   });
 
-  const finalValidationState =
-    validationState || (disabled ? VALIDATION_STATES.DISABLED : internalValidationState);
   const finalErrorMessage = errorMessage || internalErrorMessage;
+  const finalValidationState = validationState || (
+    disabled
+      ? VALIDATION_STATES.DISABLED
+      : (finalErrorMessage ? VALIDATION_STATES.ERROR : internalValidationState)
+  );
   const displayHelperText = finalErrorMessage || helperText;
 
   const inputId = testID ? `textarea-${testID}` : undefined;

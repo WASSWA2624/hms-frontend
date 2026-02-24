@@ -9,6 +9,8 @@ const mockPatientList = jest.fn();
 const mockPatientUpdate = jest.fn();
 const mockPatientRemove = jest.fn();
 const mockPatientReset = jest.fn();
+const mockListFacilities = jest.fn();
+const mockResetFacilities = jest.fn();
 
 const mockListIdentifiers = jest.fn();
 const mockCreateIdentifiers = jest.fn();
@@ -52,6 +54,7 @@ jest.mock('@hooks', () => ({
     return key;
   } })),
   useNetwork: jest.fn(() => ({ isOffline: false })),
+  useFacility: jest.fn(),
   usePatient: jest.fn(),
   usePatientAccess: jest.fn(),
 }));
@@ -71,7 +74,7 @@ jest.mock('@utils', () => {
 });
 
 const usePatientDetailsScreen = require('@platform/screens/patients/PatientDetailsScreen/usePatientDetailsScreen').default;
-const { usePatient, usePatientAccess } = require('@hooks');
+const { useFacility, usePatient, usePatientAccess } = require('@hooks');
 const usePatientIdentifier = require('@hooks/usePatientIdentifier');
 const usePatientContact = require('@hooks/usePatientContact');
 const usePatientGuardian = require('@hooks/usePatientGuardian');
@@ -104,7 +107,16 @@ describe('usePatientDetailsScreen', () => {
       canDeletePatientRecords: true,
       canManageAllTenants: false,
       tenantId: 'tenant-1',
+      facilityId: 'facility-1',
       isResolved: true,
+    });
+
+    useFacility.mockReturnValue({
+      list: mockListFacilities,
+      reset: mockResetFacilities,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
     });
 
     usePatient.mockReturnValue({

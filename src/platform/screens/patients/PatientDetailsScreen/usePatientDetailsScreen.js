@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
+import {
+  useFacility,
+  useI18n,
+  useNetwork,
+  usePatient,
+  usePatientAccess,
+} from '@hooks';
 import { confirmAction } from '@utils';
 import useAddress from '@hooks/useAddress';
 import usePatientContact from '@hooks/usePatientContact';
@@ -40,6 +46,14 @@ const EMPTY_NOTICE_STATE = Object.freeze({ message: '', variant: 'info' });
 const EMPTY_RESOURCE_DELETE_STATE = Object.freeze({ resourceKey: '', recordId: '' });
 
 const sanitizeString = (value) => String(value || '').trim();
+const parseOptionalNumber = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return null;
+
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed;
+};
 
 const normalizeRouteTabKey = (value) => {
   const normalized = sanitizeString(value).toLowerCase();
@@ -66,6 +80,21 @@ const resolveItems = (value) => {
     return [value];
   }
   return [];
+};
+
+const resolveFacilityLabel = (facility, fallbackLabel) => (
+  sanitizeString(facility?.name)
+  || sanitizeString(facility?.human_friendly_id)
+  || sanitizeString(facility?.facility_code)
+  || sanitizeString(fallbackLabel)
+);
+
+const hasOptionValue = (options, value) => {
+  const normalizedValue = sanitizeString(value);
+  if (!normalizedValue) return false;
+  return (options || []).some((option) => (
+    sanitizeString(option?.value) === normalizedValue
+  ));
 };
 
 const validateValues = (fields, values, t) => {
@@ -95,17 +124,36 @@ const validateValues = (fields, values, t) => {
       && !DATE_ONLY_REGEX.test(normalized)
     ) {
       errors[field.name] = t('patients.common.form.dateFormat');
+      return;
+    }
+
+    if (field.type === 'number' && typeof normalized === 'string' && normalized) {
+      const numericValue = Number(normalized);
+      if (!Number.isFinite(numericValue)) {
+        errors[field.name] = t('patients.common.form.invalidNumber');
+        return;
+      }
+
+      if (typeof field.min === 'number' && numericValue < field.min) {
+        errors[field.name] = t('patients.common.form.minValue', { min: field.min });
+        return;
+      }
+
+      if (typeof field.max === 'number' && numericValue > field.max) {
+        errors[field.name] = t('patients.common.form.maxValue', { max: field.max });
+      }
     }
   });
 
   return errors;
 };
 
-const resolvePatientSummaryValues = (patient) => ({
+const resolvePatientSummaryValues = (patient, fallbackFacilityId = '') => ({
   first_name: sanitizeString(patient?.first_name),
   last_name: sanitizeString(patient?.last_name),
   date_of_birth: sanitizeString(patient?.date_of_birth).slice(0, 10),
   gender: sanitizeString(patient?.gender),
+  facility_id: sanitizeString(patient?.facility_id || fallbackFacilityId),
   is_active: patient?.is_active !== false,
 });
 
@@ -201,6 +249,26 @@ const ADDRESS_RESOURCE_CONFIG = Object.freeze({
       placeholderKey: 'address.form.countryPlaceholder',
       hintKey: 'address.form.countryHint',
     },
+    {
+      name: 'latitude',
+      type: 'number',
+      required: false,
+      labelKey: 'address.form.latitudeLabel',
+      placeholderKey: 'address.form.latitudePlaceholder',
+      hintKey: 'address.form.latitudeHint',
+      min: -90,
+      max: 90,
+    },
+    {
+      name: 'longitude',
+      type: 'number',
+      required: false,
+      labelKey: 'address.form.longitudeLabel',
+      placeholderKey: 'address.form.longitudePlaceholder',
+      hintKey: 'address.form.longitudeHint',
+      min: -180,
+      max: 180,
+    },
   ],
   getInitialValues: (record) => ({
     address_type: sanitizeString(record?.address_type),
@@ -210,15 +278,19 @@ const ADDRESS_RESOURCE_CONFIG = Object.freeze({
     state: sanitizeString(record?.state),
     postal_code: sanitizeString(record?.postal_code),
     country: sanitizeString(record?.country),
+    latitude: sanitizeString(record?.latitude),
+    longitude: sanitizeString(record?.longitude),
   }),
   toPayload: (values) => ({
     address_type: sanitizeString(values.address_type),
     line1: sanitizeString(values.line1),
-    line2: sanitizeString(values.line2) || undefined,
-    city: sanitizeString(values.city) || undefined,
-    state: sanitizeString(values.state) || undefined,
-    postal_code: sanitizeString(values.postal_code) || undefined,
-    country: sanitizeString(values.country) || undefined,
+    line2: sanitizeString(values.line2) || null,
+    city: sanitizeString(values.city) || null,
+    state: sanitizeString(values.state) || null,
+    postal_code: sanitizeString(values.postal_code) || null,
+    country: sanitizeString(values.country) || null,
+    latitude: parseOptionalNumber(values.latitude),
+    longitude: parseOptionalNumber(values.longitude),
   }),
   getItemTitle: (item, t) => sanitizeString(item?.line1 || item?.line_1) || t('address.list.unnamed'),
   getItemSubtitle: (item) => [
@@ -241,10 +313,12 @@ const usePatientDetailsScreen = () => {
     canDeletePatientRecords,
     canManageAllTenants,
     tenantId,
+    facilityId,
     isResolved,
   } = usePatientAccess();
 
   const patientCrud = usePatient();
+  const facilityCrud = useFacility();
   const addressCrud = useAddress();
   const identifierCrud = usePatientIdentifier();
   const contactCrud = usePatientContact();
@@ -259,6 +333,14 @@ const usePatientDetailsScreen = () => {
     remove: removePatientRecord,
     reset: resetPatientRecord,
   } = patientCrud;
+
+  const {
+    data: facilityData,
+    isLoading: isFacilityLoading,
+    errorCode: facilityErrorCode,
+    list: listFacilities,
+    reset: resetFacilities,
+  } = facilityCrud;
 
   const {
     data: identifierData,
@@ -319,6 +401,7 @@ const usePatientDetailsScreen = () => {
   const routeTabKey = normalizeRouteTabKey(getScalarParam(searchParams?.tab));
   const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
+  const normalizedFacilityId = sanitizeString(facilityId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
   const patient = useMemo(
@@ -536,6 +619,31 @@ const usePatientDetailsScreen = () => {
   }, [loadInitialData]);
 
   useEffect(() => {
+    const tenantForFacilityList = sanitizeString(patient?.tenant_id) || normalizedTenantId;
+    if (!tenantForFacilityList || isOffline || !canAccessPatients || !hasScope) {
+      resetFacilities();
+      return;
+    }
+
+    resetFacilities();
+    listFacilities({
+      page: 1,
+      limit: 100,
+      sort_by: 'name',
+      order: 'asc',
+      tenant_id: tenantForFacilityList,
+    });
+  }, [
+    patient?.tenant_id,
+    normalizedTenantId,
+    isOffline,
+    canAccessPatients,
+    hasScope,
+    listFacilities,
+    resetFacilities,
+  ]);
+
+  useEffect(() => {
     setResolvedPatientId('');
   }, [routePatientId]);
 
@@ -545,17 +653,77 @@ const usePatientDetailsScreen = () => {
   }, [routePatientId]);
 
   const [isSummaryEditMode, setIsSummaryEditMode] = useState(false);
-  const [summaryValues, setSummaryValues] = useState(resolvePatientSummaryValues(patient));
+  const [summaryValues, setSummaryValues] = useState(
+    resolvePatientSummaryValues(patient, normalizedFacilityId)
+  );
   const [summaryErrors, setSummaryErrors] = useState({});
   const [isSavingSummary, setIsSavingSummary] = useState(false);
   const [isDeletingPatient, setIsDeletingPatient] = useState(false);
   const [noticeState, setNoticeState] = useState(EMPTY_NOTICE_STATE);
   const [isRetrying, setIsRetrying] = useState(false);
 
+  const summaryFacilityOptions = useMemo(
+    () => {
+      const options = resolveItems(facilityData).map((facility, index) => ({
+        value: sanitizeString(facility?.id),
+        label: resolveFacilityLabel(
+          facility,
+          t('patients.common.form.unnamedFacility', { position: index + 1 })
+        ),
+      }));
+
+      const selectedFacilityId = sanitizeString(
+        summaryValues?.facility_id
+        || patient?.facility_id
+        || normalizedFacilityId
+      );
+      if (selectedFacilityId && !hasOptionValue(options, selectedFacilityId)) {
+        options.unshift({
+          value: selectedFacilityId,
+          label: resolveFacilityLabel(
+            {
+              id: selectedFacilityId,
+              name: patient?.facility_label || patient?.facility_name,
+              human_friendly_id: patient?.facility_human_friendly_id,
+            },
+            selectedFacilityId
+          ),
+        });
+      }
+
+      return [
+        {
+          value: '',
+          label: t('patients.resources.patients.form.facilityPlaceholder'),
+        },
+        ...options,
+      ];
+    },
+    [
+      facilityData,
+      t,
+      summaryValues?.facility_id,
+      patient?.facility_id,
+      patient?.facility_label,
+      patient?.facility_name,
+      patient?.facility_human_friendly_id,
+      normalizedFacilityId,
+    ]
+  );
+
+  const summaryFacilityErrorMessage = useMemo(
+    () => (
+      facilityErrorCode
+        ? resolveErrorMessage(t, facilityErrorCode, 'patients.common.form.facilityLoadErrorMessage')
+        : ''
+    ),
+    [facilityErrorCode, t]
+  );
+
   useEffect(() => {
-    setSummaryValues(resolvePatientSummaryValues(patient));
+    setSummaryValues(resolvePatientSummaryValues(patient, normalizedFacilityId));
     setSummaryErrors({});
-  }, [patient]);
+  }, [patient, normalizedFacilityId]);
 
   useEffect(() => {
     if (!canManagePatientRecords) {
@@ -880,9 +1048,9 @@ const usePatientDetailsScreen = () => {
 
   const onCancelSummaryEdit = useCallback(() => {
     setSummaryErrors({});
-    setSummaryValues(resolvePatientSummaryValues(patient));
+    setSummaryValues(resolvePatientSummaryValues(patient, normalizedFacilityId));
     setIsSummaryEditMode(false);
-  }, [patient]);
+  }, [patient, normalizedFacilityId]);
 
   const onSaveSummary = useCallback(async () => {
     if (!canManagePatientRecords || !resolvedPatientId) return;
@@ -897,6 +1065,16 @@ const usePatientDetailsScreen = () => {
       summaryValues,
       t
     );
+
+    const normalizedSummaryFacilityId = sanitizeString(summaryValues.facility_id);
+    if (
+      normalizedSummaryFacilityId
+      && summaryFacilityOptions.length > 0
+      && !hasOptionValue(summaryFacilityOptions, normalizedSummaryFacilityId)
+    ) {
+      nextErrors.facility_id = t('patients.common.form.invalidFacilitySelection');
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setSummaryErrors(nextErrors);
       return;
@@ -910,8 +1088,9 @@ const usePatientDetailsScreen = () => {
         last_name: sanitizeString(summaryValues.last_name),
         date_of_birth: sanitizeString(summaryValues.date_of_birth)
           ? `${sanitizeString(summaryValues.date_of_birth)}T00:00:00.000Z`
-          : undefined,
-        gender: sanitizeString(summaryValues.gender) || undefined,
+          : null,
+        gender: sanitizeString(summaryValues.gender) || null,
+        facility_id: sanitizeString(summaryValues.facility_id) || null,
         is_active: summaryValues.is_active !== false,
       };
 
@@ -934,6 +1113,7 @@ const usePatientDetailsScreen = () => {
     canManagePatientRecords,
     resolvedPatientId,
     summaryValues,
+    summaryFacilityOptions,
     t,
     updatePatientRecord,
     refreshWorkspaceData,
@@ -970,6 +1150,7 @@ const usePatientDetailsScreen = () => {
       resetContacts();
       resetAddresses();
       resetDocuments();
+      resetFacilities();
 
       setActionNotice(t('patients.workspace.state.patientDeletedSuccess'), 'success');
     } finally {
@@ -985,6 +1166,7 @@ const usePatientDetailsScreen = () => {
     resetContacts,
     resetAddresses,
     resetDocuments,
+    resetFacilities,
     t,
     isDeletingPatient,
     patientErrorCode,
@@ -1137,6 +1319,9 @@ const usePatientDetailsScreen = () => {
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
+    summaryFacilityOptions,
+    isSummaryFacilityLoading: isFacilityLoading,
+    summaryFacilityErrorMessage,
     isSavingSummary,
     isDeletingPatient,
     activeResourceSubmitKey,

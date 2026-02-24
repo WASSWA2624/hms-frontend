@@ -11,6 +11,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  PhoneField,
   Select,
   Text,
   TextField,
@@ -334,17 +335,17 @@ const UserFormScreenWeb = () => {
             </StyledFieldGroup>
 
             <StyledFieldGroup>
-              <TextField
+              <PhoneField
                 label={t('user.form.phoneLabel')}
                 placeholder={t('user.form.phonePlaceholder')}
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                type="tel"
+                onValueChange={setPhone}
                 accessibilityLabel={t('user.form.phoneLabel')}
                 accessibilityHint={t('user.form.phoneHint')}
                 errorMessage={phoneError}
                 helperText={phoneHelperText}
                 maxLength={40}
+                compact
                 density="compact"
                 disabled={isFormDisabled}
                 testID="user-form-phone"

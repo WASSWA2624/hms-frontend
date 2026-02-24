@@ -12,6 +12,7 @@ import {
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
+  PhoneField,
   Snackbar,
   Select,
   Switch,
@@ -217,6 +218,13 @@ const resolveFieldHint = (field, t) => resolveTranslation(t, field?.hintKey, '')
 
 const resolveFieldPlaceholder = (field, t) => resolveTranslation(t, field?.placeholderKey, '');
 
+const renderRequiredFieldLabel = (label, required = false) => (
+  <Text variant="label">
+    {label}
+    {required ? <Text variant="label" color="error">{' *'}</Text> : null}
+  </Text>
+);
+
 const resolveSelectOptions = (field, t) => (
   (field?.options || []).map((option) => ({
     value: sanitizeString(option?.value),
@@ -299,6 +307,9 @@ const PatientDetailsScreen = () => {
     isSummaryEditMode,
     summaryValues,
     summaryErrors,
+    summaryFacilityOptions = [],
+    isSummaryFacilityLoading = false,
+    summaryFacilityErrorMessage = '',
     isSavingSummary = false,
     isDeletingPatient = false,
     activeResourceSubmitKey = '',
@@ -571,6 +582,23 @@ const PatientDetailsScreen = () => {
         </StyledFieldBlock>
 
         <StyledFieldBlock>
+          <Text variant="label">{t('patients.resources.patients.form.facilityLabel')}</Text>
+          <Select
+            value={summaryValues.facility_id || ''}
+            options={summaryFacilityOptions}
+            onValueChange={(value) => onSummaryFieldChange('facility_id', value)}
+            helperText={(
+              summaryErrors.facility_id
+              || sanitizeString(summaryFacilityErrorMessage)
+              || t('patients.resources.patients.form.facilityHint')
+            )}
+            errorMessage={summaryErrors.facility_id}
+            compact
+            disabled={isSavingSummary || isSummaryFacilityLoading}
+          />
+        </StyledFieldBlock>
+
+        <StyledFieldBlock>
           <Switch
             value={Boolean(summaryValues.is_active)}
             onValueChange={(value) => onSummaryFieldChange('is_active', value)}
@@ -615,6 +643,8 @@ const PatientDetailsScreen = () => {
     const label = resolveFieldLabel(field, t);
     const hint = resolveFieldHint(field, t);
     const placeholder = resolveFieldPlaceholder(field, t);
+    const isRequired = Boolean(field?.required);
+    const inputType = field?.type === 'number' ? 'number' : 'text';
 
     if (field?.type === 'switch') {
       return (
@@ -625,7 +655,7 @@ const PatientDetailsScreen = () => {
             label={label}
             disabled={isDisabled}
           />
-          {errorMessage ? <Text variant="caption">{errorMessage}</Text> : null}
+          {errorMessage ? <Text variant="caption" color="error">{errorMessage}</Text> : null}
         </StyledFieldBlock>
       );
     }
@@ -633,13 +663,14 @@ const PatientDetailsScreen = () => {
     if (field?.type === 'select') {
       return (
         <StyledFieldBlock key={fieldName}>
-          <Text variant="label">{label}</Text>
+          {renderRequiredFieldLabel(label, isRequired)}
           <Select
             value={sanitizeString(value)}
             options={resolveSelectOptions(field, t)}
             onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
+            required={isRequired}
             placeholder={placeholder}
             compact
             testID={`${sectionTestID}-field-${fieldName}`}
@@ -652,12 +683,13 @@ const PatientDetailsScreen = () => {
     if (field?.type === 'country' || fieldName === 'country') {
       return (
         <StyledFieldBlock key={fieldName}>
-          <Text variant="label">{label}</Text>
+          {renderRequiredFieldLabel(label, isRequired)}
           <CountrySelectField
             value={sanitizeString(value)}
             onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
+            required={isRequired}
             placeholder={placeholder}
             compact
             testID={`${sectionTestID}-field-${fieldName}`}
@@ -670,13 +702,35 @@ const PatientDetailsScreen = () => {
     if (isDateField(fieldName, field?.type)) {
       return (
         <StyledFieldBlock key={fieldName}>
-          <Text variant="label">{label}</Text>
+          {renderRequiredFieldLabel(label, isRequired)}
           <GlobalSmartDateField
             value={sanitizeString(value)}
             onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
             helperText={errorMessage || hint}
             errorMessage={errorMessage}
+            required={isRequired}
             placeholder={placeholder}
+            density="compact"
+            testID={`${sectionTestID}-field-${fieldName}`}
+            disabled={isDisabled}
+          />
+        </StyledFieldBlock>
+      );
+    }
+
+    if (field?.type === 'phone') {
+      return (
+        <StyledFieldBlock key={fieldName}>
+          {renderRequiredFieldLabel(label, isRequired)}
+          <PhoneField
+            value={sanitizeString(value)}
+            onValueChange={(nextValue) => onResourceFieldChange(resourceKey, fieldName, nextValue)}
+            helperText={errorMessage || hint}
+            errorMessage={errorMessage}
+            required={isRequired}
+            placeholder={placeholder}
+            maxLength={field?.maxLength}
+            compact
             density="compact"
             testID={`${sectionTestID}-field-${fieldName}`}
             disabled={isDisabled}
@@ -687,12 +741,14 @@ const PatientDetailsScreen = () => {
 
     return (
       <StyledFieldBlock key={fieldName}>
-        <Text variant="label">{label}</Text>
+        {renderRequiredFieldLabel(label, isRequired)}
         <TextField
           value={sanitizeString(value)}
           onChange={(event) => onResourceFieldChange(resourceKey, fieldName, resolveTextValue(event))}
           helperText={errorMessage || hint}
           errorMessage={errorMessage}
+          required={isRequired}
+          type={inputType}
           placeholder={placeholder}
           maxLength={field?.maxLength}
           density="compact"
