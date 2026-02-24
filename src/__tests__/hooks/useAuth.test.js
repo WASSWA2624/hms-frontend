@@ -79,7 +79,7 @@ describe('useAuth', () => {
     );
     expect(result.isAuthenticated).toBe(true);
     expect(result.user).toMatchObject({ id: '1' });
-    expect(result.roles).toEqual(['patient', 'admin']);
+    expect(result.roles).toEqual(['patient', 'tenant_admin']);
     expect(result.role).toBe('patient');
     expect(result.isLoading).toBe(false);
     expect(result.errorCode).toBeNull();
@@ -130,7 +130,7 @@ describe('useAuth', () => {
         <TestComponent onResult={(value) => (result = value)} />
       </Provider>
     );
-    expect(result.roles).toEqual(['tenant_admin', 'admin', 'app_admin', 'super_admin']);
+    expect(result.roles).toEqual(['tenant_admin', 'super_admin']);
     expect(result.role).toBe('tenant_admin');
   });
 });

@@ -3,9 +3,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useClinicalAccess } from '@hooks';
+import { useI18n, useNetwork, useScopeAccess } from '@hooks';
 import {
   getClinicalResourceConfig,
+  resolveClinicalResourceScope,
   sanitizeString,
   CLINICAL_ROUTE_ROOT,
   withClinicalContext,
@@ -37,6 +38,10 @@ const buildSearchParamsSignature = (params = {}) => {
 
 const useClinicalResourceFormScreen = (resourceId) => {
   const config = getClinicalResourceConfig(resourceId);
+  const resolvedScope = useMemo(
+    () => resolveClinicalResourceScope(resourceId),
+    [resourceId]
+  );
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
@@ -53,14 +58,15 @@ const useClinicalResourceFormScreen = (resourceId) => {
     [searchParamsSignature]
   );
   const {
-    canAccessClinical,
-    canCreateClinicalRecords,
-    canEditClinicalRecords,
+    canRead: canAccessClinical,
+    canWrite: canManageClinicalRecords,
     canManageAllTenants,
     tenantId,
     facilityId,
     isResolved,
-  } = useClinicalAccess();
+  } = useScopeAccess(resolvedScope);
+  const canCreateClinicalRecords = canManageClinicalRecords;
+  const canEditClinicalRecords = canManageClinicalRecords;
 
   const { get, create, update, data, isLoading, errorCode, reset } = useClinicalResourceCrud(resourceId);
 

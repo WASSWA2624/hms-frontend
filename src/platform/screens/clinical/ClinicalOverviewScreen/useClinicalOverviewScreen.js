@@ -3,7 +3,7 @@
  */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { useI18n, useNetwork, useClinicalAccess } from '@hooks';
+import { useI18n, useNetwork, useScopeAccess } from '@hooks';
 import {
   BILLING_RESOURCE_LIST_ORDER,
   BIOMEDICAL_RESOURCE_LIST_ORDER,
@@ -25,6 +25,7 @@ import {
   SUBSCRIPTIONS_RESOURCE_LIST_ORDER,
   THEATRE_RESOURCE_LIST_ORDER,
   getClinicalResourceConfig,
+  resolveClinicalOverviewScope,
   sanitizeString,
   withClinicalContext,
 } from '../ClinicalResourceConfigs';
@@ -268,14 +269,15 @@ const useClinicalOverviewScreen = (scope = 'clinical') => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
+  const resolvedScope = useMemo(() => resolveClinicalOverviewScope(scope), [scope]);
   const {
-    canAccessClinical,
-    canCreateClinicalRecords,
+    canRead: canAccessClinical,
+    canWrite: canCreateClinicalRecords,
     canManageAllTenants,
     tenantId,
     facilityId,
     isResolved,
-  } = useClinicalAccess();
+  } = useScopeAccess(resolvedScope);
 
   const overviewConfig = useMemo(() => resolveOverviewConfig(scope), [scope]);
   const primaryConfig = useMemo(

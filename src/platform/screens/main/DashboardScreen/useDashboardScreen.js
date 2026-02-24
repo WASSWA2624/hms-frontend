@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth, useNavigationVisibility, useNetwork } from '@hooks';
+import { ROLE_KEYS, SCOPE_KEYS, getScopeRoleKeys } from '@config/accessPolicy';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { STATES } from './types';
@@ -267,46 +268,53 @@ const ONBOARDING_CHECKLIST = [
   },
 ];
 
+const PATIENT_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.PATIENTS, 'write');
+const SCHEDULING_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.SCHEDULING, 'write');
+const BILLING_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.BILLING, 'write');
+const IPD_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.IPD, 'write');
+const LAB_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.LAB, 'write');
+const PHARMACY_WRITE_ROLES = getScopeRoleKeys(SCOPE_KEYS.PHARMACY, 'write');
+
 const QUICK_ACTIONS = [
   {
     id: 'newPatient',
     labelKey: 'home.quickActions.items.newPatient',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
+    roles: PATIENT_WRITE_ROLES,
     supported: true,
     path: '/patients/patients/create',
   },
   {
     id: 'appointment',
     labelKey: 'home.quickActions.items.appointment',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'RECEPTIONIST'],
+    roles: SCHEDULING_WRITE_ROLES,
     supported: true,
     path: '/scheduling/appointments/create',
   },
   {
     id: 'invoice',
     labelKey: 'home.quickActions.items.invoice',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'CASHIER', 'BILLING'],
+    roles: BILLING_WRITE_ROLES,
     supported: true,
     path: '/billing/invoices/create',
   },
   {
     id: 'admit',
     labelKey: 'home.quickActions.items.admit',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE'],
+    roles: IPD_WRITE_ROLES,
     supported: true,
     path: '/ipd/admissions/create',
   },
   {
     id: 'labTest',
     labelKey: 'home.quickActions.items.labTest',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'DOCTOR', 'NURSE', 'LAB_TECH'],
+    roles: LAB_WRITE_ROLES,
     supported: true,
     path: '/diagnostics/lab/lab-orders/create',
   },
   {
     id: 'sale',
     labelKey: 'home.quickActions.items.sale',
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN', 'PHARMACIST', 'CASHIER'],
+    roles: [...PHARMACY_WRITE_ROLES, ROLE_KEYS.BILLING],
     supported: true,
     path: '/pharmacy/pharmacy-orders/create',
   },

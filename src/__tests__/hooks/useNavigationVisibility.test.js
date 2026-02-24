@@ -1,10 +1,7 @@
-/**
- * useNavigationVisibility Hook Tests
- * File: useNavigationVisibility.test.js
- */
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import useNavigationVisibility from '@hooks/useNavigationVisibility';
+import { MAIN_NAV_ITEMS, PATIENT_MENU_ITEMS } from '@config/sideMenu';
 
 jest.mock('@hooks/useAuth', () => ({
   __esModule: true,
@@ -16,8 +13,14 @@ jest.mock('@hooks/useResolvedRoles', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('@hooks/usePatientAccess', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 const useAuth = require('@hooks/useAuth').default;
 const useResolvedRoles = require('@hooks/useResolvedRoles').default;
+const usePatientAccess = require('@hooks/usePatientAccess').default;
 
 const TestComponent = ({ onResult }) => {
   const result = useNavigationVisibility();
@@ -27,11 +30,17 @@ const TestComponent = ({ onResult }) => {
   return null;
 };
 
+const findMainItem = (id) => MAIN_NAV_ITEMS.find((item) => item.id === id);
+
 describe('useNavigationVisibility', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useAuth.mockReturnValue({ isAuthenticated: true });
-    useResolvedRoles.mockReturnValue({ roles: ['app_admin'], isResolved: true });
+    useResolvedRoles.mockReturnValue({ roles: ['SUPER_ADMIN'], isResolved: true });
+    usePatientAccess.mockReturnValue({
+      canAccessPatients: true,
+      canAccessPatientLegalHub: true,
+    });
   });
 
   it('returns visible for authenticated users on unrestricted items', () => {
@@ -48,20 +57,14 @@ describe('useNavigationVisibility', () => {
     expect(result.isItemVisible({ id: 'home' })).toBe(false);
   });
 
-  it('shows role-restricted item when roles match (case-insensitive)', () => {
-    useResolvedRoles.mockReturnValue({ roles: ['super_admin'], isResolved: true });
+  it('normalizes legacy alias roles for visibility checks', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['FRONT_DESK'], isResolved: true });
 
     let result;
     render(<TestComponent onResult={(value) => (result = value)} />);
-    expect(result.isItemVisible({ id: 'settings-tenants', roles: ['SUPER_ADMIN'] })).toBe(true);
-  });
 
-  it('hides role-restricted item when roles do not match', () => {
-    useResolvedRoles.mockReturnValue({ roles: ['tenant_admin'], isResolved: true });
-
-    let result;
-    render(<TestComponent onResult={(value) => (result = value)} />);
-    expect(result.isItemVisible({ id: 'settings-tenants', roles: ['APP_ADMIN'] })).toBe(false);
+    const schedulingItem = findMainItem('scheduling');
+    expect(result.isItemVisible(schedulingItem)).toBe(true);
   });
 
   it('hides role-restricted item while roles are unresolved', () => {
@@ -69,28 +72,60 @@ describe('useNavigationVisibility', () => {
 
     let result;
     render(<TestComponent onResult={(value) => (result = value)} />);
-    expect(result.isItemVisible({ id: 'settings-tenants', roles: ['APP_ADMIN'] })).toBe(false);
-    expect(result.isItemVisible({ id: 'dashboard' })).toBe(true);
+
+    expect(result.isItemVisible(findMainItem('settings'))).toBe(false);
   });
 
-  it('hides facilities item for non-admin roles and shows for scoped admins', () => {
-    let result;
-    useResolvedRoles.mockReturnValue({ roles: ['user'], isResolved: true });
-    render(<TestComponent onResult={(value) => (result = value)} />);
-    expect(
-      result.isItemVisible({
-        id: 'settings-facilities',
-        roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
-      })
-    ).toBe(false);
+  it('shows LAB_TECH diagnostics domains but hides billing/hr/settings', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['LAB_TECH'], isResolved: true });
 
-    useResolvedRoles.mockReturnValue({ roles: ['admin'], isResolved: true });
+    let result;
     render(<TestComponent onResult={(value) => (result = value)} />);
-    expect(
-      result.isItemVisible({
-        id: 'settings-facilities',
-        roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
-      })
-    ).toBe(true);
+
+    expect(result.isItemVisible(findMainItem('lab'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('radiology'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('billing'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('hr'))).toBe(false);
+    expect(result.isItemVisible(findMainItem('settings'))).toBe(false);
+  });
+
+  it('shows housekeeping to HOUSE_KEEPER but hides biomedical', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['HOUSE_KEEPER'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('housekeeping'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('biomedical'))).toBe(false);
+  });
+
+  it('shows biomedical to BIOMED and hides housekeeping service domain', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['BIOMED'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('biomedical'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('housekeeping'))).toBe(false);
+  });
+
+  it('shows billing to BILLING and hides clinical domain', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['BILLING'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('billing'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('clinical'))).toBe(false);
+  });
+
+  it('shows only patient portal menu items for PATIENT role', () => {
+    useResolvedRoles.mockReturnValue({ roles: ['PATIENT'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('dashboard'))).toBe(false);
+    expect(result.isItemVisible(PATIENT_MENU_ITEMS[0])).toBe(true);
   });
 });

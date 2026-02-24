@@ -1,17 +1,7 @@
 import { CLINICAL_ITEMS, SCHEDULING_ITEMS } from '@config/sideMenu';
+import { SCOPE_KEYS, getScopeRoleKeys } from '@config/accessPolicy';
 
-const OPD_READ_ROLES = [
-  'APP_ADMIN',
-  'SUPER_ADMIN',
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'EMERGENCY_OFFICER',
-];
+const OPD_READ_ROLES = getScopeRoleKeys(SCOPE_KEYS.SCHEDULING, 'read');
 
 describe('sideMenu opd flow entries', () => {
   it('adds canonical OPD route in scheduling and clinical menus', () => {

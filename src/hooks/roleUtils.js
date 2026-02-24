@@ -2,6 +2,7 @@
  * Role normalization helpers shared by auth/visibility hooks.
  * File: roleUtils.js
  */
+import { normalizeRoleKey as normalizePolicyRoleKey } from '@config/accessPolicy';
 
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
 
@@ -14,7 +15,9 @@ const extractRoleName = (value) => {
   const directFields = ['name', 'role_name', 'roleName', 'authority'];
   for (const field of directFields) {
     const candidate = value[field];
-    if (isNonEmptyString(candidate)) return candidate;
+    if (isNonEmptyString(candidate) || typeof candidate === 'number') {
+      return String(candidate);
+    }
   }
 
   if (value.role) {
@@ -25,14 +28,11 @@ const extractRoleName = (value) => {
   return null;
 };
 
-const normalizeRole = (role) => {
-  const name = extractRoleName(role);
-  return name ? name.trim().toLowerCase() : null;
-};
+const normalizeRoleKey = (role) => normalizePolicyRoleKey(role);
 
-const normalizeRoleKey = (role) => {
-  const name = extractRoleName(role);
-  return name ? name.trim().toUpperCase() : null;
+const normalizeRole = (role) => {
+  const key = normalizeRoleKey(role);
+  return key ? key.toLowerCase() : null;
 };
 
 const normalizeRoles = (roles) => {
@@ -42,4 +42,3 @@ const normalizeRoles = (roles) => {
 };
 
 export { extractRoleName, normalizeRole, normalizeRoleKey, normalizeRoles };
-

@@ -326,6 +326,61 @@ const COMMUNICATIONS_ROUTE_ROOT = '/communications';
 const SUBSCRIPTIONS_ROUTE_ROOT = '/subscriptions';
 const INTEGRATIONS_ROUTE_ROOT = '/integrations';
 const COMPLIANCE_ROUTE_ROOT = '/compliance';
+
+const normalizeScopeValue = (value) => String(value || '').trim().toLowerCase();
+
+const OVERVIEW_SCOPE_ACCESS_MAP = Object.freeze({
+  clinical: 'clinical',
+  ipd: 'ipd',
+  icu: 'icu',
+  theatre: 'theatre',
+  emergency: 'emergency',
+  lab: 'lab',
+  radiology: 'radiology',
+  pharmacy: 'pharmacy',
+  inventory: 'inventory',
+  billing: 'billing',
+  hr: 'hr',
+  housekeeping: 'housekeeping',
+  biomedical: 'biomedical',
+  reports: 'reports',
+  communications: 'communications',
+  subscriptions: 'subscriptions',
+  integrations: 'integrations',
+  compliance: 'compliance',
+});
+
+const RESOURCE_SCOPE_ACCESS_MAP = Object.freeze({
+  ...Object.fromEntries(CLINICAL_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'clinical'])),
+  ...Object.fromEntries(IPD_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'ipd'])),
+  ...Object.fromEntries(ICU_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'icu'])),
+  ...Object.fromEntries(THEATRE_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'theatre'])),
+  ...Object.fromEntries(EMERGENCY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'emergency'])),
+  ...Object.fromEntries(LAB_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'lab'])),
+  ...Object.fromEntries(RADIOLOGY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'radiology'])),
+  ...Object.fromEntries(PHARMACY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'pharmacy'])),
+  ...Object.fromEntries(INVENTORY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'inventory'])),
+  ...Object.fromEntries(BILLING_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'billing'])),
+  ...Object.fromEntries(HR_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'hr'])),
+  ...Object.fromEntries(HOUSEKEEPING_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'housekeeping'])),
+  ...Object.fromEntries(BIOMEDICAL_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'biomedical'])),
+  ...Object.fromEntries(REPORTS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'reports'])),
+  ...Object.fromEntries(COMMUNICATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'communications'])),
+  ...Object.fromEntries(SUBSCRIPTIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'subscriptions'])),
+  ...Object.fromEntries(INTEGRATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'integrations'])),
+  ...Object.fromEntries(COMPLIANCE_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'compliance'])),
+});
+
+const resolveClinicalOverviewScope = (scope) => {
+  const normalizedScope = normalizeScopeValue(scope);
+  return OVERVIEW_SCOPE_ACCESS_MAP[normalizedScope] || 'clinical';
+};
+
+const resolveClinicalResourceScope = (resourceId) => {
+  const normalizedResourceId = normalizeScopeValue(resourceId);
+  return RESOURCE_SCOPE_ACCESS_MAP[normalizedResourceId] || 'clinical';
+};
+
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
@@ -8856,4 +8911,6 @@ export {
   sanitizeString,
   toIsoDateTime,
   withClinicalContext,
+  resolveClinicalOverviewScope,
+  resolveClinicalResourceScope,
 };

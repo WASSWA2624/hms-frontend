@@ -6,6 +6,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import AuthLayoutRoute from '@app/(auth)/_layout';
 import { useAuthGuard } from '@navigation/guards';
+import { useAuth } from '@hooks';
 import { useRouter } from 'expo-router';
 
 jest.mock('@hooks', () => ({
@@ -13,6 +14,7 @@ jest.mock('@hooks', () => ({
     t: (key) => key,
   }),
   useSessionRestore: () => ({ isReady: true }),
+  useAuth: jest.fn(() => ({ roles: ['tenant_admin'] })),
 }));
 
 jest.mock('@navigation/guards', () => ({
@@ -55,11 +57,22 @@ describe('app/(auth)/_layout guard wiring', () => {
   });
 
   test('redirects authenticated users to /dashboard', async () => {
+    useAuth.mockReturnValue({ roles: ['tenant_admin'] });
     useAuthGuard.mockReturnValue({ authenticated: true, user: { id: '1' } });
     render(<AuthLayoutRoute />);
 
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard');
+    });
+  });
+
+  test('redirects authenticated patients to /portal', async () => {
+    useAuth.mockReturnValue({ roles: ['patient'] });
+    useAuthGuard.mockReturnValue({ authenticated: true, user: { id: '1' } });
+    render(<AuthLayoutRoute />);
+
+    await waitFor(() => {
+      expect(mockRouter.replace).toHaveBeenCalledWith('/portal');
     });
   });
 

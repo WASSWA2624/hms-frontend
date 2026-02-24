@@ -18,7 +18,7 @@ jest.mock('expo-router', () => ({
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
   useNetwork: jest.fn(),
-  useClinicalAccess: jest.fn(),
+  useScopeAccess: jest.fn(),
 }));
 
 jest.mock('@platform/screens/clinical/useClinicalResourceCrud', () => ({
@@ -30,7 +30,7 @@ const useClinicalResourceListScreen =
   require('@platform/screens/clinical/ClinicalResourceListScreen/useClinicalResourceListScreen').default;
 const useClinicalResourceDetailScreen =
   require('@platform/screens/clinical/ClinicalResourceDetailScreen/useClinicalResourceDetailScreen').default;
-const { useI18n, useNetwork, useClinicalAccess } = require('@hooks');
+const { useI18n, useNetwork, useScopeAccess } = require('@hooks');
 const useClinicalResourceCrud = require('@platform/screens/clinical/useClinicalResourceCrud').default;
 
 describe('Clinical Nested Route Stability', () => {
@@ -52,11 +52,10 @@ describe('Clinical Nested Route Stability', () => {
       isOffline: false,
     });
 
-    useClinicalAccess.mockReturnValue({
-      canAccessClinical: true,
-      canCreateClinicalRecords: true,
-      canEditClinicalRecords: true,
-      canDeleteClinicalRecords: true,
+    useScopeAccess.mockReturnValue({
+      canRead: true,
+      canWrite: true,
+      canDelete: true,
       canManageAllTenants: true,
       tenantId: null,
       facilityId: null,

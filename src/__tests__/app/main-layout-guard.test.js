@@ -1,11 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import MainLayout from '@app/(main)/_layout';
-import { useSessionRestore } from '@hooks';
+import { useAuth, useSessionRestore } from '@hooks';
 import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
 
 jest.mock('@hooks', () => ({
   useSessionRestore: jest.fn(),
+  useAuth: jest.fn(() => ({ roles: ['tenant_admin'] })),
 }));
 
 jest.mock('@navigation/guards', () => ({
@@ -51,7 +52,9 @@ describe('MainLayout with Auth Guard', () => {
     expect(useAuthGuard).toHaveBeenCalledWith(
       expect.objectContaining({ skipRedirect: false })
     );
-    expect(useRouteAccessGuard).toHaveBeenCalledWith();
+    expect(useRouteAccessGuard).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectPath: '/dashboard' })
+    );
   });
 
   test('remains stable when unauthenticated', () => {
@@ -69,6 +72,16 @@ describe('MainLayout with Auth Guard', () => {
     expect(queryByTestId('main-route-layout')).toBeNull();
     expect(useAuthGuard).toHaveBeenCalledTimes(1);
     expect(useRouteAccessGuard).toHaveBeenCalledTimes(1);
+  });
+
+  test('uses patient redirect target for PATIENT users', () => {
+    useAuth.mockReturnValue({ roles: ['patient'] });
+
+    render(<MainLayout />);
+
+    expect(useRouteAccessGuard).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectPath: '/portal' })
+    );
   });
 });
 

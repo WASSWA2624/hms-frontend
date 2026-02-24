@@ -19,7 +19,8 @@
 
 import React from 'react';
 import { useAuthGuard, useRouteAccessGuard } from '@navigation/guards';
-import { useSessionRestore } from '@hooks';
+import { resolveHomePath } from '@config/accessPolicy';
+import { useAuth, useSessionRestore } from '@hooks';
 import { MainRouteLayout } from '@platform/layouts';
 import { MainRouteHeaderActionsProvider } from '@platform/layouts/RouteLayouts/MainRouteLayout';
 
@@ -28,9 +29,14 @@ import { MainRouteHeaderActionsProvider } from '@platform/layouts/RouteLayouts/M
  */
 function MainGroupLayout() {
   const { isReady: isSessionReady } = useSessionRestore();
+  const { roles } = useAuth();
+  const homePath = resolveHomePath(roles);
+  const isPatientUser = homePath === '/portal';
   useAuthGuard({ skipRedirect: !isSessionReady });
-  const { hasAccess, isPending } = useRouteAccessGuard();
-  if (!isSessionReady || isPending || !hasAccess) return null;
+  const { hasAccess, isPending } = useRouteAccessGuard({
+    redirectPath: isPatientUser ? '/portal' : '/dashboard',
+  });
+  if (!isSessionReady || isPending || !hasAccess || isPatientUser) return null;
   return (
     <MainRouteHeaderActionsProvider>
       <MainRouteLayout />

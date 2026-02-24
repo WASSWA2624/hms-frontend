@@ -5,36 +5,36 @@
 import { renderHook } from '@testing-library/react-native';
 import useOpdFlowAccess from '@hooks/useOpdFlowAccess';
 
-jest.mock('@hooks/useAuth', () => ({
+jest.mock('@hooks/useScopeAccess', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
-jest.mock('@hooks/useResolvedRoles', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
-
-const useAuth = require('@hooks/useAuth').default;
-const useResolvedRoles = require('@hooks/useResolvedRoles').default;
+const useScopeAccess = require('@hooks/useScopeAccess').default;
 
 describe('useOpdFlowAccess', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useAuth.mockReturnValue({
-      user: { tenant_id: 'tenant-1', facility_id: 'facility-1' },
-    });
-    useResolvedRoles.mockReturnValue({
+    useScopeAccess.mockReturnValue({
       roles: ['RECEPTIONIST'],
+      canRead: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: 'facility-1',
       isResolved: true,
     });
   });
 
   it('grants all actions to global admins', () => {
-    useResolvedRoles.mockReturnValue({
-      roles: ['APP_ADMIN'],
+    useScopeAccess.mockReturnValue({
+      roles: ['SUPER_ADMIN'],
+      canRead: true,
+      canManageAllTenants: true,
+      tenantId: null,
+      facilityId: null,
       isResolved: true,
     });
+
     const { result } = renderHook(() => useOpdFlowAccess());
 
     expect(result.current.canManageAllTenants).toBe(true);
@@ -60,10 +60,15 @@ describe('useOpdFlowAccess', () => {
   });
 
   it('grants nurse vitals and assignment actions but blocks payment', () => {
-    useResolvedRoles.mockReturnValue({
+    useScopeAccess.mockReturnValue({
       roles: ['NURSE'],
+      canRead: true,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: 'facility-1',
       isResolved: true,
     });
+
     const { result } = renderHook(() => useOpdFlowAccess());
 
     expect(result.current.canAccessOpdFlow).toBe(true);
@@ -72,18 +77,12 @@ describe('useOpdFlowAccess', () => {
     expect(result.current.canPayConsultation).toBe(false);
   });
 
-  it('resolves scoped tenant and facility ids for non-global roles', () => {
-    useAuth.mockReturnValue({
-      user: {
-        tenant: { id: 'tenant-2' },
-        facility: { id: 'facility-2' },
-      },
-    });
+  it('exposes scoped tenant and facility ids for non-global roles', () => {
     const { result } = renderHook(() => useOpdFlowAccess());
 
     expect(result.current.canManageAllTenants).toBe(false);
-    expect(result.current.tenantId).toBe('tenant-2');
-    expect(result.current.facilityId).toBe('facility-2');
+    expect(result.current.tenantId).toBe('tenant-1');
+    expect(result.current.facilityId).toBe('facility-1');
     expect(result.current.isResolved).toBe(true);
   });
 });

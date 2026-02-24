@@ -19,6 +19,7 @@ export { default as useResolvedRoles } from './useResolvedRoles';
 export { default as useSessionRestore } from './useSessionRestore';
 export { default as useBiometricAuth } from './useBiometricAuth';
 export { default as useNavigationVisibility } from './useNavigationVisibility';
+export { default as useScopeAccess } from './useScopeAccess';
 export { default as useTenantAccess } from './useTenantAccess';
 export { default as useUiState } from './useUiState';
 export { default as useNetworkBanner } from './useNetworkBanner';

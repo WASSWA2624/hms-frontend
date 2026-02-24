@@ -3,6 +3,11 @@
  * Each main item: id, icon, path, name (i18n key for locale), children (null or array).
  * Children: id, icon, path, name (no children). Icons via MENU_ICON_GLYPHS / getMenuIconGlyph.
  */
+import {
+  ROLE_KEYS,
+  SCOPE_KEYS,
+  getScopeRoleKeys,
+} from '@config/accessPolicy';
 
 /** @typedef {{ id: string, icon: string, path: string, name: string, roles?: string[], children?: null | Array<{ id: string, icon: string, path: string, name: string, roles?: string[] }> }} MainNavItem */
 /** @typedef {{ id: string, icon: string, path: string, name: string, roles?: string[] }} MainNavChild */
@@ -39,81 +44,30 @@ export const MENU_ICON_GLYPHS = {
 
 const DEFAULT_ICON_GLYPH = '•';
 const MAIN_NAV_I18N = 'navigation.items.main';
-const PATIENT_ACCESS_ROLES = [
-  'APP_ADMIN',
-  'SUPER_ADMIN',
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'EMERGENCY_OFFICER',
-];
-const PATIENT_PORTAL_ACCESS_ROLES = [
-  'APP_ADMIN',
-  'SUPER_ADMIN',
-  'PATIENT',
-  'PATIENT_USER',
-  'PATIENT_PORTAL_USER',
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'EMERGENCY_OFFICER',
-  'FINANCE_MANAGER',
-  'ACCOUNTANT',
-  'BILLING_CLERK',
-  'INSURANCE_OFFICER',
-];
-const SCHEDULING_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
-const CLINICAL_ACCESS_ROLES = [...PATIENT_ACCESS_ROLES];
-const IPD_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const ICU_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const THEATRE_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const EMERGENCY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const DIAGNOSTICS_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const PHARMACY_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES, 'PHARMACIST', 'PHARMACY_TECHNICIAN'];
-const INVENTORY_ACCESS_ROLES = [
-  ...CLINICAL_ACCESS_ROLES,
-  'PHARMACIST',
-  'PHARMACY_TECHNICIAN',
-  'INVENTORY_MANAGER',
-  'STORE_KEEPER',
-  'PROCUREMENT_OFFICER',
-];
-const BILLING_ACCESS_ROLES = [
-  ...CLINICAL_ACCESS_ROLES,
-  'FINANCE_MANAGER',
-  'ACCOUNTANT',
-  'BILLING_CLERK',
-  'INSURANCE_OFFICER',
-];
-const HR_ACCESS_ROLES = [
-  ...CLINICAL_ACCESS_ROLES,
-  'HR_MANAGER',
-  'PAYROLL_MANAGER',
-  'NURSE_MANAGER',
-];
-const HOUSEKEEPING_ACCESS_ROLES = [
-  ...CLINICAL_ACCESS_ROLES,
-  'HOUSEKEEPING_MANAGER',
-  'FACILITY_MANAGER',
-  'MAINTENANCE_MANAGER',
-];
-const REPORTS_ACCESS_ROLES = [
-  ...BILLING_ACCESS_ROLES,
-  ...HR_ACCESS_ROLES,
-  'REPORTING_ANALYST',
-];
-const COMMUNICATIONS_ACCESS_ROLES = [...CLINICAL_ACCESS_ROLES];
-const SUBSCRIPTIONS_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
-const INTEGRATIONS_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
-const COMPLIANCE_ACCESS_ROLES = ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'];
+const DASHBOARD_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.DASHBOARD, 'read');
+const SETTINGS_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.SETTINGS, 'read');
+const PATIENT_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.PATIENTS, 'read');
+const PATIENT_PORTAL_ACCESS_ROLES = [ROLE_KEYS.PATIENT];
+const SCHEDULING_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.SCHEDULING, 'read');
+const CLINICAL_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.CLINICAL, 'read');
+const IPD_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.IPD, 'read');
+const ICU_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.ICU, 'read');
+const THEATRE_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.THEATRE, 'read');
+const EMERGENCY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.EMERGENCY, 'read');
+const LAB_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.LAB, 'read');
+const RADIOLOGY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.RADIOLOGY, 'read');
+const DIAGNOSTICS_ACCESS_ROLES = [...new Set([...LAB_ACCESS_ROLES, ...RADIOLOGY_ACCESS_ROLES])];
+const PHARMACY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.PHARMACY, 'read');
+const INVENTORY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.INVENTORY, 'read');
+const BILLING_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.BILLING, 'read');
+const HR_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.HR, 'read');
+const HOUSEKEEPING_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.HOUSEKEEPING, 'read');
+const BIOMEDICAL_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.BIOMEDICAL, 'read');
+const REPORTS_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.REPORTS, 'read');
+const COMMUNICATIONS_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.COMMUNICATIONS, 'read');
+const SUBSCRIPTIONS_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.SUBSCRIPTIONS, 'read');
+const INTEGRATIONS_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.INTEGRATIONS, 'read');
+const COMPLIANCE_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.COMPLIANCE, 'read');
 
 export function getMenuIconGlyph(iconKey) {
   if (!iconKey) return DEFAULT_ICON_GLYPH;
@@ -142,147 +96,147 @@ const SETTINGS_ITEMS = [
     icon: 'map-outline',
     path: '/settings/addresses',
     name: `${MAIN_NAV_I18N}.settings-addresses`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-api-keys',
     icon: 'key-outline',
     path: '/settings/api-keys',
     name: `${MAIN_NAV_I18N}.settings-api-keys`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-api-key-permissions',
     icon: 'shield-outline',
     path: '/settings/api-key-permissions',
     name: `${MAIN_NAV_I18N}.settings-api-key-permissions`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-beds',
     icon: 'bed-outline',
     path: '/settings/beds',
     name: `${MAIN_NAV_I18N}.settings-beds`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-branches',
     icon: 'git-branch-outline',
     path: '/settings/branches',
     name: `${MAIN_NAV_I18N}.settings-branches`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-contacts',
     icon: 'people-outline',
     path: '/settings/contacts',
     name: `${MAIN_NAV_I18N}.settings-contacts`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-departments',
     icon: 'folder-outline',
     path: '/settings/departments',
     name: `${MAIN_NAV_I18N}.settings-departments`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-facilities',
     icon: 'business-outline',
     path: '/settings/facilities',
     name: `${MAIN_NAV_I18N}.settings-facilities`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-oauth-accounts',
     icon: 'lock-open-outline',
     path: '/settings/oauth-accounts',
     name: `${MAIN_NAV_I18N}.settings-oauth-accounts`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-permissions',
     icon: 'shield-outline',
     path: '/settings/permissions',
     name: `${MAIN_NAV_I18N}.settings-permissions`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-role-permissions',
     icon: 'shield-checkmark-outline',
     path: '/settings/role-permissions',
     name: `${MAIN_NAV_I18N}.settings-role-permissions`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-roles',
     icon: 'people-outline',
     path: '/settings/roles',
     name: `${MAIN_NAV_I18N}.settings-roles`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-rooms',
     icon: 'home-outline',
     path: '/settings/rooms',
     name: `${MAIN_NAV_I18N}.settings-rooms`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-tenants',
     icon: 'layers-outline',
     path: '/settings/tenants',
     name: `${MAIN_NAV_I18N}.settings-tenants`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-units',
     icon: 'grid-outline',
     path: '/settings/units',
     name: `${MAIN_NAV_I18N}.settings-units`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-user-mfas',
     icon: 'lock-closed-outline',
     path: '/settings/user-mfas',
     name: `${MAIN_NAV_I18N}.settings-user-mfas`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-user-profiles',
     icon: 'person-outline',
     path: '/settings/user-profiles',
     name: `${MAIN_NAV_I18N}.settings-user-profiles`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-user-roles',
     icon: 'people-outline',
     path: '/settings/user-roles',
     name: `${MAIN_NAV_I18N}.settings-user-roles`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-user-sessions',
     icon: 'time-outline',
     path: '/settings/user-sessions',
     name: `${MAIN_NAV_I18N}.settings-user-sessions`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-users',
     icon: 'people-outline',
     path: '/settings/users',
     name: `${MAIN_NAV_I18N}.settings-users`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
   {
     id: 'settings-wards',
     icon: 'medkit-outline',
     path: '/settings/wards',
     name: `${MAIN_NAV_I18N}.settings-wards`,
-    roles: ['APP_ADMIN', 'SUPER_ADMIN', 'TENANT_ADMIN', 'ADMIN'],
+    roles: SETTINGS_ACCESS_ROLES,
   },
 ];
 
@@ -413,7 +367,7 @@ const CLINICAL_ITEMS = [
     icon: 'medkit-outline',
     path: '/scheduling/opd-flows',
     name: `${MAIN_NAV_I18N}.clinical-opd-flows`,
-    roles: CLINICAL_ACCESS_ROLES,
+    roles: SCHEDULING_ACCESS_ROLES,
   },
 ];
 
@@ -674,6 +628,18 @@ const DIAGNOSTICS_ITEMS = [
     roles: DIAGNOSTICS_ACCESS_ROLES,
   },
 ];
+
+/** @type {MainNavChild[]} */
+const LAB_ITEMS = DIAGNOSTICS_ITEMS.filter((item) =>
+  item.id.startsWith('diagnostics-lab-')
+);
+
+/** @type {MainNavChild[]} */
+const RADIOLOGY_ITEMS = DIAGNOSTICS_ITEMS.filter((item) =>
+  item.id.startsWith('diagnostics-radiology-') ||
+  item.id.startsWith('diagnostics-imaging-') ||
+  item.id === 'diagnostics-pacs-links'
+);
 
 // ─── Main sidebar nav: id, icon, path, name, children (null = no nesting) ─────
 /** @type {MainNavChild[]} */
@@ -1103,6 +1069,16 @@ const HOUSEKEEPING_ITEMS = [
 ];
 
 /** @type {MainNavChild[]} */
+const BIOMEDICAL_ITEMS = HOUSEKEEPING_ITEMS
+  .filter((item) => item.id.startsWith('housekeeping-biomedical-'))
+  .map((item) => ({ ...item, roles: BIOMEDICAL_ACCESS_ROLES }));
+
+/** @type {MainNavChild[]} */
+const HOUSEKEEPING_SERVICE_ITEMS = HOUSEKEEPING_ITEMS.filter(
+  (item) => !item.id.startsWith('housekeeping-biomedical')
+);
+
+/** @type {MainNavChild[]} */
 const REPORTS_ITEMS = [
   {
     id: 'reports-report-definitions',
@@ -1299,7 +1275,14 @@ const COMPLIANCE_ITEMS = [
 
 /** @type {MainNavItem[]} */
 export const MAIN_NAV_ITEMS = [
-  { id: 'dashboard', icon: 'grid-outline', path: '/dashboard', name: `${MAIN_NAV_I18N}.dashboard`, children: null },
+  {
+    id: 'dashboard',
+    icon: 'grid-outline',
+    path: '/dashboard',
+    name: `${MAIN_NAV_I18N}.dashboard`,
+    roles: DASHBOARD_ACCESS_ROLES,
+    children: null,
+  },
   {
     id: 'patients',
     icon: 'people-outline',
@@ -1357,12 +1340,20 @@ export const MAIN_NAV_ITEMS = [
     children: EMERGENCY_ITEMS,
   },
   {
-    id: 'diagnostics',
+    id: 'lab',
     icon: 'medkit-outline',
     path: '/diagnostics/lab',
-    name: `${MAIN_NAV_I18N}.diagnostics`,
-    roles: DIAGNOSTICS_ACCESS_ROLES,
-    children: DIAGNOSTICS_ITEMS,
+    name: `${MAIN_NAV_I18N}.diagnostics-lab`,
+    roles: LAB_ACCESS_ROLES,
+    children: LAB_ITEMS,
+  },
+  {
+    id: 'radiology',
+    icon: 'image-outline',
+    path: '/diagnostics/radiology',
+    name: `${MAIN_NAV_I18N}.diagnostics-radiology`,
+    roles: RADIOLOGY_ACCESS_ROLES,
+    children: RADIOLOGY_ITEMS,
   },
   {
     id: 'pharmacy',
@@ -1402,7 +1393,15 @@ export const MAIN_NAV_ITEMS = [
     path: '/housekeeping',
     name: `${MAIN_NAV_I18N}.housekeeping`,
     roles: HOUSEKEEPING_ACCESS_ROLES,
-    children: HOUSEKEEPING_ITEMS,
+    children: HOUSEKEEPING_SERVICE_ITEMS,
+  },
+  {
+    id: 'biomedical',
+    icon: 'medkit-outline',
+    path: '/housekeeping/biomedical',
+    name: `${MAIN_NAV_I18N}.housekeeping-biomedical`,
+    roles: BIOMEDICAL_ACCESS_ROLES,
+    children: BIOMEDICAL_ITEMS,
   },
   {
     id: 'reports',
@@ -1444,7 +1443,14 @@ export const MAIN_NAV_ITEMS = [
     roles: COMPLIANCE_ACCESS_ROLES,
     children: COMPLIANCE_ITEMS,
   },
-  { id: 'settings', icon: 'settings-outline', path: '/settings', name: `${MAIN_NAV_I18N}.settings`, children: SETTINGS_ITEMS },
+  {
+    id: 'settings',
+    icon: 'settings-outline',
+    path: '/settings',
+    name: `${MAIN_NAV_I18N}.settings`,
+    roles: SETTINGS_ACCESS_ROLES,
+    children: SETTINGS_ITEMS,
+  },
 ];
 
 /** Flattened list (main + all children). Labels via getNavItemLabel(t, item). */
@@ -1509,14 +1515,21 @@ export {
   THEATRE_ITEMS,
   EMERGENCY_ITEMS,
   DIAGNOSTICS_ITEMS,
+  LAB_ITEMS,
+  RADIOLOGY_ITEMS,
   PHARMACY_ITEMS,
   INVENTORY_ITEMS,
   BILLING_ITEMS,
   HR_ITEMS,
   HOUSEKEEPING_ITEMS,
+  HOUSEKEEPING_SERVICE_ITEMS,
+  BIOMEDICAL_ITEMS,
   REPORTS_ITEMS,
   COMMUNICATIONS_ITEMS,
   SUBSCRIPTIONS_ITEMS,
   INTEGRATIONS_ITEMS,
   COMPLIANCE_ITEMS,
 };
+
+
+

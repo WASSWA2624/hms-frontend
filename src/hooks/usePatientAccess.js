@@ -3,49 +3,14 @@
  * Centralized patient route/action access policy with tenant/facility context.
  */
 import { useMemo } from 'react';
+import { SCOPE_KEYS } from '@config/accessPolicy';
 import useAuth from './useAuth';
-import useResolvedRoles from './useResolvedRoles';
-import { normalizeRoleKey } from './roleUtils';
+import useScopeAccess from './useScopeAccess';
 
-const GLOBAL_ADMIN_ROLES = ['APP_ADMIN', 'SUPER_ADMIN'];
-const PATIENT_ACCESS_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'EMERGENCY_OFFICER',
-];
-const PATIENT_WRITE_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-];
-const PATIENT_DELETE_ROLES = ['TENANT_ADMIN', 'ADMIN'];
 const PATIENT_READ_PERMISSION = 'patient:read';
 const PATIENT_WRITE_PERMISSION = 'patient:write';
 const PATIENT_DELETE_PERMISSION = 'patient:delete';
 const LEGAL_MODULE_SLUGS = new Set(['consent', 'terms-acceptance', 'terms-acceptances']);
-
-const resolveTenantId = (user) => {
-  const candidates = [
-    user?.tenant_id,
-    user?.tenantId,
-    user?.tenant?.id,
-    user?.tenant?.tenant_id,
-    user?.profile?.tenant_id,
-    user?.profile?.tenantId,
-  ];
-  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
-  const normalized = value != null ? String(value).trim() : '';
-  return normalized || null;
-};
 
 const resolveTenantName = (user) => {
   const candidates = [
@@ -73,20 +38,6 @@ const resolveTenantHumanFriendlyId = (user) => {
     user?.profile?.tenantHumanFriendlyId,
     user?.profile?.tenant?.human_friendly_id,
     user?.profile?.tenant?.humanFriendlyId,
-  ];
-  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
-  const normalized = value != null ? String(value).trim() : '';
-  return normalized || null;
-};
-
-const resolveFacilityId = (user) => {
-  const candidates = [
-    user?.facility_id,
-    user?.facilityId,
-    user?.facility?.id,
-    user?.facility?.facility_id,
-    user?.profile?.facility_id,
-    user?.profile?.facilityId,
   ];
   const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
   const normalized = value != null ? String(value).trim() : '';
@@ -124,8 +75,6 @@ const resolveFacilityHumanFriendlyId = (user) => {
   const normalized = value != null ? String(value).trim() : '';
   return normalized || null;
 };
-
-const hasAnyRole = (roleSet, requiredRoles) => requiredRoles.some((role) => roleSet.has(role));
 
 const toNormalizedString = (value) => String(value || '').trim().toLowerCase();
 
@@ -225,30 +174,33 @@ const resolveEntitledModuleSet = (user) => {
 
 const usePatientAccess = () => {
   const { user } = useAuth();
-  const { roles, isResolved } = useResolvedRoles();
+  const {
+    canRead,
+    canWrite,
+    canDelete,
+    canManageAllTenants,
+    tenantId,
+    facilityId,
+    isResolved,
+  } = useScopeAccess(SCOPE_KEYS.PATIENTS);
 
-  const roleSet = useMemo(
-    () => new Set((roles || []).map((role) => normalizeRoleKey(role)).filter(Boolean)),
-    [roles]
-  );
   const permissionSet = useMemo(() => resolvePermissionSet(user), [user]);
   const entitledModules = useMemo(() => resolveEntitledModuleSet(user), [user]);
 
-  const canManageAllTenants = hasAnyRole(roleSet, GLOBAL_ADMIN_ROLES);
   const hasReadPermission = permissionSet.has(PATIENT_READ_PERMISSION);
   const hasWritePermission = permissionSet.has(PATIENT_WRITE_PERMISSION);
   const hasDeletePermission = permissionSet.has(PATIENT_DELETE_PERMISSION);
-  const canAccessPatients = canManageAllTenants || hasReadPermission || hasAnyRole(roleSet, PATIENT_ACCESS_ROLES);
-  const canManagePatientRecords = canManageAllTenants || hasWritePermission || hasAnyRole(roleSet, PATIENT_WRITE_ROLES);
-  const canDeletePatientRecords = canManageAllTenants || hasDeletePermission || hasAnyRole(roleSet, PATIENT_DELETE_ROLES);
+
+  const canAccessPatients = canRead || hasReadPermission;
+  const canManagePatientRecords = canWrite || hasWritePermission;
+  const canDeletePatientRecords = canDelete || hasDeletePermission;
   const canAccessPatientLegalHub = canAccessPatients && (
     !entitledModules
     || [...LEGAL_MODULE_SLUGS].some((slug) => entitledModules.has(slug))
   );
-  const tenantId = resolveTenantId(user);
+
   const tenantName = resolveTenantName(user);
   const tenantHumanFriendlyId = resolveTenantHumanFriendlyId(user);
-  const facilityId = resolveFacilityId(user);
   const facilityName = resolveFacilityName(user);
   const facilityHumanFriendlyId = resolveFacilityHumanFriendlyId(user);
 

@@ -3,95 +3,72 @@
  * Action-level OPD flow access policy with tenant/facility context.
  */
 import { useMemo } from 'react';
-import useAuth from './useAuth';
-import useResolvedRoles from './useResolvedRoles';
-import { normalizeRoleKey } from './roleUtils';
+import { ROLE_KEYS, SCOPE_KEYS } from '@config/accessPolicy';
+import useScopeAccess from './useScopeAccess';
 
-const GLOBAL_ADMIN_ROLES = ['APP_ADMIN', 'SUPER_ADMIN'];
-const OPD_READ_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'EMERGENCY_OFFICER',
+const OPD_PAY_ROLES = [
+  ROLE_KEYS.SUPER_ADMIN,
+  ROLE_KEYS.TENANT_ADMIN,
+  ROLE_KEYS.FACILITY_ADMIN,
+  ROLE_KEYS.RECEPTIONIST,
+  ROLE_KEYS.BILLING,
 ];
-const OPD_PAY_ROLES = ['TENANT_ADMIN', 'ADMIN', 'FRONT_DESK', 'RECEPTIONIST'];
+
 const OPD_VITALS_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'NURSE',
-  'CLINICAL_OFFICER',
-  'EMERGENCY_OFFICER',
+  ROLE_KEYS.SUPER_ADMIN,
+  ROLE_KEYS.TENANT_ADMIN,
+  ROLE_KEYS.FACILITY_ADMIN,
+  ROLE_KEYS.DOCTOR,
+  ROLE_KEYS.NURSE,
 ];
+
 const OPD_ASSIGN_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'FRONT_DESK',
-  'RECEPTIONIST',
-  'NURSE',
-  'CLINICAL_OFFICER',
+  ROLE_KEYS.SUPER_ADMIN,
+  ROLE_KEYS.TENANT_ADMIN,
+  ROLE_KEYS.FACILITY_ADMIN,
+  ROLE_KEYS.RECEPTIONIST,
+  ROLE_KEYS.NURSE,
 ];
+
 const OPD_REVIEW_AND_DISPOSITION_ROLES = [
-  'TENANT_ADMIN',
-  'ADMIN',
-  'DOCTOR',
-  'CLINICAL_OFFICER',
-  'EMERGENCY_OFFICER',
+  ROLE_KEYS.SUPER_ADMIN,
+  ROLE_KEYS.TENANT_ADMIN,
+  ROLE_KEYS.FACILITY_ADMIN,
+  ROLE_KEYS.DOCTOR,
 ];
 
-const resolveTenantId = (user) => {
-  const candidates = [
-    user?.tenant_id,
-    user?.tenantId,
-    user?.tenant?.id,
-    user?.tenant?.tenant_id,
-    user?.profile?.tenant_id,
-    user?.profile?.tenantId,
-  ];
-  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
-  const normalized = value != null ? String(value).trim() : '';
-  return normalized || null;
-};
-
-const resolveFacilityId = (user) => {
-  const candidates = [
-    user?.facility_id,
-    user?.facilityId,
-    user?.facility?.id,
-    user?.facility?.facility_id,
-    user?.profile?.facility_id,
-    user?.profile?.facilityId,
-  ];
-  const value = candidates.find((candidate) => candidate !== undefined && candidate !== null);
-  const normalized = value != null ? String(value).trim() : '';
-  return normalized || null;
-};
-
-const hasAnyRole = (roleSet, requiredRoles) => requiredRoles.some((role) => roleSet.has(role));
+const hasAnyRole = (assignedRoles, requiredRoles) =>
+  requiredRoles.some((roleKey) => assignedRoles.includes(roleKey));
 
 const useOpdFlowAccess = () => {
-  const { user } = useAuth();
-  const { roles, isResolved } = useResolvedRoles();
+  const {
+    roles,
+    canRead,
+    canManageAllTenants,
+    tenantId,
+    facilityId,
+    isResolved,
+  } = useScopeAccess(SCOPE_KEYS.SCHEDULING);
 
-  const roleSet = useMemo(
-    () => new Set((roles || []).map((role) => normalizeRoleKey(role)).filter(Boolean)),
-    [roles]
-  );
-
-  const canManageAllTenants = hasAnyRole(roleSet, GLOBAL_ADMIN_ROLES);
-  const canAccessOpdFlow = canManageAllTenants || hasAnyRole(roleSet, OPD_READ_ROLES);
+  const canAccessOpdFlow = canRead;
   const canStartFlow = canAccessOpdFlow;
-  const canPayConsultation = canManageAllTenants || hasAnyRole(roleSet, OPD_PAY_ROLES);
-  const canRecordVitals = canManageAllTenants || hasAnyRole(roleSet, OPD_VITALS_ROLES);
-  const canAssignDoctor = canManageAllTenants || hasAnyRole(roleSet, OPD_ASSIGN_ROLES);
-  const canDoctorReview = canManageAllTenants || hasAnyRole(roleSet, OPD_REVIEW_AND_DISPOSITION_ROLES);
-  const canDisposition = canDoctorReview;
-  const tenantId = resolveTenantId(user);
-  const facilityId = resolveFacilityId(user);
+
+  const canPayConsultation = useMemo(
+    () => canManageAllTenants || hasAnyRole(roles, OPD_PAY_ROLES),
+    [canManageAllTenants, roles]
+  );
+  const canRecordVitals = useMemo(
+    () => canManageAllTenants || hasAnyRole(roles, OPD_VITALS_ROLES),
+    [canManageAllTenants, roles]
+  );
+  const canAssignDoctor = useMemo(
+    () => canManageAllTenants || hasAnyRole(roles, OPD_ASSIGN_ROLES),
+    [canManageAllTenants, roles]
+  );
+  const canDoctorReview = useMemo(
+    () => canManageAllTenants || hasAnyRole(roles, OPD_REVIEW_AND_DISPOSITION_ROLES),
+    [canManageAllTenants, roles]
+  );
 
   return {
     canAccessOpdFlow,
@@ -100,7 +77,7 @@ const useOpdFlowAccess = () => {
     canRecordVitals,
     canAssignDoctor,
     canDoctorReview,
-    canDisposition,
+    canDisposition: canDoctorReview,
     canManageAllTenants,
     tenantId,
     facilityId,

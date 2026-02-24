@@ -4,7 +4,8 @@
  */
 import React, { useEffect } from 'react';
 import { Slot, usePathname, useRouter } from 'expo-router';
-import { useI18n, useSessionRestore } from '@hooks';
+import { resolveHomePath } from '@config/accessPolicy';
+import { useAuth, useI18n, useSessionRestore } from '@hooks';
 import { useAuthGuard } from '@navigation/guards';
 import { AuthLayout } from '@platform/layouts';
 import GlobalFooter, { FOOTER_VARIANTS } from '@platform/components/navigation/GlobalFooter';
@@ -73,9 +74,11 @@ const resolveScreenMeta = (normalizedPath) => {
 function AuthGroupLayout() {
   const { t } = useI18n();
   const { isReady: isSessionReady } = useSessionRestore();
+  const { roles } = useAuth();
   const { authenticated } = useAuthGuard({ skipRedirect: true });
   const pathname = usePathname();
   const router = useRouter();
+  const homePath = resolveHomePath(roles);
   const normalizedPath = normalizeAuthPath(pathname);
   const isRegisterRoute = normalizedPath === '/register';
   const screenMeta = resolveScreenMeta(normalizedPath);
@@ -95,8 +98,8 @@ function AuthGroupLayout() {
   useEffect(() => {
     if (!isSessionReady) return;
     if (!authenticated) return;
-    router.replace('/dashboard');
-  }, [authenticated, isSessionReady, router]);
+    router.replace(homePath);
+  }, [authenticated, homePath, isSessionReady, router]);
 
   return (
     <AuthLayout

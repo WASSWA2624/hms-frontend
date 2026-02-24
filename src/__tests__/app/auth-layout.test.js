@@ -13,6 +13,7 @@ jest.mock('@hooks', () => ({
     t: (key) => key,
   }),
   useSessionRestore: () => ({ isReady: true }),
+  useAuth: () => ({ roles: ['tenant_admin'] }),
 }));
 
 jest.mock('@navigation/guards', () => ({
