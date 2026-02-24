@@ -7,6 +7,7 @@ const getEnvVar = (key, defaultValue = null) => {
   const ENV_VARS = {
     NODE_ENV: process.env.NODE_ENV,
     EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+    EXPO_PUBLIC_WS_BASE_URL: process.env.EXPO_PUBLIC_WS_BASE_URL,
     EXPO_PUBLIC_API_VERSION: process.env.EXPO_PUBLIC_API_VERSION,
     EXPO_PUBLIC_APP_VERSION: process.env.EXPO_PUBLIC_APP_VERSION,
     EXPO_PUBLIC_BUILD_NUMBER: process.env.EXPO_PUBLIC_BUILD_NUMBER,
@@ -60,6 +61,21 @@ const resolveApiBaseUrl = () => {
 };
 
 export const API_BASE_URL = resolveApiBaseUrl();
+
+const resolveWsBaseUrl = () => {
+  const explicit = getEnvVar('EXPO_PUBLIC_WS_BASE_URL', '').trim();
+  if (explicit) return replaceWithCurrentWebHostname(explicit);
+
+  try {
+    const parsedApi = new URL(API_BASE_URL);
+    parsedApi.protocol = parsedApi.protocol === 'https:' ? 'wss:' : 'ws:';
+    return parsedApi.toString().replace(/\/$/, '');
+  } catch {
+    return 'ws://localhost:3000';
+  }
+};
+
+export const WS_BASE_URL = resolveWsBaseUrl();
 export const API_VERSION = getEnvVar('EXPO_PUBLIC_API_VERSION', 'v1');
 export const APP_VERSION = getEnvVar('EXPO_PUBLIC_APP_VERSION', '0.1.0');
 export const BUILD_NUMBER = getEnvVar('EXPO_PUBLIC_BUILD_NUMBER', '0');

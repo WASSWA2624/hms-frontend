@@ -40,6 +40,9 @@ const buildBaseHook = () => ({
     body: 'Help body',
     items: ['Scope item', 'Sequence item'],
   },
+  opdQuickCtaLabel: 'Open OPD Workbench',
+  opdQuickCtaHint: 'Open guided OPD flow actions',
+  opdEmphasis: 'Fast patient flow from queue to disposition.',
   recentAppointments: [
     {
       id: 'appointment-1',
@@ -58,6 +61,7 @@ const buildBaseHook = () => ({
   onOpenResource: jest.fn(),
   onOpenAppointment: jest.fn(),
   onCreateAppointment: jest.fn(),
+  onOpenOpdWorkbench: jest.fn(),
 });
 
 const renderWithTheme = (component) => render(
@@ -80,6 +84,9 @@ describe('SchedulingOverviewScreen', () => {
           'scheduling.overview.resourcesTitle': 'Scheduling Resources',
           'scheduling.overview.recentAppointmentsTitle': 'Recent Appointments',
           'scheduling.overview.openResourceButton': 'Open',
+          'scheduling.overview.opdQuickCta': 'Open OPD Workbench',
+          'scheduling.overview.opdQuickCtaHint': 'Open guided OPD flow actions',
+          'scheduling.overview.opdEmphasis': 'Fast patient flow from queue to disposition.',
           'scheduling.overview.loadErrorTitle': 'Unable to load scheduling overview',
           'shell.banners.offline.title': 'Offline',
           'shell.banners.offline.message': 'Connection unavailable',
@@ -97,6 +104,7 @@ describe('SchedulingOverviewScreen', () => {
     const { getByTestId } = renderWithTheme(<SchedulingOverviewScreenWeb />);
 
     expect(getByTestId('scheduling-overview-help-trigger')).toBeTruthy();
+    expect(getByTestId('scheduling-overview-open-opd-workbench')).toBeTruthy();
     expect(getByTestId('scheduling-overview-create-appointment')).toBeTruthy();
     expect(getByTestId('scheduling-overview-item-1').props.title).toBe('Appointment for Jane Doe');
   });

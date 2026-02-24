@@ -23,14 +23,19 @@ import {
   StyledFieldRow,
   StyledFlowList,
   StyledForm,
+  StyledGuidanceList,
   StyledInlineActions,
   StyledLayout,
   StyledMeta,
   StyledPanel,
   StyledPanelHeader,
+  StyledProgressDot,
+  StyledProgressStep,
+  StyledProgressTracker,
   StyledSectionTitle,
   StyledTimeline,
   StyledTimelineItem,
+  StyledTimelineMeta,
 } from './OpdFlowWorkbenchScreen.styles';
 import useOpdFlowWorkbenchScreen from './useOpdFlowWorkbenchScreen';
 
@@ -120,21 +125,6 @@ const OpdFlowWorkbenchScreen = () => {
             density="compact"
           />
           <TextField
-            label={t('scheduling.opdFlow.start.consultationFee')}
-            value={screen.startDraft.consultation_fee}
-            onChangeText={(value) => screen.onStartDraftChange('consultation_fee', value)}
-            density="compact"
-          />
-        </StyledFieldRow>
-
-        <StyledFieldRow>
-          <TextField
-            label={t('scheduling.opdFlow.start.currency')}
-            value={screen.startDraft.currency}
-            onChangeText={(value) => screen.onStartDraftChange('currency', value)}
-            density="compact"
-          />
-          <TextField
             label={t('scheduling.opdFlow.start.notes')}
             value={screen.startDraft.notes}
             onChangeText={(value) => screen.onStartDraftChange('notes', value)}
@@ -142,47 +132,80 @@ const OpdFlowWorkbenchScreen = () => {
           />
         </StyledFieldRow>
 
-        {screen.startDraft.arrival_mode !== 'EMERGENCY' ? (
-          <StyledInlineActions>
+        <StyledInlineActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() => screen.setIsStartAdvancedOpen((previous) => !previous)}
+          >
+            {screen.isStartAdvancedOpen
+              ? t('scheduling.opdFlow.actions.hideAdvanced')
+              : t('scheduling.opdFlow.actions.showAdvanced')}
+          </Button>
+        </StyledInlineActions>
+
+        {screen.isStartAdvancedOpen ? (
+          <>
+            <StyledFieldRow>
+              <TextField
+                label={t('scheduling.opdFlow.start.consultationFee')}
+                value={screen.startDraft.consultation_fee}
+                onChangeText={(value) => screen.onStartDraftChange('consultation_fee', value)}
+                density="compact"
+              />
+              <TextField
+                label={t('scheduling.opdFlow.start.currency')}
+                value={screen.startDraft.currency}
+                onChangeText={(value) => screen.onStartDraftChange('currency', value)}
+                density="compact"
+              />
+            </StyledFieldRow>
+
+            {screen.startDraft.arrival_mode !== 'EMERGENCY' ? (
+              <StyledInlineActions>
+                <Switch
+                  label={t('scheduling.opdFlow.start.requirePayment')}
+                  value={Boolean(screen.startDraft.require_consultation_payment)}
+                  onValueChange={(value) =>
+                    screen.onStartDraftChange('require_consultation_payment', Boolean(value))
+                  }
+                />
+                <Switch
+                  label={t('scheduling.opdFlow.start.createInvoice')}
+                  value={Boolean(screen.startDraft.create_consultation_invoice)}
+                  onValueChange={(value) =>
+                    screen.onStartDraftChange('create_consultation_invoice', Boolean(value))
+                  }
+                />
+              </StyledInlineActions>
+            ) : null}
+
             <Switch
-              label={t('scheduling.opdFlow.start.requirePayment')}
-              value={Boolean(screen.startDraft.require_consultation_payment)}
+              label={t('scheduling.opdFlow.start.payNow')}
+              value={Boolean(screen.startDraft.pay_now_enabled)}
               onValueChange={(value) =>
-                screen.onStartDraftChange('require_consultation_payment', Boolean(value))
+                screen.onStartDraftChange('pay_now_enabled', Boolean(value))
               }
             />
-            <Switch
-              label={t('scheduling.opdFlow.start.createInvoice')}
-              value={Boolean(screen.startDraft.create_consultation_invoice)}
-              onValueChange={(value) =>
-                screen.onStartDraftChange('create_consultation_invoice', Boolean(value))
-              }
-            />
-          </StyledInlineActions>
-        ) : null}
 
-        <Switch
-          label={t('scheduling.opdFlow.start.payNow')}
-          value={Boolean(screen.startDraft.pay_now_enabled)}
-          onValueChange={(value) => screen.onStartDraftChange('pay_now_enabled', Boolean(value))}
-        />
-
-        {screen.startDraft.pay_now_enabled ? (
-          <StyledFieldRow>
-            <Select
-              label={t('scheduling.opdFlow.start.payNowMethod')}
-              value={screen.startDraft.pay_now_method}
-              options={paymentMethodOptions}
-              onValueChange={(value) => screen.onStartDraftChange('pay_now_method', value)}
-              compact
-            />
-            <TextField
-              label={t('scheduling.opdFlow.start.payNowAmount')}
-              value={screen.startDraft.pay_now_amount}
-              onChangeText={(value) => screen.onStartDraftChange('pay_now_amount', value)}
-              density="compact"
-            />
-          </StyledFieldRow>
+            {screen.startDraft.pay_now_enabled ? (
+              <StyledFieldRow>
+                <Select
+                  label={t('scheduling.opdFlow.start.payNowMethod')}
+                  value={screen.startDraft.pay_now_method}
+                  options={paymentMethodOptions}
+                  onValueChange={(value) => screen.onStartDraftChange('pay_now_method', value)}
+                  compact
+                />
+                <TextField
+                  label={t('scheduling.opdFlow.start.payNowAmount')}
+                  value={screen.startDraft.pay_now_amount}
+                  onChangeText={(value) => screen.onStartDraftChange('pay_now_amount', value)}
+                  density="compact"
+                />
+              </StyledFieldRow>
+            ) : null}
+          </>
         ) : null}
 
         {screen.startDraft.arrival_mode === 'EMERGENCY' ? (
@@ -746,6 +769,16 @@ const OpdFlowWorkbenchScreen = () => {
                 </Text>
               </StyledPanelHeader>
 
+              <StyledSectionTitle>{t('scheduling.opdFlow.progress.title')}</StyledSectionTitle>
+              <StyledProgressTracker>
+                {screen.progressSteps.map((step) => (
+                  <StyledProgressStep key={step.id} $status={step.status}>
+                    <StyledProgressDot $status={step.status} />
+                    {t(step.labelKey)}
+                  </StyledProgressStep>
+                ))}
+              </StyledProgressTracker>
+
               {activeFlow ? (
                 <StyledCardGrid>
                   {renderLinkedId(
@@ -823,13 +856,33 @@ const OpdFlowWorkbenchScreen = () => {
                 />
               ) : (
                 <StyledTimeline>
-                  {screen.timeline.map((event, index) => (
+                  {screen.timelineItems.map((event, index) => (
                     <StyledTimelineItem key={`${event.event}-${event.at}-${index + 1}`}>
-                      {event.event || t('scheduling.opdFlow.timeline.eventUnknown')} | {event.at || '-'}
+                      {event.label || t('scheduling.opdFlow.timeline.eventUnknown')}
+                      {' | '}
+                      {event.timestampLabel}
+                      {event.relativeLabel ? (
+                        <>
+                          {' '}
+                          <StyledTimelineMeta>({event.relativeLabel})</StyledTimelineMeta>
+                        </>
+                      ) : null}
                     </StyledTimelineItem>
                   ))}
                 </StyledTimeline>
               )}
+            </Card>
+
+            <Card variant="outlined">
+              <StyledSectionTitle>{t('scheduling.opdFlow.guidance.title')}</StyledSectionTitle>
+              <Text variant="body">{t(screen.currentActionGuidanceKey)}</Text>
+              {screen.currentActionRequirementKeys.length > 0 ? (
+                <StyledGuidanceList>
+                  {screen.currentActionRequirementKeys.map((requirementKey) => (
+                    <li key={requirementKey}>{t(requirementKey)}</li>
+                  ))}
+                </StyledGuidanceList>
+              ) : null}
             </Card>
 
             <Card variant="outlined">

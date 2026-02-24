@@ -466,6 +466,7 @@
         "billing": "Billing",
         "lab": "Lab",
         "pharmacy": "Pharmacy",
+        "opd": "OPD",
         "system": "System",
         "general": "General"
       },
@@ -6753,7 +6754,10 @@
       },
       "unnamedAppointment": "Appointment record {{position}}",
       "unknownSchedule": "Schedule details pending",
-      "appointmentForPatient": "Appointment for {{patient}}"
+      "appointmentForPatient": "Appointment for {{patient}}",
+      "opdQuickCta": "Open OPD Workbench",
+      "opdQuickCtaHint": "Open guided OPD flow actions",
+      "opdEmphasis": "Fast patient flow from queue to disposition."
     },
     "opdFlow": {
       "title": "OPD Flow Workbench",
@@ -6770,6 +6774,8 @@
       },
       "actions": {
         "startFlow": "Start Flow",
+        "showAdvanced": "Show advanced fields",
+        "hideAdvanced": "Hide advanced fields",
         "payConsultation": "Pay Consultation",
         "recordVitals": "Record Vitals",
         "assignDoctor": "Assign Doctor",
@@ -6855,11 +6861,46 @@
         "pharmacyOrderId": "Pharmacy order ID",
         "admissionId": "Admission ID"
       },
+      "progress": {
+        "title": "Progress Tracker",
+        "registrationAndQueue": "Registration and queue",
+        "triageAndAssignment": "Triage and assignment",
+        "doctorReview": "Doctor review",
+        "ordersAndFollowThrough": "Orders and follow-through",
+        "finalDisposition": "Final disposition"
+      },
+      "guidance": {
+        "title": "What to do now",
+        "default": "Complete the current stage action to move this patient to the next OPD step.",
+        "noAction": "Select a flow to view required actions for this stage.",
+        "payConsultation": "Confirm consultation payment details before submitting payment.",
+        "recordVitals": "Capture at least one complete vital and any relevant triage notes.",
+        "assignDoctor": "Assign the most appropriate provider before handing over review.",
+        "doctorReview": "Document the clinical review and add any required orders.",
+        "disposition": "Apply the final decision and close the flow cleanly.",
+        "requirements": {
+          "paymentMethod": "Required: payment method.",
+          "vitals": "Required: at least one valid vital row.",
+          "provider": "Required: provider user ID.",
+          "reviewNote": "Required: clinical note.",
+          "disposition": "Required: disposition decision."
+        }
+      },
       "timeline": {
         "title": "Timeline",
         "emptyTitle": "No timeline events",
         "emptyDescription": "Timeline entries will appear as the flow progresses.",
-        "eventUnknown": "Unknown event"
+        "eventUnknown": "Unknown event",
+        "events": {
+          "FLOW_STARTED": "Flow started",
+          "CONSULTATION_INVOICE_CREATED": "Consultation invoice created",
+          "CONSULTATION_PAYMENT_RECORDED": "Consultation payment recorded",
+          "EMERGENCY_CASE_OPENED": "Emergency case opened",
+          "VITALS_RECORDED": "Vitals recorded",
+          "DOCTOR_ASSIGNED": "Doctor assigned",
+          "DOCTOR_REVIEW_COMPLETED": "Doctor review completed",
+          "DISPOSITION_RECORDED": "Disposition recorded"
+        }
       },
       "states": {
         "loadErrorTitle": "Unable to load OPD flows",

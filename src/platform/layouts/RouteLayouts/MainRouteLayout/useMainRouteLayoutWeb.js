@@ -15,6 +15,7 @@ import {
   useI18n,
   useNavigationVisibility,
   useNotification,
+  useRealtimeEvent,
   useUiState,
 } from '@hooks';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
@@ -413,6 +414,45 @@ export default function useMainRouteLayoutWeb() {
     if (Array.isArray(result?.items)) return result.items;
     return [];
   }, [isAuthenticated, listNotifications, resolvedTenantId, resolvedUserId]);
+
+  const handleRealtimeNotification = useCallback((payload = {}) => {
+    const rawNotification =
+      payload?.notification && typeof payload.notification === 'object'
+        ? payload.notification
+        : payload;
+    const notificationId = String(rawNotification?.id || '').trim();
+    if (!notificationId) return;
+
+    const targetPath = rawNotification?.target_path || payload?.target_path || null;
+    const normalizedNotification = {
+      ...rawNotification,
+      target_path: targetPath,
+      route: rawNotification?.route || targetPath || rawNotification?.path || null,
+    };
+
+    setRawNotificationItems((previous) => {
+      const existingIndex = previous.findIndex(
+        (notification) => String(notification?.id || '').trim() === notificationId
+      );
+
+      if (existingIndex < 0) {
+        return [normalizedNotification, ...previous];
+      }
+
+      const existing = previous[existingIndex];
+      const merged = {
+        ...existing,
+        ...normalizedNotification,
+      };
+      const next = [...previous];
+      next.splice(existingIndex, 1);
+      return [merged, ...next];
+    });
+  }, []);
+
+  useRealtimeEvent('notification.created', handleRealtimeNotification, {
+    enabled: isAuthenticated,
+  });
 
   useEffect(() => {
     let active = true;

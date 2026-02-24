@@ -77,6 +77,27 @@ describe('useOpdFlowAccess', () => {
     expect(result.current.canPayConsultation).toBe(false);
   });
 
+  it('grants billing access for payment without start-flow privileges', () => {
+    useScopeAccess.mockReturnValue({
+      roles: ['BILLING'],
+      canRead: false,
+      canManageAllTenants: false,
+      tenantId: 'tenant-1',
+      facilityId: 'facility-1',
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useOpdFlowAccess());
+
+    expect(result.current.canAccessOpdFlow).toBe(true);
+    expect(result.current.canPayConsultation).toBe(true);
+    expect(result.current.canStartFlow).toBe(false);
+    expect(result.current.canRecordVitals).toBe(false);
+    expect(result.current.canAssignDoctor).toBe(false);
+    expect(result.current.canDoctorReview).toBe(false);
+    expect(result.current.canDisposition).toBe(false);
+  });
+
   it('exposes scoped tenant and facility ids for non-global roles', () => {
     const { result } = renderHook(() => useOpdFlowAccess());
 

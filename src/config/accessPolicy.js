@@ -408,6 +408,61 @@ const BACKEND_PERMISSION_SCOPE_MAP = Object.freeze({
   'system:admin': SCOPE_KEYS.SETTINGS,
 });
 
+const OPD_ACCESS_POLICY = Object.freeze({
+  view: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.RECEPTIONIST,
+    ROLE_KEYS.NURSE,
+    ROLE_KEYS.DOCTOR,
+    ROLE_KEYS.OPERATIONS,
+    ROLE_KEYS.BILLING,
+  ]),
+  start: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.RECEPTIONIST,
+    ROLE_KEYS.NURSE,
+    ROLE_KEYS.DOCTOR,
+    ROLE_KEYS.OPERATIONS,
+  ]),
+  payConsultation: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.RECEPTIONIST,
+    ROLE_KEYS.BILLING,
+  ]),
+  recordVitals: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.DOCTOR,
+    ROLE_KEYS.NURSE,
+  ]),
+  assignDoctor: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.RECEPTIONIST,
+    ROLE_KEYS.NURSE,
+  ]),
+  doctorReview: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.DOCTOR,
+  ]),
+  disposition: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.DOCTOR,
+  ]),
+});
+
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
 
 const extractRoleName = (value) => {
@@ -516,6 +571,7 @@ export {
   SCOPE_KEYS,
   SCOPE_ACCESS_MATRIX,
   BACKEND_PERMISSION_SCOPE_MAP,
+  OPD_ACCESS_POLICY,
   normalizeRoleKey,
   resolveCanonicalRoles,
   getScopeRoleKeys,

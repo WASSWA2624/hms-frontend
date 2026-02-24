@@ -60,9 +60,17 @@ const buildBaseHook = () => ({
   activeFlowId: 'enc-1',
   activeStage: 'WAITING_CONSULTATION_PAYMENT',
   stageAction: 'PAY_CONSULTATION',
+  progressSteps: [
+    { id: 'REGISTRATION_AND_QUEUE', labelKey: 'scheduling.opdFlow.progress.registrationAndQueue', status: 'current' },
+  ],
+  activeProgressIndex: 0,
+  currentActionGuidanceKey: 'scheduling.opdFlow.guidance.payConsultation',
+  currentActionRequirementKeys: ['scheduling.opdFlow.guidance.requirements.paymentMethod'],
   isTerminalStage: false,
   isStartFormOpen: false,
+  isStartAdvancedOpen: false,
   setIsStartFormOpen: jest.fn(),
+  setIsStartAdvancedOpen: jest.fn(),
   startDraft: {
     arrival_mode: 'WALK_IN',
     patient_id: '',
@@ -113,6 +121,7 @@ const buildBaseHook = () => ({
   },
   formError: '',
   timeline: [],
+  timelineItems: [],
   stageLabelKey: 'scheduling.opdFlow.stages.WAITING_CONSULTATION_PAYMENT',
   dispositionStages: new Set(),
   arrivalModeOptions: [{ value: 'WALK_IN', labelKey: 'scheduling.opdFlow.options.arrivalMode.walkIn' }],
@@ -161,11 +170,13 @@ describe('OpdFlowWorkbenchScreen', () => {
   });
 
   it('renders OPD workbench with flow list and current stage', () => {
-    const { getByTestId } = renderWithTheme(<OpdFlowWorkbenchScreen />);
+    const { getByTestId, getByText } = renderWithTheme(<OpdFlowWorkbenchScreen />);
 
     expect(getByTestId('opd-workbench-screen')).toBeTruthy();
     expect(getByTestId('opd-workbench-stage-label')).toBeTruthy();
     expect(getByTestId('opd-workbench-list-item-1')).toBeTruthy();
+    expect(getByText('scheduling.opdFlow.progress.title')).toBeTruthy();
+    expect(getByText('scheduling.opdFlow.guidance.title')).toBeTruthy();
   });
 
   it('toggles start form visibility when requested', () => {

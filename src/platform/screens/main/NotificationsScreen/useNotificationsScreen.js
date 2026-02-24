@@ -7,7 +7,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
-import { useAuth, useI18n, useNavigationVisibility, useNotification } from '@hooks';
+import {
+  useAuth,
+  useI18n,
+  useNavigationVisibility,
+  useNotification,
+  useRealtimeEvent,
+} from '@hooks';
 import {
   flattenNavigation,
   formatNotificationMeta,
@@ -40,6 +46,7 @@ const resolveTypeLabelKey = (type) => {
   if (type === 'BILLING') return 'navigation.notifications.types.billing';
   if (type === 'LAB') return 'navigation.notifications.types.lab';
   if (type === 'PHARMACY') return 'navigation.notifications.types.pharmacy';
+  if (type === 'OPD') return 'navigation.notifications.types.opd';
   if (type === 'SYSTEM') return 'navigation.notifications.types.system';
   return 'navigation.notifications.types.general';
 };
@@ -49,6 +56,7 @@ const resolveTypeVariant = (type) => {
   if (type === 'BILLING') return 'warning';
   if (type === 'LAB') return 'success';
   if (type === 'PHARMACY') return 'primary';
+  if (type === 'OPD') return 'primary';
   if (type === 'SYSTEM') return 'warning';
   return 'primary';
 };
@@ -79,6 +87,8 @@ const toNotificationItems = (
         t('navigation.notifications.menuLabel');
       const timestamp = resolveNotificationTimestamp(notification);
       const type = getNotificationType(notification) || 'SYSTEM';
+      const resolvedType =
+        type === 'SYSTEM' && route.startsWith('/scheduling/opd-flows') ? 'OPD' : type;
       const unread = isNotificationUnread(notification);
 
       return {
@@ -88,9 +98,9 @@ const toNotificationItems = (
         meta,
         route,
         unread,
-        type,
-        typeLabel: t(resolveTypeLabelKey(type)),
-        typeVariant: resolveTypeVariant(type),
+        type: resolvedType,
+        typeLabel: t(resolveTypeLabelKey(resolvedType)),
+        typeVariant: resolveTypeVariant(resolvedType),
         timestampMs: timestamp ? timestamp.getTime() : 0,
         timestampLabel: timestamp
           ? timestamp.toLocaleString(locale)
@@ -232,6 +242,43 @@ const useNotificationsScreen = () => {
       resolvedUserId,
     ]
   );
+
+  const handleRealtimeNotification = useCallback((payload = {}) => {
+    const rawNotification =
+      payload?.notification && typeof payload.notification === 'object'
+        ? payload.notification
+        : payload;
+    const notificationId = String(rawNotification?.id || '').trim();
+    if (!notificationId) return;
+
+    const normalizedNotification = {
+      ...rawNotification,
+      target_path: rawNotification?.target_path || payload?.target_path || null,
+    };
+
+    setRawNotifications((previous) => {
+      const existingIndex = previous.findIndex(
+        (notification) => String(notification?.id || '').trim() === notificationId
+      );
+
+      if (existingIndex < 0) {
+        return [normalizedNotification, ...previous];
+      }
+
+      const existing = previous[existingIndex];
+      const merged = {
+        ...existing,
+        ...normalizedNotification,
+      };
+      const next = [...previous];
+      next.splice(existingIndex, 1);
+      return [merged, ...next];
+    });
+  }, []);
+
+  useRealtimeEvent('notification.created', handleRealtimeNotification, {
+    enabled: isAuthenticated,
+  });
 
   useEffect(() => {
     let active = true;

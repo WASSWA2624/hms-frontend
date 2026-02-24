@@ -151,14 +151,16 @@ const useSchedulingOverviewScreen = () => {
         };
       });
 
+      const opdWorkbenchCard = {
+        id: 'opd-flows',
+        routePath: '/scheduling/opd-flows',
+        label: t('scheduling.opdFlow.card.title'),
+        description: t('scheduling.opdFlow.card.description'),
+      };
+
       return [
+        opdWorkbenchCard,
         ...resourceCards,
-        {
-          id: 'opd-flows',
-          routePath: '/scheduling/opd-flows',
-          label: t('scheduling.opdFlow.card.title'),
-          description: t('scheduling.opdFlow.card.description'),
-        },
       ];
     },
     [t]
@@ -269,10 +271,18 @@ const useSchedulingOverviewScreen = () => {
     router.push('/scheduling/appointments/create');
   }, [canViewOverview, canCreateSchedulingRecords, router]);
 
+  const handleOpenOpdWorkbench = useCallback(() => {
+    if (!canViewOverview) return;
+    router.push('/scheduling/opd-flows');
+  }, [canViewOverview, router]);
+
   return {
     cards,
     overviewSummary,
     helpContent,
+    opdQuickCtaLabel: t('scheduling.overview.opdQuickCta'),
+    opdQuickCtaHint: t('scheduling.overview.opdQuickCtaHint'),
+    opdEmphasis: t('scheduling.overview.opdEmphasis'),
     recentAppointments,
     canCreateSchedulingRecords,
     showCreateAppointmentAction: canViewOverview && canCreateSchedulingRecords,
@@ -284,6 +294,7 @@ const useSchedulingOverviewScreen = () => {
     onOpenResource: handleOpenResource,
     onOpenAppointment: handleOpenAppointment,
     onCreateAppointment: handleCreateAppointment,
+    onOpenOpdWorkbench: handleOpenOpdWorkbench,
   };
 };
 

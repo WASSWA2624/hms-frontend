@@ -81,6 +81,12 @@ describe('useSchedulingOverviewScreen', () => {
     expect(params.limit).toBeLessThanOrEqual(100);
   });
 
+  it('places OPD workbench card first in scheduling resources', () => {
+    const { result } = renderHook(() => useSchedulingOverviewScreen());
+    expect(result.current.cards[0]?.id).toBe('opd-flows');
+    expect(result.current.cards[0]?.routePath).toBe('/scheduling/opd-flows');
+  });
+
   it('includes tenant and facility scope when user cannot manage all tenants', () => {
     useSchedulingAccess.mockReturnValue({
       canAccessScheduling: true,
@@ -192,5 +198,15 @@ describe('useSchedulingOverviewScreen', () => {
 
     renderHook(() => useSchedulingOverviewScreen());
     expect(mockReplace).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('navigates to OPD workbench from quick CTA handler', () => {
+    const { result } = renderHook(() => useSchedulingOverviewScreen());
+
+    act(() => {
+      result.current.onOpenOpdWorkbench();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/scheduling/opd-flows');
   });
 });

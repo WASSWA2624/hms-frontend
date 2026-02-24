@@ -25,11 +25,12 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(),
   useOpdFlow: jest.fn(),
   useOpdFlowAccess: jest.fn(),
+  useRealtimeEvent: jest.fn(),
 }));
 
 const useOpdFlowWorkbenchScreen =
   require('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkbenchScreen').default;
-const { useI18n, useNetwork, useOpdFlow, useOpdFlowAccess } = require('@hooks');
+const { useI18n, useNetwork, useOpdFlow, useOpdFlowAccess, useRealtimeEvent } = require('@hooks');
 
 const buildSnapshot = (id = 'enc-1', stage = 'WAITING_VITALS') => ({
   id,
@@ -58,6 +59,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
 
     useI18n.mockReturnValue({
       t: (key) => key,
+      locale: 'en',
     });
     useNetwork.mockReturnValue({
       isOffline: false,
@@ -102,6 +104,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
       errorCode: null,
       data: null,
     });
+    useRealtimeEvent.mockImplementation(() => {});
   });
 
   it('loads OPD flow list with tenant/facility scope for scoped users', async () => {
@@ -138,6 +141,27 @@ describe('useOpdFlowWorkbenchScreen', () => {
     await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
     rerender({});
     await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+  });
+
+  it('refreshes selected flow when receiving realtime OPD updates', async () => {
+    renderHook(() => useOpdFlowWorkbenchScreen());
+
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(1));
+    expect(useRealtimeEvent).toHaveBeenCalledWith(
+      'opd.flow.updated',
+      expect.any(Function),
+      expect.objectContaining({ enabled: true })
+    );
+
+    const latestRealtimeCall = useRealtimeEvent.mock.calls[useRealtimeEvent.mock.calls.length - 1];
+    const realtimeHandler = latestRealtimeCall[1];
+    await act(async () => {
+      realtimeHandler({
+        encounter_id: 'enc-1',
+      });
+    });
+
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(2));
   });
 
   it('redirects to dashboard when OPD route access is denied', async () => {

@@ -25,6 +25,7 @@ export { default as useUiState } from './useUiState';
 export { default as useNetworkBanner } from './useNetworkBanner';
 export { default as useShellBanners } from './useShellBanners';
 export { default as useFocusTrap } from './useFocusTrap';
+export { default as useRealtimeEvent } from './useRealtimeEvent';
 export { default as useUserSession } from './useUserSession';
 export { default as useTenant } from './useTenant';
 export { default as useFacility } from './useFacility';

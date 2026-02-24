@@ -1,6 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useI18n, useNetwork, useOpdFlow, useOpdFlowAccess } from '@hooks';
+import {
+  useI18n,
+  useNetwork,
+  useOpdFlow,
+  useOpdFlowAccess,
+  useRealtimeEvent,
+} from '@hooks';
 import { resolveErrorMessage } from '../schedulingScreenUtils';
 
 const ACCESS_DENIED_CODES = new Set(['FORBIDDEN', 'UNAUTHORIZED']);
@@ -93,6 +99,67 @@ const STAGE_ACTION_MAP = {
   LAB_AND_RADIOLOGY_REQUESTED: 'DISPOSITION',
   PHARMACY_REQUESTED: 'DISPOSITION',
   WAITING_DISPOSITION: 'DISPOSITION',
+};
+
+const FLOW_PROGRESS_STEPS = [
+  {
+    id: 'REGISTRATION_AND_QUEUE',
+    labelKey: 'scheduling.opdFlow.progress.registrationAndQueue',
+    stages: ['WAITING_CONSULTATION_PAYMENT', 'WAITING_VITALS'],
+  },
+  {
+    id: 'TRIAGE_AND_ASSIGNMENT',
+    labelKey: 'scheduling.opdFlow.progress.triageAndAssignment',
+    stages: ['WAITING_DOCTOR_ASSIGNMENT'],
+  },
+  {
+    id: 'DOCTOR_REVIEW',
+    labelKey: 'scheduling.opdFlow.progress.doctorReview',
+    stages: ['WAITING_DOCTOR_REVIEW'],
+  },
+  {
+    id: 'ORDERS_AND_FOLLOW_THROUGH',
+    labelKey: 'scheduling.opdFlow.progress.ordersAndFollowThrough',
+    stages: [
+      'LAB_REQUESTED',
+      'RADIOLOGY_REQUESTED',
+      'LAB_AND_RADIOLOGY_REQUESTED',
+      'PHARMACY_REQUESTED',
+      'WAITING_DISPOSITION',
+    ],
+  },
+  {
+    id: 'FINAL_DISPOSITION',
+    labelKey: 'scheduling.opdFlow.progress.finalDisposition',
+    stages: ['ADMITTED', 'DISCHARGED'],
+  },
+];
+
+const ACTION_GUIDANCE_KEY_MAP = {
+  PAY_CONSULTATION: 'scheduling.opdFlow.guidance.payConsultation',
+  RECORD_VITALS: 'scheduling.opdFlow.guidance.recordVitals',
+  ASSIGN_DOCTOR: 'scheduling.opdFlow.guidance.assignDoctor',
+  DOCTOR_REVIEW: 'scheduling.opdFlow.guidance.doctorReview',
+  DISPOSITION: 'scheduling.opdFlow.guidance.disposition',
+};
+
+const ACTION_REQUIREMENT_KEYS_MAP = {
+  PAY_CONSULTATION: ['scheduling.opdFlow.guidance.requirements.paymentMethod'],
+  RECORD_VITALS: ['scheduling.opdFlow.guidance.requirements.vitals'],
+  ASSIGN_DOCTOR: ['scheduling.opdFlow.guidance.requirements.provider'],
+  DOCTOR_REVIEW: ['scheduling.opdFlow.guidance.requirements.reviewNote'],
+  DISPOSITION: ['scheduling.opdFlow.guidance.requirements.disposition'],
+};
+
+const TIMELINE_EVENT_LABEL_KEY_MAP = {
+  FLOW_STARTED: 'scheduling.opdFlow.timeline.events.FLOW_STARTED',
+  CONSULTATION_INVOICE_CREATED: 'scheduling.opdFlow.timeline.events.CONSULTATION_INVOICE_CREATED',
+  CONSULTATION_PAYMENT_RECORDED: 'scheduling.opdFlow.timeline.events.CONSULTATION_PAYMENT_RECORDED',
+  EMERGENCY_CASE_OPENED: 'scheduling.opdFlow.timeline.events.EMERGENCY_CASE_OPENED',
+  VITALS_RECORDED: 'scheduling.opdFlow.timeline.events.VITALS_RECORDED',
+  DOCTOR_ASSIGNED: 'scheduling.opdFlow.timeline.events.DOCTOR_ASSIGNED',
+  DOCTOR_REVIEW_COMPLETED: 'scheduling.opdFlow.timeline.events.DOCTOR_REVIEW_COMPLETED',
+  DISPOSITION_RECORDED: 'scheduling.opdFlow.timeline.events.DISPOSITION_RECORDED',
 };
 
 const DEFAULT_START_DRAFT = {
@@ -189,8 +256,37 @@ const resolveListItems = (value) => {
   return [];
 };
 
+const formatRelativeTime = (isoValue, locale = 'en') => {
+  const parsed = new Date(isoValue);
+  if (Number.isNaN(parsed.getTime())) return '';
+
+  const deltaMs = parsed.getTime() - Date.now();
+  const absDeltaMs = Math.abs(deltaMs);
+  const minuteMs = 60000;
+  const hourMs = 60 * minuteMs;
+  const dayMs = 24 * hourMs;
+
+  let unit = 'minute';
+  let value = Math.round(deltaMs / minuteMs);
+
+  if (absDeltaMs >= dayMs) {
+    unit = 'day';
+    value = Math.round(deltaMs / dayMs);
+  } else if (absDeltaMs >= hourMs) {
+    unit = 'hour';
+    value = Math.round(deltaMs / hourMs);
+  }
+
+  try {
+    const formatter = new Intl.RelativeTimeFormat(locale || 'en', { numeric: 'auto' });
+    return formatter.format(value, unit);
+  } catch {
+    return '';
+  }
+};
+
 const useOpdFlowWorkbenchScreen = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
@@ -229,6 +325,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [selectedFlowId, setSelectedFlowId] = useState('');
   const [selectedFlow, setSelectedFlow] = useState(null);
   const [isStartFormOpen, setIsStartFormOpen] = useState(false);
+  const [isStartAdvancedOpen, setIsStartAdvancedOpen] = useState(false);
   const [startDraft, setStartDraft] = useState(DEFAULT_START_DRAFT);
   const [paymentDraft, setPaymentDraft] = useState(DEFAULT_PAYMENT_DRAFT);
   const [vitalsDraft, setVitalsDraft] = useState({
@@ -240,6 +337,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [reviewDraft, setReviewDraft] = useState(DEFAULT_REVIEW_DRAFT);
   const [dispositionDraft, setDispositionDraft] = useState(DEFAULT_DISPOSITION_DRAFT);
   const [formError, setFormError] = useState('');
+  const lastRealtimeRefreshRef = useRef(0);
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
@@ -323,6 +421,64 @@ const useOpdFlowWorkbenchScreen = () => {
     loadSelectedFlow();
   }, [loadSelectedFlow]);
 
+  const refreshFromRealtimeEvent = useCallback(
+    async (encounterId) => {
+      const now = Date.now();
+      if (now - lastRealtimeRefreshRef.current < 750) return;
+      lastRealtimeRefreshRef.current = now;
+
+      if (encounterId && selectedFlowId && encounterId === selectedFlowId) {
+        await loadSelectedFlow();
+        return;
+      }
+
+      await loadFlowList();
+      if (encounterId && !selectedFlowId) {
+        setSelectedFlowId(encounterId);
+      }
+    },
+    [loadFlowList, loadSelectedFlow, selectedFlowId]
+  );
+
+  const handleRealtimeOpdUpdate = useCallback(
+    (payload = {}) => {
+      if (!canViewWorkbench || isOffline) return;
+
+      const eventTenantId = sanitizeString(payload?.tenant_id);
+      const eventFacilityId = sanitizeString(payload?.facility_id);
+      const encounterId = sanitizeString(payload?.encounter_id);
+
+      if (!encounterId) return;
+
+      if (!canManageAllTenants) {
+        if (normalizedTenantId && eventTenantId && eventTenantId !== normalizedTenantId) return;
+        if (normalizedFacilityId && eventFacilityId && eventFacilityId !== normalizedFacilityId) return;
+      }
+
+      const isKnownFlow =
+        encounterId === selectedFlowId ||
+        flowList.some((item) => resolveEncounterId(item) === encounterId);
+
+      if (isKnownFlow || !selectedFlowId) {
+        refreshFromRealtimeEvent(encounterId);
+      }
+    },
+    [
+      canManageAllTenants,
+      canViewWorkbench,
+      flowList,
+      isOffline,
+      normalizedFacilityId,
+      normalizedTenantId,
+      refreshFromRealtimeEvent,
+      selectedFlowId,
+    ]
+  );
+
+  useRealtimeEvent('opd.flow.updated', handleRealtimeOpdUpdate, {
+    enabled: canViewWorkbench && !isOffline,
+  });
+
   const activeFlow = useMemo(() => {
     if (selectedFlow && resolveEncounterId(selectedFlow) === selectedFlowId) {
       return selectedFlow;
@@ -351,6 +507,31 @@ const useOpdFlowWorkbenchScreen = () => {
     isOffline,
     stageAction,
   ]);
+
+  const activeProgressIndex = useMemo(
+    () => FLOW_PROGRESS_STEPS.findIndex((step) => step.stages.includes(activeStage)),
+    [activeStage]
+  );
+  const progressSteps = useMemo(
+    () =>
+      FLOW_PROGRESS_STEPS.map((step, index) => ({
+        ...step,
+        status:
+          activeProgressIndex < 0
+            ? 'upcoming'
+            : index < activeProgressIndex
+              ? 'completed'
+              : index === activeProgressIndex
+                ? 'current'
+                : 'upcoming',
+      })),
+    [activeProgressIndex]
+  );
+
+  const currentActionGuidanceKey = stageAction
+    ? ACTION_GUIDANCE_KEY_MAP[stageAction] || 'scheduling.opdFlow.guidance.default'
+    : 'scheduling.opdFlow.guidance.noAction';
+  const currentActionRequirementKeys = ACTION_REQUIREMENT_KEYS_MAP[stageAction] || [];
 
   const isAccessDenied = ACCESS_DENIED_CODES.has(errorCode);
   const isEntitlementBlocked = ENTITLEMENT_DENIED_CODES.has(errorCode);
@@ -384,6 +565,7 @@ const useOpdFlowWorkbenchScreen = () => {
       }
       resetDrafts();
       setIsStartFormOpen(false);
+      setIsStartAdvancedOpen(false);
     },
     [router, upsertFlowInList, resetDrafts]
   );
@@ -765,6 +947,32 @@ const useOpdFlowWorkbenchScreen = () => {
   const timeline = normalizeScalarParam(activeFlow?.flow?.stage)
     ? activeFlow?.timeline || activeFlow?.flow?.timeline || []
     : [];
+  const timelineItems = useMemo(
+    () =>
+      timeline.map((entry) => {
+        const eventName = sanitizeString(entry?.event);
+        const labelKey =
+          TIMELINE_EVENT_LABEL_KEY_MAP[eventName] || 'scheduling.opdFlow.timeline.eventUnknown';
+        const parsedAt = entry?.at ? new Date(entry.at) : null;
+        const timestampLabel =
+          parsedAt && !Number.isNaN(parsedAt.getTime())
+            ? parsedAt.toLocaleString(locale || undefined)
+            : sanitizeString(entry?.at) || '-';
+        const relativeLabel =
+          parsedAt && !Number.isNaN(parsedAt.getTime())
+            ? formatRelativeTime(entry.at, locale)
+            : '';
+
+        return {
+          ...entry,
+          labelKey,
+          label: labelKey === 'scheduling.opdFlow.timeline.eventUnknown' ? eventName || t(labelKey) : t(labelKey),
+          timestampLabel,
+          relativeLabel,
+        };
+      }),
+    [locale, t, timeline]
+  );
 
   const canMutate = !isOffline;
 
@@ -796,9 +1004,15 @@ const useOpdFlowWorkbenchScreen = () => {
     activeFlowId,
     activeStage,
     stageAction,
+    progressSteps,
+    activeProgressIndex,
+    currentActionGuidanceKey,
+    currentActionRequirementKeys,
     isTerminalStage,
     isStartFormOpen,
+    isStartAdvancedOpen,
     setIsStartFormOpen,
+    setIsStartAdvancedOpen,
     startDraft,
     paymentDraft,
     vitalsDraft,
@@ -807,6 +1021,7 @@ const useOpdFlowWorkbenchScreen = () => {
     dispositionDraft,
     formError,
     timeline,
+    timelineItems,
     stageLabelKey: activeStage ? `scheduling.opdFlow.stages.${activeStage}` : '',
     dispositionStages: DISPOSITION_STAGES,
     arrivalModeOptions: ARRIVAL_MODE_OPTIONS,

@@ -48,6 +48,9 @@ const SchedulingOverviewScreenWeb = () => {
     cards,
     overviewSummary,
     helpContent,
+    opdQuickCtaLabel,
+    opdQuickCtaHint,
+    opdEmphasis,
     recentAppointments,
     showCreateAppointmentAction,
     isLoading,
@@ -58,6 +61,7 @@ const SchedulingOverviewScreenWeb = () => {
     onOpenResource,
     onOpenAppointment,
     onCreateAppointment,
+    onOpenOpdWorkbench,
   } = useSchedulingOverviewScreen();
 
   return (
@@ -99,6 +103,20 @@ const SchedulingOverviewScreenWeb = () => {
             <StyledSummaryListItem role="listitem">{overviewSummary.access}</StyledSummaryListItem>
             <StyledSummaryListItem role="listitem">{overviewSummary.recentCount}</StyledSummaryListItem>
           </StyledSummaryList>
+
+          <Text variant="caption">{opdEmphasis}</Text>
+
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onOpenOpdWorkbench}
+            accessibilityLabel={opdQuickCtaLabel}
+            accessibilityHint={opdQuickCtaHint}
+            icon={<Icon glyph="+" size="xs" decorative />}
+            testID="scheduling-overview-open-opd-workbench"
+          >
+            {opdQuickCtaLabel}
+          </Button>
 
           {showCreateAppointmentAction ? (
             <Button

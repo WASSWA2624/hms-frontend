@@ -135,18 +135,91 @@ const StyledTimelineItem = styled.li.withConfig({
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
 `;
 
+const StyledTimelineMeta = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledTimelineMeta',
+  componentId: 'OpdFlowWorkbench_StyledTimelineMeta',
+})`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+`;
+
+const StyledProgressTracker = styled.ul.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressTracker',
+  componentId: 'OpdFlowWorkbench_StyledProgressTracker',
+})`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.xs}px;
+
+  @media (max-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StyledProgressStep = styled.li.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressStep',
+  componentId: 'OpdFlowWorkbench_StyledProgressStep',
+})`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding: ${({ theme }) => theme.spacing.xs}px;
+  border-radius: ${({ theme }) => theme.spacing.xs}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  background: ${({ $status, theme }) =>
+    $status === 'current'
+      ? theme.colors.background.secondary
+      : $status === 'completed'
+        ? theme.colors.surface.secondary
+        : theme.colors.surface.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+`;
+
+const StyledProgressDot = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressDot',
+  componentId: 'OpdFlowWorkbench_StyledProgressDot',
+})`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ $status, theme }) =>
+    $status === 'completed' || $status === 'current'
+      ? theme.colors.success
+      : theme.colors.border.medium};
+`;
+
+const StyledGuidanceList = styled.ul.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledGuidanceList',
+  componentId: 'OpdFlowWorkbench_StyledGuidanceList',
+})`
+  margin: 0;
+  padding-left: ${({ theme }) => theme.spacing.md}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 export {
   StyledCardGrid,
   StyledContainer,
   StyledFieldRow,
   StyledFlowList,
   StyledForm,
+  StyledGuidanceList,
   StyledInlineActions,
   StyledLayout,
   StyledMeta,
   StyledPanel,
   StyledPanelHeader,
+  StyledProgressDot,
+  StyledProgressStep,
+  StyledProgressTracker,
   StyledSectionTitle,
   StyledTimeline,
   StyledTimelineItem,
+  StyledTimelineMeta,
 };
