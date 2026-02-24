@@ -140,8 +140,8 @@ const useSchedulingOverviewScreen = () => {
   );
 
   const cards = useMemo(
-    () =>
-      SCHEDULING_RESOURCE_LIST_ORDER.map((resourceId) => {
+    () => {
+      const resourceCards = SCHEDULING_RESOURCE_LIST_ORDER.map((resourceId) => {
         const config = getSchedulingResourceConfig(resourceId);
         return {
           id: resourceId,
@@ -149,7 +149,18 @@ const useSchedulingOverviewScreen = () => {
           label: t(`${config?.i18nKey}.pluralLabel`),
           description: t(`${config?.i18nKey}.overviewDescription`),
         };
-      }),
+      });
+
+      return [
+        ...resourceCards,
+        {
+          id: 'opd-flows',
+          routePath: '/scheduling/opd-flows',
+          label: t('scheduling.opdFlow.card.title'),
+          description: t('scheduling.opdFlow.card.description'),
+        },
+      ];
+    },
     [t]
   );
 

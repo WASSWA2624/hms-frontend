@@ -104,6 +104,7 @@ export { default as SchedulingOverviewScreen } from './scheduling/SchedulingOver
 export { default as SchedulingResourceListScreen } from './scheduling/SchedulingResourceListScreen';
 export { default as SchedulingResourceDetailScreen } from './scheduling/SchedulingResourceDetailScreen';
 export { default as SchedulingResourceFormScreen } from './scheduling/SchedulingResourceFormScreen';
+export { default as OpdFlowWorkbenchScreen } from './scheduling/OpdFlowWorkbenchScreen';
 
 // Clinical screens
 export { default as ClinicalScreen } from './clinical/ClinicalScreen';

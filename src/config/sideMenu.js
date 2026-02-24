@@ -334,6 +334,13 @@ const SCHEDULING_ITEMS = [
     name: `${MAIN_NAV_I18N}.scheduling-visit-queues`,
     roles: SCHEDULING_ACCESS_ROLES,
   },
+  {
+    id: 'scheduling-opd-flows',
+    icon: 'medkit-outline',
+    path: '/scheduling/opd-flows',
+    name: `${MAIN_NAV_I18N}.scheduling-opd-flows`,
+    roles: SCHEDULING_ACCESS_ROLES,
+  },
 ];
 
 /** @type {MainNavChild[]} */
@@ -399,6 +406,13 @@ const CLINICAL_ITEMS = [
     icon: 'mail-outline',
     path: '/clinical/follow-ups',
     name: `${MAIN_NAV_I18N}.clinical-follow-ups`,
+    roles: CLINICAL_ACCESS_ROLES,
+  },
+  {
+    id: 'clinical-opd-flows',
+    icon: 'medkit-outline',
+    path: '/scheduling/opd-flows',
+    name: `${MAIN_NAV_I18N}.clinical-opd-flows`,
     roles: CLINICAL_ACCESS_ROLES,
   },
 ];

@@ -58,6 +58,24 @@ describe('services/api/endpoints', () => {
     expect(endpoints.VISIT_QUEUES.PRIORITIZE('id')).toMatch(
       /\/visit-queues\/id\/prioritize$/
     );
+    expect(endpoints.OPD_FLOWS.LIST).toMatch(/\/opd-flows$/);
+    expect(endpoints.OPD_FLOWS.GET('id')).toMatch(/\/opd-flows\/id$/);
+    expect(endpoints.OPD_FLOWS.START).toMatch(/\/opd-flows\/start$/);
+    expect(endpoints.OPD_FLOWS.PAY_CONSULTATION('id')).toMatch(
+      /\/opd-flows\/id\/pay-consultation$/
+    );
+    expect(endpoints.OPD_FLOWS.RECORD_VITALS('id')).toMatch(
+      /\/opd-flows\/id\/record-vitals$/
+    );
+    expect(endpoints.OPD_FLOWS.ASSIGN_DOCTOR('id')).toMatch(
+      /\/opd-flows\/id\/assign-doctor$/
+    );
+    expect(endpoints.OPD_FLOWS.DOCTOR_REVIEW('id')).toMatch(
+      /\/opd-flows\/id\/doctor-review$/
+    );
+    expect(endpoints.OPD_FLOWS.DISPOSITION('id')).toMatch(
+      /\/opd-flows\/id\/disposition$/
+    );
   });
 
   it('includes referral redeem workflow action endpoint', () => {

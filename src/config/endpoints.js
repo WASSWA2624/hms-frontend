@@ -274,6 +274,16 @@ export const endpoints = {
     DELETE: (id) => `${baseUrl}/visit-queues/${id}`,
     PRIORITIZE: (id) => `${baseUrl}/visit-queues/${id}/prioritize`,
   },
+  OPD_FLOWS: {
+    LIST: `${baseUrl}/opd-flows`,
+    GET: (id) => `${baseUrl}/opd-flows/${id}`,
+    START: `${baseUrl}/opd-flows/start`,
+    PAY_CONSULTATION: (id) => `${baseUrl}/opd-flows/${id}/pay-consultation`,
+    RECORD_VITALS: (id) => `${baseUrl}/opd-flows/${id}/record-vitals`,
+    ASSIGN_DOCTOR: (id) => `${baseUrl}/opd-flows/${id}/assign-doctor`,
+    DOCTOR_REVIEW: (id) => `${baseUrl}/opd-flows/${id}/doctor-review`,
+    DISPOSITION: (id) => `${baseUrl}/opd-flows/${id}/disposition`,
+  },
   ENCOUNTERS: {
     LIST: `${baseUrl}/encounters`,
     CREATE: `${baseUrl}/encounters`,

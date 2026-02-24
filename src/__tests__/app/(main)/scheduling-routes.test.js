@@ -7,6 +7,7 @@ const mockScreens = {
   SchedulingResourceListScreen: jest.fn(() => null),
   SchedulingResourceDetailScreen: jest.fn(() => null),
   SchedulingResourceFormScreen: jest.fn(() => null),
+  OpdFlowWorkbenchScreen: jest.fn(() => null),
   NotFoundScreen: jest.fn(() => null),
 };
 const mockSlot = jest.fn(() => null);
@@ -41,6 +42,7 @@ jest.mock('@platform/screens', () => ({
   SchedulingResourceListScreen: (...args) => mockScreens.SchedulingResourceListScreen(...args),
   SchedulingResourceDetailScreen: (...args) => mockScreens.SchedulingResourceDetailScreen(...args),
   SchedulingResourceFormScreen: (...args) => mockScreens.SchedulingResourceFormScreen(...args),
+  OpdFlowWorkbenchScreen: (...args) => mockScreens.OpdFlowWorkbenchScreen(...args),
   NotFoundScreen: (...args) => mockScreens.NotFoundScreen(...args),
 }));
 
@@ -83,6 +85,14 @@ const SCHEDULING_ROUTE_CASES = [
   {
     routePath: '../../../app/(main)/scheduling/index',
     screenKey: 'SchedulingOverviewScreen',
+  },
+  {
+    routePath: '../../../app/(main)/scheduling/opd-flows/index',
+    screenKey: 'OpdFlowWorkbenchScreen',
+  },
+  {
+    routePath: '../../../app/(main)/scheduling/opd-flows/[id]',
+    screenKey: 'OpdFlowWorkbenchScreen',
   },
   {
     routePath: '../../../app/(main)/scheduling/[...missing]',

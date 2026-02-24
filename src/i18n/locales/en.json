@@ -562,6 +562,7 @@
         "scheduling-provider-schedules": "Provider Schedules",
         "scheduling-availability-slots": "Availability Slots",
         "scheduling-visit-queues": "Visit Queues",
+        "scheduling-opd-flows": "OPD Flows",
         "clinical": "Clinical",
         "clinical-encounters": "Encounters",
         "clinical-clinical-notes": "Clinical Notes",
@@ -572,6 +573,7 @@
         "clinical-clinical-alerts": "Clinical Alerts",
         "clinical-referrals": "Referrals",
         "clinical-follow-ups": "Follow-ups",
+        "clinical-opd-flows": "OPD Flows",
         "ipd": "IPD",
         "ipd-admissions": "Admissions",
         "ipd-bed-assignments": "Bed Assignments",
@@ -6752,6 +6754,224 @@
       "unnamedAppointment": "Appointment record {{position}}",
       "unknownSchedule": "Schedule details pending",
       "appointmentForPatient": "Appointment for {{patient}}"
+    },
+    "opdFlow": {
+      "title": "OPD Flow Workbench",
+      "description": "Track OPD patient progress from registration to final disposition in one timeline-driven workspace.",
+      "card": {
+        "title": "OPD Flow Workbench",
+        "description": "Start and advance OPD flows for walk-in, online appointment, and emergency arrivals."
+      },
+      "list": {
+        "title": "OPD Flows",
+        "count": "{{count}} active flows",
+        "itemTitle": "Flow {{id}}",
+        "unknownFlow": "Unknown flow"
+      },
+      "actions": {
+        "startFlow": "Start Flow",
+        "payConsultation": "Pay Consultation",
+        "recordVitals": "Record Vitals",
+        "assignDoctor": "Assign Doctor",
+        "doctorReview": "Doctor Review",
+        "disposition": "Apply Disposition",
+        "addRow": "Add Row",
+        "removeRow": "Remove",
+        "currentStep": "Current Step Action"
+      },
+      "start": {
+        "arrivalMode": "Arrival mode",
+        "patientId": "Patient ID",
+        "patientIdHint": "Optional when appointment ID or registration name is provided.",
+        "appointmentId": "Appointment ID",
+        "appointmentIdHint": "Required for online appointment mode.",
+        "firstName": "Patient first name",
+        "lastName": "Patient last name",
+        "providerUserId": "Provider user ID",
+        "consultationFee": "Consultation fee",
+        "currency": "Currency",
+        "notes": "Notes",
+        "requirePayment": "Require consultation payment",
+        "createInvoice": "Create consultation invoice",
+        "payNow": "Capture payment now",
+        "payNowMethod": "Pay-now method",
+        "payNowAmount": "Pay-now amount",
+        "emergencySeverity": "Emergency severity",
+        "emergencyTriageLevel": "Emergency triage level",
+        "emergencyNotes": "Emergency notes"
+      },
+      "payment": {
+        "method": "Payment method",
+        "amount": "Amount",
+        "currency": "Currency",
+        "transactionRef": "Transaction reference",
+        "notes": "Payment notes"
+      },
+      "vitals": {
+        "title": "Vitals",
+        "vitalType": "Vital type",
+        "value": "Value",
+        "unit": "Unit",
+        "triageLevel": "Triage level",
+        "triageNotes": "Triage notes"
+      },
+      "assign": {
+        "providerUserId": "Provider user ID"
+      },
+      "review": {
+        "note": "Clinical note",
+        "diagnoses": "Diagnoses",
+        "procedures": "Procedures",
+        "labRequests": "Lab requests",
+        "radiologyRequests": "Radiology requests",
+        "medications": "Medications",
+        "diagnosisType": "Diagnosis type",
+        "code": "Code",
+        "description": "Description",
+        "labTestId": "Lab test ID",
+        "radiologyTestId": "Radiology test ID",
+        "drugId": "Drug ID",
+        "quantity": "Quantity",
+        "frequency": "Frequency",
+        "route": "Route",
+        "additionalNotes": "Additional notes"
+      },
+      "disposition": {
+        "decision": "Decision",
+        "admissionFacilityId": "Admission facility ID",
+        "notes": "Disposition notes"
+      },
+      "snapshot": {
+        "title": "Flow Snapshot",
+        "encounterId": "Encounter ID",
+        "queueId": "Queue ID",
+        "appointmentId": "Appointment ID",
+        "invoiceId": "Consultation invoice ID",
+        "paymentId": "Consultation payment ID",
+        "emergencyCaseId": "Emergency case ID",
+        "triageAssessmentId": "Triage assessment ID",
+        "labOrderIds": "Lab order IDs",
+        "radiologyOrderIds": "Radiology order IDs",
+        "pharmacyOrderId": "Pharmacy order ID",
+        "admissionId": "Admission ID"
+      },
+      "timeline": {
+        "title": "Timeline",
+        "emptyTitle": "No timeline events",
+        "emptyDescription": "Timeline entries will appear as the flow progresses.",
+        "eventUnknown": "Unknown event"
+      },
+      "states": {
+        "loadErrorTitle": "Unable to load OPD flows",
+        "loadError": "Unable to load OPD flow data. Check your connection and try again.",
+        "validationErrorTitle": "Validation issue",
+        "offlineNotice": "You are offline. Flow transitions are disabled until connectivity returns.",
+        "offlineActionsDisabled": "You are offline. Action submissions are currently disabled.",
+        "accessDeniedTitle": "Access denied",
+        "entitlementBlockedTitle": "OPD flow module unavailable",
+        "entitlementBlockedDescription": "Your subscription does not currently include OPD flow orchestration.",
+        "entitlementBlockedCta": "Manage subscription",
+        "noSelection": "No flow selected",
+        "selectFlow": "Select a flow from the list to view details and continue actions.",
+        "emptyTitle": "No OPD flows yet",
+        "emptyDescription": "Start a flow to begin OPD orchestration.",
+        "actionNotAllowed": "Your role cannot execute this step.",
+        "noActionForStage": "No actionable form is mapped for this stage.",
+        "terminalSummary": "This flow is in a terminal state. No further mutations are available."
+      },
+      "stages": {
+        "WAITING_CONSULTATION_PAYMENT": "Waiting Consultation Payment",
+        "WAITING_VITALS": "Waiting Vitals",
+        "WAITING_DOCTOR_ASSIGNMENT": "Waiting Doctor Assignment",
+        "WAITING_DOCTOR_REVIEW": "Waiting Doctor Review",
+        "LAB_REQUESTED": "Lab Requested",
+        "RADIOLOGY_REQUESTED": "Radiology Requested",
+        "LAB_AND_RADIOLOGY_REQUESTED": "Lab and Radiology Requested",
+        "PHARMACY_REQUESTED": "Pharmacy Requested",
+        "WAITING_DISPOSITION": "Waiting Disposition",
+        "ADMITTED": "Admitted",
+        "DISCHARGED": "Discharged",
+        "UNKNOWN": "Unknown stage"
+      },
+      "validation": {
+        "patientOrAppointmentRequired": "Provide patient ID, appointment ID, or patient registration names.",
+        "appointmentRequired": "Appointment ID is required for online appointment mode.",
+        "paymentMethodRequired": "Payment method is required.",
+        "vitalsRequired": "Add at least one valid vital entry before submitting.",
+        "providerRequired": "Provider user ID is required.",
+        "reviewNoteRequired": "Clinical note is required before review submission.",
+        "dispositionRequired": "Disposition decision is required."
+      },
+      "options": {
+        "arrivalMode": {
+          "walkIn": "Walk-in",
+          "onlineAppointment": "Online appointment",
+          "emergency": "Emergency"
+        },
+        "emergencySeverity": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "critical": "Critical"
+        },
+        "triageLevel": {
+          "level1": "Level 1",
+          "level2": "Level 2",
+          "level3": "Level 3",
+          "level4": "Level 4",
+          "level5": "Level 5",
+          "immediate": "Immediate",
+          "urgent": "Urgent",
+          "lessUrgent": "Less urgent",
+          "nonUrgent": "Non-urgent"
+        },
+        "paymentMethod": {
+          "cash": "Cash",
+          "creditCard": "Credit card",
+          "debitCard": "Debit card",
+          "mobileMoney": "Mobile money",
+          "bankTransfer": "Bank transfer",
+          "insurance": "Insurance",
+          "other": "Other"
+        },
+        "vitalType": {
+          "temperature": "Temperature",
+          "bloodPressure": "Blood pressure",
+          "heartRate": "Heart rate",
+          "respiratoryRate": "Respiratory rate",
+          "oxygenSaturation": "Oxygen saturation",
+          "weight": "Weight",
+          "height": "Height",
+          "bmi": "BMI"
+        },
+        "diagnosisType": {
+          "primary": "Primary",
+          "secondary": "Secondary",
+          "differential": "Differential"
+        },
+        "medicationFrequency": {
+          "once": "Once",
+          "bid": "BID",
+          "tid": "TID",
+          "qid": "QID",
+          "prn": "PRN",
+          "stat": "STAT",
+          "custom": "Custom"
+        },
+        "medicationRoute": {
+          "oral": "Oral",
+          "iv": "IV",
+          "im": "IM",
+          "topical": "Topical",
+          "inhalation": "Inhalation",
+          "other": "Other"
+        },
+        "disposition": {
+          "admit": "Admit",
+          "sendToPharmacy": "Send to pharmacy",
+          "discharge": "Discharge"
+        }
+      }
     },
     "notices": {
       "created": "{{resource}} created.",

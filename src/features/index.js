@@ -44,6 +44,7 @@ export * from './appointment-reminder';
 export * from './provider-schedule';
 export * from './availability-slot';
 export * from './visit-queue';
+export * from './opd-flow';
 export * from './encounter';
 export * from './clinical-note';
 export * from './diagnosis';
