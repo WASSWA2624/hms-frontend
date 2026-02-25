@@ -376,6 +376,27 @@ const sanitizeString = (value) => String(value || '').trim();
 const UUID_LIKE_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const isUuidLike = (value) => UUID_LIKE_REGEX.test(sanitizeString(value));
+const FRIENDLY_ID_REGEX = /^(?=.*\d)[A-Za-z][A-Za-z0-9_-]*$/;
+const isFriendlyIdentifier = (value) => FRIENDLY_ID_REGEX.test(sanitizeString(value));
+const toFriendlyScopeIdentifier = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized || isUuidLike(normalized) || !isFriendlyIdentifier(normalized)) return '';
+  return normalized;
+};
+const resolveScopeEntityPublicId = (record) => {
+  const candidates = [
+    record?.human_friendly_id,
+    record?.humanFriendlyId,
+    record?.id,
+  ];
+  for (const candidate of candidates) {
+    const publicId = toFriendlyScopeIdentifier(candidate);
+    if (publicId) return publicId;
+  }
+  return '';
+};
+const areSameIdentifiers = (left, right) =>
+  sanitizeString(left).toUpperCase() === sanitizeString(right).toUpperCase();
 
 const toFiniteNumber = (value) => {
   const parsed = Number(value);
@@ -948,29 +969,98 @@ const useOpdFlowWorkbenchScreen = () => {
   const [providerOptions, setProviderOptions] = useState([]);
   const [isCorrectionDialogOpen, setIsCorrectionDialogOpen] = useState(false);
   const [stageCorrectionDraft, setStageCorrectionDraft] = useState(DEFAULT_STAGE_CORRECTION_DRAFT);
+  const [scopeTenantId, setScopeTenantId] = useState('');
+  const [scopeFacilityId, setScopeFacilityId] = useState('');
+  const [isScopeResolved, setIsScopeResolved] = useState(false);
   const lastRealtimeRefreshRef = useRef(0);
 
-  const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
-  const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
-  const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
-  const canViewWorkbench = isResolved && canAccessOpdFlow && hasScope;
+  const rawTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
+  const rawFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
+
+  useEffect(() => {
+    if (!isResolved) {
+      setIsScopeResolved(false);
+      return;
+    }
+
+    if (canManageAllTenants) {
+      setScopeTenantId('');
+      setScopeFacilityId('');
+      setIsScopeResolved(true);
+      return;
+    }
+
+    let isDisposed = false;
+    setIsScopeResolved(false);
+
+    const resolveScopeIdentifiers = async () => {
+      let nextTenantId = toFriendlyScopeIdentifier(rawTenantId);
+      let nextFacilityId = toFriendlyScopeIdentifier(rawFacilityId);
+
+      if (!nextTenantId && rawTenantId) {
+        try {
+          const tenantRecord = await getTenantRecord(rawTenantId);
+          nextTenantId = resolveScopeEntityPublicId(tenantRecord);
+        } catch (_error) {
+          nextTenantId = '';
+        }
+      }
+
+      if (!nextFacilityId && rawFacilityId) {
+        try {
+          const facilityRecord = await getFacilityRecord(rawFacilityId);
+          nextFacilityId = resolveScopeEntityPublicId(facilityRecord);
+        } catch (_error) {
+          nextFacilityId = '';
+        }
+      }
+
+      if (!isDisposed) {
+        setScopeTenantId(nextTenantId);
+        setScopeFacilityId(nextFacilityId);
+        setIsScopeResolved(true);
+      }
+    };
+
+    resolveScopeIdentifiers().catch(() => {
+      if (!isDisposed) {
+        setScopeTenantId('');
+        setScopeFacilityId('');
+        setIsScopeResolved(true);
+      }
+    });
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [
+    canManageAllTenants,
+    getFacilityRecord,
+    getTenantRecord,
+    isResolved,
+    rawFacilityId,
+    rawTenantId,
+  ]);
+
+  const hasScope = canManageAllTenants || Boolean(scopeTenantId);
+  const canViewWorkbench = isResolved && isScopeResolved && canAccessOpdFlow && hasScope;
   const patientLookupParams = useMemo(() => {
     const params = { limit: LOOKUP_RESULT_LIMIT, sort_by: 'updated_at', order: 'desc' };
-    if (!canManageAllTenants && normalizedTenantId) {
-      params.tenant_id = normalizedTenantId;
+    if (!canManageAllTenants && scopeTenantId) {
+      params.tenant_id = scopeTenantId;
     }
-    if (!canManageAllTenants && normalizedFacilityId) {
-      params.facility_id = normalizedFacilityId;
+    if (!canManageAllTenants && scopeFacilityId) {
+      params.facility_id = scopeFacilityId;
     }
     return params;
-  }, [canManageAllTenants, normalizedFacilityId, normalizedTenantId]);
+  }, [canManageAllTenants, scopeFacilityId, scopeTenantId]);
   const providerLookupParams = useMemo(() => {
     const params = { limit: LOOKUP_RESULT_LIMIT, sort_by: 'updated_at', order: 'desc' };
-    if (!canManageAllTenants && normalizedTenantId) {
-      params.tenant_id = normalizedTenantId;
+    if (!canManageAllTenants && scopeTenantId) {
+      params.tenant_id = scopeTenantId;
     }
     return params;
-  }, [canManageAllTenants, normalizedTenantId]);
+  }, [canManageAllTenants, scopeTenantId]);
 
   const currencyOptions = useMemo(() => {
     const options = [...CURRENCY_OPTIONS, sanitizeString(globalCurrency).toUpperCase()].filter(Boolean);
@@ -1025,9 +1115,11 @@ const useOpdFlowWorkbenchScreen = () => {
     let isDisposed = false;
 
     const hydrateCurrency = async () => {
+      const facilityLookupId = rawFacilityId || scopeFacilityId;
+      const tenantLookupId = rawTenantId || scopeTenantId;
       const facilityCurrency =
-        normalizedFacilityId && sanitizeString(normalizedFacilityId)
-          ? resolveCurrencyFromExtension((await getFacilityRecord(normalizedFacilityId))?.extension_json)
+        facilityLookupId && sanitizeString(facilityLookupId)
+          ? resolveCurrencyFromExtension((await getFacilityRecord(facilityLookupId))?.extension_json)
           : '';
       if (facilityCurrency) {
         if (!isDisposed) setGlobalCurrency(facilityCurrency);
@@ -1035,8 +1127,8 @@ const useOpdFlowWorkbenchScreen = () => {
       }
 
       const tenantCurrency =
-        normalizedTenantId && sanitizeString(normalizedTenantId)
-          ? resolveCurrencyFromExtension((await getTenantRecord(normalizedTenantId))?.extension_json)
+        tenantLookupId && sanitizeString(tenantLookupId)
+          ? resolveCurrencyFromExtension((await getTenantRecord(tenantLookupId))?.extension_json)
           : '';
       if (!isDisposed) {
         setGlobalCurrency(tenantCurrency || DEFAULT_CURRENCY);
@@ -1050,7 +1142,16 @@ const useOpdFlowWorkbenchScreen = () => {
     return () => {
       isDisposed = true;
     };
-  }, [getFacilityRecord, getTenantRecord, isOffline, isResolved, normalizedFacilityId, normalizedTenantId]);
+  }, [
+    getFacilityRecord,
+    getTenantRecord,
+    isOffline,
+    isResolved,
+    rawFacilityId,
+    rawTenantId,
+    scopeFacilityId,
+    scopeTenantId,
+  ]);
 
   useEffect(() => {
     setStartDraft((previous) => {
@@ -1072,7 +1173,7 @@ const useOpdFlowWorkbenchScreen = () => {
   }, [globalCurrency]);
 
   useEffect(() => {
-    if (isOffline) return;
+    if (isOffline || !canViewWorkbench) return;
     let isDisposed = false;
 
     const timer = setTimeout(async () => {
@@ -1099,10 +1200,10 @@ const useOpdFlowWorkbenchScreen = () => {
       isDisposed = true;
       clearTimeout(timer);
     };
-  }, [isOffline, listPatientRecords, mapPatientToOption, patientLookupParams, startPatientSearchText]);
+  }, [canViewWorkbench, isOffline, listPatientRecords, mapPatientToOption, patientLookupParams, startPatientSearchText]);
 
   useEffect(() => {
-    if (isOffline) return;
+    if (isOffline || !canViewWorkbench) return;
     let isDisposed = false;
 
     const timer = setTimeout(async () => {
@@ -1131,6 +1232,7 @@ const useOpdFlowWorkbenchScreen = () => {
     };
   }, [
     assignProviderSearchText,
+    canViewWorkbench,
     isOffline,
     listStaffProfiles,
     mapProviderToOption,
@@ -1244,11 +1346,11 @@ const useOpdFlowWorkbenchScreen = () => {
   );
 
   useEffect(() => {
-    if (!isResolved) return;
+    if (!isResolved || !isScopeResolved) return;
     if (!canAccessOpdFlow || !hasScope) {
       router.replace('/dashboard');
     }
-  }, [isResolved, canAccessOpdFlow, hasScope, router]);
+  }, [isResolved, isScopeResolved, canAccessOpdFlow, hasScope, router]);
 
   useEffect(() => {
     if (!requestedFlowId) return;
@@ -1308,9 +1410,9 @@ const useOpdFlowWorkbenchScreen = () => {
     }
 
     if (!canManageAllTenants) {
-      params.tenant_id = normalizedTenantId;
-      if (normalizedFacilityId) {
-        params.facility_id = normalizedFacilityId;
+      params.tenant_id = scopeTenantId;
+      if (scopeFacilityId) {
+        params.facility_id = scopeFacilityId;
       }
     }
 
@@ -1331,8 +1433,8 @@ const useOpdFlowWorkbenchScreen = () => {
     canManageAllTenants,
     debouncedFlowSearch,
     isOffline,
-    normalizedTenantId,
-    normalizedFacilityId,
+    scopeTenantId,
+    scopeFacilityId,
     resetOpdFlowCrud,
     listOpdFlows,
   ]);
@@ -1385,8 +1487,8 @@ const useOpdFlowWorkbenchScreen = () => {
       if (!encounterIdentifier) return;
 
       if (!canManageAllTenants) {
-        if (normalizedTenantId && eventTenantId && eventTenantId !== normalizedTenantId) return;
-        if (normalizedFacilityId && eventFacilityId && eventFacilityId !== normalizedFacilityId) return;
+        if (scopeTenantId && eventTenantId && !areSameIdentifiers(eventTenantId, scopeTenantId)) return;
+        if (scopeFacilityId && eventFacilityId && !areSameIdentifiers(eventFacilityId, scopeFacilityId)) return;
       }
 
       const realtimeIdentifiers = [encounterPublicId, encounterInternalId].filter(Boolean);
@@ -1405,8 +1507,8 @@ const useOpdFlowWorkbenchScreen = () => {
       canViewWorkbench,
       flowList,
       isOffline,
-      normalizedFacilityId,
-      normalizedTenantId,
+      scopeFacilityId,
+      scopeTenantId,
       refreshFromRealtimeEvent,
       selectedFlowId,
     ]
@@ -1680,11 +1782,11 @@ const useOpdFlowWorkbenchScreen = () => {
       notes: sanitizeString(startDraft.notes) || undefined,
     };
 
-    if (!canManageAllTenants && normalizedTenantId) {
-      payload.tenant_id = normalizedTenantId;
+    if (!canManageAllTenants && scopeTenantId) {
+      payload.tenant_id = scopeTenantId;
     }
-    if (!canManageAllTenants && normalizedFacilityId) {
-      payload.facility_id = normalizedFacilityId;
+    if (!canManageAllTenants && scopeFacilityId) {
+      payload.facility_id = scopeFacilityId;
     }
 
     const patientId = sanitizeString(startDraft.patient_id);
@@ -1739,8 +1841,8 @@ const useOpdFlowWorkbenchScreen = () => {
     canManageAllTenants,
     canStartFlow,
     isOffline,
-    normalizedFacilityId,
-    normalizedTenantId,
+    scopeFacilityId,
+    scopeTenantId,
     globalCurrency,
     startDraft,
     startOpdFlow,
@@ -2244,9 +2346,9 @@ const useOpdFlowWorkbenchScreen = () => {
     isResolved,
     canViewWorkbench,
     canManageAllTenants,
-    tenantId: normalizedTenantId || null,
-    facilityId: normalizedFacilityId || null,
-    isLoading: !isResolved || isCrudLoading,
+    tenantId: scopeTenantId || null,
+    facilityId: scopeFacilityId || null,
+    isLoading: !isResolved || !isScopeResolved || isCrudLoading,
     isOffline,
     hasError: Boolean(errorCode),
     errorCode,

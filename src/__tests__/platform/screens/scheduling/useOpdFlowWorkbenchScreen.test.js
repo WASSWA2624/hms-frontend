@@ -189,6 +189,45 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
   });
 
+  it('resolves UUID scope identifiers to friendly IDs before loading OPD flows', async () => {
+    useOpdFlowAccess.mockReturnValue({
+      canAccessOpdFlow: true,
+      canStartFlow: true,
+      canPayConsultation: true,
+      canRecordVitals: true,
+      canAssignDoctor: true,
+      canDoctorReview: true,
+      canDisposition: true,
+      canManageAllTenants: false,
+      tenantId: '5ef3d36c-6d6c-4e6e-bf6e-6bc4a1036a21',
+      facilityId: '18a4e1e4-2617-4cca-8fb7-f9a2f0d4f0b9',
+      isResolved: true,
+    });
+
+    mockGetTenant.mockResolvedValue({
+      id: '5ef3d36c-6d6c-4e6e-bf6e-6bc4a1036a21',
+      human_friendly_id: 'TEN-001',
+      extension_json: { currency: 'USD' },
+    });
+    mockGetFacility.mockResolvedValue({
+      id: '18a4e1e4-2617-4cca-8fb7-f9a2f0d4f0b9',
+      human_friendly_id: 'FAC-001',
+      extension_json: { currency: 'USD' },
+    });
+
+    renderHook(() => useOpdFlowWorkbenchScreen());
+
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+    expect(mockList).toHaveBeenCalledWith({
+      page: 1,
+      limit: 25,
+      sort_by: 'started_at',
+      order: 'desc',
+      tenant_id: 'TEN-001',
+      facility_id: 'FAC-001',
+    });
+  });
+
   it('does not continuously refetch the OPD flow list on stable renders', async () => {
     const { rerender } = renderHook(() => useOpdFlowWorkbenchScreen());
 

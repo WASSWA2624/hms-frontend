@@ -50,9 +50,8 @@ import {
   StyledPanel,
   StyledPanelHeader,
   StyledProgressDot,
-  StyledProgressLegend,
-  StyledProgressLegendItem,
   StyledProgressStep,
+  StyledProgressStepIndex,
   StyledProgressTracker,
   StyledShortcutActions,
   StyledSectionTitle,
@@ -63,6 +62,10 @@ import {
   StyledTimelineItem,
   StyledTimelineMeta,
   StyledVitalInsightRow,
+  StyledWorkbenchDescription,
+  StyledWorkbenchHeader,
+  StyledWorkbenchHeading,
+  StyledWorkbenchTitle,
 } from './OpdFlowWorkbenchScreen.styles';
 import useOpdFlowWorkbenchScreen from './useOpdFlowWorkbenchScreen';
 import { PriceInputField } from '@platform/components';
@@ -1055,13 +1058,11 @@ const OpdFlowWorkbenchScreen = () => {
 
   return (
     <StyledContainer testID="opd-workbench-screen">
-      <StyledPanelHeader>
-        <div>
-          <Text variant="h2" accessibilityRole="header">
-            {t('scheduling.opdFlow.title')}
-          </Text>
-          <Text variant="body">{t('scheduling.opdFlow.description')}</Text>
-        </div>
+      <StyledWorkbenchHeader>
+        <StyledWorkbenchHeading>
+          <StyledWorkbenchTitle>{t('scheduling.opdFlow.title')}</StyledWorkbenchTitle>
+          <StyledWorkbenchDescription>{t('scheduling.opdFlow.description')}</StyledWorkbenchDescription>
+        </StyledWorkbenchHeading>
         <Button
           variant="surface"
           size="small"
@@ -1071,7 +1072,7 @@ const OpdFlowWorkbenchScreen = () => {
         >
           {t('common.retry')}
         </Button>
-      </StyledPanelHeader>
+      </StyledWorkbenchHeader>
 
       {screen.isLoading ? (
         <LoadingSpinner accessibilityLabel={t('common.loading')} testID="opd-workbench-loading" />
@@ -1287,21 +1288,14 @@ const OpdFlowWorkbenchScreen = () => {
 
               <StyledSectionTitle>{t('scheduling.opdFlow.progress.title')}</StyledSectionTitle>
               <StyledProgressTracker>
-                {screen.progressSteps.map((step) => (
+                {screen.progressSteps.map((step, index) => (
                   <StyledProgressStep key={step.id} $status={step.status} $tone={step.tone}>
+                    <StyledProgressStepIndex $status={step.status}>{index + 1}</StyledProgressStepIndex>
                     <StyledProgressDot $status={step.status} $tone={step.tone} />
                     {t(step.labelKey)}
                   </StyledProgressStep>
                 ))}
               </StyledProgressTracker>
-              <StyledProgressLegend>
-                {screen.progressSteps.map((step) => (
-                  <StyledProgressLegendItem key={`progress-legend-${step.id}`}>
-                    <StyledProgressDot $status={step.status} $tone={step.tone} />
-                    <Text variant="caption">{t(step.labelKey)}</Text>
-                  </StyledProgressLegendItem>
-                ))}
-              </StyledProgressLegend>
 
               {activeFlow ? (
                 <StyledCardGrid>

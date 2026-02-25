@@ -43,7 +43,12 @@ const StyledContainer = styled.section.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md + 2}px;
+  gap: ${({ theme }) => theme.spacing.md + 4}px;
+  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.025) 0%, rgba(15, 23, 42, 0) 90%),
+    ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledLayout = styled.div.withConfig({
@@ -80,6 +85,59 @@ const StyledPanelHeader = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledWorkbenchHeader = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledWorkbenchHeader',
+  componentId: 'OpdFlowWorkbench_StyledWorkbenchHeader',
+})`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md + 2}px;
+  background: ${({ theme }) => theme.colors.surface.primary};
+  padding: ${({ theme }) => `${theme.spacing.sm + 2}px ${theme.spacing.md}px`};
+
+  @media (max-width: ${({ theme }) => getTablet(theme)}px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const StyledWorkbenchHeading = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledWorkbenchHeading',
+  componentId: 'OpdFlowWorkbench_StyledWorkbenchHeading',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs - 2}px;
+  min-width: 0;
+`;
+
+const StyledWorkbenchTitle = styled.h2.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledWorkbenchTitle',
+  componentId: 'OpdFlowWorkbench_StyledWorkbenchTitle',
+})`
+  margin: 0;
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.lg * 1.2)}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const StyledWorkbenchDescription = styled.p.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledWorkbenchDescription',
+  componentId: 'OpdFlowWorkbench_StyledWorkbenchDescription',
+})`
+  margin: 0;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.4)}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  max-width: 76ch;
+`;
+
 const StyledFlowList = styled.div.withConfig({
   displayName: 'OpdFlowWorkbench_StyledFlowList',
   componentId: 'OpdFlowWorkbench_StyledFlowList',
@@ -87,10 +145,24 @@ const StyledFlowList = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  max-height: min(64vh, 780px);
+  max-height: min(62vh, 740px);
   overflow-y: auto;
   padding-right: ${({ theme }) => theme.spacing.xs}px;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+
+  &::-webkit-scrollbar {
+    width: 9px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.border.medium};
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     max-height: none;
@@ -107,23 +179,23 @@ const StyledFlowListItem = styled(Pressable).withConfig({
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs + 3}px;
-  min-height: 104px;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+  min-height: 96px;
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
-  border-left-width: 4px;
+  border-left-width: 3px;
   border-left-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
   background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.background.secondary : theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm - 1}px ${theme.spacing.sm + 1}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 4px 12px rgba(0, 120, 212, 0.16)' : '0 1px 4px rgba(0, 0, 0, 0.08)'};
+    $selected ? '0 6px 14px rgba(0, 120, 212, 0.14)' : '0 1px 3px rgba(0, 0, 0, 0.07)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -193,9 +265,9 @@ const StyledFlowListTitle = styled.h4.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
   line-height: ${({ theme }) =>
-    Math.round(theme.typography.fontSize.md * 1.2)}px;
+    Math.round((theme.typography.fontSize.sm + 1) * 1.2)}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -241,7 +313,7 @@ const StyledFlowListMetaPill = styled.div.withConfig({
   gap: 6px;
   border-radius: ${({ theme }) => theme.radius.sm + 2}px;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
-  padding: ${({ theme }) => `${theme.spacing.xs - 2}px ${theme.spacing.xs + 6}px`};
+  padding: ${({ theme }) => `${theme.spacing.xs - 2}px ${theme.spacing.xs + 4}px`};
   background-color: ${({ theme }) => theme.colors.surface.secondary};
 `;
 
@@ -263,7 +335,7 @@ const StyledFlowListMetaValue = styled.span.withConfig({
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs + 1}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-variant-numeric: tabular-nums;
 `;
@@ -451,7 +523,7 @@ const StyledSectionTitle = styled.h3.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
@@ -517,7 +589,8 @@ const StyledProgressStep = styled.li.withConfig({
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs + 1}px;
-  padding: ${({ theme }) => `${theme.spacing.xs + 4}px ${theme.spacing.sm}px`};
+  min-height: 44px;
+  padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm - 1}px`};
   border-radius: ${({ theme }) => theme.radius.md}px;
   border: 1px solid
     ${({ $status, theme }) =>
@@ -537,9 +610,39 @@ const StyledProgressStep = styled.li.withConfig({
       ? 'var(--tone-text)'
       : theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
+  line-height: ${({ theme }) => Math.round((theme.typography.fontSize.xs - 1) * 1.35)}px;
   font-weight: ${({ $status, theme }) =>
     $status === 'current' ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.medium};
+`;
+
+const StyledProgressStepIndex = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressStepIndex',
+  componentId: 'OpdFlowWorkbench_StyledProgressStepIndex',
+})`
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 2}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  border: 1px solid
+    ${({ $status, theme }) =>
+      $status === 'current' || $status === 'completed'
+        ? 'var(--tone-border)'
+        : theme.colors.border.medium};
+  background: ${({ $status, theme }) =>
+    $status === 'current' || $status === 'completed'
+      ? 'var(--tone-surface)'
+      : theme.colors.surface.secondary};
+  color: ${({ $status, theme }) =>
+    $status === 'current' || $status === 'completed'
+      ? 'var(--tone-text)'
+      : theme.colors.text.secondary};
+  flex-shrink: 0;
 `;
 
 const StyledProgressDot = styled.span.withConfig({
@@ -636,6 +739,7 @@ export {
   StyledProgressLegend,
   StyledProgressLegendItem,
   StyledProgressStep,
+  StyledProgressStepIndex,
   StyledProgressTracker,
   StyledShortcutActions,
   StyledSectionTitle,
@@ -646,4 +750,8 @@ export {
   StyledTimelineItem,
   StyledTimelineMeta,
   StyledVitalInsightRow,
+  StyledWorkbenchDescription,
+  StyledWorkbenchHeader,
+  StyledWorkbenchHeading,
+  StyledWorkbenchTitle,
 };
