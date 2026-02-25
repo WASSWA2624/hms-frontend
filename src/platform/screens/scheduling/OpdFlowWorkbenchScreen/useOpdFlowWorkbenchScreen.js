@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   useI18n,
+  useAppointment,
   useNetwork,
   useOpdFlow,
   useOpdFlowAccess,
+  usePatient,
   useRealtimeEvent,
 } from '@hooks';
 import { resolveErrorMessage } from '../schedulingScreenUtils';
@@ -42,6 +44,38 @@ const TRIAGE_LEVEL_OPTIONS = [
   { value: 'LESS_URGENT', labelKey: 'scheduling.opdFlow.options.triageLevel.lessUrgent' },
   { value: 'NON_URGENT', labelKey: 'scheduling.opdFlow.options.triageLevel.nonUrgent' },
 ];
+const TRIAGE_LEVEL_LEGEND = [
+  {
+    value: 'LEVEL_1',
+    labelKey: 'scheduling.opdFlow.options.triageLevel.level1',
+    colorCodeKey: 'scheduling.opdFlow.triage.color.red',
+    badgeVariant: 'error',
+  },
+  {
+    value: 'LEVEL_2',
+    labelKey: 'scheduling.opdFlow.options.triageLevel.level2',
+    colorCodeKey: 'scheduling.opdFlow.triage.color.orange',
+    badgeVariant: 'warning',
+  },
+  {
+    value: 'LEVEL_3',
+    labelKey: 'scheduling.opdFlow.options.triageLevel.level3',
+    colorCodeKey: 'scheduling.opdFlow.triage.color.yellow',
+    badgeVariant: 'warning',
+  },
+  {
+    value: 'LEVEL_4',
+    labelKey: 'scheduling.opdFlow.options.triageLevel.level4',
+    colorCodeKey: 'scheduling.opdFlow.triage.color.green',
+    badgeVariant: 'success',
+  },
+  {
+    value: 'LEVEL_5',
+    labelKey: 'scheduling.opdFlow.options.triageLevel.level5',
+    colorCodeKey: 'scheduling.opdFlow.triage.color.blue',
+    badgeVariant: 'primary',
+  },
+];
 const PAYMENT_METHOD_OPTIONS = [
   { value: 'CASH', labelKey: 'scheduling.opdFlow.options.paymentMethod.cash' },
   { value: 'CREDIT_CARD', labelKey: 'scheduling.opdFlow.options.paymentMethod.creditCard' },
@@ -61,6 +95,55 @@ const VITAL_TYPE_OPTIONS = [
   { value: 'HEIGHT', labelKey: 'scheduling.opdFlow.options.vitalType.height' },
   { value: 'BMI', labelKey: 'scheduling.opdFlow.options.vitalType.bmi' },
 ];
+const VITAL_DEFAULT_UNIT_BY_TYPE = Object.freeze({
+  TEMPERATURE: 'C',
+  BLOOD_PRESSURE: 'mmHg',
+  HEART_RATE: 'bpm',
+  RESPIRATORY_RATE: 'breaths/min',
+  OXYGEN_SATURATION: '%',
+  WEIGHT: 'kg',
+  HEIGHT: 'cm',
+  BMI: 'kg/m2',
+});
+const VITAL_UNIT_OPTIONS_BY_TYPE = Object.freeze({
+  TEMPERATURE: ['C', 'F'],
+  BLOOD_PRESSURE: ['mmHg'],
+  HEART_RATE: ['bpm'],
+  RESPIRATORY_RATE: ['breaths/min'],
+  OXYGEN_SATURATION: ['%'],
+  WEIGHT: ['kg', 'lb'],
+  HEIGHT: ['cm', 'm', 'in'],
+  BMI: ['kg/m2'],
+});
+
+const HEART_RATE_BANDS = Object.freeze({
+  NEONATE: { min: 100, max: 180, criticalLow: 80, criticalHigh: 200 },
+  INFANT: { min: 100, max: 160, criticalLow: 80, criticalHigh: 190 },
+  CHILD: { min: 70, max: 130, criticalLow: 55, criticalHigh: 160 },
+  ADOLESCENT: { min: 60, max: 110, criticalLow: 45, criticalHigh: 145 },
+  ADULT: { min: 60, max: 100, criticalLow: 45, criticalHigh: 140 },
+});
+const RESPIRATORY_RATE_BANDS = Object.freeze({
+  NEONATE: { min: 30, max: 60, criticalLow: 20, criticalHigh: 70 },
+  INFANT: { min: 30, max: 53, criticalLow: 18, criticalHigh: 65 },
+  CHILD: { min: 20, max: 30, criticalLow: 12, criticalHigh: 45 },
+  ADOLESCENT: { min: 12, max: 20, criticalLow: 8, criticalHigh: 30 },
+  ADULT: { min: 12, max: 20, criticalLow: 8, criticalHigh: 30 },
+});
+const BLOOD_PRESSURE_BANDS = Object.freeze({
+  CHILD: {
+    systolic: { min: 90, max: 110, criticalLow: 75, criticalHigh: 140 },
+    diastolic: { min: 55, max: 75, criticalLow: 45, criticalHigh: 95 },
+  },
+  ADOLESCENT: {
+    systolic: { min: 95, max: 120, criticalLow: 80, criticalHigh: 160 },
+    diastolic: { min: 60, max: 80, criticalLow: 50, criticalHigh: 105 },
+  },
+  ADULT: {
+    systolic: { min: 90, max: 120, criticalLow: 80, criticalHigh: 180 },
+    diastolic: { min: 60, max: 80, criticalLow: 50, criticalHigh: 120 },
+  },
+});
 const DIAGNOSIS_TYPE_OPTIONS = [
   { value: 'PRIMARY', labelKey: 'scheduling.opdFlow.options.diagnosisType.primary' },
   { value: 'SECONDARY', labelKey: 'scheduling.opdFlow.options.diagnosisType.secondary' },
@@ -191,7 +274,7 @@ const DEFAULT_PAYMENT_DRAFT = {
 const createVitalRow = () => ({
   vital_type: 'TEMPERATURE',
   value: '',
-  unit: '',
+  unit: VITAL_DEFAULT_UNIT_BY_TYPE.TEMPERATURE,
 });
 const DEFAULT_ASSIGN_DRAFT = {
   provider_user_id: '',
@@ -234,6 +317,212 @@ const DEFAULT_DISPOSITION_DRAFT = {
 };
 
 const sanitizeString = (value) => String(value || '').trim();
+
+const toFiniteNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const parseBloodPressure = (value) => {
+  const match = String(value || '').trim().match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/);
+  if (!match) return null;
+  const systolic = toFiniteNumber(match[1]);
+  const diastolic = toFiniteNumber(match[2]);
+  if (!systolic || !diastolic) return null;
+  return { systolic, diastolic };
+};
+
+const convertTemperatureToC = (numericValue, unit) => {
+  if (numericValue == null) return null;
+  const normalizedUnit = sanitizeString(unit || '').toUpperCase();
+  if (normalizedUnit === 'F') {
+    return ((numericValue - 32) * 5) / 9;
+  }
+  return numericValue;
+};
+
+const convertWeightToKg = (numericValue, unit) => {
+  if (numericValue == null) return null;
+  const normalizedUnit = sanitizeString(unit || '').toLowerCase();
+  if (normalizedUnit === 'lb') return numericValue * 0.45359237;
+  return numericValue;
+};
+
+const convertHeightToCm = (numericValue, unit) => {
+  if (numericValue == null) return null;
+  const normalizedUnit = sanitizeString(unit || '').toLowerCase();
+  if (normalizedUnit === 'm') return numericValue * 100;
+  if (normalizedUnit === 'in') return numericValue * 2.54;
+  return numericValue;
+};
+
+const resolveAgeInYears = (patient = null) => {
+  const dateValue =
+    patient?.date_of_birth ||
+    patient?.dob ||
+    patient?.birth_date ||
+    patient?.dateOfBirth ||
+    patient?.birthDate ||
+    '';
+  const parsed = dateValue ? new Date(dateValue) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return null;
+
+  const now = new Date();
+  let age = now.getFullYear() - parsed.getFullYear();
+  const monthDelta = now.getMonth() - parsed.getMonth();
+  if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < parsed.getDate())) {
+    age -= 1;
+  }
+  return age >= 0 ? age : null;
+};
+
+const resolveAgeBand = (ageYears) => {
+  if (ageYears == null) return 'ADULT';
+  if (ageYears < 1) return 'INFANT';
+  if (ageYears < 13) return 'CHILD';
+  if (ageYears < 18) return 'ADOLESCENT';
+  return 'ADULT';
+};
+
+const evaluateRangeStatus = (value, range) => {
+  if (!Number.isFinite(value) || !range) return 'INCOMPLETE';
+  if (value < range.criticalLow || value > range.criticalHigh) return 'CRITICAL';
+  if (value < range.min || value > range.max) return 'ABNORMAL';
+  return 'NORMAL';
+};
+
+const evaluateBloodPressureStatus = (systolic, diastolic, range = BLOOD_PRESSURE_BANDS.ADULT) => {
+  const systolicStatus = evaluateRangeStatus(systolic, range?.systolic);
+  const diastolicStatus = evaluateRangeStatus(diastolic, range?.diastolic);
+  if (systolicStatus === 'CRITICAL' || diastolicStatus === 'CRITICAL') return 'CRITICAL';
+  if (systolicStatus === 'ABNORMAL' || diastolicStatus === 'ABNORMAL') return 'ABNORMAL';
+  return 'NORMAL';
+};
+
+const resolveVitalReference = (vitalType, ageBand) => {
+  if (vitalType === 'HEART_RATE') return HEART_RATE_BANDS[ageBand] || HEART_RATE_BANDS.ADULT;
+  if (vitalType === 'RESPIRATORY_RATE') return RESPIRATORY_RATE_BANDS[ageBand] || RESPIRATORY_RATE_BANDS.ADULT;
+  if (vitalType === 'BLOOD_PRESSURE') return BLOOD_PRESSURE_BANDS[ageBand] || BLOOD_PRESSURE_BANDS.ADULT;
+  return null;
+};
+
+const resolveVitalUnitOptions = (vitalType) => VITAL_UNIT_OPTIONS_BY_TYPE[vitalType] || [];
+
+const resolveVitalInsight = (row, ageYears) => {
+  const vitalType = sanitizeString(row?.vital_type || '').toUpperCase();
+  const unit = sanitizeString(row?.unit) || VITAL_DEFAULT_UNIT_BY_TYPE[vitalType] || '';
+  const valueText = sanitizeString(row?.value);
+  if (!vitalType || !valueText) {
+    return {
+      status: 'INCOMPLETE',
+      badgeVariant: 'primary',
+      rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+    };
+  }
+
+  const ageBand = resolveAgeBand(ageYears);
+  if (vitalType === 'TEMPERATURE') {
+    const celsius = convertTemperatureToC(toFiniteNumber(valueText), unit);
+    const range = { min: 36.0, max: 37.5, criticalLow: 35.0, criticalHigh: 39.5 };
+    const status = evaluateRangeStatus(celsius, range);
+    return {
+      status,
+      badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
+      rangeText: '36.0-37.5 C',
+    };
+  }
+
+  if (vitalType === 'HEART_RATE' || vitalType === 'RESPIRATORY_RATE') {
+    const numericValue = toFiniteNumber(valueText);
+    const reference = resolveVitalReference(vitalType, ageBand);
+    const status = evaluateRangeStatus(numericValue, reference);
+    return {
+      status,
+      badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
+      rangeText: reference ? `${reference.min}-${reference.max}` : '',
+    };
+  }
+
+  if (vitalType === 'OXYGEN_SATURATION') {
+    const numericValue = toFiniteNumber(valueText);
+    const range = { min: 95, max: 100, criticalLow: 90, criticalHigh: 100 };
+    const status = evaluateRangeStatus(numericValue, range);
+    return {
+      status,
+      badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
+      rangeText: '95-100%',
+    };
+  }
+
+  if (vitalType === 'BLOOD_PRESSURE') {
+    const parsed = parseBloodPressure(valueText);
+    if (!parsed) {
+      return {
+        status: 'ABNORMAL',
+        badgeVariant: 'warning',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.bloodPressureFormat',
+      };
+    }
+    const reference = resolveVitalReference(vitalType, ageBand);
+    const status = evaluateBloodPressureStatus(parsed.systolic, parsed.diastolic, reference);
+    return {
+      status,
+      badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
+      rangeText: reference
+        ? `${reference.systolic.min}-${reference.systolic.max} / ${reference.diastolic.min}-${reference.diastolic.max}`
+        : '',
+    };
+  }
+
+  if (vitalType === 'BMI') {
+    const numericValue = toFiniteNumber(valueText);
+    const range = { min: 18.5, max: 24.9, criticalLow: 16, criticalHigh: 35 };
+    const status = evaluateRangeStatus(numericValue, range);
+    return {
+      status,
+      badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
+      rangeText: '18.5-24.9',
+    };
+  }
+
+  if (vitalType === 'WEIGHT') {
+    const numericValue = convertWeightToKg(toFiniteNumber(valueText), unit);
+    if (!Number.isFinite(numericValue) || numericValue <= 0) {
+      return {
+        status: 'ABNORMAL',
+        badgeVariant: 'warning',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.weightPositive',
+      };
+    }
+    return {
+      status: 'NORMAL',
+      badgeVariant: 'success',
+      rangeTextKey: 'scheduling.opdFlow.vitals.range.weightRecorded',
+    };
+  }
+
+  if (vitalType === 'HEIGHT') {
+    const numericValue = convertHeightToCm(toFiniteNumber(valueText), unit);
+    if (!Number.isFinite(numericValue) || numericValue <= 0) {
+      return {
+        status: 'ABNORMAL',
+        badgeVariant: 'warning',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.heightPositive',
+      };
+    }
+    return {
+      status: 'NORMAL',
+      badgeVariant: 'success',
+      rangeTextKey: 'scheduling.opdFlow.vitals.range.heightRecorded',
+    };
+  }
+
+  return {
+    status: 'INCOMPLETE',
+    badgeVariant: 'primary',
+    rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+  };
+};
 
 const normalizeScalarParam = (value) => {
   if (Array.isArray(value)) return sanitizeString(value[0]);
@@ -319,6 +608,8 @@ const useOpdFlowWorkbenchScreen = () => {
     isLoading: isCrudLoading,
     errorCode,
   } = useOpdFlow();
+  const { get: getPatientRecord, list: listPatientRecords } = usePatient();
+  const { get: getAppointmentRecord } = useAppointment();
 
   const [flowList, setFlowList] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -337,12 +628,128 @@ const useOpdFlowWorkbenchScreen = () => {
   const [reviewDraft, setReviewDraft] = useState(DEFAULT_REVIEW_DRAFT);
   const [dispositionDraft, setDispositionDraft] = useState(DEFAULT_DISPOSITION_DRAFT);
   const [formError, setFormError] = useState('');
+  const [startLinkedPatient, setStartLinkedPatient] = useState(null);
+  const [startLinkedAppointment, setStartLinkedAppointment] = useState(null);
+  const [isPatientLookupLoading, setIsPatientLookupLoading] = useState(false);
+  const [isAppointmentLookupLoading, setIsAppointmentLookupLoading] = useState(false);
+  const [startLookupError, setStartLookupError] = useState('');
   const lastRealtimeRefreshRef = useRef(0);
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canViewWorkbench = isResolved && canAccessOpdFlow && hasScope;
+  const patientLookupParams = useMemo(() => {
+    const params = { limit: 5, sort_by: 'updated_at', order: 'desc' };
+    if (!canManageAllTenants && normalizedTenantId) {
+      params.tenant_id = normalizedTenantId;
+    }
+    if (!canManageAllTenants && normalizedFacilityId) {
+      params.facility_id = normalizedFacilityId;
+    }
+    return params;
+  }, [canManageAllTenants, normalizedFacilityId, normalizedTenantId]);
+
+  const resolvePatientLookup = useCallback(
+    async (identifier, { silent = true } = {}) => {
+      const normalizedIdentifier = sanitizeString(identifier);
+      if (!normalizedIdentifier || isOffline) return null;
+
+      setIsPatientLookupLoading(true);
+      if (!silent) setStartLookupError('');
+      try {
+        let patient = null;
+        try {
+          patient = await getPatientRecord(normalizedIdentifier);
+        } catch (_error) {
+          patient = null;
+        }
+
+        if (!patient) {
+          const listResponse = await listPatientRecords({
+            ...patientLookupParams,
+            search: normalizedIdentifier,
+          });
+          const items = Array.isArray(listResponse?.items) ? listResponse.items : [];
+          const normalizedUpper = normalizedIdentifier.toUpperCase();
+          patient =
+            items.find((item) => sanitizeString(item?.id) === normalizedIdentifier) ||
+            items.find((item) => sanitizeString(item?.human_friendly_id).toUpperCase() === normalizedUpper) ||
+            items[0] ||
+            null;
+        }
+
+        if (!patient) {
+          setStartLinkedPatient(null);
+          if (!silent) {
+            setStartLookupError(t('scheduling.opdFlow.start.patientNotFound'));
+          }
+          return null;
+        }
+
+        setStartLinkedPatient(patient);
+        setStartDraft((previous) => ({
+          ...previous,
+          patient_id: sanitizeString(patient?.id) || previous.patient_id,
+          first_name: sanitizeString(previous.first_name) || sanitizeString(patient?.first_name),
+          last_name: sanitizeString(previous.last_name) || sanitizeString(patient?.last_name),
+        }));
+        return patient;
+      } catch (_error) {
+        if (!silent) {
+          setStartLookupError(t('scheduling.opdFlow.start.patientLookupFailed'));
+        }
+        return null;
+      } finally {
+        setIsPatientLookupLoading(false);
+      }
+    },
+    [getPatientRecord, isOffline, listPatientRecords, patientLookupParams, t]
+  );
+
+  const resolveAppointmentLookup = useCallback(
+    async (identifier, { silent = true } = {}) => {
+      const normalizedIdentifier = sanitizeString(identifier);
+      if (!normalizedIdentifier || isOffline) return null;
+
+      setIsAppointmentLookupLoading(true);
+      if (!silent) setStartLookupError('');
+      try {
+        const appointment = await getAppointmentRecord(normalizedIdentifier);
+        if (!appointment) {
+          setStartLinkedAppointment(null);
+          if (!silent) {
+            setStartLookupError(t('scheduling.opdFlow.start.appointmentNotFound'));
+          }
+          return null;
+        }
+
+        setStartLinkedAppointment(appointment);
+        const appointmentPatientId = sanitizeString(appointment?.patient_id);
+        setStartDraft((previous) => ({
+          ...previous,
+          appointment_id: sanitizeString(appointment?.id) || previous.appointment_id,
+          patient_id: sanitizeString(previous.patient_id) || appointmentPatientId,
+          provider_user_id:
+            sanitizeString(previous.provider_user_id) ||
+            sanitizeString(appointment?.provider_user_id),
+        }));
+
+        if (appointmentPatientId) {
+          await resolvePatientLookup(appointmentPatientId, { silent: true });
+        }
+        return appointment;
+      } catch (_error) {
+        if (!silent) {
+          setStartLookupError(t('scheduling.opdFlow.start.appointmentLookupFailed'));
+        }
+        return null;
+      } finally {
+        setIsAppointmentLookupLoading(false);
+      }
+    },
+    [getAppointmentRecord, isOffline, resolvePatientLookup, t]
+  );
 
   useEffect(() => {
     if (!isResolved) return;
@@ -355,6 +762,42 @@ const useOpdFlowWorkbenchScreen = () => {
     if (!requestedFlowId) return;
     setSelectedFlowId(requestedFlowId);
   }, [requestedFlowId]);
+
+  useEffect(() => {
+    const patientIdentifier = sanitizeString(startDraft.patient_id);
+    if (!patientIdentifier || isOffline) {
+      if (!patientIdentifier) setStartLinkedPatient(null);
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      resolvePatientLookup(patientIdentifier, { silent: true });
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [isOffline, resolvePatientLookup, startDraft.patient_id]);
+
+  useEffect(() => {
+    if (startDraft.arrival_mode !== 'ONLINE_APPOINTMENT') {
+      setStartLinkedAppointment(null);
+      return undefined;
+    }
+    const appointmentIdentifier = sanitizeString(startDraft.appointment_id);
+    if (!appointmentIdentifier || isOffline) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      resolveAppointmentLookup(appointmentIdentifier, { silent: true });
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [
+    isOffline,
+    resolveAppointmentLookup,
+    startDraft.appointment_id,
+    startDraft.arrival_mode,
+  ]);
 
   const upsertFlowInList = useCallback((snapshot) => {
     const snapshotId = resolveEncounterId(snapshot);
@@ -485,6 +928,42 @@ const useOpdFlowWorkbenchScreen = () => {
     }
     return flowList.find((item) => resolveEncounterId(item) === selectedFlowId) || null;
   }, [selectedFlow, selectedFlowId, flowList]);
+  const contextPatient = useMemo(
+    () => startLinkedPatient || activeFlow?.encounter?.patient || activeFlow?.patient || null,
+    [activeFlow, startLinkedPatient]
+  );
+  const contextPatientAgeYears = useMemo(() => resolveAgeInYears(contextPatient), [contextPatient]);
+  const contextPatientAgeLabel = useMemo(() => {
+    if (contextPatientAgeYears == null) return '';
+    return t('scheduling.opdFlow.vitals.ageYears', { age: contextPatientAgeYears });
+  }, [contextPatientAgeYears, t]);
+  const vitalsRowsWithInsights = useMemo(
+    () =>
+      vitalsDraft.vitals.map((row) => {
+        const vitalType = sanitizeString(row?.vital_type).toUpperCase();
+        const insight = resolveVitalInsight(row, contextPatientAgeYears);
+        return {
+          ...row,
+          ...insight,
+          normalizedVitalType: vitalType,
+          unitOptions: resolveVitalUnitOptions(vitalType),
+        };
+      }),
+    [contextPatientAgeYears, vitalsDraft.vitals]
+  );
+  const vitalsStatusSummary = useMemo(
+    () =>
+      vitalsRowsWithInsights.reduce(
+        (acc, row) => {
+          if (row.status === 'NORMAL') acc.normal += 1;
+          if (row.status === 'ABNORMAL') acc.abnormal += 1;
+          if (row.status === 'CRITICAL') acc.critical += 1;
+          return acc;
+        },
+        { normal: 0, abnormal: 0, critical: 0 }
+      ),
+    [vitalsRowsWithInsights]
+  );
 
   const activeFlowId = resolveEncounterId(activeFlow);
   const activeStage = sanitizeString(activeFlow?.flow?.stage);
@@ -551,6 +1030,9 @@ const useOpdFlowWorkbenchScreen = () => {
     setReviewDraft(DEFAULT_REVIEW_DRAFT);
     setDispositionDraft(DEFAULT_DISPOSITION_DRAFT);
     setFormError('');
+    setStartLookupError('');
+    setStartLinkedPatient(null);
+    setStartLinkedAppointment(null);
   }, []);
 
   const applySnapshot = useCallback(
@@ -582,11 +1064,28 @@ const useOpdFlowWorkbenchScreen = () => {
   );
 
   const handleStartDraftChange = useCallback((field, value) => {
-    setStartDraft((previous) => ({ ...previous, [field]: value }));
+    setStartLookupError('');
+    setStartDraft((previous) => {
+      const next = { ...previous, [field]: value };
+      if (field === 'arrival_mode' && value !== 'ONLINE_APPOINTMENT') {
+        next.appointment_id = '';
+      }
+      return next;
+    });
+    if (field === 'arrival_mode' && value !== 'ONLINE_APPOINTMENT') {
+      setStartLinkedAppointment(null);
+    }
+    if (field === 'patient_id' && !sanitizeString(value)) {
+      setStartLinkedPatient(null);
+    }
+    if (field === 'appointment_id' && !sanitizeString(value)) {
+      setStartLinkedAppointment(null);
+    }
   }, []);
 
   const handleStartFlow = useCallback(async () => {
     setFormError('');
+    setStartLookupError('');
     if (!canStartFlow || isOffline) return;
 
     const payload = {
@@ -706,7 +1205,15 @@ const useOpdFlowWorkbenchScreen = () => {
     setVitalsDraft((previous) => ({
       ...previous,
       vitals: previous.vitals.map((row, rowIndex) =>
-        rowIndex === index ? { ...row, [field]: value } : row
+        rowIndex === index
+          ? field === 'vital_type'
+            ? {
+                ...row,
+                vital_type: value,
+                unit: VITAL_DEFAULT_UNIT_BY_TYPE[sanitizeString(value)] || row.unit || '',
+              }
+            : { ...row, [field]: value }
+          : row
       ),
     }));
   }, []);
@@ -735,7 +1242,10 @@ const useOpdFlowWorkbenchScreen = () => {
       .map((row) => ({
         vital_type: sanitizeString(row.vital_type),
         value: sanitizeString(row.value),
-        unit: sanitizeString(row.unit) || undefined,
+        unit:
+          sanitizeString(row.unit) ||
+          VITAL_DEFAULT_UNIT_BY_TYPE[sanitizeString(row.vital_type)] ||
+          undefined,
       }))
       .filter((row) => row.vital_type && row.value);
 
@@ -944,6 +1454,42 @@ const useOpdFlowWorkbenchScreen = () => {
     router.push('/subscriptions/subscriptions');
   }, [router]);
 
+  const handleResolveStartPatient = useCallback(async () => {
+    await resolvePatientLookup(startDraft.patient_id, { silent: false });
+  }, [resolvePatientLookup, startDraft.patient_id]);
+
+  const handleResolveStartAppointment = useCallback(async () => {
+    await resolveAppointmentLookup(startDraft.appointment_id, { silent: false });
+  }, [resolveAppointmentLookup, startDraft.appointment_id]);
+
+  const handleOpenPatientShortcut = useCallback(() => {
+    const patientId =
+      sanitizeString(startLinkedPatient?.id) ||
+      sanitizeString(startDraft.patient_id) ||
+      sanitizeString(contextPatient?.id);
+    if (!patientId) return;
+    router.push(`/patients/patients/${patientId}`);
+  }, [contextPatient?.id, router, startDraft.patient_id, startLinkedPatient?.id]);
+
+  const handleOpenAdmissionShortcut = useCallback(() => {
+    const patientId =
+      sanitizeString(startLinkedPatient?.id) ||
+      sanitizeString(startDraft.patient_id) ||
+      sanitizeString(contextPatient?.id);
+    const target = patientId
+      ? `/ipd/admissions/create?patientId=${encodeURIComponent(patientId)}`
+      : '/ipd/admissions/create';
+    router.push(target);
+  }, [contextPatient?.id, router, startDraft.patient_id, startLinkedPatient?.id]);
+
+  const handleOpenOpdShortcut = useCallback(() => {
+    if (activeFlowId) {
+      router.push(`/scheduling/opd-flows/${activeFlowId}`);
+      return;
+    }
+    router.push('/scheduling/opd-flows');
+  }, [activeFlowId, router]);
+
   const timeline = normalizeScalarParam(activeFlow?.flow?.stage)
     ? activeFlow?.timeline || activeFlow?.flow?.timeline || []
     : [];
@@ -1020,15 +1566,25 @@ const useOpdFlowWorkbenchScreen = () => {
     reviewDraft,
     dispositionDraft,
     formError,
+    startLookupError,
+    startLinkedPatient,
+    startLinkedAppointment,
+    isPatientLookupLoading,
+    isAppointmentLookupLoading,
+    contextPatientAgeLabel,
     timeline,
     timelineItems,
+    vitalsRowsWithInsights,
+    vitalsStatusSummary,
     stageLabelKey: activeStage ? `scheduling.opdFlow.stages.${activeStage}` : '',
     dispositionStages: DISPOSITION_STAGES,
     arrivalModeOptions: ARRIVAL_MODE_OPTIONS,
     emergencySeverityOptions: EMERGENCY_SEVERITY_OPTIONS,
     triageLevelOptions: TRIAGE_LEVEL_OPTIONS,
+    triageLevelLegend: TRIAGE_LEVEL_LEGEND,
     paymentMethodOptions: PAYMENT_METHOD_OPTIONS,
     vitalTypeOptions: VITAL_TYPE_OPTIONS,
+    vitalDefaultUnitByType: VITAL_DEFAULT_UNIT_BY_TYPE,
     diagnosisTypeOptions: DIAGNOSIS_TYPE_OPTIONS,
     medicationFrequencyOptions: MEDICATION_FREQUENCY_OPTIONS,
     medicationRouteOptions: MEDICATION_ROUTE_OPTIONS,
@@ -1036,6 +1592,11 @@ const useOpdFlowWorkbenchScreen = () => {
     onRetry: handleRetry,
     onSelectFlow: handleSelectFlow,
     onOpenSubscriptions: handleOpenSubscriptions,
+    onResolveStartPatient: handleResolveStartPatient,
+    onResolveStartAppointment: handleResolveStartAppointment,
+    onOpenPatientShortcut: handleOpenPatientShortcut,
+    onOpenAdmissionShortcut: handleOpenAdmissionShortcut,
+    onOpenOpdShortcut: handleOpenOpdShortcut,
     onStartDraftChange: handleStartDraftChange,
     onStartFlow: handleStartFlow,
     onPaymentDraftChange: handlePaymentDraftChange,

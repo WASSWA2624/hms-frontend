@@ -34,6 +34,7 @@ import {
   normalizeRoute,
   resolveNotificationIcon,
   resolveNotificationRoute as resolveNotificationRouteCandidate,
+  shouldAutoMarkNotificationRead,
 } from '@navigation/notification-routing';
 import { actions as uiActions } from '@store/slices/ui.slice';
 import { SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_DEFAULT_WIDTH, clamp } from './types';
@@ -506,7 +507,8 @@ export default function useMainRouteLayoutWeb() {
         resolvedItem?.route ||
         resolveAccessibleNotificationRoute(resolvedItem?.notification || null);
 
-      if (notificationId && resolvedItem?.unread) {
+      const canAutoMarkRead = shouldAutoMarkNotificationRead(resolvedItem?.notification || null);
+      if (notificationId && resolvedItem?.unread && canAutoMarkRead) {
         try {
           await markNotificationRead(notificationId);
           setRawNotificationItems((prevItems) =>

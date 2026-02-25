@@ -123,6 +123,9 @@ const isOpdNotificationContext = (notification) => {
   );
 };
 
+const shouldAutoMarkNotificationRead = (notification) =>
+  !isOpdNotificationContext(notification);
+
 const buildNotificationRouteCandidates = (
   notification,
   { fallbackRoute = '/communications/notifications' } = {}
@@ -203,6 +206,8 @@ export {
   getNotificationType,
   resolveNotificationIcon,
   isNotificationUnread,
+  isOpdNotificationContext,
+  shouldAutoMarkNotificationRead,
   resolveNotificationMessage,
   resolveNotificationTimestamp,
   formatNotificationMeta,

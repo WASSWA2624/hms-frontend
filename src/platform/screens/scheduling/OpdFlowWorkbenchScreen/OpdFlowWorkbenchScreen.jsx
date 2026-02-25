@@ -35,7 +35,11 @@ import {
   StyledForm,
   StyledGuidanceList,
   StyledInlineActions,
+  StyledLookupActions,
   StyledLayout,
+  StyledContextCard,
+  StyledContextGrid,
+  StyledContextValue,
   StyledLinkedRecordItem,
   StyledLinkedRecordLabel,
   StyledLinkedRecordValue,
@@ -45,10 +49,14 @@ import {
   StyledProgressDot,
   StyledProgressStep,
   StyledProgressTracker,
+  StyledShortcutActions,
   StyledSectionTitle,
+  StyledTriageLegend,
+  StyledTriageLegendItem,
   StyledTimeline,
   StyledTimelineItem,
   StyledTimelineMeta,
+  StyledVitalInsightRow,
 } from './OpdFlowWorkbenchScreen.styles';
 import useOpdFlowWorkbenchScreen from './useOpdFlowWorkbenchScreen';
 
@@ -104,6 +112,20 @@ const resolveQueueHumanFriendlyId = (flowItem) =>
       flowItem?.flow?.visit_queue_human_friendly_id
   );
 
+const resolveLookupPatientName = (patient) => {
+  const firstName = toCleanText(patient?.first_name || patient?.firstName);
+  const lastName = toCleanText(patient?.last_name || patient?.lastName);
+  return [firstName, lastName].filter(Boolean).join(' ').trim();
+};
+
+const resolveVitalStatusVariant = (status) => {
+  const normalized = toCleanText(status).toUpperCase();
+  if (normalized === 'NORMAL') return 'success';
+  if (normalized === 'CRITICAL') return 'error';
+  if (normalized === 'ABNORMAL') return 'warning';
+  return 'primary';
+};
+
 const OpdFlowWorkbenchScreen = () => {
   const { t } = useI18n();
   const screen = useOpdFlowWorkbenchScreen();
@@ -117,10 +139,24 @@ const OpdFlowWorkbenchScreen = () => {
   const medicationFrequencyOptions = toSelectOptions(t, screen.medicationFrequencyOptions);
   const medicationRouteOptions = toSelectOptions(t, screen.medicationRouteOptions);
   const dispositionOptions = toSelectOptions(t, screen.dispositionOptions);
+  const triageLevelLegend = screen.triageLevelLegend || [];
+  const vitalsRowsWithInsights = screen.vitalsRowsWithInsights || screen.vitalsDraft?.vitals || [];
+  const vitalsStatusSummary = screen.vitalsStatusSummary || {
+    normal: 0,
+    abnormal: 0,
+    critical: 0,
+  };
 
   const activeFlow = screen.selectedFlow;
   const activeStage = screen.activeStage;
   const linkedIds = activeFlow?.linked_record_ids || {};
+  const linkedPatientName = resolveLookupPatientName(screen.startLinkedPatient);
+  const linkedPatientDisplayId =
+    toCleanText(screen.startLinkedPatient?.human_friendly_id) ||
+    toCleanText(screen.startLinkedPatient?.id);
+  const linkedAppointmentDisplayId =
+    toCleanText(screen.startLinkedAppointment?.human_friendly_id) ||
+    toCleanText(screen.startLinkedAppointment?.id);
 
   const renderStartForm = () => (
     <Card variant="outlined" testID="opd-workbench-start-form">
@@ -137,19 +173,119 @@ const OpdFlowWorkbenchScreen = () => {
             label={t('scheduling.opdFlow.start.patientId')}
             value={screen.startDraft.patient_id}
             onChangeText={(value) => screen.onStartDraftChange('patient_id', value)}
-            helperText={t('scheduling.opdFlow.start.patientIdHint')}
+            helperText={
+              screen.isPatientLookupLoading
+                ? t('scheduling.opdFlow.start.patientLookupLoading')
+                : linkedPatientDisplayId
+                  ? t('scheduling.opdFlow.start.patientResolved', { id: linkedPatientDisplayId })
+                  : t('scheduling.opdFlow.start.patientIdHint')
+            }
             density="compact"
           />
         </StyledFieldRow>
+        <StyledLookupActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={screen.onResolveStartPatient}
+            disabled={screen.isPatientLookupLoading || !screen.startDraft.patient_id}
+          >
+            {t('scheduling.opdFlow.start.loadPatient')}
+          </Button>
+          {screen.startLinkedPatient ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={screen.onOpenPatientShortcut}
+              icon={<Icon glyph={'\u21b1'} size="xs" decorative />}
+            >
+              {t('scheduling.opdFlow.start.shortcuts.openPatient')}
+            </Button>
+          ) : null}
+        </StyledLookupActions>
 
         {screen.startDraft.arrival_mode === 'ONLINE_APPOINTMENT' ? (
-          <TextField
-            label={t('scheduling.opdFlow.start.appointmentId')}
-            value={screen.startDraft.appointment_id}
-            onChangeText={(value) => screen.onStartDraftChange('appointment_id', value)}
-            helperText={t('scheduling.opdFlow.start.appointmentIdHint')}
-            density="compact"
-          />
+          <>
+            <TextField
+              label={t('scheduling.opdFlow.start.appointmentId')}
+              value={screen.startDraft.appointment_id}
+              onChangeText={(value) => screen.onStartDraftChange('appointment_id', value)}
+              helperText={
+                screen.isAppointmentLookupLoading
+                  ? t('scheduling.opdFlow.start.appointmentLookupLoading')
+                  : linkedAppointmentDisplayId
+                    ? t('scheduling.opdFlow.start.appointmentResolved', { id: linkedAppointmentDisplayId })
+                    : t('scheduling.opdFlow.start.appointmentIdHint')
+              }
+              density="compact"
+            />
+            <StyledLookupActions>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={screen.onResolveStartAppointment}
+                disabled={screen.isAppointmentLookupLoading || !screen.startDraft.appointment_id}
+              >
+                {t('scheduling.opdFlow.start.loadAppointment')}
+              </Button>
+            </StyledLookupActions>
+          </>
+        ) : null}
+
+        {screen.startLookupError ? (
+          <Text variant="caption">{screen.startLookupError}</Text>
+        ) : null}
+
+        {screen.startLinkedPatient || screen.startLinkedAppointment ? (
+          <StyledContextCard>
+            <Text variant="label">{t('scheduling.opdFlow.start.autoLinkedContext')}</Text>
+            <StyledContextGrid>
+              <StyledContextValue>
+                {`${t('scheduling.opdFlow.start.patientLabel')}: ${
+                  linkedPatientName || t('common.notAvailable')
+                }`}
+              </StyledContextValue>
+              <StyledContextValue>
+                {`${t('scheduling.opdFlow.start.patientId')}: ${
+                  linkedPatientDisplayId || t('common.notAvailable')
+                }`}
+              </StyledContextValue>
+              <StyledContextValue>
+                {`${t('scheduling.opdFlow.start.appointmentLabel')}: ${
+                  linkedAppointmentDisplayId || t('common.notAvailable')
+                }`}
+              </StyledContextValue>
+              <StyledContextValue>
+                {`${t('scheduling.opdFlow.start.providerLabel')}: ${
+                  toCleanText(screen.startDraft.provider_user_id) || t('common.notAvailable')
+                }`}
+              </StyledContextValue>
+            </StyledContextGrid>
+            <StyledShortcutActions>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={screen.onOpenPatientShortcut}
+                disabled={!screen.startLinkedPatient}
+              >
+                {t('scheduling.opdFlow.start.shortcuts.openPatient')}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={screen.onOpenAdmissionShortcut}
+              >
+                {t('scheduling.opdFlow.start.shortcuts.startAdmission')}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={screen.onOpenOpdShortcut}
+              >
+                {t('scheduling.opdFlow.start.shortcuts.openOpd')}
+              </Button>
+            </StyledShortcutActions>
+          </StyledContextCard>
         ) : null}
 
         {!screen.startDraft.patient_id && !screen.startDraft.appointment_id ? (
@@ -364,6 +500,24 @@ const OpdFlowWorkbenchScreen = () => {
     <StyledForm>
       <StyledInlineActions>
         <Text variant="label">{t('scheduling.opdFlow.vitals.title')}</Text>
+        {screen.contextPatientAgeLabel ? (
+          <Badge variant="primary" size="small">
+            {screen.contextPatientAgeLabel}
+          </Badge>
+        ) : null}
+        {vitalsStatusSummary ? (
+          <>
+            <Badge variant="success" size="small">
+              {t('scheduling.opdFlow.vitals.summary.normal', { count: vitalsStatusSummary.normal })}
+            </Badge>
+            <Badge variant="warning" size="small">
+              {t('scheduling.opdFlow.vitals.summary.abnormal', { count: vitalsStatusSummary.abnormal })}
+            </Badge>
+            <Badge variant="error" size="small">
+              {t('scheduling.opdFlow.vitals.summary.critical', { count: vitalsStatusSummary.critical })}
+            </Badge>
+          </>
+        ) : null}
         <Button
           variant="surface"
           size="small"
@@ -374,7 +528,7 @@ const OpdFlowWorkbenchScreen = () => {
           {t('scheduling.opdFlow.actions.addRow')}
         </Button>
       </StyledInlineActions>
-      {screen.vitalsDraft.vitals.map((row, index) => (
+      {vitalsRowsWithInsights.map((row, index) => (
         <StyledFieldRow key={`vital-row-${index + 1}`}>
           <Select
             label={t('scheduling.opdFlow.vitals.vitalType')}
@@ -389,12 +543,30 @@ const OpdFlowWorkbenchScreen = () => {
             onChangeText={(value) => screen.onVitalRowChange(index, 'value', value)}
             density="compact"
           />
-          <TextField
+          <Select
             label={t('scheduling.opdFlow.vitals.unit')}
             value={row.unit}
-            onChangeText={(value) => screen.onVitalRowChange(index, 'unit', value)}
-            density="compact"
+            options={
+              ((row.unitOptions && row.unitOptions.length > 0)
+                ? row.unitOptions
+                : [row.unit || t('scheduling.opdFlow.vitals.unitUnknown')]).map((unitValue) => ({
+                value: unitValue,
+                label: unitValue,
+              }))
+            }
+            onValueChange={(value) => screen.onVitalRowChange(index, 'unit', value)}
+            compact
           />
+          <StyledVitalInsightRow>
+            <Badge variant={resolveVitalStatusVariant(row.status)} size="small">
+              {t(`scheduling.opdFlow.vitals.status.${String(row.status || 'INCOMPLETE').toUpperCase()}`)}
+            </Badge>
+            <Text variant="caption">
+              {row.rangeText
+                ? t('scheduling.opdFlow.vitals.referenceRange', { range: row.rangeText })
+                : t(row.rangeTextKey || 'scheduling.opdFlow.vitals.range.awaitingValue')}
+            </Text>
+          </StyledVitalInsightRow>
           <Button
             variant="surface"
             size="small"
@@ -406,6 +578,16 @@ const OpdFlowWorkbenchScreen = () => {
           </Button>
         </StyledFieldRow>
       ))}
+      <StyledTriageLegend>
+        {triageLevelLegend.map((item) => (
+          <StyledTriageLegendItem key={item.value}>
+            <Badge variant={item.badgeVariant} size="small">
+              {t(item.colorCodeKey)}
+            </Badge>
+            <Text variant="caption">{t(item.labelKey)}</Text>
+          </StyledTriageLegendItem>
+        ))}
+      </StyledTriageLegend>
       <StyledFieldRow>
         <Select
           label={t('scheduling.opdFlow.vitals.triageLevel')}

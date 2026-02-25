@@ -90,4 +90,29 @@ describe('useNotificationsScreen realtime behavior', () => {
 
     expect(mockMarkRead).toHaveBeenCalledWith('notification-1');
   });
+
+  it('does not auto-mark OPD notifications as read when opening from notification center', async () => {
+    const { result } = renderHook(() => useNotificationsScreen());
+
+    await waitFor(() => expect(mockListNotifications).toHaveBeenCalled());
+    expect(typeof realtimeHandler).toBe('function');
+
+    act(() => {
+      realtimeHandler({
+        id: 'notification-opd-1',
+        title: 'OPD flow update: waiting doctor review',
+        message: 'Encounter ENC-1 is now waiting doctor review.',
+        notification_type: 'SYSTEM',
+        target_path: '/scheduling/opd-flows/enc-1',
+        created_at: '2026-02-24T08:00:00.000Z',
+      });
+    });
+
+    await act(async () => {
+      await result.current.onOpenNotification(result.current.filteredItems[0]);
+    });
+
+    expect(mockMarkRead).not.toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith('/scheduling/opd-flows/enc-1');
+  });
 });

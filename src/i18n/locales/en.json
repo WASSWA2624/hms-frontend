@@ -479,6 +479,8 @@
         "openAction": "Open action",
         "markRead": "Mark as read",
         "markUnread": "Mark as unread",
+        "markAttended": "Mark as attended",
+        "markUnattended": "Mark as unattended",
         "messageFallback": "No additional details provided.",
         "timeUnknown": "Time unavailable",
         "filters": {
@@ -488,7 +490,8 @@
         },
         "badges": {
           "read": "Read",
-          "unread": "Unread"
+          "unread": "Unread",
+          "attentionRequired": "Attention required"
         },
         "states": {
           "emptyTitle": "No notifications available",
@@ -6789,8 +6792,27 @@
         "arrivalMode": "Arrival mode",
         "patientId": "Patient ID",
         "patientIdHint": "Optional when appointment ID or registration name is provided.",
+        "patientLookupLoading": "Looking up patient details...",
+        "patientResolved": "Patient loaded: {{id}}",
+        "patientNotFound": "No patient matched this ID.",
+        "patientLookupFailed": "Unable to load patient details right now.",
+        "loadPatient": "Load patient",
         "appointmentId": "Appointment ID",
         "appointmentIdHint": "Required for online appointment mode.",
+        "appointmentLookupLoading": "Looking up appointment details...",
+        "appointmentResolved": "Appointment loaded: {{id}}",
+        "appointmentNotFound": "No appointment matched this ID.",
+        "appointmentLookupFailed": "Unable to load appointment details right now.",
+        "loadAppointment": "Load appointment",
+        "autoLinkedContext": "Auto-linked intake context",
+        "patientLabel": "Patient",
+        "appointmentLabel": "Appointment",
+        "providerLabel": "Provider",
+        "shortcuts": {
+          "openPatient": "Open patient",
+          "startAdmission": "Start admission",
+          "openOpd": "Open OPD flow"
+        },
         "firstName": "Patient first name",
         "lastName": "Patient last name",
         "providerUserId": "Provider user ID",
@@ -6818,8 +6840,39 @@
         "vitalType": "Vital type",
         "value": "Value",
         "unit": "Unit",
+        "unitUnknown": "Unit",
         "triageLevel": "Triage level",
-        "triageNotes": "Triage notes"
+        "triageNotes": "Triage notes",
+        "ageYears": "Age: {{age}} year(s)",
+        "referenceRange": "Reference range: {{range}}",
+        "status": {
+          "NORMAL": "Normal",
+          "ABNORMAL": "Abnormal",
+          "CRITICAL": "Critical",
+          "INCOMPLETE": "Incomplete"
+        },
+        "summary": {
+          "normal": "Normal: {{count}}",
+          "abnormal": "Abnormal: {{count}}",
+          "critical": "Critical: {{count}}"
+        },
+        "range": {
+          "awaitingValue": "Enter a value to evaluate range.",
+          "bloodPressureFormat": "Use blood pressure format as systolic/diastolic (for example 120/80).",
+          "weightPositive": "Weight should be a positive value.",
+          "weightRecorded": "Weight captured with predefined unit.",
+          "heightPositive": "Height should be a positive value.",
+          "heightRecorded": "Height captured with predefined unit."
+        }
+      },
+      "triage": {
+        "color": {
+          "red": "Red",
+          "orange": "Orange",
+          "yellow": "Yellow",
+          "green": "Green",
+          "blue": "Blue"
+        }
       },
       "assign": {
         "providerUserId": "Provider user ID"
@@ -6956,15 +7009,15 @@
           "critical": "Critical"
         },
         "triageLevel": {
-          "level1": "Level 1",
-          "level2": "Level 2",
-          "level3": "Level 3",
-          "level4": "Level 4",
-          "level5": "Level 5",
-          "immediate": "Immediate",
-          "urgent": "Urgent",
-          "lessUrgent": "Less urgent",
-          "nonUrgent": "Non-urgent"
+          "level1": "Level 1 (Critical - Red)",
+          "level2": "Level 2 (Very urgent - Orange)",
+          "level3": "Level 3 (Urgent - Yellow)",
+          "level4": "Level 4 (Standard - Green)",
+          "level5": "Level 5 (Non urgent - Blue)",
+          "immediate": "Immediate (Resuscitation - Red)",
+          "urgent": "Urgent (Priority - Orange)",
+          "lessUrgent": "Less urgent (Queue soon - Yellow)",
+          "nonUrgent": "Non-urgent (Routine - Green)"
         },
         "paymentMethod": {
           "cash": "Cash",

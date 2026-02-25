@@ -17,7 +17,7 @@ const StyledLayout = styled.div.withConfig({
   componentId: 'OpdFlowWorkbench_StyledLayout',
 })`
   display: grid;
-  grid-template-columns: minmax(280px, 0.95fr) minmax(0, 2.05fr);
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.9fr);
   gap: ${({ theme }) => theme.spacing.md}px;
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
@@ -50,7 +50,7 @@ const StyledFlowList = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledFlowListItem = styled(Pressable).withConfig({
@@ -62,7 +62,7 @@ const StyledFlowListItem = styled(Pressable).withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs + 1}px;
-  min-height: 96px;
+  min-height: 104px;
   border-radius: ${({ theme }) => theme.radius.lg}px;
   border-width: 1px;
   border-style: solid;
@@ -73,7 +73,7 @@ const StyledFlowListItem = styled(Pressable).withConfig({
     $selected ? theme.colors.primary : theme.colors.border.medium};
   background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.background.secondary : theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.sm + 1}px ${theme.spacing.sm + 2}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm + 2}px ${theme.spacing.sm + 3}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   box-shadow: ${({ $selected }) =>
@@ -128,9 +128,9 @@ const StyledFlowListTitle = styled.h4.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   line-height: ${({ theme }) =>
-    Math.round(theme.typography.fontSize.lg * 1.2)}px;
+    Math.round(theme.typography.fontSize.md * 1.3)}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -145,8 +145,8 @@ const StyledFlowListPatientMeta = styled.p.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.3)}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xs * 1.4)}px;
 `;
 
 const StyledFlowListBadgeWrap = styled.div.withConfig({
@@ -271,6 +271,56 @@ const StyledForm = styled.div.withConfig({
   overflow-anchor: none;
 `;
 
+const StyledLookupActions = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledLookupActions',
+  componentId: 'OpdFlowWorkbench_StyledLookupActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledContextCard = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledContextCard',
+  componentId: 'OpdFlowWorkbench_StyledContextCard',
+})`
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  background: ${({ theme }) => theme.colors.surface.secondary};
+  padding: ${({ theme }) => theme.spacing.sm}px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledContextGrid = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledContextGrid',
+  componentId: 'OpdFlowWorkbench_StyledContextGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledContextValue = styled.p.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledContextValue',
+  componentId: 'OpdFlowWorkbench_StyledContextValue',
+})`
+  margin: 0;
+  font-family: ${({ theme }) => theme.typography.fontFamily.medium};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+`;
+
+const StyledShortcutActions = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledShortcutActions',
+  componentId: 'OpdFlowWorkbench_StyledShortcutActions',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 const StyledFieldRow = styled.div.withConfig({
   displayName: 'OpdFlowWorkbench_StyledFieldRow',
   componentId: 'OpdFlowWorkbench_StyledFieldRow',
@@ -291,6 +341,34 @@ const StyledInlineActions = styled.div.withConfig({
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledVitalInsightRow = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledVitalInsightRow',
+  componentId: 'OpdFlowWorkbench_StyledVitalInsightRow',
+})`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledTriageLegend = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledTriageLegend',
+  componentId: 'OpdFlowWorkbench_StyledTriageLegend',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledTriageLegendItem = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledTriageLegendItem',
+  componentId: 'OpdFlowWorkbench_StyledTriageLegendItem',
+})`
+  display: inline-flex;
+  align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
@@ -418,8 +496,12 @@ export {
   StyledFlowListTitle,
   StyledForm,
   StyledGuidanceList,
+  StyledLookupActions,
   StyledInlineActions,
   StyledLayout,
+  StyledContextCard,
+  StyledContextGrid,
+  StyledContextValue,
   StyledLinkedRecordItem,
   StyledLinkedRecordLabel,
   StyledLinkedRecordValue,
@@ -429,8 +511,12 @@ export {
   StyledProgressDot,
   StyledProgressStep,
   StyledProgressTracker,
+  StyledShortcutActions,
   StyledSectionTitle,
+  StyledTriageLegend,
+  StyledTriageLegendItem,
   StyledTimeline,
   StyledTimelineItem,
   StyledTimelineMeta,
+  StyledVitalInsightRow,
 };

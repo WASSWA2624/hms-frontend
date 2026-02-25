@@ -178,9 +178,13 @@ const NotificationsScreenBase = () => {
           <StyledList>
             {filteredItems.map((item) => {
               const isBusy = isItemBusy(item.id);
-              const markReadLabel = item.unread
-                ? t('navigation.notifications.screen.markRead')
-                : t('navigation.notifications.screen.markUnread');
+              const markReadLabel = item.requiresAttention
+                ? item.unread
+                  ? t('navigation.notifications.screen.markAttended')
+                  : t('navigation.notifications.screen.markUnattended')
+                : item.unread
+                  ? t('navigation.notifications.screen.markRead')
+                  : t('navigation.notifications.screen.markUnread');
               return (
                 <StyledCardWrap key={item.id}>
                   <Card>
@@ -196,6 +200,13 @@ const NotificationsScreenBase = () => {
                               : t('navigation.notifications.screen.badges.read')}
                           </Badge>
                         </StyledCardBadgeWrap>
+                        {item.requiresAttention && item.unread ? (
+                          <StyledCardBadgeWrap>
+                            <Badge variant="error">
+                              {t('navigation.notifications.screen.badges.attentionRequired')}
+                            </Badge>
+                          </StyledCardBadgeWrap>
+                        ) : null}
                       </StyledCardHeaderGroup>
                     </StyledCardHeaderRow>
 

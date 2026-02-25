@@ -11,6 +11,9 @@ const mockAssignDoctor = jest.fn();
 const mockDoctorReview = jest.fn();
 const mockDisposition = jest.fn();
 const mockReset = jest.fn();
+const mockGetPatient = jest.fn();
+const mockListPatients = jest.fn();
+const mockGetAppointment = jest.fn();
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -25,12 +28,22 @@ jest.mock('@hooks', () => ({
   useNetwork: jest.fn(),
   useOpdFlow: jest.fn(),
   useOpdFlowAccess: jest.fn(),
+  usePatient: jest.fn(),
+  useAppointment: jest.fn(),
   useRealtimeEvent: jest.fn(),
 }));
 
 const useOpdFlowWorkbenchScreen =
   require('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkbenchScreen').default;
-const { useI18n, useNetwork, useOpdFlow, useOpdFlowAccess, useRealtimeEvent } = require('@hooks');
+const {
+  useI18n,
+  useNetwork,
+  useOpdFlow,
+  useOpdFlowAccess,
+  usePatient,
+  useAppointment,
+  useRealtimeEvent,
+} = require('@hooks');
 
 const buildSnapshot = (id = 'enc-1', stage = 'WAITING_VITALS') => ({
   id,
@@ -89,6 +102,19 @@ describe('useOpdFlowWorkbenchScreen', () => {
     mockAssignDoctor.mockResolvedValue(buildSnapshot('enc-1', 'WAITING_DOCTOR_REVIEW'));
     mockDoctorReview.mockResolvedValue(buildSnapshot('enc-1', 'WAITING_DISPOSITION'));
     mockDisposition.mockResolvedValue(buildSnapshot('enc-1', 'DISCHARGED'));
+    mockGetPatient.mockResolvedValue({
+      id: 'patient-1',
+      first_name: 'Jane',
+      last_name: 'Doe',
+      human_friendly_id: 'PAT-001',
+      date_of_birth: '1990-01-01',
+    });
+    mockListPatients.mockResolvedValue({ items: [] });
+    mockGetAppointment.mockResolvedValue({
+      id: 'appointment-1',
+      patient_id: 'patient-1',
+      provider_user_id: 'doctor-1',
+    });
 
     useOpdFlow.mockReturnValue({
       list: mockList,
@@ -103,6 +129,13 @@ describe('useOpdFlowWorkbenchScreen', () => {
       isLoading: false,
       errorCode: null,
       data: null,
+    });
+    usePatient.mockReturnValue({
+      get: mockGetPatient,
+      list: mockListPatients,
+    });
+    useAppointment.mockReturnValue({
+      get: mockGetAppointment,
     });
     useRealtimeEvent.mockImplementation(() => {});
   });
@@ -250,5 +283,35 @@ describe('useOpdFlowWorkbenchScreen', () => {
     await waitFor(() => expect(result.current.activeStage).toBe('WAITING_DOCTOR_REVIEW'));
     expect(result.current.stageAction).toBe('DOCTOR_REVIEW');
     expect(result.current.canSubmitCurrentAction).toBe(false);
+  });
+
+  it('loads patient context and applies predefined vital unit defaults', async () => {
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+
+    act(() => {
+      result.current.onStartDraftChange('patient_id', 'patient-1');
+    });
+
+    await act(async () => {
+      await result.current.onResolveStartPatient();
+    });
+
+    expect(mockGetPatient).toHaveBeenCalledWith('patient-1');
+    expect(result.current.startLinkedPatient).toMatchObject({
+      id: 'patient-1',
+      human_friendly_id: 'PAT-001',
+    });
+
+    act(() => {
+      result.current.onVitalRowChange(0, 'vital_type', 'OXYGEN_SATURATION');
+    });
+
+    expect(result.current.vitalsDraft.vitals[0]).toEqual(
+      expect.objectContaining({
+        vital_type: 'OXYGEN_SATURATION',
+        unit: '%',
+      })
+    );
   });
 });

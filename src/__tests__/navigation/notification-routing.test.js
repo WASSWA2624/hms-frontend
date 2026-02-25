@@ -1,4 +1,5 @@
 const {
+  shouldAutoMarkNotificationRead,
   resolveNotificationIcon,
   resolveNotificationRoute,
 } = require('@navigation/notification-routing');
@@ -36,5 +37,21 @@ describe('notification-routing', () => {
     });
 
     expect(icon).toBe('\u2695');
+  });
+
+  it('keeps OPD notifications sticky by disabling auto mark-read on open', () => {
+    expect(
+      shouldAutoMarkNotificationRead({
+        notification_type: 'SYSTEM',
+        title: 'OPD flow updated',
+        target_path: '/scheduling/opd-flows/enc-1',
+      })
+    ).toBe(false);
+    expect(
+      shouldAutoMarkNotificationRead({
+        notification_type: 'BILLING',
+        title: 'Invoice issued',
+      })
+    ).toBe(true);
   });
 });

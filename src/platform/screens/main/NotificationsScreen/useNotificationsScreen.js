@@ -19,11 +19,13 @@ import {
   formatNotificationMeta,
   getNotificationType,
   hasPathMatch,
+  isOpdNotificationContext,
   isNotificationUnread,
   normalizeRoute,
   resolveNotificationMessage,
   resolveNotificationRoute,
   resolveNotificationTimestamp,
+  shouldAutoMarkNotificationRead,
 } from '@navigation/notification-routing';
 
 const SCREEN_STATES = {
@@ -90,6 +92,7 @@ const toNotificationItems = (
       const resolvedType =
         type === 'SYSTEM' && route.startsWith('/scheduling/opd-flows') ? 'OPD' : type;
       const unread = isNotificationUnread(notification);
+      const requiresAttention = isOpdNotificationContext(notification) || resolvedType === 'OPD';
 
       return {
         id: String(notification.id),
@@ -98,6 +101,7 @@ const toNotificationItems = (
         meta,
         route,
         unread,
+        requiresAttention,
         type: resolvedType,
         typeLabel: t(resolveTypeLabelKey(resolvedType)),
         typeVariant: resolveTypeVariant(resolvedType),
@@ -362,7 +366,8 @@ const useNotificationsScreen = () => {
   const handleOpenNotification = useCallback(
     async (item) => {
       if (!item?.id) return;
-      if (item.unread) await setReadState(item.id, true);
+      const canAutoMarkRead = shouldAutoMarkNotificationRead(item);
+      if (item.unread && canAutoMarkRead) await setReadState(item.id, true);
       router.push(item.route || '/dashboard');
     },
     [router, setReadState]
