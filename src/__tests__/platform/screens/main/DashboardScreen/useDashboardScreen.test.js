@@ -39,7 +39,7 @@ jest.mock('@navigation/registrationContext', () => ({
   })),
 }));
 
-jest.mock('@features', () => ({
+jest.mock('@features/tenant', () => ({
   listTenants: (...args) => mockListTenants(...args),
 }));
 

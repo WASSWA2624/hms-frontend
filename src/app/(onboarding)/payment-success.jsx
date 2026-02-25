@@ -15,11 +15,9 @@ import {
   Stack,
   Text,
 } from '@platform/components';
-import {
-  getSubscription,
-  listPayments,
-  listSubscriptionInvoices,
-} from '@features';
+import { listPayments } from '@features/payment';
+import { getSubscription } from '@features/subscription';
+import { listSubscriptionInvoices } from '@features/subscription-invoice';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,

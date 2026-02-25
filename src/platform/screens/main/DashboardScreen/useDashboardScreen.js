@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth, useNavigationVisibility, useNetwork } from '@hooks';
 import { normalizeRoleKey } from '@hooks/roleUtils';
-import { listTenants } from '@features';
+import { listTenants } from '@features/tenant';
 import { getDashboardSummary } from '@features/dashboard-widget';
 import { ROLE_KEYS, SCOPE_KEYS, getScopeRoleKeys } from '@config/accessPolicy';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';

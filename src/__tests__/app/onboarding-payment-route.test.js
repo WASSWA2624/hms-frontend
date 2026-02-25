@@ -27,13 +27,25 @@ jest.mock('@hooks', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-jest.mock('@features', () => ({
+jest.mock('@features/invoice', () => ({
   createInvoice: (...args) => mockCreateInvoice(...args),
+  updateInvoice: (...args) => mockUpdateInvoice(...args),
+}));
+
+jest.mock('@features/payment', () => ({
   createPayment: (...args) => mockCreatePayment(...args),
+}));
+
+jest.mock('@features/subscription-invoice', () => ({
   createSubscriptionInvoice: (...args) => mockCreateSubscriptionInvoice(...args),
   listSubscriptionInvoices: (...args) => mockListSubscriptionInvoices(...args),
+}));
+
+jest.mock('@features/subscription-plan', () => ({
   listSubscriptionPlans: (...args) => mockListSubscriptionPlans(...args),
-  updateInvoice: (...args) => mockUpdateInvoice(...args),
+}));
+
+jest.mock('@features/subscription', () => ({
   updateSubscription: (...args) => mockUpdateSubscription(...args),
 }));
 

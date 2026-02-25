@@ -76,6 +76,41 @@ const formatDistributionValue = (segmentValue, total) => {
   return `${Math.round((segmentValue / total) * 100)}%`;
 };
 
+const DEFAULT_INTL_LOCALE = 'en-US';
+
+const normalizeIntlLocale = (value) => {
+  const normalized = typeof value === 'string' ? value.trim().replace(/_/g, '-') : '';
+  if (!normalized) return undefined;
+  try {
+    const supported = Intl.NumberFormat.supportedLocalesOf([normalized]);
+    return supported[0] || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const createSafeNumberFormatter = (locale, options = undefined) => {
+  try {
+    return new Intl.NumberFormat(locale, options);
+  } catch {
+    return new Intl.NumberFormat(DEFAULT_INTL_LOCALE, options);
+  }
+};
+
+const createSafeDateFormatter = (locale, options = undefined) => {
+  try {
+    return new Intl.DateTimeFormat(locale, options);
+  } catch {
+    return new Intl.DateTimeFormat(DEFAULT_INTL_LOCALE, options);
+  }
+};
+
+const formatDayLabel = (formatter, value) => {
+  const parsed = value ? new Date(value) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return '--';
+  return formatter.format(parsed);
+};
+
 const DashboardScreenWeb = () => {
   const { t, locale } = useI18n();
   const {
@@ -98,19 +133,20 @@ const DashboardScreenWeb = () => {
   const queueItems = liveDashboard?.queue || [];
   const alertItems = liveDashboard?.alerts || [];
   const activityItems = liveDashboard?.activity || [];
+  const intlLocale = useMemo(() => normalizeIntlLocale(locale), [locale]);
 
-  const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const numberFormatter = useMemo(() => createSafeNumberFormatter(intlLocale), [intlLocale]);
   const currencyFormatter = useMemo(
-    () => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }),
-    [locale]
+    () => createSafeNumberFormatter(intlLocale, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }),
+    [intlLocale]
   );
   const timeFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
-    [locale]
+    () => createSafeDateFormatter(intlLocale, { hour: '2-digit', minute: '2-digit' }),
+    [intlLocale]
   );
   const dayFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { weekday: 'short' }),
-    [locale]
+    () => createSafeDateFormatter(intlLocale, { weekday: 'short' }),
+    [intlLocale]
   );
 
   const formatMetricValue = (item) => {
@@ -374,14 +410,14 @@ const DashboardScreenWeb = () => {
                       const height = Math.round((Number(point.value || 0) / trendMax) * 100);
                       return (
                         <StyledTrendColumn key={point.id}>
-                          <StyledTrendBarTrack>
-                            <StyledTrendBarFill $height={height} />
-                          </StyledTrendBarTrack>
-                          <StyledTrendMeta>
-                            <Text variant="caption">{dayFormatter.format(new Date(point.date))}</Text>
-                            <Text variant="caption">{numberFormatter.format(point.value || 0)}</Text>
-                          </StyledTrendMeta>
-                        </StyledTrendColumn>
+                            <StyledTrendBarTrack>
+                              <StyledTrendBarFill $height={height} />
+                            </StyledTrendBarTrack>
+                            <StyledTrendMeta>
+                              <Text variant="caption">{formatDayLabel(dayFormatter, point.date)}</Text>
+                              <Text variant="caption">{numberFormatter.format(point.value || 0)}</Text>
+                            </StyledTrendMeta>
+                          </StyledTrendColumn>
                       );
                     })}
                   </StyledTrendChart>

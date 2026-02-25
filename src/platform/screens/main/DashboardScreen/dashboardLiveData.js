@@ -2,17 +2,15 @@
  * Dashboard live data aggregation helpers.
  * File: dashboardLiveData.js
  */
-import {
-  listAdmissions,
-  listAppointments,
-  listDispenseLogs,
-  listInventoryStocks,
-  listInvoices,
-  listLabOrders,
-  listLabResults,
-  listPatients,
-  listPharmacyOrders,
-} from '@features';
+import { listAdmissions } from '@features/admission';
+import { listAppointments } from '@features/appointment';
+import { listDispenseLogs } from '@features/dispense-log';
+import { listInventoryStocks } from '@features/inventory-stock';
+import { listInvoices } from '@features/invoice';
+import { listLabOrders } from '@features/lab-order';
+import { listLabResults } from '@features/lab-result';
+import { listPatients } from '@features/patient';
+import { listPharmacyOrders } from '@features/pharmacy-order';
 import { normalizeRoleKey } from '@hooks/roleUtils';
 
 const FETCH_LIMIT = 100;

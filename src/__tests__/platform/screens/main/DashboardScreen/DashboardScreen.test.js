@@ -125,6 +125,26 @@ describe('DashboardScreen Component', () => {
     expect(screen.queryByText('home.startHere.title')).toBeNull();
   });
 
+  it('renders web dashboard with fallback formatters for invalid locale/date values', () => {
+    useI18n.mockReturnValue({ t: mockT, locale: 'en_US' });
+    useDashboardScreen.mockReturnValue(
+      createHookResult({
+        liveDashboard: {
+          ...createHookResult().liveDashboard,
+          trend: {
+            title: '7-day trend',
+            subtitle: 'Trend',
+            points: [{ id: 'd1', date: 'not-a-date', value: 4 }],
+          },
+        },
+      })
+    );
+
+    const screen = renderWithTheme(<DashboardScreenWeb />);
+    assertSharedLiveSections(screen);
+    expect(screen.getByText('--')).toBeTruthy();
+  });
+
   it('renders tenant context picker state consistently', () => {
     useDashboardScreen.mockReturnValue(createHookResult({
       state: STATES.NEEDS_TENANT_CONTEXT,

@@ -22,8 +22,11 @@ jest.mock('@hooks', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-jest.mock('@features', () => ({
+jest.mock('@features/subscription-plan', () => ({
   listSubscriptionPlans: (...args) => mockListSubscriptionPlans(...args),
+}));
+
+jest.mock('@features/subscription', () => ({
   updateSubscription: (...args) => mockUpdateSubscription(...args),
 }));
 

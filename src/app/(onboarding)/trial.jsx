@@ -17,7 +17,7 @@ import {
   Stack,
   Text,
 } from '@platform/components';
-import { listSubscriptions } from '@features';
+import { listSubscriptions } from '@features/subscription';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,

@@ -17,13 +17,9 @@ import {
   Stack,
   Text,
 } from '@platform/components';
-import {
-  createSubscription,
-  listModules,
-  listSubscriptionPlans,
-  listSubscriptions,
-  updateSubscription,
-} from '@features';
+import { listModules } from '@features/module';
+import { createSubscription, listSubscriptions, updateSubscription } from '@features/subscription';
+import { listSubscriptionPlans } from '@features/subscription-plan';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,

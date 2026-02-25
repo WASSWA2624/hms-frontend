@@ -15,13 +15,13 @@ import {
   Stack,
   Text,
 } from '@platform/components';
+import { listModules } from '@features/module';
 import {
   createModuleSubscription,
   listModuleSubscriptions,
-  listModules,
-  listSubscriptions,
   updateModuleSubscription,
-} from '@features';
+} from '@features/module-subscription';
+import { listSubscriptions } from '@features/subscription';
 import {
   mergeOnboardingContext,
   readOnboardingEntry,

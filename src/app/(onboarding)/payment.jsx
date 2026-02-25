@@ -15,15 +15,11 @@ import {
   Stack,
   Text,
 } from '@platform/components';
-import {
-  createInvoice,
-  createPayment,
-  createSubscriptionInvoice,
-  listSubscriptionInvoices,
-  listSubscriptionPlans,
-  updateInvoice,
-  updateSubscription,
-} from '@features';
+import { createInvoice, updateInvoice } from '@features/invoice';
+import { createPayment } from '@features/payment';
+import { listSubscriptionPlans } from '@features/subscription-plan';
+import { createSubscriptionInvoice, listSubscriptionInvoices } from '@features/subscription-invoice';
+import { updateSubscription } from '@features/subscription';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,

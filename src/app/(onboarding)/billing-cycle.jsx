@@ -6,7 +6,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth, useI18n } from '@hooks';
 import { Button, Card, Container, ErrorState, ErrorStateSizes, LoadingSpinner, Stack, Text } from '@platform/components';
-import { listSubscriptionPlans, updateSubscription } from '@features';
+import { listSubscriptionPlans } from '@features/subscription-plan';
+import { updateSubscription } from '@features/subscription';
 import {
   mergeOnboardingContext,
   readOnboardingProgress,

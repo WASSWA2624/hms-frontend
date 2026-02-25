@@ -26,9 +26,15 @@ jest.mock('@hooks', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-jest.mock('@features', () => ({
+jest.mock('@features/module', () => ({
   listModules: (...args) => mockListModules(...args),
+}));
+
+jest.mock('@features/subscription', () => ({
   listSubscriptions: (...args) => mockListSubscriptions(...args),
+}));
+
+jest.mock('@features/module-subscription', () => ({
   listModuleSubscriptions: (...args) => mockListModuleSubscriptions(...args),
   createModuleSubscription: (...args) => mockCreateModuleSubscription(...args),
   updateModuleSubscription: (...args) => mockUpdateModuleSubscription(...args),
