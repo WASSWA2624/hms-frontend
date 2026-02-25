@@ -376,7 +376,7 @@ const sanitizeString = (value) => String(value || '').trim();
 const UUID_LIKE_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const isUuidLike = (value) => UUID_LIKE_REGEX.test(sanitizeString(value));
-const FRIENDLY_ID_REGEX = /^(?=.*\d)[A-Za-z][A-Za-z0-9_-]*$/;
+const FRIENDLY_ID_REGEX = /^[A-Za-z][A-Za-z0-9_-]*$/;
 const isFriendlyIdentifier = (value) => FRIENDLY_ID_REGEX.test(sanitizeString(value));
 const toFriendlyScopeIdentifier = (value) => {
   const normalized = sanitizeString(value);

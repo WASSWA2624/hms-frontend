@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import { createCrudRules } from '@utils/crudRules';
 
-const FRIENDLY_ID_REGEX = /^(?=.*\d)[A-Za-z][A-Za-z0-9_-]*$/;
+const FRIENDLY_ID_REGEX = /^[A-Za-z][A-Za-z0-9_-]*$/;
 const UUID_LIKE_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const idSchema = z
@@ -13,8 +13,7 @@ const idSchema = z
   .trim()
   .min(2)
   .max(64)
-  .regex(FRIENDLY_ID_REGEX)
-  .transform((value) => value.toUpperCase());
+  .regex(FRIENDLY_ID_REGEX);
 const scopeIdSchema = z
   .string()
   .trim()
@@ -23,8 +22,7 @@ const scopeIdSchema = z
   .refine(
     (value) => UUID_LIKE_REGEX.test(value) || FRIENDLY_ID_REGEX.test(value),
     'Invalid identifier format'
-  )
-  .transform((value) => (UUID_LIKE_REGEX.test(value) ? value.toLowerCase() : value.toUpperCase()));
+  );
 const isoDateTimeSchema = z.string().datetime();
 const decimalSchema = z.union([z.string().trim().min(1), z.coerce.number()]);
 

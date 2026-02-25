@@ -15,7 +15,8 @@ import {
 
 describe('opd-flow.rules', () => {
   it('parses ids and list params', () => {
-    expect(parseOpdFlowId('flow-1')).toBe('FLOW-1');
+    expect(parseOpdFlowId('flow-1')).toBe('flow-1');
+    expect(parseOpdFlowId('flow')).toBe('flow');
     expect(parseOpdFlowListParams({ page: '1', limit: '20', stage: 'WAITING_VITALS' })).toEqual({
       page: 1,
       limit: 20,
@@ -47,7 +48,7 @@ describe('opd-flow.rules', () => {
       })
     ).toMatchObject({
       arrival_mode: 'WALK_IN',
-      patient_id: 'PATIENT-1',
+      patient_id: 'patient-1',
     });
   });
 
@@ -61,7 +62,7 @@ describe('opd-flow.rules', () => {
     ).toMatchObject({
       tenant_id: '550e8400-e29b-41d4-a716-446655440000',
       facility_id: '550e8400-e29b-41d4-a716-446655440001',
-      patient_id: 'PATIENT-1',
+      patient_id: 'patient-1',
     });
   });
 
@@ -73,7 +74,7 @@ describe('opd-flow.rules', () => {
       })
     ).toMatchObject({
       arrival_mode: 'ONLINE_APPOINTMENT',
-      appointment_id: 'APPOINTMENT-1',
+      appointment_id: 'appointment-1',
     });
   });
 
@@ -132,7 +133,7 @@ describe('opd-flow.rules', () => {
 
   it('parses assign doctor payload and enforces provider id', () => {
     expect(parseAssignDoctorPayload({ provider_user_id: 'doctor-1' })).toEqual({
-      provider_user_id: 'DOCTOR-1',
+      provider_user_id: 'doctor-1',
     });
     expect(() => parseAssignDoctorPayload({})).toThrow();
   });
@@ -150,7 +151,7 @@ describe('opd-flow.rules', () => {
     ).toMatchObject({
       note: 'Clinical review complete',
       diagnoses: [{ diagnosis_type: 'PRIMARY', description: 'Malaria' }],
-      medications: [{ drug_id: 'DRUG-1', quantity: 2 }],
+      medications: [{ drug_id: 'drug-1', quantity: 2 }],
     });
     expect(() => parseDoctorReviewPayload({})).toThrow();
   });
