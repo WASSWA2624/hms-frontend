@@ -8,6 +8,7 @@ import {
   ErrorStateSizes,
   Icon,
   LoadingSpinner,
+  Modal,
   OfflineState,
   OfflineStateSizes,
   Select,
@@ -25,9 +26,11 @@ import {
   StyledFlowListBadgeWrap,
   StyledFlowListItem,
   StyledFlowListItemHeader,
+  StyledFlowListNumber,
   StyledFlowListMetaLabel,
   StyledFlowListMetaPill,
   StyledFlowListMetaRow,
+  StyledFlowListSearch,
   StyledFlowListMetaValue,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
@@ -47,19 +50,22 @@ import {
   StyledPanel,
   StyledPanelHeader,
   StyledProgressDot,
+  StyledProgressLegend,
+  StyledProgressLegendItem,
   StyledProgressStep,
   StyledProgressTracker,
   StyledShortcutActions,
   StyledSectionTitle,
   StyledTriageLegend,
   StyledTriageLegendItem,
+  StyledModalBody,
   StyledTimeline,
   StyledTimelineItem,
   StyledTimelineMeta,
   StyledVitalInsightRow,
 } from './OpdFlowWorkbenchScreen.styles';
 import useOpdFlowWorkbenchScreen from './useOpdFlowWorkbenchScreen';
-import PriceInputField from './PriceInputField';
+import { PriceInputField } from '@platform/components';
 
 const toSelectOptions = (t, options = []) =>
   options.map((option) => ({
@@ -167,6 +173,13 @@ const formatDateTimeLabel = (value) => {
 const OpdFlowWorkbenchScreen = () => {
   const { t } = useI18n();
   const screen = useOpdFlowWorkbenchScreen();
+  const correctionDraft = screen.stageCorrectionDraft || { stage_to: '', reason: '' };
+  const isCorrectionDialogOpen = Boolean(screen.isCorrectionDialogOpen);
+  const handleOpenCorrectionDialog = screen.onOpenCorrectionDialog || (() => {});
+  const handleCloseCorrectionDialog = screen.onCloseCorrectionDialog || (() => {});
+  const handleStageCorrectionDraftChange = screen.onStageCorrectionDraftChange || (() => {});
+  const handleCorrectStage = screen.onCorrectStage || (() => {});
+  const canCorrectStage = Boolean(screen.canCorrectStage);
 
   const arrivalModeOptions = toSelectOptions(t, screen.arrivalModeOptions);
   const emergencySeverityOptions = toSelectOptions(t, screen.emergencySeverityOptions);
@@ -177,6 +190,7 @@ const OpdFlowWorkbenchScreen = () => {
   const medicationFrequencyOptions = toSelectOptions(t, screen.medicationFrequencyOptions);
   const medicationRouteOptions = toSelectOptions(t, screen.medicationRouteOptions);
   const dispositionOptions = toSelectOptions(t, screen.dispositionOptions);
+  const correctionStageOptions = toSelectOptions(t, screen.correctionStageOptions || []);
   const triageLevelLegend = screen.triageLevelLegend || [];
   const vitalsRowsWithInsights = screen.vitalsRowsWithInsights || screen.vitalsDraft?.vitals || [];
   const vitalsStatusSummary = screen.vitalsStatusSummary || {
@@ -989,6 +1003,56 @@ const OpdFlowWorkbenchScreen = () => {
     );
   };
 
+  const renderCorrectionDialog = () => (
+    <Modal
+      visible={isCorrectionDialogOpen}
+      onDismiss={handleCloseCorrectionDialog}
+      size="medium"
+      accessibilityLabel={t('scheduling.opdFlow.correction.title')}
+      testID="opd-workbench-correction-modal"
+    >
+      <StyledModalBody>
+        <Text variant="label">{t('scheduling.opdFlow.correction.title')}</Text>
+        <Select
+          label={t('scheduling.opdFlow.correction.targetStage')}
+          value={correctionDraft.stage_to}
+          options={correctionStageOptions}
+          onValueChange={(value) => handleStageCorrectionDraftChange('stage_to', value)}
+          compact
+          searchable
+          testID="opd-workbench-correction-stage-select"
+        />
+        <TextArea
+          label={t('scheduling.opdFlow.correction.reason')}
+          value={correctionDraft.reason}
+          onChangeText={(value) => handleStageCorrectionDraftChange('reason', value)}
+          helperText={t('scheduling.opdFlow.correction.reasonHint')}
+          testID="opd-workbench-correction-reason"
+        />
+        {screen.formError ? <Text variant="caption">{screen.formError}</Text> : null}
+        <StyledInlineActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={handleCloseCorrectionDialog}
+            testID="opd-workbench-correction-cancel"
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="primary"
+            size="small"
+            onPress={handleCorrectStage}
+            disabled={!screen.canMutate || !canCorrectStage}
+            testID="opd-workbench-correction-submit"
+          >
+            {t('scheduling.opdFlow.actions.applyProgressEdit')}
+          </Button>
+        </StyledInlineActions>
+      </StyledModalBody>
+    </Modal>
+  );
+
   return (
     <StyledContainer testID="opd-workbench-screen">
       <StyledPanelHeader>
@@ -1080,6 +1144,17 @@ const OpdFlowWorkbenchScreen = () => {
               <StyledMeta>
                 {t('scheduling.opdFlow.list.count', { count: screen.flowList.length })}
               </StyledMeta>
+              <StyledFlowListSearch>
+                <TextField
+                  label={t('scheduling.opdFlow.list.searchLabel')}
+                  value={screen.flowSearchText}
+                  onChangeText={screen.onFlowSearchChange}
+                  placeholder={t('scheduling.opdFlow.list.searchPlaceholder')}
+                  density="compact"
+                  type="search"
+                  testID="opd-workbench-flow-search"
+                />
+              </StyledFlowListSearch>
             </Card>
 
             {screen.isStartFormOpen ? renderStartForm() : null}
@@ -1094,13 +1169,13 @@ const OpdFlowWorkbenchScreen = () => {
               ) : (
                 <StyledFlowList>
                   {screen.flowList.map((flowItem, index) => {
-                    const flowId =
+                    const flowId = toPublicIdText(
                       flowItem?.human_friendly_id ||
-                      flowItem?.encounter?.human_friendly_id ||
-                      flowItem?.id ||
-                      flowItem?.encounter?.id;
+                        flowItem?.encounter?.human_friendly_id
+                    );
                     const stage = flowItem?.stage || flowItem?.flow?.stage || '';
                     const isSelected = screen.selectedFlowId === flowId;
+                    const isSelectable = Boolean(flowId);
                     const encounterHumanFriendlyId = toPublicIdText(
                       flowItem?.encounter?.human_friendly_id ||
                         flowItem?.human_friendly_id
@@ -1127,15 +1202,17 @@ const OpdFlowWorkbenchScreen = () => {
                     return (
                       <StyledFlowListItem
                         key={flowId || `opd-flow-item-${index + 1}`}
-                        onPress={() => screen.onSelectFlow(flowItem)}
+                        onPress={() => isSelectable && screen.onSelectFlow(flowItem)}
                         $selected={isSelected}
+                        disabled={!isSelectable}
                         accessibilityRole="button"
                         accessibilityLabel={patientName}
-                        accessibilityState={{ selected: isSelected }}
+                        accessibilityState={{ selected: isSelected, disabled: !isSelectable }}
                         testID={`opd-workbench-list-item-${index + 1}`}
                       >
                         <StyledFlowListItemHeader>
                           <StyledFlowListPrimary>
+                            <StyledFlowListNumber>{index + 1}</StyledFlowListNumber>
                             <StyledFlowListTitle $selected={isSelected}>
                               {patientName}
                             </StyledFlowListTitle>
@@ -1190,9 +1267,22 @@ const OpdFlowWorkbenchScreen = () => {
             <Card variant="outlined">
               <StyledPanelHeader>
                 <StyledSectionTitle>{t('scheduling.opdFlow.snapshot.title')}</StyledSectionTitle>
-                <Text variant="caption" testID="opd-workbench-stage-label">
-                  {activeStage ? t(screen.stageLabelKey) : t('scheduling.opdFlow.stages.UNKNOWN')}
-                </Text>
+                <StyledInlineActions>
+                  <Text variant="caption" testID="opd-workbench-stage-label">
+                    {activeStage ? t(screen.stageLabelKey) : t('scheduling.opdFlow.stages.UNKNOWN')}
+                  </Text>
+                  {canCorrectStage && activeFlow ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={handleOpenCorrectionDialog}
+                      disabled={!screen.canMutate}
+                      testID="opd-workbench-open-correction-dialog"
+                    >
+                      {t('scheduling.opdFlow.actions.editProgress')}
+                    </Button>
+                  ) : null}
+                </StyledInlineActions>
               </StyledPanelHeader>
 
               <StyledSectionTitle>{t('scheduling.opdFlow.progress.title')}</StyledSectionTitle>
@@ -1204,6 +1294,14 @@ const OpdFlowWorkbenchScreen = () => {
                   </StyledProgressStep>
                 ))}
               </StyledProgressTracker>
+              <StyledProgressLegend>
+                {screen.progressSteps.map((step) => (
+                  <StyledProgressLegendItem key={`progress-legend-${step.id}`}>
+                    <StyledProgressDot $status={step.status} $tone={step.tone} />
+                    <Text variant="caption">{t(step.labelKey)}</Text>
+                  </StyledProgressLegendItem>
+                ))}
+              </StyledProgressLegend>
 
               {activeFlow ? (
                 <StyledCardGrid>
@@ -1318,6 +1416,7 @@ const OpdFlowWorkbenchScreen = () => {
           </StyledPanel>
         </StyledLayout>
       ) : null}
+      {renderCorrectionDialog()}
     </StyledContainer>
   );
 };

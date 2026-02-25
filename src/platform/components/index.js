@@ -28,6 +28,7 @@ export { default as GlobalDateRangeField } from './forms/GlobalDateRangeField';
 export { default as GlobalSmartDateField } from './forms/GlobalSmartDateField';
 export { default as CountrySelectField } from './forms/CountrySelectField';
 export { default as PhoneField } from './forms/PhoneField';
+export { default as PriceInputField } from './forms/PriceInputField';
 
 // Navigation Components
 export { default as Header } from './navigation/Header';

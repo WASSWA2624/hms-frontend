@@ -7,6 +7,7 @@ import { opdFlowApi } from './opd-flow.api';
 import { normalizeOpdFlowList, normalizeOpdFlowSnapshot } from './opd-flow.model';
 import {
   parseAssignDoctorPayload,
+  parseCorrectStagePayload,
   parseDispositionPayload,
   parseDoctorReviewPayload,
   parseOpdFlowId,
@@ -85,6 +86,14 @@ const disposition = async (id, payload = {}) =>
     return normalizeOpdFlowSnapshot(response.data);
   });
 
+const correctStage = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseOpdFlowId(id);
+    const parsed = parseCorrectStagePayload(payload);
+    const response = await opdFlowApi.correctStage(parsedId, parsed);
+    return normalizeOpdFlowSnapshot(response.data);
+  });
+
 export {
   listOpdFlows,
   getOpdFlow,
@@ -94,4 +103,5 @@ export {
   assignDoctor,
   doctorReview,
   disposition,
+  correctStage,
 };

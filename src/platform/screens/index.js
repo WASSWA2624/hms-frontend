@@ -113,6 +113,9 @@ export { default as ClinicalResourceListScreen } from './clinical/ClinicalResour
 export { default as ClinicalResourceDetailScreen } from './clinical/ClinicalResourceDetailScreen';
 export { default as ClinicalResourceFormScreen } from './clinical/ClinicalResourceFormScreen';
 
+// HR screens
+export { default as AddDoctorScreen } from './hr/AddDoctorScreen';
+
 // Patient portal screens
 export { default as PatientPortalMainScreen } from './patientPortal/PatientPortalMainScreen';
 export { default as PatientAppointmentsScreen } from './patientPortal/PatientAppointmentsScreen';

@@ -283,6 +283,13 @@ export const endpoints = {
     ASSIGN_DOCTOR: (id) => `${baseUrl}/opd-flows/${id}/assign-doctor`,
     DOCTOR_REVIEW: (id) => `${baseUrl}/opd-flows/${id}/doctor-review`,
     DISPOSITION: (id) => `${baseUrl}/opd-flows/${id}/disposition`,
+    CORRECT_STAGE: (id) => `${baseUrl}/opd-flows/${id}/correct-stage`,
+  },
+  DOCTORS: {
+    LIST: `${baseUrl}/doctors`,
+    CREATE: `${baseUrl}/doctors`,
+    GET: (id) => `${baseUrl}/doctors/${id}`,
+    UPDATE: (id) => `${baseUrl}/doctors/${id}`,
   },
   ENCOUNTERS: {
     LIST: `${baseUrl}/encounters`,

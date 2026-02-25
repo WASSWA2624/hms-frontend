@@ -52,6 +52,12 @@ const opdFlowApi = {
       method: 'POST',
       body: payload,
     }),
+  correctStage: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.OPD_FLOWS.CORRECT_STAGE(id),
+      method: 'POST',
+      body: payload,
+    }),
 };
 
 export { opdFlowApi };

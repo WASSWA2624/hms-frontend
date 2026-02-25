@@ -54,6 +54,7 @@ export { default as useProviderSchedule } from './useProviderSchedule';
 export { default as useAvailabilitySlot } from './useAvailabilitySlot';
 export { default as useVisitQueue } from './useVisitQueue';
 export { default as useOpdFlow } from './useOpdFlow';
+export { default as useDoctor } from './useDoctor';
 export { default as useEncounter } from './useEncounter';
 export { default as useClinicalNote } from './useClinicalNote';
 export { default as useDiagnosis } from './useDiagnosis';

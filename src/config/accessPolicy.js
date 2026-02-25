@@ -461,6 +461,22 @@ const OPD_ACCESS_POLICY = Object.freeze({
     ROLE_KEYS.FACILITY_ADMIN,
     ROLE_KEYS.DOCTOR,
   ]),
+  correctStage: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.NURSE,
+    ROLE_KEYS.DOCTOR,
+  ]),
+});
+
+const DOCTOR_ONBOARDING_ACCESS_POLICY = Object.freeze({
+  create: toRoleList([
+    ROLE_KEYS.SUPER_ADMIN,
+    ROLE_KEYS.TENANT_ADMIN,
+    ROLE_KEYS.FACILITY_ADMIN,
+    ROLE_KEYS.HR,
+  ]),
 });
 
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
@@ -572,6 +588,7 @@ export {
   SCOPE_ACCESS_MATRIX,
   BACKEND_PERMISSION_SCOPE_MAP,
   OPD_ACCESS_POLICY,
+  DOCTOR_ONBOARDING_ACCESS_POLICY,
   normalizeRoleKey,
   resolveCanonicalRoles,
   getScopeRoleKeys,

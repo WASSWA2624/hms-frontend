@@ -261,6 +261,9 @@ const FLOW_PROGRESS_TONE_BY_STEP = Object.freeze({
   ORDERS_AND_FOLLOW_THROUGH: 'violet',
   FINAL_DISPOSITION: 'green',
 });
+const CORRECTABLE_STAGE_OPTIONS = Array.from(
+  new Set(FLOW_PROGRESS_STEPS.flatMap((step) => step.stages))
+);
 
 const ACTION_GUIDANCE_KEY_MAP = {
   PAY_CONSULTATION: 'scheduling.opdFlow.guidance.payConsultation',
@@ -287,6 +290,7 @@ const TIMELINE_EVENT_LABEL_KEY_MAP = {
   DOCTOR_ASSIGNED: 'scheduling.opdFlow.timeline.events.DOCTOR_ASSIGNED',
   DOCTOR_REVIEW_COMPLETED: 'scheduling.opdFlow.timeline.events.DOCTOR_REVIEW_COMPLETED',
   DISPOSITION_RECORDED: 'scheduling.opdFlow.timeline.events.DISPOSITION_RECORDED',
+  STAGE_CORRECTED: 'scheduling.opdFlow.timeline.events.STAGE_CORRECTED',
 };
 
 const DEFAULT_START_DRAFT = {
@@ -362,6 +366,10 @@ const DEFAULT_DISPOSITION_DRAFT = {
   decision: 'DISCHARGE',
   admission_facility_id: '',
   notes: '',
+};
+const DEFAULT_STAGE_CORRECTION_DRAFT = {
+  stage_to: '',
+  reason: '',
 };
 
 const sanitizeString = (value) => String(value || '').trim();
@@ -749,12 +757,6 @@ const resolveEncounterPublicId = (value) => {
 const resolveEncounterIdentifier = (value) => {
   const publicId = resolveEncounterPublicId(value);
   if (publicId) return publicId;
-  const fromValue = sanitizeString(value?.id);
-  if (fromValue) return fromValue;
-  const fromEncounter = sanitizeString(value?.encounter?.id);
-  if (fromEncounter) return fromEncounter;
-  const fromFlow = sanitizeString(value?.flow?.encounter_id);
-  if (fromFlow) return fromFlow;
   return '';
 };
 
@@ -884,6 +886,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canRecordVitals,
     canAssignDoctor,
     canDoctorReview,
+    canCorrectStage,
     canDisposition,
     canManageAllTenants,
     tenantId,
@@ -900,6 +903,7 @@ const useOpdFlowWorkbenchScreen = () => {
     assignDoctor,
     doctorReview,
     disposition,
+    correctStage,
     reset: resetOpdFlowCrud,
     isLoading: isCrudLoading,
     errorCode,
@@ -938,8 +942,12 @@ const useOpdFlowWorkbenchScreen = () => {
   const [startPatientSearchText, setStartPatientSearchText] = useState('');
   const [startProviderSearchText, setStartProviderSearchText] = useState('');
   const [assignProviderSearchText, setAssignProviderSearchText] = useState('');
+  const [flowSearchText, setFlowSearchText] = useState('');
+  const [debouncedFlowSearch, setDebouncedFlowSearch] = useState('');
   const [startPatientOptions, setStartPatientOptions] = useState([]);
   const [providerOptions, setProviderOptions] = useState([]);
+  const [isCorrectionDialogOpen, setIsCorrectionDialogOpen] = useState(false);
+  const [stageCorrectionDraft, setStageCorrectionDraft] = useState(DEFAULT_STAGE_CORRECTION_DRAFT);
   const lastRealtimeRefreshRef = useRef(0);
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
@@ -968,6 +976,13 @@ const useOpdFlowWorkbenchScreen = () => {
     const options = [...CURRENCY_OPTIONS, sanitizeString(globalCurrency).toUpperCase()].filter(Boolean);
     return Array.from(new Set(options));
   }, [globalCurrency]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFlowSearch(sanitizeString(flowSearchText));
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [flowSearchText]);
 
   const mapPatientToOption = useCallback(
     (patient) => {
@@ -1237,8 +1252,12 @@ const useOpdFlowWorkbenchScreen = () => {
 
   useEffect(() => {
     if (!requestedFlowId) return;
+    if (isUuidLike(requestedFlowId)) {
+      router.replace('/scheduling/opd-flows');
+      return;
+    }
     setSelectedFlowId(requestedFlowId);
-  }, [requestedFlowId]);
+  }, [requestedFlowId, router]);
 
   useEffect(() => {
     if (startDraft.arrival_mode !== 'ONLINE_APPOINTMENT') {
@@ -1284,6 +1303,9 @@ const useOpdFlowWorkbenchScreen = () => {
       sort_by: 'started_at',
       order: 'desc',
     };
+    if (debouncedFlowSearch) {
+      params.search = debouncedFlowSearch;
+    }
 
     if (!canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
@@ -1299,11 +1321,15 @@ const useOpdFlowWorkbenchScreen = () => {
     setFlowList(items);
     setPagination(result?.pagination || null);
     if (items.length > 0) {
-      setSelectedFlowId((previous) => previous || resolveEncounterIdentifier(items[0]));
+      setSelectedFlowId((previous) => {
+        if (previous && !isUuidLike(previous)) return previous;
+        return resolveEncounterPublicId(items[0]) || '';
+      });
     }
   }, [
     canViewWorkbench,
     canManageAllTenants,
+    debouncedFlowSearch,
     isOffline,
     normalizedTenantId,
     normalizedFacilityId,
@@ -1312,7 +1338,7 @@ const useOpdFlowWorkbenchScreen = () => {
   ]);
 
   const loadSelectedFlow = useCallback(async () => {
-    if (!canViewWorkbench || !selectedFlowId || isOffline) return;
+    if (!canViewWorkbench || !selectedFlowId || isUuidLike(selectedFlowId) || isOffline) return;
     const snapshot = await getOpdFlow(selectedFlowId);
     if (!snapshot) return;
     setSelectedFlow(snapshot);
@@ -1339,7 +1365,7 @@ const useOpdFlowWorkbenchScreen = () => {
       }
 
       await loadFlowList();
-      if (encounterIdentifier && !selectedFlowId) {
+      if (encounterIdentifier && !isUuidLike(encounterIdentifier) && !selectedFlowId) {
         setSelectedFlowId(encounterIdentifier);
       }
     },
@@ -1371,7 +1397,7 @@ const useOpdFlowWorkbenchScreen = () => {
         );
 
       if (isKnownFlow || !selectedFlowId) {
-        refreshFromRealtimeEvent(encounterIdentifier);
+        refreshFromRealtimeEvent(encounterPublicId || encounterIdentifier);
       }
     },
     [
@@ -1510,6 +1536,14 @@ const useOpdFlowWorkbenchScreen = () => {
       })),
     [activeProgressIndex]
   );
+  const correctionStageOptions = useMemo(
+    () =>
+      CORRECTABLE_STAGE_OPTIONS.map((stage) => ({
+        value: stage,
+        labelKey: `scheduling.opdFlow.stages.${stage}`,
+      })),
+    []
+  );
 
   const currentActionGuidanceKey = stageAction
     ? ACTION_GUIDANCE_KEY_MAP[stageAction] || 'scheduling.opdFlow.guidance.default'
@@ -1543,6 +1577,8 @@ const useOpdFlowWorkbenchScreen = () => {
     setStartPatientSearchText('');
     setStartProviderSearchText('');
     setAssignProviderSearchText('');
+    setIsCorrectionDialogOpen(false);
+    setStageCorrectionDraft(DEFAULT_STAGE_CORRECTION_DRAFT);
   }, [globalCurrency]);
 
   const applySnapshot = useCallback(
@@ -1610,6 +1646,10 @@ const useOpdFlowWorkbenchScreen = () => {
 
   const handleAssignProviderSearchChange = useCallback((value) => {
     setAssignProviderSearchText(value);
+  }, []);
+
+  const handleFlowSearchChange = useCallback((value) => {
+    setFlowSearchText(value);
   }, []);
 
   const handleStartPatientSelect = useCallback((value) => {
@@ -2062,6 +2102,61 @@ const useOpdFlowWorkbenchScreen = () => {
     t,
   ]);
 
+  const handleStageCorrectionDraftChange = useCallback((field, value) => {
+    setStageCorrectionDraft((previous) => ({ ...previous, [field]: value }));
+  }, []);
+
+  const handleOpenCorrectionDialog = useCallback(() => {
+    if (!activeFlowId || !canCorrectStage) return;
+    setFormError('');
+    setStageCorrectionDraft({
+      stage_to: activeStage || '',
+      reason: '',
+    });
+    setIsCorrectionDialogOpen(true);
+  }, [activeFlowId, activeStage, canCorrectStage]);
+
+  const handleCloseCorrectionDialog = useCallback(() => {
+    setIsCorrectionDialogOpen(false);
+    setStageCorrectionDraft(DEFAULT_STAGE_CORRECTION_DRAFT);
+  }, []);
+
+  const handleCorrectStage = useCallback(async () => {
+    setFormError('');
+    if (!activeFlowId || !canCorrectStage || isOffline) return;
+
+    const stageTo = sanitizeString(stageCorrectionDraft.stage_to);
+    const reason = sanitizeString(stageCorrectionDraft.reason);
+    if (!stageTo) {
+      setFormError(t('scheduling.opdFlow.validation.stageCorrectionRequired'));
+      return;
+    }
+    if (!reason) {
+      setFormError(t('scheduling.opdFlow.validation.correctionReasonRequired'));
+      return;
+    }
+
+    const snapshot = await correctStage(activeFlowId, {
+      stage_to: stageTo,
+      reason,
+    });
+    if (!snapshot) return;
+    applySnapshot(snapshot, { pushRoute: false });
+    setIsCorrectionDialogOpen(false);
+    setStageCorrectionDraft(DEFAULT_STAGE_CORRECTION_DRAFT);
+    await loadFlowList();
+  }, [
+    activeFlowId,
+    canCorrectStage,
+    isOffline,
+    stageCorrectionDraft.stage_to,
+    stageCorrectionDraft.reason,
+    t,
+    correctStage,
+    applySnapshot,
+    loadFlowList,
+  ]);
+
   const handleRetry = useCallback(() => {
     if (selectedFlowId) {
       loadSelectedFlow();
@@ -2109,9 +2204,13 @@ const useOpdFlowWorkbenchScreen = () => {
     router.push('/scheduling/opd-flows');
   }, [activeFlowPublicId, router]);
 
-  const timeline = normalizeScalarParam(activeFlow?.flow?.stage)
-    ? activeFlow?.timeline || activeFlow?.flow?.timeline || []
-    : [];
+  const timeline = useMemo(
+    () =>
+      normalizeScalarParam(activeFlow?.flow?.stage)
+        ? activeFlow?.timeline || activeFlow?.flow?.timeline || []
+        : [],
+    [activeFlow]
+  );
   const timelineItems = useMemo(
     () =>
       timeline.map((entry) => {
@@ -2159,6 +2258,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canRecordVitals,
     canAssignDoctor,
     canDoctorReview,
+    canCorrectStage,
     canDisposition,
     canMutate,
     canSubmitCurrentAction,
@@ -2197,6 +2297,7 @@ const useOpdFlowWorkbenchScreen = () => {
     startPatientSearchText,
     startProviderSearchText,
     assignProviderSearchText,
+    flowSearchText,
     startPatientOptions: resolvedStartPatientOptions,
     providerOptions: resolvedProviderOptions,
     contextPatientAgeLabel,
@@ -2206,6 +2307,9 @@ const useOpdFlowWorkbenchScreen = () => {
     vitalsStatusSummary,
     stageLabelKey: activeStage ? `scheduling.opdFlow.stages.${activeStage}` : '',
     dispositionStages: DISPOSITION_STAGES,
+    correctionStageOptions,
+    isCorrectionDialogOpen,
+    stageCorrectionDraft,
     arrivalModeOptions: ARRIVAL_MODE_OPTIONS,
     emergencySeverityOptions: EMERGENCY_SEVERITY_OPTIONS,
     triageLevelOptions: TRIAGE_LEVEL_OPTIONS,
@@ -2228,6 +2332,7 @@ const useOpdFlowWorkbenchScreen = () => {
     onStartPatientSearchChange: handleStartPatientSearchChange,
     onStartProviderSearchChange: handleStartProviderSearchChange,
     onAssignProviderSearchChange: handleAssignProviderSearchChange,
+    onFlowSearchChange: handleFlowSearchChange,
     onStartPatientSelect: handleStartPatientSelect,
     onStartProviderSelect: handleStartProviderSelect,
     onAssignProviderSelect: handleAssignProviderSelect,
@@ -2249,6 +2354,10 @@ const useOpdFlowWorkbenchScreen = () => {
     onDoctorReview: handleDoctorReview,
     onDispositionDraftChange: handleDispositionDraftChange,
     onDisposition: handleDisposition,
+    onOpenCorrectionDialog: handleOpenCorrectionDialog,
+    onCloseCorrectionDialog: handleCloseCorrectionDialog,
+    onStageCorrectionDraftChange: handleStageCorrectionDraftChange,
+    onCorrectStage: handleCorrectStage,
   };
 };
 

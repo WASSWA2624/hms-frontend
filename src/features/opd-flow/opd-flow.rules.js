@@ -5,9 +5,14 @@
 import { z } from 'zod';
 import { createCrudRules } from '@utils/crudRules';
 
-const { parseId } = createCrudRules();
-
-const idSchema = z.union([z.string().trim().min(1), z.number().int().nonnegative()]);
+const FRIENDLY_ID_REGEX = /^(?=.*\d)[A-Za-z][A-Za-z0-9_-]*$/;
+const idSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(64)
+  .regex(FRIENDLY_ID_REGEX)
+  .transform((value) => value.toUpperCase());
 const isoDateTimeSchema = z.string().datetime();
 const decimalSchema = z.union([z.string().trim().min(1), z.coerce.number()]);
 
@@ -262,7 +267,12 @@ const dispositionPayloadSchema = z.object({
   notes: z.string().trim().max(65535).optional().nullable(),
 });
 
-const parseOpdFlowId = (value) => parseId(value);
+const correctStagePayloadSchema = z.object({
+  stage_to: workflowStageSchema,
+  reason: z.string().trim().min(1).max(2000),
+});
+
+const parseOpdFlowId = (value) => idSchema.parse(value);
 const parseOpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
 const parseStartOpdFlowPayload = (value) => startPayloadSchema.parse(value ?? {});
 const parsePayConsultationPayload = (value) => payConsultationPayloadSchema.parse(value ?? {});
@@ -270,6 +280,7 @@ const parseRecordVitalsPayload = (value) => recordVitalsPayloadSchema.parse(valu
 const parseAssignDoctorPayload = (value) => assignDoctorPayloadSchema.parse(value ?? {});
 const parseDoctorReviewPayload = (value) => doctorReviewPayloadSchema.parse(value ?? {});
 const parseDispositionPayload = (value) => dispositionPayloadSchema.parse(value ?? {});
+const parseCorrectStagePayload = (value) => correctStagePayloadSchema.parse(value ?? {});
 
 export {
   parseOpdFlowId,
@@ -280,4 +291,5 @@ export {
   parseAssignDoctorPayload,
   parseDoctorReviewPayload,
   parseDispositionPayload,
+  parseCorrectStagePayload,
 };

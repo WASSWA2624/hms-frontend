@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import useCrud from '@hooks/useCrud';
 import {
   assignDoctor,
+  correctStage,
   disposition,
   doctorReview,
   getOpdFlow,
@@ -26,6 +27,7 @@ const useOpdFlow = () => {
       assignDoctor,
       doctorReview,
       disposition,
+      correctStage,
     }),
     []
   );

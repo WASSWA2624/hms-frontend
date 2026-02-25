@@ -6797,6 +6797,8 @@
       "list": {
         "title": "OPD Flows",
         "count": "{{count}} active flows",
+        "searchLabel": "Find flow",
+        "searchPlaceholder": "Search by patient, flow ID, queue, stage",
         "itemTitle": "Flow {{id}}",
         "unknownFlow": "Unknown flow"
       },
@@ -6809,6 +6811,8 @@
         "assignDoctor": "Assign Doctor",
         "doctorReview": "Doctor Review",
         "disposition": "Apply Disposition",
+        "editProgress": "Edit progress",
+        "applyProgressEdit": "Apply edit",
         "addRow": "Add Row",
         "removeRow": "Remove",
         "currentStep": "Current Step Action"
@@ -6965,6 +6969,12 @@
         "ordersAndFollowThrough": "Orders and follow-through",
         "finalDisposition": "Final disposition"
       },
+      "correction": {
+        "title": "Edit progress",
+        "targetStage": "Move to stage",
+        "reason": "Reason",
+        "reasonHint": "Reason is required and logged in audit history."
+      },
       "guidance": {
         "title": "What to do now",
         "default": "Complete the current stage action to move this patient to the next OPD step.",
@@ -6995,7 +7005,8 @@
           "VITALS_RECORDED": "Vitals recorded",
           "DOCTOR_ASSIGNED": "Doctor assigned",
           "DOCTOR_REVIEW_COMPLETED": "Doctor review completed",
-          "DISPOSITION_RECORDED": "Disposition recorded"
+          "DISPOSITION_RECORDED": "Disposition recorded",
+          "STAGE_CORRECTED": "Stage corrected"
         }
       },
       "states": {
@@ -7037,7 +7048,9 @@
         "vitalsRequired": "Add at least one valid vital entry before submitting.",
         "providerRequired": "Provider user ID is required.",
         "reviewNoteRequired": "Clinical note is required before review submission.",
-        "dispositionRequired": "Disposition decision is required."
+        "dispositionRequired": "Disposition decision is required.",
+        "stageCorrectionRequired": "Select the target stage.",
+        "correctionReasonRequired": "Provide a reason for the correction."
       },
       "options": {
         "arrivalMode": {

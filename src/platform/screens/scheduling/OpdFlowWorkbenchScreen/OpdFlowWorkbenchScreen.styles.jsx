@@ -108,22 +108,22 @@ const StyledFlowListItem = styled(Pressable).withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs + 3}px;
-  min-height: 122px;
-  border-radius: ${({ theme }) => theme.radius.lg + 2}px;
+  min-height: 104px;
+  border-radius: ${({ theme }) => theme.radius.md + 2}px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
-  border-left-width: 6px;
+  border-left-width: 4px;
   border-left-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
   background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.background.secondary : theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.sm + 4}px ${theme.spacing.md}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 8px 20px rgba(0, 120, 212, 0.2)' : '0 3px 10px rgba(0, 0, 0, 0.08)'};
+    $selected ? '0 4px 12px rgba(0, 120, 212, 0.16)' : '0 1px 4px rgba(0, 0, 0, 0.08)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -135,7 +135,7 @@ const StyledFlowListItem = styled(Pressable).withConfig({
     background-color: ${({ theme, $selected }) =>
       $selected ? theme.colors.background.secondary : theme.colors.background.tertiary};
     box-shadow: ${({ $selected }) =>
-      $selected ? '0 12px 24px rgba(0, 120, 212, 0.25)' : '0 8px 20px rgba(0, 0, 0, 0.14)'};
+      $selected ? '0 6px 16px rgba(0, 120, 212, 0.2)' : '0 4px 10px rgba(0, 0, 0, 0.1)'};
     transform: translateY(-1px);
   }
 
@@ -150,9 +150,28 @@ const StyledFlowListItemHeader = styled.div.withConfig({
   componentId: 'OpdFlowWorkbench_StyledFlowListItemHeader',
 })`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFlowListNumber = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListNumber',
+  componentId: 'OpdFlowWorkbench_StyledFlowListNumber',
+})`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.colors.border.medium};
+  background: ${({ theme }) => theme.colors.surface.secondary};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-variant-numeric: tabular-nums;
 `;
 
 const StyledFlowListPrimary = styled.div.withConfig({
@@ -174,9 +193,9 @@ const StyledFlowListTitle = styled.h4.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   line-height: ${({ theme }) =>
-    Math.round(theme.typography.fontSize.lg * 1.25)}px;
+    Math.round(theme.typography.fontSize.md * 1.2)}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -191,8 +210,8 @@ const StyledFlowListPatientMeta = styled.p.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.35)}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xs * 1.35)}px;
 `;
 
 const StyledFlowListBadgeWrap = styled.div.withConfig({
@@ -220,9 +239,9 @@ const StyledFlowListMetaPill = styled.div.withConfig({
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: ${({ theme }) => theme.radius.md + 2}px;
+  border-radius: ${({ theme }) => theme.radius.sm + 2}px;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
-  padding: ${({ theme }) => `${theme.spacing.xs - 1}px ${theme.spacing.sm}px`};
+  padding: ${({ theme }) => `${theme.spacing.xs - 2}px ${theme.spacing.xs + 6}px`};
   background-color: ${({ theme }) => theme.colors.surface.secondary};
 `;
 
@@ -244,9 +263,16 @@ const StyledFlowListMetaValue = styled.span.withConfig({
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-variant-numeric: tabular-nums;
+`;
+
+const StyledFlowListSearch = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListSearch',
+  componentId: 'OpdFlowWorkbench_StyledFlowListSearch',
+})`
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
 `;
 
 const StyledCardGrid = styled.div.withConfig({
@@ -291,9 +317,9 @@ const StyledLinkedRecordValue = styled.p.withConfig({
   margin: ${({ theme }) => `${theme.spacing.xs - 2}px 0 0 0`};
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.md * 1.25)}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.25)}px;
   font-variant-numeric: tabular-nums;
 `;
 
@@ -425,7 +451,7 @@ const StyledSectionTitle = styled.h3.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
@@ -511,7 +537,7 @@ const StyledProgressStep = styled.li.withConfig({
       ? 'var(--tone-text)'
       : theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ $status, theme }) =>
     $status === 'current' ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.medium};
 `;
@@ -547,6 +573,34 @@ const StyledGuidanceList = styled.ul.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledProgressLegend = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressLegend',
+  componentId: 'OpdFlowWorkbench_StyledProgressLegend',
+})`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  margin-top: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledProgressLegendItem = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledProgressLegendItem',
+  componentId: 'OpdFlowWorkbench_StyledProgressLegendItem',
+})`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledModalBody = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledModalBody',
+  componentId: 'OpdFlowWorkbench_StyledModalBody',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
 export {
   StyledCardGrid,
   StyledContainer,
@@ -555,9 +609,11 @@ export {
   StyledFlowListBadgeWrap,
   StyledFlowListItem,
   StyledFlowListItemHeader,
+  StyledFlowListNumber,
   StyledFlowListMetaLabel,
   StyledFlowListMetaPill,
   StyledFlowListMetaRow,
+  StyledFlowListSearch,
   StyledFlowListMetaValue,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
@@ -577,12 +633,15 @@ export {
   StyledPanel,
   StyledPanelHeader,
   StyledProgressDot,
+  StyledProgressLegend,
+  StyledProgressLegendItem,
   StyledProgressStep,
   StyledProgressTracker,
   StyledShortcutActions,
   StyledSectionTitle,
   StyledTriageLegend,
   StyledTriageLegendItem,
+  StyledModalBody,
   StyledTimeline,
   StyledTimelineItem,
   StyledTimelineMeta,

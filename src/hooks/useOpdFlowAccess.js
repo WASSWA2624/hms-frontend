@@ -43,6 +43,10 @@ const useOpdFlowAccess = () => {
     () => canManageAllTenants || hasAnyRole(roles, OPD_ACCESS_POLICY.doctorReview),
     [canManageAllTenants, roles]
   );
+  const canCorrectStage = useMemo(
+    () => canManageAllTenants || hasAnyRole(roles, OPD_ACCESS_POLICY.correctStage),
+    [canManageAllTenants, roles]
+  );
 
   return {
     canAccessOpdFlow,
@@ -51,6 +55,7 @@ const useOpdFlowAccess = () => {
     canRecordVitals,
     canAssignDoctor,
     canDoctorReview,
+    canCorrectStage,
     canDisposition:
       canManageAllTenants || hasAnyRole(roles, OPD_ACCESS_POLICY.disposition),
     canManageAllTenants,
