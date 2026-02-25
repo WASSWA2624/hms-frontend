@@ -10,6 +10,9 @@ import useResolvedRoles from '@hooks/useResolvedRoles';
 import useNavigationVisibility from '@hooks/useNavigationVisibility';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const normalizePath = (value) => {
   if (typeof value !== 'string') return '/';
   const withoutQuery = value.split('?')[0].split('#')[0];
@@ -96,12 +99,19 @@ const resolveTargetForPath = (pathname, flatItems, mainItems) => {
   };
 };
 
+const hasUuidLikePathIdentifier = (pathname) =>
+  normalizePath(pathname)
+    .split('/')
+    .filter(Boolean)
+    .some((segment) => UUID_LIKE_REGEX.test(String(segment).trim()));
+
 export const ROUTE_ACCESS_GUARD_ERRORS = {
   ACCESS_DENIED: 'ACCESS_DENIED',
+  UUID_LIKE_ID_BLOCKED: 'UUID_LIKE_ID_BLOCKED',
 };
 
 export function useRouteAccessGuard(options = {}) {
-  const { redirectPath = '/dashboard', skipPaths = [] } = options;
+  const { redirectPath = '/dashboard', skipPaths = [], uuidRedirectPath = '/+not-found' } = options;
   const router = useRouter();
   const pathnameValue = usePathname();
   const pathname = useMemo(() => normalizePath(pathnameValue), [pathnameValue]);
@@ -119,6 +129,7 @@ export function useRouteAccessGuard(options = {}) {
     () => resolveTargetForPath(pathname, flattenedNavigation, MAIN_NAV_ITEMS),
     [flattenedNavigation, pathname]
   );
+  const hasUuidPathIdentifier = useMemo(() => hasUuidLikePathIdentifier(pathname), [pathname]);
 
   const requiresRoleResolution = useMemo(() => {
     if (!resolvedTarget) return false;
@@ -135,6 +146,7 @@ export function useRouteAccessGuard(options = {}) {
 
   const hasAccess = useMemo(() => {
     if (!isAuthenticated) return false;
+    if (hasUuidPathIdentifier) return false;
     if (!resolvedTarget) return true;
 
     const visibilityTarget = resolveVisibilityTarget(resolvedTarget, pathname);
@@ -142,14 +154,27 @@ export function useRouteAccessGuard(options = {}) {
 
     if (resolvedTarget.parent && !isItemVisible(resolvedTarget.parent)) return false;
     return isItemVisible(visibilityTarget);
-  }, [isAuthenticated, isItemVisible, pathname, resolvedTarget]);
+  }, [hasUuidPathIdentifier, isAuthenticated, isItemVisible, pathname, resolvedTarget]);
 
-  const errorCode = hasAccess || isPending ? null : ROUTE_ACCESS_GUARD_ERRORS.ACCESS_DENIED;
+  const errorCode = useMemo(() => {
+    if (isPending) return null;
+    if (hasUuidPathIdentifier) return ROUTE_ACCESS_GUARD_ERRORS.UUID_LIKE_ID_BLOCKED;
+    if (hasAccess) return null;
+    return ROUTE_ACCESS_GUARD_ERRORS.ACCESS_DENIED;
+  }, [hasAccess, hasUuidPathIdentifier, isPending]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (normalizedSkipPaths.has(pathname)) return;
     if (isPending) return;
+
+    if (hasUuidPathIdentifier) {
+      if (hasRedirected.current) return;
+      hasRedirected.current = true;
+      router.replace(uuidRedirectPath);
+      return;
+    }
+
+    if (normalizedSkipPaths.has(pathname)) return;
 
     if (hasAccess) {
       hasRedirected.current = false;
@@ -159,7 +184,17 @@ export function useRouteAccessGuard(options = {}) {
     if (hasRedirected.current) return;
     hasRedirected.current = true;
     router.replace(redirectPath);
-  }, [hasAccess, isAuthenticated, isPending, normalizedSkipPaths, pathname, redirectPath, router]);
+  }, [
+    hasAccess,
+    hasUuidPathIdentifier,
+    isAuthenticated,
+    isPending,
+    normalizedSkipPaths,
+    pathname,
+    redirectPath,
+    router,
+    uuidRedirectPath,
+  ]);
 
   return {
     hasAccess,

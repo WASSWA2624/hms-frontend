@@ -141,5 +141,20 @@ describe('useRouteAccessGuard', () => {
       expect(mockReplace).not.toHaveBeenCalled();
     });
   });
-});
 
+  it('redirects UUID-like path identifiers to not-found regardless of route visibility', async () => {
+    usePathname.mockReturnValue('/settings/users/123e4567-e89b-12d3-a456-426614174000');
+    useNavigationVisibility.mockReturnValue({
+      isItemVisible: createVisibilityMock(),
+    });
+
+    let hookResult;
+    render(<HookHarness options={{ redirectPath: '/dashboard' }} onResult={(v) => (hookResult = v)} />);
+
+    await waitFor(() => {
+      expect(hookResult.hasAccess).toBe(false);
+      expect(hookResult.errorCode).toBe(ROUTE_ACCESS_GUARD_ERRORS.UUID_LIKE_ID_BLOCKED);
+      expect(mockReplace).toHaveBeenCalledWith('/+not-found');
+    });
+  });
+});
