@@ -3,10 +3,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   useI18n,
   useAppointment,
+  useFacility,
   useNetwork,
   useOpdFlow,
   useOpdFlowAccess,
   usePatient,
+  useStaffProfile,
+  useTenant,
   useRealtimeEvent,
 } from '@hooks';
 import { resolveErrorMessage } from '../schedulingScreenUtils';
@@ -123,6 +126,20 @@ const STATUS_PRIORITY = Object.freeze({
   CRITICAL: 3,
 });
 
+const DEFAULT_CURRENCY = 'USD';
+const CURRENCY_OPTIONS = Object.freeze([
+  'USD',
+  'UGX',
+  'KES',
+  'TZS',
+  'RWF',
+  'EUR',
+  'GBP',
+  'CAD',
+  'AUD',
+]);
+const LOOKUP_RESULT_LIMIT = 30;
+
 const HEART_RATE_BANDS = Object.freeze({
   NEONATE: { min: 100, max: 180, criticalLow: 80, criticalHigh: 200 },
   INFANT: { min: 100, max: 160, criticalLow: 80, criticalHigh: 190 },
@@ -237,6 +254,13 @@ const FLOW_PROGRESS_STEPS = [
     stages: ['ADMITTED', 'DISCHARGED'],
   },
 ];
+const FLOW_PROGRESS_TONE_BY_STEP = Object.freeze({
+  REGISTRATION_AND_QUEUE: 'indigo',
+  TRIAGE_AND_ASSIGNMENT: 'amber',
+  DOCTOR_REVIEW: 'teal',
+  ORDERS_AND_FOLLOW_THROUGH: 'violet',
+  FINAL_DISPOSITION: 'green',
+});
 
 const ACTION_GUIDANCE_KEY_MAP = {
   PAY_CONSULTATION: 'scheduling.opdFlow.guidance.payConsultation',
@@ -341,6 +365,9 @@ const DEFAULT_DISPOSITION_DRAFT = {
 };
 
 const sanitizeString = (value) => String(value || '').trim();
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const isUuidLike = (value) => UUID_LIKE_REGEX.test(sanitizeString(value));
 
 const toFiniteNumber = (value) => {
   const parsed = Number(value);
@@ -709,7 +736,19 @@ const normalizeScalarParam = (value) => {
   return sanitizeString(value);
 };
 
-const resolveEncounterId = (value) => {
+const resolveEncounterPublicId = (value) => {
+  const fromValue = sanitizeString(value?.human_friendly_id);
+  if (fromValue && !isUuidLike(fromValue)) return fromValue;
+  const fromEncounter = sanitizeString(value?.encounter?.human_friendly_id);
+  if (fromEncounter && !isUuidLike(fromEncounter)) return fromEncounter;
+  const fromFlow = sanitizeString(value?.linked_record_ids?.encounter_id);
+  if (fromFlow && !isUuidLike(fromFlow)) return fromFlow;
+  return '';
+};
+
+const resolveEncounterIdentifier = (value) => {
+  const publicId = resolveEncounterPublicId(value);
+  if (publicId) return publicId;
   const fromValue = sanitizeString(value?.id);
   if (fromValue) return fromValue;
   const fromEncounter = sanitizeString(value?.encounter?.id);
@@ -719,10 +758,87 @@ const resolveEncounterId = (value) => {
   return '';
 };
 
+const resolveEncounterInternalId = (value) => {
+  const fromValue = sanitizeString(value?.id);
+  if (fromValue) return fromValue;
+  const fromEncounter = sanitizeString(value?.encounter?.id);
+  if (fromEncounter) return fromEncounter;
+  const fromFlow = sanitizeString(value?.flow?.encounter_id);
+  if (fromFlow) return fromFlow;
+  return '';
+};
+
+const matchesEncounterIdentifier = (value, identifier) => {
+  const normalizedIdentifier = sanitizeString(identifier);
+  if (!normalizedIdentifier) return false;
+
+  const candidates = new Set([
+    resolveEncounterIdentifier(value),
+    resolveEncounterInternalId(value),
+    sanitizeString(value?.linked_record_ids?.encounter_id),
+  ].filter(Boolean));
+
+  return candidates.has(normalizedIdentifier);
+};
+
 const resolveListItems = (value) => {
   if (Array.isArray(value)) return value;
   if (Array.isArray(value?.items)) return value.items;
   return [];
+};
+
+const resolveCurrencyFromExtension = (extension) => {
+  if (!extension || typeof extension !== 'object') return '';
+
+  const candidates = [
+    extension.currency,
+    extension.default_currency,
+    extension.defaultCurrency,
+    extension?.settings?.currency,
+    extension?.settings?.default_currency,
+    extension?.settings?.defaultCurrency,
+    extension?.billing?.currency,
+    extension?.billing?.default_currency,
+    extension?.billing?.defaultCurrency,
+    extension?.preferences?.currency,
+    extension?.preferences?.default_currency,
+    extension?.preferences?.defaultCurrency,
+  ];
+
+  const matched = candidates.find((value) => sanitizeString(value));
+  return sanitizeString(matched).toUpperCase();
+};
+
+const resolvePatientDisplayName = (patient) => {
+  const firstName = sanitizeString(patient?.first_name || patient?.firstName);
+  const lastName = sanitizeString(patient?.last_name || patient?.lastName);
+  return [firstName, lastName].filter(Boolean).join(' ').trim();
+};
+
+const resolvePatientPublicId = (patient) =>
+  sanitizeString(patient?.human_friendly_id || patient?.humanFriendlyId);
+
+const resolveProviderName = (staffProfile) => {
+  const profile = staffProfile?.user?.profile || {};
+  const firstName = sanitizeString(profile.first_name || profile.firstName);
+  const lastName = sanitizeString(profile.last_name || profile.lastName);
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+  if (fullName) return fullName;
+
+  return sanitizeString(staffProfile?.user?.email || staffProfile?.user?.phone);
+};
+
+const resolveProviderPublicId = (staffProfile) =>
+  sanitizeString(staffProfile?.user?.human_friendly_id || staffProfile?.user?.humanFriendlyId);
+
+const uniqueSelectOptions = (options = []) => {
+  const seen = new Set();
+  return options.filter((option) => {
+    const value = sanitizeString(option?.value);
+    if (!value || seen.has(value)) return false;
+    seen.add(value);
+    return true;
+  });
 };
 
 const formatRelativeTime = (isoValue, locale = 'en') => {
@@ -790,6 +906,9 @@ const useOpdFlowWorkbenchScreen = () => {
   } = useOpdFlow();
   const { get: getPatientRecord, list: listPatientRecords } = usePatient();
   const { get: getAppointmentRecord } = useAppointment();
+  const { list: listStaffProfiles } = useStaffProfile();
+  const { get: getFacilityRecord } = useFacility();
+  const { get: getTenantRecord } = useTenant();
 
   const [flowList, setFlowList] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -812,7 +931,15 @@ const useOpdFlowWorkbenchScreen = () => {
   const [startLinkedAppointment, setStartLinkedAppointment] = useState(null);
   const [isPatientLookupLoading, setIsPatientLookupLoading] = useState(false);
   const [isAppointmentLookupLoading, setIsAppointmentLookupLoading] = useState(false);
+  const [isPatientSearchLoading, setIsPatientSearchLoading] = useState(false);
+  const [isProviderSearchLoading, setIsProviderSearchLoading] = useState(false);
   const [startLookupError, setStartLookupError] = useState('');
+  const [globalCurrency, setGlobalCurrency] = useState(DEFAULT_CURRENCY);
+  const [startPatientSearchText, setStartPatientSearchText] = useState('');
+  const [startProviderSearchText, setStartProviderSearchText] = useState('');
+  const [assignProviderSearchText, setAssignProviderSearchText] = useState('');
+  const [startPatientOptions, setStartPatientOptions] = useState([]);
+  const [providerOptions, setProviderOptions] = useState([]);
   const lastRealtimeRefreshRef = useRef(0);
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
@@ -820,7 +947,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canViewWorkbench = isResolved && canAccessOpdFlow && hasScope;
   const patientLookupParams = useMemo(() => {
-    const params = { limit: 5, sort_by: 'updated_at', order: 'desc' };
+    const params = { limit: LOOKUP_RESULT_LIMIT, sort_by: 'updated_at', order: 'desc' };
     if (!canManageAllTenants && normalizedTenantId) {
       params.tenant_id = normalizedTenantId;
     }
@@ -829,6 +956,172 @@ const useOpdFlowWorkbenchScreen = () => {
     }
     return params;
   }, [canManageAllTenants, normalizedFacilityId, normalizedTenantId]);
+  const providerLookupParams = useMemo(() => {
+    const params = { limit: LOOKUP_RESULT_LIMIT, sort_by: 'updated_at', order: 'desc' };
+    if (!canManageAllTenants && normalizedTenantId) {
+      params.tenant_id = normalizedTenantId;
+    }
+    return params;
+  }, [canManageAllTenants, normalizedTenantId]);
+
+  const currencyOptions = useMemo(() => {
+    const options = [...CURRENCY_OPTIONS, sanitizeString(globalCurrency).toUpperCase()].filter(Boolean);
+    return Array.from(new Set(options));
+  }, [globalCurrency]);
+
+  const mapPatientToOption = useCallback(
+    (patient) => {
+      const patientPublicId = resolvePatientPublicId(patient);
+      if (!patientPublicId) return null;
+
+      const patientName = resolvePatientDisplayName(patient) || t('scheduling.opdFlow.start.patientUnknown');
+      const phone = sanitizeString(patient?.phone || patient?.contact_phone || patient?.primary_phone);
+      const label = [patientName, patientPublicId, phone].filter(Boolean).join(' | ');
+      return {
+        value: patientPublicId,
+        label: label || patientPublicId,
+      };
+    },
+    [t]
+  );
+
+  const mapProviderToOption = useCallback(
+    (staffProfile) => {
+      const providerPublicId = resolveProviderPublicId(staffProfile);
+      if (!providerPublicId) return null;
+
+      const providerName = resolveProviderName(staffProfile) || t('scheduling.opdFlow.start.providerUnknown');
+      const practitionerType = sanitizeString(staffProfile?.practitioner_type);
+      const position = sanitizeString(staffProfile?.position);
+      const contact = sanitizeString(staffProfile?.user?.phone || staffProfile?.user?.email);
+      const roleLabel = position || practitionerType;
+      const label = [providerName, providerPublicId, roleLabel, contact].filter(Boolean).join(' | ');
+
+      return {
+        value: providerPublicId,
+        label: label || providerPublicId,
+      };
+    },
+    [t]
+  );
+
+  useEffect(() => {
+    if (!isResolved || isOffline) return;
+    let isDisposed = false;
+
+    const hydrateCurrency = async () => {
+      const facilityCurrency =
+        normalizedFacilityId && sanitizeString(normalizedFacilityId)
+          ? resolveCurrencyFromExtension((await getFacilityRecord(normalizedFacilityId))?.extension_json)
+          : '';
+      if (facilityCurrency) {
+        if (!isDisposed) setGlobalCurrency(facilityCurrency);
+        return;
+      }
+
+      const tenantCurrency =
+        normalizedTenantId && sanitizeString(normalizedTenantId)
+          ? resolveCurrencyFromExtension((await getTenantRecord(normalizedTenantId))?.extension_json)
+          : '';
+      if (!isDisposed) {
+        setGlobalCurrency(tenantCurrency || DEFAULT_CURRENCY);
+      }
+    };
+
+    hydrateCurrency().catch(() => {
+      if (!isDisposed) setGlobalCurrency(DEFAULT_CURRENCY);
+    });
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [getFacilityRecord, getTenantRecord, isOffline, isResolved, normalizedFacilityId, normalizedTenantId]);
+
+  useEffect(() => {
+    setStartDraft((previous) => {
+      const currentCurrency = sanitizeString(previous.currency).toUpperCase();
+      if (currentCurrency && currentCurrency !== DEFAULT_CURRENCY) return previous;
+      return {
+        ...previous,
+        currency: globalCurrency,
+      };
+    });
+    setPaymentDraft((previous) => {
+      const currentCurrency = sanitizeString(previous.currency).toUpperCase();
+      if (currentCurrency && currentCurrency !== DEFAULT_CURRENCY) return previous;
+      return {
+        ...previous,
+        currency: globalCurrency,
+      };
+    });
+  }, [globalCurrency]);
+
+  useEffect(() => {
+    if (isOffline) return;
+    let isDisposed = false;
+
+    const timer = setTimeout(async () => {
+      setIsPatientSearchLoading(true);
+      try {
+        const query = sanitizeString(startPatientSearchText);
+        const listResponse = await listPatientRecords({
+          ...patientLookupParams,
+          search: query || undefined,
+        });
+        const records = resolveListItems(listResponse);
+        const options = uniqueSelectOptions(records.map(mapPatientToOption).filter(Boolean));
+        if (!isDisposed) {
+          setStartPatientOptions(options);
+        }
+      } catch (_error) {
+        if (!isDisposed) setStartPatientOptions([]);
+      } finally {
+        if (!isDisposed) setIsPatientSearchLoading(false);
+      }
+    }, 280);
+
+    return () => {
+      isDisposed = true;
+      clearTimeout(timer);
+    };
+  }, [isOffline, listPatientRecords, mapPatientToOption, patientLookupParams, startPatientSearchText]);
+
+  useEffect(() => {
+    if (isOffline) return;
+    let isDisposed = false;
+
+    const timer = setTimeout(async () => {
+      setIsProviderSearchLoading(true);
+      try {
+        const query = sanitizeString(startProviderSearchText || assignProviderSearchText);
+        const listResponse = await listStaffProfiles({
+          ...providerLookupParams,
+          search: query || undefined,
+        });
+        const records = resolveListItems(listResponse);
+        const options = uniqueSelectOptions(records.map(mapProviderToOption).filter(Boolean));
+        if (!isDisposed) {
+          setProviderOptions(options);
+        }
+      } catch (_error) {
+        if (!isDisposed) setProviderOptions([]);
+      } finally {
+        if (!isDisposed) setIsProviderSearchLoading(false);
+      }
+    }, 280);
+
+    return () => {
+      isDisposed = true;
+      clearTimeout(timer);
+    };
+  }, [
+    assignProviderSearchText,
+    isOffline,
+    listStaffProfiles,
+    mapProviderToOption,
+    providerLookupParams,
+    startProviderSearchText,
+  ]);
 
   const resolvePatientLookup = useCallback(
     async (identifier, { silent = true } = {}) => {
@@ -850,11 +1143,11 @@ const useOpdFlowWorkbenchScreen = () => {
             ...patientLookupParams,
             search: normalizedIdentifier,
           });
-          const items = Array.isArray(listResponse?.items) ? listResponse.items : [];
+          const items = resolveListItems(listResponse);
           const normalizedUpper = normalizedIdentifier.toUpperCase();
           patient =
-            items.find((item) => sanitizeString(item?.id) === normalizedIdentifier) ||
             items.find((item) => sanitizeString(item?.human_friendly_id).toUpperCase() === normalizedUpper) ||
+            items.find((item) => sanitizeString(item?.id) === normalizedIdentifier) ||
             items[0] ||
             null;
         }
@@ -868,12 +1161,14 @@ const useOpdFlowWorkbenchScreen = () => {
         }
 
         setStartLinkedPatient(patient);
+        const patientPublicId = resolvePatientPublicId(patient);
         setStartDraft((previous) => ({
           ...previous,
-          patient_id: sanitizeString(patient?.id) || previous.patient_id,
+          patient_id: patientPublicId || previous.patient_id,
           first_name: sanitizeString(previous.first_name) || sanitizeString(patient?.first_name),
           last_name: sanitizeString(previous.last_name) || sanitizeString(patient?.last_name),
         }));
+        setStartPatientSearchText(resolvePatientDisplayName(patient));
         return patient;
       } catch (_error) {
         if (!silent) {
@@ -905,19 +1200,21 @@ const useOpdFlowWorkbenchScreen = () => {
         }
 
         setStartLinkedAppointment(appointment);
-        const appointmentPatientId = sanitizeString(appointment?.patient_id);
+        const appointmentPatientPublicId =
+          resolvePatientPublicId(appointment?.patient) ||
+          sanitizeString(appointment?.patient_human_friendly_id);
+        const appointmentProviderPublicId =
+          sanitizeString(appointment?.provider?.human_friendly_id) ||
+          sanitizeString(appointment?.provider_human_friendly_id);
+        const appointmentPublicId = sanitizeString(appointment?.human_friendly_id);
         setStartDraft((previous) => ({
           ...previous,
-          appointment_id: sanitizeString(appointment?.id) || previous.appointment_id,
-          patient_id: sanitizeString(previous.patient_id) || appointmentPatientId,
+          appointment_id: appointmentPublicId || previous.appointment_id,
+          patient_id: sanitizeString(previous.patient_id) || appointmentPatientPublicId,
           provider_user_id:
             sanitizeString(previous.provider_user_id) ||
-            sanitizeString(appointment?.provider_user_id),
+            appointmentProviderPublicId,
         }));
-
-        if (appointmentPatientId) {
-          await resolvePatientLookup(appointmentPatientId, { silent: true });
-        }
         return appointment;
       } catch (_error) {
         if (!silent) {
@@ -928,7 +1225,7 @@ const useOpdFlowWorkbenchScreen = () => {
         setIsAppointmentLookupLoading(false);
       }
     },
-    [getAppointmentRecord, isOffline, resolvePatientLookup, t]
+    [getAppointmentRecord, isOffline, t]
   );
 
   useEffect(() => {
@@ -942,20 +1239,6 @@ const useOpdFlowWorkbenchScreen = () => {
     if (!requestedFlowId) return;
     setSelectedFlowId(requestedFlowId);
   }, [requestedFlowId]);
-
-  useEffect(() => {
-    const patientIdentifier = sanitizeString(startDraft.patient_id);
-    if (!patientIdentifier || isOffline) {
-      if (!patientIdentifier) setStartLinkedPatient(null);
-      return undefined;
-    }
-
-    const timer = setTimeout(() => {
-      resolvePatientLookup(patientIdentifier, { silent: true });
-    }, 350);
-
-    return () => clearTimeout(timer);
-  }, [isOffline, resolvePatientLookup, startDraft.patient_id]);
 
   useEffect(() => {
     if (startDraft.arrival_mode !== 'ONLINE_APPOINTMENT') {
@@ -980,10 +1263,10 @@ const useOpdFlowWorkbenchScreen = () => {
   ]);
 
   const upsertFlowInList = useCallback((snapshot) => {
-    const snapshotId = resolveEncounterId(snapshot);
+    const snapshotId = resolveEncounterIdentifier(snapshot);
     if (!snapshotId) return;
     setFlowList((previous) => {
-      const index = previous.findIndex((item) => resolveEncounterId(item) === snapshotId);
+      const index = previous.findIndex((item) => resolveEncounterIdentifier(item) === snapshotId);
       if (index < 0) {
         return [snapshot, ...previous];
       }
@@ -1016,7 +1299,7 @@ const useOpdFlowWorkbenchScreen = () => {
     setFlowList(items);
     setPagination(result?.pagination || null);
     if (items.length > 0) {
-      setSelectedFlowId((previous) => previous || resolveEncounterId(items[0]));
+      setSelectedFlowId((previous) => previous || resolveEncounterIdentifier(items[0]));
     }
   }, [
     canViewWorkbench,
@@ -1045,19 +1328,19 @@ const useOpdFlowWorkbenchScreen = () => {
   }, [loadSelectedFlow]);
 
   const refreshFromRealtimeEvent = useCallback(
-    async (encounterId) => {
+    async (encounterIdentifier) => {
       const now = Date.now();
       if (now - lastRealtimeRefreshRef.current < 750) return;
       lastRealtimeRefreshRef.current = now;
 
-      if (encounterId && selectedFlowId && encounterId === selectedFlowId) {
+      if (encounterIdentifier && selectedFlowId && encounterIdentifier === selectedFlowId) {
         await loadSelectedFlow();
         return;
       }
 
       await loadFlowList();
-      if (encounterId && !selectedFlowId) {
-        setSelectedFlowId(encounterId);
+      if (encounterIdentifier && !selectedFlowId) {
+        setSelectedFlowId(encounterIdentifier);
       }
     },
     [loadFlowList, loadSelectedFlow, selectedFlowId]
@@ -1069,21 +1352,26 @@ const useOpdFlowWorkbenchScreen = () => {
 
       const eventTenantId = sanitizeString(payload?.tenant_id);
       const eventFacilityId = sanitizeString(payload?.facility_id);
-      const encounterId = sanitizeString(payload?.encounter_id);
+      const encounterPublicId = sanitizeString(payload?.encounter_public_id);
+      const encounterInternalId = sanitizeString(payload?.encounter_id);
+      const encounterIdentifier = encounterPublicId || encounterInternalId;
 
-      if (!encounterId) return;
+      if (!encounterIdentifier) return;
 
       if (!canManageAllTenants) {
         if (normalizedTenantId && eventTenantId && eventTenantId !== normalizedTenantId) return;
         if (normalizedFacilityId && eventFacilityId && eventFacilityId !== normalizedFacilityId) return;
       }
 
+      const realtimeIdentifiers = [encounterPublicId, encounterInternalId].filter(Boolean);
       const isKnownFlow =
-        encounterId === selectedFlowId ||
-        flowList.some((item) => resolveEncounterId(item) === encounterId);
+        realtimeIdentifiers.some((identifier) => identifier === selectedFlowId) ||
+        flowList.some((item) =>
+          realtimeIdentifiers.some((identifier) => matchesEncounterIdentifier(item, identifier))
+        );
 
       if (isKnownFlow || !selectedFlowId) {
-        refreshFromRealtimeEvent(encounterId);
+        refreshFromRealtimeEvent(encounterIdentifier);
       }
     },
     [
@@ -1103,10 +1391,10 @@ const useOpdFlowWorkbenchScreen = () => {
   });
 
   const activeFlow = useMemo(() => {
-    if (selectedFlow && resolveEncounterId(selectedFlow) === selectedFlowId) {
+    if (selectedFlow && matchesEncounterIdentifier(selectedFlow, selectedFlowId)) {
       return selectedFlow;
     }
-    return flowList.find((item) => resolveEncounterId(item) === selectedFlowId) || null;
+    return flowList.find((item) => matchesEncounterIdentifier(item, selectedFlowId)) || null;
   }, [selectedFlow, selectedFlowId, flowList]);
   const contextPatient = useMemo(
     () => startLinkedPatient || activeFlow?.encounter?.patient || activeFlow?.patient || null,
@@ -1162,8 +1450,25 @@ const useOpdFlowWorkbenchScreen = () => {
       ),
     [vitalsRowsWithInsights]
   );
+  const resolvedStartPatientOptions = useMemo(() => {
+    const selectedValue = sanitizeString(startDraft.patient_id);
+    const options = [...startPatientOptions];
+    if (selectedValue && !isUuidLike(selectedValue)) {
+      options.unshift({ value: selectedValue, label: selectedValue });
+    }
+    return uniqueSelectOptions(options);
+  }, [startDraft.patient_id, startPatientOptions]);
+  const resolvedProviderOptions = useMemo(() => {
+    const options = [...providerOptions];
+    const startValue = sanitizeString(startDraft.provider_user_id);
+    const assignValue = sanitizeString(assignDraft.provider_user_id);
+    if (startValue && !isUuidLike(startValue)) options.unshift({ value: startValue, label: startValue });
+    if (assignValue && !isUuidLike(assignValue)) options.unshift({ value: assignValue, label: assignValue });
+    return uniqueSelectOptions(options);
+  }, [assignDraft.provider_user_id, providerOptions, startDraft.provider_user_id]);
 
-  const activeFlowId = resolveEncounterId(activeFlow);
+  const activeFlowId = resolveEncounterIdentifier(activeFlow);
+  const activeFlowPublicId = resolveEncounterPublicId(activeFlow);
   const activeStage = sanitizeString(activeFlow?.flow?.stage);
   const stageAction = STAGE_ACTION_MAP[activeStage] || null;
   const isTerminalStage = TERMINAL_STAGES.has(activeStage);
@@ -1193,6 +1498,7 @@ const useOpdFlowWorkbenchScreen = () => {
     () =>
       FLOW_PROGRESS_STEPS.map((step, index) => ({
         ...step,
+        tone: FLOW_PROGRESS_TONE_BY_STEP[step.id] || 'indigo',
         status:
           activeProgressIndex < 0
             ? 'upcoming'
@@ -1218,7 +1524,10 @@ const useOpdFlowWorkbenchScreen = () => {
   );
 
   const resetDrafts = useCallback(() => {
-    setPaymentDraft(DEFAULT_PAYMENT_DRAFT);
+    setPaymentDraft({
+      ...DEFAULT_PAYMENT_DRAFT,
+      currency: globalCurrency || DEFAULT_CURRENCY,
+    });
     setVitalsDraft({
       vitals: [createVitalRow()],
       triage_level: '',
@@ -1231,17 +1540,21 @@ const useOpdFlowWorkbenchScreen = () => {
     setStartLookupError('');
     setStartLinkedPatient(null);
     setStartLinkedAppointment(null);
-  }, []);
+    setStartPatientSearchText('');
+    setStartProviderSearchText('');
+    setAssignProviderSearchText('');
+  }, [globalCurrency]);
 
   const applySnapshot = useCallback(
     (snapshot, { pushRoute = true } = {}) => {
-      const snapshotId = resolveEncounterId(snapshot);
+      const snapshotId = resolveEncounterIdentifier(snapshot);
       if (!snapshotId) return;
+      const snapshotPublicId = resolveEncounterPublicId(snapshot);
       setSelectedFlow(snapshot);
       setSelectedFlowId(snapshotId);
       upsertFlowInList(snapshot);
-      if (pushRoute) {
-        router.push(`/scheduling/opd-flows/${snapshotId}`);
+      if (pushRoute && snapshotPublicId) {
+        router.push(`/scheduling/opd-flows/${snapshotPublicId}`);
       }
       resetDrafts();
       setIsStartFormOpen(false);
@@ -1252,11 +1565,14 @@ const useOpdFlowWorkbenchScreen = () => {
 
   const handleSelectFlow = useCallback(
     (flowItem) => {
-      const flowId = resolveEncounterId(flowItem);
+      const flowId = resolveEncounterIdentifier(flowItem);
       if (!flowId) return;
+      const flowPublicId = resolveEncounterPublicId(flowItem);
       setSelectedFlowId(flowId);
       setSelectedFlow(flowItem);
-      router.push(`/scheduling/opd-flows/${flowId}`);
+      if (flowPublicId) {
+        router.push(`/scheduling/opd-flows/${flowPublicId}`);
+      }
     },
     [router]
   );
@@ -1264,7 +1580,9 @@ const useOpdFlowWorkbenchScreen = () => {
   const handleStartDraftChange = useCallback((field, value) => {
     setStartLookupError('');
     setStartDraft((previous) => {
-      const next = { ...previous, [field]: value };
+      const normalizedValue =
+        field === 'currency' ? sanitizeString(value).toUpperCase() : value;
+      const next = { ...previous, [field]: normalizedValue };
       if (field === 'arrival_mode' && value !== 'ONLINE_APPOINTMENT') {
         next.appointment_id = '';
       }
@@ -1275,10 +1593,36 @@ const useOpdFlowWorkbenchScreen = () => {
     }
     if (field === 'patient_id' && !sanitizeString(value)) {
       setStartLinkedPatient(null);
+      setStartPatientSearchText('');
     }
     if (field === 'appointment_id' && !sanitizeString(value)) {
       setStartLinkedAppointment(null);
     }
+  }, []);
+
+  const handleStartPatientSearchChange = useCallback((value) => {
+    setStartPatientSearchText(value);
+  }, []);
+
+  const handleStartProviderSearchChange = useCallback((value) => {
+    setStartProviderSearchText(value);
+  }, []);
+
+  const handleAssignProviderSearchChange = useCallback((value) => {
+    setAssignProviderSearchText(value);
+  }, []);
+
+  const handleStartPatientSelect = useCallback((value) => {
+    handleStartDraftChange('patient_id', value);
+    setStartLinkedPatient(null);
+  }, [handleStartDraftChange]);
+
+  const handleStartProviderSelect = useCallback((value) => {
+    handleStartDraftChange('provider_user_id', value);
+  }, [handleStartDraftChange]);
+
+  const handleAssignProviderSelect = useCallback((value) => {
+    setAssignDraft((previous) => ({ ...previous, provider_user_id: value }));
   }, []);
 
   const handleStartFlow = useCallback(async () => {
@@ -1346,7 +1690,10 @@ const useOpdFlowWorkbenchScreen = () => {
     if (!snapshot) return;
 
     applySnapshot(snapshot);
-    setStartDraft(DEFAULT_START_DRAFT);
+    setStartDraft({
+      ...DEFAULT_START_DRAFT,
+      currency: globalCurrency || DEFAULT_CURRENCY,
+    });
     await loadFlowList();
   }, [
     canManageAllTenants,
@@ -1354,6 +1701,7 @@ const useOpdFlowWorkbenchScreen = () => {
     isOffline,
     normalizedFacilityId,
     normalizedTenantId,
+    globalCurrency,
     startDraft,
     startOpdFlow,
     applySnapshot,
@@ -1735,31 +2083,31 @@ const useOpdFlowWorkbenchScreen = () => {
 
   const handleOpenPatientShortcut = useCallback(() => {
     const patientId =
-      sanitizeString(startLinkedPatient?.id) ||
+      resolvePatientPublicId(startLinkedPatient) ||
       sanitizeString(startDraft.patient_id) ||
-      sanitizeString(contextPatient?.id);
-    if (!patientId) return;
+      resolvePatientPublicId(contextPatient);
+    if (!patientId || isUuidLike(patientId)) return;
     router.push(`/patients/patients/${patientId}`);
-  }, [contextPatient?.id, router, startDraft.patient_id, startLinkedPatient?.id]);
+  }, [contextPatient, router, startDraft.patient_id, startLinkedPatient]);
 
   const handleOpenAdmissionShortcut = useCallback(() => {
     const patientId =
-      sanitizeString(startLinkedPatient?.id) ||
+      resolvePatientPublicId(startLinkedPatient) ||
       sanitizeString(startDraft.patient_id) ||
-      sanitizeString(contextPatient?.id);
-    const target = patientId
+      resolvePatientPublicId(contextPatient);
+    const target = patientId && !isUuidLike(patientId)
       ? `/ipd/admissions/create?patientId=${encodeURIComponent(patientId)}`
       : '/ipd/admissions/create';
     router.push(target);
-  }, [contextPatient?.id, router, startDraft.patient_id, startLinkedPatient?.id]);
+  }, [contextPatient, router, startDraft.patient_id, startLinkedPatient]);
 
   const handleOpenOpdShortcut = useCallback(() => {
-    if (activeFlowId) {
-      router.push(`/scheduling/opd-flows/${activeFlowId}`);
+    if (activeFlowPublicId) {
+      router.push(`/scheduling/opd-flows/${activeFlowPublicId}`);
       return;
     }
     router.push('/scheduling/opd-flows');
-  }, [activeFlowId, router]);
+  }, [activeFlowPublicId, router]);
 
   const timeline = normalizeScalarParam(activeFlow?.flow?.stage)
     ? activeFlow?.timeline || activeFlow?.flow?.timeline || []
@@ -1842,6 +2190,15 @@ const useOpdFlowWorkbenchScreen = () => {
     startLinkedAppointment,
     isPatientLookupLoading,
     isAppointmentLookupLoading,
+    isPatientSearchLoading,
+    isProviderSearchLoading,
+    globalCurrency,
+    currencyOptions,
+    startPatientSearchText,
+    startProviderSearchText,
+    assignProviderSearchText,
+    startPatientOptions: resolvedStartPatientOptions,
+    providerOptions: resolvedProviderOptions,
     contextPatientAgeLabel,
     timeline,
     timelineItems,
@@ -1868,6 +2225,12 @@ const useOpdFlowWorkbenchScreen = () => {
     onOpenPatientShortcut: handleOpenPatientShortcut,
     onOpenAdmissionShortcut: handleOpenAdmissionShortcut,
     onOpenOpdShortcut: handleOpenOpdShortcut,
+    onStartPatientSearchChange: handleStartPatientSearchChange,
+    onStartProviderSearchChange: handleStartProviderSearchChange,
+    onAssignProviderSearchChange: handleAssignProviderSearchChange,
+    onStartPatientSelect: handleStartPatientSelect,
+    onStartProviderSelect: handleStartProviderSelect,
+    onAssignProviderSelect: handleAssignProviderSelect,
     onStartDraftChange: handleStartDraftChange,
     onStartFlow: handleStartFlow,
     onPaymentDraftChange: handlePaymentDraftChange,

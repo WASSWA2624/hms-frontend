@@ -6815,12 +6815,16 @@
       },
       "start": {
         "arrivalMode": "Arrival mode",
+        "patientSearch": "Find patient",
+        "patientSearchHint": "Search by patient name, friendly ID, phone, or contact details.",
+        "patientSearchLoading": "Searching patients...",
         "patientId": "Patient ID",
         "patientIdHint": "Optional when appointment ID or registration name is provided.",
         "patientLookupLoading": "Looking up patient details...",
         "patientResolved": "Patient loaded: {{id}}",
         "patientNotFound": "No patient matched this ID.",
         "patientLookupFailed": "Unable to load patient details right now.",
+        "patientUnknown": "Unknown patient",
         "loadPatient": "Load patient",
         "appointmentId": "Appointment ID",
         "appointmentIdHint": "Required for online appointment mode.",
@@ -6840,7 +6844,12 @@
         },
         "firstName": "Patient first name",
         "lastName": "Patient last name",
+        "providerSearch": "Find provider",
+        "providerSearchHint": "Search doctors by name, role, friendly ID, email, or phone.",
+        "providerSearchLoading": "Searching providers...",
+        "providerUnknown": "Unknown provider",
         "providerUserId": "Provider user ID",
+        "providerIdHint": "Assign by provider friendly ID (GUIDs are hidden).",
         "consultationFee": "Consultation fee",
         "currency": "Currency",
         "notes": "Notes",
@@ -6908,7 +6917,8 @@
         }
       },
       "assign": {
-        "providerUserId": "Provider user ID"
+        "providerUserId": "Provider user ID",
+        "providerSearch": "Find provider"
       },
       "review": {
         "note": "Clinical note",
@@ -7618,6 +7628,7 @@
         "tenantRequired": "Tenant ID is required.",
         "requiredField": "This field is required.",
         "maxLength": "Must be {{max}} characters or fewer.",
+        "invalidNumber": "Enter a valid number.",
         "dateTimeFormat": "Use a valid ISO 8601 date-time.",
         "endAfterStart": "End time must be after start time.",
         "endOnOrAfterStart": "End time must be on or after start time."
@@ -11831,26 +11842,45 @@
       },
       "staffProfiles": {
         "detail": {
+          "consultationCurrencyLabel": "Consultation Currency",
+          "consultationFeeLabel": "Consultation Fee",
           "createdLabel": "Created",
           "departmentLabel": "Department",
+          "feeOverrideLabel": "Fee Override",
           "hireDateLabel": "Hire Date",
           "idLabel": "Id",
           "positionLabel": "Position",
+          "practitionerTypeLabel": "Practitioner Type",
           "staffNumberLabel": "Staff Number",
           "tenantLabel": "Tenant",
           "updatedLabel": "Updated",
           "userLabel": "User"
         },
         "form": {
+          "consultationCurrencyHint": "Defaults from global settings and can be overridden for specialists.",
+          "consultationCurrencyLabel": "Consultation Currency",
+          "consultationCurrencyPlaceholder": "Select currency",
+          "consultationFeeHint": "Optional for specialists. Use up to 2 decimal places.",
+          "consultationFeeLabel": "Consultation Fee",
+          "consultationFeePlaceholder": "Enter consultation fee",
           "departmentIdHint": "Optional",
           "departmentIdLabel": "Department Id",
           "departmentIdPlaceholder": "Enter department id",
+          "feeOverrideHint": "Enable to apply a custom consultation fee for this specialist.",
+          "feeOverrideLabel": "Override Global Fee",
           "hireDateHint": "Use ISO 8601 date-time.",
           "hireDateLabel": "Hire Date",
           "hireDatePlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
           "positionHint": "Optional",
           "positionLabel": "Position",
           "positionPlaceholder": "Enter position",
+          "practitionerTypeHint": "Select whether this doctor is a Medical Officer or Specialist.",
+          "practitionerTypeLabel": "Practitioner Type",
+          "practitionerTypeOptions": {
+            "mo": "Medical Officer (MO)",
+            "specialist": "Specialist"
+          },
+          "practitionerTypePlaceholder": "Select practitioner type",
           "staffNumberHint": "Optional",
           "staffNumberLabel": "Staff Number",
           "staffNumberPlaceholder": "Enter staff number",

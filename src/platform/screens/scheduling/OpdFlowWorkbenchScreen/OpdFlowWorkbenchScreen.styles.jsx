@@ -2,6 +2,40 @@ import styled from 'styled-components';
 import { Pressable } from 'react-native';
 
 const getTablet = (theme) => theme.breakpoints?.tablet ?? 960;
+const PROGRESS_TONE_MAP = Object.freeze({
+  indigo: {
+    surface: '#eef2ff',
+    border: '#4f46e5',
+    text: '#312e81',
+    dot: '#4f46e5',
+  },
+  amber: {
+    surface: '#fff7ed',
+    border: '#d97706',
+    text: '#92400e',
+    dot: '#f59e0b',
+  },
+  teal: {
+    surface: '#ecfeff',
+    border: '#0f766e',
+    text: '#115e59',
+    dot: '#14b8a6',
+  },
+  violet: {
+    surface: '#f5f3ff',
+    border: '#7c3aed',
+    text: '#5b21b6',
+    dot: '#8b5cf6',
+  },
+  green: {
+    surface: '#ecfdf3',
+    border: '#15803d',
+    text: '#166534',
+    dot: '#22c55e',
+  },
+});
+
+const resolveProgressTone = (tone) => PROGRESS_TONE_MAP[tone] || PROGRESS_TONE_MAP.indigo;
 
 const StyledContainer = styled.section.withConfig({
   displayName: 'OpdFlowWorkbench_StyledContainer',
@@ -19,6 +53,7 @@ const StyledLayout = styled.div.withConfig({
   display: grid;
   grid-template-columns: minmax(340px, 1.05fr) minmax(0, 1.9fr);
   gap: ${({ theme }) => theme.spacing.md + 2}px;
+  align-items: start;
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: 1fr;
@@ -32,6 +67,7 @@ const StyledPanel = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm + 2}px;
+  min-height: 0;
 `;
 
 const StyledPanelHeader = styled.div.withConfig({
@@ -51,6 +87,16 @@ const StyledFlowList = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm}px;
+  max-height: min(64vh, 780px);
+  overflow-y: auto;
+  padding-right: ${({ theme }) => theme.spacing.xs}px;
+  overscroll-behavior: contain;
+
+  @media (max-width: ${({ theme }) => getTablet(theme)}px) {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
 `;
 
 const StyledFlowListItem = styled(Pressable).withConfig({
@@ -433,6 +479,15 @@ const StyledProgressStep = styled.li.withConfig({
   displayName: 'OpdFlowWorkbench_StyledProgressStep',
   componentId: 'OpdFlowWorkbench_StyledProgressStep',
 })`
+  ${({ $tone }) => {
+    const tone = resolveProgressTone($tone);
+    return `
+      --tone-surface: ${tone.surface};
+      --tone-border: ${tone.border};
+      --tone-text: ${tone.text};
+      --tone-dot: ${tone.dot};
+    `;
+  }}
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs + 1}px;
@@ -440,15 +495,21 @@ const StyledProgressStep = styled.li.withConfig({
   border-radius: ${({ theme }) => theme.radius.md}px;
   border: 1px solid
     ${({ $status, theme }) =>
-      $status === 'current' ? theme.colors.primary : theme.colors.border.light};
+      $status === 'current'
+        ? 'var(--tone-border)'
+        : $status === 'completed'
+          ? 'var(--tone-border)'
+          : theme.colors.border.light};
   background: ${({ $status, theme }) =>
     $status === 'current'
-      ? theme.colors.background.secondary
+      ? 'var(--tone-surface)'
       : $status === 'completed'
-        ? theme.colors.surface.secondary
+        ? 'var(--tone-surface)'
         : theme.colors.surface.primary};
   color: ${({ $status, theme }) =>
-    $status === 'current' ? theme.colors.primary : theme.colors.text.primary};
+    $status === 'current' || $status === 'completed'
+      ? 'var(--tone-text)'
+      : theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
   font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
   font-weight: ${({ $status, theme }) =>
@@ -459,12 +520,19 @@ const StyledProgressDot = styled.span.withConfig({
   displayName: 'OpdFlowWorkbench_StyledProgressDot',
   componentId: 'OpdFlowWorkbench_StyledProgressDot',
 })`
+  ${({ $tone }) => {
+    const tone = resolveProgressTone($tone);
+    return `
+      --tone-dot: ${tone.dot};
+      --tone-muted: #d1d5db;
+    `;
+  }}
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: ${({ $status, theme }) =>
     $status === 'completed' || $status === 'current'
-      ? theme.colors.success
+      ? 'var(--tone-dot)'
       : theme.colors.border.medium};
 `;
 

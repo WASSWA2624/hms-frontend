@@ -7824,6 +7824,60 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.staffProfiles.form.positionHint',
       },
       {
+        name: 'practitioner_type',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.practitionerTypePlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.practitionerTypeHint',
+        options: [
+          { value: 'MO', labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeOptions.mo' },
+          {
+            value: 'SPECIALIST',
+            labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeOptions.specialist',
+          },
+        ],
+      },
+      {
+        name: 'consultation_fee',
+        type: 'text',
+        required: false,
+        maxLength: 32,
+        labelKey: 'clinical.resources.staffProfiles.form.consultationFeeLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.consultationFeePlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.consultationFeeHint',
+        isHidden: ({ values }) =>
+          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+      },
+      {
+        name: 'consultation_currency',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.staffProfiles.form.consultationCurrencyLabel',
+        placeholderKey: 'clinical.resources.staffProfiles.form.consultationCurrencyPlaceholder',
+        hintKey: 'clinical.resources.staffProfiles.form.consultationCurrencyHint',
+        options: [
+          { value: 'USD', label: 'USD' },
+          { value: 'UGX', label: 'UGX' },
+          { value: 'KES', label: 'KES' },
+          { value: 'TZS', label: 'TZS' },
+          { value: 'RWF', label: 'RWF' },
+          { value: 'EUR', label: 'EUR' },
+          { value: 'GBP', label: 'GBP' },
+        ],
+        isHidden: ({ values }) =>
+          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+      },
+      {
+        name: 'is_fee_overridden',
+        type: 'switch',
+        required: false,
+        labelKey: 'clinical.resources.staffProfiles.form.feeOverrideLabel',
+        hintKey: 'clinical.resources.staffProfiles.form.feeOverrideHint',
+        isHidden: ({ values }) =>
+          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+      },
+      {
         name: 'hire_date',
         type: 'text',
         required: false,
@@ -7844,13 +7898,28 @@ const resourceConfigs = {
       department_id: sanitizeString(record?.department_id || context?.departmentId),
       staff_number: sanitizeString(record?.staff_number || context?.staffNumber),
       position: sanitizeString(record?.position || context?.position),
+      practitioner_type: sanitizeString(record?.practitioner_type || context?.practitionerType),
+      consultation_fee: sanitizeString(record?.consultation_fee || context?.consultationFee),
+      consultation_currency: sanitizeString(record?.consultation_currency || context?.consultationCurrency || 'USD'),
+      is_fee_overridden:
+        typeof record?.is_fee_overridden === 'boolean'
+          ? record.is_fee_overridden
+          : Boolean(context?.isFeeOverridden),
       hire_date: sanitizeString(record?.hire_date),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
+      const practitionerType = sanitizeString(values.practitioner_type).toUpperCase();
+      const isSpecialist = practitionerType === 'SPECIALIST';
       const payload = {
         department_id: sanitizeString(values.department_id) || null,
         staff_number: sanitizeString(values.staff_number) || null,
         position: sanitizeString(values.position) || null,
+        practitioner_type: practitionerType || null,
+        consultation_fee: isSpecialist ? sanitizeString(values.consultation_fee) || null : null,
+        consultation_currency: isSpecialist
+          ? sanitizeString(values.consultation_currency).toUpperCase() || 'USD'
+          : null,
+        is_fee_overridden: isSpecialist ? Boolean(values.is_fee_overridden) : false,
         hire_date: sanitizeString(values.hire_date) ? toIsoDateTime(values.hire_date) : null,
       };
       if (!isEdit) {
@@ -7860,8 +7929,13 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
+      const practitionerType = sanitizeString(values.practitioner_type).toUpperCase();
+      const consultationFee = sanitizeString(values.consultation_fee);
       const hireDateError = buildDateTimeError(values.hire_date, t);
       if (hireDateError) errors.hire_date = hireDateError;
+      if (practitionerType === 'SPECIALIST' && consultationFee && !/^\d+(\.\d{1,2})?$/.test(consultationFee)) {
+        errors.consultation_fee = t('clinical.common.form.invalidNumber');
+      }
       return errors;
     },
     detailRows: [
@@ -7871,6 +7945,10 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.staffProfiles.detail.departmentLabel', valueKey: 'department_id' },
       { labelKey: 'clinical.resources.staffProfiles.detail.staffNumberLabel', valueKey: 'staff_number' },
       { labelKey: 'clinical.resources.staffProfiles.detail.positionLabel', valueKey: 'position' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.practitionerTypeLabel', valueKey: 'practitioner_type' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.consultationFeeLabel', valueKey: 'consultation_fee' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.consultationCurrencyLabel', valueKey: 'consultation_currency' },
+      { labelKey: 'clinical.resources.staffProfiles.detail.feeOverrideLabel', valueKey: 'is_fee_overridden', type: 'boolean' },
       { labelKey: 'clinical.resources.staffProfiles.detail.hireDateLabel', valueKey: 'hire_date', type: 'datetime' },
       { labelKey: 'clinical.resources.staffProfiles.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'clinical.resources.staffProfiles.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },

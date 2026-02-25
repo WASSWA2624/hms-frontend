@@ -59,6 +59,7 @@ import {
   StyledVitalInsightRow,
 } from './OpdFlowWorkbenchScreen.styles';
 import useOpdFlowWorkbenchScreen from './useOpdFlowWorkbenchScreen';
+import PriceInputField from './PriceInputField';
 
 const toSelectOptions = (t, options = []) =>
   options.map((option) => ({
@@ -66,14 +67,33 @@ const toSelectOptions = (t, options = []) =>
     label: t(option.labelKey),
   }));
 
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const toCleanText = (value) => String(value || '').trim();
+const isUuidLike = (value) => UUID_LIKE_REGEX.test(toCleanText(value));
+const toPublicIdText = (value) => {
+  const text = toCleanText(value);
+  if (!text || isUuidLike(text)) return '';
+  return text;
+};
+const toPublicIdListText = (value) => {
+  const values = Array.isArray(value)
+    ? value
+    : toCleanText(value)
+      ? String(value).split(',')
+      : [];
+  const publicValues = values
+    .map((item) => toPublicIdText(item))
+    .filter(Boolean);
+  return publicValues.join(', ');
+};
+
 const renderLinkedId = (t, label, value) => (
   <StyledLinkedRecordItem>
     <StyledLinkedRecordLabel>{label}</StyledLinkedRecordLabel>
-    <StyledLinkedRecordValue>{value || t('common.notAvailable')}</StyledLinkedRecordValue>
+    <StyledLinkedRecordValue>{toPublicIdListText(value) || t('common.notAvailable')}</StyledLinkedRecordValue>
   </StyledLinkedRecordItem>
 );
-
-const toCleanText = (value) => String(value || '').trim();
 
 const resolveStageBadgeVariant = (stage) => {
   const normalized = toCleanText(stage).toUpperCase();
@@ -98,7 +118,7 @@ const resolvePatientName = (flowItem, fallbackTitle) => {
 };
 
 const resolvePatientHumanFriendlyId = (flowItem) =>
-  toCleanText(
+  toPublicIdText(
     flowItem?.encounter?.patient?.human_friendly_id ||
       flowItem?.patient?.human_friendly_id ||
       flowItem?.patient_human_friendly_id ||
@@ -106,7 +126,7 @@ const resolvePatientHumanFriendlyId = (flowItem) =>
   );
 
 const resolveQueueHumanFriendlyId = (flowItem) =>
-  toCleanText(
+  toPublicIdText(
     flowItem?.linked_record_ids?.visit_queue_id ||
       flowItem?.visit_queue?.human_friendly_id ||
       flowItem?.flow?.visit_queue_human_friendly_id
@@ -169,12 +189,8 @@ const OpdFlowWorkbenchScreen = () => {
   const activeStage = screen.activeStage;
   const linkedIds = activeFlow?.linked_record_ids || {};
   const linkedPatientName = resolveLookupPatientName(screen.startLinkedPatient);
-  const linkedPatientDisplayId =
-    toCleanText(screen.startLinkedPatient?.human_friendly_id) ||
-    toCleanText(screen.startLinkedPatient?.id);
-  const linkedAppointmentDisplayId =
-    toCleanText(screen.startLinkedAppointment?.human_friendly_id) ||
-    toCleanText(screen.startLinkedAppointment?.id);
+  const linkedPatientDisplayId = toPublicIdText(screen.startLinkedPatient?.human_friendly_id);
+  const linkedAppointmentDisplayId = toPublicIdText(screen.startLinkedAppointment?.human_friendly_id);
 
   const renderStartForm = () => (
     <Card variant="outlined" testID="opd-workbench-start-form">
@@ -188,15 +204,42 @@ const OpdFlowWorkbenchScreen = () => {
             compact
           />
           <TextField
+            label={t('scheduling.opdFlow.start.patientSearch')}
+            value={screen.startPatientSearchText}
+            onChangeText={screen.onStartPatientSearchChange}
+            helperText={
+              screen.isPatientSearchLoading
+                ? t('scheduling.opdFlow.start.patientSearchLoading')
+                : t('scheduling.opdFlow.start.patientSearchHint')
+            }
+            density="compact"
+          />
+        </StyledFieldRow>
+        <StyledFieldRow>
+          <Select
             label={t('scheduling.opdFlow.start.patientId')}
             value={screen.startDraft.patient_id}
-            onChangeText={(value) => screen.onStartDraftChange('patient_id', value)}
+            options={screen.startPatientOptions}
+            onValueChange={screen.onStartPatientSelect}
             helperText={
               screen.isPatientLookupLoading
                 ? t('scheduling.opdFlow.start.patientLookupLoading')
                 : linkedPatientDisplayId
                   ? t('scheduling.opdFlow.start.patientResolved', { id: linkedPatientDisplayId })
                   : t('scheduling.opdFlow.start.patientIdHint')
+            }
+            compact
+            searchable
+            testID="opd-workbench-start-patient-select"
+          />
+          <TextField
+            label={t('scheduling.opdFlow.start.providerSearch')}
+            value={screen.startProviderSearchText}
+            onChangeText={screen.onStartProviderSearchChange}
+            helperText={
+              screen.isProviderSearchLoading
+                ? t('scheduling.opdFlow.start.providerSearchLoading')
+                : t('scheduling.opdFlow.start.providerSearchHint')
             }
             density="compact"
           />
@@ -275,7 +318,7 @@ const OpdFlowWorkbenchScreen = () => {
               </StyledContextValue>
               <StyledContextValue>
                 {`${t('scheduling.opdFlow.start.providerLabel')}: ${
-                  toCleanText(screen.startDraft.provider_user_id) || t('common.notAvailable')
+                  toPublicIdText(screen.startDraft.provider_user_id) || t('common.notAvailable')
                 }`}
               </StyledContextValue>
             </StyledContextGrid>
@@ -324,11 +367,15 @@ const OpdFlowWorkbenchScreen = () => {
         ) : null}
 
         <StyledFieldRow>
-          <TextField
+          <Select
             label={t('scheduling.opdFlow.start.providerUserId')}
             value={screen.startDraft.provider_user_id}
-            onChangeText={(value) => screen.onStartDraftChange('provider_user_id', value)}
-            density="compact"
+            options={screen.providerOptions}
+            onValueChange={screen.onStartProviderSelect}
+            helperText={t('scheduling.opdFlow.start.providerIdHint')}
+            compact
+            searchable
+            testID="opd-workbench-start-provider-select"
           />
           <TextField
             label={t('scheduling.opdFlow.start.notes')}
@@ -352,20 +399,17 @@ const OpdFlowWorkbenchScreen = () => {
 
         {screen.isStartAdvancedOpen ? (
           <>
-            <StyledFieldRow>
-              <TextField
-                label={t('scheduling.opdFlow.start.consultationFee')}
-                value={screen.startDraft.consultation_fee}
-                onChangeText={(value) => screen.onStartDraftChange('consultation_fee', value)}
-                density="compact"
-              />
-              <TextField
-                label={t('scheduling.opdFlow.start.currency')}
-                value={screen.startDraft.currency}
-                onChangeText={(value) => screen.onStartDraftChange('currency', value)}
-                density="compact"
-              />
-            </StyledFieldRow>
+            <PriceInputField
+              amountLabel={t('scheduling.opdFlow.start.consultationFee')}
+              amountValue={screen.startDraft.consultation_fee}
+              onAmountChange={(value) => screen.onStartDraftChange('consultation_fee', value)}
+              currencyLabel={t('scheduling.opdFlow.start.currency')}
+              currencyValue={screen.startDraft.currency}
+              onCurrencyChange={(value) => screen.onStartDraftChange('currency', value)}
+              currencyOptions={screen.currencyOptions}
+              amountTestId="opd-workbench-start-fee"
+              currencyTestId="opd-workbench-start-currency"
+            />
 
             {screen.startDraft.arrival_mode !== 'EMERGENCY' ? (
               <StyledInlineActions>
@@ -477,26 +521,23 @@ const OpdFlowWorkbenchScreen = () => {
           compact
         />
         <TextField
-          label={t('scheduling.opdFlow.payment.amount')}
-          value={screen.paymentDraft.amount}
-          onChangeText={(value) => screen.onPaymentDraftChange('amount', value)}
-          density="compact"
-        />
-      </StyledFieldRow>
-      <StyledFieldRow>
-        <TextField
-          label={t('scheduling.opdFlow.payment.currency')}
-          value={screen.paymentDraft.currency}
-          onChangeText={(value) => screen.onPaymentDraftChange('currency', value)}
-          density="compact"
-        />
-        <TextField
           label={t('scheduling.opdFlow.payment.transactionRef')}
           value={screen.paymentDraft.transaction_ref}
           onChangeText={(value) => screen.onPaymentDraftChange('transaction_ref', value)}
           density="compact"
         />
       </StyledFieldRow>
+      <PriceInputField
+        amountLabel={t('scheduling.opdFlow.payment.amount')}
+        amountValue={screen.paymentDraft.amount}
+        onAmountChange={(value) => screen.onPaymentDraftChange('amount', value)}
+        currencyLabel={t('scheduling.opdFlow.payment.currency')}
+        currencyValue={screen.paymentDraft.currency}
+        onCurrencyChange={(value) => screen.onPaymentDraftChange('currency', value)}
+        currencyOptions={screen.currencyOptions}
+        amountTestId="opd-workbench-payment-amount"
+        currencyTestId="opd-workbench-payment-currency"
+      />
       <TextArea
         label={t('scheduling.opdFlow.payment.notes')}
         value={screen.paymentDraft.notes}
@@ -684,10 +725,24 @@ const OpdFlowWorkbenchScreen = () => {
   const renderAssignDoctorForm = () => (
     <StyledForm>
       <TextField
+        label={t('scheduling.opdFlow.assign.providerSearch')}
+        value={screen.assignProviderSearchText}
+        onChangeText={screen.onAssignProviderSearchChange}
+        helperText={
+          screen.isProviderSearchLoading
+            ? t('scheduling.opdFlow.start.providerSearchLoading')
+            : t('scheduling.opdFlow.start.providerSearchHint')
+        }
+        density="compact"
+      />
+      <Select
         label={t('scheduling.opdFlow.assign.providerUserId')}
         value={screen.assignDraft.provider_user_id}
-        onChangeText={(value) => screen.onAssignDraftChange('provider_user_id', value)}
-        density="compact"
+        options={screen.providerOptions}
+        onValueChange={screen.onAssignProviderSelect}
+        compact
+        searchable
+        testID="opd-workbench-assign-provider-select"
       />
       <Button
         variant="surface"
@@ -1039,13 +1094,16 @@ const OpdFlowWorkbenchScreen = () => {
               ) : (
                 <StyledFlowList>
                   {screen.flowList.map((flowItem, index) => {
-                    const flowId = flowItem?.id || flowItem?.encounter?.id;
+                    const flowId =
+                      flowItem?.human_friendly_id ||
+                      flowItem?.encounter?.human_friendly_id ||
+                      flowItem?.id ||
+                      flowItem?.encounter?.id;
                     const stage = flowItem?.stage || flowItem?.flow?.stage || '';
                     const isSelected = screen.selectedFlowId === flowId;
-                    const encounterHumanFriendlyId = toCleanText(
-                      flowItem?.encounter?.human_friendly_id
-                        || flowItem?.human_friendly_id
-                        || flowItem?.linked_record_ids?.encounter_id
+                    const encounterHumanFriendlyId = toPublicIdText(
+                      flowItem?.encounter?.human_friendly_id ||
+                        flowItem?.human_friendly_id
                     );
                     const fallbackTitle = encounterHumanFriendlyId
                       ? t('scheduling.opdFlow.list.itemTitle', { id: encounterHumanFriendlyId })
@@ -1140,8 +1198,8 @@ const OpdFlowWorkbenchScreen = () => {
               <StyledSectionTitle>{t('scheduling.opdFlow.progress.title')}</StyledSectionTitle>
               <StyledProgressTracker>
                 {screen.progressSteps.map((step) => (
-                  <StyledProgressStep key={step.id} $status={step.status}>
-                    <StyledProgressDot $status={step.status} />
+                  <StyledProgressStep key={step.id} $status={step.status} $tone={step.tone}>
+                    <StyledProgressDot $status={step.status} $tone={step.tone} />
                     {t(step.labelKey)}
                   </StyledProgressStep>
                 ))}
@@ -1187,12 +1245,12 @@ const OpdFlowWorkbenchScreen = () => {
                   {renderLinkedId(
                     t,
                     t('scheduling.opdFlow.snapshot.labOrderIds'),
-                    (linkedIds.lab_order_ids || []).join(', ')
+                    linkedIds.lab_order_ids || []
                   )}
                   {renderLinkedId(
                     t,
                     t('scheduling.opdFlow.snapshot.radiologyOrderIds'),
-                    (linkedIds.radiology_order_ids || []).join(', ')
+                    linkedIds.radiology_order_ids || []
                   )}
                   {renderLinkedId(
                     t,

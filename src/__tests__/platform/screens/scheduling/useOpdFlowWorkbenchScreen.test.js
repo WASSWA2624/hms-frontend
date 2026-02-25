@@ -14,6 +14,9 @@ const mockReset = jest.fn();
 const mockGetPatient = jest.fn();
 const mockListPatients = jest.fn();
 const mockGetAppointment = jest.fn();
+const mockListStaffProfiles = jest.fn();
+const mockGetFacility = jest.fn();
+const mockGetTenant = jest.fn();
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -30,6 +33,9 @@ jest.mock('@hooks', () => ({
   useOpdFlowAccess: jest.fn(),
   usePatient: jest.fn(),
   useAppointment: jest.fn(),
+  useStaffProfile: jest.fn(),
+  useFacility: jest.fn(),
+  useTenant: jest.fn(),
   useRealtimeEvent: jest.fn(),
 }));
 
@@ -42,6 +48,9 @@ const {
   useOpdFlowAccess,
   usePatient,
   useAppointment,
+  useStaffProfile,
+  useFacility,
+  useTenant,
   useRealtimeEvent,
 } = require('@hooks');
 
@@ -110,11 +119,14 @@ describe('useOpdFlowWorkbenchScreen', () => {
       date_of_birth: '1990-01-01',
     });
     mockListPatients.mockResolvedValue({ items: [] });
+    mockListStaffProfiles.mockResolvedValue({ items: [] });
     mockGetAppointment.mockResolvedValue({
       id: 'appointment-1',
       patient_id: 'patient-1',
       provider_user_id: 'doctor-1',
     });
+    mockGetFacility.mockResolvedValue({ id: 'facility-1', extension_json: { currency: 'USD' } });
+    mockGetTenant.mockResolvedValue({ id: 'tenant-1', extension_json: { currency: 'USD' } });
 
     useOpdFlow.mockReturnValue({
       list: mockList,
@@ -136,6 +148,15 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
     useAppointment.mockReturnValue({
       get: mockGetAppointment,
+    });
+    useStaffProfile.mockReturnValue({
+      list: mockListStaffProfiles,
+    });
+    useFacility.mockReturnValue({
+      get: mockGetFacility,
+    });
+    useTenant.mockReturnValue({
+      get: mockGetTenant,
     });
     useRealtimeEvent.mockImplementation(() => {});
   });
