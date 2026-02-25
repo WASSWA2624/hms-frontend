@@ -9,7 +9,7 @@ const StyledContainer = styled.section.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.md + 2}px;
 `;
 
 const StyledLayout = styled.div.withConfig({
@@ -17,8 +17,8 @@ const StyledLayout = styled.div.withConfig({
   componentId: 'OpdFlowWorkbench_StyledLayout',
 })`
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.9fr);
-  gap: ${({ theme }) => theme.spacing.md}px;
+  grid-template-columns: minmax(340px, 1.05fr) minmax(0, 1.9fr);
+  gap: ${({ theme }) => theme.spacing.md + 2}px;
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: 1fr;
@@ -31,7 +31,7 @@ const StyledPanel = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.sm + 2}px;
 `;
 
 const StyledPanelHeader = styled.div.withConfig({
@@ -61,23 +61,23 @@ const StyledFlowListItem = styled(Pressable).withConfig({
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs + 1}px;
-  min-height: 104px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
+  gap: ${({ theme }) => theme.spacing.xs + 3}px;
+  min-height: 122px;
+  border-radius: ${({ theme }) => theme.radius.lg + 2}px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
-  border-left-width: 5px;
+  border-left-width: 6px;
   border-left-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border.medium};
   background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.background.secondary : theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.sm + 2}px ${theme.spacing.sm + 3}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm + 4}px ${theme.spacing.md}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 2px 8px rgba(0, 120, 212, 0.16)' : '0 1px 3px rgba(0, 0, 0, 0.06)'};
+    $selected ? '0 8px 20px rgba(0, 120, 212, 0.2)' : '0 3px 10px rgba(0, 0, 0, 0.08)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -89,7 +89,7 @@ const StyledFlowListItem = styled(Pressable).withConfig({
     background-color: ${({ theme, $selected }) =>
       $selected ? theme.colors.background.secondary : theme.colors.background.tertiary};
     box-shadow: ${({ $selected }) =>
-      $selected ? '0 4px 12px rgba(0, 120, 212, 0.22)' : '0 3px 10px rgba(0, 0, 0, 0.12)'};
+      $selected ? '0 12px 24px rgba(0, 120, 212, 0.25)' : '0 8px 20px rgba(0, 0, 0, 0.14)'};
     transform: translateY(-1px);
   }
 
@@ -128,9 +128,9 @@ const StyledFlowListTitle = styled.h4.withConfig({
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
   line-height: ${({ theme }) =>
-    Math.round(theme.typography.fontSize.md * 1.3)}px;
+    Math.round(theme.typography.fontSize.lg * 1.25)}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -145,8 +145,8 @@ const StyledFlowListPatientMeta = styled.p.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
-  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xs * 1.4)}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.35)}px;
 `;
 
 const StyledFlowListBadgeWrap = styled.div.withConfig({
@@ -164,7 +164,7 @@ const StyledFlowListMetaRow = styled.div.withConfig({
 })`
   display: flex;
   flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
 `;
 
 const StyledFlowListMetaPill = styled.div.withConfig({
@@ -174,9 +174,9 @@ const StyledFlowListMetaPill = styled.div.withConfig({
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-radius: ${({ theme }) => theme.radius.md + 2}px;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
-  padding: 4px ${({ theme }) => theme.spacing.xs + 1}px;
+  padding: ${({ theme }) => `${theme.spacing.xs - 1}px ${theme.spacing.sm}px`};
   background-color: ${({ theme }) => theme.colors.surface.secondary};
 `;
 
@@ -186,7 +186,7 @@ const StyledFlowListMetaLabel = styled.span.withConfig({
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
   color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -198,7 +198,7 @@ const StyledFlowListMetaValue = styled.span.withConfig({
 })`
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-variant-numeric: tabular-nums;
 `;
@@ -209,7 +209,7 @@ const StyledCardGrid = styled.div.withConfig({
 })`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: ${({ theme }) => theme.spacing.sm}px;
+  gap: ${({ theme }) => theme.spacing.sm + 1}px;
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: 1fr;
@@ -223,7 +223,7 @@ const StyledLinkedRecordItem = styled.div.withConfig({
   border: 1px solid ${({ theme }) => theme.colors.border.light};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm + 1}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
 `;
 
 const StyledLinkedRecordLabel = styled.p.withConfig({
@@ -245,7 +245,7 @@ const StyledLinkedRecordValue = styled.p.withConfig({
   margin: ${({ theme }) => `${theme.spacing.xs - 2}px 0 0 0`};
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   line-height: ${({ theme }) => Math.round(theme.typography.fontSize.md * 1.25)}px;
   font-variant-numeric: tabular-nums;
@@ -379,7 +379,7 @@ const StyledSectionTitle = styled.h3.withConfig({
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.lg}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
 `;
 
@@ -401,7 +401,7 @@ const StyledTimelineItem = styled.li.withConfig({
   color: ${({ theme }) => theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
-  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.35)}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.sm * 1.5)}px;
 `;
 
 const StyledTimelineMeta = styled.span.withConfig({
@@ -435,9 +435,9 @@ const StyledProgressStep = styled.li.withConfig({
 })`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.xs + 1}px`};
-  border-radius: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs + 1}px;
+  padding: ${({ theme }) => `${theme.spacing.xs + 4}px ${theme.spacing.sm}px`};
+  border-radius: ${({ theme }) => theme.radius.md}px;
   border: 1px solid
     ${({ $status, theme }) =>
       $status === 'current' ? theme.colors.primary : theme.colors.border.light};
@@ -450,7 +450,7 @@ const StyledProgressStep = styled.li.withConfig({
   color: ${({ $status, theme }) =>
     $status === 'current' ? theme.colors.primary : theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
   font-weight: ${({ $status, theme }) =>
     $status === 'current' ? theme.typography.fontWeight.semibold : theme.typography.fontWeight.medium};
 `;

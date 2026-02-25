@@ -201,10 +201,14 @@ const useClinicalResourceFormScreen = (resourceId) => {
       const disabledByRule = typeof field.isDisabled === 'function'
         ? field.isDisabled({ isEdit, values, context, record })
         : Boolean(field.isDisabled);
+      const hiddenByRule = typeof field.isHidden === 'function'
+        ? field.isHidden({ isEdit, values, context, record })
+        : Boolean(field.isHidden);
 
       return {
         ...field,
         options: options || [],
+        hidden: Boolean(hiddenByRule),
         disabled: Boolean(disabledByRule || (isEdit && field.disableOnEdit)),
       };
     });
@@ -223,7 +227,7 @@ const useClinicalResourceFormScreen = (resourceId) => {
     resolvedFields.forEach((field) => {
       const rawValue = values[field.name];
       const stringValue = field.type === 'switch' ? rawValue : sanitizeString(rawValue);
-      if (field.disabled) return;
+      if (field.hidden || field.disabled) return;
 
       if (field.required && !stringValue) {
         nextErrors[field.name] = t('clinical.common.form.requiredField');

@@ -106,14 +106,21 @@ const VITAL_DEFAULT_UNIT_BY_TYPE = Object.freeze({
   BMI: 'kg/m2',
 });
 const VITAL_UNIT_OPTIONS_BY_TYPE = Object.freeze({
-  TEMPERATURE: ['C', 'F'],
-  BLOOD_PRESSURE: ['mmHg'],
-  HEART_RATE: ['bpm'],
-  RESPIRATORY_RATE: ['breaths/min'],
-  OXYGEN_SATURATION: ['%'],
-  WEIGHT: ['kg', 'lb'],
-  HEIGHT: ['cm', 'm', 'in'],
+  TEMPERATURE: ['C', 'F', 'K'],
+  BLOOD_PRESSURE: ['mmHg', 'kPa'],
+  HEART_RATE: ['bpm', 'beats/min'],
+  RESPIRATORY_RATE: ['breaths/min', 'respirations/min'],
+  OXYGEN_SATURATION: ['%', 'fraction'],
+  WEIGHT: ['kg', 'g', 'lb', 'oz'],
+  HEIGHT: ['cm', 'm', 'in', 'ft'],
   BMI: ['kg/m2'],
+});
+
+const STATUS_PRIORITY = Object.freeze({
+  INCOMPLETE: 0,
+  NORMAL: 1,
+  ABNORMAL: 2,
+  CRITICAL: 3,
 });
 
 const HEART_RATE_BANDS = Object.freeze({
@@ -131,17 +138,30 @@ const RESPIRATORY_RATE_BANDS = Object.freeze({
   ADULT: { min: 12, max: 20, criticalLow: 8, criticalHigh: 30 },
 });
 const BLOOD_PRESSURE_BANDS = Object.freeze({
+  NEONATE: {
+    systolic: { min: 60, max: 90, criticalLow: 50, criticalHigh: 110 },
+    diastolic: { min: 30, max: 60, criticalLow: 20, criticalHigh: 75 },
+    map: { min: 45, max: 70, criticalLow: 35, criticalHigh: 85 },
+  },
+  INFANT: {
+    systolic: { min: 70, max: 100, criticalLow: 55, criticalHigh: 125 },
+    diastolic: { min: 35, max: 65, criticalLow: 25, criticalHigh: 80 },
+    map: { min: 50, max: 75, criticalLow: 40, criticalHigh: 90 },
+  },
   CHILD: {
     systolic: { min: 90, max: 110, criticalLow: 75, criticalHigh: 140 },
     diastolic: { min: 55, max: 75, criticalLow: 45, criticalHigh: 95 },
+    map: { min: 60, max: 80, criticalLow: 45, criticalHigh: 100 },
   },
   ADOLESCENT: {
     systolic: { min: 95, max: 120, criticalLow: 80, criticalHigh: 160 },
     diastolic: { min: 60, max: 80, criticalLow: 50, criticalHigh: 105 },
+    map: { min: 65, max: 90, criticalLow: 50, criticalHigh: 110 },
   },
   ADULT: {
     systolic: { min: 90, max: 120, criticalLow: 80, criticalHigh: 180 },
     diastolic: { min: 60, max: 80, criticalLow: 50, criticalHigh: 120 },
+    map: { min: 70, max: 100, criticalLow: 55, criticalHigh: 130 },
   },
 });
 const DIAGNOSIS_TYPE_OPTIONS = [
@@ -274,6 +294,10 @@ const DEFAULT_PAYMENT_DRAFT = {
 const createVitalRow = () => ({
   vital_type: 'TEMPERATURE',
   value: '',
+  systolic_value: '',
+  diastolic_value: '',
+  map_value: '',
+  map_is_manual: false,
   unit: VITAL_DEFAULT_UNIT_BY_TYPE.TEMPERATURE,
 });
 const DEFAULT_ASSIGN_DRAFT = {
@@ -324,7 +348,7 @@ const toFiniteNumber = (value) => {
 };
 
 const parseBloodPressure = (value) => {
-  const match = String(value || '').trim().match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/);
+  const match = String(value || '').trim().match(/^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/);
   if (!match) return null;
   const systolic = toFiniteNumber(match[1]);
   const diastolic = toFiniteNumber(match[2]);
@@ -332,11 +356,43 @@ const parseBloodPressure = (value) => {
   return { systolic, diastolic };
 };
 
+const roundToTwo = (value) => {
+  if (!Number.isFinite(value)) return null;
+  return Math.round(value * 100) / 100;
+};
+
+const formatNumericValue = (value) => {
+  const numericValue = roundToTwo(toFiniteNumber(value));
+  if (!Number.isFinite(numericValue)) return '';
+  return Number.isInteger(numericValue) ? String(numericValue) : String(numericValue);
+};
+
+const computeMapFromComponents = (systolic, diastolic) => {
+  const systolicValue = toFiniteNumber(systolic);
+  const diastolicValue = toFiniteNumber(diastolic);
+  if (!Number.isFinite(systolicValue) || !Number.isFinite(diastolicValue)) return null;
+  return roundToTwo((systolicValue + 2 * diastolicValue) / 3);
+};
+
+const resolveAutoMapText = (systolic, diastolic) => formatNumericValue(computeMapFromComponents(systolic, diastolic));
+
 const convertTemperatureToC = (numericValue, unit) => {
   if (numericValue == null) return null;
   const normalizedUnit = sanitizeString(unit || '').toUpperCase();
   if (normalizedUnit === 'F') {
     return ((numericValue - 32) * 5) / 9;
+  }
+  if (normalizedUnit === 'K') {
+    return numericValue - 273.15;
+  }
+  return numericValue;
+};
+
+const convertPressureToMmHg = (numericValue, unit) => {
+  if (numericValue == null) return null;
+  const normalizedUnit = sanitizeString(unit || '').toLowerCase();
+  if (normalizedUnit === 'kpa') {
+    return numericValue * 7.50062;
   }
   return numericValue;
 };
@@ -344,7 +400,9 @@ const convertTemperatureToC = (numericValue, unit) => {
 const convertWeightToKg = (numericValue, unit) => {
   if (numericValue == null) return null;
   const normalizedUnit = sanitizeString(unit || '').toLowerCase();
+  if (normalizedUnit === 'g') return numericValue / 1000;
   if (normalizedUnit === 'lb') return numericValue * 0.45359237;
+  if (normalizedUnit === 'oz') return numericValue * 0.028349523125;
   return numericValue;
 };
 
@@ -353,6 +411,14 @@ const convertHeightToCm = (numericValue, unit) => {
   const normalizedUnit = sanitizeString(unit || '').toLowerCase();
   if (normalizedUnit === 'm') return numericValue * 100;
   if (normalizedUnit === 'in') return numericValue * 2.54;
+  if (normalizedUnit === 'ft') return numericValue * 30.48;
+  return numericValue;
+};
+
+const convertOxygenToPercent = (numericValue, unit) => {
+  if (numericValue == null) return null;
+  const normalizedUnit = sanitizeString(unit || '').toLowerCase();
+  if (normalizedUnit === 'fraction') return numericValue * 100;
   return numericValue;
 };
 
@@ -376,11 +442,45 @@ const resolveAgeInYears = (patient = null) => {
   return age >= 0 ? age : null;
 };
 
-const resolveAgeBand = (ageYears) => {
-  if (ageYears == null) return 'ADULT';
-  if (ageYears < 1) return 'INFANT';
-  if (ageYears < 13) return 'CHILD';
-  if (ageYears < 18) return 'ADOLESCENT';
+const resolveAgeProfile = (patient = null) => {
+  const dateValue =
+    patient?.date_of_birth ||
+    patient?.dob ||
+    patient?.birth_date ||
+    patient?.dateOfBirth ||
+    patient?.birthDate ||
+    '';
+  const parsed = dateValue ? new Date(dateValue) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return null;
+
+  const now = new Date();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const ageDays = Math.max(0, Math.floor((now.getTime() - parsed.getTime()) / dayMs));
+
+  let ageMonths = (now.getFullYear() - parsed.getFullYear()) * 12 + (now.getMonth() - parsed.getMonth());
+  if (now.getDate() < parsed.getDate()) ageMonths -= 1;
+  ageMonths = Math.max(0, ageMonths);
+
+  let ageYears = now.getFullYear() - parsed.getFullYear();
+  const monthDelta = now.getMonth() - parsed.getMonth();
+  if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < parsed.getDate())) {
+    ageYears -= 1;
+  }
+  ageYears = ageYears >= 0 ? ageYears : 0;
+
+  return {
+    days: ageDays,
+    months: ageMonths,
+    years: ageYears,
+  };
+};
+
+const resolveAgeBand = (ageProfile) => {
+  if (!ageProfile) return 'ADULT';
+  if (ageProfile.days <= 28) return 'NEONATE';
+  if (ageProfile.months <= 11) return 'INFANT';
+  if (ageProfile.years <= 12) return 'CHILD';
+  if (ageProfile.years <= 17) return 'ADOLESCENT';
   return 'ADULT';
 };
 
@@ -391,13 +491,14 @@ const evaluateRangeStatus = (value, range) => {
   return 'NORMAL';
 };
 
-const evaluateBloodPressureStatus = (systolic, diastolic, range = BLOOD_PRESSURE_BANDS.ADULT) => {
-  const systolicStatus = evaluateRangeStatus(systolic, range?.systolic);
-  const diastolicStatus = evaluateRangeStatus(diastolic, range?.diastolic);
-  if (systolicStatus === 'CRITICAL' || diastolicStatus === 'CRITICAL') return 'CRITICAL';
-  if (systolicStatus === 'ABNORMAL' || diastolicStatus === 'ABNORMAL') return 'ABNORMAL';
-  return 'NORMAL';
-};
+const mergeStatuses = (...statuses) =>
+  statuses.reduce((highest, status) => {
+    const nextStatus = String(status || 'INCOMPLETE').toUpperCase();
+    if ((STATUS_PRIORITY[nextStatus] || 0) > (STATUS_PRIORITY[highest] || 0)) {
+      return nextStatus;
+    }
+    return highest;
+  }, 'INCOMPLETE');
 
 const resolveVitalReference = (vitalType, ageBand) => {
   if (vitalType === 'HEART_RATE') return HEART_RATE_BANDS[ageBand] || HEART_RATE_BANDS.ADULT;
@@ -408,11 +509,42 @@ const resolveVitalReference = (vitalType, ageBand) => {
 
 const resolveVitalUnitOptions = (vitalType) => VITAL_UNIT_OPTIONS_BY_TYPE[vitalType] || [];
 
-const resolveVitalInsight = (row, ageYears) => {
+const resolveBloodPressureComponents = (row) => {
+  const systolic = toFiniteNumber(row?.systolic_value);
+  const diastolic = toFiniteNumber(row?.diastolic_value);
+  const mapValue = toFiniteNumber(row?.map_value);
+
+  if (Number.isFinite(systolic) && Number.isFinite(diastolic)) {
+    return {
+      systolic,
+      diastolic,
+      mapValue: Number.isFinite(mapValue) ? mapValue : computeMapFromComponents(systolic, diastolic),
+    };
+  }
+
+  const parsedLegacy = parseBloodPressure(row?.value);
+  if (!parsedLegacy) {
+    return {
+      systolic: null,
+      diastolic: null,
+      mapValue: Number.isFinite(mapValue) ? mapValue : null,
+    };
+  }
+
+  return {
+    systolic: parsedLegacy.systolic,
+    diastolic: parsedLegacy.diastolic,
+    mapValue: Number.isFinite(mapValue)
+      ? mapValue
+      : computeMapFromComponents(parsedLegacy.systolic, parsedLegacy.diastolic),
+  };
+};
+
+const resolveVitalInsight = (row, ageProfile) => {
   const vitalType = sanitizeString(row?.vital_type || '').toUpperCase();
   const unit = sanitizeString(row?.unit) || VITAL_DEFAULT_UNIT_BY_TYPE[vitalType] || '';
   const valueText = sanitizeString(row?.value);
-  if (!vitalType || !valueText) {
+  if (!vitalType) {
     return {
       status: 'INCOMPLETE',
       badgeVariant: 'primary',
@@ -420,8 +552,15 @@ const resolveVitalInsight = (row, ageYears) => {
     };
   }
 
-  const ageBand = resolveAgeBand(ageYears);
+  const ageBand = resolveAgeBand(ageProfile);
   if (vitalType === 'TEMPERATURE') {
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
     const celsius = convertTemperatureToC(toFiniteNumber(valueText), unit);
     const range = { min: 36.0, max: 37.5, criticalLow: 35.0, criticalHigh: 39.5 };
     const status = evaluateRangeStatus(celsius, range);
@@ -433,6 +572,13 @@ const resolveVitalInsight = (row, ageYears) => {
   }
 
   if (vitalType === 'HEART_RATE' || vitalType === 'RESPIRATORY_RATE') {
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
     const numericValue = toFiniteNumber(valueText);
     const reference = resolveVitalReference(vitalType, ageBand);
     const status = evaluateRangeStatus(numericValue, reference);
@@ -444,7 +590,14 @@ const resolveVitalInsight = (row, ageYears) => {
   }
 
   if (vitalType === 'OXYGEN_SATURATION') {
-    const numericValue = toFiniteNumber(valueText);
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
+    const numericValue = convertOxygenToPercent(toFiniteNumber(valueText), unit);
     const range = { min: 95, max: 100, criticalLow: 90, criticalHigh: 100 };
     const status = evaluateRangeStatus(numericValue, range);
     return {
@@ -455,26 +608,39 @@ const resolveVitalInsight = (row, ageYears) => {
   }
 
   if (vitalType === 'BLOOD_PRESSURE') {
-    const parsed = parseBloodPressure(valueText);
-    if (!parsed) {
+    const components = resolveBloodPressureComponents(row);
+    if (!Number.isFinite(components.systolic) || !Number.isFinite(components.diastolic)) {
       return {
-        status: 'ABNORMAL',
-        badgeVariant: 'warning',
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
         rangeTextKey: 'scheduling.opdFlow.vitals.range.bloodPressureFormat',
       };
     }
     const reference = resolveVitalReference(vitalType, ageBand);
-    const status = evaluateBloodPressureStatus(parsed.systolic, parsed.diastolic, reference);
+    const systolicMmHg = convertPressureToMmHg(components.systolic, unit);
+    const diastolicMmHg = convertPressureToMmHg(components.diastolic, unit);
+    const mapMmHg = convertPressureToMmHg(components.mapValue, unit);
+    const systolicStatus = evaluateRangeStatus(systolicMmHg, reference?.systolic || null);
+    const diastolicStatus = evaluateRangeStatus(diastolicMmHg, reference?.diastolic || null);
+    const mapStatus = evaluateRangeStatus(mapMmHg, reference?.map || null);
+    const status = mergeStatuses(systolicStatus, diastolicStatus, mapStatus);
     return {
       status,
       badgeVariant: status === 'NORMAL' ? 'success' : status === 'CRITICAL' ? 'error' : 'warning',
       rangeText: reference
-        ? `${reference.systolic.min}-${reference.systolic.max} / ${reference.diastolic.min}-${reference.diastolic.max}`
+        ? `${reference.systolic.min}-${reference.systolic.max} / ${reference.diastolic.min}-${reference.diastolic.max} (MAP ${reference.map.min}-${reference.map.max})`
         : '',
     };
   }
 
   if (vitalType === 'BMI') {
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
     const numericValue = toFiniteNumber(valueText);
     const range = { min: 18.5, max: 24.9, criticalLow: 16, criticalHigh: 35 };
     const status = evaluateRangeStatus(numericValue, range);
@@ -486,6 +652,13 @@ const resolveVitalInsight = (row, ageYears) => {
   }
 
   if (vitalType === 'WEIGHT') {
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
     const numericValue = convertWeightToKg(toFiniteNumber(valueText), unit);
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
       return {
@@ -502,6 +675,13 @@ const resolveVitalInsight = (row, ageYears) => {
   }
 
   if (vitalType === 'HEIGHT') {
+    if (!valueText) {
+      return {
+        status: 'INCOMPLETE',
+        badgeVariant: 'primary',
+        rangeTextKey: 'scheduling.opdFlow.vitals.range.awaitingValue',
+      };
+    }
     const numericValue = convertHeightToCm(toFiniteNumber(valueText), unit);
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
       return {
@@ -932,24 +1112,42 @@ const useOpdFlowWorkbenchScreen = () => {
     () => startLinkedPatient || activeFlow?.encounter?.patient || activeFlow?.patient || null,
     [activeFlow, startLinkedPatient]
   );
-  const contextPatientAgeYears = useMemo(() => resolveAgeInYears(contextPatient), [contextPatient]);
+  const contextPatientAgeProfile = useMemo(
+    () => resolveAgeProfile(contextPatient),
+    [contextPatient]
+  );
+  const contextPatientAgeYears = useMemo(
+    () => contextPatientAgeProfile?.years ?? resolveAgeInYears(contextPatient),
+    [contextPatient, contextPatientAgeProfile]
+  );
   const contextPatientAgeLabel = useMemo(() => {
-    if (contextPatientAgeYears == null) return '';
-    return t('scheduling.opdFlow.vitals.ageYears', { age: contextPatientAgeYears });
-  }, [contextPatientAgeYears, t]);
+    if (!contextPatientAgeProfile && contextPatientAgeYears == null) return '';
+    if (contextPatientAgeProfile?.days <= 28) {
+      return t('scheduling.opdFlow.vitals.ageDays', { age: contextPatientAgeProfile.days });
+    }
+    if (contextPatientAgeProfile && contextPatientAgeProfile.months <= 11) {
+      return t('scheduling.opdFlow.vitals.ageMonths', { age: contextPatientAgeProfile.months });
+    }
+    return t('scheduling.opdFlow.vitals.ageYears', { age: contextPatientAgeYears ?? 0 });
+  }, [contextPatientAgeProfile, contextPatientAgeYears, t]);
   const vitalsRowsWithInsights = useMemo(
     () =>
       vitalsDraft.vitals.map((row) => {
         const vitalType = sanitizeString(row?.vital_type).toUpperCase();
-        const insight = resolveVitalInsight(row, contextPatientAgeYears);
+        const insight = resolveVitalInsight(row, contextPatientAgeProfile);
+        const isBloodPressure = vitalType === 'BLOOD_PRESSURE';
+        const resolvedComponents = isBloodPressure ? resolveBloodPressureComponents(row) : null;
         return {
           ...row,
           ...insight,
           normalizedVitalType: vitalType,
+          isBloodPressure,
+          resolvedBloodPressure: resolvedComponents,
+          map_auto_value: resolveAutoMapText(row?.systolic_value, row?.diastolic_value),
           unitOptions: resolveVitalUnitOptions(vitalType),
         };
       }),
-    [contextPatientAgeYears, vitalsDraft.vitals]
+    [contextPatientAgeProfile, vitalsDraft.vitals]
   );
   const vitalsStatusSummary = useMemo(
     () =>
@@ -1204,17 +1402,62 @@ const useOpdFlowWorkbenchScreen = () => {
   const handleVitalRowChange = useCallback((index, field, value) => {
     setVitalsDraft((previous) => ({
       ...previous,
-      vitals: previous.vitals.map((row, rowIndex) =>
-        rowIndex === index
-          ? field === 'vital_type'
-            ? {
-                ...row,
-                vital_type: value,
-                unit: VITAL_DEFAULT_UNIT_BY_TYPE[sanitizeString(value)] || row.unit || '',
-              }
-            : { ...row, [field]: value }
-          : row
-      ),
+      vitals: previous.vitals.map((row, rowIndex) => {
+        if (rowIndex !== index) return row;
+
+        if (field === 'vital_type') {
+          const nextType = sanitizeString(value).toUpperCase();
+          if (nextType === 'BLOOD_PRESSURE') {
+            return {
+              ...row,
+              vital_type: value,
+              value: '',
+              systolic_value: '',
+              diastolic_value: '',
+              map_value: '',
+              map_is_manual: false,
+              unit: VITAL_DEFAULT_UNIT_BY_TYPE[nextType] || row.unit || '',
+            };
+          }
+
+          return {
+            ...row,
+            vital_type: value,
+            value: '',
+            systolic_value: '',
+            diastolic_value: '',
+            map_value: '',
+            map_is_manual: false,
+            unit: VITAL_DEFAULT_UNIT_BY_TYPE[nextType] || row.unit || '',
+          };
+        }
+
+        if (field === 'map_value') {
+          const normalized = sanitizeString(value);
+          if (!normalized) {
+            return {
+              ...row,
+              map_value: resolveAutoMapText(row.systolic_value, row.diastolic_value),
+              map_is_manual: false,
+            };
+          }
+          return {
+            ...row,
+            map_value: value,
+            map_is_manual: true,
+          };
+        }
+
+        if (field === 'systolic_value' || field === 'diastolic_value') {
+          const nextRow = { ...row, [field]: value };
+          if (!nextRow.map_is_manual) {
+            nextRow.map_value = resolveAutoMapText(nextRow.systolic_value, nextRow.diastolic_value);
+          }
+          return nextRow;
+        }
+
+        return { ...row, [field]: value };
+      }),
     }));
   }, []);
 
@@ -1239,15 +1482,43 @@ const useOpdFlowWorkbenchScreen = () => {
     setFormError('');
     if (!activeFlowId || !canRecordVitals || isOffline) return;
     const vitals = vitalsDraft.vitals
-      .map((row) => ({
-        vital_type: sanitizeString(row.vital_type),
-        value: sanitizeString(row.value),
-        unit:
+      .map((row) => {
+        const vitalType = sanitizeString(row.vital_type).toUpperCase();
+        const unit =
           sanitizeString(row.unit) ||
-          VITAL_DEFAULT_UNIT_BY_TYPE[sanitizeString(row.vital_type)] ||
-          undefined,
-      }))
-      .filter((row) => row.vital_type && row.value);
+          VITAL_DEFAULT_UNIT_BY_TYPE[vitalType] ||
+          undefined;
+
+        if (vitalType === 'BLOOD_PRESSURE') {
+          const systolicText = sanitizeString(row.systolic_value);
+          const diastolicText = sanitizeString(row.diastolic_value);
+          if (!systolicText || !diastolicText) return null;
+
+          const mapText =
+            sanitizeString(row.map_value) ||
+            resolveAutoMapText(systolicText, diastolicText) ||
+            '';
+          const value = `${formatNumericValue(systolicText)}/${formatNumericValue(diastolicText)}`;
+
+          return {
+            vital_type: vitalType,
+            value,
+            unit,
+            systolic_value: systolicText,
+            diastolic_value: diastolicText,
+            map_value: mapText || undefined,
+          };
+        }
+
+        const scalarValue = sanitizeString(row.value);
+        if (!scalarValue) return null;
+        return {
+          vital_type: vitalType,
+          value: scalarValue,
+          unit,
+        };
+      })
+      .filter(Boolean);
 
     if (vitals.length === 0) {
       setFormError(t('scheduling.opdFlow.validation.vitalsRequired'));

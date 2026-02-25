@@ -139,6 +139,7 @@ const ClinicalResourceFormScreenWeb = ({ resourceId }) => {
             ) : null}
 
             {resolvedFields.map((field) => {
+              if (field.hidden) return null;
               const fieldValue = values[field.name];
               const fieldError = errors[field.name];
               const isFieldDisabled = Boolean(field.disabled || isLoading);

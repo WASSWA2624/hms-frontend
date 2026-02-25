@@ -126,6 +126,24 @@ const resolveVitalStatusVariant = (status) => {
   return 'primary';
 };
 
+const ARRIVAL_MODE_LABEL_KEY_MAP = Object.freeze({
+  WALK_IN: 'scheduling.opdFlow.options.arrivalMode.walkIn',
+  ONLINE_APPOINTMENT: 'scheduling.opdFlow.options.arrivalMode.onlineAppointment',
+  EMERGENCY: 'scheduling.opdFlow.options.arrivalMode.emergency',
+});
+
+const resolveArrivalModeLabel = (t, value) => {
+  const normalized = toCleanText(value).toUpperCase();
+  const labelKey = ARRIVAL_MODE_LABEL_KEY_MAP[normalized];
+  return labelKey ? t(labelKey) : t('common.notAvailable');
+};
+
+const formatDateTimeLabel = (value) => {
+  const parsed = value ? new Date(value) : null;
+  if (!parsed || Number.isNaN(parsed.getTime())) return '';
+  return parsed.toLocaleString();
+};
+
 const OpdFlowWorkbenchScreen = () => {
   const { t } = useI18n();
   const screen = useOpdFlowWorkbenchScreen();
@@ -529,34 +547,83 @@ const OpdFlowWorkbenchScreen = () => {
         </Button>
       </StyledInlineActions>
       {vitalsRowsWithInsights.map((row, index) => (
-        <StyledFieldRow key={`vital-row-${index + 1}`}>
-          <Select
-            label={t('scheduling.opdFlow.vitals.vitalType')}
-            value={row.vital_type}
-            options={vitalTypeOptions}
-            onValueChange={(value) => screen.onVitalRowChange(index, 'vital_type', value)}
-            compact
-          />
-          <TextField
-            label={t('scheduling.opdFlow.vitals.value')}
-            value={row.value}
-            onChangeText={(value) => screen.onVitalRowChange(index, 'value', value)}
-            density="compact"
-          />
-          <Select
-            label={t('scheduling.opdFlow.vitals.unit')}
-            value={row.unit}
-            options={
-              ((row.unitOptions && row.unitOptions.length > 0)
-                ? row.unitOptions
-                : [row.unit || t('scheduling.opdFlow.vitals.unitUnknown')]).map((unitValue) => ({
-                value: unitValue,
-                label: unitValue,
-              }))
-            }
-            onValueChange={(value) => screen.onVitalRowChange(index, 'unit', value)}
-            compact
-          />
+        <React.Fragment key={`vital-row-${index + 1}`}>
+          <StyledFieldRow>
+            <Select
+              label={t('scheduling.opdFlow.vitals.vitalType')}
+              value={row.vital_type}
+              options={vitalTypeOptions}
+              onValueChange={(value) => screen.onVitalRowChange(index, 'vital_type', value)}
+              compact
+            />
+            <Select
+              label={t('scheduling.opdFlow.vitals.unit')}
+              value={row.unit}
+              options={
+                ((row.unitOptions && row.unitOptions.length > 0)
+                  ? row.unitOptions
+                  : [row.unit || t('scheduling.opdFlow.vitals.unitUnknown')]).map((unitValue) => ({
+                  value: unitValue,
+                  label: unitValue,
+                }))
+              }
+              onValueChange={(value) => screen.onVitalRowChange(index, 'unit', value)}
+              compact
+            />
+          </StyledFieldRow>
+
+          {row.isBloodPressure ? (
+            <>
+              <StyledFieldRow>
+                <TextField
+                  label={t('scheduling.opdFlow.vitals.systolic')}
+                  value={String(row.systolic_value || '')}
+                  onChangeText={(value) => screen.onVitalRowChange(index, 'systolic_value', value)}
+                  density="compact"
+                />
+                <TextField
+                  label={t('scheduling.opdFlow.vitals.diastolic')}
+                  value={String(row.diastolic_value || '')}
+                  onChangeText={(value) => screen.onVitalRowChange(index, 'diastolic_value', value)}
+                  density="compact"
+                />
+              </StyledFieldRow>
+              <StyledFieldRow>
+                <TextField
+                  label={t('scheduling.opdFlow.vitals.map')}
+                  value={String(row.map_value || '')}
+                  onChangeText={(value) => screen.onVitalRowChange(index, 'map_value', value)}
+                  helperText={
+                    row.map_is_manual
+                      ? t('scheduling.opdFlow.vitals.mapManual')
+                      : t('scheduling.opdFlow.vitals.mapAuto', { value: row.map_auto_value || '-' })
+                  }
+                  density="compact"
+                />
+                <TextField
+                  label={t('scheduling.opdFlow.vitals.value')}
+                  value={
+                    row.resolvedBloodPressure?.systolic != null && row.resolvedBloodPressure?.diastolic != null
+                      ? `${row.resolvedBloodPressure.systolic}/${row.resolvedBloodPressure.diastolic}`
+                      : ''
+                  }
+                  helperText={t('scheduling.opdFlow.vitals.bloodPressureCanonicalHint')}
+                  density="compact"
+                  disabled
+                />
+              </StyledFieldRow>
+            </>
+          ) : (
+            <StyledFieldRow>
+              <TextField
+                label={t('scheduling.opdFlow.vitals.value')}
+                value={row.value}
+                onChangeText={(value) => screen.onVitalRowChange(index, 'value', value)}
+                density="compact"
+              />
+            </StyledFieldRow>
+          )}
+
           <StyledVitalInsightRow>
             <Badge variant={resolveVitalStatusVariant(row.status)} size="small">
               {t(`scheduling.opdFlow.vitals.status.${String(row.status || 'INCOMPLETE').toUpperCase()}`)}
@@ -566,17 +633,17 @@ const OpdFlowWorkbenchScreen = () => {
                 ? t('scheduling.opdFlow.vitals.referenceRange', { range: row.rangeText })
                 : t(row.rangeTextKey || 'scheduling.opdFlow.vitals.range.awaitingValue')}
             </Text>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={() => screen.onRemoveVitalRow(index)}
+              disabled={!screen.canMutate}
+              icon={<Icon glyph={'\u2715'} size="xs" decorative />}
+            >
+              {t('scheduling.opdFlow.actions.removeRow')}
+            </Button>
           </StyledVitalInsightRow>
-          <Button
-            variant="surface"
-            size="small"
-            onPress={() => screen.onRemoveVitalRow(index)}
-            disabled={!screen.canMutate}
-            icon={<Icon glyph={'\u2715'} size="xs" decorative />}
-          >
-            {t('scheduling.opdFlow.actions.removeRow')}
-          </Button>
-        </StyledFieldRow>
+        </React.Fragment>
       ))}
       <StyledTriageLegend>
         {triageLevelLegend.map((item) => (
@@ -991,6 +1058,13 @@ const OpdFlowWorkbenchScreen = () => {
                       : t('scheduling.opdFlow.stages.UNKNOWN');
                     const encounterDisplayId = encounterHumanFriendlyId || t('common.notAvailable');
                     const queueDisplayId = queueHumanFriendlyId || t('common.notAvailable');
+                    const arrivalModeLabel = resolveArrivalModeLabel(
+                      t,
+                      flowItem?.flow?.arrival_mode || flowItem?.flow?.arrivalMode
+                    );
+                    const startedAtLabel = formatDateTimeLabel(
+                      flowItem?.encounter?.started_at || flowItem?.started_at
+                    ) || t('common.notAvailable');
 
                     return (
                       <StyledFlowListItem
@@ -1032,6 +1106,18 @@ const OpdFlowWorkbenchScreen = () => {
                               {t('scheduling.opdFlow.snapshot.queueId')}
                             </StyledFlowListMetaLabel>
                             <StyledFlowListMetaValue>{queueDisplayId}</StyledFlowListMetaValue>
+                          </StyledFlowListMetaPill>
+                          <StyledFlowListMetaPill>
+                            <StyledFlowListMetaLabel>
+                              {t('scheduling.opdFlow.start.arrivalMode')}
+                            </StyledFlowListMetaLabel>
+                            <StyledFlowListMetaValue>{arrivalModeLabel}</StyledFlowListMetaValue>
+                          </StyledFlowListMetaPill>
+                          <StyledFlowListMetaPill>
+                            <StyledFlowListMetaLabel>
+                              {t('scheduling.resources.appointments.detail.scheduledStartLabel')}
+                            </StyledFlowListMetaLabel>
+                            <StyledFlowListMetaValue>{startedAtLabel}</StyledFlowListMetaValue>
                           </StyledFlowListMetaPill>
                         </StyledFlowListMetaRow>
                       </StyledFlowListItem>

@@ -68,6 +68,7 @@ const workflowStageSchema = z.enum([
   'ADMITTED',
   'DISCHARGED',
 ]);
+const bloodPressureValueRegex = /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
 
 const listParamsSchema = z
   .object({
@@ -153,17 +154,49 @@ const payConsultationPayloadSchema = z.object({
   notes: z.string().trim().max(10000).optional().nullable(),
 });
 
+const recordVitalRowSchema = z
+  .object({
+    vital_type: vitalTypeSchema,
+    value: z.string().trim().min(1).max(80).optional(),
+    unit: z.string().trim().max(20).optional().nullable(),
+    systolic_value: decimalSchema.optional(),
+    diastolic_value: decimalSchema.optional(),
+    map_value: decimalSchema.optional(),
+    recorded_at: isoDateTimeSchema.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.vital_type === 'BLOOD_PRESSURE') {
+      const hasStructuredComponents =
+        value.systolic_value != null && value.diastolic_value != null;
+      const hasLegacyValue =
+        typeof value.value === 'string' && bloodPressureValueRegex.test(value.value.trim());
+
+      if (!hasStructuredComponents && !hasLegacyValue) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['systolic_value'],
+          message: 'systolic and diastolic values are required for blood pressure',
+        });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['diastolic_value'],
+          message: 'systolic and diastolic values are required for blood pressure',
+        });
+      }
+      return;
+    }
+
+    if (!value.value) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['value'],
+        message: 'value is required',
+      });
+    }
+  });
+
 const recordVitalsPayloadSchema = z.object({
-  vitals: z
-    .array(
-      z.object({
-        vital_type: vitalTypeSchema,
-        value: z.string().trim().min(1).max(80),
-        unit: z.string().trim().max(20).optional().nullable(),
-        recorded_at: isoDateTimeSchema.optional(),
-      })
-    )
-    .min(1),
+  vitals: z.array(recordVitalRowSchema).min(1),
   triage_level: triageLevelSchema.optional(),
   triage_notes: z.string().trim().max(65535).optional().nullable(),
 });

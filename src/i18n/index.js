@@ -26,13 +26,26 @@ const GLOBAL_TRANSLATION_PARAMS = Object.freeze({
 const getNestedValue = (obj, path) => {
   if (!obj || typeof obj !== 'object') return undefined;
   if (!path || typeof path !== 'string') return undefined;
-  return path
-    .split('.')
-    .reduce(
-      (current, key) =>
-        current && current[key] !== undefined ? current[key] : undefined,
-      obj
-    );
+  const segments = path.split('.');
+  let current = obj;
+
+  for (let index = 0; index < segments.length; index += 1) {
+    if (!current || typeof current !== 'object') return undefined;
+
+    const remainingPath = segments.slice(index).join('.');
+    if (Object.prototype.hasOwnProperty.call(current, remainingPath)) {
+      return current[remainingPath];
+    }
+
+    const key = segments[index];
+    if (!Object.prototype.hasOwnProperty.call(current, key)) {
+      return undefined;
+    }
+
+    current = current[key];
+  }
+
+  return current;
 };
 
 const interpolate = (value, params) => {

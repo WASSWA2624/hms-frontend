@@ -1009,6 +1009,75 @@ const MAINTENANCE_STATUS_OPTIONS = [
   { value: 'CANCELLED', labelKey: 'clinical.options.maintenanceStatus.cancelled' },
 ];
 
+const VITAL_UNIT_OPTIONS_BY_TYPE = Object.freeze({
+  TEMPERATURE: [
+    { value: 'C', label: 'C' },
+    { value: 'F', label: 'F' },
+    { value: 'K', label: 'K' },
+  ],
+  BLOOD_PRESSURE: [
+    { value: 'mmHg', label: 'mmHg' },
+    { value: 'kPa', label: 'kPa' },
+  ],
+  HEART_RATE: [
+    { value: 'bpm', label: 'bpm' },
+    { value: 'beats/min', label: 'beats/min' },
+  ],
+  RESPIRATORY_RATE: [
+    { value: 'breaths/min', label: 'breaths/min' },
+    { value: 'respirations/min', label: 'respirations/min' },
+  ],
+  OXYGEN_SATURATION: [
+    { value: '%', label: '%' },
+    { value: 'fraction', label: 'fraction' },
+  ],
+  WEIGHT: [
+    { value: 'kg', label: 'kg' },
+    { value: 'g', label: 'g' },
+    { value: 'lb', label: 'lb' },
+    { value: 'oz', label: 'oz' },
+  ],
+  HEIGHT: [
+    { value: 'cm', label: 'cm' },
+    { value: 'm', label: 'm' },
+    { value: 'in', label: 'in' },
+    { value: 'ft', label: 'ft' },
+  ],
+  BMI: [{ value: 'kg/m2', label: 'kg/m2' }],
+});
+
+const BLOOD_PRESSURE_VALUE_REGEX = /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
+
+const parseBloodPressureValue = (value) => {
+  const match = sanitizeString(value).match(BLOOD_PRESSURE_VALUE_REGEX);
+  if (!match) return null;
+  return {
+    systolic: match[1],
+    diastolic: match[2],
+  };
+};
+
+const formatRoundedNumeric = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  const numeric = Number(normalized);
+  if (!Number.isFinite(numeric)) return '';
+  const rounded = Math.round(numeric * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+};
+
+const buildCanonicalBloodPressureValue = (systolicValue, diastolicValue) => {
+  const systolic = formatRoundedNumeric(systolicValue);
+  const diastolic = formatRoundedNumeric(diastolicValue);
+  if (!systolic || !diastolic) return '';
+  return `${systolic}/${diastolic}`;
+};
+
+const resolveVitalUnitOptionsForForm = ({ values, record, context }) => {
+  const vitalType = sanitizeString(values?.vital_type || record?.vital_type || context?.vitalType).toUpperCase();
+  return VITAL_UNIT_OPTIONS_BY_TYPE[vitalType] || [];
+};
+
 const parseOptionalInteger = (value) => {
   const normalized = sanitizeString(value);
   if (!normalized) return undefined;
@@ -2721,15 +2790,66 @@ const resourceConfigs = {
         labelKey: 'clinical.resources.vitalSigns.form.valueLabel',
         placeholderKey: 'clinical.resources.vitalSigns.form.valuePlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.valueHint',
+        isHidden: ({ values, record, context }) => {
+          const vitalType = sanitizeString(
+            values?.vital_type || record?.vital_type || context?.vitalType
+          ).toUpperCase();
+          return vitalType === 'BLOOD_PRESSURE';
+        },
       },
       {
-        name: 'unit',
+        name: 'systolic_value',
+        type: 'text',
+        required: true,
+        maxLength: 20,
+        labelKey: 'clinical.resources.vitalSigns.form.systolicLabel',
+        placeholderKey: 'clinical.resources.vitalSigns.form.systolicPlaceholder',
+        hintKey: 'clinical.resources.vitalSigns.form.systolicHint',
+        isHidden: ({ values, record, context }) => {
+          const vitalType = sanitizeString(
+            values?.vital_type || record?.vital_type || context?.vitalType
+          ).toUpperCase();
+          return vitalType !== 'BLOOD_PRESSURE';
+        },
+      },
+      {
+        name: 'diastolic_value',
+        type: 'text',
+        required: true,
+        maxLength: 20,
+        labelKey: 'clinical.resources.vitalSigns.form.diastolicLabel',
+        placeholderKey: 'clinical.resources.vitalSigns.form.diastolicPlaceholder',
+        hintKey: 'clinical.resources.vitalSigns.form.diastolicHint',
+        isHidden: ({ values, record, context }) => {
+          const vitalType = sanitizeString(
+            values?.vital_type || record?.vital_type || context?.vitalType
+          ).toUpperCase();
+          return vitalType !== 'BLOOD_PRESSURE';
+        },
+      },
+      {
+        name: 'map_value',
         type: 'text',
         required: false,
         maxLength: 20,
+        labelKey: 'clinical.resources.vitalSigns.form.mapLabel',
+        placeholderKey: 'clinical.resources.vitalSigns.form.mapPlaceholder',
+        hintKey: 'clinical.resources.vitalSigns.form.mapHint',
+        isHidden: ({ values, record, context }) => {
+          const vitalType = sanitizeString(
+            values?.vital_type || record?.vital_type || context?.vitalType
+          ).toUpperCase();
+          return vitalType !== 'BLOOD_PRESSURE';
+        },
+      },
+      {
+        name: 'unit',
+        type: 'select',
+        required: false,
         labelKey: 'clinical.resources.vitalSigns.form.unitLabel',
         placeholderKey: 'clinical.resources.vitalSigns.form.unitPlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.unitHint',
+        options: resolveVitalUnitOptionsForForm,
       },
       {
         name: 'recorded_at',
@@ -2747,24 +2867,82 @@ const resourceConfigs = {
       if (!value) return '';
       return `${t('clinical.resources.vitalSigns.detail.valueLabel')}: ${value}`;
     },
-    getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      vital_type: sanitizeString(record?.vital_type || context?.vitalType),
-      value: sanitizeString(record?.value),
-      unit: sanitizeString(record?.unit),
-      recorded_at: sanitizeString(record?.recorded_at),
-    }),
-    toPayload: (values) => ({
-      encounter_id: sanitizeString(values.encounter_id),
-      vital_type: sanitizeString(values.vital_type),
-      value: sanitizeString(values.value),
-      unit: sanitizeString(values.unit) || undefined,
-      recorded_at: toIsoDateTime(values.recorded_at) || undefined,
-    }),
+    getInitialValues: (record, context) => {
+      const vitalType = sanitizeString(record?.vital_type || context?.vitalType).toUpperCase();
+      const parsedBloodPressure = parseBloodPressureValue(record?.value);
+      const systolicValue =
+        formatRoundedNumeric(record?.systolic_value) || parsedBloodPressure?.systolic || '';
+      const diastolicValue =
+        formatRoundedNumeric(record?.diastolic_value) || parsedBloodPressure?.diastolic || '';
+      const mapValue = formatRoundedNumeric(record?.map_value);
+      const unitOptions = resolveVitalUnitOptionsForForm({
+        values: { vital_type: vitalType },
+        record,
+        context,
+      });
+
+      return {
+        encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+        vital_type: vitalType,
+        value: vitalType === 'BLOOD_PRESSURE' ? '' : sanitizeString(record?.value),
+        systolic_value: systolicValue,
+        diastolic_value: diastolicValue,
+        map_value: mapValue,
+        unit: sanitizeString(record?.unit || unitOptions?.[0]?.value),
+        recorded_at: sanitizeString(record?.recorded_at),
+      };
+    },
+    toPayload: (values) => {
+      const vitalType = sanitizeString(values.vital_type).toUpperCase();
+      const payload = {
+        encounter_id: sanitizeString(values.encounter_id),
+        vital_type: vitalType,
+        unit: sanitizeString(values.unit) || undefined,
+        recorded_at: toIsoDateTime(values.recorded_at) || undefined,
+      };
+
+      if (vitalType === 'BLOOD_PRESSURE') {
+        const legacyParsed = parseBloodPressureValue(values.value);
+        const systolic = formatRoundedNumeric(values.systolic_value) || legacyParsed?.systolic || '';
+        const diastolic =
+          formatRoundedNumeric(values.diastolic_value) || legacyParsed?.diastolic || '';
+        const mapValue = formatRoundedNumeric(values.map_value);
+        const canonicalValue = buildCanonicalBloodPressureValue(systolic, diastolic);
+
+        payload.value = canonicalValue || undefined;
+        payload.systolic_value = systolic || undefined;
+        payload.diastolic_value = diastolic || undefined;
+        payload.map_value = mapValue || undefined;
+        return payload;
+      }
+
+      payload.value = sanitizeString(values.value);
+      return payload;
+    },
     validate: (values, t) => {
       const errors = {};
       const recordedAtError = buildDateTimeError(values.recorded_at, t);
       if (recordedAtError) errors.recorded_at = recordedAtError;
+
+      const vitalType = sanitizeString(values.vital_type).toUpperCase();
+      if (vitalType === 'BLOOD_PRESSURE') {
+        const legacyParsed = parseBloodPressureValue(values.value);
+        const systolic = formatRoundedNumeric(values.systolic_value) || legacyParsed?.systolic || '';
+        const diastolic =
+          formatRoundedNumeric(values.diastolic_value) || legacyParsed?.diastolic || '';
+        const mapValueRaw = sanitizeString(values.map_value);
+        const mapValue = formatRoundedNumeric(values.map_value);
+
+        if (!systolic) errors.systolic_value = t('clinical.common.form.requiredField');
+        if (!diastolic) errors.diastolic_value = t('clinical.common.form.requiredField');
+        if (mapValueRaw && !mapValue) errors.map_value = t('forms.validation.invalidValue');
+        return errors;
+      }
+
+      if (!sanitizeString(values.value)) {
+        errors.value = t('clinical.common.form.requiredField');
+      }
+
       return errors;
     },
     detailRows: [
@@ -2772,6 +2950,9 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.vitalSigns.detail.encounterLabel', valueKey: 'encounter_id' },
       { labelKey: 'clinical.resources.vitalSigns.detail.vitalTypeLabel', valueKey: 'vital_type' },
       { labelKey: 'clinical.resources.vitalSigns.detail.valueLabel', valueKey: 'value' },
+      { labelKey: 'clinical.resources.vitalSigns.detail.systolicLabel', valueKey: 'systolic_value' },
+      { labelKey: 'clinical.resources.vitalSigns.detail.diastolicLabel', valueKey: 'diastolic_value' },
+      { labelKey: 'clinical.resources.vitalSigns.detail.mapLabel', valueKey: 'map_value' },
       { labelKey: 'clinical.resources.vitalSigns.detail.unitLabel', valueKey: 'unit' },
       { labelKey: 'clinical.resources.vitalSigns.detail.recordedAtLabel', valueKey: 'recorded_at', type: 'datetime' },
       { labelKey: 'clinical.resources.vitalSigns.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },

@@ -40,7 +40,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
     });
@@ -55,7 +55,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
     });
@@ -72,7 +72,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
       // Strength indicator should appear (tested more in hook tests)
@@ -109,7 +109,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
       // Strength indicator should be visible (default behavior)
@@ -129,7 +129,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
     });
@@ -145,7 +145,7 @@ describe('PasswordField Component', () => {
         expect(container).toBeTruthy();
       } catch {
         // Fallback: use accessibility label
-        const input = getByLabelText('auth.password');
+        const input = getByLabelText('Password');
         expect(input).toBeTruthy();
       }
     });
@@ -165,7 +165,7 @@ describe('PasswordField Component', () => {
       try {
         input = getByTestId('password-field');
       } catch {
-        input = getByLabelText('auth.password');
+        input = getByLabelText('Password');
       }
       fireEvent.changeText(input, 'newpassword');
       // onChangeText should be called (may be debounced)
@@ -185,7 +185,7 @@ describe('PasswordField Component', () => {
       try {
         input = getByTestId('password-field');
       } catch {
-        input = getByLabelText('auth.password');
+        input = getByLabelText('Password');
       }
       fireEvent.changeText(input, 'newpassword');
       // In React Native test environment, onChangeText is triggered
@@ -247,7 +247,7 @@ describe('PasswordField Component', () => {
       try {
         input = getByTestId('password-field');
       } catch {
-        input = getByLabelText('auth.password');
+        input = getByLabelText('Password');
       }
       // TextField passes disabled as editable={false} or disabled prop
       expect(input).toBeTruthy();
@@ -292,7 +292,7 @@ describe('PasswordField Component', () => {
       try {
         input = getByTestId('password-field');
       } catch {
-        input = getByLabelText('auth.password');
+        input = getByLabelText('Password');
       }
       // Auto-complete should be set (tested via props)
       expect(input).toBeTruthy();
@@ -311,7 +311,7 @@ describe('PasswordField Component', () => {
       try {
         input = getByTestId('password-field');
       } catch {
-        input = getByLabelText('auth.password');
+        input = getByLabelText('Password');
       }
       expect(input).toBeTruthy();
     });

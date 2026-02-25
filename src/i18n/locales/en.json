@@ -36,6 +36,9 @@
     "on": "On",
     "off": "Off",
     "switch": "Switch",
+    "dropdownMenu": "Dropdown menu",
+    "list": "List",
+    "sliderValue": "Slider value: {{value}}",
     "imageLoadError": "Failed to load image",
     "imageDefaultAlt": "Image",
     "progress": "Progress: {{value}}%",
@@ -709,14 +712,16 @@
         "compliance-phi-access-logs": "PHI Access Logs",
         "compliance-data-processing-logs": "Data Processing Logs",
         "compliance-breach-notifications": "Breach Notifications",
-        "compliance-system-change-logs": "System Change Logs"
+        "compliance-system-change-logs": "System Change Logs",
+        "<id>": "Navigation item"
       },
       "patient": {
         "home": "Portal",
         "appointments": "Appointments",
         "results": "Results",
         "prescriptions": "Prescriptions",
-        "billing": "Billing"
+        "billing": "Billing",
+        "<id>": "Patient navigation item"
       }
     },
     "breadcrumbs": {
@@ -1189,6 +1194,9 @@
       "createdLabel": "Created",
       "updatedLabel": "Updated"
     }
+  },
+  "errorState": {
+    "defaultTitle": "Something went wrong"
   },
   "listScaffold": {
     "loading": "Loading",
@@ -1873,6 +1881,17 @@
       "actions": {
         "submitting": "Action is currently in progress."
       }
+    },
+    "enterPassword": "Enter your password",
+    "password": "Password",
+    "password.hide": "Hide password",
+    "password.show": "Show password",
+    "passwordStrength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong",
+      "veryStrong": "Very strong"
     },
     "login": {
       "title": "Login",
@@ -3082,6 +3101,9 @@
     "form": {
       "createTitle": "Create API Key",
       "editTitle": "Edit API Key",
+      "tenantIdLabel": "Tenant",
+      "tenantIdPlaceholder": "Select tenant",
+      "tenantIdHint": "Required for new API keys",
       "tenantLabel": "Tenant",
       "tenantPlaceholder": "Select tenant",
       "tenantHint": "Required for new API keys",
@@ -3092,6 +3114,9 @@
       "createTenantFirst": "Create a tenant first to issue API keys.",
       "goToTenants": "Go to tenants",
       "goToTenantsHint": "Open tenant settings",
+      "userIdLabel": "User",
+      "userIdPlaceholder": "Select user",
+      "userIdHint": "Required for new API keys",
       "userLabel": "User",
       "userPlaceholder": "Select user",
       "userHint": "Required for new API keys",
@@ -6843,6 +6868,14 @@
         "unitUnknown": "Unit",
         "triageLevel": "Triage level",
         "triageNotes": "Triage notes",
+        "systolic": "Systolic",
+        "diastolic": "Diastolic",
+        "map": "MAP",
+        "mapAuto": "Auto-calculated MAP: {{value}}",
+        "mapManual": "MAP manually adjusted.",
+        "bloodPressureCanonicalHint": "Canonical blood pressure is derived as systolic/diastolic.",
+        "ageDays": "Age: {{age}} day(s)",
+        "ageMonths": "Age: {{age}} month(s)",
         "ageYears": "Age: {{age}} year(s)",
         "referenceRange": "Reference range: {{range}}",
         "status": {
@@ -7092,6 +7125,30 @@
         "dateTimeFormat": "Use a valid ISO 8601 date-time.",
         "endAfterStart": "End time must be after start time.",
         "dayOfWeekRange": "Day of week must be between 0 and 6."
+      },
+      "list": {
+        "bulkDeleteConfirm": "Delete {{count}} selected record(s)?",
+        "columnTitle": "Title",
+        "columnSubtitle": "Subtitle",
+        "columnUpdatedAt": "Updated",
+        "columnCreatedAt": "Created",
+        "densityCompact": "Compact",
+        "densityComfortable": "Comfortable",
+        "filterLogicAnd": "Match all filters",
+        "filterLogicOr": "Match any filter",
+        "helpLabel": "Open {{resource}} guidance",
+        "helpTooltip": "Open guidance for {{resource}} list filters and actions.",
+        "helpTitle": "How to use {{resource}} list",
+        "helpBody": "Use search, filters, and list actions to find and manage {{resource}} records safely.",
+        "helpItems": {
+          "search": "Use search to quickly narrow results.",
+          "filter": "Apply scoped filters for status, ownership, or dates.",
+          "actions": "Use row and bulk actions only for records you intend to update.",
+          "recovery": "If loading fails, retry and verify connection, scope, and permissions."
+        },
+        "patientContextRequired": "Select patient context before loading this list.",
+        "searchScopeAll": "All fields",
+        "unnamedRecord": "Scheduling record {{position}}"
       }
     },
     "options": {
@@ -8140,6 +8197,9 @@
           "encounterLabel": "Encounter ID",
           "vitalTypeLabel": "Vital type",
           "valueLabel": "Value",
+          "systolicLabel": "Systolic",
+          "diastolicLabel": "Diastolic",
+          "mapLabel": "MAP",
           "unitLabel": "Unit",
           "recordedAtLabel": "Recorded at",
           "createdLabel": "Created",
@@ -8165,9 +8225,18 @@
           "valueLabel": "Value",
           "valuePlaceholder": "Enter vital value",
           "valueHint": "Required",
+          "systolicLabel": "Systolic",
+          "systolicPlaceholder": "Enter systolic value",
+          "systolicHint": "Required for blood pressure",
+          "diastolicLabel": "Diastolic",
+          "diastolicPlaceholder": "Enter diastolic value",
+          "diastolicHint": "Required for blood pressure",
+          "mapLabel": "MAP",
+          "mapPlaceholder": "Optional MAP value",
+          "mapHint": "Optional; auto-calculated when omitted.",
           "unitLabel": "Unit",
-          "unitPlaceholder": "Optional unit",
-          "unitHint": "Optional",
+          "unitPlaceholder": "Select unit",
+          "unitHint": "Choose a predefined unit for the selected vital type.",
           "recordedAtLabel": "Recorded at",
           "recordedAtPlaceholder": "YYYY-MM-DDTHH:mm:ssZ",
           "recordedAtHint": "Optional ISO 8601 date-time."
