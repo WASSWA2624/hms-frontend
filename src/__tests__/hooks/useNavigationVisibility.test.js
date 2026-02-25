@@ -35,7 +35,7 @@ const findMainItem = (id) => MAIN_NAV_ITEMS.find((item) => item.id === id);
 describe('useNavigationVisibility', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useAuth.mockReturnValue({ isAuthenticated: true });
+    useAuth.mockReturnValue({ isAuthenticated: true, user: { tenant_id: 'tenant-1' } });
     useResolvedRoles.mockReturnValue({ roles: ['SUPER_ADMIN'], isResolved: true });
     usePatientAccess.mockReturnValue({
       canAccessPatients: true,
@@ -50,7 +50,7 @@ describe('useNavigationVisibility', () => {
   });
 
   it('returns false when not authenticated', () => {
-    useAuth.mockReturnValue({ isAuthenticated: false });
+    useAuth.mockReturnValue({ isAuthenticated: false, user: null });
 
     let result;
     render(<TestComponent onResult={(value) => (result = value)} />);
@@ -136,6 +136,7 @@ describe('useNavigationVisibility', () => {
   });
 
   it('shows only patient portal menu items for PATIENT role', () => {
+    useAuth.mockReturnValue({ isAuthenticated: true, user: null });
     useResolvedRoles.mockReturnValue({ roles: ['PATIENT'], isResolved: true });
 
     let result;
@@ -143,5 +144,17 @@ describe('useNavigationVisibility', () => {
 
     expect(result.isItemVisible(findMainItem('dashboard'))).toBe(false);
     expect(result.isItemVisible(PATIENT_MENU_ITEMS[0])).toBe(true);
+  });
+
+  it('hides tenant-scoped items when tenant context is missing', () => {
+    useAuth.mockReturnValue({ isAuthenticated: true, user: null });
+    useResolvedRoles.mockReturnValue({ roles: ['TENANT_ADMIN'], isResolved: true });
+
+    let result;
+    render(<TestComponent onResult={(value) => (result = value)} />);
+
+    expect(result.isItemVisible(findMainItem('dashboard'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('settings'))).toBe(true);
+    expect(result.isItemVisible(findMainItem('emergency'))).toBe(false);
   });
 });
