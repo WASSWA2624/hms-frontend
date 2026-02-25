@@ -17,9 +17,14 @@ jest.mock('@features/patient', () => ({
   getPatient: jest.fn(),
 }));
 
+jest.mock('@features/opd-flow', () => ({
+  getOpdFlow: jest.fn(),
+}));
+
 const { usePathname } = require('expo-router');
 const { useI18n } = require('@hooks');
 const { getPatient } = require('@features/patient');
+const { getOpdFlow } = require('@features/opd-flow');
 const useBreadcrumbs = require('@platform/layouts/common/useBreadcrumbs').default;
 
 describe('useBreadcrumbs', () => {
@@ -50,6 +55,7 @@ describe('useBreadcrumbs', () => {
 
     expect(result.current.map((item) => item.label)).toEqual(['Settings', 'Users']);
     expect(getPatient).not.toHaveBeenCalled();
+    expect(getOpdFlow).not.toHaveBeenCalled();
   });
 
   it('does not request patient data for patient create route', () => {
@@ -59,6 +65,23 @@ describe('useBreadcrumbs', () => {
 
     expect(result.current[result.current.length - 1]?.label).toBe('Create');
     expect(getPatient).not.toHaveBeenCalled();
+    expect(getOpdFlow).not.toHaveBeenCalled();
+  });
+
+  it('uses encounter human_friendly_id for OPD flow detail breadcrumb segment', async () => {
+    usePathname.mockReturnValue('/scheduling/opd-flows/encounter-99');
+    getOpdFlow.mockResolvedValue({
+      encounter: {
+        id: 'encounter-99',
+        human_friendly_id: 'ENC000099',
+      },
+    });
+
+    const { result } = renderHook(() => useBreadcrumbs([]));
+
+    await waitFor(() => {
+      expect(result.current[2]?.label).toBe('ENC000099');
+    });
+    expect(getOpdFlow).toHaveBeenCalledWith('encounter-99');
   });
 });
-

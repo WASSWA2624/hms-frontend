@@ -30,27 +30,36 @@ describe('opd-flow.model', () => {
 
   it('normalizes OPD flow snapshot from direct flow payload', () => {
     const snapshot = normalizeOpdFlowSnapshot({
-      encounter: { id: 'enc-1', patient_id: 'patient-1' },
+      encounter: {
+        id: 'enc-1',
+        human_friendly_id: 'ENC000001',
+        patient_id: 'patient-1',
+        patient: { id: 'patient-1', human_friendly_id: 'PAT000001' },
+      },
       flow: {
         stage: 'WAITING_CONSULTATION_PAYMENT',
         next_step: 'PAY_CONSULTATION',
         consultation: { invoice_id: 'inv-1', payment_id: 'pay-1' },
         timeline: [],
       },
-      visit_queue: { id: 'queue-1' },
+      visit_queue: { id: 'queue-1', human_friendly_id: 'VQ000001' },
+      consultation_invoice: { id: 'inv-1', human_friendly_id: 'INV000001' },
+      consultation_payment: { id: 'pay-1', human_friendly_id: 'PAY000001' },
     });
 
     expect(snapshot.encounter.id).toBe('enc-1');
     expect(snapshot.flow.stage).toBe('WAITING_CONSULTATION_PAYMENT');
-    expect(snapshot.linked_record_ids.consultation_invoice_id).toBe('inv-1');
-    expect(snapshot.linked_record_ids.consultation_payment_id).toBe('pay-1');
-    expect(snapshot.linked_record_ids.visit_queue_id).toBe('queue-1');
+    expect(snapshot.linked_record_ids.encounter_id).toBe('ENC000001');
+    expect(snapshot.linked_record_ids.consultation_invoice_id).toBe('INV000001');
+    expect(snapshot.linked_record_ids.consultation_payment_id).toBe('PAY000001');
+    expect(snapshot.linked_record_ids.visit_queue_id).toBe('VQ000001');
   });
 
   it('normalizes OPD flow snapshot from encounter extension fallback', () => {
     const snapshot = normalizeOpdFlowSnapshot({
       encounter: {
         id: 'enc-2',
+        human_friendly_id: 'ENC000002',
         extension_json: {
           opd_flow: {
             stage: 'WAITING_DOCTOR_ASSIGNMENT',
@@ -63,14 +72,22 @@ describe('opd-flow.model', () => {
 
     expect(snapshot.flow.stage).toBe('WAITING_DOCTOR_ASSIGNMENT');
     expect(snapshot.timeline).toHaveLength(1);
-    expect(snapshot.linked_record_ids.encounter_id).toBe('enc-2');
+    expect(snapshot.linked_record_ids.encounter_id).toBe('ENC000002');
   });
 
   it('normalizes list payload with pagination', () => {
     const result = normalizeOpdFlowList({
       items: [
         {
-          encounter: { id: 'enc-1', patient_id: 'patient-1' },
+          encounter: {
+            id: 'enc-1',
+            human_friendly_id: 'ENC000001',
+            patient_id: 'patient-1',
+            patient: {
+              id: 'patient-1',
+              human_friendly_id: 'PAT000001',
+            },
+          },
           flow: { stage: 'WAITING_VITALS', timeline: [] },
         },
       ],
@@ -79,6 +96,8 @@ describe('opd-flow.model', () => {
 
     expect(result.items).toHaveLength(1);
     expect(result.items[0].id).toBe('enc-1');
+    expect(result.items[0].human_friendly_id).toBe('ENC000001');
+    expect(result.items[0].patient_human_friendly_id).toBe('PAT000001');
     expect(result.items[0].stage).toBe('WAITING_VITALS');
     expect(result.pagination).toEqual({ page: 1, limit: 20, total: 1 });
   });

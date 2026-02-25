@@ -40,6 +40,22 @@ const resolveRecordId = (value) => {
   return value.id || null;
 };
 
+const resolveRecordHumanFriendlyId = (value) => {
+  if (!value || typeof value !== 'object') return null;
+  return value.human_friendly_id || value.humanFriendlyId || null;
+};
+
+const resolveRecordDisplayId = (value) =>
+  resolveRecordHumanFriendlyId(value) || resolveRecordId(value);
+
+const resolveFirstHumanFriendlyId = (value) =>
+  normalizeArray(value)
+    .map(resolveRecordHumanFriendlyId)
+    .filter(Boolean)[0] || null;
+
+const resolveHumanFriendlyIds = (value) =>
+  normalizeArray(value).map(resolveRecordHumanFriendlyId).filter(Boolean);
+
 const normalizeFlowMetadata = (value) => {
   const flow = normalizeObject(value) || {};
   return {
@@ -60,6 +76,12 @@ const normalizeOpdFlowSnapshot = (value) => {
   const encounter = normalizeObject(snapshot.encounter);
   const flow = normalizeFlowMetadata(resolveRawFlow(snapshot));
   const consultation = normalizeObject(flow.consultation) || {};
+  const encounterLabOrders = normalizeArray(encounter?.lab_orders);
+  const encounterRadiologyOrders = normalizeArray(encounter?.radiology_orders);
+  const encounterPharmacyOrders = normalizeArray(encounter?.pharmacy_orders);
+  const encounterAdmissions = normalizeArray(encounter?.admissions);
+  const labOrderHumanFriendlyIds = resolveHumanFriendlyIds(encounterLabOrders);
+  const radiologyOrderHumanFriendlyIds = resolveHumanFriendlyIds(encounterRadiologyOrders);
 
   return {
     ...snapshot,
@@ -67,32 +89,36 @@ const normalizeOpdFlowSnapshot = (value) => {
     flow,
     timeline: flow.timeline,
     linked_record_ids: {
-      encounter_id: resolveRecordId(encounter),
-      visit_queue_id: flow.visit_queue_id || resolveRecordId(snapshot.visit_queue),
-      appointment_id: flow.appointment_id || resolveRecordId(snapshot.appointment),
+      encounter_id: resolveRecordHumanFriendlyId(encounter),
+      visit_queue_id: resolveRecordHumanFriendlyId(snapshot.visit_queue),
+      appointment_id: resolveRecordHumanFriendlyId(snapshot.appointment),
       consultation_invoice_id:
-        consultation.invoice_id || resolveRecordId(snapshot.consultation_invoice),
+        resolveRecordHumanFriendlyId(snapshot.consultation_invoice) ||
+        sanitizeString(consultation.invoice_human_friendly_id) ||
+        null,
       consultation_payment_id:
-        consultation.payment_id || resolveRecordId(snapshot.consultation_payment),
-      emergency_case_id: flow.emergency_case_id || resolveRecordId(snapshot.emergency_case),
+        resolveRecordHumanFriendlyId(snapshot.consultation_payment) ||
+        sanitizeString(consultation.payment_human_friendly_id) ||
+        null,
+      emergency_case_id: resolveRecordHumanFriendlyId(snapshot.emergency_case),
       triage_assessment_id:
-        flow.triage_assessment_id || resolveRecordId(snapshot.triage_assessment),
+        resolveRecordHumanFriendlyId(snapshot.triage_assessment),
       lab_order_ids:
-        flow.lab_order_ids.length > 0
-          ? flow.lab_order_ids
-          : normalizeArray(snapshot.encounter?.lab_orders).map((item) => item?.id).filter(Boolean),
+        labOrderHumanFriendlyIds.length > 0
+          ? labOrderHumanFriendlyIds
+          : normalizeArray(flow.lab_order_human_friendly_ids).filter(Boolean),
       radiology_order_ids:
-        flow.radiology_order_ids.length > 0
-          ? flow.radiology_order_ids
-          : normalizeArray(snapshot.encounter?.radiology_orders)
-              .map((item) => item?.id)
-              .filter(Boolean),
+        radiologyOrderHumanFriendlyIds.length > 0
+          ? radiologyOrderHumanFriendlyIds
+          : normalizeArray(flow.radiology_order_human_friendly_ids).filter(Boolean),
       pharmacy_order_id:
-        flow.pharmacy_order_id
-        || normalizeArray(snapshot.encounter?.pharmacy_orders)[0]?.id
-        || null,
+        resolveFirstHumanFriendlyId(encounterPharmacyOrders) ||
+        sanitizeString(flow.pharmacy_order_human_friendly_id) ||
+        null,
       admission_id:
-        flow.admission_id || normalizeArray(snapshot.encounter?.admissions)[0]?.id || null,
+        resolveFirstHumanFriendlyId(encounterAdmissions) ||
+        sanitizeString(flow.admission_human_friendly_id) ||
+        null,
     },
   };
 };
@@ -107,9 +133,11 @@ const normalizeOpdFlowListItem = (value) => {
   return {
     ...snapshot,
     id: resolveRecordId(encounter) || flow.encounter_id || null,
+    human_friendly_id: resolveRecordHumanFriendlyId(encounter) || null,
     stage: flow.stage || '',
     next_step: flow.next_step || null,
     patient_id: encounter.patient_id || null,
+    patient_human_friendly_id: resolveRecordHumanFriendlyId(encounter?.patient) || null,
     provider_user_id: encounter.provider_user_id || null,
     encounter_type: encounter.encounter_type || null,
     started_at: encounter.started_at || null,

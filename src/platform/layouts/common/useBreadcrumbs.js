@@ -9,6 +9,7 @@ import { usePathname } from 'expo-router';
 import { useI18n } from '@hooks';
 import { getMenuIconGlyph, getNavItemLabel } from '@config/sideMenu';
 import { getPatient } from '@features/patient';
+import { getOpdFlow } from '@features/opd-flow';
 
 /**
  * Find main nav item by exact path.
@@ -75,6 +76,14 @@ const resolvePatientRouteIdFromPath = (pathname) => {
   return candidateId;
 };
 
+const resolveOpdFlowRouteIdFromPath = (pathname) => {
+  const segments = resolvePathSegments(pathname);
+  const [moduleSegment, resourceSegment, candidateId] = segments;
+  if (moduleSegment !== 'scheduling' || resourceSegment !== 'opd-flows') return null;
+  if (!candidateId) return null;
+  return candidateId;
+};
+
 /**
  * Generates breadcrumb items from pathname with navigation item integration
  * @param {Array} navigationItems - Navigation items from config/sideMenu (e.g. SIDE_MENU_ITEMS)
@@ -86,7 +95,9 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
   const pathname = typeof usePathname === 'function' ? usePathname() : '';
   const { t } = useI18n();
   const [patientBreadcrumbLabel, setPatientBreadcrumbLabel] = useState('');
+  const [opdFlowBreadcrumbLabel, setOpdFlowBreadcrumbLabel] = useState('');
   const patientRouteId = useMemo(() => resolvePatientRouteIdFromPath(pathname), [pathname]);
+  const opdFlowRouteId = useMemo(() => resolveOpdFlowRouteIdFromPath(pathname), [pathname]);
 
   useEffect(() => {
     let isActive = true;
@@ -115,6 +126,33 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
     };
   }, [patientRouteId]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    if (!opdFlowRouteId) {
+      setOpdFlowBreadcrumbLabel('');
+      return undefined;
+    }
+
+    const loadOpdFlowBreadcrumbLabel = async () => {
+      try {
+        const snapshot = await getOpdFlow(opdFlowRouteId);
+        const encounterHumanFriendlyId = String(snapshot?.encounter?.human_friendly_id || '').trim();
+        if (!isActive) return;
+        setOpdFlowBreadcrumbLabel(encounterHumanFriendlyId);
+      } catch {
+        if (!isActive) return;
+        setOpdFlowBreadcrumbLabel('');
+      }
+    };
+
+    loadOpdFlowBreadcrumbLabel();
+
+    return () => {
+      isActive = false;
+    };
+  }, [opdFlowRouteId]);
+
   const breadcrumbItems = useMemo(() => {
     if (!pathname || pathname === '/') {
       return [];
@@ -141,9 +179,21 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
         && segments[1] === 'patients'
         && segment === patientRouteId
       );
-      const resolvedPatientLabel = isPatientRecordSegment ? patientBreadcrumbLabel : '';
+      const isOpdFlowRecordSegment = (
+        index === 2
+        && segments[0] === 'scheduling'
+        && segments[1] === 'opd-flows'
+        && segment === opdFlowRouteId
+      );
+      const resolvedPatientLabel = isPatientRecordSegment
+        ? (patientBreadcrumbLabel || t('common.loading'))
+        : '';
+      const resolvedOpdFlowLabel = isOpdFlowRecordSegment
+        ? (opdFlowBreadcrumbLabel || t('common.loading'))
+        : '';
       const label = (navItem ? (navItem.label ?? getNavItemLabel(t, navItem, itemsI18nPrefix)) : '')
         || resolvedPatientLabel
+        || resolvedOpdFlowLabel
         || formatSegmentLabel(segment, t);
       const iconSource = (index === 0 ? (deepestChild?.icon ?? mainItem?.icon) : childItem?.icon) ?? null;
       const icon = index === 0 && iconSource ? getMenuIconGlyph(iconSource) : null;
@@ -156,7 +206,16 @@ const useBreadcrumbs = (navigationItems = [], itemsI18nPrefix = 'navigation.item
     });
 
     return items;
-  }, [pathname, navigationItems, itemsI18nPrefix, patientBreadcrumbLabel, patientRouteId, t]);
+  }, [
+    pathname,
+    navigationItems,
+    itemsI18nPrefix,
+    patientBreadcrumbLabel,
+    patientRouteId,
+    opdFlowBreadcrumbLabel,
+    opdFlowRouteId,
+    t
+  ]);
 
   return breadcrumbItems;
 };

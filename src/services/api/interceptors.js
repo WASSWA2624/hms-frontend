@@ -6,9 +6,13 @@
 import { tokenManager } from '@security';
 import { handleError } from '@errors';
 import { endpoints } from '@config/endpoints';
-import { clearCsrfToken } from '@services/csrf';
+import { clearCsrfToken, getCsrfHeaders } from '@services/csrf';
 
 let inFlightRefreshPromise = null;
+const CSRF_ERROR_MESSAGES = new Set([
+  'errors.csrf.missing',
+  'errors.csrf.invalid',
+]);
 
 const unwrapPayload = (payload) => payload?.data?.data ?? payload?.data ?? payload;
 
@@ -20,9 +24,46 @@ const extractTokenPair = (payload) => {
   return { accessToken, refreshToken };
 };
 
-const requestTokenRefresh = async () => {
+const isCsrfFailure = (status, errorData) => {
+  if (status !== 403) return false;
+  const candidates = [
+    errorData?.message,
+    errorData?.messageKey,
+    errorData?.code,
+    errorData?.error,
+  ]
+    .map((value) =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
+    .filter(Boolean);
+  return candidates.some((value) => CSRF_ERROR_MESSAGES.has(value));
+};
+
+const parseErrorPayload = async (response) => {
+  const contentType = response?.headers?.get?.('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return null;
+  }
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+};
+
+const requestTokenRefresh = async (csrfRetried = false) => {
   const refreshToken = await tokenManager.getRefreshToken();
   if (!refreshToken) return false;
+
+  let csrfHeaders = {};
+  try {
+    csrfHeaders = await getCsrfHeaders();
+  } catch {
+    clearCsrfToken();
+    csrfHeaders = {};
+  }
 
   let response;
   try {
@@ -31,6 +72,7 @@ const requestTokenRefresh = async () => {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...csrfHeaders,
       },
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
@@ -39,7 +81,15 @@ const requestTokenRefresh = async () => {
   }
 
   if (!response.ok) {
-    if (response.status === 401 || response.status === 403) {
+    const errorPayload = await parseErrorPayload(response);
+    const isStaleCsrf = isCsrfFailure(response.status, errorPayload);
+
+    if (!csrfRetried && isStaleCsrf) {
+      clearCsrfToken();
+      return requestTokenRefresh(true);
+    }
+
+    if (response.status === 401 || (response.status === 403 && !isStaleCsrf)) {
       await tokenManager.clearTokens();
       clearCsrfToken();
     }

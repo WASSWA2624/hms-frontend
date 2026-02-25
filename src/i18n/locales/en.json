@@ -558,7 +558,7 @@
         "patients-patient-allergies": "Patient Allergies",
         "patients-patient-medical-histories": "Patient Medical Histories",
         "patients-patient-documents": "Patient Documents",
-        "scheduling": "Scheduling",
+        "scheduling": "OPD & Scheduling",
         "scheduling-appointments": "Appointments",
         "scheduling-provider-schedules": "Provider Schedules",
         "scheduling-availability-slots": "Availability Slots",
@@ -6720,10 +6720,10 @@
   },
   "scheduling": {
     "screen": {
-      "label": "Scheduling workspace"
+      "label": "OPD & Scheduling workspace"
     },
     "overview": {
-      "title": "Scheduling",
+      "title": "OPD & Scheduling",
       "description": "Manage appointments, participants, reminders, provider schedules, availability slots, and visit queues from one workspace.",
       "loadErrorTitle": "Unable to load scheduling overview",
       "loadError": "Unable to load scheduling overview data. Check your connection and try again.",

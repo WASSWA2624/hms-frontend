@@ -1,12 +1,12 @@
 import React from 'react';
 import {
+  Badge,
   Button,
   Card,
   EmptyState,
   ErrorState,
   ErrorStateSizes,
   Icon,
-  ListItem,
   LoadingSpinner,
   OfflineState,
   OfflineStateSizes,
@@ -22,10 +22,23 @@ import {
   StyledContainer,
   StyledFieldRow,
   StyledFlowList,
+  StyledFlowListBadgeWrap,
+  StyledFlowListItem,
+  StyledFlowListItemHeader,
+  StyledFlowListMetaLabel,
+  StyledFlowListMetaPill,
+  StyledFlowListMetaRow,
+  StyledFlowListMetaValue,
+  StyledFlowListPatientMeta,
+  StyledFlowListPrimary,
+  StyledFlowListTitle,
   StyledForm,
   StyledGuidanceList,
   StyledInlineActions,
   StyledLayout,
+  StyledLinkedRecordItem,
+  StyledLinkedRecordLabel,
+  StyledLinkedRecordValue,
   StyledMeta,
   StyledPanel,
   StyledPanelHeader,
@@ -46,11 +59,50 @@ const toSelectOptions = (t, options = []) =>
   }));
 
 const renderLinkedId = (t, label, value) => (
-  <div>
-    <Text variant="label">{label}</Text>
-    <StyledMeta>{value || t('common.notAvailable')}</StyledMeta>
-  </div>
+  <StyledLinkedRecordItem>
+    <StyledLinkedRecordLabel>{label}</StyledLinkedRecordLabel>
+    <StyledLinkedRecordValue>{value || t('common.notAvailable')}</StyledLinkedRecordValue>
+  </StyledLinkedRecordItem>
 );
+
+const toCleanText = (value) => String(value || '').trim();
+
+const resolveStageBadgeVariant = (stage) => {
+  const normalized = toCleanText(stage).toUpperCase();
+  if (normalized === 'ADMITTED' || normalized === 'DISCHARGED') return 'success';
+  if (
+    normalized === 'LAB_REQUESTED' ||
+    normalized === 'RADIOLOGY_REQUESTED' ||
+    normalized === 'LAB_AND_RADIOLOGY_REQUESTED' ||
+    normalized === 'PHARMACY_REQUESTED'
+  ) {
+    return 'warning';
+  }
+  return 'primary';
+};
+
+const resolvePatientName = (flowItem, fallbackTitle) => {
+  const patient = flowItem?.encounter?.patient || flowItem?.patient || null;
+  const firstName = toCleanText(patient?.first_name || patient?.firstName);
+  const lastName = toCleanText(patient?.last_name || patient?.lastName);
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+  return fullName || fallbackTitle;
+};
+
+const resolvePatientHumanFriendlyId = (flowItem) =>
+  toCleanText(
+    flowItem?.encounter?.patient?.human_friendly_id ||
+      flowItem?.patient?.human_friendly_id ||
+      flowItem?.patient_human_friendly_id ||
+      flowItem?.encounter?.patient_human_friendly_id
+  );
+
+const resolveQueueHumanFriendlyId = (flowItem) =>
+  toCleanText(
+    flowItem?.linked_record_ids?.visit_queue_id ||
+      flowItem?.visit_queue?.human_friendly_id ||
+      flowItem?.flow?.visit_queue_human_friendly_id
+  );
 
 const OpdFlowWorkbenchScreen = () => {
   const { t } = useI18n();
@@ -740,19 +792,67 @@ const OpdFlowWorkbenchScreen = () => {
                   {screen.flowList.map((flowItem, index) => {
                     const flowId = flowItem?.id || flowItem?.encounter?.id;
                     const stage = flowItem?.stage || flowItem?.flow?.stage || '';
-                    const patientId = flowItem?.patient_id || flowItem?.encounter?.patient_id || '';
-                    const title = flowId
-                      ? t('scheduling.opdFlow.list.itemTitle', { id: flowId })
+                    const isSelected = screen.selectedFlowId === flowId;
+                    const encounterHumanFriendlyId = toCleanText(
+                      flowItem?.encounter?.human_friendly_id
+                        || flowItem?.human_friendly_id
+                        || flowItem?.linked_record_ids?.encounter_id
+                    );
+                    const fallbackTitle = encounterHumanFriendlyId
+                      ? t('scheduling.opdFlow.list.itemTitle', { id: encounterHumanFriendlyId })
                       : t('scheduling.opdFlow.list.unknownFlow');
-                    const subtitle = [stage, patientId].filter(Boolean).join(' | ');
+                    const patientName = resolvePatientName(flowItem, fallbackTitle);
+                    const patientHumanFriendlyId = resolvePatientHumanFriendlyId(flowItem);
+                    const queueHumanFriendlyId = resolveQueueHumanFriendlyId(flowItem);
+                    const stageLabel = stage
+                      ? t(`scheduling.opdFlow.stages.${stage}`)
+                      : t('scheduling.opdFlow.stages.UNKNOWN');
+                    const encounterDisplayId = encounterHumanFriendlyId || t('common.notAvailable');
+                    const queueDisplayId = queueHumanFriendlyId || t('common.notAvailable');
+
                     return (
-                      <ListItem
+                      <StyledFlowListItem
                         key={flowId || `opd-flow-item-${index + 1}`}
-                        title={title}
-                        subtitle={subtitle}
                         onPress={() => screen.onSelectFlow(flowItem)}
+                        $selected={isSelected}
+                        accessibilityRole="button"
+                        accessibilityLabel={patientName}
+                        accessibilityState={{ selected: isSelected }}
                         testID={`opd-workbench-list-item-${index + 1}`}
-                      />
+                      >
+                        <StyledFlowListItemHeader>
+                          <StyledFlowListPrimary>
+                            <StyledFlowListTitle $selected={isSelected}>
+                              {patientName}
+                            </StyledFlowListTitle>
+                            <StyledFlowListPatientMeta>
+                              {`${t('scheduling.opdFlow.start.patientId')}: ${
+                                patientHumanFriendlyId || t('common.notAvailable')
+                              }`}
+                            </StyledFlowListPatientMeta>
+                          </StyledFlowListPrimary>
+                          <StyledFlowListBadgeWrap>
+                            <Badge variant={resolveStageBadgeVariant(stage)} size="small">
+                              {stageLabel}
+                            </Badge>
+                          </StyledFlowListBadgeWrap>
+                        </StyledFlowListItemHeader>
+
+                        <StyledFlowListMetaRow>
+                          <StyledFlowListMetaPill>
+                            <StyledFlowListMetaLabel>
+                              {t('scheduling.opdFlow.snapshot.encounterId')}
+                            </StyledFlowListMetaLabel>
+                            <StyledFlowListMetaValue>{encounterDisplayId}</StyledFlowListMetaValue>
+                          </StyledFlowListMetaPill>
+                          <StyledFlowListMetaPill>
+                            <StyledFlowListMetaLabel>
+                              {t('scheduling.opdFlow.snapshot.queueId')}
+                            </StyledFlowListMetaLabel>
+                            <StyledFlowListMetaValue>{queueDisplayId}</StyledFlowListMetaValue>
+                          </StyledFlowListMetaPill>
+                        </StyledFlowListMetaRow>
+                      </StyledFlowListItem>
                     );
                   })}
                 </StyledFlowList>

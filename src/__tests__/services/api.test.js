@@ -230,6 +230,7 @@ describe('API Client', () => {
       tokenManager.getRefreshToken.mockResolvedValue('refresh-token');
       tokenManager.shouldPersistTokens.mockResolvedValue(true);
       tokenManager.setTokens.mockResolvedValue(true);
+      getCsrfHeaders.mockResolvedValue({ 'x-csrf-token': 'csrf-refresh' });
 
       global.fetch
         .mockResolvedValueOnce({
@@ -271,7 +272,125 @@ describe('API Client', () => {
         'fresh-refresh-token',
         { persist: true }
       );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        expect.any(String),
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'x-csrf-token': 'csrf-refresh',
+          }),
+        })
+      );
       expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('retries refresh once when csrf token is stale and then recovers session', async () => {
+      tokenManager.getAccessToken
+        .mockResolvedValueOnce('expired-access-token')
+        .mockResolvedValueOnce('fresh-access-token');
+      tokenManager.getRefreshToken.mockResolvedValue('refresh-token');
+      tokenManager.shouldPersistTokens.mockResolvedValue(true);
+      tokenManager.setTokens.mockResolvedValue(true);
+      getCsrfHeaders
+        .mockResolvedValueOnce({ 'x-csrf-token': 'csrf-stale' })
+        .mockResolvedValueOnce({ 'x-csrf-token': 'csrf-fresh' });
+
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'Unauthorized', errors: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          statusText: 'Forbidden',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'errors.csrf.invalid', errors: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({
+            status: 200,
+            message: 'ok',
+            data: {
+              access_token: 'fresh-access-token',
+              refresh_token: 'fresh-refresh-token',
+            },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({ id: 1, recovered: true }),
+        });
+
+      const result = await apiClient({ url: 'https://api.example.com/test' });
+
+      expect(result).toEqual({
+        data: { id: 1, recovered: true },
+        raw: { id: 1, recovered: true },
+        status: 200,
+      });
+      expect(clearCsrfToken).toHaveBeenCalledTimes(1);
+      expect(tokenManager.clearTokens).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        expect.any(String),
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'x-csrf-token': 'csrf-stale',
+          }),
+        })
+      );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        3,
+        expect.any(String),
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'x-csrf-token': 'csrf-fresh',
+          }),
+        })
+      );
+      expect(global.fetch).toHaveBeenCalledTimes(4);
+    });
+
+    it('clears tokens when refresh endpoint returns unauthorized', async () => {
+      tokenManager.getAccessToken.mockResolvedValue('expired-access-token');
+      tokenManager.getRefreshToken.mockResolvedValue('refresh-token');
+      getCsrfHeaders.mockResolvedValue({ 'x-csrf-token': 'csrf-refresh' });
+
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'Unauthorized', errors: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => 'application/json' },
+          json: async () => ({ message: 'errors.auth.refresh_token_invalid', errors: [] }),
+        });
+
+      await expect(
+        apiClient({ url: 'https://api.example.com/test' })
+      ).rejects.toBeDefined();
+
+      expect(tokenManager.clearTokens).toHaveBeenCalledTimes(1);
+      expect(clearCsrfToken).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
     it('should handle request timeout', async () => {
