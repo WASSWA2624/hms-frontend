@@ -42,7 +42,17 @@ const buildBaseHook = () => ({
   flowList: [
     {
       id: 'enc-1',
-      encounter: { id: 'enc-1', patient_id: 'patient-1' },
+      encounter: {
+        id: 'enc-1',
+        patient_id: 'patient-1',
+        human_friendly_id: 'ENC-001',
+        patient: {
+          id: 'patient-1',
+          first_name: 'Jane',
+          last_name: 'Doe',
+          human_friendly_id: 'PAT-001',
+        },
+      },
       flow: { stage: 'WAITING_CONSULTATION_PAYMENT', next_step: 'PAY_CONSULTATION', timeline: [] },
       timeline: [],
       linked_record_ids: { encounter_id: 'enc-1', lab_order_ids: [], radiology_order_ids: [] },
@@ -51,7 +61,17 @@ const buildBaseHook = () => ({
   pagination: { page: 1, limit: 25, total: 1 },
   selectedFlow: {
     id: 'enc-1',
-    encounter: { id: 'enc-1', patient_id: 'patient-1' },
+    encounter: {
+      id: 'enc-1',
+      patient_id: 'patient-1',
+      human_friendly_id: 'ENC-001',
+      patient: {
+        id: 'patient-1',
+        first_name: 'Jane',
+        last_name: 'Doe',
+        human_friendly_id: 'PAT-001',
+      },
+    },
     flow: { stage: 'WAITING_CONSULTATION_PAYMENT', next_step: 'PAY_CONSULTATION', timeline: [] },
     timeline: [],
     linked_record_ids: { encounter_id: 'enc-1', lab_order_ids: [], radiology_order_ids: [] },
@@ -125,6 +145,7 @@ const buildBaseHook = () => ({
   startLinkedAppointment: null,
   isPatientLookupLoading: false,
   isAppointmentLookupLoading: false,
+  isFlowSearchLoading: false,
   contextPatientAgeLabel: '',
   timeline: [],
   timelineItems: [],
@@ -204,13 +225,27 @@ describe('OpdFlowWorkbenchScreen', () => {
   });
 
   it('renders OPD workbench with flow list and current stage', () => {
-    const { getByTestId, getByText } = renderWithTheme(<OpdFlowWorkbenchScreen />);
+    const { getByTestId, getByText, getAllByText, queryByText } = renderWithTheme(<OpdFlowWorkbenchScreen />);
 
     expect(getByTestId('opd-workbench-screen')).toBeTruthy();
     expect(getByTestId('opd-workbench-stage-label')).toBeTruthy();
     expect(getByTestId('opd-workbench-list-item-1')).toBeTruthy();
     expect(getByText('scheduling.opdFlow.progress.title')).toBeTruthy();
     expect(getByText('scheduling.opdFlow.guidance.title')).toBeTruthy();
+    expect(getByText('Jane Doe')).toBeTruthy();
+    expect(getByText('scheduling.opdFlow.start.patientId: PAT-001')).toBeTruthy();
+    expect(getAllByText('scheduling.opdFlow.stages.WAITING_CONSULTATION_PAYMENT').length).toBeGreaterThan(0);
+    expect(queryByText('scheduling.opdFlow.start.arrivalMode')).toBeNull();
+    expect(queryByText('scheduling.resources.appointments.detail.scheduledStartLabel')).toBeNull();
+  });
+
+  it('shows flow-search loading indicator while query results are loading', () => {
+    const hookValue = buildBaseHook();
+    hookValue.isFlowSearchLoading = true;
+    useOpdFlowWorkbenchScreen.mockReturnValue(hookValue);
+
+    const { getByTestId } = renderWithTheme(<OpdFlowWorkbenchScreen />);
+    expect(getByTestId('opd-workbench-flow-search-loading')).toBeTruthy();
   });
 
   it('toggles start form visibility when requested', () => {

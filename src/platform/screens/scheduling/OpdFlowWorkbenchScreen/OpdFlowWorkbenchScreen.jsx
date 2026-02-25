@@ -27,11 +27,7 @@ import {
   StyledFlowListItem,
   StyledFlowListItemHeader,
   StyledFlowListNumber,
-  StyledFlowListMetaLabel,
-  StyledFlowListMetaPill,
-  StyledFlowListMetaRow,
   StyledFlowListSearch,
-  StyledFlowListMetaValue,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
   StyledFlowListTitle,
@@ -115,7 +111,15 @@ const resolveStageBadgeVariant = (stage) => {
   ) {
     return 'warning';
   }
-  return 'primary';
+  if (
+    normalized === 'WAITING_CONSULTATION_PAYMENT' ||
+    normalized === 'WAITING_VITALS' ||
+    normalized === 'WAITING_DOCTOR_ASSIGNMENT' ||
+    normalized === 'WAITING_DOCTOR_REVIEW'
+  ) {
+    return 'primary';
+  }
+  return 'error';
 };
 
 const resolvePatientName = (flowItem, fallbackTitle) => {
@@ -134,13 +138,6 @@ const resolvePatientHumanFriendlyId = (flowItem) =>
       flowItem?.encounter?.patient_human_friendly_id
   );
 
-const resolveQueueHumanFriendlyId = (flowItem) =>
-  toPublicIdText(
-    flowItem?.linked_record_ids?.visit_queue_id ||
-      flowItem?.visit_queue?.human_friendly_id ||
-      flowItem?.flow?.visit_queue_human_friendly_id
-  );
-
 const resolveLookupPatientName = (patient) => {
   const firstName = toCleanText(patient?.first_name || patient?.firstName);
   const lastName = toCleanText(patient?.last_name || patient?.lastName);
@@ -153,24 +150,6 @@ const resolveVitalStatusVariant = (status) => {
   if (normalized === 'CRITICAL') return 'error';
   if (normalized === 'ABNORMAL') return 'warning';
   return 'primary';
-};
-
-const ARRIVAL_MODE_LABEL_KEY_MAP = Object.freeze({
-  WALK_IN: 'scheduling.opdFlow.options.arrivalMode.walkIn',
-  ONLINE_APPOINTMENT: 'scheduling.opdFlow.options.arrivalMode.onlineAppointment',
-  EMERGENCY: 'scheduling.opdFlow.options.arrivalMode.emergency',
-});
-
-const resolveArrivalModeLabel = (t, value) => {
-  const normalized = toCleanText(value).toUpperCase();
-  const labelKey = ARRIVAL_MODE_LABEL_KEY_MAP[normalized];
-  return labelKey ? t(labelKey) : t('common.notAvailable');
-};
-
-const formatDateTimeLabel = (value) => {
-  const parsed = value ? new Date(value) : null;
-  if (!parsed || Number.isNaN(parsed.getTime())) return '';
-  return parsed.toLocaleString();
 };
 
 const OpdFlowWorkbenchScreen = () => {
@@ -1155,6 +1134,11 @@ const OpdFlowWorkbenchScreen = () => {
                   type="search"
                   testID="opd-workbench-flow-search"
                 />
+                {screen.isFlowSearchLoading ? (
+                  <StyledMeta testID="opd-workbench-flow-search-loading">
+                    {t('common.loading')}
+                  </StyledMeta>
+                ) : null}
               </StyledFlowListSearch>
             </Card>
 
@@ -1186,25 +1170,17 @@ const OpdFlowWorkbenchScreen = () => {
                       : t('scheduling.opdFlow.list.unknownFlow');
                     const patientName = resolvePatientName(flowItem, fallbackTitle);
                     const patientHumanFriendlyId = resolvePatientHumanFriendlyId(flowItem);
-                    const queueHumanFriendlyId = resolveQueueHumanFriendlyId(flowItem);
                     const stageLabel = stage
                       ? t(`scheduling.opdFlow.stages.${stage}`)
                       : t('scheduling.opdFlow.stages.UNKNOWN');
-                    const encounterDisplayId = encounterHumanFriendlyId || t('common.notAvailable');
-                    const queueDisplayId = queueHumanFriendlyId || t('common.notAvailable');
-                    const arrivalModeLabel = resolveArrivalModeLabel(
-                      t,
-                      flowItem?.flow?.arrival_mode || flowItem?.flow?.arrivalMode
-                    );
-                    const startedAtLabel = formatDateTimeLabel(
-                      flowItem?.encounter?.started_at || flowItem?.started_at
-                    ) || t('common.notAvailable');
+                    const stageTone = resolveStageBadgeVariant(stage);
 
                     return (
                       <StyledFlowListItem
                         key={flowId || `opd-flow-item-${index + 1}`}
                         onPress={() => isSelectable && screen.onSelectFlow(flowItem)}
                         $selected={isSelected}
+                        $tone={stageTone}
                         disabled={!isSelectable}
                         accessibilityRole="button"
                         accessibilityLabel={patientName}
@@ -1212,8 +1188,8 @@ const OpdFlowWorkbenchScreen = () => {
                         testID={`opd-workbench-list-item-${index + 1}`}
                       >
                         <StyledFlowListItemHeader>
+                          <StyledFlowListNumber>{index + 1}</StyledFlowListNumber>
                           <StyledFlowListPrimary>
-                            <StyledFlowListNumber>{index + 1}</StyledFlowListNumber>
                             <StyledFlowListTitle $selected={isSelected}>
                               {patientName}
                             </StyledFlowListTitle>
@@ -1224,38 +1200,11 @@ const OpdFlowWorkbenchScreen = () => {
                             </StyledFlowListPatientMeta>
                           </StyledFlowListPrimary>
                           <StyledFlowListBadgeWrap>
-                            <Badge variant={resolveStageBadgeVariant(stage)} size="small">
+                            <Badge variant={stageTone} size="small">
                               {stageLabel}
                             </Badge>
                           </StyledFlowListBadgeWrap>
                         </StyledFlowListItemHeader>
-
-                        <StyledFlowListMetaRow>
-                          <StyledFlowListMetaPill>
-                            <StyledFlowListMetaLabel>
-                              {t('scheduling.opdFlow.snapshot.encounterId')}
-                            </StyledFlowListMetaLabel>
-                            <StyledFlowListMetaValue>{encounterDisplayId}</StyledFlowListMetaValue>
-                          </StyledFlowListMetaPill>
-                          <StyledFlowListMetaPill>
-                            <StyledFlowListMetaLabel>
-                              {t('scheduling.opdFlow.snapshot.queueId')}
-                            </StyledFlowListMetaLabel>
-                            <StyledFlowListMetaValue>{queueDisplayId}</StyledFlowListMetaValue>
-                          </StyledFlowListMetaPill>
-                          <StyledFlowListMetaPill>
-                            <StyledFlowListMetaLabel>
-                              {t('scheduling.opdFlow.start.arrivalMode')}
-                            </StyledFlowListMetaLabel>
-                            <StyledFlowListMetaValue>{arrivalModeLabel}</StyledFlowListMetaValue>
-                          </StyledFlowListMetaPill>
-                          <StyledFlowListMetaPill>
-                            <StyledFlowListMetaLabel>
-                              {t('scheduling.resources.appointments.detail.scheduledStartLabel')}
-                            </StyledFlowListMetaLabel>
-                            <StyledFlowListMetaValue>{startedAtLabel}</StyledFlowListMetaValue>
-                          </StyledFlowListMetaPill>
-                        </StyledFlowListMetaRow>
                       </StyledFlowListItem>
                     );
                   })}

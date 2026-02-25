@@ -75,7 +75,21 @@ const buildSnapshot = (id = 'enc-1', stage = 'WAITING_VITALS') => ({
   },
 });
 
+const createDeferred = () => {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+};
+
 describe('useOpdFlowWorkbenchScreen', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -234,6 +248,124 @@ describe('useOpdFlowWorkbenchScreen', () => {
     await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
     rerender({});
     await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+  });
+
+  it('fetches all search result pages for OPD flow list queries', async () => {
+    jest.useFakeTimers();
+    mockList.mockResolvedValue({
+      items: [buildSnapshot('enc-initial', 'WAITING_VITALS')],
+      pagination: { page: 1, limit: 25, total: 1, hasNextPage: false, hasPreviousPage: false },
+    });
+
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+
+    mockList.mockClear();
+    mockList.mockImplementation(async (params = {}) => {
+      if (params.page === 1) {
+        return {
+          items: [buildSnapshot('enc-search-1', 'WAITING_CONSULTATION_PAYMENT')],
+          pagination: { page: 1, limit: 25, total: 2, hasNextPage: true, hasPreviousPage: false },
+        };
+      }
+      return {
+        items: [buildSnapshot('enc-search-2', 'WAITING_DOCTOR_REVIEW')],
+        pagination: { page: 2, limit: 25, total: 2, hasNextPage: false, hasPreviousPage: true },
+      };
+    });
+
+    act(() => {
+      result.current.onFlowSearchChange('jane');
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      const calls = mockList.mock.calls.map((entry) => entry[0]);
+      expect(calls).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ page: 1, search: 'jane' }),
+          expect.objectContaining({ page: 2, search: 'jane' }),
+        ])
+      );
+      const flowIds = result.current.flowList.map((entry) => entry.id);
+      expect(flowIds).toEqual(expect.arrayContaining(['enc-search-1', 'enc-search-2']));
+    });
+
+    jest.useRealTimers();
+  });
+
+  it('ignores stale flow-list search responses when a newer query completes first', async () => {
+    jest.useFakeTimers();
+    mockList.mockResolvedValue({
+      items: [buildSnapshot('enc-initial', 'WAITING_VITALS')],
+      pagination: { page: 1, limit: 25, total: 1, hasNextPage: false, hasPreviousPage: false },
+    });
+
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+
+    const staleSearch = createDeferred();
+    mockList.mockClear();
+    mockList.mockImplementation((params = {}) => {
+      if (params.search === 'old') {
+        return staleSearch.promise;
+      }
+      if (params.search === 'new') {
+        return Promise.resolve({
+          items: [buildSnapshot('enc-new', 'WAITING_DOCTOR_ASSIGNMENT')],
+          pagination: { page: 1, limit: 25, total: 1, hasNextPage: false, hasPreviousPage: false },
+        });
+      }
+      return Promise.resolve({
+        items: [],
+        pagination: { page: 1, limit: 25, total: 0, hasNextPage: false, hasPreviousPage: false },
+      });
+    });
+
+    act(() => {
+      result.current.onFlowSearchChange('old');
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+    await waitFor(() =>
+      expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ page: 1, search: 'old' }))
+    );
+
+    act(() => {
+      result.current.onFlowSearchChange('new');
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ page: 1, search: 'new' }));
+      const flowIds = result.current.flowList.map((entry) => entry.id);
+      expect(flowIds).toContain('enc-new');
+      expect(flowIds).not.toContain('enc-old');
+    });
+
+    await act(async () => {
+      staleSearch.resolve({
+        items: [buildSnapshot('enc-old', 'WAITING_CONSULTATION_PAYMENT')],
+        pagination: { page: 1, limit: 25, total: 1, hasNextPage: false, hasPreviousPage: false },
+      });
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      const flowIds = result.current.flowList.map((entry) => entry.id);
+      expect(flowIds).toContain('enc-new');
+      expect(flowIds).not.toContain('enc-old');
+    });
+
+    jest.useRealTimers();
   });
 
   it('refreshes selected flow when receiving realtime OPD updates', async () => {

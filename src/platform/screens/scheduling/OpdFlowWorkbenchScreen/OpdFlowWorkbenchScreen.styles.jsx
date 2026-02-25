@@ -36,6 +36,37 @@ const PROGRESS_TONE_MAP = Object.freeze({
 });
 
 const resolveProgressTone = (tone) => PROGRESS_TONE_MAP[tone] || PROGRESS_TONE_MAP.indigo;
+const FLOW_LIST_TONE_MAP = Object.freeze({
+  primary: {
+    accent: '#0f6cbd',
+    border: '#b9d9f4',
+    surface: '#f7fbff',
+    numberSurface: '#dceeff',
+    numberText: '#0f3f6d',
+  },
+  warning: {
+    accent: '#b45309',
+    border: '#f1d3b5',
+    surface: '#fff9f2',
+    numberSurface: '#fde8d4',
+    numberText: '#7c2d12',
+  },
+  success: {
+    accent: '#15803d',
+    border: '#b8e3c6',
+    surface: '#f5fdf7',
+    numberSurface: '#d8f3df',
+    numberText: '#166534',
+  },
+  error: {
+    accent: '#b42318',
+    border: '#f0c6c3',
+    surface: '#fff7f6',
+    numberSurface: '#fddedb',
+    numberText: '#912018',
+  },
+});
+const resolveFlowListTone = (tone) => FLOW_LIST_TONE_MAP[tone] || FLOW_LIST_TONE_MAP.error;
 
 const StyledContainer = styled.section.withConfig({
   displayName: 'OpdFlowWorkbench_StyledContainer',
@@ -144,8 +175,8 @@ const StyledFlowList = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
-  max-height: min(62vh, 740px);
+  gap: ${({ theme }) => theme.spacing.xs + 4}px;
+  height: clamp(380px, 72vh, 820px);
   overflow-y: auto;
   padding-right: ${({ theme }) => theme.spacing.xs}px;
   overscroll-behavior: contain;
@@ -165,7 +196,7 @@ const StyledFlowList = styled.div.withConfig({
   }
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
-    max-height: none;
+    height: auto;
     overflow: visible;
     padding-right: 0;
   }
@@ -174,28 +205,37 @@ const StyledFlowList = styled.div.withConfig({
 const StyledFlowListItem = styled(Pressable).withConfig({
   displayName: 'OpdFlowWorkbench_StyledFlowListItem',
   componentId: 'OpdFlowWorkbench_StyledFlowListItem',
-  shouldForwardProp: (prop) => !['$selected'].includes(prop),
+  shouldForwardProp: (prop) => !['$selected', '$tone'].includes(prop),
 })`
+  ${({ $tone }) => {
+    const tone = resolveFlowListTone($tone);
+    return `
+      --flow-accent: ${tone.accent};
+      --flow-border: ${tone.border};
+      --flow-surface: ${tone.surface};
+      --flow-number-surface: ${tone.numberSurface};
+      --flow-number-text: ${tone.numberText};
+    `;
+  }}
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
-  min-height: 96px;
+  min-height: 82px;
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.primary : theme.colors.border.medium};
-  border-left-width: 3px;
+    $selected ? theme.colors.primary : 'var(--flow-border)'};
+  border-left-width: 4px;
   border-left-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.primary : theme.colors.border.medium};
+    $selected ? theme.colors.primary : 'var(--flow-accent)'};
   background-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.background.secondary : theme.colors.surface.primary};
-  padding: ${({ theme }) => `${theme.spacing.sm - 1}px ${theme.spacing.sm + 1}px`};
+    $selected ? theme.colors.background.secondary : 'var(--flow-surface)'};
+  padding: ${({ theme }) => `${theme.spacing.sm - 1}px ${theme.spacing.sm + 2}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 6px 14px rgba(0, 120, 212, 0.14)' : '0 1px 3px rgba(0, 0, 0, 0.07)'};
+    $selected ? '0 8px 18px rgba(0, 120, 212, 0.16)' : '0 2px 6px rgba(15, 23, 42, 0.08)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
@@ -203,7 +243,7 @@ const StyledFlowListItem = styled(Pressable).withConfig({
     transform 0.2s ease;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
+    border-color: ${({ theme, $selected }) => ($selected ? theme.colors.primary : 'var(--flow-accent)')};
     background-color: ${({ theme, $selected }) =>
       $selected ? theme.colors.background.secondary : theme.colors.background.tertiary};
     box-shadow: ${({ $selected }) =>
@@ -221,10 +261,10 @@ const StyledFlowListItemHeader = styled.div.withConfig({
   displayName: 'OpdFlowWorkbench_StyledFlowListItemHeader',
   componentId: 'OpdFlowWorkbench_StyledFlowListItemHeader',
 })`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs + 4}px;
 `;
 
 const StyledFlowListNumber = styled.span.withConfig({
@@ -234,12 +274,12 @@ const StyledFlowListNumber = styled.span.withConfig({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 26px;
+  height: 26px;
   border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.colors.border.medium};
-  background: ${({ theme }) => theme.colors.surface.secondary};
-  color: ${({ theme }) => theme.colors.text.secondary};
+  border: 1px solid var(--flow-border);
+  background: var(--flow-number-surface);
+  color: var(--flow-number-text);
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -252,7 +292,7 @@ const StyledFlowListPrimary = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 `;
 
@@ -293,51 +333,6 @@ const StyledFlowListBadgeWrap = styled.div.withConfig({
   flex-shrink: 0;
   display: inline-flex;
   max-width: 190px;
-`;
-
-const StyledFlowListMetaRow = styled.div.withConfig({
-  displayName: 'OpdFlowWorkbench_StyledFlowListMetaRow',
-  componentId: 'OpdFlowWorkbench_StyledFlowListMetaRow',
-})`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.xs + 2}px;
-`;
-
-const StyledFlowListMetaPill = styled.div.withConfig({
-  displayName: 'OpdFlowWorkbench_StyledFlowListMetaPill',
-  componentId: 'OpdFlowWorkbench_StyledFlowListMetaPill',
-})`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: ${({ theme }) => theme.radius.sm + 2}px;
-  border: 1px solid ${({ theme }) => theme.colors.border.light};
-  padding: ${({ theme }) => `${theme.spacing.xs - 2}px ${theme.spacing.xs + 4}px`};
-  background-color: ${({ theme }) => theme.colors.surface.secondary};
-`;
-
-const StyledFlowListMetaLabel = styled.span.withConfig({
-  displayName: 'OpdFlowWorkbench_StyledFlowListMetaLabel',
-  componentId: 'OpdFlowWorkbench_StyledFlowListMetaLabel',
-})`
-  font-family: ${({ theme }) => theme.typography.fontFamily.medium};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-`;
-
-const StyledFlowListMetaValue = styled.span.withConfig({
-  displayName: 'OpdFlowWorkbench_StyledFlowListMetaValue',
-  componentId: 'OpdFlowWorkbench_StyledFlowListMetaValue',
-})`
-  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs + 1}px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  font-variant-numeric: tabular-nums;
 `;
 
 const StyledFlowListSearch = styled.div.withConfig({
@@ -713,11 +708,7 @@ export {
   StyledFlowListItem,
   StyledFlowListItemHeader,
   StyledFlowListNumber,
-  StyledFlowListMetaLabel,
-  StyledFlowListMetaPill,
-  StyledFlowListMetaRow,
   StyledFlowListSearch,
-  StyledFlowListMetaValue,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
   StyledFlowListTitle,

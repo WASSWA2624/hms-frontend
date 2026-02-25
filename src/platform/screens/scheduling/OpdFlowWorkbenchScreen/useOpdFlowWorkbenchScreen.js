@@ -810,6 +810,25 @@ const resolveListItems = (value) => {
   return [];
 };
 
+const resolveFlowListItemKey = (item, index = 0) =>
+  resolveEncounterIdentifier(item) ||
+  resolveEncounterInternalId(item) ||
+  `flow-item-${index + 1}`;
+
+const dedupeFlowListItems = (items = []) => {
+  const deduped = new Map();
+  items.forEach((item, index) => {
+    const key = resolveFlowListItemKey(item, index);
+    if (!key) return;
+    if (deduped.has(key)) {
+      deduped.set(key, { ...deduped.get(key), ...item });
+      return;
+    }
+    deduped.set(key, item);
+  });
+  return Array.from(deduped.values());
+};
+
 const resolveCurrencyFromExtension = (extension) => {
   if (!extension || typeof extension !== 'object') return '';
 
@@ -965,6 +984,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [assignProviderSearchText, setAssignProviderSearchText] = useState('');
   const [flowSearchText, setFlowSearchText] = useState('');
   const [debouncedFlowSearch, setDebouncedFlowSearch] = useState('');
+  const [isFlowSearchLoading, setIsFlowSearchLoading] = useState(false);
   const [startPatientOptions, setStartPatientOptions] = useState([]);
   const [providerOptions, setProviderOptions] = useState([]);
   const [isCorrectionDialogOpen, setIsCorrectionDialogOpen] = useState(false);
@@ -973,6 +993,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [scopeFacilityId, setScopeFacilityId] = useState('');
   const [isScopeResolved, setIsScopeResolved] = useState(false);
   const lastRealtimeRefreshRef = useRef(0);
+  const flowListRequestVersionRef = useRef(0);
 
   const rawTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const rawFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
@@ -1399,34 +1420,87 @@ const useOpdFlowWorkbenchScreen = () => {
 
   const loadFlowList = useCallback(async () => {
     if (!canViewWorkbench || isOffline) return;
-    const params = {
-      page: 1,
+    const searchTerm = sanitizeString(debouncedFlowSearch);
+    const isSearchActive = Boolean(searchTerm);
+    const requestVersion = flowListRequestVersionRef.current + 1;
+    flowListRequestVersionRef.current = requestVersion;
+
+    const baseParams = {
       limit: 25,
       sort_by: 'started_at',
       order: 'desc',
     };
-    if (debouncedFlowSearch) {
-      params.search = debouncedFlowSearch;
+    if (searchTerm) {
+      baseParams.search = searchTerm;
     }
 
     if (!canManageAllTenants) {
-      params.tenant_id = scopeTenantId;
+      baseParams.tenant_id = scopeTenantId;
       if (scopeFacilityId) {
-        params.facility_id = scopeFacilityId;
+        baseParams.facility_id = scopeFacilityId;
       }
     }
 
     resetOpdFlowCrud();
-    const result = await listOpdFlows(params);
-    if (!result) return;
-    const items = resolveListItems(result);
-    setFlowList(items);
-    setPagination(result?.pagination || null);
-    if (items.length > 0) {
-      setSelectedFlowId((previous) => {
-        if (previous && !isUuidLike(previous)) return previous;
-        return resolveEncounterPublicId(items[0]) || '';
-      });
+    if (isSearchActive) {
+      setIsFlowSearchLoading(true);
+    }
+
+    let page = 1;
+    let hasNextPage = true;
+    let aggregatedItems = [];
+    let paginationResult = null;
+
+    try {
+      while (hasNextPage) {
+        const result = await listOpdFlows({
+          ...baseParams,
+          page,
+        });
+
+        if (flowListRequestVersionRef.current !== requestVersion) {
+          return;
+        }
+        if (!result) {
+          break;
+        }
+
+        paginationResult = result?.pagination || paginationResult;
+        const pageItems = resolveListItems(result);
+        if (pageItems.length > 0) {
+          aggregatedItems = aggregatedItems.concat(pageItems);
+        }
+
+        const canFetchNextPage = Boolean(result?.pagination?.hasNextPage);
+        hasNextPage = isSearchActive && canFetchNextPage;
+        if (hasNextPage) {
+          page += 1;
+        }
+      }
+
+      if (flowListRequestVersionRef.current !== requestVersion) {
+        return;
+      }
+
+      const items = dedupeFlowListItems(aggregatedItems);
+      setFlowList(items);
+      setPagination(paginationResult);
+      if (items.length > 0) {
+        setSelectedFlowId((previous) => {
+          const previousId = sanitizeString(previous);
+          if (previousId && items.some((item) => matchesEncounterIdentifier(item, previousId))) {
+            return previousId;
+          }
+          return resolveEncounterPublicId(items[0]) || '';
+        });
+      } else {
+        setSelectedFlowId('');
+        setSelectedFlow(null);
+      }
+    } finally {
+      if (flowListRequestVersionRef.current === requestVersion) {
+        setIsFlowSearchLoading(false);
+      }
     }
   }, [
     canViewWorkbench,
@@ -2400,6 +2474,7 @@ const useOpdFlowWorkbenchScreen = () => {
     startProviderSearchText,
     assignProviderSearchText,
     flowSearchText,
+    isFlowSearchLoading,
     startPatientOptions: resolvedStartPatientOptions,
     providerOptions: resolvedProviderOptions,
     contextPatientAgeLabel,

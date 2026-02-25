@@ -6798,7 +6798,7 @@
         "title": "OPD Flows",
         "count": "{{count}} active flows",
         "searchLabel": "Find flow",
-        "searchPlaceholder": "Search by patient, flow ID, queue, stage",
+        "searchPlaceholder": "Search by patient name, patient ID, identifiers, contacts, guardians, provider, or flow ID",
         "itemTitle": "Flow {{id}}",
         "unknownFlow": "Unknown flow"
       },
