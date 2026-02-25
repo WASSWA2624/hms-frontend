@@ -2,6 +2,7 @@ const { renderHook, act, waitFor } = require('@testing-library/react-native');
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
+const mockSetParams = jest.fn();
 const mockList = jest.fn();
 const mockGet = jest.fn();
 const mockStart = jest.fn();
@@ -22,6 +23,7 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
     replace: mockReplace,
+    setParams: mockSetParams,
   }),
   useLocalSearchParams: jest.fn(() => ({})),
 }));
@@ -366,6 +368,48 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
 
     jest.useRealTimers();
+  });
+
+  it('selects an OPD flow in-place and syncs URL params without pushing history', async () => {
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(result.current.flowList.length).toBeGreaterThan(0));
+
+    mockPush.mockClear();
+    mockReplace.mockClear();
+    mockSetParams.mockClear();
+
+    act(() => {
+      result.current.onSelectFlow(result.current.flowList[0]);
+    });
+
+    expect(result.current.selectedFlowId).toBe('enc-1');
+    expect(result.current.selectedFlow).toMatchObject({ id: 'enc-1' });
+    expect(mockSetParams).toHaveBeenCalledWith({ id: 'enc-1' });
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('keeps workbench UI non-blocking while selected-flow snapshot refresh is in progress', async () => {
+    const deferredSnapshot = createDeferred();
+    mockGet.mockImplementation(() => deferredSnapshot.promise);
+
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+
+    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(result.current.isSelectedFlowLoading).toBe(true));
+
+    expect(result.current.isLoading).toBe(false);
+
+    await act(async () => {
+      deferredSnapshot.resolve(buildSnapshot('enc-1', 'WAITING_VITALS'));
+      await Promise.resolve();
+    });
+
+    await waitFor(() => expect(result.current.isSelectedFlowLoading).toBe(false));
+    expect(result.current.isLoading).toBe(false);
   });
 
   it('refreshes selected flow when receiving realtime OPD updates', async () => {

@@ -1221,6 +1221,11 @@ const OpdFlowWorkbenchScreen = () => {
                   <Text variant="caption" testID="opd-workbench-stage-label">
                     {activeStage ? t(screen.stageLabelKey) : t('scheduling.opdFlow.stages.UNKNOWN')}
                   </Text>
+                  {screen.isSelectedFlowLoading ? (
+                    <Text variant="caption" testID="opd-workbench-selected-flow-loading">
+                      {t('common.loading')}
+                    </Text>
+                  ) : null}
                   {canCorrectStage && activeFlow ? (
                     <Button
                       variant="surface"

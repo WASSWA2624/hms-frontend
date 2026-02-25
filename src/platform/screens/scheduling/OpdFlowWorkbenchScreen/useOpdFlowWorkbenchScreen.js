@@ -985,6 +985,8 @@ const useOpdFlowWorkbenchScreen = () => {
   const [flowSearchText, setFlowSearchText] = useState('');
   const [debouncedFlowSearch, setDebouncedFlowSearch] = useState('');
   const [isFlowSearchLoading, setIsFlowSearchLoading] = useState(false);
+  const [isSelectedFlowLoading, setIsSelectedFlowLoading] = useState(false);
+  const [hasBootstrappedFlowList, setHasBootstrappedFlowList] = useState(false);
   const [startPatientOptions, setStartPatientOptions] = useState([]);
   const [providerOptions, setProviderOptions] = useState([]);
   const [isCorrectionDialogOpen, setIsCorrectionDialogOpen] = useState(false);
@@ -994,6 +996,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [isScopeResolved, setIsScopeResolved] = useState(false);
   const lastRealtimeRefreshRef = useRef(0);
   const flowListRequestVersionRef = useRef(0);
+  const selectedFlowRequestVersionRef = useRef(0);
 
   const rawTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const rawFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
@@ -1418,6 +1421,28 @@ const useOpdFlowWorkbenchScreen = () => {
     });
   }, []);
 
+  const syncSelectedFlowUrl = useCallback(
+    (flowPublicId = '') => {
+      const normalizedFlowPublicId = sanitizeString(flowPublicId);
+      if (!normalizedFlowPublicId || isUuidLike(normalizedFlowPublicId)) {
+        router.replace('/scheduling/opd-flows');
+        return;
+      }
+
+      if (typeof router?.setParams === 'function') {
+        try {
+          router.setParams({ id: normalizedFlowPublicId });
+          return;
+        } catch (_error) {
+          // Fallback to replace when setParams is unavailable in the current router context.
+        }
+      }
+
+      router.replace(`/scheduling/opd-flows?id=${encodeURIComponent(normalizedFlowPublicId)}`);
+    },
+    [router]
+  );
+
   const loadFlowList = useCallback(async () => {
     if (!canViewWorkbench || isOffline) return;
     const searchTerm = sanitizeString(debouncedFlowSearch);
@@ -1500,6 +1525,7 @@ const useOpdFlowWorkbenchScreen = () => {
     } finally {
       if (flowListRequestVersionRef.current === requestVersion) {
         setIsFlowSearchLoading(false);
+        setHasBootstrappedFlowList(true);
       }
     }
   }, [
@@ -1514,11 +1540,26 @@ const useOpdFlowWorkbenchScreen = () => {
   ]);
 
   const loadSelectedFlow = useCallback(async () => {
-    if (!canViewWorkbench || !selectedFlowId || isUuidLike(selectedFlowId) || isOffline) return;
-    const snapshot = await getOpdFlow(selectedFlowId);
-    if (!snapshot) return;
-    setSelectedFlow(snapshot);
-    upsertFlowInList(snapshot);
+    if (!canViewWorkbench || !selectedFlowId || isUuidLike(selectedFlowId) || isOffline) {
+      selectedFlowRequestVersionRef.current += 1;
+      setIsSelectedFlowLoading(false);
+      return;
+    }
+
+    const requestVersion = selectedFlowRequestVersionRef.current + 1;
+    selectedFlowRequestVersionRef.current = requestVersion;
+    setIsSelectedFlowLoading(true);
+
+    try {
+      const snapshot = await getOpdFlow(selectedFlowId);
+      if (selectedFlowRequestVersionRef.current !== requestVersion || !snapshot) return;
+      setSelectedFlow(snapshot);
+      upsertFlowInList(snapshot);
+    } finally {
+      if (selectedFlowRequestVersionRef.current === requestVersion) {
+        setIsSelectedFlowLoading(false);
+      }
+    }
   }, [canViewWorkbench, isOffline, getOpdFlow, selectedFlowId, upsertFlowInList]);
 
   useEffect(() => {
@@ -1766,13 +1807,13 @@ const useOpdFlowWorkbenchScreen = () => {
       setSelectedFlowId(snapshotId);
       upsertFlowInList(snapshot);
       if (pushRoute && snapshotPublicId) {
-        router.push(`/scheduling/opd-flows/${snapshotPublicId}`);
+        syncSelectedFlowUrl(snapshotPublicId);
       }
       resetDrafts();
       setIsStartFormOpen(false);
       setIsStartAdvancedOpen(false);
     },
-    [router, upsertFlowInList, resetDrafts]
+    [upsertFlowInList, resetDrafts, syncSelectedFlowUrl]
   );
 
   const handleSelectFlow = useCallback(
@@ -1783,10 +1824,10 @@ const useOpdFlowWorkbenchScreen = () => {
       setSelectedFlowId(flowId);
       setSelectedFlow(flowItem);
       if (flowPublicId) {
-        router.push(`/scheduling/opd-flows/${flowPublicId}`);
+        syncSelectedFlowUrl(flowPublicId);
       }
     },
-    [router]
+    [syncSelectedFlowUrl]
   );
 
   const handleStartDraftChange = useCallback((field, value) => {
@@ -2373,12 +2414,8 @@ const useOpdFlowWorkbenchScreen = () => {
   }, [contextPatient, router, startDraft.patient_id, startLinkedPatient]);
 
   const handleOpenOpdShortcut = useCallback(() => {
-    if (activeFlowPublicId) {
-      router.push(`/scheduling/opd-flows/${activeFlowPublicId}`);
-      return;
-    }
-    router.push('/scheduling/opd-flows');
-  }, [activeFlowPublicId, router]);
+    syncSelectedFlowUrl(activeFlowPublicId);
+  }, [activeFlowPublicId, syncSelectedFlowUrl]);
 
   const timeline = useMemo(
     () =>
@@ -2422,7 +2459,7 @@ const useOpdFlowWorkbenchScreen = () => {
     canManageAllTenants,
     tenantId: scopeTenantId || null,
     facilityId: scopeFacilityId || null,
-    isLoading: !isResolved || !isScopeResolved || isCrudLoading,
+    isLoading: !isResolved || !isScopeResolved || (!hasBootstrappedFlowList && isCrudLoading),
     isOffline,
     hasError: Boolean(errorCode),
     errorCode,
@@ -2475,6 +2512,7 @@ const useOpdFlowWorkbenchScreen = () => {
     assignProviderSearchText,
     flowSearchText,
     isFlowSearchLoading,
+    isSelectedFlowLoading,
     startPatientOptions: resolvedStartPatientOptions,
     providerOptions: resolvedProviderOptions,
     contextPatientAgeLabel,

@@ -146,6 +146,7 @@ const buildBaseHook = () => ({
   isPatientLookupLoading: false,
   isAppointmentLookupLoading: false,
   isFlowSearchLoading: false,
+  isSelectedFlowLoading: false,
   contextPatientAgeLabel: '',
   timeline: [],
   timelineItems: [],
@@ -246,6 +247,18 @@ describe('OpdFlowWorkbenchScreen', () => {
 
     const { getByTestId } = renderWithTheme(<OpdFlowWorkbenchScreen />);
     expect(getByTestId('opd-workbench-flow-search-loading')).toBeTruthy();
+  });
+
+  it('keeps workbench content visible and shows inline selected-flow loading state', () => {
+    const hookValue = buildBaseHook();
+    hookValue.isLoading = false;
+    hookValue.isSelectedFlowLoading = true;
+    useOpdFlowWorkbenchScreen.mockReturnValue(hookValue);
+
+    const { getByTestId, queryByTestId } = renderWithTheme(<OpdFlowWorkbenchScreen />);
+    expect(getByTestId('opd-workbench-selected-flow-loading')).toBeTruthy();
+    expect(getByTestId('opd-workbench-list-item-1')).toBeTruthy();
+    expect(queryByTestId('opd-workbench-loading')).toBeNull();
   });
 
   it('toggles start form visibility when requested', () => {
