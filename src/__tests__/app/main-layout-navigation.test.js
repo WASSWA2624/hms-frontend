@@ -13,7 +13,7 @@ import { useShellBanners } from '@hooks';
 import { useAuthGuard } from '@navigation/guards';
 import useMainRouteLayoutNative from '@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutNative';
 import useMainRouteLayoutWeb from '@platform/layouts/RouteLayouts/MainRouteLayout/useMainRouteLayoutWeb';
-import { AppFrame } from '@platform/layouts';
+import AppFrame from '@platform/layouts/AppFrame';
 
 const mockEnTranslations = require('@i18n/locales/en.json');
 
@@ -93,16 +93,15 @@ jest.mock('@platform/components', () => ({
   ThemeControls: jest.fn(({ testID }) => <div testID={testID} />),
 }));
 
-jest.mock('@platform/layouts', () => ({
-  AppFrame: jest.fn(({ children, header, sidebar, footer }) => (
+jest.mock('@platform/layouts/AppFrame', () =>
+  jest.fn(({ children, header, sidebar, footer }) => (
     <div testID="app-frame">
       {header}
       {sidebar}
       {children}
       {footer}
     </div>
-  )),
-}));
+  )));
 
 jest.mock('expo-router', () => ({
   Slot: ({ testID }) => {

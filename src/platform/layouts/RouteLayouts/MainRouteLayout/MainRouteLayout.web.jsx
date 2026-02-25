@@ -11,7 +11,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Slot } from 'expo-router';
 import { useAuthGuard } from '@navigation/guards';
-import { AppFrame } from '@platform/layouts';
+import AppFrame from '@platform/layouts/AppFrame';
 import {
   Breadcrumbs,
   GlobalHeader,

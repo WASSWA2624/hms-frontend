@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import { Slot } from 'expo-router';
 import { useI18n, useShellBanners } from '@hooks';
 import { getMenuIconGlyph } from '@config/sideMenu';
-import { AppFrame } from '@platform/layouts';
+import AppFrame from '@platform/layouts/AppFrame';
 import {
   Breadcrumbs,
   GlobalHeader,
