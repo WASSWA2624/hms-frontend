@@ -50,4 +50,18 @@ describe('crud api helpers', () => {
   it('throws for missing endpoints', () => {
     expect(() => createCrudApi({})).toThrow('Missing endpoint');
   });
+
+  it('allows APIs without delete endpoint but blocks remove()', async () => {
+    const endpoints = {
+      LIST: '/items',
+      CREATE: '/items',
+      GET: (id) => `/items/${id}`,
+      UPDATE: (id) => `/items/${id}`,
+    };
+
+    const api = createCrudApi(endpoints);
+
+    await api.list();
+    expect(() => api.remove('1')).toThrow('Missing endpoint: DELETE');
+  });
 });

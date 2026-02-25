@@ -33,7 +33,7 @@ const createCrudApi = (endpoints) => {
   const createUrl = ensureEndpoint(endpoints?.CREATE || endpoints?.LIST, 'CREATE');
   const getUrl = ensureEndpoint(endpoints?.GET, 'GET');
   const updateUrl = ensureEndpoint(endpoints?.UPDATE, 'UPDATE');
-  const deleteUrl = ensureEndpoint(endpoints?.DELETE, 'DELETE');
+  const deleteUrl = endpoints?.DELETE;
 
   return {
     list: (params = {}) =>
@@ -60,7 +60,7 @@ const createCrudApi = (endpoints) => {
       }),
     remove: (id) =>
       apiClient({
-        url: deleteUrl(id),
+        url: ensureEndpoint(deleteUrl, 'DELETE')(id),
         method: 'DELETE',
       }),
   };
