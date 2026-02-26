@@ -227,4 +227,56 @@ describe('usePatientLegalHubScreen', () => {
       version_label: 'v2.1',
     });
   });
+
+  it('syncs route with mode=create when starting create from toolbar', () => {
+    mockSearchParams = { tab: 'consents' };
+
+    const { result } = renderHook(() => usePatientLegalHubScreen());
+
+    act(() => {
+      result.current.onStartCreate();
+    });
+
+    expect(mockReplace).toHaveBeenCalledWith('/patients/legal?tab=consents&mode=create');
+  });
+
+  it('syncs route with mode=edit and recordId when editing consent', () => {
+    mockSearchParams = { tab: 'consents' };
+
+    const { result } = renderHook(() => usePatientLegalHubScreen());
+
+    act(() => {
+      result.current.onStartEdit({
+        id: 'consent-9',
+        record: {
+          patient_id: 'patient-1',
+          consent_type: 'TREATMENT',
+          status: 'GRANTED',
+          granted_at: '2026-02-20T00:00:00.000Z',
+          revoked_at: '',
+        },
+      });
+    });
+
+    expect(mockReplace).toHaveBeenCalledWith('/patients/legal?tab=consents&mode=edit&recordId=consent-9');
+  });
+
+  it('clears mode/record params when closing editor', async () => {
+    mockSearchParams = { tab: 'consents', mode: 'create' };
+
+    const { result } = renderHook(() => usePatientLegalHubScreen());
+
+    await waitFor(() => {
+      expect(result.current.editor).toMatchObject({
+        tab: 'consents',
+        mode: 'create',
+      });
+    });
+
+    act(() => {
+      result.current.onCloseEditor();
+    });
+
+    expect(mockReplace).toHaveBeenCalledWith('/patients/legal?tab=consents');
+  });
 });

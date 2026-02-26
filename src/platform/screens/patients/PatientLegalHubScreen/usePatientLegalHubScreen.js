@@ -150,6 +150,10 @@ const usePatientLegalHubScreen = () => {
       : null
   );
 
+  const syncRouteState = useCallback((tab, mode = '', recordId = '') => {
+    router.replace(buildLegalPath(tab, mode, recordId));
+  }, [router]);
+
   useEffect(() => {
     if (!isResolved) return;
     if (!canAccessPatients || !hasScope) {
@@ -516,25 +520,39 @@ const usePatientLegalHubScreen = () => {
 
     if (activeTab === 'consents') {
       openCreateConsentEditor();
+      syncRouteState('consents', 'create');
       return;
     }
 
     openCreateTermsEditor();
+    syncRouteState('terms', 'create');
   }, [
     canManagePatientRecords,
     activeTab,
     openCreateConsentEditor,
     openCreateTermsEditor,
+    syncRouteState,
   ]);
 
   const onStartEdit = useCallback((row) => {
     if (!canManagePatientRecords || activeTab !== 'consents') return;
+
+    const rowId = sanitizeString(row?.id);
+    if (!rowId) return;
+
     openEditConsentEditor(row);
-  }, [canManagePatientRecords, activeTab, openEditConsentEditor]);
+    syncRouteState('consents', 'edit', rowId);
+  }, [
+    canManagePatientRecords,
+    activeTab,
+    openEditConsentEditor,
+    syncRouteState,
+  ]);
 
   const onCloseEditor = useCallback(() => {
     setEditor(null);
-  }, []);
+    syncRouteState(activeTab);
+  }, [activeTab, syncRouteState]);
 
   const onEditorChange = useCallback((name, value) => {
     setEditor((current) => {
@@ -663,8 +681,8 @@ const usePatientLegalHubScreen = () => {
     const normalizedTab = sanitizeTab(tab);
     setEditor(null);
     setPendingRouteIntent(null);
-    router.replace(buildLegalPath(normalizedTab));
-  }, [router]);
+    syncRouteState(normalizedTab);
+  }, [syncRouteState]);
 
   const onRetry = useCallback(() => {
     if (activeTab === 'consents') {

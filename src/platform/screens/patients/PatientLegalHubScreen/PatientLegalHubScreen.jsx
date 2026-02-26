@@ -1,7 +1,7 @@
 import React from 'react';
+import { useWindowDimensions } from 'react-native';
 import {
   Button,
-  Card,
   EmptyState,
   ErrorState,
   ErrorStateSizes,
@@ -15,21 +15,37 @@ import {
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
+import breakpoints from '@theme/breakpoints';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import FieldHelpTrigger from '../components/FieldHelpTrigger';
 import {
+  StyledActionButton,
   StyledActions,
   StyledContainer,
+  StyledContentCard,
   StyledField,
   StyledForm,
   StyledFormActions,
   StyledHeader,
+  StyledHeaderEyebrow,
+  StyledHeroCard,
+  StyledInlineBadge,
+  StyledInlineBadgeLabel,
   StyledList,
+  StyledListHeader,
+  StyledListItemActions,
   StyledListItem,
   StyledListItemHeader,
+  StyledListItemTitleBlock,
+  StyledRecordMetaList,
+  StyledSectionMeta,
+  StyledTabButton,
   StyledTabRow,
+  StyledTabSlot,
 } from './PatientLegalHubScreen.styles';
 import usePatientLegalHubScreen from './usePatientLegalHubScreen';
+
+const sanitizeString = (value) => String(value || '').trim();
 
 const resolveTextValue = (event) => (
   event?.target?.value
@@ -37,8 +53,27 @@ const resolveTextValue = (event) => (
   ?? ''
 );
 
+const resolveTabIcon = (tab) => (
+  tab === 'terms' ? '\u270d' : '\u2696'
+);
+
+const resolveActiveTabDescription = (tab, t) => (
+  tab === 'terms'
+    ? t('patients.resources.termsAcceptances.overviewDescription')
+    : t('patients.resources.consents.overviewDescription')
+);
+
+const resolveRecordsMeta = (tab, count, t) => {
+  const resourceLabel = tab === 'terms'
+    ? t('patients.resources.termsAcceptances.pluralLabel')
+    : t('patients.resources.consents.pluralLabel');
+  return `${count} ${resourceLabel}`;
+};
+
 const PatientLegalHubScreen = () => {
   const { t } = useI18n();
+  const { width } = useWindowDimensions();
+  const isCompactLayout = width < breakpoints.tablet;
   const {
     activeTab,
     tabs,
@@ -66,6 +101,9 @@ const PatientLegalHubScreen = () => {
     onGoToSubscriptions,
   } = usePatientLegalHubScreen();
 
+  const recordsMeta = resolveRecordsMeta(activeTab, rows.length, t);
+  const activeTabDescription = resolveActiveTabDescription(activeTab, t);
+
   const renderEditor = () => {
     if (!editor) return null;
 
@@ -74,9 +112,23 @@ const PatientLegalHubScreen = () => {
     const formModeLabel = editor.mode === 'edit'
       ? t('patients.common.form.modeEdit')
       : t('patients.common.form.modeCreate');
+    const editorTitle = isConsentEditor
+      ? (
+        editor.mode === 'edit'
+          ? t('patients.resources.consents.form.editTitle')
+          : t('patients.resources.consents.form.createTitle')
+      )
+      : t('patients.resources.termsAcceptances.form.createTitle');
 
     return (
-      <Card variant="outlined">
+      <StyledContentCard variant="outlined" testID="patient-legal-editor-card">
+        <StyledListHeader>
+          <Text variant="h3">{editorTitle}</Text>
+          <StyledInlineBadge>
+            <StyledInlineBadgeLabel>{formModeLabel}</StyledInlineBadgeLabel>
+          </StyledInlineBadge>
+        </StyledListHeader>
+
         <StyledForm>
           <StyledField>
             <FieldHelpTrigger
@@ -209,57 +261,71 @@ const PatientLegalHubScreen = () => {
             {t('patients.legal.actions.save')}
           </Button>
         </StyledFormActions>
-      </Card>
+      </StyledContentCard>
     );
   };
 
   return (
     <StyledContainer>
-      <StyledHeader>
-        <Text variant="h2" accessibilityRole="header">{t('patients.legal.title')}</Text>
-        <Text variant="body">{t('patients.legal.description')}</Text>
-      </StyledHeader>
+      <StyledHeroCard variant="outlined" testID="patient-legal-navigation-card">
+        <StyledHeader>
+          <StyledHeaderEyebrow>{t('patients.workspace.title')}</StyledHeaderEyebrow>
+          <Text variant="h2" accessibilityRole="header">{t('patients.legal.title')}</Text>
+          <Text variant="body">{t('patients.legal.description')}</Text>
+          <StyledSectionMeta>{activeTabDescription}</StyledSectionMeta>
+        </StyledHeader>
 
-      <StyledTabRow>
-        {tabs.map((tab) => (
-          <Button
-            key={tab}
-            variant={tab === activeTab ? 'primary' : 'surface'}
-            size="medium"
-            onPress={() => onSelectTab(tab)}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: tab === activeTab }}
-            accessibilityLabel={t(`patients.legal.tabs.${tab}`)}
-            testID={`patient-legal-tab-${tab}`}
-            icon={<Icon glyph={tab === activeTab ? '\u25cf' : '\u25cb'} size="xs" decorative />}
-          >
-            {t(`patients.legal.tabs.${tab}`)}
-          </Button>
-        ))}
-      </StyledTabRow>
+        <StyledTabRow>
+          {tabs.map((tab) => (
+            <StyledTabSlot key={tab} $isCompact={isCompactLayout}>
+              <StyledTabButton
+                variant={tab === activeTab ? 'primary' : 'surface'}
+                size="small"
+                onPress={() => onSelectTab(tab)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: tab === activeTab }}
+                accessibilityLabel={t(`patients.legal.tabs.${tab}`)}
+                testID={`patient-legal-tab-${tab}`}
+                icon={
+                  <Icon
+                    glyph={resolveTabIcon(tab)}
+                    size="xs"
+                    decorative
+                    tone={tab === activeTab ? 'inverse' : 'default'}
+                  />
+                }
+              >
+                {t(`patients.legal.tabs.${tab}`)}
+              </StyledTabButton>
+            </StyledTabSlot>
+          ))}
+        </StyledTabRow>
 
-      <StyledActions>
-        <Button
-          variant="surface"
-          size="medium"
-          onPress={onRetry}
-          accessibilityLabel={t('patients.legal.actions.refresh')}
-          icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
-        >
-          {t('patients.legal.actions.refresh')}
-        </Button>
-        {canManagePatientRecords ? (
-          <Button
+        <StyledActions>
+          <StyledActionButton
+            $isCompact={isCompactLayout}
             variant="surface"
-            size="medium"
-            onPress={onStartCreate}
-            accessibilityLabel={t('patients.legal.actions.newRecord')}
-            icon={<Icon glyph="+" size="xs" decorative />}
+            size="small"
+            onPress={onRetry}
+            accessibilityLabel={t('patients.legal.actions.refresh')}
+            icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
           >
-            {t('patients.legal.actions.newRecord')}
-          </Button>
-        ) : null}
-      </StyledActions>
+            {t('patients.legal.actions.refresh')}
+          </StyledActionButton>
+          {canManagePatientRecords ? (
+            <StyledActionButton
+              $isCompact={isCompactLayout}
+              variant="surface"
+              size="small"
+              onPress={onStartCreate}
+              accessibilityLabel={t('patients.legal.actions.newRecord')}
+              icon={<Icon glyph="+" size="xs" decorative />}
+            >
+              {t('patients.legal.actions.newRecord')}
+            </StyledActionButton>
+          ) : null}
+        </StyledActions>
+      </StyledHeroCard>
 
       {isLoading ? <LoadingSpinner accessibilityLabel={t('common.loading')} /> : null}
 
@@ -293,7 +359,12 @@ const PatientLegalHubScreen = () => {
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && !hasError ? (
-        <Card variant="outlined">
+        <StyledContentCard variant="outlined" testID="patient-legal-records-card">
+          <StyledListHeader>
+            <Text variant="h3">{t(`patients.legal.tabs.${activeTab}`)}</Text>
+            <StyledSectionMeta>{recordsMeta}</StyledSectionMeta>
+          </StyledListHeader>
+
           {rows.length === 0 ? (
             <EmptyState
               title={t('patients.legal.state.emptyTab')}
@@ -305,12 +376,20 @@ const PatientLegalHubScreen = () => {
               {rows.map((row) => (
                 <StyledListItem key={row.id || row.title}>
                   <StyledListItemHeader>
-                    <Text variant="label">{row.title}</Text>
-                    <StyledActions>
+                    <StyledListItemTitleBlock>
+                      <Text variant="label">{row.title}</Text>
+                      {activeTab === 'consents' && sanitizeString(row?.record?.status) ? (
+                        <StyledInlineBadge>
+                          <StyledInlineBadgeLabel>{sanitizeString(row?.record?.status)}</StyledInlineBadgeLabel>
+                        </StyledInlineBadge>
+                      ) : null}
+                    </StyledListItemTitleBlock>
+
+                    <StyledListItemActions>
                       {activeTab === 'consents' && canManagePatientRecords ? (
                         <Button
                           variant="surface"
-                          size="medium"
+                          size="small"
                           onPress={() => onStartEdit(row)}
                           accessibilityLabel={t('patients.legal.actions.editRecord')}
                           icon={<Icon glyph={'\u270e'} size="xs" decorative />}
@@ -321,7 +400,7 @@ const PatientLegalHubScreen = () => {
                       {canDeletePatientRecords ? (
                         <Button
                           variant="surface"
-                          size="medium"
+                          size="small"
                           onPress={() => onDeleteRecord(row)}
                           accessibilityLabel={t('patients.legal.actions.deleteRecord')}
                           icon={<Icon glyph={'\u2715'} size="xs" decorative />}
@@ -329,25 +408,27 @@ const PatientLegalHubScreen = () => {
                           {t('patients.legal.actions.deleteRecord')}
                         </Button>
                       ) : null}
-                    </StyledActions>
+                    </StyledListItemActions>
                   </StyledListItemHeader>
 
-                  {row.humanFriendlyId ? (
-                    <Text variant="caption">
-                      {t('patients.legal.labels.recordId')}: {row.humanFriendlyId}
-                    </Text>
-                  ) : null}
+                  <StyledRecordMetaList>
+                    {row.humanFriendlyId ? (
+                      <Text variant="caption">
+                        {t('patients.legal.labels.recordId')}: {row.humanFriendlyId}
+                      </Text>
+                    ) : null}
 
-                  <Text variant="caption">
-                    {activeTab === 'consents'
-                      ? `${t('patients.legal.labels.patient')}: ${row.subtitle || '-'}`
-                      : `${t('patients.legal.labels.user')}: ${row.subtitle || '-'}`}
-                  </Text>
+                    <Text variant="caption">
+                      {activeTab === 'consents'
+                        ? `${t('patients.legal.labels.patient')}: ${row.subtitle || '-'}`
+                        : `${t('patients.legal.labels.user')}: ${row.subtitle || '-'}`}
+                    </Text>
+                  </StyledRecordMetaList>
                 </StyledListItem>
               ))}
             </StyledList>
           )}
-        </Card>
+        </StyledContentCard>
       ) : null}
 
       {!isLoading && !isEntitlementBlocked && canManagePatientRecords ? renderEditor() : null}
