@@ -90,7 +90,9 @@ const toNotificationItems = (
       const timestamp = resolveNotificationTimestamp(notification);
       const type = getNotificationType(notification) || 'SYSTEM';
       const resolvedType =
-        type === 'SYSTEM' && route.startsWith('/scheduling/opd-flows') ? 'OPD' : type;
+        type === 'SYSTEM' && (route.startsWith('/scheduling/opd-flows') || route.startsWith('/clinical'))
+          ? 'OPD'
+          : type;
       const unread = isNotificationUnread(notification);
       const requiresAttention = isOpdNotificationContext(notification) || resolvedType === 'OPD';
 

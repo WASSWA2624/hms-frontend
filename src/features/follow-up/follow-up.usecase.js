@@ -76,4 +76,60 @@ const deleteFollowUp = async (id) =>
     return normalizeFollowUp(response.data);
   });
 
-export { listFollowUps, getFollowUp, createFollowUp, updateFollowUp, deleteFollowUp };
+const completeFollowUp = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseFollowUpId(id);
+    const parsed = parseFollowUpPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.FOLLOW_UPS.COMPLETE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeFollowUp({ id: parsedId, ...parsed, status: 'COMPLETED' });
+    }
+    const response = await followUpApi.complete(parsedId, parsed);
+    return normalizeFollowUp(response.data);
+  });
+
+const cancelFollowUpAction = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseFollowUpId(id);
+    const parsed = parseFollowUpPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.FOLLOW_UPS.CANCEL(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeFollowUp({ id: parsedId, ...parsed, status: 'CANCELLED' });
+    }
+    const response = await followUpApi.cancel(parsedId, parsed);
+    return normalizeFollowUp(response.data);
+  });
+
+const dispatchFollowUpReminders = async (payload = {}) =>
+  execute(async () => {
+    const parsed = parseFollowUpPayload(payload);
+    const response = await followUpApi.dispatchReminders(parsed);
+    return response.data || {};
+  });
+
+const getFollowUpReminderDueSummary = async (params = {}) =>
+  execute(async () => {
+    const parsed = parseFollowUpListParams(params);
+    const response = await followUpApi.getReminderDueSummary(parsed);
+    return response.data || {};
+  });
+
+export {
+  listFollowUps,
+  getFollowUp,
+  createFollowUp,
+  updateFollowUp,
+  deleteFollowUp,
+  completeFollowUp,
+  cancelFollowUpAction,
+  dispatchFollowUpReminders,
+  getFollowUpReminderDueSummary,
+};

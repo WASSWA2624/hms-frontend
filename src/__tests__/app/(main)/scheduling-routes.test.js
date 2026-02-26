@@ -7,10 +7,11 @@ const mockScreens = {
   SchedulingResourceListScreen: jest.fn(() => null),
   SchedulingResourceDetailScreen: jest.fn(() => null),
   SchedulingResourceFormScreen: jest.fn(() => null),
-  OpdFlowWorkbenchScreen: jest.fn(() => null),
   NotFoundScreen: jest.fn(() => null),
 };
 const mockSlot = jest.fn(() => null);
+const mockRedirect = jest.fn(() => null);
+const mockUseLocalSearchParams = jest.fn(() => ({}));
 const mockUsePathname = jest.fn(() => '/scheduling');
 const mockReplace = jest.fn();
 const mockUseSchedulingAccess = jest.fn(() => ({
@@ -23,7 +24,9 @@ const mockLoadingSpinner = jest.fn(() => null);
 
 jest.mock('expo-router', () => ({
   Slot: (props) => mockSlot(props),
+  Redirect: (props) => mockRedirect(props),
   usePathname: () => mockUsePathname(),
+  useLocalSearchParams: () => mockUseLocalSearchParams(),
   useRouter: () => ({ replace: mockReplace }),
 }));
 
@@ -42,7 +45,6 @@ jest.mock('@platform/screens', () => ({
   SchedulingResourceListScreen: (...args) => mockScreens.SchedulingResourceListScreen(...args),
   SchedulingResourceDetailScreen: (...args) => mockScreens.SchedulingResourceDetailScreen(...args),
   SchedulingResourceFormScreen: (...args) => mockScreens.SchedulingResourceFormScreen(...args),
-  OpdFlowWorkbenchScreen: (...args) => mockScreens.OpdFlowWorkbenchScreen(...args),
   NotFoundScreen: (...args) => mockScreens.NotFoundScreen(...args),
 }));
 
@@ -88,11 +90,13 @@ const SCHEDULING_ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/scheduling/opd-flows/index',
-    screenKey: 'OpdFlowWorkbenchScreen',
+    screenKey: 'Redirect',
+    expectedProps: { href: '/clinical' },
   },
   {
     routePath: '../../../app/(main)/scheduling/opd-flows/[id]',
-    screenKey: 'OpdFlowWorkbenchScreen',
+    screenKey: 'Redirect',
+    expectedProps: { href: '/clinical?id=flow-1' },
   },
   {
     routePath: '../../../app/(main)/scheduling/[...missing]',
@@ -105,6 +109,7 @@ describe('Tier 5 Scheduling Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUsePathname.mockReturnValue('/scheduling');
+    mockUseLocalSearchParams.mockReturnValue({ id: 'flow-1' });
     mockUseSchedulingAccess.mockReturnValue({
       canAccessScheduling: true,
       canManageAllTenants: true,
@@ -120,10 +125,16 @@ describe('Tier 5 Scheduling Routes', () => {
     expect(typeof routeModule.default).toBe('function');
 
     render(React.createElement(routeModule.default));
-    expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
+    if (screenKey === 'Redirect') {
+      expect(mockRedirect).toHaveBeenCalledTimes(1);
+    } else {
+      expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
+    }
 
     if (expectedProps) {
-      const calledProps = mockScreens[screenKey].mock.calls[0]?.[0] || {};
+      const calledProps = screenKey === 'Redirect'
+        ? mockRedirect.mock.calls[0]?.[0] || {}
+        : mockScreens[screenKey].mock.calls[0]?.[0] || {};
       expect(calledProps).toMatchObject(expectedProps);
     }
   });

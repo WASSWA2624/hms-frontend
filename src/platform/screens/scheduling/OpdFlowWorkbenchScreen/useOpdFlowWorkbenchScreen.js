@@ -208,6 +208,24 @@ const DISPOSITION_OPTIONS = [
   { value: 'SEND_TO_PHARMACY', labelKey: 'scheduling.opdFlow.options.disposition.sendToPharmacy' },
   { value: 'DISCHARGE', labelKey: 'scheduling.opdFlow.options.disposition.discharge' },
 ];
+const QUEUE_SCOPE_OPTIONS = [
+  {
+    value: 'ASSIGNED_WAITING',
+    label: 'Assigned + Waiting',
+  },
+  {
+    value: 'ASSIGNED',
+    label: 'Assigned',
+  },
+  {
+    value: 'WAITING',
+    label: 'Waiting',
+  },
+  {
+    value: 'ALL',
+    label: 'All',
+  },
+];
 
 const STAGE_ACTION_MAP = {
   WAITING_CONSULTATION_PAYMENT: 'PAY_CONSULTATION',
@@ -912,7 +930,8 @@ const formatRelativeTime = (isoValue, locale = 'en') => {
   }
 };
 
-const useOpdFlowWorkbenchScreen = () => {
+const useOpdFlowWorkbenchScreen = (options = {}) => {
+  const routeBase = sanitizeString(options?.routeBase) || '/scheduling/opd-flows';
   const { t, locale } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
@@ -938,6 +957,7 @@ const useOpdFlowWorkbenchScreen = () => {
     list: listOpdFlows,
     get: getOpdFlow,
     start: startOpdFlow,
+    bootstrap: bootstrapOpdFlow,
     payConsultation,
     recordVitals,
     assignDoctor,
@@ -983,6 +1003,7 @@ const useOpdFlowWorkbenchScreen = () => {
   const [startProviderSearchText, setStartProviderSearchText] = useState('');
   const [assignProviderSearchText, setAssignProviderSearchText] = useState('');
   const [flowSearchText, setFlowSearchText] = useState('');
+  const [queueScope, setQueueScope] = useState('ASSIGNED_WAITING');
   const [debouncedFlowSearch, setDebouncedFlowSearch] = useState('');
   const [isFlowSearchLoading, setIsFlowSearchLoading] = useState(false);
   const [isSelectedFlowLoading, setIsSelectedFlowLoading] = useState(false);
@@ -1379,11 +1400,11 @@ const useOpdFlowWorkbenchScreen = () => {
   useEffect(() => {
     if (!requestedFlowId) return;
     if (isUuidLike(requestedFlowId)) {
-      router.replace('/scheduling/opd-flows');
+      router.replace(routeBase);
       return;
     }
     setSelectedFlowId(requestedFlowId);
-  }, [requestedFlowId, router]);
+  }, [requestedFlowId, routeBase, router]);
 
   useEffect(() => {
     if (startDraft.arrival_mode !== 'ONLINE_APPOINTMENT') {
@@ -1425,7 +1446,7 @@ const useOpdFlowWorkbenchScreen = () => {
     (flowPublicId = '') => {
       const normalizedFlowPublicId = sanitizeString(flowPublicId);
       if (!normalizedFlowPublicId || isUuidLike(normalizedFlowPublicId)) {
-        router.replace('/scheduling/opd-flows');
+        router.replace(routeBase);
         return;
       }
 
@@ -1438,9 +1459,9 @@ const useOpdFlowWorkbenchScreen = () => {
         }
       }
 
-      router.replace(`/scheduling/opd-flows?id=${encodeURIComponent(normalizedFlowPublicId)}`);
+      router.replace(`${routeBase}?id=${encodeURIComponent(normalizedFlowPublicId)}`);
     },
-    [router]
+    [routeBase, router]
   );
 
   const loadFlowList = useCallback(async () => {
@@ -1471,36 +1492,59 @@ const useOpdFlowWorkbenchScreen = () => {
       setIsFlowSearchLoading(true);
     }
 
-    let page = 1;
-    let hasNextPage = true;
-    let aggregatedItems = [];
-    let paginationResult = null;
+    const fetchScopedFlowList = async (scopeValue) => {
+      let page = 1;
+      let hasNextPage = true;
+      let scopedItems = [];
+      let scopedPagination = null;
 
-    try {
       while (hasNextPage) {
-        const result = await listOpdFlows({
+        const params = {
           ...baseParams,
           page,
-        });
-
-        if (flowListRequestVersionRef.current !== requestVersion) {
-          return;
-        }
-        if (!result) {
-          break;
+        };
+        if (scopeValue) {
+          params.queue_scope = scopeValue;
         }
 
-        paginationResult = result?.pagination || paginationResult;
+        const result = await listOpdFlows(params);
+        if (flowListRequestVersionRef.current !== requestVersion) return null;
+        if (!result) break;
+
+        scopedPagination = result?.pagination || scopedPagination;
         const pageItems = resolveListItems(result);
         if (pageItems.length > 0) {
-          aggregatedItems = aggregatedItems.concat(pageItems);
+          scopedItems = scopedItems.concat(pageItems);
         }
 
         const canFetchNextPage = Boolean(result?.pagination?.hasNextPage);
         hasNextPage = isSearchActive && canFetchNextPage;
-        if (hasNextPage) {
-          page += 1;
-        }
+        if (hasNextPage) page += 1;
+      }
+
+      return {
+        items: scopedItems,
+        pagination: scopedPagination,
+      };
+    };
+
+    try {
+      let aggregatedItems = [];
+      let paginationResult = null;
+
+      if (queueScope === 'ASSIGNED_WAITING') {
+        const [assignedResult, waitingResult] = await Promise.all([
+          fetchScopedFlowList('ASSIGNED'),
+          fetchScopedFlowList('WAITING'),
+        ]);
+        if (!assignedResult || !waitingResult) return;
+        aggregatedItems = [...assignedResult.items, ...waitingResult.items];
+        paginationResult = waitingResult.pagination || assignedResult.pagination;
+      } else {
+        const scopedResult = await fetchScopedFlowList(queueScope);
+        if (!scopedResult) return;
+        aggregatedItems = scopedResult.items;
+        paginationResult = scopedResult.pagination;
       }
 
       if (flowListRequestVersionRef.current !== requestVersion) {
@@ -1535,6 +1579,7 @@ const useOpdFlowWorkbenchScreen = () => {
     isOffline,
     scopeTenantId,
     scopeFacilityId,
+    queueScope,
     resetOpdFlowCrud,
     listOpdFlows,
   ]);
@@ -1869,6 +1914,12 @@ const useOpdFlowWorkbenchScreen = () => {
     setFlowSearchText(value);
   }, []);
 
+  const handleQueueScopeChange = useCallback((value) => {
+    const normalized = sanitizeString(value).toUpperCase();
+    if (!QUEUE_SCOPE_OPTIONS.some((option) => option.value === normalized)) return;
+    setQueueScope(normalized);
+  }, []);
+
   const handleStartPatientSelect = useCallback((value) => {
     handleStartDraftChange('patient_id', value);
     setStartLinkedPatient(null);
@@ -1943,7 +1994,24 @@ const useOpdFlowWorkbenchScreen = () => {
       };
     }
 
-    const snapshot = await startOpdFlow(payload);
+    let snapshot = null;
+    const canBootstrapEncounter =
+      patientId &&
+      !appointmentId &&
+      startDraft.arrival_mode === 'WALK_IN' &&
+      !startDraft.pay_now_enabled;
+    if (canBootstrapEncounter) {
+      snapshot = await bootstrapOpdFlow({
+        patient_id: patientId,
+        facility_id: !canManageAllTenants ? scopeFacilityId || undefined : undefined,
+        provider_user_id: sanitizeString(startDraft.provider_user_id) || undefined,
+        encounter_type: 'OPD',
+        reuse_open_encounter: true,
+      });
+    }
+    if (!snapshot) {
+      snapshot = await startOpdFlow(payload);
+    }
     if (!snapshot) return;
 
     applySnapshot(snapshot);
@@ -1960,6 +2028,7 @@ const useOpdFlowWorkbenchScreen = () => {
     scopeTenantId,
     globalCurrency,
     startDraft,
+    bootstrapOpdFlow,
     startOpdFlow,
     applySnapshot,
     loadFlowList,
@@ -2511,6 +2580,8 @@ const useOpdFlowWorkbenchScreen = () => {
     startProviderSearchText,
     assignProviderSearchText,
     flowSearchText,
+    queueScope,
+    queueScopeOptions: QUEUE_SCOPE_OPTIONS,
     isFlowSearchLoading,
     isSelectedFlowLoading,
     startPatientOptions: resolvedStartPatientOptions,
@@ -2548,6 +2619,7 @@ const useOpdFlowWorkbenchScreen = () => {
     onStartProviderSearchChange: handleStartProviderSearchChange,
     onAssignProviderSearchChange: handleAssignProviderSearchChange,
     onFlowSearchChange: handleFlowSearchChange,
+    onQueueScopeChange: handleQueueScopeChange,
     onStartPatientSelect: handleStartPatientSelect,
     onStartProviderSelect: handleStartProviderSelect,
     onAssignProviderSelect: handleAssignProviderSelect,

@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import useCrud from '@hooks/useCrud';
 import {
   assignDoctor,
+  bootstrapOpdFlow,
   correctStage,
   disposition,
   doctorReview,
@@ -22,6 +23,7 @@ const useOpdFlow = () => {
       list: listOpdFlows,
       get: getOpdFlow,
       start: startOpdFlow,
+      bootstrap: bootstrapOpdFlow,
       payConsultation,
       recordVitals,
       assignDoctor,

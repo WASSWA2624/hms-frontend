@@ -1,5 +1,5 @@
-import { ClinicalOverviewScreen } from '@platform/screens';
+import { ClinicalWorkbenchScreen } from '@platform/screens';
 
 export default function ClinicalIndexRoute() {
-  return <ClinicalOverviewScreen />;
+  return <ClinicalWorkbenchScreen />;
 }

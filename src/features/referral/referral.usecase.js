@@ -92,11 +92,62 @@ const redeemReferral = async (id, payload = {}) =>
     return normalizeReferral(response.data);
   });
 
+const approveReferral = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseReferralId(id);
+    const parsed = parseReferralPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.REFERRALS.APPROVE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeReferral({ id: parsedId, ...parsed, status: 'APPROVED' });
+    }
+    const response = await referralApi.approve(parsedId, parsed);
+    return normalizeReferral(response.data);
+  });
+
+const startReferral = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseReferralId(id);
+    const parsed = parseReferralPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.REFERRALS.START(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeReferral({ id: parsedId, ...parsed, status: 'IN_PROGRESS' });
+    }
+    const response = await referralApi.start(parsedId, parsed);
+    return normalizeReferral(response.data);
+  });
+
+const cancelReferral = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseReferralId(id);
+    const parsed = parseReferralPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.REFERRALS.CANCEL(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeReferral({ id: parsedId, ...parsed, status: 'CANCELLED' });
+    }
+    const response = await referralApi.cancel(parsedId, parsed);
+    return normalizeReferral(response.data);
+  });
+
 export {
   listReferrals,
   getReferral,
   createReferral,
   updateReferral,
   deleteReferral,
+  approveReferral,
+  startReferral,
+  cancelReferral,
   redeemReferral,
 };

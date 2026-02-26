@@ -1,5 +1,5 @@
-import { OpdFlowWorkbenchScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function OpdFlowsIndexRoute() {
-  return <OpdFlowWorkbenchScreen />;
+  return <Redirect href="/clinical" />;
 }

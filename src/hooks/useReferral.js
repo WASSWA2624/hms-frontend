@@ -4,11 +4,14 @@
  */
 import useCrud from '@hooks/useCrud';
 import {
+  approveReferral,
+  cancelReferral,
   createReferral,
   deleteReferral,
   getReferral,
   listReferrals,
   redeemReferral,
+  startReferral,
   updateReferral,
 } from '@features/referral';
 
@@ -19,6 +22,9 @@ const useReferral = () =>
     create: createReferral,
     update: updateReferral,
     remove: deleteReferral,
+    approve: approveReferral,
+    start: startReferral,
+    cancel: cancelReferral,
     redeem: redeemReferral,
   });
 

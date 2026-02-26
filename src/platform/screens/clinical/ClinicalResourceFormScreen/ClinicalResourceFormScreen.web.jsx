@@ -11,6 +11,7 @@ import {
   Select,
   Switch,
   Text,
+  TextArea,
   TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
@@ -187,6 +188,27 @@ const ClinicalResourceFormScreenWeb = ({ resourceId }) => {
                 );
               }
 
+              if (field.type === 'textarea') {
+                return (
+                  <StyledFieldGroup key={field.name}>
+                    <TextArea
+                      label={t(field.labelKey)}
+                      placeholder={t(field.placeholderKey)}
+                      value={fieldValue || ''}
+                      onChangeText={(nextValue) => setFieldValue(field.name, nextValue)}
+                      accessibilityLabel={t(field.labelKey)}
+                      accessibilityHint={field.hintKey ? t(field.hintKey) : undefined}
+                      helperText={fieldError || (field.hintKey ? t(field.hintKey) : '')}
+                      errorMessage={fieldError}
+                      required={Boolean(field.required)}
+                      maxLength={field.maxLength}
+                      disabled={isFieldDisabled}
+                      testID={`clinical-resource-form-${field.name}`}
+                    />
+                  </StyledFieldGroup>
+                );
+              }
+
               return (
                 <StyledFieldGroup key={field.name}>
                   <TextField
@@ -200,6 +222,7 @@ const ClinicalResourceFormScreenWeb = ({ resourceId }) => {
                     errorMessage={fieldError}
                     required={Boolean(field.required)}
                     maxLength={field.maxLength}
+                    type={field.type === 'datetime' ? 'datetime-local' : undefined}
                     density="compact"
                     disabled={isFieldDisabled}
                     testID={`clinical-resource-form-${field.name}`}

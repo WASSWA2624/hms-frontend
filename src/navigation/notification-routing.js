@@ -53,7 +53,7 @@ const resolveNotificationIcon = (notification) => {
   const routeHint = String(
     notification?.target_path || notification?.route || notification?.path || ''
   ).toLowerCase();
-  if (routeHint.startsWith('/scheduling/opd-flows')) return '\u2695';
+  if (routeHint.startsWith('/scheduling/opd-flows') || routeHint.startsWith('/clinical')) return '\u2695';
   if (type === 'APPOINTMENT') return '\u{1F4C5}';
   if (type === 'BILLING') return '\u{1F4B3}';
   if (type === 'LAB') return '\u{1F9EA}';
@@ -148,7 +148,7 @@ const buildNotificationRouteCandidates = (
     pushRouteCandidate(candidates, '/communications/messages');
   }
   if (isOpdNotificationContext(notification)) {
-    pushRouteCandidate(candidates, '/scheduling/opd-flows');
+    pushRouteCandidate(candidates, '/clinical');
   }
   if (text.includes('appointment') || text.includes('visit')) {
     pushRouteCandidate(candidates, '/scheduling/appointments');
@@ -171,7 +171,7 @@ const buildNotificationRouteCandidates = (
   if (type === 'BILLING') pushRouteCandidate(candidates, '/billing/invoices');
   if (type === 'LAB') pushRouteCandidate(candidates, '/diagnostics/lab/lab-results');
   if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
-  if (type === 'OPD') pushRouteCandidate(candidates, '/scheduling/opd-flows');
+  if (type === 'OPD') pushRouteCandidate(candidates, '/clinical');
   if (type === 'SYSTEM') pushRouteCandidate(candidates, '/dashboard');
 
   if (fallbackRoute) pushRouteCandidate(candidates, fallbackRoute);

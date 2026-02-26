@@ -76,4 +76,44 @@ const deleteClinicalAlert = async (id) =>
     return normalizeClinicalAlert(response.data);
   });
 
-export { listClinicalAlerts, getClinicalAlert, createClinicalAlert, updateClinicalAlert, deleteClinicalAlert };
+const acknowledgeClinicalAlert = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseClinicalAlertId(id);
+    const parsed = parseClinicalAlertPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.CLINICAL_ALERTS.ACKNOWLEDGE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeClinicalAlert({ id: parsedId, ...parsed, status: 'ACKNOWLEDGED' });
+    }
+    const response = await clinicalAlertApi.acknowledge(parsedId, parsed);
+    return normalizeClinicalAlert(response.data);
+  });
+
+const resolveClinicalAlertAction = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseClinicalAlertId(id);
+    const parsed = parseClinicalAlertPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.CLINICAL_ALERTS.RESOLVE(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeClinicalAlert({ id: parsedId, ...parsed, status: 'RESOLVED' });
+    }
+    const response = await clinicalAlertApi.resolve(parsedId, parsed);
+    return normalizeClinicalAlert(response.data);
+  });
+
+export {
+  listClinicalAlerts,
+  getClinicalAlert,
+  createClinicalAlert,
+  updateClinicalAlert,
+  deleteClinicalAlert,
+  acknowledgeClinicalAlert,
+  resolveClinicalAlertAction,
+};

@@ -698,9 +698,9 @@ const VITAL_TYPE_OPTIONS = [
 ];
 
 const REFERRAL_CREATE_STATUS_OPTIONS = [
-  { value: 'PENDING', labelKey: 'clinical.options.referralStatus.pending' },
+  { value: 'REQUESTED', labelKey: 'clinical.options.referralStatus.requested' },
   { value: 'APPROVED', labelKey: 'clinical.options.referralStatus.approved' },
-  { value: 'REJECTED', labelKey: 'clinical.options.referralStatus.rejected' },
+  { value: 'IN_PROGRESS', labelKey: 'clinical.options.referralStatus.inProgress' },
   { value: 'COMPLETED', labelKey: 'clinical.options.referralStatus.completed' },
   { value: 'CANCELLED', labelKey: 'clinical.options.referralStatus.cancelled' },
 ];
@@ -750,6 +750,20 @@ const CRITICAL_ALERT_SEVERITY_OPTIONS = [
   { value: 'MEDIUM', labelKey: 'clinical.options.criticalAlertSeverity.medium' },
   { value: 'HIGH', labelKey: 'clinical.options.criticalAlertSeverity.high' },
   { value: 'CRITICAL', labelKey: 'clinical.options.criticalAlertSeverity.critical' },
+];
+const CLINICAL_ALERT_STATUS_OPTIONS = [
+  { value: 'OPEN', labelKey: 'clinical.options.status.open' },
+  { value: 'ACKNOWLEDGED', labelKey: 'clinical.options.status.inProgress' },
+  { value: 'RESOLVED', labelKey: 'clinical.options.status.completed' },
+];
+const CLINICAL_ALERT_SOURCE_OPTIONS = [
+  { value: 'MANUAL', labelKey: 'clinical.options.status.pending' },
+  { value: 'AUTO_VITAL', labelKey: 'clinical.options.status.active' },
+];
+const FOLLOW_UP_STATUS_OPTIONS = [
+  { value: 'SCHEDULED', labelKey: 'clinical.options.status.planned' },
+  { value: 'COMPLETED', labelKey: 'clinical.options.status.completed' },
+  { value: 'CANCELLED', labelKey: 'clinical.options.status.cancelled' },
 ];
 
 const THEATRE_CASE_STATUS_OPTIONS = [
@@ -2554,7 +2568,7 @@ const resourceConfigs = {
       },
       {
         name: 'note',
-        type: 'text',
+        type: 'textarea',
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.clinicalNotes.form.noteLabel',
@@ -2630,7 +2644,7 @@ const resourceConfigs = {
       },
       {
         name: 'description',
-        type: 'text',
+        type: 'textarea',
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.diagnoses.form.descriptionLabel',
@@ -2700,7 +2714,7 @@ const resourceConfigs = {
       },
       {
         name: 'description',
-        type: 'text',
+        type: 'textarea',
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.procedures.form.descriptionLabel',
@@ -2709,7 +2723,7 @@ const resourceConfigs = {
       },
       {
         name: 'performed_at',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.procedures.form.performedAtLabel',
@@ -2853,7 +2867,7 @@ const resourceConfigs = {
       },
       {
         name: 'recorded_at',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.vitalSigns.form.recordedAtLabel',
@@ -2978,7 +2992,7 @@ const resourceConfigs = {
       },
       {
         name: 'plan',
-        type: 'text',
+        type: 'textarea',
         required: true,
         labelKey: 'clinical.resources.carePlans.form.planLabel',
         placeholderKey: 'clinical.resources.carePlans.form.planPlaceholder',
@@ -2986,7 +3000,7 @@ const resourceConfigs = {
       },
       {
         name: 'start_date',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.carePlans.form.startDateLabel',
@@ -2995,7 +3009,7 @@ const resourceConfigs = {
       },
       {
         name: 'end_date',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.carePlans.form.endDateLabel',
@@ -3071,8 +3085,26 @@ const resourceConfigs = {
         options: CRITICAL_ALERT_SEVERITY_OPTIONS,
       },
       {
+        name: 'status',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.clinicalAlerts.form.statusLabel',
+        placeholderKey: 'clinical.resources.clinicalAlerts.form.statusPlaceholder',
+        hintKey: 'clinical.resources.clinicalAlerts.form.statusHint',
+        options: CLINICAL_ALERT_STATUS_OPTIONS,
+      },
+      {
+        name: 'source',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.clinicalAlerts.form.sourceLabel',
+        placeholderKey: 'clinical.resources.clinicalAlerts.form.sourcePlaceholder',
+        hintKey: 'clinical.resources.clinicalAlerts.form.sourceHint',
+        options: CLINICAL_ALERT_SOURCE_OPTIONS,
+      },
+      {
         name: 'message',
-        type: 'text',
+        type: 'textarea',
         required: true,
         maxLength: 2000,
         labelKey: 'clinical.resources.clinicalAlerts.form.messageLabel',
@@ -3089,11 +3121,15 @@ const resourceConfigs = {
     getInitialValues: (record, context) => ({
       encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
       severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      status: sanitizeString(record?.status || context?.status || 'OPEN'),
+      source: sanitizeString(record?.source || context?.source || 'MANUAL'),
       message: sanitizeString(record?.message),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         severity: sanitizeString(values.severity),
+        status: sanitizeString(values.status) || undefined,
+        source: sanitizeString(values.source) || undefined,
         message: sanitizeString(values.message),
       };
       if (!isEdit) {
@@ -3105,6 +3141,8 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.clinicalAlerts.detail.idLabel', valueKey: 'id' },
       { labelKey: 'clinical.resources.clinicalAlerts.detail.encounterLabel', valueKey: 'encounter_id' },
       { labelKey: 'clinical.resources.clinicalAlerts.detail.severityLabel', valueKey: 'severity' },
+      { labelKey: 'clinical.resources.clinicalAlerts.detail.statusLabel', valueKey: 'status' },
+      { labelKey: 'clinical.resources.clinicalAlerts.detail.sourceLabel', valueKey: 'source' },
       { labelKey: 'clinical.resources.clinicalAlerts.detail.messageLabel', valueKey: 'message' },
       { labelKey: 'clinical.resources.clinicalAlerts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'clinical.resources.clinicalAlerts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
@@ -3148,7 +3186,7 @@ const resourceConfigs = {
       },
       {
         name: 'reason',
-        type: 'text',
+        type: 'textarea',
         required: false,
         maxLength: 10000,
         labelKey: 'clinical.resources.referrals.form.reasonLabel',
@@ -3177,7 +3215,7 @@ const resourceConfigs = {
       from_department_id: sanitizeString(record?.from_department_id || context?.fromDepartmentId),
       to_department_id: sanitizeString(record?.to_department_id || context?.toDepartmentId),
       reason: sanitizeString(record?.reason),
-      status: sanitizeString(record?.status || context?.status || 'PENDING'),
+      status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
@@ -3224,7 +3262,7 @@ const resourceConfigs = {
       },
       {
         name: 'scheduled_at',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.followUps.form.scheduledAtLabel',
@@ -3232,8 +3270,17 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.followUps.form.scheduledAtHint',
       },
       {
+        name: 'status',
+        type: 'select',
+        required: false,
+        labelKey: 'clinical.resources.followUps.form.statusLabel',
+        placeholderKey: 'clinical.resources.followUps.form.statusPlaceholder',
+        hintKey: 'clinical.resources.followUps.form.statusHint',
+        options: FOLLOW_UP_STATUS_OPTIONS,
+      },
+      {
         name: 'notes',
-        type: 'text',
+        type: 'textarea',
         required: false,
         maxLength: 10000,
         labelKey: 'clinical.resources.followUps.form.notesLabel',
@@ -3249,12 +3296,14 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      scheduled_at: sanitizeString(record?.scheduled_at),
+      scheduled_at: sanitizeString(record?.scheduled_at || context?.scheduledAt || context?.scheduledAtFrom),
+      status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
       notes: sanitizeString(record?.notes),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         scheduled_at: toIsoDateTime(values.scheduled_at),
+        status: sanitizeString(values.status) || undefined,
         notes: sanitizeString(values.notes) || undefined,
       };
 
@@ -3274,6 +3323,7 @@ const resourceConfigs = {
       { labelKey: 'clinical.resources.followUps.detail.idLabel', valueKey: 'id' },
       { labelKey: 'clinical.resources.followUps.detail.encounterLabel', valueKey: 'encounter_id' },
       { labelKey: 'clinical.resources.followUps.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
+      { labelKey: 'clinical.resources.followUps.detail.statusLabel', valueKey: 'status' },
       { labelKey: 'clinical.resources.followUps.detail.notesLabel', valueKey: 'notes' },
       { labelKey: 'clinical.resources.followUps.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
       { labelKey: 'clinical.resources.followUps.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },

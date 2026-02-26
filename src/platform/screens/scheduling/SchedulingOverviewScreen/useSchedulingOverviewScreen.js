@@ -153,7 +153,7 @@ const useSchedulingOverviewScreen = () => {
 
       const opdWorkbenchCard = {
         id: 'opd-flows',
-        routePath: '/scheduling/opd-flows',
+        routePath: '/clinical',
         label: t('scheduling.opdFlow.card.title'),
         description: t('scheduling.opdFlow.card.description'),
       };
@@ -273,7 +273,7 @@ const useSchedulingOverviewScreen = () => {
 
   const handleOpenOpdWorkbench = useCallback(() => {
     if (!canViewOverview) return;
-    router.push('/scheduling/opd-flows');
+    router.push('/clinical');
   }, [canViewOverview, router]);
 
   const handleOpenDueReminders = useCallback(() => {

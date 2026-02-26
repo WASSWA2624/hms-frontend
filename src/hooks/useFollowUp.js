@@ -4,9 +4,13 @@
  */
 import useCrud from '@hooks/useCrud';
 import {
+  cancelFollowUpAction,
+  completeFollowUp,
   createFollowUp,
+  dispatchFollowUpReminders,
   deleteFollowUp,
   getFollowUp,
+  getFollowUpReminderDueSummary,
   listFollowUps,
   updateFollowUp,
 } from '@features/follow-up';
@@ -18,6 +22,10 @@ const useFollowUp = () =>
     create: createFollowUp,
     update: updateFollowUp,
     remove: deleteFollowUp,
+    complete: completeFollowUp,
+    cancel: cancelFollowUpAction,
+    dispatchReminders: dispatchFollowUpReminders,
+    dueSummary: getFollowUpReminderDueSummary,
   });
 
 export default useFollowUp;

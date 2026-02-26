@@ -83,6 +83,7 @@ const workflowStageSchema = z.enum([
   'ADMITTED',
   'DISCHARGED',
 ]);
+const queueScopeSchema = z.enum(['ASSIGNED', 'WAITING', 'ALL']);
 const bloodPressureValueRegex = /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
 
 const listParamsSchema = z
@@ -97,6 +98,7 @@ const listParamsSchema = z
     provider_user_id: idSchema.optional(),
     encounter_type: z.enum(['OPD', 'EMERGENCY']).optional(),
     stage: workflowStageSchema.optional(),
+    queue_scope: queueScopeSchema.optional(),
     search: z.string().trim().optional(),
   })
   .passthrough();
@@ -282,6 +284,14 @@ const correctStagePayloadSchema = z.object({
   reason: z.string().trim().min(1).max(2000),
 });
 
+const bootstrapPayloadSchema = z.object({
+  patient_id: idSchema,
+  facility_id: scopeIdSchema.optional().nullable(),
+  provider_user_id: idSchema.optional().nullable(),
+  encounter_type: z.enum(['OPD', 'EMERGENCY']).optional(),
+  reuse_open_encounter: z.boolean().optional(),
+});
+
 const parseOpdFlowId = (value) => idSchema.parse(value);
 const parseOpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
 const parseStartOpdFlowPayload = (value) => startPayloadSchema.parse(value ?? {});
@@ -291,6 +301,7 @@ const parseAssignDoctorPayload = (value) => assignDoctorPayloadSchema.parse(valu
 const parseDoctorReviewPayload = (value) => doctorReviewPayloadSchema.parse(value ?? {});
 const parseDispositionPayload = (value) => dispositionPayloadSchema.parse(value ?? {});
 const parseCorrectStagePayload = (value) => correctStagePayloadSchema.parse(value ?? {});
+const parseBootstrapOpdFlowPayload = (value) => bootstrapPayloadSchema.parse(value ?? {});
 
 export {
   parseOpdFlowId,
@@ -302,4 +313,5 @@ export {
   parseDoctorReviewPayload,
   parseDispositionPayload,
   parseCorrectStagePayload,
+  parseBootstrapOpdFlowPayload,
 };

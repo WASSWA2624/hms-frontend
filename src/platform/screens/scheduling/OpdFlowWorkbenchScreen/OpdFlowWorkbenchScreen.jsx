@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'expo-router';
 import {
   Badge,
   Button,
@@ -17,7 +18,12 @@ import {
   TextArea,
   TextField,
 } from '@platform/components';
-import { useI18n } from '@hooks';
+import {
+  useClinicalAlert,
+  useFollowUp,
+  useI18n,
+  useReferral,
+} from '@hooks';
 import {
   StyledCardGrid,
   StyledContainer,
@@ -69,7 +75,7 @@ import { PriceInputField } from '@platform/components';
 const toSelectOptions = (t, options = []) =>
   options.map((option) => ({
     value: option.value,
-    label: t(option.labelKey),
+    label: option.label || (option.labelKey ? t(option.labelKey) : option.value),
   }));
 
 const UUID_LIKE_REGEX =
@@ -152,9 +158,24 @@ const resolveVitalStatusVariant = (status) => {
   return 'primary';
 };
 
-const OpdFlowWorkbenchScreen = () => {
+const OpdFlowWorkbenchScreen = ({
+  routeBase = '/scheduling/opd-flows',
+  workspaceVariant = 'scheduling',
+}) => {
   const { t } = useI18n();
-  const screen = useOpdFlowWorkbenchScreen();
+  const router = useRouter();
+  const screen = useOpdFlowWorkbenchScreen({ routeBase });
+  const isClinicalMode = workspaceVariant === 'clinical';
+  const [actionError, setActionError] = React.useState('');
+  const [actionBusyId, setActionBusyId] = React.useState('');
+  const { acknowledge: acknowledgeClinicalAlert, resolve: resolveClinicalAlert } = useClinicalAlert();
+  const {
+    approve: approveReferral,
+    start: startReferral,
+    cancel: cancelReferral,
+    redeem: redeemReferral,
+  } = useReferral();
+  const { complete: completeFollowUp, cancel: cancelFollowUp } = useFollowUp();
   const correctionDraft = screen.stageCorrectionDraft || { stage_to: '', reason: '' };
   const isCorrectionDialogOpen = Boolean(screen.isCorrectionDialogOpen);
   const handleOpenCorrectionDialog = screen.onOpenCorrectionDialog || (() => {});
@@ -172,6 +193,7 @@ const OpdFlowWorkbenchScreen = () => {
   const medicationFrequencyOptions = toSelectOptions(t, screen.medicationFrequencyOptions);
   const medicationRouteOptions = toSelectOptions(t, screen.medicationRouteOptions);
   const dispositionOptions = toSelectOptions(t, screen.dispositionOptions);
+  const queueScopeOptions = toSelectOptions(t, screen.queueScopeOptions || []);
   const correctionStageOptions = toSelectOptions(t, screen.correctionStageOptions || []);
   const triageLevelLegend = screen.triageLevelLegend || [];
   const vitalsRowsWithInsights = screen.vitalsRowsWithInsights || screen.vitalsDraft?.vitals || [];
@@ -187,6 +209,48 @@ const OpdFlowWorkbenchScreen = () => {
   const linkedPatientName = resolveLookupPatientName(screen.startLinkedPatient);
   const linkedPatientDisplayId = toPublicIdText(screen.startLinkedPatient?.human_friendly_id);
   const linkedAppointmentDisplayId = toPublicIdText(screen.startLinkedAppointment?.human_friendly_id);
+  const activeEncounterId = toPublicIdText(linkedIds.encounter_id) || toPublicIdText(activeFlow?.encounter?.human_friendly_id);
+  const activePatientId = resolvePatientHumanFriendlyId(activeFlow);
+  const activeProviderId = toPublicIdText(activeFlow?.encounter?.provider_user_id);
+  const carePlans = Array.isArray(activeFlow?.care_plans) ? activeFlow.care_plans : [];
+  const clinicalAlerts = Array.isArray(activeFlow?.clinical_alerts) ? activeFlow.clinical_alerts : [];
+  const referrals = Array.isArray(activeFlow?.referrals) ? activeFlow.referrals : [];
+  const followUps = Array.isArray(activeFlow?.follow_ups) ? activeFlow.follow_ups : [];
+  const workbenchTitle = isClinicalMode ? 'Clinical Workbench' : t('scheduling.opdFlow.title');
+  const workbenchDescription = isClinicalMode
+    ? 'Central workspace for encounter management, notes, diagnoses, procedures, vitals, plans, alerts, referrals, and follow-ups.'
+    : t('scheduling.opdFlow.description');
+
+  const buildRoute = (path, params = {}) => {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      const text = toCleanText(value);
+      if (text) query.set(key, text);
+    });
+    const encoded = query.toString();
+    return encoded ? `${path}?${encoded}` : path;
+  };
+
+  const handleOpenResource = (resourcePath, params = {}) => {
+    router.push(buildRoute(resourcePath, params));
+  };
+
+  const runLinkedAction = async (actionId, handler) => {
+    setActionError('');
+    setActionBusyId(actionId);
+    try {
+      const result = await handler();
+      if (!result) {
+        setActionError(isClinicalMode ? 'Unable to complete action.' : t('common.error'));
+        return;
+      }
+      await screen.onRetry();
+    } catch (_error) {
+      setActionError(isClinicalMode ? 'Unable to complete action.' : t('common.error'));
+    } finally {
+      setActionBusyId('');
+    }
+  };
 
   const renderStartForm = () => (
     <Card variant="outlined" testID="opd-workbench-start-form">
@@ -985,6 +1049,292 @@ const OpdFlowWorkbenchScreen = () => {
     );
   };
 
+  const renderClinicalModuleLinks = () => {
+    if (!isClinicalMode) return null;
+    if (!activeEncounterId) {
+      return (
+        <Text variant="caption" testID="clinical-workbench-no-encounter">
+          Select an encounter from the queue to open module actions.
+        </Text>
+      );
+    }
+
+    const followUpDefaultAt = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString();
+
+    return (
+      <>
+        <StyledShortcutActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() => handleOpenResource('/clinical/encounters')}
+          >
+            Encounters
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/clinical-notes/create', {
+                encounterId: activeEncounterId,
+                authorUserId: activeProviderId,
+              })
+            }
+          >
+            Add Note
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/diagnoses/create', {
+                encounterId: activeEncounterId,
+              })
+            }
+          >
+            Add Diagnosis
+          </Button>
+        </StyledShortcutActions>
+
+        <StyledShortcutActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/procedures/create', {
+                encounterId: activeEncounterId,
+              })
+            }
+          >
+            Add Procedure
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/vital-signs/create', {
+                encounterId: activeEncounterId,
+              })
+            }
+          >
+            Add Vitals
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/care-plans/create', {
+                encounterId: activeEncounterId,
+                startDate: new Date().toISOString(),
+              })
+            }
+          >
+            Add Care Plan
+          </Button>
+        </StyledShortcutActions>
+
+        <StyledShortcutActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/clinical-alerts/create', {
+                encounterId: activeEncounterId,
+                severity: 'HIGH',
+              })
+            }
+          >
+            Add Alert
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/referrals/create', {
+                encounterId: activeEncounterId,
+              })
+            }
+          >
+            Add Referral
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={() =>
+              handleOpenResource('/clinical/follow-ups/create', {
+                encounterId: activeEncounterId,
+                scheduledAt: followUpDefaultAt,
+              })
+            }
+          >
+            Add Follow-up
+          </Button>
+        </StyledShortcutActions>
+      </>
+    );
+  };
+
+  const renderLinkedClinicalRecords = () => {
+    if (!isClinicalMode || !activeEncounterId) return null;
+
+    const resolvePublicRecordId = (item) =>
+      toPublicIdText(item?.human_friendly_id) || toCleanText(item?.id);
+    const actionDisabled = !screen.canMutate || Boolean(actionBusyId);
+
+    return (
+      <>
+        {actionError ? <Text variant="caption">{actionError}</Text> : null}
+        <StyledContextGrid>
+          {clinicalAlerts.slice(0, 4).map((item) => {
+            const status = toCleanText(item?.status || 'OPEN').toUpperCase();
+            const alertId = resolvePublicRecordId(item);
+            return (
+              <StyledContextCard key={`alert-${alertId || item?.message}`}>
+                <Text variant="label">{`Alert: ${toCleanText(item?.severity || 'MEDIUM')}`}</Text>
+                <StyledContextValue>{toCleanText(item?.message) || 'No message'}</StyledContextValue>
+                <StyledMeta>{`Status: ${status}`}</StyledMeta>
+                <StyledShortcutActions>
+                  {status === 'OPEN' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!alertId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`alert-ack-${alertId}`, () => acknowledgeClinicalAlert(alertId))
+                      }
+                    >
+                      Acknowledge
+                    </Button>
+                  ) : null}
+                  {status === 'OPEN' || status === 'ACKNOWLEDGED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!alertId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`alert-resolve-${alertId}`, () => resolveClinicalAlert(alertId))
+                      }
+                    >
+                      Resolve
+                    </Button>
+                  ) : null}
+                </StyledShortcutActions>
+              </StyledContextCard>
+            );
+          })}
+
+          {referrals.slice(0, 4).map((item) => {
+            const status = toCleanText(item?.status || 'REQUESTED').toUpperCase();
+            const referralId = resolvePublicRecordId(item);
+            return (
+              <StyledContextCard key={`referral-${referralId || item?.reason}`}>
+                <Text variant="label">Referral</Text>
+                <StyledContextValue>{toCleanText(item?.reason) || 'No reason provided'}</StyledContextValue>
+                <StyledMeta>{`Status: ${status}`}</StyledMeta>
+                <StyledShortcutActions>
+                  {status === 'REQUESTED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!referralId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`ref-approve-${referralId}`, () => approveReferral(referralId))
+                      }
+                    >
+                      Approve
+                    </Button>
+                  ) : null}
+                  {status === 'APPROVED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!referralId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`ref-start-${referralId}`, () => startReferral(referralId))
+                      }
+                    >
+                      Start
+                    </Button>
+                  ) : null}
+                  {status === 'IN_PROGRESS' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!referralId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`ref-complete-${referralId}`, () => redeemReferral(referralId))
+                      }
+                    >
+                      Complete
+                    </Button>
+                  ) : null}
+                  {status !== 'COMPLETED' && status !== 'CANCELLED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!referralId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`ref-cancel-${referralId}`, () => cancelReferral(referralId))
+                      }
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
+                </StyledShortcutActions>
+              </StyledContextCard>
+            );
+          })}
+
+          {followUps.slice(0, 4).map((item) => {
+            const status = toCleanText(item?.status || 'SCHEDULED').toUpperCase();
+            const followUpId = resolvePublicRecordId(item);
+            return (
+              <StyledContextCard key={`follow-up-${followUpId || item?.scheduled_at}`}>
+                <Text variant="label">Follow-up</Text>
+                <StyledContextValue>{toCleanText(item?.scheduled_at) || 'Not scheduled'}</StyledContextValue>
+                <StyledMeta>{`Status: ${status}`}</StyledMeta>
+                <StyledShortcutActions>
+                  {status === 'SCHEDULED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!followUpId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`follow-up-complete-${followUpId}`, () => completeFollowUp(followUpId))
+                      }
+                    >
+                      Complete
+                    </Button>
+                  ) : null}
+                  {status === 'SCHEDULED' ? (
+                    <Button
+                      variant="surface"
+                      size="small"
+                      disabled={!followUpId || actionDisabled}
+                      onPress={() =>
+                        runLinkedAction(`follow-up-cancel-${followUpId}`, () => cancelFollowUp(followUpId))
+                      }
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
+                </StyledShortcutActions>
+              </StyledContextCard>
+            );
+          })}
+
+          {carePlans.slice(0, 4).map((item) => (
+            <StyledContextCard key={`care-plan-${resolvePublicRecordId(item) || item?.plan}`}>
+              <Text variant="label">Care Plan</Text>
+              <StyledContextValue>{toCleanText(item?.plan) || 'No plan text'}</StyledContextValue>
+              <StyledMeta>{`Start: ${toCleanText(item?.start_date) || 'N/A'}`}</StyledMeta>
+            </StyledContextCard>
+          ))}
+        </StyledContextGrid>
+      </>
+    );
+  };
+
   const renderCorrectionDialog = () => (
     <Modal
       visible={isCorrectionDialogOpen}
@@ -1039,8 +1389,8 @@ const OpdFlowWorkbenchScreen = () => {
     <StyledContainer testID="opd-workbench-screen">
       <StyledWorkbenchHeader>
         <StyledWorkbenchHeading>
-          <StyledWorkbenchTitle>{t('scheduling.opdFlow.title')}</StyledWorkbenchTitle>
-          <StyledWorkbenchDescription>{t('scheduling.opdFlow.description')}</StyledWorkbenchDescription>
+          <StyledWorkbenchTitle>{workbenchTitle}</StyledWorkbenchTitle>
+          <StyledWorkbenchDescription>{workbenchDescription}</StyledWorkbenchDescription>
         </StyledWorkbenchHeading>
         <Button
           variant="surface"
@@ -1133,6 +1483,14 @@ const OpdFlowWorkbenchScreen = () => {
                   density="compact"
                   type="search"
                   testID="opd-workbench-flow-search"
+                />
+                <Select
+                  label={isClinicalMode ? 'Queue Scope' : 'Queue Scope'}
+                  value={screen.queueScope}
+                  options={queueScopeOptions}
+                  onValueChange={screen.onQueueScopeChange}
+                  compact
+                  testID="opd-workbench-queue-scope"
                 />
                 {screen.isFlowSearchLoading ? (
                   <StyledMeta testID="opd-workbench-flow-search-loading">
@@ -1361,6 +1719,15 @@ const OpdFlowWorkbenchScreen = () => {
               <StyledSectionTitle>{t('scheduling.opdFlow.actions.currentStep')}</StyledSectionTitle>
               {renderActionSection()}
             </Card>
+
+            {isClinicalMode ? (
+              <Card variant="outlined">
+                <StyledSectionTitle>Clinical Modules</StyledSectionTitle>
+                {renderClinicalModuleLinks()}
+                <StyledSectionTitle>Linked Records</StyledSectionTitle>
+                {renderLinkedClinicalRecords()}
+              </Card>
+            ) : null}
           </StyledPanel>
         </StyledLayout>
       ) : null}

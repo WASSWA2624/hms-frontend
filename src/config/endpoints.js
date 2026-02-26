@@ -279,6 +279,7 @@ export const endpoints = {
     LIST: `${baseUrl}/opd-flows`,
     GET: (id) => `${baseUrl}/opd-flows/${id}`,
     START: `${baseUrl}/opd-flows/start`,
+    BOOTSTRAP: `${baseUrl}/opd-flows/bootstrap`,
     PAY_CONSULTATION: (id) => `${baseUrl}/opd-flows/${id}/pay-consultation`,
     RECORD_VITALS: (id) => `${baseUrl}/opd-flows/${id}/record-vitals`,
     ASSIGN_DOCTOR: (id) => `${baseUrl}/opd-flows/${id}/assign-doctor`,
@@ -340,6 +341,12 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/clinical-alerts/${id}`,
     UPDATE: (id) => `${baseUrl}/clinical-alerts/${id}`,
     DELETE: (id) => `${baseUrl}/clinical-alerts/${id}`,
+    ACKNOWLEDGE: (id) => `${baseUrl}/clinical-alerts/${id}/acknowledge`,
+    RESOLVE: (id) => `${baseUrl}/clinical-alerts/${id}/resolve`,
+  },
+  CLINICAL_ALERT_THRESHOLDS: {
+    GET: `${baseUrl}/clinical-alert-thresholds`,
+    UPDATE: `${baseUrl}/clinical-alert-thresholds`,
   },
   REFERRALS: {
     LIST: `${baseUrl}/referrals`,
@@ -347,6 +354,9 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/referrals/${id}`,
     UPDATE: (id) => `${baseUrl}/referrals/${id}`,
     DELETE: (id) => `${baseUrl}/referrals/${id}`,
+    APPROVE: (id) => `${baseUrl}/referrals/${id}/approve`,
+    START: (id) => `${baseUrl}/referrals/${id}/start`,
+    CANCEL: (id) => `${baseUrl}/referrals/${id}/cancel`,
     REDEEM: (id) => `${baseUrl}/referrals/${id}/redeem`,
   },
   FOLLOW_UPS: {
@@ -355,6 +365,18 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/follow-ups/${id}`,
     UPDATE: (id) => `${baseUrl}/follow-ups/${id}`,
     DELETE: (id) => `${baseUrl}/follow-ups/${id}`,
+    COMPLETE: (id) => `${baseUrl}/follow-ups/${id}/complete`,
+    CANCEL: (id) => `${baseUrl}/follow-ups/${id}/cancel`,
+    REMINDER_DISPATCH: `${baseUrl}/follow-ups/reminders/dispatch`,
+    REMINDER_DUE_SUMMARY: `${baseUrl}/follow-ups/reminders/due-summary`,
+  },
+  CLINICAL_TERMS: {
+    SUGGESTIONS: `${baseUrl}/clinical-terms/suggestions`,
+  },
+  CLINICAL_TERM_FAVORITES: {
+    LIST: `${baseUrl}/clinical-term-favorites`,
+    CREATE: `${baseUrl}/clinical-term-favorites`,
+    DELETE: (id) => `${baseUrl}/clinical-term-favorites/${id}`,
   },
   ADMISSIONS: {
     LIST: `${baseUrl}/admissions`,

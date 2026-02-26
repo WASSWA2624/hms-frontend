@@ -22,6 +22,12 @@ const opdFlowApi = {
       method: 'POST',
       body: payload,
     }),
+  bootstrap: (payload = {}) =>
+    apiClient({
+      url: endpoints.OPD_FLOWS.BOOTSTRAP,
+      method: 'POST',
+      body: payload,
+    }),
   payConsultation: (id, payload = {}) =>
     apiClient({
       url: endpoints.OPD_FLOWS.PAY_CONSULTATION(id),

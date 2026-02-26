@@ -62,6 +62,8 @@ export { default as useProcedure } from './useProcedure';
 export { default as useVitalSign } from './useVitalSign';
 export { default as useCarePlan } from './useCarePlan';
 export { default as useClinicalAlert } from './useClinicalAlert';
+export { default as useClinicalAlertThreshold } from './useClinicalAlertThreshold';
+export { default as useClinicalTerm } from './useClinicalTerm';
 export { default as useReferral } from './useReferral';
 export { default as useFollowUp } from './useFollowUp';
 export { default as usePatient } from './usePatient';
