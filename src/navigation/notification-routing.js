@@ -53,12 +53,14 @@ const resolveNotificationIcon = (notification) => {
   const routeHint = String(
     notification?.target_path || notification?.route || notification?.path || ''
   ).toLowerCase();
+  if (routeHint.startsWith('/ipd')) return '\u{1F6CF}';
   if (routeHint.startsWith('/scheduling/opd-flows') || routeHint.startsWith('/clinical')) return '\u2695';
   if (type === 'APPOINTMENT') return '\u{1F4C5}';
   if (type === 'BILLING') return '\u{1F4B3}';
   if (type === 'LAB') return '\u{1F9EA}';
   if (type === 'PHARMACY') return '\u{1F48A}';
   if (type === 'OPD') return '\u2695';
+  if (type === 'IPD') return '\u{1F6CF}';
   if (type === 'SYSTEM') return '\u26A0';
   return '\u{1F514}';
 };
@@ -123,8 +125,35 @@ const isOpdNotificationContext = (notification) => {
   );
 };
 
+const isIpdNotificationContext = (notification) => {
+  const type = getNotificationType(notification);
+  if (type === 'IPD') return true;
+
+  const routeHint = String(
+    notification?.target_path || notification?.route || notification?.path || ''
+  )
+    .trim()
+    .toLowerCase();
+  if (routeHint.startsWith('/ipd')) return true;
+
+  const text = `${notification?.title || ''} ${notification?.message || ''}`
+    .trim()
+    .toLowerCase();
+  if (!text) return false;
+
+  return (
+    text.includes('ipd') ||
+    text.includes('inpatient') ||
+    text.includes('admission') ||
+    text.includes('bed') ||
+    text.includes('ward') ||
+    text.includes('transfer') ||
+    text.includes('discharge')
+  );
+};
+
 const shouldAutoMarkNotificationRead = (notification) =>
-  !isOpdNotificationContext(notification);
+  !isOpdNotificationContext(notification) && !isIpdNotificationContext(notification);
 
 const buildNotificationRouteCandidates = (
   notification,
@@ -150,6 +179,9 @@ const buildNotificationRouteCandidates = (
   if (isOpdNotificationContext(notification)) {
     pushRouteCandidate(candidates, '/clinical');
   }
+  if (isIpdNotificationContext(notification)) {
+    pushRouteCandidate(candidates, '/ipd');
+  }
   if (text.includes('appointment') || text.includes('visit')) {
     pushRouteCandidate(candidates, '/scheduling/appointments');
   }
@@ -172,6 +204,7 @@ const buildNotificationRouteCandidates = (
   if (type === 'LAB') pushRouteCandidate(candidates, '/diagnostics/lab/lab-results');
   if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
   if (type === 'OPD') pushRouteCandidate(candidates, '/clinical');
+  if (type === 'IPD') pushRouteCandidate(candidates, '/ipd');
   if (type === 'SYSTEM') pushRouteCandidate(candidates, '/dashboard');
 
   if (fallbackRoute) pushRouteCandidate(candidates, fallbackRoute);
@@ -207,6 +240,7 @@ export {
   resolveNotificationIcon,
   isNotificationUnread,
   isOpdNotificationContext,
+  isIpdNotificationContext,
   shouldAutoMarkNotificationRead,
   resolveNotificationMessage,
   resolveNotificationTimestamp,

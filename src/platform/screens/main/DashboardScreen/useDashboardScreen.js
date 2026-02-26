@@ -10,6 +10,7 @@ import { normalizeRoleKey } from '@hooks/roleUtils';
 import { listTenants } from '@features/tenant';
 import { getDashboardSummary } from '@features/dashboard-widget';
 import { ROLE_KEYS, SCOPE_KEYS, getScopeRoleKeys } from '@config/accessPolicy';
+import { IPD_WORKBENCH_V1 } from '@config/feature.flags';
 import { MAIN_NAV_ITEMS } from '@config/sideMenu';
 import { readRegistrationContext } from '@navigation/registrationContext';
 import { STATES } from './types';
@@ -236,7 +237,7 @@ const QUICK_ACTIONS = [
     labelKey: 'home.quickActions.items.admit',
     roles: IPD_WRITE_ROLES,
     supported: true,
-    path: '/ipd/admissions/create',
+    path: IPD_WORKBENCH_V1 ? '/ipd?action=start_admission' : '/ipd/admissions/create',
   },
   {
     id: 'labTest',

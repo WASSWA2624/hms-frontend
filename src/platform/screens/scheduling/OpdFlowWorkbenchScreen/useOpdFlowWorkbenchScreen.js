@@ -12,6 +12,7 @@ import {
   useTenant,
   useRealtimeEvent,
 } from '@hooks';
+import { IPD_WORKBENCH_V1 } from '@config/feature.flags';
 import { resolveErrorMessage } from '../schedulingScreenUtils';
 
 const ACCESS_DENIED_CODES = new Set(['FORBIDDEN', 'UNAUTHORIZED']);
@@ -2476,9 +2477,13 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
       resolvePatientPublicId(startLinkedPatient) ||
       sanitizeString(startDraft.patient_id) ||
       resolvePatientPublicId(contextPatient);
-    const target = patientId && !isUuidLike(patientId)
-      ? `/ipd/admissions/create?patientId=${encodeURIComponent(patientId)}`
-      : '/ipd/admissions/create';
+    const target = IPD_WORKBENCH_V1
+      ? patientId && !isUuidLike(patientId)
+        ? `/ipd?action=start_admission&patientId=${encodeURIComponent(patientId)}`
+        : '/ipd?action=start_admission'
+      : patientId && !isUuidLike(patientId)
+        ? `/ipd/admissions/create?patientId=${encodeURIComponent(patientId)}`
+        : '/ipd/admissions/create';
     router.push(target);
   }, [contextPatient, router, startDraft.patient_id, startLinkedPatient]);
 

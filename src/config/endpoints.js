@@ -287,6 +287,21 @@ export const endpoints = {
     DISPOSITION: (id) => `${baseUrl}/opd-flows/${id}/disposition`,
     CORRECT_STAGE: (id) => `${baseUrl}/opd-flows/${id}/correct-stage`,
   },
+  IPD_FLOWS: {
+    LIST: `${baseUrl}/ipd-flows`,
+    GET: (id) => `${baseUrl}/ipd-flows/${id}`,
+    START: `${baseUrl}/ipd-flows/start`,
+    ASSIGN_BED: (id) => `${baseUrl}/ipd-flows/${id}/assign-bed`,
+    RELEASE_BED: (id) => `${baseUrl}/ipd-flows/${id}/release-bed`,
+    REQUEST_TRANSFER: (id) => `${baseUrl}/ipd-flows/${id}/request-transfer`,
+    UPDATE_TRANSFER: (id) => `${baseUrl}/ipd-flows/${id}/update-transfer`,
+    ADD_WARD_ROUND: (id) => `${baseUrl}/ipd-flows/${id}/add-ward-round`,
+    ADD_NURSING_NOTE: (id) => `${baseUrl}/ipd-flows/${id}/add-nursing-note`,
+    ADD_MEDICATION_ADMINISTRATION: (id) =>
+      `${baseUrl}/ipd-flows/${id}/add-medication-administration`,
+    PLAN_DISCHARGE: (id) => `${baseUrl}/ipd-flows/${id}/plan-discharge`,
+    FINALIZE_DISCHARGE: (id) => `${baseUrl}/ipd-flows/${id}/finalize-discharge`,
+  },
   DOCTORS: {
     LIST: `${baseUrl}/doctors`,
     CREATE: `${baseUrl}/doctors`,
