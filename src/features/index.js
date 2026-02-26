@@ -46,6 +46,7 @@ export * from './availability-slot';
 export * from './visit-queue';
 export * from './opd-flow';
 export * from './ipd-flow';
+export * from './theatre-flow';
 export * from './encounter';
 export * from './clinical-note';
 export * from './diagnosis';

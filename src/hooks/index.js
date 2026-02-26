@@ -55,6 +55,7 @@ export { default as useAvailabilitySlot } from './useAvailabilitySlot';
 export { default as useVisitQueue } from './useVisitQueue';
 export { default as useOpdFlow } from './useOpdFlow';
 export { default as useIpdFlow } from './useIpdFlow';
+export { default as useTheatreFlow } from './useTheatreFlow';
 export { default as useDoctor } from './useDoctor';
 export { default as useEncounter } from './useEncounter';
 export { default as useClinicalNote } from './useClinicalNote';

@@ -312,6 +312,27 @@ export const endpoints = {
     PLAN_DISCHARGE: (id) => `${baseUrl}/ipd-flows/${id}/plan-discharge`,
     FINALIZE_DISCHARGE: (id) => `${baseUrl}/ipd-flows/${id}/finalize-discharge`,
   },
+  THEATRE_FLOWS: {
+    LIST: `${baseUrl}/theatre-flows`,
+    GET: (id) => `${baseUrl}/theatre-flows/${id}`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/theatre-flows/resolve-legacy/${resource}/${id}`,
+    START: `${baseUrl}/theatre-flows/start`,
+    UPDATE_STAGE: (id) => `${baseUrl}/theatre-flows/${id}/update-stage`,
+    UPSERT_ANESTHESIA_RECORD: (id) =>
+      `${baseUrl}/theatre-flows/${id}/upsert-anesthesia-record`,
+    ADD_ANESTHESIA_OBSERVATION: (id) =>
+      `${baseUrl}/theatre-flows/${id}/add-anesthesia-observation`,
+    UPSERT_POST_OP_NOTE: (id) =>
+      `${baseUrl}/theatre-flows/${id}/upsert-post-op-note`,
+    TOGGLE_CHECKLIST_ITEM: (id) =>
+      `${baseUrl}/theatre-flows/${id}/toggle-checklist-item`,
+    ASSIGN_RESOURCE: (id) => `${baseUrl}/theatre-flows/${id}/assign-resource`,
+    RELEASE_RESOURCE: (id) =>
+      `${baseUrl}/theatre-flows/${id}/release-resource`,
+    FINALIZE_RECORD: (id) => `${baseUrl}/theatre-flows/${id}/finalize-record`,
+    REOPEN_RECORD: (id) => `${baseUrl}/theatre-flows/${id}/reopen-record`,
+  },
   DOCTORS: {
     LIST: `${baseUrl}/doctors`,
     CREATE: `${baseUrl}/doctors`,

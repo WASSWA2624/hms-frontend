@@ -32,3 +32,7 @@ export const ICU_WORKBENCH_V1 = parseFlag(
   process.env.EXPO_PUBLIC_ICU_WORKBENCH_V1,
   true
 );
+export const THEATRE_WORKBENCH_V1 = parseFlag(
+  process.env.EXPO_PUBLIC_THEATRE_WORKBENCH_V1,
+  false
+);
