@@ -2,14 +2,14 @@ const React = require('react');
 const { render } = require('@testing-library/react-native');
 
 const mockScreens = {
-  ClinicalOverviewScreen: jest.fn(() => null),
+  ClinicalWorkbenchScreen: jest.fn(() => null),
   ClinicalResourceListScreen: jest.fn(() => null),
   ClinicalResourceDetailScreen: jest.fn(() => null),
   ClinicalResourceFormScreen: jest.fn(() => null),
 };
 
 jest.mock('@platform/screens', () => ({
-  ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
+  ClinicalWorkbenchScreen: (...args) => mockScreens.ClinicalWorkbenchScreen(...args),
   ClinicalResourceListScreen: (...args) => mockScreens.ClinicalResourceListScreen(...args),
   ClinicalResourceDetailScreen: (...args) => mockScreens.ClinicalResourceDetailScreen(...args),
   ClinicalResourceFormScreen: (...args) => mockScreens.ClinicalResourceFormScreen(...args),
@@ -56,7 +56,7 @@ const buildRouteCases = (resourceId) => {
 const CLINICAL_ROUTE_CASES = [
   {
     routePath: '../../../app/(main)/clinical/index',
-    screenKey: 'ClinicalOverviewScreen',
+    screenKey: 'ClinicalWorkbenchScreen',
   },
   ...RESOURCES_WITH_EDIT.flatMap((resourceId) => buildRouteCases(resourceId)),
 ];
