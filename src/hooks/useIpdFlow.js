@@ -14,6 +14,7 @@ import {
   listIpdFlows,
   planDischarge,
   releaseBed,
+  resolveIpdLegacyRoute,
   requestTransfer,
   startIpdFlow,
   updateTransfer,
@@ -24,6 +25,7 @@ const useIpdFlow = () => {
     () => ({
       list: listIpdFlows,
       get: getIpdFlow,
+      resolveLegacyRoute: resolveIpdLegacyRoute,
       start: startIpdFlow,
       assignBed,
       releaseBed,

@@ -290,6 +290,7 @@ export const endpoints = {
   IPD_FLOWS: {
     LIST: `${baseUrl}/ipd-flows`,
     GET: (id) => `${baseUrl}/ipd-flows/${id}`,
+    RESOLVE_LEGACY: (resource, id) => `${baseUrl}/ipd-flows/resolve-legacy/${resource}/${id}`,
     START: `${baseUrl}/ipd-flows/start`,
     ASSIGN_BED: (id) => `${baseUrl}/ipd-flows/${id}/assign-bed`,
     RELEASE_BED: (id) => `${baseUrl}/ipd-flows/${id}/release-bed`,

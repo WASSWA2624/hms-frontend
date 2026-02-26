@@ -28,6 +28,10 @@ const parseBooleanLike = (value) => {
   if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
   return undefined;
 };
+const normalizeRouteStateValue = (value) => {
+  const normalized = Array.isArray(value) ? String(value[0] || '').trim() : String(value || '').trim();
+  return normalized || undefined;
+};
 
 const listParamsSchema = z.object({
   page: z.coerce.number().int().positive().optional(),
@@ -37,6 +41,7 @@ const listParamsSchema = z.object({
   tenant_id: identifierSchema.optional(),
   facility_id: identifierSchema.optional(),
   patient_id: identifierSchema.optional(),
+  queue_scope: z.enum(['ACTIVE', 'ALL']).optional().default('ACTIVE'),
   stage: z
     .enum([
       'ADMITTED_PENDING_BED',
@@ -57,6 +62,26 @@ const listParamsSchema = z.object({
     .optional()
     .transform((value) => parseBooleanLike(value)),
   search: z.string().trim().optional(),
+});
+const resolveLegacyResourceSchema = z.enum([
+  'admissions',
+  'bed-assignments',
+  'ward-rounds',
+  'nursing-notes',
+  'medication-administrations',
+  'discharge-summaries',
+  'transfer-requests',
+]);
+const resolveLegacyRouteParamsSchema = z.object({
+  resource: resolveLegacyResourceSchema,
+  id: identifierSchema,
+});
+const workbenchRouteStateSchema = z.object({
+  id: identifierSchema.optional(),
+  panel: z.string().trim().min(1).max(64).optional(),
+  action: z.string().trim().min(1).max(64).optional(),
+  resource: resolveLegacyResourceSchema.optional(),
+  legacyId: identifierSchema.optional(),
 });
 
 const startPayloadSchema = z.object({
@@ -129,6 +154,15 @@ const finalizeDischargePayloadSchema = z.object({
 
 const parseIpdFlowId = (value) => identifierSchema.parse(value);
 const parseIpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
+const parseResolveLegacyRouteParams = (value) => resolveLegacyRouteParamsSchema.parse(value ?? {});
+const parseIpdWorkbenchRouteState = (value) =>
+  workbenchRouteStateSchema.parse({
+    id: normalizeRouteStateValue(value?.id),
+    panel: normalizeRouteStateValue(value?.panel),
+    action: normalizeRouteStateValue(value?.action),
+    resource: normalizeRouteStateValue(value?.resource),
+    legacyId: normalizeRouteStateValue(value?.legacyId),
+  });
 const parseStartIpdFlowPayload = (value) => startPayloadSchema.parse(value ?? {});
 const parseAssignBedPayload = (value) => assignBedPayloadSchema.parse(value ?? {});
 const parseReleaseBedPayload = (value) => releaseBedPayloadSchema.parse(value ?? {});
@@ -145,6 +179,8 @@ const parseFinalizeDischargePayload = (value) =>
 export {
   parseIpdFlowId,
   parseIpdFlowListParams,
+  parseResolveLegacyRouteParams,
+  parseIpdWorkbenchRouteState,
   parseStartIpdFlowPayload,
   parseAssignBedPayload,
   parseReleaseBedPayload,

@@ -16,6 +16,11 @@ const ipdFlowApi = {
       url: endpoints.IPD_FLOWS.GET(id),
       method: 'GET',
     }),
+  resolveLegacyRoute: (resource, id) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.RESOLVE_LEGACY(resource, id),
+      method: 'GET',
+    }),
   start: (payload = {}) =>
     apiClient({
       url: endpoints.IPD_FLOWS.START,

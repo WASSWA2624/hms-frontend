@@ -4,7 +4,11 @@
  */
 import { handleError } from '@errors';
 import { ipdFlowApi } from './ipd-flow.api';
-import { normalizeIpdFlowList, normalizeIpdFlowSnapshot } from './ipd-flow.model';
+import {
+  normalizeIpdFlowList,
+  normalizeIpdFlowSnapshot,
+  normalizeIpdLegacyResolution,
+} from './ipd-flow.model';
 import {
   parseAddMedicationAdministrationPayload,
   parseAddNursingNotePayload,
@@ -13,6 +17,7 @@ import {
   parseFinalizeDischargePayload,
   parseIpdFlowId,
   parseIpdFlowListParams,
+  parseResolveLegacyRouteParams,
   parsePlanDischargePayload,
   parseReleaseBedPayload,
   parseRequestTransferPayload,
@@ -40,6 +45,13 @@ const getIpdFlow = async (id) =>
     const parsedId = parseIpdFlowId(id);
     const response = await ipdFlowApi.get(parsedId);
     return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const resolveIpdLegacyRoute = async (resource, id) =>
+  execute(async () => {
+    const parsed = parseResolveLegacyRouteParams({ resource, id });
+    const response = await ipdFlowApi.resolveLegacyRoute(parsed.resource, parsed.id);
+    return normalizeIpdLegacyResolution(response.data);
   });
 
 const startIpdFlow = async (payload = {}) =>
@@ -124,6 +136,7 @@ const finalizeDischarge = async (id, payload = {}) =>
 export {
   listIpdFlows,
   getIpdFlow,
+  resolveIpdLegacyRoute,
   startIpdFlow,
   assignBed,
   releaseBed,
