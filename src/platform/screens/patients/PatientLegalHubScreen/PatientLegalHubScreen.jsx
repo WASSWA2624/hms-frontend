@@ -5,6 +5,7 @@ import {
   EmptyState,
   ErrorState,
   ErrorStateSizes,
+  GlobalSmartDateField,
   Icon,
   LoadingSpinner,
   OfflineState,
@@ -16,7 +17,6 @@ import {
 import { useI18n } from '@hooks';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import FieldHelpTrigger from '../components/FieldHelpTrigger';
-import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
   StyledActions,
   StyledContainer,
@@ -30,6 +30,12 @@ import {
   StyledTabRow,
 } from './PatientLegalHubScreen.styles';
 import usePatientLegalHubScreen from './usePatientLegalHubScreen';
+
+const resolveTextValue = (event) => (
+  event?.target?.value
+  ?? event?.nativeEvent?.text
+  ?? ''
+);
 
 const PatientLegalHubScreen = () => {
   const { t } = useI18n();
@@ -65,20 +71,33 @@ const PatientLegalHubScreen = () => {
 
     const isConsentEditor = editor.tab === 'consents';
 
+    const formModeLabel = editor.mode === 'edit'
+      ? t('patients.common.form.modeEdit')
+      : t('patients.common.form.modeCreate');
+
     return (
       <Card variant="outlined">
         <StyledForm>
+          <StyledField>
+            <FieldHelpTrigger
+              label={t('patients.common.form.helpLabel')}
+              tooltip={t('patients.common.form.helpTooltip')}
+              helpTitle={t('patients.common.form.helpTitle')}
+              helpBody={t('patients.common.form.helpBody', { mode: formModeLabel })}
+              helpItems={[
+                t('patients.common.form.helpItems.context'),
+                t('patients.common.form.helpItems.required'),
+                t('patients.common.form.helpItems.actions'),
+                t('patients.common.form.helpItems.recovery'),
+              ]}
+              testID="patient-legal-form-help"
+            />
+          </StyledField>
+
           {isConsentEditor && editor.mode !== 'edit' ? (
             <StyledField>
-              <FieldHelpTrigger
-                label={t('patients.common.form.patientLabel')}
-                tooltip={t('patients.common.form.patientHint')}
-                helpTitle={t('patients.common.form.patientLabel')}
-                helpBody={t('patients.common.form.patientHint')}
-                testID="patient-legal-help-patient"
-              />
-              <InlineFieldGuide text={t('patients.common.form.patientHint')} />
               <Select
+                label={t('patients.common.form.patientLabel')}
                 value={editor.values.patient_id || ''}
                 options={patientOptions}
                 onValueChange={(value) => onEditorChange('patient_id', value)}
@@ -92,15 +111,8 @@ const PatientLegalHubScreen = () => {
           {isConsentEditor ? (
             <>
               <StyledField>
-                <FieldHelpTrigger
-                  label={t('patients.resources.consents.form.consentTypeLabel')}
-                  tooltip={t('patients.resources.consents.form.consentTypeHint')}
-                  helpTitle={t('patients.resources.consents.form.consentTypeLabel')}
-                  helpBody={t('patients.resources.consents.form.consentTypeHint')}
-                  testID="patient-legal-help-consent-type"
-                />
-                <InlineFieldGuide text={t('patients.resources.consents.form.consentTypeHint')} />
                 <Select
+                  label={t('patients.resources.consents.form.consentTypeLabel')}
                   value={editor.values.consent_type || ''}
                   options={consentTypeOptions}
                   onValueChange={(value) => onEditorChange('consent_type', value)}
@@ -111,15 +123,8 @@ const PatientLegalHubScreen = () => {
               </StyledField>
 
               <StyledField>
-                <FieldHelpTrigger
-                  label={t('patients.resources.consents.form.statusLabel')}
-                  tooltip={t('patients.resources.consents.form.statusHint')}
-                  helpTitle={t('patients.resources.consents.form.statusLabel')}
-                  helpBody={t('patients.resources.consents.form.statusHint')}
-                  testID="patient-legal-help-consent-status"
-                />
-                <InlineFieldGuide text={t('patients.resources.consents.form.statusHint')} />
                 <Select
+                  label={t('patients.resources.consents.form.statusLabel')}
                   value={editor.values.status || ''}
                   options={consentStatusOptions}
                   onValueChange={(value) => onEditorChange('status', value)}
@@ -130,53 +135,36 @@ const PatientLegalHubScreen = () => {
               </StyledField>
 
               <StyledField>
-                <FieldHelpTrigger
+                <GlobalSmartDateField
                   label={t('patients.resources.consents.form.grantedAtLabel')}
-                  tooltip={t('patients.resources.consents.form.grantedAtHint')}
-                  helpTitle={t('patients.resources.consents.form.grantedAtLabel')}
-                  helpBody={t('patients.resources.consents.form.grantedAtHint')}
-                  testID="patient-legal-help-consent-granted-at"
-                />
-                <InlineFieldGuide text={t('patients.resources.consents.form.grantedAtHint')} />
-                <TextField
                   value={editor.values.granted_at || ''}
-                  onChange={(event) => onEditorChange('granted_at', event?.target?.value || '')}
+                  onValueChange={(value) => onEditorChange('granted_at', value)}
                   helperText={editor.errors?.granted_at || t('patients.resources.consents.form.grantedAtHint')}
                   errorMessage={editor.errors?.granted_at}
+                  placeholder={t('patients.resources.consents.form.grantedAtPlaceholder')}
                   density="compact"
+                  testID="patient-legal-granted-at"
                 />
               </StyledField>
 
               <StyledField>
-                <FieldHelpTrigger
+                <GlobalSmartDateField
                   label={t('patients.resources.consents.form.revokedAtLabel')}
-                  tooltip={t('patients.resources.consents.form.revokedAtHint')}
-                  helpTitle={t('patients.resources.consents.form.revokedAtLabel')}
-                  helpBody={t('patients.resources.consents.form.revokedAtHint')}
-                  testID="patient-legal-help-consent-revoked-at"
-                />
-                <InlineFieldGuide text={t('patients.resources.consents.form.revokedAtHint')} />
-                <TextField
                   value={editor.values.revoked_at || ''}
-                  onChange={(event) => onEditorChange('revoked_at', event?.target?.value || '')}
+                  onValueChange={(value) => onEditorChange('revoked_at', value)}
                   helperText={editor.errors?.revoked_at || t('patients.resources.consents.form.revokedAtHint')}
                   errorMessage={editor.errors?.revoked_at}
+                  placeholder={t('patients.resources.consents.form.revokedAtPlaceholder')}
                   density="compact"
+                  testID="patient-legal-revoked-at"
                 />
               </StyledField>
             </>
           ) : (
             <>
               <StyledField>
-                <FieldHelpTrigger
-                  label={t('patients.resources.termsAcceptances.form.userLabel')}
-                  tooltip={t('patients.resources.termsAcceptances.form.userHint')}
-                  helpTitle={t('patients.resources.termsAcceptances.form.userLabel')}
-                  helpBody={t('patients.resources.termsAcceptances.form.userHint')}
-                  testID="patient-legal-help-terms-user"
-                />
-                <InlineFieldGuide text={t('patients.resources.termsAcceptances.form.userHint')} />
                 <Select
+                  label={t('patients.resources.termsAcceptances.form.userLabel')}
                   value={editor.values.user_id || ''}
                   options={userOptions}
                   onValueChange={(value) => onEditorChange('user_id', value)}
@@ -187,17 +175,10 @@ const PatientLegalHubScreen = () => {
               </StyledField>
 
               <StyledField>
-                <FieldHelpTrigger
-                  label={t('patients.resources.termsAcceptances.form.versionLabel')}
-                  tooltip={t('patients.resources.termsAcceptances.form.versionHint')}
-                  helpTitle={t('patients.resources.termsAcceptances.form.versionLabel')}
-                  helpBody={t('patients.resources.termsAcceptances.form.versionHint')}
-                  testID="patient-legal-help-terms-version"
-                />
-                <InlineFieldGuide text={t('patients.resources.termsAcceptances.form.versionHint')} />
                 <TextField
+                  label={t('patients.resources.termsAcceptances.form.versionLabel')}
                   value={editor.values.version_label || ''}
-                  onChange={(event) => onEditorChange('version_label', event?.target?.value || '')}
+                  onChange={(event) => onEditorChange('version_label', resolveTextValue(event))}
                   helperText={editor.errors?.version_label || t('patients.resources.termsAcceptances.form.versionHint')}
                   errorMessage={editor.errors?.version_label}
                   maxLength={40}
@@ -243,11 +224,14 @@ const PatientLegalHubScreen = () => {
         {tabs.map((tab) => (
           <Button
             key={tab}
-            variant="surface"
+            variant={tab === activeTab ? 'primary' : 'surface'}
             size="medium"
             onPress={() => onSelectTab(tab)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: tab === activeTab }}
             accessibilityLabel={t(`patients.legal.tabs.${tab}`)}
-            icon={<Icon glyph="?" size="xs" decorative />}
+            testID={`patient-legal-tab-${tab}`}
+            icon={<Icon glyph={tab === activeTab ? '\u25cf' : '\u25cb'} size="xs" decorative />}
           >
             {t(`patients.legal.tabs.${tab}`)}
           </Button>

@@ -76,18 +76,17 @@ describe('PatientLegalHubScreen', () => {
     });
   });
 
-  it('renders legal-hub field guidance and shows human-friendly ids instead of UUIDs', () => {
+  it('renders progressive form guidance, smart date fields, and active tab state', () => {
     const { getByTestId, getByText, queryByText } = renderWithTheme(<PatientLegalHubScreen />);
 
-    expect(getByTestId('patient-legal-help-patient')).toBeTruthy();
-    expect(getByTestId('patient-legal-help-consent-type')).toBeTruthy();
-    expect(getByTestId('patient-legal-help-consent-status')).toBeTruthy();
-    expect(getByTestId('patient-legal-help-consent-granted-at')).toBeTruthy();
-    expect(getByTestId('patient-legal-help-consent-revoked-at')).toBeTruthy();
+    expect(getByTestId('patient-legal-form-help')).toBeTruthy();
+    expect(getByTestId('patient-legal-granted-at')).toBeTruthy();
+    expect(getByTestId('patient-legal-revoked-at')).toBeTruthy();
+    expect(getByTestId('patient-legal-tab-consents')).toBeTruthy();
+    expect(getByTestId('patient-legal-tab-terms')).toBeTruthy();
 
-    expect(getByText('patients.resources.consents.form.consentTypeHint')).toBeTruthy();
+    expect(getByText('patients.common.form.helpLabel')).toBeTruthy();
     expect(getByText(/CNS-0001/)).toBeTruthy();
     expect(queryByText(mockUuid)).toBeNull();
   });
 });
-

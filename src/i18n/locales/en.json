@@ -5893,18 +5893,21 @@
       "tabs": {
         "summary": "Summary",
         "identity": "Identity & Reachability",
+        "contacts": "Contacts",
         "care": "Care Context",
+        "address": "Addresses",
         "documents": "Documents",
-        "consents": "Consents"
+        "legal": "Legal"
       },
       "panels": {
+        "care": "Care",
         "identifiers": "Identifiers",
         "contacts": "Contacts",
         "guardians": "Guardians",
         "allergies": "Allergies",
         "histories": "Medical Histories",
-        "documents": "Documents",
-        "consents": "Consents"
+        "addresses": "Addresses",
+        "documents": "Documents"
       },
       "summarySections": {
         "about": "About patient",

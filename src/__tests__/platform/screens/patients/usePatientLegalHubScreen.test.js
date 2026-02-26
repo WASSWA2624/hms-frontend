@@ -1,4 +1,4 @@
-const { renderHook, act } = require('@testing-library/react-native');
+const { renderHook, act, waitFor } = require('@testing-library/react-native');
 
 let mockSearchParams = {};
 const mockReplace = jest.fn();
@@ -138,6 +138,58 @@ describe('usePatientLegalHubScreen', () => {
     renderHook(() => usePatientLegalHubScreen());
 
     expect(mockReplace).toHaveBeenCalledWith('/patients/legal?tab=consents');
+  });
+
+  it('opens consent create editor from deep-link mode=create', async () => {
+    mockSearchParams = { tab: 'consents', mode: 'create' };
+
+    const { result } = renderHook(() => usePatientLegalHubScreen());
+
+    await waitFor(() => {
+      expect(result.current.editor).toMatchObject({
+        tab: 'consents',
+        mode: 'create',
+      });
+    });
+  });
+
+  it('opens consent edit editor from deep-link mode=edit and recordId', async () => {
+    mockSearchParams = {
+      tab: 'consents',
+      mode: 'edit',
+      recordId: 'consent-44',
+    };
+
+    useConsent.mockReturnValue({
+      list: mockConsentList,
+      create: mockConsentCreate,
+      update: mockConsentUpdate,
+      remove: mockConsentRemove,
+      reset: mockConsentReset,
+      data: {
+        items: [
+          {
+            id: 'consent-44',
+            patient_id: 'patient-1',
+            consent_type: 'TREATMENT',
+            status: 'GRANTED',
+            granted_at: '2026-02-20T00:00:00.000Z',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+    });
+
+    const { result } = renderHook(() => usePatientLegalHubScreen());
+
+    await waitFor(() => {
+      expect(result.current.editor).toMatchObject({
+        tab: 'consents',
+        mode: 'edit',
+        recordId: 'consent-44',
+      });
+    });
   });
 
   it('surfaces entitlement blocked state when legal hub is not entitled', () => {

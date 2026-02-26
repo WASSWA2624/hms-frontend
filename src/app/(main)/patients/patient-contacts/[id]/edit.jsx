@@ -5,8 +5,12 @@ export default function PatientsLegacyRoute() {
     <LegacyWorkspaceRedirect
       tab="identity"
       panel="contacts"
+      mode="edit"
+      includeRouteIdAsRecordId
       testID="patients-legacy-contacts-edit-redirect"
     />
   );
 }
+
+
 

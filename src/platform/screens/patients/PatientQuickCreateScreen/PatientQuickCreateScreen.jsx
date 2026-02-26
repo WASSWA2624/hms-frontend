@@ -18,7 +18,6 @@ import {
 import { useI18n } from '@hooks';
 import EntitlementBlockedState from '../components/EntitlementBlockedState';
 import FieldHelpTrigger from '../components/FieldHelpTrigger';
-import InlineFieldGuide from '../components/InlineFieldGuide';
 import {
   StyledActions,
   StyledContainer,
@@ -80,15 +79,8 @@ const PatientQuickCreateScreen = () => {
 
   const renderTextField = (name, labelKey, placeholderKey, hintKey, maxLength) => (
     <StyledFieldBlock key={name}>
-      <FieldHelpTrigger
-        label={t(labelKey)}
-        tooltip={t(hintKey)}
-        helpTitle={t(labelKey)}
-        helpBody={t(hintKey)}
-        testID={`patient-quick-create-help-${name}`}
-      />
-      <InlineFieldGuide text={t(hintKey)} testID={`patient-quick-create-guide-${name}`} />
       <TextField
+        label={t(labelKey)}
         value={values[name] || ''}
         placeholder={t(placeholderKey)}
         onChange={(event) => onChange(name, resolveTextValue(event))}
@@ -166,17 +158,24 @@ const PatientQuickCreateScreen = () => {
 
       {!isEntitlementBlocked ? (
         <Card variant="outlined">
+          <FieldHelpTrigger
+            label={t('patients.common.form.helpLabel')}
+            tooltip={t('patients.common.form.helpTooltip')}
+            helpTitle={t('patients.common.form.helpTitle')}
+            helpBody={t('patients.common.form.helpBody', {
+              mode: t('patients.common.form.modeCreate'),
+            })}
+            helpItems={[
+              t('patients.common.form.helpItems.context'),
+              t('patients.common.form.helpItems.required'),
+              t('patients.common.form.helpItems.actions'),
+              t('patients.common.form.helpItems.recovery'),
+            ]}
+            testID="patient-quick-create-form-help"
+          />
           <StyledFormGrid>
             {requiresTenantSelection ? (
               <StyledFieldBlock>
-                <FieldHelpTrigger
-                  label={t('patients.common.form.tenantLabel')}
-                  tooltip={t('patients.common.form.tenantHint')}
-                  helpTitle={t('patients.common.form.tenantLabel')}
-                  helpBody={t('patients.common.form.tenantHint')}
-                  testID="patient-quick-create-help-tenant"
-                />
-                <InlineFieldGuide text={t('patients.common.form.tenantHint')} />
               {isTenantLoading ? (
                 <LoadingSpinner accessibilityLabel={t('common.loading')} />
               ) : tenantErrorCode ? (
@@ -219,6 +218,7 @@ const PatientQuickCreateScreen = () => {
                 />
               ) : (
                 <Select
+                  label={t('patients.common.form.tenantLabel')}
                   value={values.tenant_id || ''}
                   options={tenantOptions}
                   onValueChange={(value) => onChange('tenant_id', value)}
@@ -247,18 +247,8 @@ const PatientQuickCreateScreen = () => {
               120
             )}
             <StyledFieldBlock>
-              <FieldHelpTrigger
-                label={t('patients.resources.patients.form.dateOfBirthLabel')}
-                tooltip={t('patients.resources.patients.form.dateOfBirthHint')}
-                helpTitle={t('patients.resources.patients.form.dateOfBirthLabel')}
-                helpBody={t('patients.resources.patients.form.dateOfBirthHint')}
-                testID="patient-quick-create-help-date_of_birth"
-              />
-              <InlineFieldGuide
-                text={t('patients.resources.patients.form.dateOfBirthHint')}
-                testID="patient-quick-create-guide-date_of_birth"
-              />
               <GlobalSmartDateField
+                label={t('patients.resources.patients.form.dateOfBirthLabel')}
                 value={values.date_of_birth || ''}
                 placeholder={t('patients.resources.patients.form.dateOfBirthPlaceholder')}
                 onValueChange={(value) => onChange('date_of_birth', value)}
@@ -271,18 +261,12 @@ const PatientQuickCreateScreen = () => {
             </StyledFieldBlock>
 
             <StyledFieldBlock>
-              <FieldHelpTrigger
-                label={t('patients.resources.patients.form.genderLabel')}
-                tooltip={t('patients.resources.patients.form.genderHint')}
-                helpTitle={t('patients.resources.patients.form.genderLabel')}
-                helpBody={t('patients.resources.patients.form.genderHint')}
-                testID="patient-quick-create-help-gender"
-              />
-              <InlineFieldGuide text={t('patients.resources.patients.form.genderHint')} />
               <Select
+                label={t('patients.resources.patients.form.genderLabel')}
                 value={values.gender || ''}
                 options={genderOptions}
                 onValueChange={(value) => onChange('gender', value)}
+                helperText={t('patients.resources.patients.form.genderHint')}
                 compact
                 testID="patient-quick-create-gender"
                 disabled={isFormBusy}
@@ -290,16 +274,9 @@ const PatientQuickCreateScreen = () => {
             </StyledFieldBlock>
 
             <StyledFieldBlock>
-              <FieldHelpTrigger
-                label={t('patients.resources.patients.form.facilityLabel')}
-                tooltip={t('patients.resources.patients.form.facilityHint')}
-                helpTitle={t('patients.resources.patients.form.facilityLabel')}
-                helpBody={t('patients.resources.patients.form.facilityHint')}
-                testID="patient-quick-create-help-facility"
-              />
-              <InlineFieldGuide text={t('patients.resources.patients.form.facilityHint')} />
               {!hasTenantSelection ? (
                 <Select
+                  label={t('patients.resources.patients.form.facilityLabel')}
                   value={values.facility_id || ''}
                   options={facilityOptions}
                   onValueChange={(value) => onChange('facility_id', value)}
@@ -332,6 +309,7 @@ const PatientQuickCreateScreen = () => {
                 />
               ) : (
                 <Select
+                  label={t('patients.resources.patients.form.facilityLabel')}
                   value={values.facility_id || ''}
                   options={facilityOptions}
                   onValueChange={(value) => onChange('facility_id', value)}
@@ -345,14 +323,6 @@ const PatientQuickCreateScreen = () => {
             </StyledFieldBlock>
 
             <StyledFieldBlock>
-              <FieldHelpTrigger
-                label={t('patients.resources.patients.form.activeLabel')}
-                tooltip={t('patients.resources.patients.form.activeHint')}
-                helpTitle={t('patients.resources.patients.form.activeLabel')}
-                helpBody={t('patients.resources.patients.form.activeHint')}
-                testID="patient-quick-create-help-is-active"
-              />
-              <InlineFieldGuide text={t('patients.resources.patients.form.activeHint')} />
               <Switch
                 value={Boolean(values.is_active)}
                 onValueChange={(value) => onChange('is_active', value)}

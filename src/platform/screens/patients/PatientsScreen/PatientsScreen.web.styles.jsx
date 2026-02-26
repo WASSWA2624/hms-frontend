@@ -35,4 +35,31 @@ const StyledContent = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.lg}px;
 `;
 
-export { StyledContainer, StyledContent };
+const StyledModuleNavigation = styled.div.withConfig({
+  displayName: 'PatientsScreen_StyledModuleNavigation',
+  componentId: 'PatientsScreen_StyledModuleNavigation',
+})`
+  width: 100%;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
+  padding: ${({ theme }) => theme.spacing.sm}px ${({ theme }) => theme.spacing.md}px;
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledModuleNavigationRail = styled.div.withConfig({
+  displayName: 'PatientsScreen_StyledModuleNavigationRail',
+  componentId: 'PatientsScreen_StyledModuleNavigationRail',
+})`
+  width: 100%;
+  max-width: 1240px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+export {
+  StyledContainer,
+  StyledContent,
+  StyledModuleNavigation,
+  StyledModuleNavigationRail,
+};

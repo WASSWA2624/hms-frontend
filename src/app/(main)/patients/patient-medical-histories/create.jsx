@@ -5,8 +5,11 @@ export default function PatientsLegacyRoute() {
     <LegacyWorkspaceRedirect
       tab="care"
       panel="histories"
+      mode="create"
       testID="patients-legacy-histories-create-redirect"
     />
   );
 }
+
+
 

@@ -30,6 +30,18 @@ const mockUpdateGuardians = jest.fn();
 const mockRemoveGuardians = jest.fn();
 const mockResetGuardians = jest.fn();
 
+const mockListAllergies = jest.fn();
+const mockCreateAllergies = jest.fn();
+const mockUpdateAllergies = jest.fn();
+const mockRemoveAllergies = jest.fn();
+const mockResetAllergies = jest.fn();
+
+const mockListHistories = jest.fn();
+const mockCreateHistories = jest.fn();
+const mockUpdateHistories = jest.fn();
+const mockRemoveHistories = jest.fn();
+const mockResetHistories = jest.fn();
+
 const mockListDocuments = jest.fn();
 const mockCreateDocuments = jest.fn();
 const mockUpdateDocuments = jest.fn();
@@ -62,6 +74,8 @@ jest.mock('@hooks', () => ({
 jest.mock('@hooks/usePatientIdentifier', () => jest.fn());
 jest.mock('@hooks/usePatientContact', () => jest.fn());
 jest.mock('@hooks/usePatientGuardian', () => jest.fn());
+jest.mock('@hooks/usePatientAllergy', () => jest.fn());
+jest.mock('@hooks/usePatientMedicalHistory', () => jest.fn());
 jest.mock('@hooks/usePatientDocument', () => jest.fn());
 jest.mock('@hooks/useAddress', () => jest.fn());
 
@@ -78,6 +92,8 @@ const { useFacility, usePatient, usePatientAccess } = require('@hooks');
 const usePatientIdentifier = require('@hooks/usePatientIdentifier');
 const usePatientContact = require('@hooks/usePatientContact');
 const usePatientGuardian = require('@hooks/usePatientGuardian');
+const usePatientAllergy = require('@hooks/usePatientAllergy');
+const usePatientMedicalHistory = require('@hooks/usePatientMedicalHistory');
 const usePatientDocument = require('@hooks/usePatientDocument');
 const useAddress = require('@hooks/useAddress');
 
@@ -169,6 +185,28 @@ describe('usePatientDetailsScreen', () => {
       errorCode: null,
     });
 
+    usePatientAllergy.mockReturnValue({
+      list: mockListAllergies,
+      create: mockCreateAllergies,
+      update: mockUpdateAllergies,
+      remove: mockRemoveAllergies,
+      reset: mockResetAllergies,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+    });
+
+    usePatientMedicalHistory.mockReturnValue({
+      list: mockListHistories,
+      create: mockCreateHistories,
+      update: mockUpdateHistories,
+      remove: mockRemoveHistories,
+      reset: mockResetHistories,
+      data: { items: [] },
+      isLoading: false,
+      errorCode: null,
+    });
+
     usePatientDocument.mockReturnValue({
       list: mockListDocuments,
       create: mockCreateDocuments,
@@ -204,6 +242,14 @@ describe('usePatientDetailsScreen', () => {
       tenant_id: 'tenant-1',
     }));
     expect(mockListContacts).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListAllergies).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1',
+      tenant_id: 'tenant-1',
+    }));
+    expect(mockListHistories).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1',
       tenant_id: 'tenant-1',
     }));
@@ -255,6 +301,130 @@ describe('usePatientDetailsScreen', () => {
     await waitFor(() => {
       expect(result.current.initialTabKey).toBe('address');
     });
+  });
+
+  it('prioritizes panel over tab and auto-opens the requested create editor', async () => {
+    mockSearchParams = {
+      id: 'PAT-001',
+      tab: 'documents',
+      panel: 'allergies',
+      mode: 'create',
+    };
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.patientId).toBe('patient-1');
+    });
+    await waitFor(() => {
+      expect(result.current.selectedTabKey).toBe('care');
+      expect(result.current.resourceSections.allergies.editor.mode).toBe('create');
+    });
+  });
+
+  it('auto-opens targeted panel edit from deep-link mode and recordId', async () => {
+    mockSearchParams = {
+      id: 'PAT-001',
+      panel: 'contacts',
+      mode: 'edit',
+      recordId: 'contact-22',
+    };
+
+    usePatientContact.mockReturnValue({
+      list: mockListContacts,
+      create: mockCreateContacts,
+      update: mockUpdateContacts,
+      remove: mockRemoveContacts,
+      reset: mockResetContacts,
+      data: {
+        items: [
+          {
+            id: 'contact-22',
+            contact_type: 'PHONE',
+            value: '+1555000111',
+          },
+        ],
+      },
+      isLoading: false,
+      errorCode: null,
+    });
+
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.selectedTabKey).toBe('contacts');
+    });
+    await waitFor(() => {
+      expect(result.current.resourceSections.contacts.editor.mode).toBe('edit');
+      expect(result.current.resourceSections.contacts.editor.recordId).toBe('contact-22');
+    });
+  });
+
+  it('opens summary edit when route mode=edit without panel', async () => {
+    mockSearchParams = { id: 'PAT-001', mode: 'edit' };
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.patientId).toBe('patient-1');
+    });
+    await waitFor(() => {
+      expect(result.current.isSummaryEditMode).toBe(true);
+    });
+  });
+
+  it('syncs selected tab to route query when user switches tabs', async () => {
+    const { result } = renderHook(() => usePatientDetailsScreen());
+
+    await waitFor(() => {
+      expect(result.current.patientId).toBe('patient-1');
+    });
+
+    act(() => {
+      result.current.onSelectTab('documents');
+    });
+
+    expect(result.current.selectedTabKey).toBe('documents');
+    expect(mockReplace).toHaveBeenCalledWith('/patients/patients/PAT-001?tab=documents');
+  });
+
+  it('polls only active-tab resources during background sync', async () => {
+    jest.useFakeTimers();
+    try {
+      const { result } = renderHook(() => usePatientDetailsScreen());
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      act(() => {
+        result.current.onSelectTab('contacts');
+      });
+
+      const identifiersCallsBefore = mockListIdentifiers.mock.calls.length;
+      const guardiansCallsBefore = mockListGuardians.mock.calls.length;
+      const contactsCallsBefore = mockListContacts.mock.calls.length;
+      const documentsCallsBefore = mockListDocuments.mock.calls.length;
+      const addressesCallsBefore = mockListAddresses.mock.calls.length;
+      const allergiesCallsBefore = mockListAllergies.mock.calls.length;
+      const historiesCallsBefore = mockListHistories.mock.calls.length;
+
+      await act(async () => {
+        jest.advanceTimersByTime(10050);
+        await Promise.resolve();
+      });
+
+      await waitFor(() => {
+        expect(mockListContacts.mock.calls.length).toBeGreaterThan(contactsCallsBefore);
+      });
+      expect(mockListIdentifiers.mock.calls.length).toBe(identifiersCallsBefore);
+      expect(mockListGuardians.mock.calls.length).toBe(guardiansCallsBefore);
+      expect(mockListDocuments.mock.calls.length).toBe(documentsCallsBefore);
+      expect(mockListAddresses.mock.calls.length).toBe(addressesCallsBefore);
+      expect(mockListAllergies.mock.calls.length).toBe(allergiesCallsBefore);
+      expect(mockListHistories.mock.calls.length).toBe(historiesCallsBefore);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('manages resource editor lifecycle locally and submits create payload', async () => {

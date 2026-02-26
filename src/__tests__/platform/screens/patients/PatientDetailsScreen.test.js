@@ -40,6 +40,7 @@ describe('PatientDetailsScreen', () => {
     patientId: 'patient-1',
     routePatientId: 'PAT-0101',
     initialTabKey: 'details',
+    selectedTabKey: 'details',
     patient: {
       id: mockUuid,
       first_name: 'Jane',
@@ -53,6 +54,8 @@ describe('PatientDetailsScreen', () => {
       identifiers: buildResourceSection('identifiers'),
       guardians: buildResourceSection('guardians'),
       contacts: buildResourceSection('contacts'),
+      allergies: buildResourceSection('allergies'),
+      histories: buildResourceSection('histories'),
       addresses: buildResourceSection('addresses'),
       documents: buildResourceSection('documents'),
     },
@@ -60,6 +63,8 @@ describe('PatientDetailsScreen', () => {
       IDENTIFIERS: 'identifiers',
       GUARDIANS: 'guardians',
       CONTACTS: 'contacts',
+      ALLERGIES: 'allergies',
+      HISTORIES: 'histories',
       ADDRESSES: 'addresses',
       DOCUMENTS: 'documents',
     },
@@ -85,6 +90,7 @@ describe('PatientDetailsScreen', () => {
     canDeletePatientRecords: true,
     canManageAllTenants: false,
     onRetry: jest.fn(),
+    onSelectTab: jest.fn(),
     onDismissNotice: jest.fn(),
     onGoToSubscriptions: jest.fn(),
     onDeletePatient: jest.fn(),
@@ -115,12 +121,26 @@ describe('PatientDetailsScreen', () => {
     expect(queryByText(mockUuid)).toBeNull();
   });
 
-  it('switches top nav tab content locally without route navigation', () => {
-    const { getByTestId, queryByTestId } = renderWithTheme(<PatientDetailsScreen />);
+  it('delegates page-tab selection to hook-level tab synchronization', () => {
+    const hookState = createHookState();
+    usePatientDetailsScreen.mockReturnValue(hookState);
 
-    expect(queryByTestId('patient-details-page-content-contacts')).toBeNull();
+    const { getByTestId } = renderWithTheme(<PatientDetailsScreen />);
+
     fireEvent.press(getByTestId('patient-details-page-tab-contacts'));
-    expect(getByTestId('patient-details-page-content-contacts')).toBeTruthy();
+    expect(hookState.onSelectTab).toHaveBeenCalledWith('contacts');
+  });
+
+  it('renders care tab content when selected by hook state', () => {
+    const hookState = createHookState();
+    usePatientDetailsScreen.mockReturnValue({
+      ...hookState,
+      selectedTabKey: 'care',
+      initialTabKey: 'care',
+    });
+
+    const { getByTestId } = renderWithTheme(<PatientDetailsScreen />);
+    expect(getByTestId('patient-details-page-content-care')).toBeTruthy();
   });
 
   it('falls back to readable tab labels when translations are blank', () => {

@@ -70,22 +70,14 @@ describe('PatientQuickCreateScreen', () => {
     usePatientQuickCreateScreen.mockReturnValue(buildHookState());
   });
 
-  it('renders field help triggers, smart date field, and inline guides for quick-create form fields', () => {
+  it('renders progressive form guidance and smart date field for quick-create', () => {
     const { getByTestId, getByText } = renderWithTheme(<PatientQuickCreateScreen />);
 
-    expect(getByTestId('patient-quick-create-help-tenant')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-first_name')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-last_name')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-date_of_birth')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-gender')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-facility')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-help-is-active')).toBeTruthy();
-
-    expect(getByTestId('patient-quick-create-guide-first_name')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-guide-last_name')).toBeTruthy();
-    expect(getByTestId('patient-quick-create-guide-date_of_birth')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-form-help')).toBeTruthy();
     expect(getByTestId('patient-quick-create-date_of_birth')).toBeTruthy();
-    expect(getByText('patients.resources.patients.form.genderHint')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-first_name')).toBeTruthy();
+    expect(getByTestId('patient-quick-create-last_name')).toBeTruthy();
+    expect(getByText('patients.common.form.helpLabel')).toBeTruthy();
   });
 
   it('renders notice snackbar when notice message is present', () => {

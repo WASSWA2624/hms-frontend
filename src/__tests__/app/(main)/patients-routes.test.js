@@ -53,6 +53,10 @@ jest.mock('@platform/screens', () => ({
 const DIRECT_ROUTE_CASES = [
   {
     routePath: '../../../app/(main)/patients/index',
+    screenKey: 'PatientDirectoryScreen',
+  },
+  {
+    routePath: '../../../app/(main)/patients/overview',
     screenKey: 'PatientsOverviewScreen',
   },
   {
@@ -207,7 +211,7 @@ const LEGACY_LEGAL_ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/patients/consents/create',
-    expectedPath: '/patients/legal?tab=consents',
+    expectedPath: '/patients/legal?tab=consents&mode=create',
   },
   {
     routePath: '../../../app/(main)/patients/consents/[id]',
@@ -215,7 +219,7 @@ const LEGACY_LEGAL_ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/patients/consents/[id]/edit',
-    expectedPath: '/patients/legal?tab=consents',
+    expectedPath: '/patients/legal?tab=consents&mode=edit&recordId=consent-legacy-1',
   },
   {
     routePath: '../../../app/(main)/patients/terms-acceptances/index',
@@ -223,7 +227,7 @@ const LEGACY_LEGAL_ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/patients/terms-acceptances/create',
-    expectedPath: '/patients/legal?tab=terms',
+    expectedPath: '/patients/legal?tab=terms&mode=create',
   },
   {
     routePath: '../../../app/(main)/patients/terms-acceptances/[id]',
@@ -258,11 +262,27 @@ describe('Tier 4 Patient Routes', () => {
     '$routePath redirects to workspace tab=$tab panel=$panel when patient context exists',
     ({ routePath, tab, panel }) => {
       const routeModule = require(routePath);
-      mockSearchParams = { patientId: 'patient-42' };
+      const isCreateRoute = routePath.includes('/create');
+      const isEditRoute = routePath.includes('/edit');
+      mockSearchParams = {
+        patientId: 'patient-42',
+        id: 'record-legacy-7',
+      };
+
+      const query = new URLSearchParams();
+      query.set('tab', tab);
+      query.set('panel', panel);
+      if (isCreateRoute) {
+        query.set('mode', 'create');
+      }
+      if (isEditRoute) {
+        query.set('mode', 'edit');
+        query.set('recordId', 'record-legacy-7');
+      }
 
       render(React.createElement(routeModule.default));
       expect(mockReplace).toHaveBeenCalledWith(
-        `/patients/patients/patient-42?tab=${tab}&panel=${panel}`
+        `/patients/patients/patient-42?${query.toString()}`
       );
     }
   );
@@ -282,7 +302,9 @@ describe('Tier 4 Patient Routes', () => {
     '$routePath redirects to legal hub',
     ({ routePath, expectedPath }) => {
       const routeModule = require(routePath);
-      mockSearchParams = {};
+      mockSearchParams = routePath.includes('/edit')
+        ? { id: 'consent-legacy-1' }
+        : {};
 
       render(React.createElement(routeModule.default));
       expect(mockReplace).toHaveBeenCalledWith(expectedPath);

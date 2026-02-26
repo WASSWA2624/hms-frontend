@@ -4,21 +4,19 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
-import { confirmAction } from '@utils';
 import {
   sanitizeString,
 } from '../patientResourceConfigs';
-import { resolveErrorMessage } from '../patientScreenUtils';
+import {
+  composeContextLabel,
+  resolveContextLabel,
+  resolveErrorMessage,
+  resolvePatientContactLabel,
+} from '../patientScreenUtils';
 
 const DEFAULT_OVERVIEW_PAGE = 1;
 const DEFAULT_OVERVIEW_LIMIT = 20;
 const MAX_OVERVIEW_LIMIT = 100;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const sanitizePrimitiveValue = (value) => {
-  if (value == null) return '';
-  if (typeof value === 'string' || typeof value === 'number') return String(value).trim();
-  return '';
-};
 
 const normalizeBoundedLimit = (value) => {
   const numeric = Number(value);
@@ -59,98 +57,6 @@ const resolvePatientSubtitle = (patient, fallbackLabel) => {
   return fallbackLabel;
 };
 
-const resolveContextLabel = (context, fallback) => {
-  const label = sanitizeString(context?.label || context?.name);
-  const contextId = sanitizeString(context?.id);
-  const friendlyId = sanitizeString(
-    context?.human_friendly_id
-    || context?.humanFriendlyId
-    || (contextId && !UUID_PATTERN.test(contextId) ? contextId : '')
-  );
-  if (label && friendlyId) return `${label} (${friendlyId})`;
-  return label || friendlyId || fallback;
-};
-
-const composeContextLabel = (label, humanFriendlyId, fallback) => {
-  const normalizedLabel = sanitizeString(label);
-  const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
-  if (normalizedLabel && normalizedHumanFriendlyId) return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
-  return normalizedLabel || normalizedHumanFriendlyId || fallback;
-};
-
-const resolveContactEntryValue = (entry) => {
-  if (entry == null) return '';
-  if (typeof entry === 'string' || typeof entry === 'number') {
-    return sanitizePrimitiveValue(entry);
-  }
-
-  return [
-    entry?.value,
-    entry?.contact_value,
-    entry?.contact,
-    entry?.phone,
-    entry?.phone_number,
-    entry?.mobile,
-    entry?.mobile_number,
-    entry?.telephone,
-    entry?.tel,
-    entry?.email,
-    entry?.email_address,
-  ]
-    .map((value) => sanitizePrimitiveValue(value))
-    .find(Boolean) || '';
-};
-
-const resolvePatientContactLabel = (patient, fallback = '') => {
-  const directContactValue = [
-    patient?.contact,
-    patient?.contact_label,
-    patient?.contact_value,
-    patient?.primary_contact,
-    patient?.phone,
-    patient?.phone_number,
-    patient?.mobile,
-    patient?.mobile_number,
-    patient?.telephone,
-    patient?.tel,
-    patient?.email,
-    patient?.email_address,
-    patient?.primary_phone,
-    patient?.primary_phone_number,
-  ]
-    .map((value) => sanitizePrimitiveValue(value))
-    .find(Boolean);
-  if (directContactValue) return directContactValue;
-
-  const nestedContactValue = [
-    patient?.primary_contact_details,
-    patient?.primary_contact_detail,
-    patient?.primaryContact,
-    patient?.contact,
-  ]
-    .map((entry) => resolveContactEntryValue(entry))
-    .find(Boolean);
-  if (nestedContactValue) return nestedContactValue;
-
-  const contactCollections = [
-    patient?.contacts,
-    patient?.patient_contacts,
-    patient?.contact_entries,
-    patient?.contact_list,
-  ];
-
-  for (let index = 0; index < contactCollections.length; index += 1) {
-    const collection = contactCollections[index];
-    if (!Array.isArray(collection) || collection.length === 0) continue;
-    const value = collection
-      .map((entry) => resolveContactEntryValue(entry))
-      .find(Boolean);
-    if (value) return value;
-  }
-
-  return fallback;
-};
-
 const compareRecentPatients = (left, right) => {
   const updatedAtDiff = toTimestamp(right?.updated_at) - toTimestamp(left?.updated_at);
   if (updatedAtDiff !== 0) return updatedAtDiff;
@@ -185,7 +91,7 @@ const usePatientsOverviewScreen = () => {
     isResolved,
   } = usePatientAccess();
 
-  const { list, data, isLoading, errorCode, reset, remove } = usePatient();
+  const { list, data, isLoading, errorCode, reset } = usePatient();
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
@@ -353,30 +259,6 @@ const usePatientsOverviewScreen = () => {
     [canViewOverview, router]
   );
 
-  const handleEditPatient = useCallback(
-    (routePatientId) => {
-      if (!canViewOverview || !canCreatePatientRecords) return;
-      const safeId = sanitizeString(routePatientId);
-      if (!safeId) return;
-      router.push(`/patients/patients/${encodeURIComponent(safeId)}/edit`);
-    },
-    [canCreatePatientRecords, canViewOverview, router]
-  );
-
-  const handleDeletePatient = useCallback(
-    async (patientId) => {
-      if (!canViewOverview || !canCreatePatientRecords) return;
-      const safeId = sanitizeString(patientId);
-      if (!safeId) return;
-      if (!confirmAction(t('common.confirmDelete'))) return;
-
-      const result = await remove(safeId);
-      if (result === undefined) return;
-      loadPatients();
-    },
-    [canCreatePatientRecords, canViewOverview, loadPatients, remove, t]
-  );
-
   const handleRegisterPatient = useCallback(() => {
     if (!canViewOverview || !canCreatePatientRecords) return;
     router.push('/patients/patients/create');
@@ -396,8 +278,6 @@ const usePatientsOverviewScreen = () => {
     onRetry: handleRetry,
     onOpenResource: handleOpenResource,
     onOpenPatient: handleOpenPatient,
-    onEditPatient: handleEditPatient,
-    onDeletePatient: handleDeletePatient,
     onRegisterPatient: handleRegisterPatient,
   };
 };

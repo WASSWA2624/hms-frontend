@@ -1,6 +1,6 @@
-import { PatientsOverviewScreen } from '@platform/screens';
+import { PatientDirectoryScreen } from '@platform/screens';
 
 export default function PatientsIndexRoute() {
-  return <PatientsOverviewScreen />;
+  return <PatientDirectoryScreen />;
 }
 

@@ -323,6 +323,7 @@ const PatientDetailsScreen = () => {
   const {
     routePatientId,
     initialTabKey,
+    selectedTabKey,
     patient,
     contactRecords,
     resourceSections,
@@ -350,6 +351,7 @@ const PatientDetailsScreen = () => {
     canManagePatientRecords,
     canDeletePatientRecords,
     onRetry,
+    onSelectTab,
     onDismissNotice,
     onGoToSubscriptions,
     onDeletePatient,
@@ -364,13 +366,7 @@ const PatientDetailsScreen = () => {
     onResourceSubmit,
     onResourceCancel,
   } = usePatientDetailsScreen();
-  const [selectedPageTab, setSelectedPageTab] = React.useState(
-    initialTabKey || 'details'
-  );
-
-  React.useEffect(() => {
-    setSelectedPageTab(initialTabKey || 'details');
-  }, [initialTabKey, routePatientId]);
+  const activePageTab = selectedTabKey || initialTabKey || 'details';
 
   const fallbackLabel = t('common.notAvailable');
   const patientName =
@@ -472,7 +468,7 @@ const PatientDetailsScreen = () => {
       key: 'contacts',
       label: resolveTranslation(
         t,
-        'patients.workspace.panels.contacts',
+        'patients.workspace.tabs.contacts',
         'Contacts'
       ),
       icon: '\u260e',
@@ -483,8 +479,18 @@ const PatientDetailsScreen = () => {
       ),
     },
     {
+      key: 'care',
+      label: resolveTranslation(t, 'patients.workspace.tabs.care', 'Care'),
+      icon: '\u2695',
+      description: resolveTranslation(
+        t,
+        'patients.workspace.panels.care',
+        'Allergies and medical histories.'
+      ),
+    },
+    {
       key: 'address',
-      label: resolveTranslation(t, 'address.list.title', 'Addresses'),
+      label: resolveTranslation(t, 'patients.workspace.tabs.address', 'Addresses'),
       icon: '\ud83d\udccd',
       description: resolveTranslation(
         t,
@@ -496,7 +502,7 @@ const PatientDetailsScreen = () => {
       key: 'documents',
       label: resolveTranslation(
         t,
-        'patients.workspace.panels.documents',
+        'patients.workspace.tabs.documents',
         'Documents'
       ),
       icon: '\ud83d\udcc4',
@@ -509,7 +515,7 @@ const PatientDetailsScreen = () => {
   ];
 
   const selectedPageTabConfig =
-    screenTabs.find((tab) => tab.key === selectedPageTab) ||
+    screenTabs.find((tab) => tab.key === activePageTab) ||
     screenTabs.find((tab) => tab.key === 'details') ||
     screenTabs[0];
   const pageTitle = resolveTranslation(
@@ -1154,11 +1160,11 @@ const PatientDetailsScreen = () => {
   };
 
   const renderSelectedTabBody = () => {
-    if (selectedPageTab === 'details') {
+    if (activePageTab === 'details') {
       return isSummaryEditMode ? renderSummaryEdit() : renderSummaryReadonly();
     }
 
-    if (selectedPageTab === 'identity') {
+    if (activePageTab === 'identity') {
       return (
         <>
           {renderResourceSection({
@@ -1189,7 +1195,7 @@ const PatientDetailsScreen = () => {
       );
     }
 
-    if (selectedPageTab === 'contacts') {
+    if (activePageTab === 'contacts') {
       return (
         <>
           <StyledOverflowCard
@@ -1219,7 +1225,38 @@ const PatientDetailsScreen = () => {
       );
     }
 
-    if (selectedPageTab === 'address') {
+    if (activePageTab === 'care') {
+      return (
+        <>
+          {renderResourceSection({
+            section: resourceSections?.[resourceKeys.ALLERGIES],
+            title: t('patients.workspace.panels.allergies'),
+            description: t(
+              'patients.resources.patientAllergies.overviewDescription'
+            ),
+            emptyMessage: t(
+              'patients.resources.patientAllergies.list.emptyMessage'
+            ),
+            testID: 'patient-details-allergies',
+            icon: '\u2695',
+          })}
+          {renderResourceSection({
+            section: resourceSections?.[resourceKeys.HISTORIES],
+            title: t('patients.workspace.panels.histories'),
+            description: t(
+              'patients.resources.patientMedicalHistories.overviewDescription'
+            ),
+            emptyMessage: t(
+              'patients.resources.patientMedicalHistories.list.emptyMessage'
+            ),
+            testID: 'patient-details-histories',
+            icon: '\ud83d\udcc3',
+          })}
+        </>
+      );
+    }
+
+    if (activePageTab === 'address') {
       return renderResourceSection({
         section: resourceSections?.[resourceKeys.ADDRESSES],
         title: t('address.list.title'),
@@ -1230,7 +1267,7 @@ const PatientDetailsScreen = () => {
       });
     }
 
-    if (selectedPageTab === 'documents') {
+    if (activePageTab === 'documents') {
       return renderResourceSection({
         section: resourceSections?.[resourceKeys.DOCUMENTS],
         title: t('patients.workspace.panels.documents'),
@@ -1273,11 +1310,11 @@ const PatientDetailsScreen = () => {
               <StyledChromeTabSlot key={tab.key} $isCompact={isCompactLayout}>
                 <StyledPageTabButton
                   $isCompact={isCompactLayout}
-                  onPress={() => setSelectedPageTab(tab.key)}
-                  variant={selectedPageTab === tab.key ? 'primary' : 'surface'}
+                  onPress={() => onSelectTab(tab.key)}
+                  variant={activePageTab === tab.key ? 'primary' : 'surface'}
                   size="small"
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: selectedPageTab === tab.key }}
+                  accessibilityState={{ selected: activePageTab === tab.key }}
                   accessibilityLabel={tab.label}
                   testID={`patient-details-page-tab-${tab.key}`}
                   icon={
@@ -1285,7 +1322,7 @@ const PatientDetailsScreen = () => {
                       glyph={tab.icon}
                       size="xs"
                       decorative
-                      tone={selectedPageTab === tab.key ? 'inverse' : 'default'}
+                      tone={activePageTab === tab.key ? 'inverse' : 'default'}
                     />
                   }
                 >
@@ -1299,7 +1336,7 @@ const PatientDetailsScreen = () => {
 
       <StyledOverflowCard
         variant="outlined"
-        testID={`patient-details-page-content-${selectedPageTab}`}
+        testID={`patient-details-page-content-${activePageTab}`}
       >
         <StyledPageNavigation>
           <Text variant="h3">{selectedPageTabConfig?.label}</Text>
@@ -1321,7 +1358,7 @@ const PatientDetailsScreen = () => {
           {t('patients.workspace.actions.refresh')}
         </StyledCompactAwareActionButton>
 
-        {selectedPageTab === 'details' &&
+        {activePageTab === 'details' &&
         !isSummaryEditMode &&
         canManagePatientRecords ? (
           <StyledCompactAwareActionButton
@@ -1338,7 +1375,7 @@ const PatientDetailsScreen = () => {
           </StyledCompactAwareActionButton>
         ) : null}
 
-        {selectedPageTab === 'details' &&
+        {activePageTab === 'details' &&
         !isSummaryEditMode &&
         canDeletePatientProfile ? (
           <StyledCompactAwareActionButton

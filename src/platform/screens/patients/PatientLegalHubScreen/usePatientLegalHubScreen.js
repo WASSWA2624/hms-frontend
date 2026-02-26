@@ -11,13 +11,17 @@ import {
 } from '@hooks';
 import { confirmAction } from '@utils';
 import {
+  findRecordByRouteId,
   isEntitlementDeniedError,
   resolveErrorMessage,
+  resolvePatientContextLabel,
   resolvePatientDisplayLabel,
+  resolveUserContextLabel,
   resolveUserDisplayLabel,
 } from '../patientScreenUtils';
 
 const VALID_TABS = new Set(['consents', 'terms']);
+const VALID_MODES = new Set(['create', 'edit']);
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const sanitizeString = (value) => String(value || '').trim();
@@ -44,43 +48,25 @@ const sanitizeTab = (value) => {
   return VALID_TABS.has(normalized) ? normalized : 'consents';
 };
 
-const buildLegalPath = (tab) => {
+const sanitizeMode = (value) => {
+  const normalized = sanitizeString(value).toLowerCase();
+  return VALID_MODES.has(normalized) ? normalized : '';
+};
+
+const buildLegalPath = (tab, mode = '', recordId = '') => {
   const normalizedTab = sanitizeTab(tab);
-  return `/patients/legal?tab=${normalizedTab}`;
-};
+  const normalizedMode = sanitizeMode(mode);
+  const normalizedRecordId = sanitizeString(recordId);
 
-const resolvePatientLabel = (record, patientLabelsById, fallback) => {
-  const directLabel = sanitizeString(
-    record?.patient_display_label
-    || record?.patient_name
-    || record?.patient_label
-    || record?.patient_human_friendly_id
-  );
-  if (directLabel) return directLabel;
-
-  const patientId = sanitizeString(record?.patient_id);
-  if (patientId && patientLabelsById && patientLabelsById[patientId]) {
-    return patientLabelsById[patientId];
+  const query = new URLSearchParams();
+  query.set('tab', normalizedTab);
+  if (normalizedMode) {
+    query.set('mode', normalizedMode);
   }
-
-  return fallback;
-};
-
-const resolveTermsUserLabel = (record, userLabelsById, fallback) => {
-  const directLabel = sanitizeString(
-    record?.user_display_label
-    || record?.user_name
-    || record?.user_email
-    || record?.user_human_friendly_id
-  );
-  if (directLabel) return directLabel;
-
-  const userId = sanitizeString(record?.user_id);
-  if (userId && userLabelsById && userLabelsById[userId]) {
-    return userLabelsById[userId];
+  if (normalizedRecordId) {
+    query.set('recordId', normalizedRecordId);
   }
-
-  return fallback;
+  return `/patients/legal?${query.toString()}`;
 };
 
 const validateConsentDraft = (values, t, isEditMode) => {
@@ -150,11 +136,19 @@ const usePatientLegalHubScreen = () => {
   const userLookup = useUser();
 
   const requestedTab = sanitizeString(getScalarParam(searchParams?.tab));
+  const requestedMode = sanitizeString(getScalarParam(searchParams?.mode));
+  const requestedRecordId = sanitizeString(getScalarParam(searchParams?.recordId));
   const activeTab = sanitizeTab(requestedTab);
+  const activeMode = sanitizeMode(requestedMode);
   const normalizedTenantId = sanitizeString(tenantId);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
 
   const [editor, setEditor] = useState(null);
+  const [pendingRouteIntent, setPendingRouteIntent] = useState(
+    activeMode
+      ? { tab: activeTab, mode: activeMode, recordId: requestedRecordId }
+      : null
+  );
 
   useEffect(() => {
     if (!isResolved) return;
@@ -163,18 +157,49 @@ const usePatientLegalHubScreen = () => {
       return;
     }
 
-    if (!requestedTab) return;
-    if (sanitizeTab(requestedTab) !== requestedTab.toLowerCase()) {
-      router.replace(buildLegalPath(activeTab));
+    const normalizedRequestedTab = requestedTab.toLowerCase();
+    const normalizedRequestedMode = requestedMode.toLowerCase();
+    const hasInvalidTab = Boolean(requestedTab) && activeTab !== normalizedRequestedTab;
+    const hasInvalidMode = Boolean(requestedMode) && activeMode !== normalizedRequestedMode;
+    const isUnsupportedTermsEdit = activeTab === 'terms' && activeMode === 'edit';
+    const shouldDropRecordId = (
+      Boolean(requestedRecordId) && (!activeMode || activeMode === 'create' || isUnsupportedTermsEdit)
+    );
+    const normalizedModeForPath = isUnsupportedTermsEdit ? '' : activeMode;
+
+    if (hasInvalidTab || hasInvalidMode || shouldDropRecordId || isUnsupportedTermsEdit) {
+      router.replace(
+        buildLegalPath(
+          activeTab,
+          normalizedModeForPath,
+          shouldDropRecordId ? '' : requestedRecordId
+        )
+      );
     }
   }, [
     isResolved,
     canAccessPatients,
     hasScope,
     requestedTab,
+    requestedMode,
+    requestedRecordId,
     activeTab,
+    activeMode,
     router,
   ]);
+
+  useEffect(() => {
+    if (!activeMode) {
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    setPendingRouteIntent({
+      tab: activeTab,
+      mode: activeMode,
+      recordId: requestedRecordId,
+    });
+  }, [activeTab, activeMode, requestedRecordId]);
 
   const fetchConsents = useCallback(() => {
     if (isOffline || !canAccessPatients) return;
@@ -349,7 +374,7 @@ const usePatientLegalHubScreen = () => {
     return items.map((item, index) => {
       const consentType = sanitizeString(item?.consent_type) || t('patients.legal.tabs.consents');
       const status = sanitizeString(item?.status) || '-';
-      const patientLabel = resolvePatientLabel(
+      const patientLabel = resolvePatientContextLabel(
         item,
         patientLabelsById,
         t('patients.common.form.unnamedPatient', { position: index + 1 })
@@ -370,7 +395,7 @@ const usePatientLegalHubScreen = () => {
     return items.map((item, index) => {
       const versionLabel = sanitizeString(item?.version_label)
         || t('patients.legal.labels.version');
-      const userLabel = resolveTermsUserLabel(
+      const userLabel = resolveUserContextLabel(
         item,
         userLabelsById,
         t('patients.resources.termsAcceptances.form.unnamedUser', { position: index + 1 })
@@ -437,6 +462,54 @@ const usePatientLegalHubScreen = () => {
       errors: {},
     });
   }, []);
+
+  useEffect(() => {
+    if (!pendingRouteIntent) return;
+    if (!canManagePatientRecords) {
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    const { tab, mode, recordId } = pendingRouteIntent;
+
+    if (tab === 'terms') {
+      if (mode === 'create') {
+        openCreateTermsEditor();
+      }
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    if (mode === 'create') {
+      openCreateConsentEditor();
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    if (mode !== 'edit' || !recordId) {
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    const targetConsentRow = findRecordByRouteId(consentRows, recordId);
+    if (targetConsentRow) {
+      openEditConsentEditor(targetConsentRow);
+      setPendingRouteIntent(null);
+      return;
+    }
+
+    if (!consentCrud.isLoading) {
+      setPendingRouteIntent(null);
+    }
+  }, [
+    pendingRouteIntent,
+    canManagePatientRecords,
+    consentRows,
+    consentCrud.isLoading,
+    openCreateConsentEditor,
+    openCreateTermsEditor,
+    openEditConsentEditor,
+  ]);
 
   const onStartCreate = useCallback(() => {
     if (!canManagePatientRecords) return;
@@ -589,6 +662,7 @@ const usePatientLegalHubScreen = () => {
   const onSelectTab = useCallback((tab) => {
     const normalizedTab = sanitizeTab(tab);
     setEditor(null);
+    setPendingRouteIntent(null);
     router.replace(buildLegalPath(normalizedTab));
   }, [router]);
 

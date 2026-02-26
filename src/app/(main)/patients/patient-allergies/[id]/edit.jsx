@@ -5,8 +5,12 @@ export default function PatientsLegacyRoute() {
     <LegacyWorkspaceRedirect
       tab="care"
       panel="allergies"
+      mode="edit"
+      includeRouteIdAsRecordId
       testID="patients-legacy-allergies-edit-redirect"
     />
   );
 }
+
+
 

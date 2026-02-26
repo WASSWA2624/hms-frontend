@@ -9,6 +9,12 @@ const getScalarParam = (value) => {
   return value;
 };
 
+const normalizeMode = (value) => {
+  const normalized = sanitizeString(value).toLowerCase();
+  if (normalized === 'create' || normalized === 'edit') return normalized;
+  return '';
+};
+
 const resolvePatientContextId = (params, includeRouteId) => {
   const candidates = [
     getScalarParam(params?.patientId),
@@ -41,13 +47,32 @@ const buildWorkspacePath = ({
   const query = new URLSearchParams();
   if (sanitizeString(tab)) query.set('tab', sanitizeString(tab));
   if (sanitizeString(panel)) query.set('panel', sanitizeString(panel));
-  if (sanitizeString(mode)) query.set('mode', sanitizeString(mode));
+  if (normalizeMode(mode)) query.set('mode', normalizeMode(mode));
   if (sanitizeString(recordId)) query.set('recordId', sanitizeString(recordId));
 
   const queryString = query.toString();
   return queryString
     ? `/patients/patients/${patientId}?${queryString}`
     : `/patients/patients/${patientId}`;
+};
+
+const buildLegalHubPath = ({
+  tab = 'consents',
+  mode = '',
+  recordId = '',
+}) => {
+  const query = new URLSearchParams();
+  query.set('tab', sanitizeString(tab) || 'consents');
+
+  const normalizedMode = normalizeMode(mode);
+  if (normalizedMode) {
+    query.set('mode', normalizedMode);
+  }
+  if (sanitizeString(recordId)) {
+    query.set('recordId', sanitizeString(recordId));
+  }
+
+  return `/patients/legal?${query.toString()}`;
 };
 
 const LegacyWorkspaceRedirect = ({
@@ -96,10 +121,25 @@ const LegacyWorkspaceRedirect = ({
   return <LoadingSpinner accessibilityLabel={t('common.loading')} testID={testID} />;
 };
 
-const LegacyLegalHubRedirect = ({ tab = 'consents', testID }) => {
+const LegacyLegalHubRedirect = ({
+  tab = 'consents',
+  mode = '',
+  recordId = '',
+  includeRouteIdAsRecordId = false,
+  testID,
+}) => {
   const { t } = useI18n();
   const router = useRouter();
-  const targetPath = `/patients/legal?tab=${sanitizeString(tab) || 'consents'}`;
+  const searchParams = useLocalSearchParams();
+  const targetPath = useMemo(
+    () =>
+      buildLegalHubPath({
+        tab,
+        mode,
+        recordId: includeRouteIdAsRecordId ? getScalarParam(searchParams?.id) : recordId,
+      }),
+    [tab, mode, recordId, includeRouteIdAsRecordId, searchParams]
+  );
 
   useEffect(() => {
     router.replace(targetPath);

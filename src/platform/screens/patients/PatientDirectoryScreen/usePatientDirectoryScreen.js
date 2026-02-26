@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useDebounce, useI18n, useNetwork, usePatient, usePatientAccess } from '@hooks';
-import { confirmAction } from '@utils';
-import { isEntitlementDeniedError, resolveErrorMessage } from '../patientScreenUtils';
+import {
+  composeContextLabel,
+  isEntitlementDeniedError,
+  resolveContextLabel,
+  resolveErrorMessage,
+  resolvePatientContactLabel,
+} from '../patientScreenUtils';
 
 const PAGE_SIZE_OPTIONS = Object.freeze([20, 50, 100]);
 const SORT_FIELDS = Object.freeze([
@@ -54,12 +59,6 @@ const DEFAULT_RANGE_PRESETS = Object.freeze({
 });
 
 const sanitizeString = (value) => String(value || '').trim();
-const sanitizePrimitiveValue = (value) => {
-  if (value == null) return '';
-  if (typeof value === 'string' || typeof value === 'number') return String(value).trim();
-  return '';
-};
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const sanitizeNumber = (value, fallback) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
@@ -110,100 +109,6 @@ const resolvePatientName = (patient, fallback) => {
     .map(sanitizeString)
     .find(Boolean);
   return readable || fallback;
-};
-
-const resolveContextLabel = (context, fallback) => {
-  const label = sanitizeString(context?.label || context?.name);
-  const contextId = sanitizeString(context?.id);
-  const friendlyId = sanitizeString(
-    context?.human_friendly_id
-    || context?.humanFriendlyId
-    || (contextId && !UUID_PATTERN.test(contextId) ? contextId : '')
-  );
-  if (label && friendlyId) return `${label} (${friendlyId})`;
-  return label || friendlyId || fallback;
-};
-
-const composeContextLabel = (label, humanFriendlyId, fallback) => {
-  const normalizedLabel = sanitizeString(label);
-  const normalizedHumanFriendlyId = sanitizeString(humanFriendlyId);
-  if (normalizedLabel && normalizedHumanFriendlyId) {
-    return `${normalizedLabel} (${normalizedHumanFriendlyId})`;
-  }
-  return normalizedLabel || normalizedHumanFriendlyId || fallback;
-};
-
-const resolveContactEntryValue = (entry) => {
-  if (entry == null) return '';
-  if (typeof entry === 'string' || typeof entry === 'number') {
-    return sanitizePrimitiveValue(entry);
-  }
-
-  return [
-    entry?.value,
-    entry?.contact_value,
-    entry?.contact,
-    entry?.phone,
-    entry?.phone_number,
-    entry?.mobile,
-    entry?.mobile_number,
-    entry?.telephone,
-    entry?.tel,
-    entry?.email,
-    entry?.email_address,
-  ]
-    .map((value) => sanitizePrimitiveValue(value))
-    .find(Boolean) || '';
-};
-
-const resolvePatientContactLabel = (patient, fallback = '') => {
-  const directContactValue = [
-    patient?.contact,
-    patient?.contact_label,
-    patient?.contact_value,
-    patient?.primary_contact,
-    patient?.phone,
-    patient?.phone_number,
-    patient?.mobile,
-    patient?.mobile_number,
-    patient?.telephone,
-    patient?.tel,
-    patient?.email,
-    patient?.email_address,
-    patient?.primary_phone,
-    patient?.primary_phone_number,
-  ]
-    .map((value) => sanitizePrimitiveValue(value))
-    .find(Boolean);
-  if (directContactValue) return directContactValue;
-
-  const nestedContactValue = [
-    patient?.primary_contact_details,
-    patient?.primary_contact_detail,
-    patient?.primaryContact,
-    patient?.contact,
-  ]
-    .map((entry) => resolveContactEntryValue(entry))
-    .find(Boolean);
-  if (nestedContactValue) return nestedContactValue;
-
-  const contactCollections = [
-    patient?.contacts,
-    patient?.patient_contacts,
-    patient?.contact_entries,
-    patient?.contact_list,
-  ];
-
-  for (let index = 0; index < contactCollections.length; index += 1) {
-    const collection = contactCollections[index];
-    if (!Array.isArray(collection) || collection.length === 0) continue;
-    const value = collection
-      .map((entry) => resolveContactEntryValue(entry))
-      .find(Boolean);
-    if (value) return value;
-  }
-
-  return fallback;
 };
 
 const formatDateInput = (value) => {
@@ -288,7 +193,7 @@ const usePatientDirectoryScreen = () => {
   const { t } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
-  const { list, data, isLoading, errorCode, reset, remove } = usePatient();
+  const { list, data, isLoading, errorCode, reset } = usePatient();
   const {
     canAccessPatients,
     canCreatePatientRecords,
@@ -466,30 +371,6 @@ const usePatientDirectoryScreen = () => {
     [router]
   );
 
-  const onEditPatient = useCallback(
-    (routePatientId) => {
-      if (!canCreatePatientRecords) return;
-      const normalizedId = sanitizeString(routePatientId);
-      if (!normalizedId) return;
-      router.push(`/patients/patients/${encodeURIComponent(normalizedId)}/edit`);
-    },
-    [canCreatePatientRecords, router]
-  );
-
-  const onDeletePatient = useCallback(
-    async (patientId) => {
-      if (!canCreatePatientRecords) return;
-      const normalizedId = sanitizeString(patientId);
-      if (!normalizedId) return;
-      if (!confirmAction(t('common.confirmDelete'))) return;
-
-      const result = await remove(normalizedId);
-      if (result === undefined) return;
-      fetchList();
-    },
-    [canCreatePatientRecords, fetchList, remove, t]
-  );
-
   const onQuickCreate = useCallback(() => {
     if (!canCreatePatientRecords) return;
     router.push('/patients/patients/create');
@@ -619,8 +500,6 @@ const usePatientDirectoryScreen = () => {
     onPreviousPage,
     onNextPage,
     onOpenPatient,
-    onEditPatient,
-    onDeletePatient,
     onQuickCreate,
     onRetry,
     onGoToSubscriptions,

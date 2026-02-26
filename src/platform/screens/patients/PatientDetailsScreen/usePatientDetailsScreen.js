@@ -9,15 +9,18 @@ import {
 } from '@hooks';
 import { confirmAction } from '@utils';
 import useAddress from '@hooks/useAddress';
+import usePatientAllergy from '@hooks/usePatientAllergy';
 import usePatientContact from '@hooks/usePatientContact';
 import usePatientDocument from '@hooks/usePatientDocument';
 import usePatientGuardian from '@hooks/usePatientGuardian';
 import usePatientIdentifier from '@hooks/usePatientIdentifier';
+import usePatientMedicalHistory from '@hooks/usePatientMedicalHistory';
 import {
   getPatientResourceConfig,
   PATIENT_RESOURCE_IDS,
 } from '../patientResourceConfigs';
 import {
+  findRecordByRouteId,
   isEntitlementDeniedError,
   resolveErrorMessage,
 } from '../patientScreenUtils';
@@ -28,6 +31,8 @@ const RESOURCE_KEYS = Object.freeze({
   IDENTIFIERS: 'identifiers',
   GUARDIANS: 'guardians',
   CONTACTS: 'contacts',
+  ALLERGIES: 'allergies',
+  HISTORIES: 'histories',
   ADDRESSES: 'addresses',
   DOCUMENTS: 'documents',
 });
@@ -36,10 +41,30 @@ const EMPTY_RESOURCE_EDITORS = Object.freeze({
   [RESOURCE_KEYS.IDENTIFIERS]: null,
   [RESOURCE_KEYS.GUARDIANS]: null,
   [RESOURCE_KEYS.CONTACTS]: null,
+  [RESOURCE_KEYS.ALLERGIES]: null,
+  [RESOURCE_KEYS.HISTORIES]: null,
   [RESOURCE_KEYS.ADDRESSES]: null,
   [RESOURCE_KEYS.DOCUMENTS]: null,
 });
 const DEFAULT_TAB_KEY = 'details';
+const WORKSPACE_PANEL_TO_RESOURCE_KEY = Object.freeze({
+  identifiers: RESOURCE_KEYS.IDENTIFIERS,
+  guardians: RESOURCE_KEYS.GUARDIANS,
+  contacts: RESOURCE_KEYS.CONTACTS,
+  allergies: RESOURCE_KEYS.ALLERGIES,
+  histories: RESOURCE_KEYS.HISTORIES,
+  addresses: RESOURCE_KEYS.ADDRESSES,
+  documents: RESOURCE_KEYS.DOCUMENTS,
+});
+const WORKSPACE_PANEL_TO_TAB_KEY = Object.freeze({
+  identifiers: 'identity',
+  guardians: 'identity',
+  contacts: 'contacts',
+  allergies: 'care',
+  histories: 'care',
+  addresses: 'address',
+  documents: 'documents',
+});
 const REALTIME_SYNC_INTERVAL_MS = 10000;
 const NOTICE_AUTO_DISMISS_MS = 4500;
 const EMPTY_NOTICE_STATE = Object.freeze({ message: '', variant: 'info' });
@@ -62,10 +87,42 @@ const normalizeRouteTabKey = (value) => {
   if (normalized === 'summary' || normalized === 'details') return 'details';
   if (normalized === 'identity' || normalized === 'identifiers') return 'identity';
   if (normalized === 'contacts') return 'contacts';
+  if (normalized === 'care') return 'care';
   if (normalized === 'address' || normalized === 'addresses') return 'address';
   if (normalized === 'documents' || normalized === 'docs') return 'documents';
 
   return DEFAULT_TAB_KEY;
+};
+
+const normalizeRoutePanelKey = (value) => {
+  const normalized = sanitizeString(value).toLowerCase();
+  return WORKSPACE_PANEL_TO_RESOURCE_KEY[normalized] ? normalized : '';
+};
+
+const normalizeRouteMode = (value) => {
+  const normalized = sanitizeString(value).toLowerCase();
+  if (normalized === 'create' || normalized === 'edit') return normalized;
+  return '';
+};
+
+const resolveRouteIntent = ({ tab, panel, mode, recordId }) => {
+  const normalizedPanel = normalizeRoutePanelKey(panel);
+  const normalizedTab = normalizeRouteTabKey(tab);
+  const modeValue = normalizeRouteMode(mode);
+  const resourceKey = normalizedPanel
+    ? WORKSPACE_PANEL_TO_RESOURCE_KEY[normalizedPanel]
+    : '';
+  const tabKey = normalizedPanel
+    ? WORKSPACE_PANEL_TO_TAB_KEY[normalizedPanel]
+    : normalizedTab;
+
+  return {
+    tabKey,
+    panelKey: normalizedPanel,
+    resourceKey,
+    mode: modeValue,
+    recordId: sanitizeString(recordId),
+  };
 };
 
 const getScalarParam = (value) => {
@@ -166,6 +223,12 @@ const resolveResourceLabel = (resourceKey, t) => {
   }
   if (resourceKey === RESOURCE_KEYS.CONTACTS) {
     return t('patients.workspace.panels.contacts');
+  }
+  if (resourceKey === RESOURCE_KEYS.ALLERGIES) {
+    return t('patients.workspace.panels.allergies');
+  }
+  if (resourceKey === RESOURCE_KEYS.HISTORIES) {
+    return t('patients.workspace.panels.histories');
   }
   if (resourceKey === RESOURCE_KEYS.ADDRESSES) {
     return t('address.list.title');
@@ -320,6 +383,8 @@ const usePatientDetailsScreen = () => {
   const patientCrud = usePatient();
   const facilityCrud = useFacility();
   const addressCrud = useAddress();
+  const allergyCrud = usePatientAllergy();
+  const historyCrud = usePatientMedicalHistory();
   const identifierCrud = usePatientIdentifier();
   const contactCrud = usePatientContact();
   const guardianCrud = usePatientGuardian();
@@ -365,6 +430,28 @@ const usePatientDetailsScreen = () => {
   } = guardianCrud;
 
   const {
+    data: allergyData,
+    isLoading: isAllergyLoading,
+    errorCode: allergyErrorCode,
+    list: listAllergies,
+    create: createAllergy,
+    update: updateAllergy,
+    remove: removeAllergy,
+    reset: resetAllergies,
+  } = allergyCrud;
+
+  const {
+    data: historyData,
+    isLoading: isHistoryLoading,
+    errorCode: historyErrorCode,
+    list: listHistories,
+    create: createHistory,
+    update: updateHistory,
+    remove: removeHistory,
+    reset: resetHistories,
+  } = historyCrud;
+
+  const {
     data: contactData,
     isLoading: isContactLoading,
     errorCode: contactErrorCode,
@@ -398,7 +485,25 @@ const usePatientDetailsScreen = () => {
   } = documentCrud;
 
   const routePatientId = sanitizeString(getScalarParam(searchParams?.id));
-  const routeTabKey = normalizeRouteTabKey(getScalarParam(searchParams?.tab));
+  const routeIntent = useMemo(
+    () =>
+      resolveRouteIntent({
+        tab: getScalarParam(searchParams?.tab),
+        panel: getScalarParam(searchParams?.panel),
+        mode: getScalarParam(searchParams?.mode),
+        recordId: getScalarParam(searchParams?.recordId),
+      }),
+    [
+      searchParams?.tab,
+      searchParams?.panel,
+      searchParams?.mode,
+      searchParams?.recordId,
+    ]
+  );
+  const [selectedTabKey, setSelectedTabKey] = useState(routeIntent.tabKey || DEFAULT_TAB_KEY);
+  const [pendingDeepLinkAction, setPendingDeepLinkAction] = useState(
+    routeIntent.mode ? routeIntent : null
+  );
   const [resolvedPatientId, setResolvedPatientId] = useState('');
   const normalizedTenantId = sanitizeString(tenantId);
   const normalizedFacilityId = sanitizeString(facilityId);
@@ -411,14 +516,58 @@ const usePatientDetailsScreen = () => {
   const identifierRecords = useMemo(() => resolveItems(identifierData), [identifierData]);
   const guardianRecords = useMemo(() => resolveItems(guardianData), [guardianData]);
   const contactRecords = useMemo(() => resolveItems(contactData), [contactData]);
+  const allergyRecords = useMemo(() => resolveItems(allergyData), [allergyData]);
+  const historyRecords = useMemo(() => resolveItems(historyData), [historyData]);
   const documentRecords = useMemo(() => resolveItems(documentData), [documentData]);
   const addressRecords = useMemo(() => resolveItems(addressData), [addressData]);
+  const recordsByResourceKey = useMemo(
+    () => ({
+      [RESOURCE_KEYS.IDENTIFIERS]: identifierRecords,
+      [RESOURCE_KEYS.GUARDIANS]: guardianRecords,
+      [RESOURCE_KEYS.CONTACTS]: contactRecords,
+      [RESOURCE_KEYS.ALLERGIES]: allergyRecords,
+      [RESOURCE_KEYS.HISTORIES]: historyRecords,
+      [RESOURCE_KEYS.ADDRESSES]: addressRecords,
+      [RESOURCE_KEYS.DOCUMENTS]: documentRecords,
+    }),
+    [
+      identifierRecords,
+      guardianRecords,
+      contactRecords,
+      allergyRecords,
+      historyRecords,
+      addressRecords,
+      documentRecords,
+    ]
+  );
+  const resourceLoadingByKey = useMemo(
+    () => ({
+      [RESOURCE_KEYS.IDENTIFIERS]: isIdentifierLoading,
+      [RESOURCE_KEYS.GUARDIANS]: isGuardianLoading,
+      [RESOURCE_KEYS.CONTACTS]: isContactLoading,
+      [RESOURCE_KEYS.ALLERGIES]: isAllergyLoading,
+      [RESOURCE_KEYS.HISTORIES]: isHistoryLoading,
+      [RESOURCE_KEYS.ADDRESSES]: isAddressLoading,
+      [RESOURCE_KEYS.DOCUMENTS]: isDocumentLoading,
+    }),
+    [
+      isIdentifierLoading,
+      isGuardianLoading,
+      isContactLoading,
+      isAllergyLoading,
+      isHistoryLoading,
+      isAddressLoading,
+      isDocumentLoading,
+    ]
+  );
 
   const resourceConfigs = useMemo(
     () => ({
       [RESOURCE_KEYS.IDENTIFIERS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_IDENTIFIERS),
       [RESOURCE_KEYS.GUARDIANS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_GUARDIANS),
       [RESOURCE_KEYS.CONTACTS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_CONTACTS),
+      [RESOURCE_KEYS.ALLERGIES]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_ALLERGIES),
+      [RESOURCE_KEYS.HISTORIES]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_MEDICAL_HISTORIES),
       [RESOURCE_KEYS.DOCUMENTS]: getPatientResourceConfig(PATIENT_RESOURCE_IDS.PATIENT_DOCUMENTS),
       [RESOURCE_KEYS.ADDRESSES]: ADDRESS_RESOURCE_CONFIG,
     }),
@@ -447,6 +596,20 @@ const usePatientDetailsScreen = () => {
         update: updateContact,
         remove: removeContact,
         reset: resetContacts,
+      },
+      [RESOURCE_KEYS.ALLERGIES]: {
+        list: listAllergies,
+        create: createAllergy,
+        update: updateAllergy,
+        remove: removeAllergy,
+        reset: resetAllergies,
+      },
+      [RESOURCE_KEYS.HISTORIES]: {
+        list: listHistories,
+        create: createHistory,
+        update: updateHistory,
+        remove: removeHistory,
+        reset: resetHistories,
       },
       [RESOURCE_KEYS.DOCUMENTS]: {
         list: listDocuments,
@@ -479,6 +642,16 @@ const usePatientDetailsScreen = () => {
       updateContact,
       removeContact,
       resetContacts,
+      listAllergies,
+      createAllergy,
+      updateAllergy,
+      removeAllergy,
+      resetAllergies,
+      listHistories,
+      createHistory,
+      updateHistory,
+      removeHistory,
+      resetHistories,
       listDocuments,
       createDocument,
       updateDocument,
@@ -490,6 +663,18 @@ const usePatientDetailsScreen = () => {
       removeAddress,
       resetAddresses,
     ]
+  );
+
+  const resourceKeysByTab = useMemo(
+    () => ({
+      details: [],
+      identity: [RESOURCE_KEYS.IDENTIFIERS, RESOURCE_KEYS.GUARDIANS],
+      contacts: [RESOURCE_KEYS.CONTACTS],
+      care: [RESOURCE_KEYS.ALLERGIES, RESOURCE_KEYS.HISTORIES],
+      address: [RESOURCE_KEYS.ADDRESSES],
+      documents: [RESOURCE_KEYS.DOCUMENTS],
+    }),
+    []
   );
 
   const buildCollectionParams = useCallback((internalPatientId) => {
@@ -560,13 +745,32 @@ const usePatientDetailsScreen = () => {
       fetchResourceCollection(RESOURCE_KEYS.IDENTIFIERS, internalPatientId),
       fetchResourceCollection(RESOURCE_KEYS.GUARDIANS, internalPatientId),
       fetchResourceCollection(RESOURCE_KEYS.CONTACTS, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.ALLERGIES, internalPatientId),
+      fetchResourceCollection(RESOURCE_KEYS.HISTORIES, internalPatientId),
       fetchResourceCollection(RESOURCE_KEYS.ADDRESSES, internalPatientId),
       fetchResourceCollection(RESOURCE_KEYS.DOCUMENTS, internalPatientId),
     ]);
   }, [fetchResourceCollection, resolvedPatientId]);
 
+  const fetchCollectionsForTab = useCallback(async (
+    tabKey,
+    internalPatientId = resolvedPatientId
+  ) => {
+    if (!internalPatientId) return;
+    const resourceKeys = resourceKeysByTab[tabKey] || [];
+    if (resourceKeys.length === 0) return;
+
+    await Promise.all(
+      resourceKeys.map((resourceKey) =>
+        fetchResourceCollection(resourceKey, internalPatientId))
+    );
+  }, [fetchResourceCollection, resolvedPatientId, resourceKeysByTab]);
+
   const liveSyncInFlightRef = useRef(false);
-  const refreshWorkspaceData = useCallback(async () => {
+  const refreshWorkspaceData = useCallback(async ({
+    activeTabOnly = false,
+    tabKey = DEFAULT_TAB_KEY,
+  } = {}) => {
     if (!routePatientId || isOffline || !canAccessPatients || !hasScope) return '';
     if (liveSyncInFlightRef.current) return '';
 
@@ -574,7 +778,11 @@ const usePatientDetailsScreen = () => {
     try {
       const internalPatientId = await fetchPatient();
       if (internalPatientId) {
-        await fetchAllCollections(internalPatientId);
+        if (activeTabOnly) {
+          await fetchCollectionsForTab(tabKey, internalPatientId);
+        } else {
+          await fetchAllCollections(internalPatientId);
+        }
       }
       return internalPatientId;
     } finally {
@@ -586,6 +794,7 @@ const usePatientDetailsScreen = () => {
     canAccessPatients,
     hasScope,
     fetchPatient,
+    fetchCollectionsForTab,
     fetchAllCollections,
   ]);
 
@@ -646,6 +855,29 @@ const usePatientDetailsScreen = () => {
   useEffect(() => {
     setResolvedPatientId('');
   }, [routePatientId]);
+
+  useEffect(() => {
+    setSelectedTabKey(routeIntent.tabKey || DEFAULT_TAB_KEY);
+    if (!routeIntent.mode) {
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    setPendingDeepLinkAction({
+      tabKey: routeIntent.tabKey,
+      panelKey: routeIntent.panelKey,
+      resourceKey: routeIntent.resourceKey,
+      mode: routeIntent.mode,
+      recordId: routeIntent.recordId,
+    });
+  }, [
+    routePatientId,
+    routeIntent.tabKey,
+    routeIntent.panelKey,
+    routeIntent.resourceKey,
+    routeIntent.mode,
+    routeIntent.recordId,
+  ]);
 
   const [isPatientDeleted, setIsPatientDeleted] = useState(false);
   useEffect(() => {
@@ -794,7 +1026,10 @@ const usePatientDetailsScreen = () => {
 
     const intervalId = setInterval(() => {
       if (typeof document !== 'undefined' && document.hidden) return;
-      void refreshWorkspaceData();
+      void refreshWorkspaceData({
+        activeTabOnly: true,
+        tabKey: selectedTabKey,
+      });
     }, REALTIME_SYNC_INTERVAL_MS);
 
     return () => {
@@ -814,6 +1049,7 @@ const usePatientDetailsScreen = () => {
     isDeletingPatient,
     activeResourceSubmitKey,
     activeResourceDelete,
+    selectedTabKey,
     refreshWorkspaceData,
   ]);
 
@@ -822,6 +1058,8 @@ const usePatientDetailsScreen = () => {
       [RESOURCE_KEYS.IDENTIFIERS]: identifierErrorCode,
       [RESOURCE_KEYS.GUARDIANS]: guardianErrorCode,
       [RESOURCE_KEYS.CONTACTS]: contactErrorCode,
+      [RESOURCE_KEYS.ALLERGIES]: allergyErrorCode,
+      [RESOURCE_KEYS.HISTORIES]: historyErrorCode,
       [RESOURCE_KEYS.ADDRESSES]: addressErrorCode,
       [RESOURCE_KEYS.DOCUMENTS]: documentErrorCode,
     }),
@@ -829,6 +1067,8 @@ const usePatientDetailsScreen = () => {
       identifierErrorCode,
       guardianErrorCode,
       contactErrorCode,
+      allergyErrorCode,
+      historyErrorCode,
       addressErrorCode,
       documentErrorCode,
     ]
@@ -870,6 +1110,67 @@ const usePatientDetailsScreen = () => {
       },
     }));
   }, [canManagePatientRecords, resourceConfigs]);
+
+  useEffect(() => {
+    if (!pendingDeepLinkAction) return;
+    if (!resolvedPatientId || isInitialLoading) return;
+    if (!canManagePatientRecords) {
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    const {
+      mode,
+      tabKey,
+      resourceKey,
+      recordId,
+    } = pendingDeepLinkAction;
+
+    if (tabKey && selectedTabKey !== tabKey) {
+      setSelectedTabKey(tabKey);
+    }
+
+    if (!resourceKey) {
+      if (mode === 'edit') {
+        setIsSummaryEditMode(true);
+      }
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    if (mode === 'create') {
+      onResourceCreate(resourceKey);
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    if (mode !== 'edit' || !recordId) {
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    const record = findRecordByRouteId(recordsByResourceKey[resourceKey], recordId);
+    if (record) {
+      onResourceEdit(resourceKey, record);
+      setPendingDeepLinkAction(null);
+      return;
+    }
+
+    const isTargetResourceLoading = Boolean(resourceLoadingByKey[resourceKey]);
+    if (!isTargetResourceLoading) {
+      setPendingDeepLinkAction(null);
+    }
+  }, [
+    pendingDeepLinkAction,
+    canManagePatientRecords,
+    resolvedPatientId,
+    isInitialLoading,
+    selectedTabKey,
+    onResourceCreate,
+    onResourceEdit,
+    recordsByResourceKey,
+    resourceLoadingByKey,
+  ]);
 
   const onResourceFieldChange = useCallback((resourceKey, name, value) => {
     setResourceEditors((current) => {
@@ -1148,6 +1449,8 @@ const usePatientDetailsScreen = () => {
       resetIdentifiers();
       resetGuardians();
       resetContacts();
+      resetAllergies();
+      resetHistories();
       resetAddresses();
       resetDocuments();
       resetFacilities();
@@ -1164,6 +1467,8 @@ const usePatientDetailsScreen = () => {
     resetIdentifiers,
     resetGuardians,
     resetContacts,
+    resetAllergies,
+    resetHistories,
     resetAddresses,
     resetDocuments,
     resetFacilities,
@@ -1218,6 +1523,28 @@ const usePatientDetailsScreen = () => {
           ? resolveErrorMessage(t, contactErrorCode, 'patients.workspace.state.loadError')
           : '',
       },
+      [RESOURCE_KEYS.ALLERGIES]: {
+        key: RESOURCE_KEYS.ALLERGIES,
+        config: resourceConfigs[RESOURCE_KEYS.ALLERGIES],
+        records: allergyRecords,
+        editor: resourceEditors[RESOURCE_KEYS.ALLERGIES],
+        isLoading: isAllergyLoading,
+        errorCode: allergyErrorCode,
+        errorMessage: allergyErrorCode
+          ? resolveErrorMessage(t, allergyErrorCode, 'patients.workspace.state.loadError')
+          : '',
+      },
+      [RESOURCE_KEYS.HISTORIES]: {
+        key: RESOURCE_KEYS.HISTORIES,
+        config: resourceConfigs[RESOURCE_KEYS.HISTORIES],
+        records: historyRecords,
+        editor: resourceEditors[RESOURCE_KEYS.HISTORIES],
+        isLoading: isHistoryLoading,
+        errorCode: historyErrorCode,
+        errorMessage: historyErrorCode
+          ? resolveErrorMessage(t, historyErrorCode, 'patients.workspace.state.loadError')
+          : '',
+      },
       [RESOURCE_KEYS.ADDRESSES]: {
         key: RESOURCE_KEYS.ADDRESSES,
         config: resourceConfigs[RESOURCE_KEYS.ADDRESSES],
@@ -1246,17 +1573,23 @@ const usePatientDetailsScreen = () => {
       identifierRecords,
       guardianRecords,
       contactRecords,
+      allergyRecords,
+      historyRecords,
       addressRecords,
       documentRecords,
       resourceEditors,
       isIdentifierLoading,
       isGuardianLoading,
       isContactLoading,
+      isAllergyLoading,
+      isHistoryLoading,
       isAddressLoading,
       isDocumentLoading,
       identifierErrorCode,
       guardianErrorCode,
       contactErrorCode,
+      allergyErrorCode,
+      historyErrorCode,
       addressErrorCode,
       documentErrorCode,
       t,
@@ -1275,6 +1608,8 @@ const usePatientDetailsScreen = () => {
     || identifierErrorCode
     || guardianErrorCode
     || contactErrorCode
+    || allergyErrorCode
+    || historyErrorCode
     || addressErrorCode
     || documentErrorCode
   );
@@ -1294,6 +1629,26 @@ const usePatientDetailsScreen = () => {
     );
   }, [t, patientErrorCode, hasMissingContext, hasUnresolvedPatient]);
 
+  const onSelectTab = useCallback((tabKey) => {
+    const normalizedTab = normalizeRouteTabKey(tabKey);
+    setSelectedTabKey(normalizedTab);
+    setPendingDeepLinkAction(null);
+
+    const normalizedRoutePatientId = sanitizeString(routePatientId);
+    if (!normalizedRoutePatientId) return;
+
+    const query = new URLSearchParams();
+    if (normalizedTab !== DEFAULT_TAB_KEY) {
+      query.set('tab', normalizedTab);
+    }
+
+    const queryString = query.toString();
+    const targetPath = queryString
+      ? `/patients/patients/${encodeURIComponent(normalizedRoutePatientId)}?${queryString}`
+      : `/patients/patients/${encodeURIComponent(normalizedRoutePatientId)}`;
+    router.replace(targetPath);
+  }, [routePatientId, router]);
+
   const onRetry = useCallback(async () => {
     if (isPatientDeleted || isRetrying) return;
     setIsRetrying(true);
@@ -1307,11 +1662,14 @@ const usePatientDetailsScreen = () => {
   return {
     patientId: resolvedPatientId,
     routePatientId,
-    initialTabKey: routeTabKey,
+    initialTabKey: routeIntent.tabKey,
+    selectedTabKey,
     patient,
     identifierRecords,
     guardianRecords,
     contactRecords,
+    allergyRecords,
+    historyRecords,
     documentRecords,
     addressRecords,
     resourceSections,
@@ -1340,6 +1698,7 @@ const usePatientDetailsScreen = () => {
     canDeletePatientRecords,
     canManageAllTenants,
     onRetry,
+    onSelectTab,
     onDismissNotice,
     onGoToSubscriptions: () => router.push('/subscriptions/subscriptions'),
     onDeletePatient,
