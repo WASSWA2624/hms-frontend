@@ -1159,6 +1159,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const handleClearSearchAndFilters = useCallback(() => {
     setSearch('');
     setSearchScope('all');
+    setReminderBoardFilter(REMINDER_BOARD_FILTERS[0]);
     setFilterLogic('AND');
     setFilters([{
       id: getNextFilterId(),
@@ -1294,7 +1295,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, searchScope, activeFilters, filterLogic, sortField, sortDirection, pageSize]);
+  }, [search, searchScope, reminderBoardFilter, activeFilters, filterLogic, sortField, sortDirection, pageSize]);
 
   useEffect(() => {
     setPage((previous) => Math.min(Math.max(previous, 1), totalPages));
@@ -1327,6 +1328,11 @@ const useSchedulingResourceListScreen = (resourceId) => {
         setPageSize(sanitizePageSize(stored.pageSize));
         setDensity(sanitizeDensity(stored.density));
         setSearchScope(sanitizeSearchScope(stored.searchScope, searchFieldOptionsRef.current));
+        setReminderBoardFilter(
+          REMINDER_BOARD_FILTERS.includes(stored.reminderBoardFilter)
+            ? stored.reminderBoardFilter
+            : REMINDER_BOARD_FILTERS[0]
+        );
         setFilterLogic(sanitizeFilterLogic(stored.filterLogic));
         setFilters(sanitizeFiltersRef.current(stored.filters));
       }
@@ -1352,6 +1358,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
       pageSize,
       density,
       searchScope,
+      reminderBoardFilter,
       filterLogic,
       filters,
     });
@@ -1365,6 +1372,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
     pageSize,
     density,
     searchScope,
+    reminderBoardFilter,
     filterLogic,
     filters,
   ]);
@@ -1594,6 +1602,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
       setPageSize(DEFAULT_PAGE_SIZE);
       setDensity(DEFAULT_DENSITY);
       setSearchScope('all');
+      setReminderBoardFilter(REMINDER_BOARD_FILTERS[0]);
       setFilterLogic('AND');
       setFilters([{
         id: getNextFilterId(),
