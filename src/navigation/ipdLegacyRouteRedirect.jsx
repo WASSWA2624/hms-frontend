@@ -24,6 +24,8 @@ const IpdLegacyRouteRedirect = ({
   action = '',
   fallback = null,
 }) => {
+  if (!IPD_WORKBENCH_V1) return fallback;
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const { resolveLegacyRoute } = useIpdFlow();
@@ -77,8 +79,6 @@ const IpdLegacyRouteRedirect = ({
 
     run();
   }, [action, legacyId, mode, panel, redirectSeed, resolveLegacyRoute, resource, router]);
-
-  if (!IPD_WORKBENCH_V1) return fallback;
 
   return <LoadingSpinner accessibilityLabel="Redirecting to IPD workbench" testID="ipd-legacy-route-redirecting" />;
 };

@@ -124,6 +124,9 @@ describe('endpoints.js', () => {
   test('should expose IPD flow workbench action endpoints', () => {
     expect(endpoints.IPD_FLOWS.LIST).toMatch(/\/ipd-flows$/);
     expect(endpoints.IPD_FLOWS.GET('id')).toMatch(/\/ipd-flows\/id$/);
+    expect(endpoints.IPD_FLOWS.RESOLVE_LEGACY('admissions', 'id')).toMatch(
+      /\/ipd-flows\/resolve-legacy\/admissions\/id$/
+    );
     expect(endpoints.IPD_FLOWS.START).toMatch(/\/ipd-flows\/start$/);
     expect(endpoints.IPD_FLOWS.ASSIGN_BED('id')).toMatch(
       /\/ipd-flows\/id\/assign-bed$/

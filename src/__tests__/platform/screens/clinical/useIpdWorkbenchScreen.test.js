@@ -21,6 +21,7 @@ const mockFinalizeDischarge = jest.fn();
 const mockReset = jest.fn();
 const mockWardList = jest.fn();
 const mockBedList = jest.fn();
+const mockPatientList = jest.fn();
 
 let realtimeHandlers = {};
 
@@ -35,6 +36,7 @@ jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
   useIpdFlow: jest.fn(),
   useNetwork: jest.fn(),
+  usePatient: jest.fn(),
   useRealtimeEvent: jest.fn(),
   useScopeAccess: jest.fn(),
   useWard: jest.fn(),
@@ -51,6 +53,7 @@ const {
   useRealtimeEvent,
   useScopeAccess,
   useWard,
+  usePatient,
 } = require('@hooks');
 
 const buildSnapshot = ({
@@ -125,6 +128,9 @@ describe('useIpdWorkbenchScreen', () => {
     useBed.mockReturnValue({
       list: mockBedList,
     });
+    usePatient.mockReturnValue({
+      list: mockPatientList,
+    });
     useIpdFlow.mockReturnValue({
       list: mockList,
       get: mockGet,
@@ -153,6 +159,9 @@ describe('useIpdWorkbenchScreen', () => {
     });
     mockBedList.mockResolvedValue({
       items: [{ id: 'bed-1', human_friendly_id: 'BED-001', label: 'Bed A1', status: 'AVAILABLE' }],
+    });
+    mockPatientList.mockResolvedValue({
+      items: [{ id: 'patient-1', human_friendly_id: 'PAT-001', first_name: 'Jane', last_name: 'Doe' }],
     });
     mockList.mockResolvedValue({
       items: [buildSnapshot()],
@@ -205,6 +214,12 @@ describe('useIpdWorkbenchScreen', () => {
     );
   });
 
+  it('loads queue with ACTIVE scope by default', async () => {
+    renderHook(() => useIpdWorkbenchScreen());
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+    expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ queue_scope: 'ACTIVE' }));
+  });
+
   it('prefills start admission form from query params', async () => {
     mockSearchParams = {
       action: 'start_admission',
@@ -217,6 +232,22 @@ describe('useIpdWorkbenchScreen', () => {
       expect(result.current.isStartFormOpen).toBe(true);
       expect(result.current.startDraft.patient_id).toBe('PAT-042');
     });
+  });
+
+  it('canonicalizes UUID route IDs to public admission IDs after snapshot load', async () => {
+    mockSearchParams = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+    };
+    mockList.mockResolvedValue({
+      items: [],
+      pagination: { page: 1, limit: 40, total: 0 },
+    });
+    mockGet.mockResolvedValue(buildSnapshot({ id: 'admission-7', publicId: 'ADM-777' }));
+
+    const { result } = renderHook(() => useIpdWorkbenchScreen());
+
+    await waitFor(() => expect(result.current.selectedFlowId).toBe('ADM-777'));
+    expect(mockRouter.setParams).toHaveBeenCalledWith({ id: 'ADM-777' });
   });
 
   it('upserts local snapshot after successful nursing-note action', async () => {
@@ -244,6 +275,17 @@ describe('useIpdWorkbenchScreen', () => {
       expect(result.current.selectedFlow?.stage).toBe('DISCHARGE_PLANNED');
       expect(result.current.flowList[0]?.stage).toBe('DISCHARGE_PLANNED');
     });
+  });
+
+  it('blocks finalize discharge action until stage allows it', async () => {
+    const { result } = renderHook(() => useIpdWorkbenchScreen());
+    await waitFor(() => expect(result.current.selectedFlowId).toBe('ADM-001'));
+
+    await act(async () => {
+      await result.current.onFinalizeDischarge();
+    });
+
+    expect(mockFinalizeDischarge).not.toHaveBeenCalled();
   });
 
   it('keeps list interactive while selected snapshot is refreshing', async () => {

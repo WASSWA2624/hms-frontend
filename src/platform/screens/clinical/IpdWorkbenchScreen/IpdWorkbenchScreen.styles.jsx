@@ -6,8 +6,12 @@ const getTablet = (theme) => theme.breakpoints?.tablet ?? 960;
 const StyledContainer = styled.section`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md}px;
+  gap: ${({ theme }) => theme.spacing.md + 4}px;
   padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.03) 0%, rgba(15, 23, 42, 0) 75%),
+    ${({ theme }) => theme.colors.background.primary};
 `;
 
 const StyledHeader = styled.div`
@@ -15,9 +19,9 @@ const StyledHeader = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing.sm}px;
-  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.md}px`};
+  padding: ${({ theme }) => `${theme.spacing.sm + 2}px ${theme.spacing.md}px`};
   border: 1px solid ${({ theme }) => theme.colors.border.light};
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-radius: ${({ theme }) => theme.radius.md + 2}px;
   background: ${({ theme }) => theme.colors.surface.primary};
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
@@ -49,8 +53,8 @@ const StyledDescription = styled.p`
 
 const StyledLayout = styled.div`
   display: grid;
-  grid-template-columns: minmax(330px, 1.05fr) minmax(0, 1.85fr);
-  gap: ${({ theme }) => theme.spacing.md}px;
+  grid-template-columns: minmax(340px, 1.05fr) minmax(0, 1.9fr);
+  gap: ${({ theme }) => theme.spacing.md + 2}px;
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     grid-template-columns: 1fr;
@@ -83,10 +87,20 @@ const StyledFilterGrid = styled.div`
 const StyledFlowList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  max-height: 70vh;
+  gap: ${({ theme }) => theme.spacing.xs + 1}px;
+  height: clamp(380px, 72vh, 820px);
   overflow-y: auto;
   padding-right: ${({ theme }) => theme.spacing.xs}px;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    width: 9px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.border.medium};
+    border-radius: 999px;
+  }
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     max-height: none;
@@ -98,13 +112,23 @@ const StyledFlowList = styled.div`
 const StyledFlowListItem = styled(Pressable)`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs - 2}px;
+  gap: ${({ theme }) => theme.spacing.xs}px;
   border: 1px solid ${({ $selected, theme }) => ($selected ? theme.colors.primary : theme.colors.border.light)};
-  border-left: 4px solid ${({ $selected, theme }) => ($selected ? theme.colors.primary : theme.colors.border.medium)};
-  border-radius: ${({ theme }) => theme.radius.md}px;
+  border-left: 4px solid ${({ $selected, theme }) => ($selected ? '#0f6cbd' : theme.colors.border.medium)};
+  border-radius: ${({ theme }) => theme.radius.md + 2}px;
   padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm}px`};
-  background: ${({ theme, $selected }) =>
-    $selected ? theme.colors.surface.secondary : theme.colors.surface.primary};
+  background: ${({ theme, $selected }) => ($selected ? '#f0f7ff' : theme.colors.surface.primary)};
+  box-shadow: ${({ $selected }) =>
+    $selected ? '0 6px 16px rgba(15, 108, 189, 0.2)' : '0 2px 8px rgba(15, 23, 42, 0.1)'};
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: #0f6cbd;
+    background: #edf6ff;
+  }
 `;
 
 const StyledFlowTitleRow = styled.div`

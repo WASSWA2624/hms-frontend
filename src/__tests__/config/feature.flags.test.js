@@ -27,7 +27,7 @@ describe('feature.flags.js', () => {
   test('should have correct feature flag values', () => {
     expect(featureFlags.OFFLINE_MODE).toBe(true);
     expect(featureFlags.ANALYTICS_ENABLED).toBe(false);
-    expect(featureFlags.IPD_WORKBENCH_V1).toBe(false);
+    expect(featureFlags.IPD_WORKBENCH_V1).toBe(true);
   });
 });
 

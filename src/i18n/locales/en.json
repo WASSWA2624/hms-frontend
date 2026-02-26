@@ -14090,10 +14090,13 @@
       },
       "filters": {
         "search": "Search patient, admission, or bed",
+        "queueScope": "Queue scope",
         "stage": "Stage",
         "ward": "Ward",
         "transfer": "Transfer state",
         "bedState": "Bed state",
+        "activeQueue": "Active admissions",
+        "allQueue": "All admissions",
         "allStages": "All stages",
         "allTransferStates": "All transfer states",
         "allWards": "All wards",
@@ -14104,10 +14107,20 @@
       },
       "start": {
         "title": "Start admission",
+        "patientSearch": "Patient search",
         "patientId": "Patient ID",
+        "createPatient": "Create new patient",
         "encounterId": "Encounter ID",
         "initialBed": "Initial bed",
         "admittedAt": "Admitted at"
+      },
+      "quickLinks": {
+        "title": "Quick links",
+        "patient": "Patient profile",
+        "labOrder": "Create lab order",
+        "radiologyOrder": "Create radiology order",
+        "pharmacyOrder": "Create pharmacy order",
+        "invoice": "Create invoice"
       },
       "snapshot": {
         "title": "Admission snapshot",
@@ -14167,12 +14180,22 @@
       "validation": {
         "patientRequired": "Patient ID is required.",
         "bedRequired": "Select a bed to continue.",
+        "assignBedNotAllowed": "Assign bed is not available for this stage.",
+        "releaseBedNotAllowed": "Release bed is not available for this stage.",
         "toWardRequired": "Select destination ward for transfer.",
+        "requestTransferNotAllowed": "Transfer request is not available for this stage.",
+        "updateTransferNotAllowed": "Transfer update is not available for this stage.",
         "transferActionRequired": "Select a transfer action.",
         "transferBedRequired": "Destination bed is required to complete transfer.",
+        "addWardRoundNotAllowed": "Ward rounds cannot be added for this stage.",
         "nursingNoteRequired": "Enter a nursing note before saving.",
+        "addNursingNoteNotAllowed": "Nursing notes cannot be added for this stage.",
         "medicationDoseRequired": "Medication dose is required.",
+        "addMedicationNotAllowed": "Medication administration is not available for this stage.",
         "dischargeSummaryRequired": "Discharge summary is required."
+        ,
+        "planDischargeNotAllowed": "Discharge planning is not available for this stage.",
+        "finalizeDischargeNotAllowed": "Discharge finalization is not available for this stage."
       },
       "errors": {
         "readOnly": "You do not have write access for IPD actions.",

@@ -1,5 +1,15 @@
 import { ClinicalResourceFormScreen } from '@platform/screens';
+import IpdLegacyRouteRedirect from '@navigation/ipdLegacyRouteRedirect';
 
 export default function DischargeSummariesEditRoute() {
-  return <ClinicalResourceFormScreen resourceId="discharge-summaries" />;
+  return (
+    <IpdLegacyRouteRedirect
+      mode="edit"
+      resource="discharge-summaries"
+      panel="discharge"
+      action="update_discharge"
+      fallback={<ClinicalResourceFormScreen resourceId="discharge-summaries" />}
+    />
+  );
 }
+
