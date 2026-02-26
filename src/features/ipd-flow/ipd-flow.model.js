@@ -22,6 +22,10 @@ const toDisplayText = (value) => {
   if (!normalized || UUID_LIKE_REGEX.test(normalized)) return '';
   return normalized;
 };
+const toUpperToken = (value) => {
+  const normalized = toDisplayText(value);
+  return normalized ? normalized.toUpperCase() : '';
+};
 
 const resolvePublicRecordId = (record) => {
   if (!record) return null;
@@ -73,7 +77,19 @@ const buildDerivedTimeline = (snapshot) => {
     label: item?.status ? `Transfer ${item.status}` : 'Transfer updated',
   }));
 
-  return [...wardRounds, ...nursingNotes, ...medicationAdministrations, ...transfers]
+  const icuObservations = normalizeArray(snapshot?.icu?.recent_observations).map((item) => ({
+    type: 'ICU_OBSERVATION',
+    at: item?.observed_at || item?.created_at,
+    label: item?.observation || 'ICU observation recorded',
+  }));
+
+  const criticalAlerts = normalizeArray(snapshot?.icu?.recent_alerts).map((item) => ({
+    type: 'CRITICAL_ALERT',
+    at: item?.created_at,
+    label: item?.severity ? `${item.severity}: ${item.message || 'Critical alert raised'}` : item?.message || 'Critical alert raised',
+  }));
+
+  return [...wardRounds, ...nursingNotes, ...medicationAdministrations, ...transfers, ...icuObservations, ...criticalAlerts]
     .map(normalizeTimelineItem)
     .filter((entry) => entry && entry.at)
     .sort((left, right) => {
@@ -81,6 +97,116 @@ const buildDerivedTimeline = (snapshot) => {
       const rightDate = new Date(right.at).getTime() || 0;
       return rightDate - leftDate;
     });
+};
+
+const normalizeIcuStay = (value) => {
+  const row = normalizeObject(value);
+  if (!row) return null;
+
+  const stayId = resolvePublicRecordId(row);
+  const admissionId = toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null;
+  const patientId = toPublicId(row.patient_display_id) || toPublicId(row.patient_id) || null;
+
+  return {
+    ...row,
+    id: stayId,
+    display_id: stayId,
+    human_friendly_id: stayId,
+    admission_id: admissionId,
+    patient_display_id: patientId,
+    patient_display_name: toDisplayText(row.patient_display_name),
+  };
+};
+
+const normalizeIcuObservation = (value) => {
+  const row = normalizeObject(value);
+  if (!row) return null;
+
+  return {
+    ...row,
+    id: resolvePublicRecordId(row),
+    display_id: resolvePublicRecordId(row),
+    icu_stay_id: toPublicId(row.icu_stay_display_id) || toPublicId(row.icu_stay_id) || null,
+    admission_id: toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null,
+    patient_display_id: toPublicId(row.patient_display_id) || null,
+    patient_display_name: toDisplayText(row.patient_display_name),
+  };
+};
+
+const normalizeCriticalAlert = (value) => {
+  const row = normalizeObject(value);
+  if (!row) return null;
+
+  return {
+    ...row,
+    id: resolvePublicRecordId(row),
+    display_id: resolvePublicRecordId(row),
+    icu_stay_id: toPublicId(row.icu_stay_display_id) || toPublicId(row.icu_stay_id) || null,
+    admission_id: toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null,
+    patient_display_id: toPublicId(row.patient_display_id) || null,
+    patient_display_name: toDisplayText(row.patient_display_name),
+    severity: toUpperToken(row.severity) || null,
+    message: toDisplayText(row.message),
+  };
+};
+
+const normalizeIcuAlertSummary = (value) => {
+  const summary = normalizeObject(value);
+  if (!summary) {
+    return {
+      total: 0,
+      highest_severity: null,
+      by_severity: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 },
+      recent: [],
+    };
+  }
+
+  const recent = normalizeArray(summary.recent).map(normalizeCriticalAlert).filter(Boolean);
+
+  return {
+    ...summary,
+    total: Number(summary.total || 0),
+    highest_severity: toUpperToken(summary.highest_severity) || null,
+    by_severity: {
+      LOW: Number(summary?.by_severity?.LOW || 0),
+      MEDIUM: Number(summary?.by_severity?.MEDIUM || 0),
+      HIGH: Number(summary?.by_severity?.HIGH || 0),
+      CRITICAL: Number(summary?.by_severity?.CRITICAL || 0),
+    },
+    recent,
+  };
+};
+
+const normalizeIcuOverlay = (value) => {
+  const overlay = normalizeObject(value);
+  if (!overlay) return null;
+
+  const activeStay = normalizeIcuStay(overlay.active_stay);
+  const latestStay = normalizeIcuStay(overlay.latest_stay);
+  const recentStays = normalizeArray(overlay.recent_stays).map(normalizeIcuStay).filter(Boolean);
+  const recentObservations = normalizeArray(overlay.recent_observations)
+    .map(normalizeIcuObservation)
+    .filter(Boolean);
+  const recentAlerts = normalizeArray(overlay.recent_alerts).map(normalizeCriticalAlert).filter(Boolean);
+  const criticalAlertSummary = normalizeIcuAlertSummary(overlay.critical_alert_summary);
+  const criticalSeverity =
+    toUpperToken(overlay.critical_severity) || criticalAlertSummary.highest_severity || null;
+
+  return {
+    ...overlay,
+    status: toUpperToken(overlay.status) || null,
+    has_critical_alert:
+      typeof overlay.has_critical_alert === 'boolean'
+        ? overlay.has_critical_alert
+        : Boolean(criticalAlertSummary.total || recentAlerts.length),
+    critical_severity: criticalSeverity,
+    active_stay: activeStay,
+    latest_stay: latestStay,
+    recent_stays: recentStays,
+    recent_observations: recentObservations,
+    recent_alerts: recentAlerts,
+    critical_alert_summary: criticalAlertSummary,
+  };
 };
 
 const normalizeIpdFlowSnapshot = (value) => {
@@ -95,6 +221,7 @@ const normalizeIpdFlowSnapshot = (value) => {
   const activeBedAssignment = normalizeObject(snapshot.active_bed_assignment) || null;
   const openTransferRequest = normalizeObject(snapshot.open_transfer_request) || null;
   const latestDischargeSummary = normalizeObject(snapshot.latest_discharge_summary) || null;
+  const icuOverlay = normalizeIcuOverlay(snapshot.icu);
 
   const admissionPublicId =
     toPublicId(snapshot.display_id) ||
@@ -119,7 +246,10 @@ const normalizeIpdFlowSnapshot = (value) => {
     patientPublicId ||
     'Unknown patient';
 
-  const timelineSource = normalizeArray(snapshot.timeline).length > 0 ? snapshot.timeline : buildDerivedTimeline(snapshot);
+  const timelineSource =
+    normalizeArray(snapshot.timeline).length > 0
+      ? snapshot.timeline
+      : buildDerivedTimeline({ ...snapshot, icu: icuOverlay });
   const timeline = timelineSource
     .map(normalizeTimelineItem)
     .filter(Boolean)
@@ -128,6 +258,18 @@ const normalizeIpdFlowSnapshot = (value) => {
       const rightDate = new Date(right.at).getTime() || 0;
       return rightDate - leftDate;
     });
+
+  const icuStatus = toUpperToken(snapshot.icu_status) || toUpperToken(icuOverlay?.status) || null;
+  const hasCriticalAlert =
+    typeof snapshot.has_critical_alert === 'boolean'
+      ? snapshot.has_critical_alert
+      : Boolean(icuOverlay?.has_critical_alert);
+  const criticalSeverity =
+    toUpperToken(snapshot.critical_severity) || toUpperToken(icuOverlay?.critical_severity) || null;
+  const activeIcuStayId =
+    toPublicId(snapshot.active_icu_stay_id) || toPublicId(icuOverlay?.active_stay?.id) || null;
+  const latestIcuStayId =
+    toPublicId(snapshot.latest_icu_stay_id) || toPublicId(icuOverlay?.latest_stay?.id) || null;
 
   return {
     ...snapshot,
@@ -193,6 +335,12 @@ const normalizeIpdFlowSnapshot = (value) => {
         : typeof flowSummary.has_active_bed === 'boolean'
           ? flowSummary.has_active_bed
           : Boolean(activeBedAssignment),
+    icu: icuOverlay,
+    icu_status: icuStatus,
+    has_critical_alert: hasCriticalAlert,
+    critical_severity: criticalSeverity,
+    active_icu_stay_id: activeIcuStayId,
+    latest_icu_stay_id: latestIcuStayId,
     timeline,
   };
 };

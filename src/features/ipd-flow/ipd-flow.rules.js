@@ -28,6 +28,10 @@ const parseBooleanLike = (value) => {
   if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
   return undefined;
 };
+const booleanLikeSchema = z
+  .union([z.boolean(), z.string().trim().min(1)])
+  .optional()
+  .transform((value) => parseBooleanLike(value));
 const normalizeRouteStateValue = (value) => {
   const normalized = Array.isArray(value) ? String(value[0] || '').trim() : String(value || '').trim();
   return normalized || undefined;
@@ -41,7 +45,9 @@ const listParamsSchema = z.object({
   tenant_id: identifierSchema.optional(),
   facility_id: identifierSchema.optional(),
   patient_id: identifierSchema.optional(),
+  include_icu: booleanLikeSchema,
   queue_scope: z.enum(['ACTIVE', 'ALL']).optional().default('ACTIVE'),
+  icu_queue_scope: z.enum(['ACTIVE', 'WITH_ICU', 'ALL']).optional(),
   stage: z
     .enum([
       'ADMITTED_PENDING_BED',
@@ -53,15 +59,18 @@ const listParamsSchema = z.object({
       'CANCELLED',
     ])
     .optional(),
+  icu_status: z.enum(['ACTIVE', 'ENDED', 'NONE']).optional(),
   ward_id: identifierSchema.optional(),
   transfer_status: z
     .enum(['REQUESTED', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
     .optional(),
-  has_active_bed: z
-    .union([z.boolean(), z.string().trim().min(1)])
-    .optional()
-    .transform((value) => parseBooleanLike(value)),
+  has_active_bed: booleanLikeSchema,
+  has_critical_alert: booleanLikeSchema,
+  critical_severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   search: z.string().trim().optional(),
+});
+const getParamsSchema = z.object({
+  include_icu: booleanLikeSchema,
 });
 const resolveLegacyResourceSchema = z.enum([
   'admissions',
@@ -71,6 +80,9 @@ const resolveLegacyResourceSchema = z.enum([
   'medication-administrations',
   'discharge-summaries',
   'transfer-requests',
+  'icu-stays',
+  'icu-observations',
+  'critical-alerts',
 ]);
 const resolveLegacyRouteParamsSchema = z.object({
   resource: resolveLegacyResourceSchema,
@@ -152,8 +164,34 @@ const finalizeDischargePayloadSchema = z.object({
   discharged_at: isoDateTimeSchema.optional(),
 });
 
+const startIcuStayPayloadSchema = z.object({
+  started_at: isoDateTimeSchema.optional(),
+});
+
+const endIcuStayPayloadSchema = z.object({
+  icu_stay_id: optionalIdentifierSchema,
+  ended_at: isoDateTimeSchema.optional(),
+});
+
+const addIcuObservationPayloadSchema = z.object({
+  icu_stay_id: optionalIdentifierSchema,
+  observed_at: isoDateTimeSchema.optional(),
+  observation: z.string().trim().min(1).max(5000),
+});
+
+const addCriticalAlertPayloadSchema = z.object({
+  icu_stay_id: optionalIdentifierSchema,
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  message: z.string().trim().min(1).max(2000),
+});
+
+const resolveCriticalAlertPayloadSchema = z.object({
+  critical_alert_id: optionalIdentifierSchema,
+});
+
 const parseIpdFlowId = (value) => identifierSchema.parse(value);
 const parseIpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
+const parseGetIpdFlowParams = (value) => getParamsSchema.parse(value ?? {});
 const parseResolveLegacyRouteParams = (value) => resolveLegacyRouteParamsSchema.parse(value ?? {});
 const parseIpdWorkbenchRouteState = (value) =>
   workbenchRouteStateSchema.parse({
@@ -175,13 +213,25 @@ const parseAddMedicationAdministrationPayload = (value) =>
 const parsePlanDischargePayload = (value) => planDischargePayloadSchema.parse(value ?? {});
 const parseFinalizeDischargePayload = (value) =>
   finalizeDischargePayloadSchema.parse(value ?? {});
+const parseStartIcuStayPayload = (value) => startIcuStayPayloadSchema.parse(value ?? {});
+const parseEndIcuStayPayload = (value) => endIcuStayPayloadSchema.parse(value ?? {});
+const parseAddIcuObservationPayload = (value) => addIcuObservationPayloadSchema.parse(value ?? {});
+const parseAddCriticalAlertPayload = (value) => addCriticalAlertPayloadSchema.parse(value ?? {});
+const parseResolveCriticalAlertPayload = (value) =>
+  resolveCriticalAlertPayloadSchema.parse(value ?? {});
 
 export {
   parseIpdFlowId,
   parseIpdFlowListParams,
+  parseGetIpdFlowParams,
   parseResolveLegacyRouteParams,
   parseIpdWorkbenchRouteState,
   parseStartIpdFlowPayload,
+  parseStartIcuStayPayload,
+  parseEndIcuStayPayload,
+  parseAddIcuObservationPayload,
+  parseAddCriticalAlertPayload,
+  parseResolveCriticalAlertPayload,
   parseAssignBedPayload,
   parseReleaseBedPayload,
   parseRequestTransferPayload,

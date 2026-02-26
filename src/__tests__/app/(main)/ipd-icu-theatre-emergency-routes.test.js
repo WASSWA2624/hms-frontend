@@ -4,6 +4,7 @@ const { render } = require('@testing-library/react-native');
 const mockScreens = {
   ClinicalOverviewScreen: jest.fn(() => null),
   IpdWorkbenchScreen: jest.fn(() => null),
+  IcuWorkbenchScreen: jest.fn(() => null),
   ClinicalResourceListScreen: jest.fn(() => null),
   ClinicalResourceDetailScreen: jest.fn(() => null),
   ClinicalResourceFormScreen: jest.fn(() => null),
@@ -11,11 +12,13 @@ const mockScreens = {
 
 jest.mock('@config/feature.flags', () => ({
   IPD_WORKBENCH_V1: false,
+  ICU_WORKBENCH_V1: false,
 }));
 
 jest.mock('@platform/screens', () => ({
   ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
   IpdWorkbenchScreen: (...args) => mockScreens.IpdWorkbenchScreen(...args),
+  IcuWorkbenchScreen: (...args) => mockScreens.IcuWorkbenchScreen(...args),
   ClinicalResourceListScreen: (...args) => mockScreens.ClinicalResourceListScreen(...args),
   ClinicalResourceDetailScreen: (...args) => mockScreens.ClinicalResourceDetailScreen(...args),
   ClinicalResourceFormScreen: (...args) => mockScreens.ClinicalResourceFormScreen(...args),

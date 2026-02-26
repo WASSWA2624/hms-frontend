@@ -10,15 +10,21 @@ import {
   normalizeIpdLegacyResolution,
 } from './ipd-flow.model';
 import {
+  parseAddCriticalAlertPayload,
+  parseAddIcuObservationPayload,
   parseAddMedicationAdministrationPayload,
   parseAddNursingNotePayload,
   parseAddWardRoundPayload,
   parseAssignBedPayload,
+  parseEndIcuStayPayload,
   parseFinalizeDischargePayload,
+  parseGetIpdFlowParams,
   parseIpdFlowId,
   parseIpdFlowListParams,
   parseResolveLegacyRouteParams,
+  parseResolveCriticalAlertPayload,
   parsePlanDischargePayload,
+  parseStartIcuStayPayload,
   parseReleaseBedPayload,
   parseRequestTransferPayload,
   parseStartIpdFlowPayload,
@@ -40,10 +46,11 @@ const listIpdFlows = async (params = {}) =>
     return normalizeIpdFlowList(response.data);
   });
 
-const getIpdFlow = async (id) =>
+const getIpdFlow = async (id, params = {}) =>
   execute(async () => {
     const parsedId = parseIpdFlowId(id);
-    const response = await ipdFlowApi.get(parsedId);
+    const parsedParams = parseGetIpdFlowParams(params);
+    const response = await ipdFlowApi.get(parsedId, parsedParams);
     return normalizeIpdFlowSnapshot(response.data);
   });
 
@@ -58,6 +65,46 @@ const startIpdFlow = async (payload = {}) =>
   execute(async () => {
     const parsed = parseStartIpdFlowPayload(payload);
     const response = await ipdFlowApi.start(parsed);
+    return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const startIcuStay = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIpdFlowId(id);
+    const parsed = parseStartIcuStayPayload(payload);
+    const response = await ipdFlowApi.startIcuStay(parsedId, parsed);
+    return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const endIcuStay = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIpdFlowId(id);
+    const parsed = parseEndIcuStayPayload(payload);
+    const response = await ipdFlowApi.endIcuStay(parsedId, parsed);
+    return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const addIcuObservation = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIpdFlowId(id);
+    const parsed = parseAddIcuObservationPayload(payload);
+    const response = await ipdFlowApi.addIcuObservation(parsedId, parsed);
+    return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const addCriticalAlert = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIpdFlowId(id);
+    const parsed = parseAddCriticalAlertPayload(payload);
+    const response = await ipdFlowApi.addCriticalAlert(parsedId, parsed);
+    return normalizeIpdFlowSnapshot(response.data);
+  });
+
+const resolveCriticalAlert = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseIpdFlowId(id);
+    const parsed = parseResolveCriticalAlertPayload(payload);
+    const response = await ipdFlowApi.resolveCriticalAlert(parsedId, parsed);
     return normalizeIpdFlowSnapshot(response.data);
   });
 
@@ -138,6 +185,11 @@ export {
   getIpdFlow,
   resolveIpdLegacyRoute,
   startIpdFlow,
+  startIcuStay,
+  endIcuStay,
+  addIcuObservation,
+  addCriticalAlert,
+  resolveCriticalAlert,
   assignBed,
   releaseBed,
   requestTransfer,

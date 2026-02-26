@@ -11,9 +11,9 @@ const ipdFlowApi = {
       url: `${endpoints.IPD_FLOWS.LIST}${buildQueryString(params)}`,
       method: 'GET',
     }),
-  get: (id) =>
+  get: (id, params = {}) =>
     apiClient({
-      url: endpoints.IPD_FLOWS.GET(id),
+      url: `${endpoints.IPD_FLOWS.GET(id)}${buildQueryString(params)}`,
       method: 'GET',
     }),
   resolveLegacyRoute: (resource, id) =>
@@ -24,6 +24,36 @@ const ipdFlowApi = {
   start: (payload = {}) =>
     apiClient({
       url: endpoints.IPD_FLOWS.START,
+      method: 'POST',
+      body: payload,
+    }),
+  startIcuStay: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.START_ICU_STAY(id),
+      method: 'POST',
+      body: payload,
+    }),
+  endIcuStay: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.END_ICU_STAY(id),
+      method: 'POST',
+      body: payload,
+    }),
+  addIcuObservation: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.ADD_ICU_OBSERVATION(id),
+      method: 'POST',
+      body: payload,
+    }),
+  addCriticalAlert: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.ADD_CRITICAL_ALERT(id),
+      method: 'POST',
+      body: payload,
+    }),
+  resolveCriticalAlert: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.IPD_FLOWS.RESOLVE_CRITICAL_ALERT(id),
       method: 'POST',
       body: payload,
     }),

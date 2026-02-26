@@ -15,4 +15,5 @@ export const ANALYTICS_ENABLED = parseFlag(process.env.EXPO_PUBLIC_ANALYTICS_ENA
 export const MAINTENANCE_MODE = parseFlag(process.env.EXPO_PUBLIC_MAINTENANCE_MODE, false);
 export const MAINTENANCE_MESSAGE = process.env.EXPO_PUBLIC_MAINTENANCE_MESSAGE || '';
 export const IPD_WORKBENCH_V1 = parseFlag(process.env.EXPO_PUBLIC_IPD_WORKBENCH_V1, true);
+export const ICU_WORKBENCH_V1 = parseFlag(process.env.EXPO_PUBLIC_ICU_WORKBENCH_V1, true);
 

@@ -1,6 +1,8 @@
 export { default as ClinicalScreen } from './ClinicalScreen';
 export { default as ClinicalWorkbenchScreen } from './ClinicalWorkbenchScreen';
 export { default as ClinicalOverviewScreen } from './ClinicalOverviewScreen';
+export { default as IpdWorkbenchScreen } from './IpdWorkbenchScreen';
+export { default as IcuWorkbenchScreen } from './IcuWorkbenchScreen';
 export { default as ClinicalResourceListScreen } from './ClinicalResourceListScreen';
 export { default as ClinicalResourceDetailScreen } from './ClinicalResourceDetailScreen';
 export { default as ClinicalResourceFormScreen } from './ClinicalResourceFormScreen';

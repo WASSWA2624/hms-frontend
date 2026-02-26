@@ -4004,14 +4004,19 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.icuStays.form.endedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.admission_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.admission_display_id) ||
+      sanitizeString(item?.admission_id) ||
+      sanitizeString(item?.display_id),
     getItemSubtitle: (item, t) => {
       const startedAt = sanitizeString(item?.started_at);
       if (!startedAt) return '';
       return `${t('clinical.resources.icuStays.detail.startedAtLabel')}: ${startedAt}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      admission_id: sanitizeString(
+        record?.admission_display_id || record?.admission_id || context?.admissionId
+      ),
       started_at: sanitizeString(record?.started_at),
       ended_at: sanitizeString(record?.ended_at),
     }),
@@ -4038,8 +4043,8 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.icuStays.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.icuStays.detail.admissionLabel', valueKey: 'admission_id' },
+      { labelKey: 'clinical.resources.icuStays.detail.idLabel', valueKey: 'display_id' },
+      { labelKey: 'clinical.resources.icuStays.detail.admissionLabel', valueKey: 'admission_display_id' },
       { labelKey: 'clinical.resources.icuStays.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
       { labelKey: 'clinical.resources.icuStays.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
       { labelKey: 'clinical.resources.icuStays.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
@@ -4090,7 +4095,9 @@ const resourceConfigs = {
       return `${t('clinical.resources.icuObservations.detail.observedAtLabel')}: ${observedAt}`;
     },
     getInitialValues: (record, context) => ({
-      icu_stay_id: sanitizeString(record?.icu_stay_id || context?.icuStayId),
+      icu_stay_id: sanitizeString(
+        record?.icu_stay_display_id || record?.icu_stay_id || context?.icuStayId
+      ),
       observed_at: sanitizeString(record?.observed_at),
       observation: sanitizeString(record?.observation),
     }),
@@ -4111,8 +4118,8 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.icuObservations.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.icuObservations.detail.icuStayLabel', valueKey: 'icu_stay_id' },
+      { labelKey: 'clinical.resources.icuObservations.detail.idLabel', valueKey: 'display_id' },
+      { labelKey: 'clinical.resources.icuObservations.detail.icuStayLabel', valueKey: 'icu_stay_display_id' },
       { labelKey: 'clinical.resources.icuObservations.detail.observedAtLabel', valueKey: 'observed_at', type: 'datetime' },
       { labelKey: 'clinical.resources.icuObservations.detail.observationLabel', valueKey: 'observation' },
       { labelKey: 'clinical.resources.icuObservations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
@@ -4163,7 +4170,9 @@ const resourceConfigs = {
       return `${t('clinical.resources.criticalAlerts.detail.severityLabel')}: ${severityLabel}`;
     },
     getInitialValues: (record, context) => ({
-      icu_stay_id: sanitizeString(record?.icu_stay_id || context?.icuStayId),
+      icu_stay_id: sanitizeString(
+        record?.icu_stay_display_id || record?.icu_stay_id || context?.icuStayId
+      ),
       severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
       message: sanitizeString(record?.message),
     }),
@@ -4178,8 +4187,8 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.criticalAlerts.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.icuStayLabel', valueKey: 'icu_stay_id' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.idLabel', valueKey: 'display_id' },
+      { labelKey: 'clinical.resources.criticalAlerts.detail.icuStayLabel', valueKey: 'icu_stay_display_id' },
       { labelKey: 'clinical.resources.criticalAlerts.detail.severityLabel', valueKey: 'severity' },
       { labelKey: 'clinical.resources.criticalAlerts.detail.messageLabel', valueKey: 'message' },
       { labelKey: 'clinical.resources.criticalAlerts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
