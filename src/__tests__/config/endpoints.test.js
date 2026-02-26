@@ -49,7 +49,9 @@ describe('endpoints.js', () => {
   test('should expose staff position endpoint group', () => {
     expect(endpoints.STAFF_POSITIONS).toBeDefined();
     expect(endpoints.STAFF_POSITIONS.LIST).toMatch(/\/staff-positions$/);
-    expect(endpoints.STAFF_POSITIONS.GET('id')).toMatch(/\/staff-positions\/id$/);
+    expect(endpoints.STAFF_POSITIONS.GET('id')).toMatch(
+      /\/staff-positions\/id$/
+    );
   });
 
   test('should expose patient nested resource endpoints', () => {
@@ -157,6 +159,42 @@ describe('endpoints.js', () => {
     );
   });
 
+  test('should expose theatre flow workbench action endpoints', () => {
+    expect(endpoints.THEATRE_FLOWS.LIST).toMatch(/\/theatre-flows$/);
+    expect(endpoints.THEATRE_FLOWS.GET('id')).toMatch(/\/theatre-flows\/id$/);
+    expect(
+      endpoints.THEATRE_FLOWS.RESOLVE_LEGACY('theatre-cases', 'id')
+    ).toMatch(/\/theatre-flows\/resolve-legacy\/theatre-cases\/id$/);
+    expect(endpoints.THEATRE_FLOWS.START).toMatch(/\/theatre-flows\/start$/);
+    expect(endpoints.THEATRE_FLOWS.UPDATE_STAGE('id')).toMatch(
+      /\/theatre-flows\/id\/update-stage$/
+    );
+    expect(endpoints.THEATRE_FLOWS.UPSERT_ANESTHESIA_RECORD('id')).toMatch(
+      /\/theatre-flows\/id\/upsert-anesthesia-record$/
+    );
+    expect(endpoints.THEATRE_FLOWS.ADD_ANESTHESIA_OBSERVATION('id')).toMatch(
+      /\/theatre-flows\/id\/add-anesthesia-observation$/
+    );
+    expect(endpoints.THEATRE_FLOWS.UPSERT_POST_OP_NOTE('id')).toMatch(
+      /\/theatre-flows\/id\/upsert-post-op-note$/
+    );
+    expect(endpoints.THEATRE_FLOWS.TOGGLE_CHECKLIST_ITEM('id')).toMatch(
+      /\/theatre-flows\/id\/toggle-checklist-item$/
+    );
+    expect(endpoints.THEATRE_FLOWS.ASSIGN_RESOURCE('id')).toMatch(
+      /\/theatre-flows\/id\/assign-resource$/
+    );
+    expect(endpoints.THEATRE_FLOWS.RELEASE_RESOURCE('id')).toMatch(
+      /\/theatre-flows\/id\/release-resource$/
+    );
+    expect(endpoints.THEATRE_FLOWS.FINALIZE_RECORD('id')).toMatch(
+      /\/theatre-flows\/id\/finalize-record$/
+    );
+    expect(endpoints.THEATRE_FLOWS.REOPEN_RECORD('id')).toMatch(
+      /\/theatre-flows\/id\/reopen-record$/
+    );
+  });
+
   test('should expose diagnostics workflow action endpoint', () => {
     expect(endpoints.LAB_RESULTS.RELEASE('id')).toMatch(
       /\/lab-results\/id\/release$/
@@ -208,7 +246,9 @@ describe('endpoints.js', () => {
 
   test('should expose reporting and analytics CRUD endpoint groups', () => {
     expect(endpoints.REPORT_DEFINITIONS.LIST).toMatch(/\/report-definitions$/);
-    expect(endpoints.REPORT_DEFINITIONS.CREATE).toMatch(/\/report-definitions$/);
+    expect(endpoints.REPORT_DEFINITIONS.CREATE).toMatch(
+      /\/report-definitions$/
+    );
     expect(endpoints.REPORT_DEFINITIONS.GET('id')).toMatch(
       /\/report-definitions\/id$/
     );
@@ -227,7 +267,9 @@ describe('endpoints.js', () => {
 
     expect(endpoints.DASHBOARD_WIDGETS.LIST).toMatch(/\/dashboard-widgets$/);
     expect(endpoints.DASHBOARD_WIDGETS.CREATE).toMatch(/\/dashboard-widgets$/);
-    expect(endpoints.DASHBOARD_WIDGETS.SUMMARY).toMatch(/\/dashboard-widgets\/summary$/);
+    expect(endpoints.DASHBOARD_WIDGETS.SUMMARY).toMatch(
+      /\/dashboard-widgets\/summary$/
+    );
     expect(endpoints.DASHBOARD_WIDGETS.GET('id')).toMatch(
       /\/dashboard-widgets\/id$/
     );
@@ -326,15 +368,21 @@ describe('endpoints.js', () => {
 
     expect(endpoints.PHI_ACCESS_LOGS.LIST).toMatch(/\/phi-access-logs$/);
     expect(endpoints.PHI_ACCESS_LOGS.CREATE).toMatch(/\/phi-access-logs$/);
-    expect(endpoints.PHI_ACCESS_LOGS.GET('id')).toMatch(/\/phi-access-logs\/id$/);
+    expect(endpoints.PHI_ACCESS_LOGS.GET('id')).toMatch(
+      /\/phi-access-logs\/id$/
+    );
     expect(endpoints.PHI_ACCESS_LOGS.GET_BY_USER('user-1')).toMatch(
       /\/phi-access-logs\/user\/user-1$/
     );
     expect(endpoints.PHI_ACCESS_LOGS.UPDATE).toBeUndefined();
     expect(endpoints.PHI_ACCESS_LOGS.DELETE).toBeUndefined();
 
-    expect(endpoints.DATA_PROCESSING_LOGS.LIST).toMatch(/\/data-processing-logs$/);
-    expect(endpoints.DATA_PROCESSING_LOGS.CREATE).toMatch(/\/data-processing-logs$/);
+    expect(endpoints.DATA_PROCESSING_LOGS.LIST).toMatch(
+      /\/data-processing-logs$/
+    );
+    expect(endpoints.DATA_PROCESSING_LOGS.CREATE).toMatch(
+      /\/data-processing-logs$/
+    );
     expect(endpoints.DATA_PROCESSING_LOGS.GET('id')).toMatch(
       /\/data-processing-logs\/id$/
     );
@@ -345,8 +393,12 @@ describe('endpoints.js', () => {
       /\/data-processing-logs\/id$/
     );
 
-    expect(endpoints.BREACH_NOTIFICATIONS.LIST).toMatch(/\/breach-notifications$/);
-    expect(endpoints.BREACH_NOTIFICATIONS.CREATE).toMatch(/\/breach-notifications$/);
+    expect(endpoints.BREACH_NOTIFICATIONS.LIST).toMatch(
+      /\/breach-notifications$/
+    );
+    expect(endpoints.BREACH_NOTIFICATIONS.CREATE).toMatch(
+      /\/breach-notifications$/
+    );
     expect(endpoints.BREACH_NOTIFICATIONS.GET('id')).toMatch(
       /\/breach-notifications\/id$/
     );
@@ -359,8 +411,12 @@ describe('endpoints.js', () => {
     expect(endpoints.BREACH_NOTIFICATIONS.DELETE).toBeUndefined();
 
     expect(endpoints.SYSTEM_CHANGE_LOGS.LIST).toMatch(/\/system-change-logs$/);
-    expect(endpoints.SYSTEM_CHANGE_LOGS.CREATE).toMatch(/\/system-change-logs$/);
-    expect(endpoints.SYSTEM_CHANGE_LOGS.GET('id')).toMatch(/\/system-change-logs\/id$/);
+    expect(endpoints.SYSTEM_CHANGE_LOGS.CREATE).toMatch(
+      /\/system-change-logs$/
+    );
+    expect(endpoints.SYSTEM_CHANGE_LOGS.GET('id')).toMatch(
+      /\/system-change-logs\/id$/
+    );
     expect(endpoints.SYSTEM_CHANGE_LOGS.UPDATE('id')).toMatch(
       /\/system-change-logs\/id$/
     );
@@ -377,8 +433,12 @@ describe('endpoints.js', () => {
     expect(endpoints.NOTIFICATIONS.LIST).toMatch(/\/notifications$/);
     expect(endpoints.NOTIFICATIONS.CREATE).toMatch(/\/notifications$/);
     expect(endpoints.NOTIFICATIONS.GET('id')).toMatch(/\/notifications\/id$/);
-    expect(endpoints.NOTIFICATIONS.UPDATE('id')).toMatch(/\/notifications\/id$/);
-    expect(endpoints.NOTIFICATIONS.DELETE('id')).toMatch(/\/notifications\/id$/);
+    expect(endpoints.NOTIFICATIONS.UPDATE('id')).toMatch(
+      /\/notifications\/id$/
+    );
+    expect(endpoints.NOTIFICATIONS.DELETE('id')).toMatch(
+      /\/notifications\/id$/
+    );
 
     expect(endpoints.NOTIFICATION_DELIVERIES.LIST).toMatch(
       /\/notification-deliveries$/
@@ -386,8 +446,12 @@ describe('endpoints.js', () => {
     expect(endpoints.CONVERSATIONS.LIST).toMatch(/\/conversations$/);
     expect(endpoints.CONVERSATIONS.CREATE).toMatch(/\/conversations$/);
     expect(endpoints.CONVERSATIONS.GET('id')).toMatch(/\/conversations\/id$/);
-    expect(endpoints.CONVERSATIONS.UPDATE('id')).toMatch(/\/conversations\/id$/);
-    expect(endpoints.CONVERSATIONS.DELETE('id')).toMatch(/\/conversations\/id$/);
+    expect(endpoints.CONVERSATIONS.UPDATE('id')).toMatch(
+      /\/conversations\/id$/
+    );
+    expect(endpoints.CONVERSATIONS.DELETE('id')).toMatch(
+      /\/conversations\/id$/
+    );
     expect(endpoints.MESSAGES.LIST).toMatch(/\/messages$/);
     expect(endpoints.MESSAGES.CREATE).toMatch(/\/messages$/);
     expect(endpoints.MESSAGES.GET('id')).toMatch(/\/messages\/id$/);
@@ -424,7 +488,9 @@ describe('endpoints.js', () => {
     );
 
     expect(endpoints.INTEGRATION_LOGS.LIST).toMatch(/\/integration-logs$/);
-    expect(endpoints.INTEGRATION_LOGS.GET('id')).toMatch(/\/integration-logs\/id$/);
+    expect(endpoints.INTEGRATION_LOGS.GET('id')).toMatch(
+      /\/integration-logs\/id$/
+    );
     expect(
       endpoints.INTEGRATION_LOGS.GET_BY_INTEGRATION('integration-1')
     ).toMatch(/\/integration-logs\/integration\/integration-1$/);

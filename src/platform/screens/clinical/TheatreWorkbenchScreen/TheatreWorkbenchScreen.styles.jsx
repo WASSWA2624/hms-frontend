@@ -114,31 +114,58 @@ const StyledFlowList = styled.div`
 `;
 
 const StyledFlowListItem = styled(Pressable)`
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
   border: 1px solid
     ${({ $selected, theme }) =>
-      $selected ? '#0f766e' : theme.colors.border.light};
-  border-left: 4px solid
-    ${({ $selected, theme }) =>
-      $selected ? '#0f766e' : theme.colors.border.medium};
+      $selected ? 'rgba(15, 118, 110, 0.52)' : theme.colors.border.light};
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
-  padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm}px`};
-  background: ${({ theme, $selected }) =>
-    $selected ? '#effcf8' : theme.colors.surface.primary};
+  padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 1}px`};
+  background:
+    linear-gradient(
+      138deg,
+      ${({ $selected }) =>
+          $selected ? 'rgba(20, 184, 166, 0.12)' : 'rgba(148, 163, 184, 0.06)'}
+        0%,
+      rgba(255, 255, 255, 0) 62%
+    ),
+    ${({ theme }) => theme.colors.surface.primary};
   box-shadow: ${({ $selected }) =>
     $selected
-      ? '0 8px 18px rgba(15, 118, 110, 0.2)'
-      : '0 2px 8px rgba(15, 23, 42, 0.1)'};
+      ? '0 10px 24px rgba(15, 118, 110, 0.24)'
+      : '0 4px 14px rgba(15, 23, 42, 0.12)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 6px;
+    border-radius: ${({ theme }) =>
+      `${theme.radius.md + 2}px 0 0 ${theme.radius.md + 2}px`};
+    background: ${({ $selected }) =>
+      $selected
+        ? 'linear-gradient(180deg, #14b8a6 0%, #0f766e 100%)'
+        : 'linear-gradient(180deg, #94a3b8 0%, #64748b 100%)'};
+  }
 
   &:hover {
-    border-color: #0f766e;
-    background: #f4fffb;
+    border-color: rgba(15, 118, 110, 0.42);
+    background:
+      linear-gradient(
+        138deg,
+        rgba(20, 184, 166, 0.11) 0%,
+        rgba(255, 255, 255, 0) 62%
+      ),
+      #f8fffd;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+    transform: translateY(-1px);
   }
 `;
 
@@ -146,14 +173,60 @@ const StyledFlowTitleRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.xs}px;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledFlowHeading = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
+  min-width: 0;
+`;
+
+const StyledFlowOrder = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  padding: 0 ${({ theme }) => theme.spacing.xs - 2}px;
+  background: rgba(15, 118, 110, 0.16);
+  color: #0f766e;
+  font-family: ${({ theme }) => theme.typography.fontFamily.bold};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  letter-spacing: 0.02em;
+`;
+
+const StyledFlowHeadingText = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
 `;
 
 const StyledFlowTitle = styled.p`
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm + 1}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: ${({ theme }) =>
+    theme.typography.fontSize.md * theme.typography.lineHeight.tight}px;
+  letter-spacing: 0.01em;
   color: ${({ theme }) => theme.colors.text.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledFlowCaseId = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 `;
 
 const StyledFlowMeta = styled.p`
@@ -161,6 +234,46 @@ const StyledFlowMeta = styled.p`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledFlowMetaGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.xs}px;
+
+  @media (max-width: ${({ theme }) => getTablet(theme)}px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StyledFlowMetaCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  padding: ${({ theme }) =>
+    `${theme.spacing.xs - 1}px ${theme.spacing.xs + 1}px`};
+  background: rgba(255, 255, 255, 0.74);
+`;
+
+const StyledFlowMetaLabel = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: ${({ theme }) => theme.colors.text.tertiary};
+`;
+
+const StyledFlowMetaValue = styled.span`
+  font-family: ${({ theme }) => theme.typography.fontFamily.medium};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  color: ${({ theme }) => theme.colors.text.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const StyledInlineActions = styled.div`
@@ -249,8 +362,16 @@ export {
   StyledFlowList,
   StyledFlowListItem,
   StyledFlowTitleRow,
+  StyledFlowHeading,
+  StyledFlowOrder,
+  StyledFlowHeadingText,
   StyledFlowTitle,
+  StyledFlowCaseId,
   StyledFlowMeta,
+  StyledFlowMetaGrid,
+  StyledFlowMetaCard,
+  StyledFlowMetaLabel,
+  StyledFlowMetaValue,
   StyledInlineActions,
   StyledTabRow,
   StyledFieldRow,

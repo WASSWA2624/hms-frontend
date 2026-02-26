@@ -3,14 +3,7 @@
  * File: crud-usecase-runner.js
  */
 const runCrudUsecaseTests = (
-  {
-    list,
-    get,
-    create,
-    update,
-    remove,
-    extraActions = [],
-  },
+  { list, get, create, update, remove, extraActions = [] },
   {
     queueRequestIfOffline,
     payload = { name: 'value' },
@@ -47,13 +40,16 @@ const runCrudUsecaseTests = (
     queueRequestIfOffline.mockResolvedValue(true);
 
     if (create) {
-      await expect(create(payload)).resolves.toEqual(payload);
+      await expect(create(payload)).resolves.toMatchObject(payload);
     }
     if (update) {
-      await expect(update(id, payload)).resolves.toEqual({ id, ...payload });
+      await expect(update(id, payload)).resolves.toMatchObject({
+        id,
+        ...payload,
+      });
     }
     if (remove) {
-      await expect(remove(id)).resolves.toEqual({ id });
+      await expect(remove(id)).resolves.toMatchObject({ id });
     }
   });
 

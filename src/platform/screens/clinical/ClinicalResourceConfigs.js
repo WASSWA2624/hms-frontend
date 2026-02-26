@@ -327,7 +327,10 @@ const SUBSCRIPTIONS_ROUTE_ROOT = '/subscriptions';
 const INTEGRATIONS_ROUTE_ROOT = '/integrations';
 const COMPLIANCE_ROUTE_ROOT = '/compliance';
 
-const normalizeScopeValue = (value) => String(value || '').trim().toLowerCase();
+const normalizeScopeValue = (value) =>
+  String(value || '')
+    .trim()
+    .toLowerCase();
 
 const OVERVIEW_SCOPE_ACCESS_MAP = Object.freeze({
   clinical: 'clinical',
@@ -351,24 +354,78 @@ const OVERVIEW_SCOPE_ACCESS_MAP = Object.freeze({
 });
 
 const RESOURCE_SCOPE_ACCESS_MAP = Object.freeze({
-  ...Object.fromEntries(CLINICAL_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'clinical'])),
-  ...Object.fromEntries(IPD_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'ipd'])),
-  ...Object.fromEntries(ICU_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'icu'])),
-  ...Object.fromEntries(THEATRE_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'theatre'])),
-  ...Object.fromEntries(EMERGENCY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'emergency'])),
-  ...Object.fromEntries(LAB_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'lab'])),
-  ...Object.fromEntries(RADIOLOGY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'radiology'])),
-  ...Object.fromEntries(PHARMACY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'pharmacy'])),
-  ...Object.fromEntries(INVENTORY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'inventory'])),
-  ...Object.fromEntries(BILLING_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'billing'])),
-  ...Object.fromEntries(HR_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'hr'])),
-  ...Object.fromEntries(HOUSEKEEPING_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'housekeeping'])),
-  ...Object.fromEntries(BIOMEDICAL_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'biomedical'])),
-  ...Object.fromEntries(REPORTS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'reports'])),
-  ...Object.fromEntries(COMMUNICATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'communications'])),
-  ...Object.fromEntries(SUBSCRIPTIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'subscriptions'])),
-  ...Object.fromEntries(INTEGRATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'integrations'])),
-  ...Object.fromEntries(COMPLIANCE_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'compliance'])),
+  ...Object.fromEntries(
+    CLINICAL_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'clinical'])
+  ),
+  ...Object.fromEntries(
+    IPD_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'ipd'])
+  ),
+  ...Object.fromEntries(
+    ICU_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'icu'])
+  ),
+  ...Object.fromEntries(
+    THEATRE_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'theatre'])
+  ),
+  ...Object.fromEntries(
+    EMERGENCY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'emergency'])
+  ),
+  ...Object.fromEntries(
+    LAB_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'lab'])
+  ),
+  ...Object.fromEntries(
+    RADIOLOGY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'radiology'])
+  ),
+  ...Object.fromEntries(
+    PHARMACY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'pharmacy'])
+  ),
+  ...Object.fromEntries(
+    INVENTORY_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'inventory'])
+  ),
+  ...Object.fromEntries(
+    BILLING_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'billing'])
+  ),
+  ...Object.fromEntries(
+    HR_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'hr'])
+  ),
+  ...Object.fromEntries(
+    HOUSEKEEPING_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'housekeeping',
+    ])
+  ),
+  ...Object.fromEntries(
+    BIOMEDICAL_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'biomedical',
+    ])
+  ),
+  ...Object.fromEntries(
+    REPORTS_RESOURCE_LIST_ORDER.map((resourceId) => [resourceId, 'reports'])
+  ),
+  ...Object.fromEntries(
+    COMMUNICATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'communications',
+    ])
+  ),
+  ...Object.fromEntries(
+    SUBSCRIPTIONS_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'subscriptions',
+    ])
+  ),
+  ...Object.fromEntries(
+    INTEGRATIONS_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'integrations',
+    ])
+  ),
+  ...Object.fromEntries(
+    COMPLIANCE_RESOURCE_LIST_ORDER.map((resourceId) => [
+      resourceId,
+      'compliance',
+    ])
+  ),
 });
 
 const resolveClinicalOverviewScope = (scope) => {
@@ -555,7 +612,8 @@ const withClinicalContext = (path, context = {}) => {
   if (toWardId) searchParams.set('toWardId', toWardId);
   if (icuStayId) searchParams.set('icuStayId', icuStayId);
   if (theatreCaseId) searchParams.set('theatreCaseId', theatreCaseId);
-  if (anesthetistUserId) searchParams.set('anesthetistUserId', anesthetistUserId);
+  if (anesthetistUserId)
+    searchParams.set('anesthetistUserId', anesthetistUserId);
   if (emergencyCaseId) searchParams.set('emergencyCaseId', emergencyCaseId);
   if (ambulanceId) searchParams.set('ambulanceId', ambulanceId);
   if (labTestId) searchParams.set('labTestId', labTestId);
@@ -567,12 +625,15 @@ const withClinicalContext = (path, context = {}) => {
   if (imagingStudyId) searchParams.set('imagingStudyId', imagingStudyId);
   if (drugId) searchParams.set('drugId', drugId);
   if (pharmacyOrderId) searchParams.set('pharmacyOrderId', pharmacyOrderId);
-  if (pharmacyOrderItemId) searchParams.set('pharmacyOrderItemId', pharmacyOrderItemId);
+  if (pharmacyOrderItemId)
+    searchParams.set('pharmacyOrderItemId', pharmacyOrderItemId);
   if (inventoryItemId) searchParams.set('inventoryItemId', inventoryItemId);
   if (supplierId) searchParams.set('supplierId', supplierId);
-  if (purchaseRequestId) searchParams.set('purchaseRequestId', purchaseRequestId);
+  if (purchaseRequestId)
+    searchParams.set('purchaseRequestId', purchaseRequestId);
   if (purchaseOrderId) searchParams.set('purchaseOrderId', purchaseOrderId);
-  if (requestedByUserId) searchParams.set('requestedByUserId', requestedByUserId);
+  if (requestedByUserId)
+    searchParams.set('requestedByUserId', requestedByUserId);
   if (invoiceId) searchParams.set('invoiceId', invoiceId);
   if (paymentId) searchParams.set('paymentId', paymentId);
   if (coveragePlanId) searchParams.set('coveragePlanId', coveragePlanId);
@@ -609,13 +670,19 @@ const withClinicalContext = (path, context = {}) => {
   if (typeof expired === 'boolean') {
     searchParams.set('expired', expired ? 'true' : 'false');
   }
-  if (sanitizeString(expired) === 'true' || sanitizeString(expired) === 'false') {
+  if (
+    sanitizeString(expired) === 'true' ||
+    sanitizeString(expired) === 'false'
+  ) {
     searchParams.set('expired', sanitizeString(expired));
   }
   if (typeof belowReorder === 'boolean') {
     searchParams.set('belowReorder', belowReorder ? 'true' : 'false');
   }
-  if (sanitizeString(belowReorder) === 'true' || sanitizeString(belowReorder) === 'false') {
+  if (
+    sanitizeString(belowReorder) === 'true' ||
+    sanitizeString(belowReorder) === 'false'
+  ) {
     searchParams.set('belowReorder', sanitizeString(belowReorder));
   }
   if (orderedAtFrom) searchParams.set('orderedAtFrom', orderedAtFrom);
@@ -657,7 +724,10 @@ const withClinicalContext = (path, context = {}) => {
   if (typeof isActive === 'boolean') {
     searchParams.set('isActive', isActive ? 'true' : 'false');
   }
-  if (sanitizeString(isActive) === 'true' || sanitizeString(isActive) === 'false') {
+  if (
+    sanitizeString(isActive) === 'true' ||
+    sanitizeString(isActive) === 'false'
+  ) {
     searchParams.set('isActive', sanitizeString(isActive));
   }
 
@@ -671,27 +741,45 @@ const ENCOUNTER_TYPE_OPTIONS = [
   { value: 'ICU', labelKey: 'clinical.options.encounterType.icu' },
   { value: 'THEATRE', labelKey: 'clinical.options.encounterType.theatre' },
   { value: 'EMERGENCY', labelKey: 'clinical.options.encounterType.emergency' },
-  { value: 'TELEMEDICINE', labelKey: 'clinical.options.encounterType.telemedicine' },
+  {
+    value: 'TELEMEDICINE',
+    labelKey: 'clinical.options.encounterType.telemedicine',
+  },
 ];
 
 const ENCOUNTER_STATUS_OPTIONS = [
   { value: 'OPEN', labelKey: 'clinical.options.encounterStatus.open' },
   { value: 'CLOSED', labelKey: 'clinical.options.encounterStatus.closed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.encounterStatus.cancelled' },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.encounterStatus.cancelled',
+  },
 ];
 
 const DIAGNOSIS_TYPE_OPTIONS = [
   { value: 'PRIMARY', labelKey: 'clinical.options.diagnosisType.primary' },
   { value: 'SECONDARY', labelKey: 'clinical.options.diagnosisType.secondary' },
-  { value: 'DIFFERENTIAL', labelKey: 'clinical.options.diagnosisType.differential' },
+  {
+    value: 'DIFFERENTIAL',
+    labelKey: 'clinical.options.diagnosisType.differential',
+  },
 ];
 
 const VITAL_TYPE_OPTIONS = [
   { value: 'TEMPERATURE', labelKey: 'clinical.options.vitalType.temperature' },
-  { value: 'BLOOD_PRESSURE', labelKey: 'clinical.options.vitalType.bloodPressure' },
+  {
+    value: 'BLOOD_PRESSURE',
+    labelKey: 'clinical.options.vitalType.bloodPressure',
+  },
   { value: 'HEART_RATE', labelKey: 'clinical.options.vitalType.heartRate' },
-  { value: 'RESPIRATORY_RATE', labelKey: 'clinical.options.vitalType.respiratoryRate' },
-  { value: 'OXYGEN_SATURATION', labelKey: 'clinical.options.vitalType.oxygenSaturation' },
+  {
+    value: 'RESPIRATORY_RATE',
+    labelKey: 'clinical.options.vitalType.respiratoryRate',
+  },
+  {
+    value: 'OXYGEN_SATURATION',
+    labelKey: 'clinical.options.vitalType.oxygenSaturation',
+  },
   { value: 'WEIGHT', labelKey: 'clinical.options.vitalType.weight' },
   { value: 'HEIGHT', labelKey: 'clinical.options.vitalType.height' },
   { value: 'BMI', labelKey: 'clinical.options.vitalType.bmi' },
@@ -700,7 +788,10 @@ const VITAL_TYPE_OPTIONS = [
 const REFERRAL_CREATE_STATUS_OPTIONS = [
   { value: 'REQUESTED', labelKey: 'clinical.options.referralStatus.requested' },
   { value: 'APPROVED', labelKey: 'clinical.options.referralStatus.approved' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.referralStatus.inProgress' },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.referralStatus.inProgress',
+  },
   { value: 'COMPLETED', labelKey: 'clinical.options.referralStatus.completed' },
   { value: 'CANCELLED', labelKey: 'clinical.options.referralStatus.cancelled' },
 ];
@@ -708,28 +799,49 @@ const REFERRAL_CREATE_STATUS_OPTIONS = [
 const REFERRAL_UPDATE_STATUS_OPTIONS = [
   { value: 'REQUESTED', labelKey: 'clinical.options.referralStatus.requested' },
   { value: 'APPROVED', labelKey: 'clinical.options.referralStatus.approved' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.referralStatus.inProgress' },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.referralStatus.inProgress',
+  },
   { value: 'COMPLETED', labelKey: 'clinical.options.referralStatus.completed' },
   { value: 'CANCELLED', labelKey: 'clinical.options.referralStatus.cancelled' },
 ];
 
 const ADMISSION_STATUS_OPTIONS = [
   { value: 'ADMITTED', labelKey: 'clinical.options.admissionStatus.admitted' },
-  { value: 'DISCHARGED', labelKey: 'clinical.options.admissionStatus.discharged' },
-  { value: 'TRANSFERRED', labelKey: 'clinical.options.admissionStatus.transferred' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.admissionStatus.cancelled' },
+  {
+    value: 'DISCHARGED',
+    labelKey: 'clinical.options.admissionStatus.discharged',
+  },
+  {
+    value: 'TRANSFERRED',
+    labelKey: 'clinical.options.admissionStatus.transferred',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.admissionStatus.cancelled',
+  },
 ];
 
 const DISCHARGE_STATUS_OPTIONS = [
   { value: 'PLANNED', labelKey: 'clinical.options.dischargeStatus.planned' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.dischargeStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.dischargeStatus.cancelled' },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.dischargeStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.dischargeStatus.cancelled',
+  },
 ];
 
 const TRANSFER_STATUS_OPTIONS = [
   { value: 'REQUESTED', labelKey: 'clinical.options.transferStatus.requested' },
   { value: 'APPROVED', labelKey: 'clinical.options.transferStatus.approved' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.transferStatus.inProgress' },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.transferStatus.inProgress',
+  },
   { value: 'COMPLETED', labelKey: 'clinical.options.transferStatus.completed' },
   { value: 'CANCELLED', labelKey: 'clinical.options.transferStatus.cancelled' },
 ];
@@ -740,16 +852,25 @@ const MEDICATION_ROUTE_OPTIONS = [
   { value: 'IM', labelKey: 'clinical.options.medicationRoute.im' },
   { value: 'SC', labelKey: 'clinical.options.medicationRoute.sc' },
   { value: 'TOPICAL', labelKey: 'clinical.options.medicationRoute.topical' },
-  { value: 'INHALATION', labelKey: 'clinical.options.medicationRoute.inhalation' },
+  {
+    value: 'INHALATION',
+    labelKey: 'clinical.options.medicationRoute.inhalation',
+  },
   { value: 'RECTAL', labelKey: 'clinical.options.medicationRoute.rectal' },
   { value: 'OTHER', labelKey: 'clinical.options.medicationRoute.other' },
 ];
 
 const CRITICAL_ALERT_SEVERITY_OPTIONS = [
   { value: 'LOW', labelKey: 'clinical.options.criticalAlertSeverity.low' },
-  { value: 'MEDIUM', labelKey: 'clinical.options.criticalAlertSeverity.medium' },
+  {
+    value: 'MEDIUM',
+    labelKey: 'clinical.options.criticalAlertSeverity.medium',
+  },
   { value: 'HIGH', labelKey: 'clinical.options.criticalAlertSeverity.high' },
-  { value: 'CRITICAL', labelKey: 'clinical.options.criticalAlertSeverity.critical' },
+  {
+    value: 'CRITICAL',
+    labelKey: 'clinical.options.criticalAlertSeverity.critical',
+  },
 ];
 const CLINICAL_ALERT_STATUS_OPTIONS = [
   { value: 'OPEN', labelKey: 'clinical.options.status.open' },
@@ -767,24 +888,48 @@ const FOLLOW_UP_STATUS_OPTIONS = [
 ];
 
 const THEATRE_CASE_STATUS_OPTIONS = [
-  { value: 'SCHEDULED', labelKey: 'clinical.options.theatreCaseStatus.scheduled' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.theatreCaseStatus.inProgress' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.theatreCaseStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.theatreCaseStatus.cancelled' },
+  {
+    value: 'SCHEDULED',
+    labelKey: 'clinical.options.theatreCaseStatus.scheduled',
+  },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.theatreCaseStatus.inProgress',
+  },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.theatreCaseStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.theatreCaseStatus.cancelled',
+  },
 ];
 
 const EMERGENCY_CASE_SEVERITY_OPTIONS = [
   { value: 'LOW', labelKey: 'clinical.options.emergencySeverity.low' },
   { value: 'MEDIUM', labelKey: 'clinical.options.emergencySeverity.medium' },
   { value: 'HIGH', labelKey: 'clinical.options.emergencySeverity.high' },
-  { value: 'CRITICAL', labelKey: 'clinical.options.emergencySeverity.critical' },
+  {
+    value: 'CRITICAL',
+    labelKey: 'clinical.options.emergencySeverity.critical',
+  },
 ];
 
 const EMERGENCY_CASE_STATUS_OPTIONS = [
   { value: 'PENDING', labelKey: 'clinical.options.emergencyStatus.pending' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.emergencyStatus.inProgress' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.emergencyStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.emergencyStatus.cancelled' },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.emergencyStatus.inProgress',
+  },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.emergencyStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.emergencyStatus.cancelled',
+  },
 ];
 
 const TRIAGE_LEVEL_OPTIONS = [
@@ -795,25 +940,43 @@ const TRIAGE_LEVEL_OPTIONS = [
 ];
 
 const AMBULANCE_STATUS_OPTIONS = [
-  { value: 'AVAILABLE', labelKey: 'clinical.options.ambulanceStatus.available' },
-  { value: 'DISPATCHED', labelKey: 'clinical.options.ambulanceStatus.dispatched' },
+  {
+    value: 'AVAILABLE',
+    labelKey: 'clinical.options.ambulanceStatus.available',
+  },
+  {
+    value: 'DISPATCHED',
+    labelKey: 'clinical.options.ambulanceStatus.dispatched',
+  },
   { value: 'EN_ROUTE', labelKey: 'clinical.options.ambulanceStatus.enRoute' },
   { value: 'ON_SCENE', labelKey: 'clinical.options.ambulanceStatus.onScene' },
-  { value: 'TRANSPORTING', labelKey: 'clinical.options.ambulanceStatus.transporting' },
-  { value: 'OUT_OF_SERVICE', labelKey: 'clinical.options.ambulanceStatus.outOfService' },
+  {
+    value: 'TRANSPORTING',
+    labelKey: 'clinical.options.ambulanceStatus.transporting',
+  },
+  {
+    value: 'OUT_OF_SERVICE',
+    labelKey: 'clinical.options.ambulanceStatus.outOfService',
+  },
 ];
 
 const LAB_ORDER_STATUS_OPTIONS = [
   { value: 'ORDERED', labelKey: 'clinical.options.labOrderStatus.ordered' },
   { value: 'COLLECTED', labelKey: 'clinical.options.labOrderStatus.collected' },
-  { value: 'IN_PROCESS', labelKey: 'clinical.options.labOrderStatus.inProcess' },
+  {
+    value: 'IN_PROCESS',
+    labelKey: 'clinical.options.labOrderStatus.inProcess',
+  },
   { value: 'COMPLETED', labelKey: 'clinical.options.labOrderStatus.completed' },
   { value: 'CANCELLED', labelKey: 'clinical.options.labOrderStatus.cancelled' },
 ];
 
 const LAB_SAMPLE_STATUS_OPTIONS = [
   { value: 'PENDING', labelKey: 'clinical.options.labSampleStatus.pending' },
-  { value: 'COLLECTED', labelKey: 'clinical.options.labSampleStatus.collected' },
+  {
+    value: 'COLLECTED',
+    labelKey: 'clinical.options.labSampleStatus.collected',
+  },
   { value: 'REJECTED', labelKey: 'clinical.options.labSampleStatus.rejected' },
   { value: 'RECEIVED', labelKey: 'clinical.options.labSampleStatus.received' },
 ];
@@ -829,36 +992,72 @@ const RADIOLOGY_MODALITY_OPTIONS = [
   { value: 'XRAY', labelKey: 'clinical.options.radiologyModality.xray' },
   { value: 'CT', labelKey: 'clinical.options.radiologyModality.ct' },
   { value: 'MRI', labelKey: 'clinical.options.radiologyModality.mri' },
-  { value: 'ULTRASOUND', labelKey: 'clinical.options.radiologyModality.ultrasound' },
+  {
+    value: 'ULTRASOUND',
+    labelKey: 'clinical.options.radiologyModality.ultrasound',
+  },
   { value: 'PET', labelKey: 'clinical.options.radiologyModality.pet' },
   { value: 'OTHER', labelKey: 'clinical.options.radiologyModality.other' },
 ];
 
 const RADIOLOGY_ORDER_STATUS_OPTIONS = [
-  { value: 'ORDERED', labelKey: 'clinical.options.radiologyOrderStatus.ordered' },
-  { value: 'IN_PROCESS', labelKey: 'clinical.options.radiologyOrderStatus.inProcess' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.radiologyOrderStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.radiologyOrderStatus.cancelled' },
+  {
+    value: 'ORDERED',
+    labelKey: 'clinical.options.radiologyOrderStatus.ordered',
+  },
+  {
+    value: 'IN_PROCESS',
+    labelKey: 'clinical.options.radiologyOrderStatus.inProcess',
+  },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.radiologyOrderStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.radiologyOrderStatus.cancelled',
+  },
 ];
 
 const RADIOLOGY_RESULT_STATUS_OPTIONS = [
   { value: 'DRAFT', labelKey: 'clinical.options.radiologyResultStatus.draft' },
   { value: 'FINAL', labelKey: 'clinical.options.radiologyResultStatus.final' },
-  { value: 'AMENDED', labelKey: 'clinical.options.radiologyResultStatus.amended' },
+  {
+    value: 'AMENDED',
+    labelKey: 'clinical.options.radiologyResultStatus.amended',
+  },
 ];
 
 const PHARMACY_ORDER_STATUS_OPTIONS = [
-  { value: 'ORDERED', labelKey: 'clinical.options.pharmacyOrderStatus.ordered' },
-  { value: 'DISPENSED', labelKey: 'clinical.options.pharmacyOrderStatus.dispensed' },
-  { value: 'PARTIALLY_DISPENSED', labelKey: 'clinical.options.pharmacyOrderStatus.partiallyDispensed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.pharmacyOrderStatus.cancelled' },
+  {
+    value: 'ORDERED',
+    labelKey: 'clinical.options.pharmacyOrderStatus.ordered',
+  },
+  {
+    value: 'DISPENSED',
+    labelKey: 'clinical.options.pharmacyOrderStatus.dispensed',
+  },
+  {
+    value: 'PARTIALLY_DISPENSED',
+    labelKey: 'clinical.options.pharmacyOrderStatus.partiallyDispensed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.pharmacyOrderStatus.cancelled',
+  },
 ];
 
 const PRESCRIPTION_STATUS_OPTIONS = [
   { value: 'DRAFT', labelKey: 'clinical.options.prescriptionStatus.draft' },
   { value: 'ACTIVE', labelKey: 'clinical.options.prescriptionStatus.active' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.prescriptionStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.prescriptionStatus.cancelled' },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.prescriptionStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.prescriptionStatus.cancelled',
+  },
 ];
 
 const MEDICATION_FREQUENCY_OPTIONS = [
@@ -876,40 +1075,76 @@ const PHARMACY_ORDER_ITEM_ROUTE_OPTIONS = [
   { value: 'IV', labelKey: 'clinical.options.medicationRoute.iv' },
   { value: 'IM', labelKey: 'clinical.options.medicationRoute.im' },
   { value: 'TOPICAL', labelKey: 'clinical.options.medicationRoute.topical' },
-  { value: 'INHALATION', labelKey: 'clinical.options.medicationRoute.inhalation' },
+  {
+    value: 'INHALATION',
+    labelKey: 'clinical.options.medicationRoute.inhalation',
+  },
   { value: 'OTHER', labelKey: 'clinical.options.medicationRoute.other' },
 ];
 
 const DISPENSE_LOG_STATUS_OPTIONS = [
   { value: 'PENDING', labelKey: 'clinical.options.dispenseLogStatus.pending' },
-  { value: 'DISPENSED', labelKey: 'clinical.options.dispenseLogStatus.dispensed' },
-  { value: 'RETURNED', labelKey: 'clinical.options.dispenseLogStatus.returned' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.dispenseLogStatus.cancelled' },
+  {
+    value: 'DISPENSED',
+    labelKey: 'clinical.options.dispenseLogStatus.dispensed',
+  },
+  {
+    value: 'RETURNED',
+    labelKey: 'clinical.options.dispenseLogStatus.returned',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.dispenseLogStatus.cancelled',
+  },
 ];
 
 const ADVERSE_EVENT_SEVERITY_OPTIONS = [
   { value: 'MILD', labelKey: 'clinical.options.adverseEventSeverity.mild' },
-  { value: 'MODERATE', labelKey: 'clinical.options.adverseEventSeverity.moderate' },
+  {
+    value: 'MODERATE',
+    labelKey: 'clinical.options.adverseEventSeverity.moderate',
+  },
   { value: 'SEVERE', labelKey: 'clinical.options.adverseEventSeverity.severe' },
 ];
 
 const INVENTORY_CATEGORY_OPTIONS = [
-  { value: 'MEDICATION', labelKey: 'clinical.options.inventoryCategory.medication' },
+  {
+    value: 'MEDICATION',
+    labelKey: 'clinical.options.inventoryCategory.medication',
+  },
   { value: 'SUPPLY', labelKey: 'clinical.options.inventoryCategory.supply' },
-  { value: 'EQUIPMENT', labelKey: 'clinical.options.inventoryCategory.equipment' },
+  {
+    value: 'EQUIPMENT',
+    labelKey: 'clinical.options.inventoryCategory.equipment',
+  },
   { value: 'OTHER', labelKey: 'clinical.options.inventoryCategory.other' },
 ];
 
 const STOCK_MOVEMENT_TYPE_OPTIONS = [
   { value: 'INBOUND', labelKey: 'clinical.options.stockMovementType.inbound' },
-  { value: 'OUTBOUND', labelKey: 'clinical.options.stockMovementType.outbound' },
-  { value: 'ADJUSTMENT', labelKey: 'clinical.options.stockMovementType.adjustment' },
-  { value: 'TRANSFER', labelKey: 'clinical.options.stockMovementType.transfer' },
+  {
+    value: 'OUTBOUND',
+    labelKey: 'clinical.options.stockMovementType.outbound',
+  },
+  {
+    value: 'ADJUSTMENT',
+    labelKey: 'clinical.options.stockMovementType.adjustment',
+  },
+  {
+    value: 'TRANSFER',
+    labelKey: 'clinical.options.stockMovementType.transfer',
+  },
 ];
 
 const STOCK_MOVEMENT_REASON_OPTIONS = [
-  { value: 'PURCHASE', labelKey: 'clinical.options.stockMovementReason.purchase' },
-  { value: 'DISPENSE', labelKey: 'clinical.options.stockMovementReason.dispense' },
+  {
+    value: 'PURCHASE',
+    labelKey: 'clinical.options.stockMovementReason.purchase',
+  },
+  {
+    value: 'DISPENSE',
+    labelKey: 'clinical.options.stockMovementReason.dispense',
+  },
   { value: 'RETURN', labelKey: 'clinical.options.stockMovementReason.return' },
   { value: 'DAMAGE', labelKey: 'clinical.options.stockMovementReason.damage' },
   { value: 'EXPIRY', labelKey: 'clinical.options.stockMovementReason.expiry' },
@@ -917,11 +1152,20 @@ const STOCK_MOVEMENT_REASON_OPTIONS = [
 ];
 
 const STOCK_ADJUSTMENT_REASON_OPTIONS = [
-  { value: 'DAMAGED', labelKey: 'clinical.options.stockAdjustmentReason.damaged' },
-  { value: 'EXPIRED', labelKey: 'clinical.options.stockAdjustmentReason.expired' },
+  {
+    value: 'DAMAGED',
+    labelKey: 'clinical.options.stockAdjustmentReason.damaged',
+  },
+  {
+    value: 'EXPIRED',
+    labelKey: 'clinical.options.stockAdjustmentReason.expired',
+  },
   { value: 'LOST', labelKey: 'clinical.options.stockAdjustmentReason.lost' },
   { value: 'FOUND', labelKey: 'clinical.options.stockAdjustmentReason.found' },
-  { value: 'CORRECTION', labelKey: 'clinical.options.stockAdjustmentReason.correction' },
+  {
+    value: 'CORRECTION',
+    labelKey: 'clinical.options.stockAdjustmentReason.correction',
+  },
   { value: 'OTHER', labelKey: 'clinical.options.stockAdjustmentReason.other' },
 ];
 
@@ -950,38 +1194,80 @@ const PAYMENT_STATUS_OPTIONS = [
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: 'CASH', labelKey: 'clinical.options.paymentMethod.cash' },
-  { value: 'CREDIT_CARD', labelKey: 'clinical.options.paymentMethod.creditCard' },
+  {
+    value: 'CREDIT_CARD',
+    labelKey: 'clinical.options.paymentMethod.creditCard',
+  },
   { value: 'DEBIT_CARD', labelKey: 'clinical.options.paymentMethod.debitCard' },
-  { value: 'PREPAID_CARD', labelKey: 'clinical.options.paymentMethod.prepaidCard' },
+  {
+    value: 'PREPAID_CARD',
+    labelKey: 'clinical.options.paymentMethod.prepaidCard',
+  },
   { value: 'GIFT_CARD', labelKey: 'clinical.options.paymentMethod.giftCard' },
   { value: 'VOUCHER', labelKey: 'clinical.options.paymentMethod.voucher' },
   { value: 'BANK_CHECK', labelKey: 'clinical.options.paymentMethod.bankCheck' },
-  { value: 'MOBILE_MONEY', labelKey: 'clinical.options.paymentMethod.mobileMoney' },
-  { value: 'BANK_TRANSFER', labelKey: 'clinical.options.paymentMethod.bankTransfer' },
+  {
+    value: 'MOBILE_MONEY',
+    labelKey: 'clinical.options.paymentMethod.mobileMoney',
+  },
+  {
+    value: 'BANK_TRANSFER',
+    labelKey: 'clinical.options.paymentMethod.bankTransfer',
+  },
   { value: 'INSURANCE', labelKey: 'clinical.options.paymentMethod.insurance' },
   { value: 'OTHER', labelKey: 'clinical.options.paymentMethod.other' },
 ];
 
 const INSURANCE_CLAIM_STATUS_OPTIONS = [
-  { value: 'SUBMITTED', labelKey: 'clinical.options.insuranceClaimStatus.submitted' },
-  { value: 'APPROVED', labelKey: 'clinical.options.insuranceClaimStatus.approved' },
-  { value: 'REJECTED', labelKey: 'clinical.options.insuranceClaimStatus.rejected' },
+  {
+    value: 'SUBMITTED',
+    labelKey: 'clinical.options.insuranceClaimStatus.submitted',
+  },
+  {
+    value: 'APPROVED',
+    labelKey: 'clinical.options.insuranceClaimStatus.approved',
+  },
+  {
+    value: 'REJECTED',
+    labelKey: 'clinical.options.insuranceClaimStatus.rejected',
+  },
   { value: 'PAID', labelKey: 'clinical.options.insuranceClaimStatus.paid' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.insuranceClaimStatus.cancelled' },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.insuranceClaimStatus.cancelled',
+  },
 ];
 
 const PRE_AUTHORIZATION_STATUS_OPTIONS = [
-  { value: 'PENDING', labelKey: 'clinical.options.preAuthorizationStatus.pending' },
-  { value: 'APPROVED', labelKey: 'clinical.options.preAuthorizationStatus.approved' },
-  { value: 'DENIED', labelKey: 'clinical.options.preAuthorizationStatus.denied' },
-  { value: 'EXPIRED', labelKey: 'clinical.options.preAuthorizationStatus.expired' },
+  {
+    value: 'PENDING',
+    labelKey: 'clinical.options.preAuthorizationStatus.pending',
+  },
+  {
+    value: 'APPROVED',
+    labelKey: 'clinical.options.preAuthorizationStatus.approved',
+  },
+  {
+    value: 'DENIED',
+    labelKey: 'clinical.options.preAuthorizationStatus.denied',
+  },
+  {
+    value: 'EXPIRED',
+    labelKey: 'clinical.options.preAuthorizationStatus.expired',
+  },
 ];
 
 const STAFF_LEAVE_STATUS_OPTIONS = [
-  { value: 'REQUESTED', labelKey: 'clinical.options.staffLeaveStatus.requested' },
+  {
+    value: 'REQUESTED',
+    labelKey: 'clinical.options.staffLeaveStatus.requested',
+  },
   { value: 'APPROVED', labelKey: 'clinical.options.staffLeaveStatus.approved' },
   { value: 'REJECTED', labelKey: 'clinical.options.staffLeaveStatus.rejected' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.staffLeaveStatus.cancelled' },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.staffLeaveStatus.cancelled',
+  },
 ];
 
 const SHIFT_TYPE_OPTIONS = [
@@ -999,28 +1285,58 @@ const SHIFT_STATUS_OPTIONS = [
 
 const NURSE_ROSTER_STATUS_OPTIONS = [
   { value: 'DRAFT', labelKey: 'clinical.options.nurseRosterStatus.draft' },
-  { value: 'PUBLISHED', labelKey: 'clinical.options.nurseRosterStatus.published' },
+  {
+    value: 'PUBLISHED',
+    labelKey: 'clinical.options.nurseRosterStatus.published',
+  },
 ];
 
 const PAYROLL_RUN_STATUS_OPTIONS = [
   { value: 'DRAFT', labelKey: 'clinical.options.payrollRunStatus.draft' },
-  { value: 'PROCESSED', labelKey: 'clinical.options.payrollRunStatus.processed' },
+  {
+    value: 'PROCESSED',
+    labelKey: 'clinical.options.payrollRunStatus.processed',
+  },
   { value: 'PAID', labelKey: 'clinical.options.payrollRunStatus.paid' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.payrollRunStatus.cancelled' },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.payrollRunStatus.cancelled',
+  },
 ];
 
 const HOUSEKEEPING_TASK_STATUS_OPTIONS = [
-  { value: 'PENDING', labelKey: 'clinical.options.housekeepingTaskStatus.pending' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.housekeepingTaskStatus.inProgress' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.housekeepingTaskStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.housekeepingTaskStatus.cancelled' },
+  {
+    value: 'PENDING',
+    labelKey: 'clinical.options.housekeepingTaskStatus.pending',
+  },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.housekeepingTaskStatus.inProgress',
+  },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.housekeepingTaskStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.housekeepingTaskStatus.cancelled',
+  },
 ];
 
 const MAINTENANCE_STATUS_OPTIONS = [
   { value: 'OPEN', labelKey: 'clinical.options.maintenanceStatus.open' },
-  { value: 'IN_PROGRESS', labelKey: 'clinical.options.maintenanceStatus.inProgress' },
-  { value: 'COMPLETED', labelKey: 'clinical.options.maintenanceStatus.completed' },
-  { value: 'CANCELLED', labelKey: 'clinical.options.maintenanceStatus.cancelled' },
+  {
+    value: 'IN_PROGRESS',
+    labelKey: 'clinical.options.maintenanceStatus.inProgress',
+  },
+  {
+    value: 'COMPLETED',
+    labelKey: 'clinical.options.maintenanceStatus.completed',
+  },
+  {
+    value: 'CANCELLED',
+    labelKey: 'clinical.options.maintenanceStatus.cancelled',
+  },
 ];
 
 const VITAL_UNIT_OPTIONS_BY_TYPE = Object.freeze({
@@ -1060,7 +1376,8 @@ const VITAL_UNIT_OPTIONS_BY_TYPE = Object.freeze({
   BMI: [{ value: 'kg/m2', label: 'kg/m2' }],
 });
 
-const BLOOD_PRESSURE_VALUE_REGEX = /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
+const BLOOD_PRESSURE_VALUE_REGEX =
+  /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
 
 const parseBloodPressureValue = (value) => {
   const match = sanitizeString(value).match(BLOOD_PRESSURE_VALUE_REGEX);
@@ -1088,7 +1405,9 @@ const buildCanonicalBloodPressureValue = (systolicValue, diastolicValue) => {
 };
 
 const resolveVitalUnitOptionsForForm = ({ values, record, context }) => {
-  const vitalType = sanitizeString(values?.vital_type || record?.vital_type || context?.vitalType).toUpperCase();
+  const vitalType = sanitizeString(
+    values?.vital_type || record?.vital_type || context?.vitalType
+  ).toUpperCase();
   return VITAL_UNIT_OPTIONS_BY_TYPE[vitalType] || [];
 };
 
@@ -1129,7 +1448,9 @@ const buildDecimalError = (value, t, { required = false } = {}) => {
   if (!normalized) {
     return required ? t('clinical.common.form.requiredField') : null;
   }
-  return DECIMAL_PATTERN.test(normalized) ? null : t('forms.validation.invalidValue');
+  return DECIMAL_PATTERN.test(normalized)
+    ? null
+    : t('forms.validation.invalidValue');
 };
 
 const buildEmailError = (value, t) => {
@@ -1159,10 +1480,17 @@ const buildUrlError = (value, t) => {
       return t('forms.validation.invalidUrl');
     }
   }
-  return /^https?:\/\/\S+$/i.test(normalized) ? null : t('forms.validation.invalidUrl');
+  return /^https?:\/\/\S+$/i.test(normalized)
+    ? null
+    : t('forms.validation.invalidUrl');
 };
 
-const validateDateOrder = (startValue, endValue, t, { allowEqual = false } = {}) => {
+const validateDateOrder = (
+  startValue,
+  endValue,
+  t,
+  { allowEqual = false } = {}
+) => {
   const startIso = toIsoDateTime(startValue);
   const endIso = toIsoDateTime(endValue);
   if (!startIso || !endIso) return null;
@@ -1559,7 +1887,9 @@ const getContextFilters = (resourceId, context) => {
       patient_id: patientId || undefined,
       status: status || undefined,
       ordered_at_from: orderedAtFrom || undefined,
-      ordered_at_to: hasValidOrderedRange ? orderedAtTo || undefined : undefined,
+      ordered_at_to: hasValidOrderedRange
+        ? orderedAtTo || undefined
+        : undefined,
       search: search || undefined,
     };
   }
@@ -1682,7 +2012,9 @@ const getContextFilters = (resourceId, context) => {
       patient_id: patientId || undefined,
       status: status || undefined,
       ordered_at_from: orderedAtFrom || undefined,
-      ordered_at_to: hasValidOrderedRange ? orderedAtTo || undefined : undefined,
+      ordered_at_to: hasValidOrderedRange
+        ? orderedAtTo || undefined
+        : undefined,
     };
   }
 
@@ -1707,7 +2039,9 @@ const getContextFilters = (resourceId, context) => {
       pharmacy_order_item_id: pharmacyOrderItemId || undefined,
       status: status || undefined,
       dispensed_at_from: dispensedAtFrom || undefined,
-      dispensed_at_to: hasValidDispensedRange ? dispensedAtTo || undefined : undefined,
+      dispensed_at_to: hasValidDispensedRange
+        ? dispensedAtTo || undefined
+        : undefined,
     };
   }
 
@@ -1722,7 +2056,9 @@ const getContextFilters = (resourceId, context) => {
       drug_id: drugId || undefined,
       severity: severity || undefined,
       reported_at_from: reportedAtFrom || undefined,
-      reported_at_to: hasValidReportedRange ? reportedAtTo || undefined : undefined,
+      reported_at_to: hasValidReportedRange
+        ? reportedAtTo || undefined
+        : undefined,
       search: search || undefined,
     };
   }
@@ -1744,7 +2080,8 @@ const getContextFilters = (resourceId, context) => {
       facility_id: facilityId || undefined,
       min_quantity: Number.isInteger(minQuantity) ? minQuantity : undefined,
       max_quantity: Number.isInteger(maxQuantity) ? maxQuantity : undefined,
-      below_reorder: typeof belowReorder === 'boolean' ? belowReorder : undefined,
+      below_reorder:
+        typeof belowReorder === 'boolean' ? belowReorder : undefined,
     };
   }
 
@@ -1848,7 +2185,9 @@ const getContextFilters = (resourceId, context) => {
     return {
       payment_id: paymentId || undefined,
       refunded_at_from: refundedAtFrom || undefined,
-      refunded_at_to: hasValidRefundedRange ? refundedAtTo || undefined : undefined,
+      refunded_at_to: hasValidRefundedRange
+        ? refundedAtTo || undefined
+        : undefined,
       search: search || undefined,
     };
   }
@@ -1864,7 +2203,9 @@ const getContextFilters = (resourceId, context) => {
       invoice_id: invoiceId || undefined,
       status: status || undefined,
       submitted_at_from: submittedAtFrom || undefined,
-      submitted_at_to: hasValidSubmittedRange ? submittedAtTo || undefined : undefined,
+      submitted_at_to: hasValidSubmittedRange
+        ? submittedAtTo || undefined
+        : undefined,
     };
   }
 
@@ -1882,9 +2223,13 @@ const getContextFilters = (resourceId, context) => {
       coverage_plan_id: coveragePlanId || undefined,
       status: status || undefined,
       requested_at_from: requestedAtFrom || undefined,
-      requested_at_to: hasValidRequestedRange ? requestedAtTo || undefined : undefined,
+      requested_at_to: hasValidRequestedRange
+        ? requestedAtTo || undefined
+        : undefined,
       approved_at_from: approvedAtFrom || undefined,
-      approved_at_to: hasValidApprovedRange ? approvedAtTo || undefined : undefined,
+      approved_at_to: hasValidApprovedRange
+        ? approvedAtTo || undefined
+        : undefined,
     };
   }
 
@@ -1949,7 +2294,9 @@ const getContextFilters = (resourceId, context) => {
       shift_type: shiftType || undefined,
       status: status || undefined,
       start_time_from: startTimeFrom || undefined,
-      start_time_to: hasValidShiftStartRange ? startTimeTo || undefined : undefined,
+      start_time_to: hasValidShiftStartRange
+        ? startTimeTo || undefined
+        : undefined,
       end_time_from: endTimeFrom || undefined,
       end_time_to: hasValidShiftEndRange ? endTimeTo || undefined : undefined,
     };
@@ -1967,7 +2314,9 @@ const getContextFilters = (resourceId, context) => {
       department_id: departmentId || undefined,
       status: status || undefined,
       period_start_from: periodStartFrom || undefined,
-      period_start_to: hasValidPeriodStartRange ? periodStartTo || undefined : undefined,
+      period_start_to: hasValidPeriodStartRange
+        ? periodStartTo || undefined
+        : undefined,
     };
   }
 
@@ -1985,9 +2334,13 @@ const getContextFilters = (resourceId, context) => {
       tenant_id: tenantId || undefined,
       status: status || undefined,
       period_start_from: periodStartFrom || undefined,
-      period_start_to: hasValidPayrollStartRange ? periodStartTo || undefined : undefined,
+      period_start_to: hasValidPayrollStartRange
+        ? periodStartTo || undefined
+        : undefined,
       period_end_from: periodEndFrom || undefined,
-      period_end_to: hasValidPayrollEndRange ? periodEndTo || undefined : undefined,
+      period_end_to: hasValidPayrollEndRange
+        ? periodEndTo || undefined
+        : undefined,
     };
   }
 
@@ -2072,7 +2425,8 @@ const getContextFilters = (resourceId, context) => {
 
   if (resourceId === CLINICAL_RESOURCE_IDS.SHIFT_SWAP_REQUESTS) {
     return {
-      shift_assignment_id: normalizeContextId(context?.shiftAssignmentId) || undefined,
+      shift_assignment_id:
+        normalizeContextId(context?.shiftAssignmentId) || undefined,
       staff_profile_id: staffProfileId || undefined,
       status: status || undefined,
       search: search || undefined,
@@ -2123,7 +2477,8 @@ const getContextFilters = (resourceId, context) => {
 
   if (resourceId === CLINICAL_RESOURCE_IDS.REPORT_RUNS) {
     return {
-      report_definition_id: normalizeContextId(context?.reportDefinitionId) || undefined,
+      report_definition_id:
+        normalizeContextId(context?.reportDefinitionId) || undefined,
       status: status || undefined,
       search: search || undefined,
     };
@@ -2326,8 +2681,23 @@ const getContextFilters = (resourceId, context) => {
 };
 
 const DEFAULT_GENERIC_LIST_PARAMS = { page: 1, limit: 20 };
-const GENERIC_RESOURCE_ID_FALLBACKS = ['name', 'title', 'code', 'identifier', 'id'];
-const ACRONYM_SEGMENTS = new Set(['api', 'hr', 'icu', 'id', 'ipd', 'kpi', 'phi', 'qc']);
+const GENERIC_RESOURCE_ID_FALLBACKS = [
+  'name',
+  'title',
+  'code',
+  'identifier',
+  'id',
+];
+const ACRONYM_SEGMENTS = new Set([
+  'api',
+  'hr',
+  'icu',
+  'id',
+  'ipd',
+  'kpi',
+  'phi',
+  'qc',
+]);
 
 const toDisplayResourceLabel = (resourceId) =>
   sanitizeString(resourceId)
@@ -2350,7 +2720,9 @@ const toI18nResourceKey = (resourceId) => {
 
   return segments
     .map((segment, index) =>
-      index === 0 ? segment : `${segment.charAt(0).toUpperCase()}${segment.slice(1)}`
+      index === 0
+        ? segment
+        : `${segment.charAt(0).toUpperCase()}${segment.slice(1)}`
     )
     .join('');
 };
@@ -2418,7 +2790,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.encounters.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.encounters.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.encounters.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.encounters.form.patientIdHint',
       },
       {
@@ -2427,7 +2800,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.encounters.form.providerUserIdLabel',
-        placeholderKey: 'clinical.resources.encounters.form.providerUserIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.encounters.form.providerUserIdPlaceholder',
         hintKey: 'clinical.resources.encounters.form.providerUserIdHint',
       },
       {
@@ -2435,7 +2809,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.encounters.form.encounterTypeLabel',
-        placeholderKey: 'clinical.resources.encounters.form.encounterTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.encounters.form.encounterTypePlaceholder',
         hintKey: 'clinical.resources.encounters.form.encounterTypeHint',
         options: ENCOUNTER_TYPE_OPTIONS,
       },
@@ -2454,7 +2829,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.encounters.form.startedAtLabel',
-        placeholderKey: 'clinical.resources.encounters.form.startedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.encounters.form.startedAtPlaceholder',
         hintKey: 'clinical.resources.encounters.form.startedAtHint',
       },
       {
@@ -2472,24 +2848,31 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.encounters.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.encounters.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.encounters.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.encounters.form.facilityIdHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       const encounterType = sanitizeString(item?.encounter_type);
       if (status && encounterType) {
         return `${t('clinical.resources.encounters.detail.statusLabel')}: ${status} - ${encounterType}`;
       }
-      if (status) return `${t('clinical.resources.encounters.detail.statusLabel')}: ${status}`;
+      if (status)
+        return `${t('clinical.resources.encounters.detail.statusLabel')}: ${status}`;
       return encounterType;
     },
     getInitialValues: (record, context) => ({
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
-      provider_user_id: sanitizeString(record?.provider_user_id || context?.providerUserId),
-      encounter_type: sanitizeString(record?.encounter_type || context?.encounterType || 'OPD'),
+      provider_user_id: sanitizeString(
+        record?.provider_user_id || context?.providerUserId
+      ),
+      encounter_type: sanitizeString(
+        record?.encounter_type || context?.encounterType || 'OPD'
+      ),
       status: sanitizeString(record?.status || context?.status || 'OPEN'),
       started_at: sanitizeString(record?.started_at),
       ended_at: sanitizeString(record?.ended_at),
@@ -2502,7 +2885,11 @@ const resourceConfigs = {
         encounter_type: sanitizeString(values.encounter_type),
         status: sanitizeString(values.status),
         started_at: toIsoDateTime(values.started_at),
-        ended_at: endedAtRaw ? toIsoDateTime(endedAtRaw) : isEdit ? null : undefined,
+        ended_at: endedAtRaw
+          ? toIsoDateTime(endedAtRaw)
+          : isEdit
+            ? null
+            : undefined,
         facility_id: sanitizeString(values.facility_id) || undefined,
       };
 
@@ -2519,23 +2906,65 @@ const resourceConfigs = {
       if (startedAtError) errors.started_at = startedAtError;
       if (endedAtError) errors.ended_at = endedAtError;
       if (!endedAtError) {
-        const orderError = validateDateOrder(values.started_at, values.ended_at, t, { allowEqual: false });
+        const orderError = validateDateOrder(
+          values.started_at,
+          values.ended_at,
+          t,
+          { allowEqual: false }
+        );
         if (orderError) errors.ended_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.encounters.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.encounters.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.encounters.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.encounters.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.encounters.detail.providerLabel', valueKey: 'provider_user_id' },
-      { labelKey: 'clinical.resources.encounters.detail.encounterTypeLabel', valueKey: 'encounter_type' },
-      { labelKey: 'clinical.resources.encounters.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.encounters.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.encounters.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.encounters.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.encounters.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.encounters.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.providerLabel',
+        valueKey: 'provider_user_id',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.encounterTypeLabel',
+        valueKey: 'encounter_type',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.startedAtLabel',
+        valueKey: 'started_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.endedAtLabel',
+        valueKey: 'ended_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.encounters.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.CLINICAL_NOTES]: {
@@ -2553,7 +2982,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.clinicalNotes.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.clinicalNotes.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalNotes.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.clinicalNotes.form.encounterIdHint',
       },
       {
@@ -2563,7 +2993,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.clinicalNotes.form.authorUserIdLabel',
-        placeholderKey: 'clinical.resources.clinicalNotes.form.authorUserIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalNotes.form.authorUserIdPlaceholder',
         hintKey: 'clinical.resources.clinicalNotes.form.authorUserIdHint',
       },
       {
@@ -2576,15 +3007,25 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.clinicalNotes.form.noteHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.note) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.note) ||
+      sanitizeString(item?.display_id) ||
+      sanitizeString(item?.human_friendly_id) ||
+      sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const authorUserId = sanitizeString(item?.author_user_id);
       if (!authorUserId) return '';
       return `${t('clinical.resources.clinicalNotes.detail.authorLabel')}: ${authorUserId}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      author_user_id: sanitizeString(record?.author_user_id || context?.authorUserId || context?.providerUserId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
+      author_user_id: sanitizeString(
+        record?.author_user_id ||
+          context?.authorUserId ||
+          context?.providerUserId
+      ),
       note: sanitizeString(record?.note),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
@@ -2598,12 +3039,32 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.clinicalNotes.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.clinicalNotes.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.clinicalNotes.detail.authorLabel', valueKey: 'author_user_id' },
-      { labelKey: 'clinical.resources.clinicalNotes.detail.noteLabel', valueKey: 'note' },
-      { labelKey: 'clinical.resources.clinicalNotes.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.clinicalNotes.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.authorLabel',
+        valueKey: 'author_user_id',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.noteLabel',
+        valueKey: 'note',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalNotes.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DIAGNOSES]: {
@@ -2621,7 +3082,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.diagnoses.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.diagnoses.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.diagnoses.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.diagnoses.form.encounterIdHint',
       },
       {
@@ -2629,7 +3091,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.diagnoses.form.diagnosisTypeLabel',
-        placeholderKey: 'clinical.resources.diagnoses.form.diagnosisTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.diagnoses.form.diagnosisTypePlaceholder',
         hintKey: 'clinical.resources.diagnoses.form.diagnosisTypeHint',
         options: DIAGNOSIS_TYPE_OPTIONS,
       },
@@ -2648,19 +3111,25 @@ const resourceConfigs = {
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.diagnoses.form.descriptionLabel',
-        placeholderKey: 'clinical.resources.diagnoses.form.descriptionPlaceholder',
+        placeholderKey:
+          'clinical.resources.diagnoses.form.descriptionPlaceholder',
         hintKey: 'clinical.resources.diagnoses.form.descriptionHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.description) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.description) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const diagnosisType = sanitizeString(item?.diagnosis_type);
       if (!diagnosisType) return '';
       return `${t('clinical.resources.diagnoses.detail.diagnosisTypeLabel')}: ${diagnosisType}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      diagnosis_type: sanitizeString(record?.diagnosis_type || context?.diagnosisType || 'PRIMARY'),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
+      diagnosis_type: sanitizeString(
+        record?.diagnosis_type || context?.diagnosisType || 'PRIMARY'
+      ),
       code: sanitizeString(record?.code || context?.code),
       description: sanitizeString(record?.description),
     }),
@@ -2676,13 +3145,36 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.diagnoses.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.diagnoses.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.diagnoses.detail.diagnosisTypeLabel', valueKey: 'diagnosis_type' },
-      { labelKey: 'clinical.resources.diagnoses.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.diagnoses.detail.descriptionLabel', valueKey: 'description' },
-      { labelKey: 'clinical.resources.diagnoses.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.diagnoses.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.diagnosisTypeLabel',
+        valueKey: 'diagnosis_type',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.descriptionLabel',
+        valueKey: 'description',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.diagnoses.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PROCEDURES]: {
@@ -2700,7 +3192,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.procedures.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.procedures.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.procedures.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.procedures.form.encounterIdHint',
       },
       {
@@ -2718,7 +3211,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.procedures.form.descriptionLabel',
-        placeholderKey: 'clinical.resources.procedures.form.descriptionPlaceholder',
+        placeholderKey:
+          'clinical.resources.procedures.form.descriptionPlaceholder',
         hintKey: 'clinical.resources.procedures.form.descriptionHint',
       },
       {
@@ -2727,18 +3221,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.procedures.form.performedAtLabel',
-        placeholderKey: 'clinical.resources.procedures.form.performedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.procedures.form.performedAtPlaceholder',
         hintKey: 'clinical.resources.procedures.form.performedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.description) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.description) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const code = sanitizeString(item?.code);
       if (!code) return '';
       return `${t('clinical.resources.procedures.detail.codeLabel')}: ${code}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       code: sanitizeString(record?.code || context?.code),
       description: sanitizeString(record?.description),
       performed_at: sanitizeString(record?.performed_at),
@@ -2761,13 +3259,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.procedures.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.procedures.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.procedures.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.procedures.detail.descriptionLabel', valueKey: 'description' },
-      { labelKey: 'clinical.resources.procedures.detail.performedAtLabel', valueKey: 'performed_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.procedures.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.procedures.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.procedures.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.descriptionLabel',
+        valueKey: 'description',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.performedAtLabel',
+        valueKey: 'performed_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.procedures.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.VITAL_SIGNS]: {
@@ -2784,7 +3306,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.vitalSigns.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.vitalSigns.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.vitalSigns.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.encounterIdHint',
       },
       {
@@ -2792,7 +3315,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.vitalSigns.form.vitalTypeLabel',
-        placeholderKey: 'clinical.resources.vitalSigns.form.vitalTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.vitalSigns.form.vitalTypePlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.vitalTypeHint',
         options: VITAL_TYPE_OPTIONS,
       },
@@ -2817,7 +3341,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 20,
         labelKey: 'clinical.resources.vitalSigns.form.systolicLabel',
-        placeholderKey: 'clinical.resources.vitalSigns.form.systolicPlaceholder',
+        placeholderKey:
+          'clinical.resources.vitalSigns.form.systolicPlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.systolicHint',
         isHidden: ({ values, record, context }) => {
           const vitalType = sanitizeString(
@@ -2832,7 +3357,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 20,
         labelKey: 'clinical.resources.vitalSigns.form.diastolicLabel',
-        placeholderKey: 'clinical.resources.vitalSigns.form.diastolicPlaceholder',
+        placeholderKey:
+          'clinical.resources.vitalSigns.form.diastolicPlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.diastolicHint',
         isHidden: ({ values, record, context }) => {
           const vitalType = sanitizeString(
@@ -2871,23 +3397,31 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.vitalSigns.form.recordedAtLabel',
-        placeholderKey: 'clinical.resources.vitalSigns.form.recordedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.vitalSigns.form.recordedAtPlaceholder',
         hintKey: 'clinical.resources.vitalSigns.form.recordedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.vital_type) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.vital_type) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const value = sanitizeString(item?.value);
       if (!value) return '';
       return `${t('clinical.resources.vitalSigns.detail.valueLabel')}: ${value}`;
     },
     getInitialValues: (record, context) => {
-      const vitalType = sanitizeString(record?.vital_type || context?.vitalType).toUpperCase();
+      const vitalType = sanitizeString(
+        record?.vital_type || context?.vitalType
+      ).toUpperCase();
       const parsedBloodPressure = parseBloodPressureValue(record?.value);
       const systolicValue =
-        formatRoundedNumeric(record?.systolic_value) || parsedBloodPressure?.systolic || '';
+        formatRoundedNumeric(record?.systolic_value) ||
+        parsedBloodPressure?.systolic ||
+        '';
       const diastolicValue =
-        formatRoundedNumeric(record?.diastolic_value) || parsedBloodPressure?.diastolic || '';
+        formatRoundedNumeric(record?.diastolic_value) ||
+        parsedBloodPressure?.diastolic ||
+        '';
       const mapValue = formatRoundedNumeric(record?.map_value);
       const unitOptions = resolveVitalUnitOptionsForForm({
         values: { vital_type: vitalType },
@@ -2896,9 +3430,12 @@ const resourceConfigs = {
       });
 
       return {
-        encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+        encounter_id: sanitizeString(
+          record?.encounter_id || context?.encounterId
+        ),
         vital_type: vitalType,
-        value: vitalType === 'BLOOD_PRESSURE' ? '' : sanitizeString(record?.value),
+        value:
+          vitalType === 'BLOOD_PRESSURE' ? '' : sanitizeString(record?.value),
         systolic_value: systolicValue,
         diastolic_value: diastolicValue,
         map_value: mapValue,
@@ -2917,11 +3454,19 @@ const resourceConfigs = {
 
       if (vitalType === 'BLOOD_PRESSURE') {
         const legacyParsed = parseBloodPressureValue(values.value);
-        const systolic = formatRoundedNumeric(values.systolic_value) || legacyParsed?.systolic || '';
+        const systolic =
+          formatRoundedNumeric(values.systolic_value) ||
+          legacyParsed?.systolic ||
+          '';
         const diastolic =
-          formatRoundedNumeric(values.diastolic_value) || legacyParsed?.diastolic || '';
+          formatRoundedNumeric(values.diastolic_value) ||
+          legacyParsed?.diastolic ||
+          '';
         const mapValue = formatRoundedNumeric(values.map_value);
-        const canonicalValue = buildCanonicalBloodPressureValue(systolic, diastolic);
+        const canonicalValue = buildCanonicalBloodPressureValue(
+          systolic,
+          diastolic
+        );
 
         payload.value = canonicalValue || undefined;
         payload.systolic_value = systolic || undefined;
@@ -2941,15 +3486,23 @@ const resourceConfigs = {
       const vitalType = sanitizeString(values.vital_type).toUpperCase();
       if (vitalType === 'BLOOD_PRESSURE') {
         const legacyParsed = parseBloodPressureValue(values.value);
-        const systolic = formatRoundedNumeric(values.systolic_value) || legacyParsed?.systolic || '';
+        const systolic =
+          formatRoundedNumeric(values.systolic_value) ||
+          legacyParsed?.systolic ||
+          '';
         const diastolic =
-          formatRoundedNumeric(values.diastolic_value) || legacyParsed?.diastolic || '';
+          formatRoundedNumeric(values.diastolic_value) ||
+          legacyParsed?.diastolic ||
+          '';
         const mapValueRaw = sanitizeString(values.map_value);
         const mapValue = formatRoundedNumeric(values.map_value);
 
-        if (!systolic) errors.systolic_value = t('clinical.common.form.requiredField');
-        if (!diastolic) errors.diastolic_value = t('clinical.common.form.requiredField');
-        if (mapValueRaw && !mapValue) errors.map_value = t('forms.validation.invalidValue');
+        if (!systolic)
+          errors.systolic_value = t('clinical.common.form.requiredField');
+        if (!diastolic)
+          errors.diastolic_value = t('clinical.common.form.requiredField');
+        if (mapValueRaw && !mapValue)
+          errors.map_value = t('forms.validation.invalidValue');
         return errors;
       }
 
@@ -2960,17 +3513,53 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.vitalSigns.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.vitalTypeLabel', valueKey: 'vital_type' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.valueLabel', valueKey: 'value' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.systolicLabel', valueKey: 'systolic_value' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.diastolicLabel', valueKey: 'diastolic_value' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.mapLabel', valueKey: 'map_value' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.unitLabel', valueKey: 'unit' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.recordedAtLabel', valueKey: 'recorded_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.vitalSigns.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.vitalTypeLabel',
+        valueKey: 'vital_type',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.valueLabel',
+        valueKey: 'value',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.systolicLabel',
+        valueKey: 'systolic_value',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.diastolicLabel',
+        valueKey: 'diastolic_value',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.mapLabel',
+        valueKey: 'map_value',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.unitLabel',
+        valueKey: 'unit',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.recordedAtLabel',
+        valueKey: 'recorded_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.vitalSigns.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.CARE_PLANS]: {
@@ -2987,7 +3576,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.carePlans.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.carePlans.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.carePlans.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.carePlans.form.encounterIdHint',
       },
       {
@@ -3004,7 +3594,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.carePlans.form.startDateLabel',
-        placeholderKey: 'clinical.resources.carePlans.form.startDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.carePlans.form.startDatePlaceholder',
         hintKey: 'clinical.resources.carePlans.form.startDateHint',
       },
       {
@@ -3017,14 +3608,17 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.carePlans.form.endDateHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.plan) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.plan) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const startDate = sanitizeString(item?.start_date);
       if (!startDate) return '';
       return `${t('clinical.resources.carePlans.detail.startDateLabel')}: ${startDate}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       plan: sanitizeString(record?.plan),
       start_date: sanitizeString(record?.start_date || context?.startDate),
       end_date: sanitizeString(record?.end_date || context?.endDate),
@@ -3042,19 +3636,49 @@ const resourceConfigs = {
       if (startDateError) errors.start_date = startDateError;
       if (endDateError) errors.end_date = endDateError;
       if (!endDateError) {
-        const orderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.start_date,
+          values.end_date,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.end_date = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.carePlans.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.carePlans.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.carePlans.detail.planLabel', valueKey: 'plan' },
-      { labelKey: 'clinical.resources.carePlans.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.carePlans.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.carePlans.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.carePlans.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.planLabel',
+        valueKey: 'plan',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.startDateLabel',
+        valueKey: 'start_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.endDateLabel',
+        valueKey: 'end_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.carePlans.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.CLINICAL_ALERTS]: {
@@ -3072,7 +3696,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.clinicalAlerts.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.clinicalAlerts.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalAlerts.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.clinicalAlerts.form.encounterIdHint',
       },
       {
@@ -3080,7 +3705,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.clinicalAlerts.form.severityLabel',
-        placeholderKey: 'clinical.resources.clinicalAlerts.form.severityPlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalAlerts.form.severityPlaceholder',
         hintKey: 'clinical.resources.clinicalAlerts.form.severityHint',
         options: CRITICAL_ALERT_SEVERITY_OPTIONS,
       },
@@ -3089,7 +3715,8 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.clinicalAlerts.form.statusLabel',
-        placeholderKey: 'clinical.resources.clinicalAlerts.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalAlerts.form.statusPlaceholder',
         hintKey: 'clinical.resources.clinicalAlerts.form.statusHint',
         options: CLINICAL_ALERT_STATUS_OPTIONS,
       },
@@ -3098,7 +3725,8 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.clinicalAlerts.form.sourceLabel',
-        placeholderKey: 'clinical.resources.clinicalAlerts.form.sourcePlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalAlerts.form.sourcePlaceholder',
         hintKey: 'clinical.resources.clinicalAlerts.form.sourceHint',
         options: CLINICAL_ALERT_SOURCE_OPTIONS,
       },
@@ -3108,19 +3736,25 @@ const resourceConfigs = {
         required: true,
         maxLength: 2000,
         labelKey: 'clinical.resources.clinicalAlerts.form.messageLabel',
-        placeholderKey: 'clinical.resources.clinicalAlerts.form.messagePlaceholder',
+        placeholderKey:
+          'clinical.resources.clinicalAlerts.form.messagePlaceholder',
         hintKey: 'clinical.resources.clinicalAlerts.form.messageHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.message) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.message) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const severityLabel = sanitizeString(item?.severity);
       if (!severityLabel) return '';
       return `${t('clinical.resources.clinicalAlerts.detail.severityLabel')}: ${severityLabel}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
+      severity: sanitizeString(
+        record?.severity || context?.severity || 'MEDIUM'
+      ),
       status: sanitizeString(record?.status || context?.status || 'OPEN'),
       source: sanitizeString(record?.source || context?.source || 'MANUAL'),
       message: sanitizeString(record?.message),
@@ -3138,14 +3772,40 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.severityLabel', valueKey: 'severity' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.sourceLabel', valueKey: 'source' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.messageLabel', valueKey: 'message' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.clinicalAlerts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.severityLabel',
+        valueKey: 'severity',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.sourceLabel',
+        valueKey: 'source',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.messageLabel',
+        valueKey: 'message',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.clinicalAlerts.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.REFERRALS]: {
@@ -3163,7 +3823,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.referrals.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.referrals.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.referrals.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.referrals.form.encounterIdHint',
       },
       {
@@ -3172,7 +3833,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.referrals.form.fromDepartmentIdLabel',
-        placeholderKey: 'clinical.resources.referrals.form.fromDepartmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.referrals.form.fromDepartmentIdPlaceholder',
         hintKey: 'clinical.resources.referrals.form.fromDepartmentIdHint',
       },
       {
@@ -3181,7 +3843,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.referrals.form.toDepartmentIdLabel',
-        placeholderKey: 'clinical.resources.referrals.form.toDepartmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.referrals.form.toDepartmentIdPlaceholder',
         hintKey: 'clinical.resources.referrals.form.toDepartmentIdHint',
       },
       {
@@ -3201,25 +3864,35 @@ const resourceConfigs = {
         placeholderKey: 'clinical.resources.referrals.form.statusPlaceholder',
         hintKey: 'clinical.resources.referrals.form.statusHint',
         options: ({ isEdit }) =>
-          isEdit ? REFERRAL_UPDATE_STATUS_OPTIONS : REFERRAL_CREATE_STATUS_OPTIONS,
+          isEdit
+            ? REFERRAL_UPDATE_STATUS_OPTIONS
+            : REFERRAL_CREATE_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.to_department_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.to_department_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
       return `${t('clinical.resources.referrals.detail.statusLabel')}: ${status}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      from_department_id: sanitizeString(record?.from_department_id || context?.fromDepartmentId),
-      to_department_id: sanitizeString(record?.to_department_id || context?.toDepartmentId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
+      from_department_id: sanitizeString(
+        record?.from_department_id || context?.fromDepartmentId
+      ),
+      to_department_id: sanitizeString(
+        record?.to_department_id || context?.toDepartmentId
+      ),
       reason: sanitizeString(record?.reason),
       status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
-        from_department_id: sanitizeString(values.from_department_id) || undefined,
+        from_department_id:
+          sanitizeString(values.from_department_id) || undefined,
         to_department_id: sanitizeString(values.to_department_id) || undefined,
         reason: sanitizeString(values.reason) || undefined,
         status: sanitizeString(values.status),
@@ -3232,14 +3905,40 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.referrals.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.referrals.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.referrals.detail.fromDepartmentLabel', valueKey: 'from_department_id' },
-      { labelKey: 'clinical.resources.referrals.detail.toDepartmentLabel', valueKey: 'to_department_id' },
-      { labelKey: 'clinical.resources.referrals.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.referrals.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.referrals.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.referrals.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.referrals.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.fromDepartmentLabel',
+        valueKey: 'from_department_id',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.toDepartmentLabel',
+        valueKey: 'to_department_id',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.referrals.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.FOLLOW_UPS]: {
@@ -3257,7 +3956,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.followUps.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.followUps.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.followUps.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.followUps.form.encounterIdHint',
       },
       {
@@ -3266,7 +3966,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.followUps.form.scheduledAtLabel',
-        placeholderKey: 'clinical.resources.followUps.form.scheduledAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.followUps.form.scheduledAtPlaceholder',
         hintKey: 'clinical.resources.followUps.form.scheduledAtHint',
       },
       {
@@ -3288,15 +3989,20 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.followUps.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.scheduled_at) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.scheduled_at) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const scheduledAt = sanitizeString(item?.scheduled_at);
       if (!scheduledAt) return '';
       return `${t('clinical.resources.followUps.detail.scheduledAtLabel')}: ${scheduledAt}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
-      scheduled_at: sanitizeString(record?.scheduled_at || context?.scheduledAt || context?.scheduledAtFrom),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
+      scheduled_at: sanitizeString(
+        record?.scheduled_at || context?.scheduledAt || context?.scheduledAtFrom
+      ),
       status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
       notes: sanitizeString(record?.notes),
     }),
@@ -3320,13 +4026,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.followUps.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.followUps.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.followUps.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.followUps.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.followUps.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.followUps.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.followUps.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.followUps.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.scheduledAtLabel',
+        valueKey: 'scheduled_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.followUps.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ADMISSIONS]: {
@@ -3344,7 +4074,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.admissions.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.admissions.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.admissions.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.admissions.form.patientIdHint',
       },
       {
@@ -3353,7 +4084,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.admissions.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.admissions.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.admissions.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.admissions.form.encounterIdHint',
       },
       {
@@ -3371,7 +4103,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.admissions.form.admittedAtLabel',
-        placeholderKey: 'clinical.resources.admissions.form.admittedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.admissions.form.admittedAtPlaceholder',
         hintKey: 'clinical.resources.admissions.form.admittedAtHint',
       },
       {
@@ -3380,7 +4113,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.admissions.form.dischargedAtLabel',
-        placeholderKey: 'clinical.resources.admissions.form.dischargedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.admissions.form.dischargedAtPlaceholder',
         hintKey: 'clinical.resources.admissions.form.dischargedAtHint',
       },
       {
@@ -3389,11 +4123,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.admissions.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.admissions.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.admissions.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.admissions.form.facilityIdHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
@@ -3401,7 +4137,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       status: sanitizeString(record?.status || context?.status || 'ADMITTED'),
       admitted_at: sanitizeString(record?.admitted_at),
       discharged_at: sanitizeString(record?.discharged_at),
@@ -3430,22 +4168,61 @@ const resourceConfigs = {
       if (admittedAtError) errors.admitted_at = admittedAtError;
       if (dischargedAtError) errors.discharged_at = dischargedAtError;
       if (!dischargedAtError) {
-        const orderError = validateDateOrder(values.admitted_at, values.discharged_at, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.admitted_at,
+          values.discharged_at,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.discharged_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.admissions.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.admissions.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.admissions.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.admissions.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.admissions.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.admissions.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.admissions.detail.admittedAtLabel', valueKey: 'admitted_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.admissions.detail.dischargedAtLabel', valueKey: 'discharged_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.admissions.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.admissions.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.admissions.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.admittedAtLabel',
+        valueKey: 'admitted_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.dischargedAtLabel',
+        valueKey: 'discharged_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.admissions.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.BED_ASSIGNMENTS]: {
@@ -3463,7 +4240,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.bedAssignments.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.bedAssignments.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.bedAssignments.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.bedAssignments.form.admissionIdHint',
       },
       {
@@ -3472,7 +4250,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.bedAssignments.form.bedIdLabel',
-        placeholderKey: 'clinical.resources.bedAssignments.form.bedIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.bedAssignments.form.bedIdPlaceholder',
         hintKey: 'clinical.resources.bedAssignments.form.bedIdHint',
       },
       {
@@ -3481,7 +4260,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.bedAssignments.form.assignedAtLabel',
-        placeholderKey: 'clinical.resources.bedAssignments.form.assignedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.bedAssignments.form.assignedAtPlaceholder',
         hintKey: 'clinical.resources.bedAssignments.form.assignedAtHint',
       },
       {
@@ -3490,18 +4270,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.bedAssignments.form.releasedAtLabel',
-        placeholderKey: 'clinical.resources.bedAssignments.form.releasedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.bedAssignments.form.releasedAtPlaceholder',
         hintKey: 'clinical.resources.bedAssignments.form.releasedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.bed_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.bed_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const admissionId = sanitizeString(item?.admission_id);
       if (!admissionId) return '';
       return `${t('clinical.resources.bedAssignments.detail.admissionLabel')}: ${admissionId}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
       bed_id: sanitizeString(record?.bed_id || context?.bedId),
       assigned_at: sanitizeString(record?.assigned_at),
       released_at: sanitizeString(record?.released_at),
@@ -3527,19 +4311,49 @@ const resourceConfigs = {
       if (assignedAtError) errors.assigned_at = assignedAtError;
       if (releasedAtError) errors.released_at = releasedAtError;
       if (!releasedAtError) {
-        const orderError = validateDateOrder(values.assigned_at, values.released_at, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.assigned_at,
+          values.released_at,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.released_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.bedAssignments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.bedLabel', valueKey: 'bed_id' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.assignedAtLabel', valueKey: 'assigned_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.releasedAtLabel', valueKey: 'released_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.bedAssignments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.bedLabel',
+        valueKey: 'bed_id',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.assignedAtLabel',
+        valueKey: 'assigned_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.releasedAtLabel',
+        valueKey: 'released_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.bedAssignments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.WARD_ROUNDS]: {
@@ -3557,7 +4371,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.wardRounds.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.wardRounds.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.wardRounds.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.wardRounds.form.admissionIdHint',
       },
       {
@@ -3579,14 +4394,17 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.wardRounds.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.round_at) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.round_at) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const admissionId = sanitizeString(item?.admission_id);
       if (!admissionId) return '';
       return `${t('clinical.resources.wardRounds.detail.admissionLabel')}: ${admissionId}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
       round_at: sanitizeString(record?.round_at),
       notes: sanitizeString(record?.notes),
     }),
@@ -3607,12 +4425,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.wardRounds.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.wardRounds.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.wardRounds.detail.roundAtLabel', valueKey: 'round_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.wardRounds.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.wardRounds.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.wardRounds.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.roundAtLabel',
+        valueKey: 'round_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.wardRounds.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.NURSING_NOTES]: {
@@ -3630,7 +4469,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.nursingNotes.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.nursingNotes.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.nursingNotes.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.nursingNotes.form.admissionIdHint',
       },
       {
@@ -3640,7 +4480,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.nursingNotes.form.nurseUserIdLabel',
-        placeholderKey: 'clinical.resources.nursingNotes.form.nurseUserIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.nursingNotes.form.nurseUserIdPlaceholder',
         hintKey: 'clinical.resources.nursingNotes.form.nurseUserIdHint',
       },
       {
@@ -3653,15 +4494,20 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.nursingNotes.form.noteHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.note) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.note) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const nurseUserId = sanitizeString(item?.nurse_user_id);
       if (!nurseUserId) return '';
       return `${t('clinical.resources.nursingNotes.detail.nurseLabel')}: ${nurseUserId}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
-      nurse_user_id: sanitizeString(record?.nurse_user_id || context?.nurseUserId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
+      nurse_user_id: sanitizeString(
+        record?.nurse_user_id || context?.nurseUserId
+      ),
       note: sanitizeString(record?.note),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
@@ -3673,12 +4519,32 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.nursingNotes.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.nursingNotes.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.nursingNotes.detail.nurseLabel', valueKey: 'nurse_user_id' },
-      { labelKey: 'clinical.resources.nursingNotes.detail.noteLabel', valueKey: 'note' },
-      { labelKey: 'clinical.resources.nursingNotes.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.nursingNotes.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.nurseLabel',
+        valueKey: 'nurse_user_id',
+      },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.noteLabel',
+        valueKey: 'note',
+      },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.nursingNotes.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.MEDICATION_ADMINISTRATIONS]: {
@@ -3695,9 +4561,12 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.medicationAdministrations.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.admissionIdPlaceholder',
-        hintKey: 'clinical.resources.medicationAdministrations.form.admissionIdHint',
+        labelKey:
+          'clinical.resources.medicationAdministrations.form.admissionIdLabel',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.admissionIdPlaceholder',
+        hintKey:
+          'clinical.resources.medicationAdministrations.form.admissionIdHint',
       },
       {
         name: 'prescription_id',
@@ -3705,18 +4574,24 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdPlaceholder',
-        hintKey: 'clinical.resources.medicationAdministrations.form.prescriptionIdHint',
+        labelKey:
+          'clinical.resources.medicationAdministrations.form.prescriptionIdLabel',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.prescriptionIdPlaceholder',
+        hintKey:
+          'clinical.resources.medicationAdministrations.form.prescriptionIdHint',
       },
       {
         name: 'administered_at',
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.medicationAdministrations.form.administeredAtLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.administeredAtPlaceholder',
-        hintKey: 'clinical.resources.medicationAdministrations.form.administeredAtHint',
+        labelKey:
+          'clinical.resources.medicationAdministrations.form.administeredAtLabel',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.administeredAtPlaceholder',
+        hintKey:
+          'clinical.resources.medicationAdministrations.form.administeredAtHint',
       },
       {
         name: 'dose',
@@ -3724,7 +4599,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 80,
         labelKey: 'clinical.resources.medicationAdministrations.form.doseLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.dosePlaceholder',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.dosePlaceholder',
         hintKey: 'clinical.resources.medicationAdministrations.form.doseHint',
       },
       {
@@ -3733,28 +4609,36 @@ const resourceConfigs = {
         required: false,
         maxLength: 40,
         labelKey: 'clinical.resources.medicationAdministrations.form.unitLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.unitPlaceholder',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.unitPlaceholder',
         hintKey: 'clinical.resources.medicationAdministrations.form.unitHint',
       },
       {
         name: 'route',
         type: 'select',
         required: true,
-        labelKey: 'clinical.resources.medicationAdministrations.form.routeLabel',
-        placeholderKey: 'clinical.resources.medicationAdministrations.form.routePlaceholder',
+        labelKey:
+          'clinical.resources.medicationAdministrations.form.routeLabel',
+        placeholderKey:
+          'clinical.resources.medicationAdministrations.form.routePlaceholder',
         hintKey: 'clinical.resources.medicationAdministrations.form.routeHint',
         options: MEDICATION_ROUTE_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.dose) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.dose) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const routeValue = sanitizeString(item?.route);
       if (!routeValue) return '';
       return `${t('clinical.resources.medicationAdministrations.detail.routeLabel')}: ${routeValue}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
-      prescription_id: sanitizeString(record?.prescription_id || context?.prescriptionId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
+      prescription_id: sanitizeString(
+        record?.prescription_id || context?.prescriptionId
+      ),
       administered_at: sanitizeString(record?.administered_at),
       dose: sanitizeString(record?.dose),
       unit: sanitizeString(record?.unit),
@@ -3769,7 +4653,8 @@ const resourceConfigs = {
       };
       if (!isEdit) {
         payload.admission_id = sanitizeString(values.admission_id);
-        payload.prescription_id = sanitizeString(values.prescription_id) || undefined;
+        payload.prescription_id =
+          sanitizeString(values.prescription_id) || undefined;
       }
       return payload;
     },
@@ -3780,15 +4665,53 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.prescriptionLabel', valueKey: 'prescription_id' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.doseLabel', valueKey: 'dose' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.unitLabel', valueKey: 'unit' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.routeLabel', valueKey: 'route' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.administeredAtLabel', valueKey: 'administered_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.medicationAdministrations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.medicationAdministrations.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.prescriptionLabel',
+        valueKey: 'prescription_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.doseLabel',
+        valueKey: 'dose',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.unitLabel',
+        valueKey: 'unit',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.routeLabel',
+        valueKey: 'route',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.administeredAtLabel',
+        valueKey: 'administered_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.medicationAdministrations.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DISCHARGE_SUMMARIES]: {
@@ -3806,7 +4729,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.dischargeSummaries.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.dischargeSummaries.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.dischargeSummaries.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.dischargeSummaries.form.admissionIdHint',
       },
       {
@@ -3815,7 +4739,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 65535,
         labelKey: 'clinical.resources.dischargeSummaries.form.summaryLabel',
-        placeholderKey: 'clinical.resources.dischargeSummaries.form.summaryPlaceholder',
+        placeholderKey:
+          'clinical.resources.dischargeSummaries.form.summaryPlaceholder',
         hintKey: 'clinical.resources.dischargeSummaries.form.summaryHint',
       },
       {
@@ -3823,7 +4748,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.dischargeSummaries.form.statusLabel',
-        placeholderKey: 'clinical.resources.dischargeSummaries.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.dischargeSummaries.form.statusPlaceholder',
         hintKey: 'clinical.resources.dischargeSummaries.form.statusHint',
         options: DISCHARGE_STATUS_OPTIONS,
       },
@@ -3832,19 +4758,24 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.dischargeSummaries.form.dischargedAtLabel',
-        placeholderKey: 'clinical.resources.dischargeSummaries.form.dischargedAtPlaceholder',
+        labelKey:
+          'clinical.resources.dischargeSummaries.form.dischargedAtLabel',
+        placeholderKey:
+          'clinical.resources.dischargeSummaries.form.dischargedAtPlaceholder',
         hintKey: 'clinical.resources.dischargeSummaries.form.dischargedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.summary) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.summary) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
       return `${t('clinical.resources.dischargeSummaries.detail.statusLabel')}: ${status}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
       summary: sanitizeString(record?.summary),
       status: sanitizeString(record?.status || context?.status || 'PLANNED'),
       discharged_at: sanitizeString(record?.discharged_at),
@@ -3867,13 +4798,38 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.summaryLabel', valueKey: 'summary' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.dischargedAtLabel', valueKey: 'discharged_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.dischargeSummaries.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.summaryLabel',
+        valueKey: 'summary',
+      },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey:
+          'clinical.resources.dischargeSummaries.detail.dischargedAtLabel',
+        valueKey: 'discharged_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.dischargeSummaries.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.TRANSFER_REQUESTS]: {
@@ -3890,7 +4846,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.transferRequests.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.transferRequests.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.transferRequests.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.transferRequests.form.admissionIdHint',
       },
       {
@@ -3899,7 +4856,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.transferRequests.form.fromWardIdLabel',
-        placeholderKey: 'clinical.resources.transferRequests.form.fromWardIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.transferRequests.form.fromWardIdPlaceholder',
         hintKey: 'clinical.resources.transferRequests.form.fromWardIdHint',
       },
       {
@@ -3908,7 +4866,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.transferRequests.form.toWardIdLabel',
-        placeholderKey: 'clinical.resources.transferRequests.form.toWardIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.transferRequests.form.toWardIdPlaceholder',
         hintKey: 'clinical.resources.transferRequests.form.toWardIdHint',
       },
       {
@@ -3916,7 +4875,8 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.transferRequests.form.statusLabel',
-        placeholderKey: 'clinical.resources.transferRequests.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.transferRequests.form.statusPlaceholder',
         hintKey: 'clinical.resources.transferRequests.form.statusHint',
         options: TRANSFER_STATUS_OPTIONS,
       },
@@ -3926,18 +4886,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.transferRequests.form.requestedAtLabel',
-        placeholderKey: 'clinical.resources.transferRequests.form.requestedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.transferRequests.form.requestedAtPlaceholder',
         hintKey: 'clinical.resources.transferRequests.form.requestedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.to_ward_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.to_ward_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
       return `${t('clinical.resources.transferRequests.detail.statusLabel')}: ${status}`;
     },
     getInitialValues: (record, context) => ({
-      admission_id: sanitizeString(record?.admission_id || context?.admissionId),
+      admission_id: sanitizeString(
+        record?.admission_id || context?.admissionId
+      ),
       from_ward_id: sanitizeString(record?.from_ward_id || context?.fromWardId),
       to_ward_id: sanitizeString(record?.to_ward_id || context?.toWardId),
       status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
@@ -3957,14 +4921,41 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.transferRequests.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.transferRequests.detail.admissionLabel', valueKey: 'admission_id' },
-      { labelKey: 'clinical.resources.transferRequests.detail.fromWardLabel', valueKey: 'from_ward_id' },
-      { labelKey: 'clinical.resources.transferRequests.detail.toWardLabel', valueKey: 'to_ward_id' },
-      { labelKey: 'clinical.resources.transferRequests.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.transferRequests.detail.requestedAtLabel', valueKey: 'requested_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.transferRequests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.transferRequests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.admissionLabel',
+        valueKey: 'admission_id',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.fromWardLabel',
+        valueKey: 'from_ward_id',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.toWardLabel',
+        valueKey: 'to_ward_id',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.requestedAtLabel',
+        valueKey: 'requested_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.transferRequests.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ICU_STAYS]: {
@@ -3982,7 +4973,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.icuStays.form.admissionIdLabel',
-        placeholderKey: 'clinical.resources.icuStays.form.admissionIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.icuStays.form.admissionIdPlaceholder',
         hintKey: 'clinical.resources.icuStays.form.admissionIdHint',
       },
       {
@@ -4015,7 +5007,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       admission_id: sanitizeString(
-        record?.admission_display_id || record?.admission_id || context?.admissionId
+        record?.admission_display_id ||
+          record?.admission_id ||
+          context?.admissionId
       ),
       started_at: sanitizeString(record?.started_at),
       ended_at: sanitizeString(record?.ended_at),
@@ -4023,7 +5017,9 @@ const resourceConfigs = {
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         started_at: toIsoDateTime(values.started_at) || undefined,
-        ended_at: sanitizeString(values.ended_at) ? toIsoDateTime(values.ended_at) : null,
+        ended_at: sanitizeString(values.ended_at)
+          ? toIsoDateTime(values.ended_at)
+          : null,
       };
       if (!isEdit) {
         payload.admission_id = sanitizeString(values.admission_id);
@@ -4037,18 +5033,45 @@ const resourceConfigs = {
       if (startedAtError) errors.started_at = startedAtError;
       if (endedAtError) errors.ended_at = endedAtError;
       if (!endedAtError) {
-        const orderError = validateDateOrder(values.started_at, values.ended_at, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.started_at,
+          values.ended_at,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.ended_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.icuStays.detail.idLabel', valueKey: 'display_id' },
-      { labelKey: 'clinical.resources.icuStays.detail.admissionLabel', valueKey: 'admission_display_id' },
-      { labelKey: 'clinical.resources.icuStays.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.icuStays.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.icuStays.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.icuStays.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.admissionLabel',
+        valueKey: 'admission_display_id',
+      },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.startedAtLabel',
+        valueKey: 'started_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.endedAtLabel',
+        valueKey: 'ended_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.icuStays.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ICU_OBSERVATIONS]: {
@@ -4066,7 +5089,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.icuObservations.form.icuStayIdLabel',
-        placeholderKey: 'clinical.resources.icuObservations.form.icuStayIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.icuObservations.form.icuStayIdPlaceholder',
         hintKey: 'clinical.resources.icuObservations.form.icuStayIdHint',
       },
       {
@@ -4075,7 +5099,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.icuObservations.form.observedAtLabel',
-        placeholderKey: 'clinical.resources.icuObservations.form.observedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.icuObservations.form.observedAtPlaceholder',
         hintKey: 'clinical.resources.icuObservations.form.observedAtHint',
       },
       {
@@ -4084,11 +5109,13 @@ const resourceConfigs = {
         required: true,
         maxLength: 5000,
         labelKey: 'clinical.resources.icuObservations.form.observationLabel',
-        placeholderKey: 'clinical.resources.icuObservations.form.observationPlaceholder',
+        placeholderKey:
+          'clinical.resources.icuObservations.form.observationPlaceholder',
         hintKey: 'clinical.resources.icuObservations.form.observationHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.observation) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.observation) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const observedAt = sanitizeString(item?.observed_at);
       if (!observedAt) return '';
@@ -4118,12 +5145,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.icuObservations.detail.idLabel', valueKey: 'display_id' },
-      { labelKey: 'clinical.resources.icuObservations.detail.icuStayLabel', valueKey: 'icu_stay_display_id' },
-      { labelKey: 'clinical.resources.icuObservations.detail.observedAtLabel', valueKey: 'observed_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.icuObservations.detail.observationLabel', valueKey: 'observation' },
-      { labelKey: 'clinical.resources.icuObservations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.icuObservations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.icuStayLabel',
+        valueKey: 'icu_stay_display_id',
+      },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.observedAtLabel',
+        valueKey: 'observed_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.observationLabel',
+        valueKey: 'observation',
+      },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.icuObservations.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.CRITICAL_ALERTS]: {
@@ -4141,7 +5189,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.criticalAlerts.form.icuStayIdLabel',
-        placeholderKey: 'clinical.resources.criticalAlerts.form.icuStayIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.criticalAlerts.form.icuStayIdPlaceholder',
         hintKey: 'clinical.resources.criticalAlerts.form.icuStayIdHint',
       },
       {
@@ -4149,7 +5198,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.criticalAlerts.form.severityLabel',
-        placeholderKey: 'clinical.resources.criticalAlerts.form.severityPlaceholder',
+        placeholderKey:
+          'clinical.resources.criticalAlerts.form.severityPlaceholder',
         hintKey: 'clinical.resources.criticalAlerts.form.severityHint',
         options: CRITICAL_ALERT_SEVERITY_OPTIONS,
       },
@@ -4159,11 +5209,13 @@ const resourceConfigs = {
         required: true,
         maxLength: 2000,
         labelKey: 'clinical.resources.criticalAlerts.form.messageLabel',
-        placeholderKey: 'clinical.resources.criticalAlerts.form.messagePlaceholder',
+        placeholderKey:
+          'clinical.resources.criticalAlerts.form.messagePlaceholder',
         hintKey: 'clinical.resources.criticalAlerts.form.messageHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.message) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.message) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const severityLabel = sanitizeString(item?.severity);
       if (!severityLabel) return '';
@@ -4173,7 +5225,9 @@ const resourceConfigs = {
       icu_stay_id: sanitizeString(
         record?.icu_stay_display_id || record?.icu_stay_id || context?.icuStayId
       ),
-      severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      severity: sanitizeString(
+        record?.severity || context?.severity || 'MEDIUM'
+      ),
       message: sanitizeString(record?.message),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
@@ -4187,12 +5241,32 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.criticalAlerts.detail.idLabel', valueKey: 'display_id' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.icuStayLabel', valueKey: 'icu_stay_display_id' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.severityLabel', valueKey: 'severity' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.messageLabel', valueKey: 'message' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.criticalAlerts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.icuStayLabel',
+        valueKey: 'icu_stay_display_id',
+      },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.severityLabel',
+        valueKey: 'severity',
+      },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.messageLabel',
+        valueKey: 'message',
+      },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.criticalAlerts.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.THEATRE_CASES]: {
@@ -4209,7 +5283,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.theatreCases.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.theatreCases.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.theatreCases.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.theatreCases.form.encounterIdHint',
       },
       {
@@ -4218,7 +5293,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.theatreCases.form.scheduledAtLabel',
-        placeholderKey: 'clinical.resources.theatreCases.form.scheduledAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.theatreCases.form.scheduledAtPlaceholder',
         hintKey: 'clinical.resources.theatreCases.form.scheduledAtHint',
       },
       {
@@ -4226,19 +5302,28 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.theatreCases.form.statusLabel',
-        placeholderKey: 'clinical.resources.theatreCases.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.theatreCases.form.statusPlaceholder',
         hintKey: 'clinical.resources.theatreCases.form.statusHint',
         options: THEATRE_CASE_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.encounter_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.display_id) ||
+      sanitizeString(item?.human_friendly_id) ||
+      sanitizeString(item?.encounter_display_id) ||
+      sanitizeString(item?.encounter_id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
       return `${t('clinical.resources.theatreCases.detail.statusLabel')}: ${status}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_display_id ||
+          record?.encounter_id ||
+          context?.encounterId
+      ),
       scheduled_at: sanitizeString(record?.scheduled_at),
       status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
     }),
@@ -4254,12 +5339,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.theatreCases.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.theatreCases.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.theatreCases.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.theatreCases.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.theatreCases.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.theatreCases.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.encounterLabel',
+        valueKey: 'encounter_display_id',
+      },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.scheduledAtLabel',
+        valueKey: 'scheduled_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.theatreCases.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS]: {
@@ -4275,8 +5381,10 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdLabel',
-        placeholderKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdPlaceholder',
+        labelKey:
+          'clinical.resources.anesthesiaRecords.form.theatreCaseIdLabel',
+        placeholderKey:
+          'clinical.resources.anesthesiaRecords.form.theatreCaseIdPlaceholder',
         hintKey: 'clinical.resources.anesthesiaRecords.form.theatreCaseIdHint',
       },
       {
@@ -4284,9 +5392,12 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdLabel',
-        placeholderKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdPlaceholder',
-        hintKey: 'clinical.resources.anesthesiaRecords.form.anesthetistUserIdHint',
+        labelKey:
+          'clinical.resources.anesthesiaRecords.form.anesthetistUserIdLabel',
+        placeholderKey:
+          'clinical.resources.anesthesiaRecords.form.anesthetistUserIdPlaceholder',
+        hintKey:
+          'clinical.resources.anesthesiaRecords.form.anesthetistUserIdHint',
       },
       {
         name: 'notes',
@@ -4294,19 +5405,35 @@ const resourceConfigs = {
         required: false,
         maxLength: 65535,
         labelKey: 'clinical.resources.anesthesiaRecords.form.notesLabel',
-        placeholderKey: 'clinical.resources.anesthesiaRecords.form.notesPlaceholder',
+        placeholderKey:
+          'clinical.resources.anesthesiaRecords.form.notesPlaceholder',
         hintKey: 'clinical.resources.anesthesiaRecords.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.theatre_case_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.display_id) ||
+      sanitizeString(item?.human_friendly_id) ||
+      sanitizeString(item?.theatre_case_display_id) ||
+      sanitizeString(item?.theatre_case_id),
     getItemSubtitle: (item, t) => {
-      const anesthetistUserId = sanitizeString(item?.anesthetist_user_id);
+      const anesthetistUserId =
+        sanitizeString(item?.anesthetist_display_name) ||
+        sanitizeString(item?.anesthetist_user_display_id) ||
+        sanitizeString(item?.anesthetist_user_id);
       if (!anesthetistUserId) return '';
       return `${t('clinical.resources.anesthesiaRecords.detail.anesthetistLabel')}: ${anesthetistUserId}`;
     },
     getInitialValues: (record, context) => ({
-      theatre_case_id: sanitizeString(record?.theatre_case_id || context?.theatreCaseId),
-      anesthetist_user_id: sanitizeString(record?.anesthetist_user_id || context?.anesthetistUserId),
+      theatre_case_id: sanitizeString(
+        record?.theatre_case_display_id ||
+          record?.theatre_case_id ||
+          context?.theatreCaseId
+      ),
+      anesthetist_user_id: sanitizeString(
+        record?.anesthetist_user_display_id ||
+          record?.anesthetist_user_id ||
+          context?.anesthetistUserId
+      ),
       notes: sanitizeString(record?.notes),
     }),
     toPayload: (values) => ({
@@ -4315,12 +5442,34 @@ const resourceConfigs = {
       notes: sanitizeString(values.notes) || null,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.theatreCaseLabel', valueKey: 'theatre_case_id' },
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.anesthetistLabel', valueKey: 'anesthetist_user_id' },
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.anesthesiaRecords.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.anesthesiaRecords.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.anesthesiaRecords.detail.theatreCaseLabel',
+        valueKey: 'theatre_case_display_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.anesthesiaRecords.detail.anesthetistLabel',
+        valueKey: 'anesthetist_display_name',
+      },
+      {
+        labelKey: 'clinical.resources.anesthesiaRecords.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.anesthesiaRecords.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.anesthesiaRecords.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.POST_OP_NOTES]: {
@@ -4337,7 +5486,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.postOpNotes.form.theatreCaseIdLabel',
-        placeholderKey: 'clinical.resources.postOpNotes.form.theatreCaseIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.postOpNotes.form.theatreCaseIdPlaceholder',
         hintKey: 'clinical.resources.postOpNotes.form.theatreCaseIdHint',
       },
       {
@@ -4350,14 +5500,21 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.postOpNotes.form.noteHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.note) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.note) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
-      const theatreCaseId = sanitizeString(item?.theatre_case_id);
+      const theatreCaseId =
+        sanitizeString(item?.theatre_case_display_id) ||
+        sanitizeString(item?.theatre_case_id);
       if (!theatreCaseId) return '';
       return `${t('clinical.resources.postOpNotes.detail.theatreCaseLabel')}: ${theatreCaseId}`;
     },
     getInitialValues: (record, context) => ({
-      theatre_case_id: sanitizeString(record?.theatre_case_id || context?.theatreCaseId),
+      theatre_case_id: sanitizeString(
+        record?.theatre_case_display_id ||
+          record?.theatre_case_id ||
+          context?.theatreCaseId
+      ),
       note: sanitizeString(record?.note),
     }),
     toPayload: (values) => ({
@@ -4365,11 +5522,28 @@ const resourceConfigs = {
       note: sanitizeString(values.note),
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.postOpNotes.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.postOpNotes.detail.theatreCaseLabel', valueKey: 'theatre_case_id' },
-      { labelKey: 'clinical.resources.postOpNotes.detail.noteLabel', valueKey: 'note' },
-      { labelKey: 'clinical.resources.postOpNotes.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.postOpNotes.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.postOpNotes.detail.idLabel',
+        valueKey: 'display_id',
+      },
+      {
+        labelKey: 'clinical.resources.postOpNotes.detail.theatreCaseLabel',
+        valueKey: 'theatre_case_display_id',
+      },
+      {
+        labelKey: 'clinical.resources.postOpNotes.detail.noteLabel',
+        valueKey: 'note',
+      },
+      {
+        labelKey: 'clinical.resources.postOpNotes.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.postOpNotes.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.EMERGENCY_CASES]: {
@@ -4386,7 +5560,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.emergencyCases.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.emergencyCases.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyCases.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.emergencyCases.form.patientIdHint',
       },
       {
@@ -4394,7 +5569,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.emergencyCases.form.severityLabel',
-        placeholderKey: 'clinical.resources.emergencyCases.form.severityPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyCases.form.severityPlaceholder',
         hintKey: 'clinical.resources.emergencyCases.form.severityHint',
         options: EMERGENCY_CASE_SEVERITY_OPTIONS,
       },
@@ -4403,7 +5579,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.emergencyCases.form.statusLabel',
-        placeholderKey: 'clinical.resources.emergencyCases.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyCases.form.statusPlaceholder',
         hintKey: 'clinical.resources.emergencyCases.form.statusHint',
         options: EMERGENCY_CASE_STATUS_OPTIONS,
       },
@@ -4413,11 +5590,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.emergencyCases.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.emergencyCases.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyCases.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.emergencyCases.form.facilityIdHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const severityValue = sanitizeString(item?.severity);
       if (!severityValue) return '';
@@ -4425,7 +5604,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
-      severity: sanitizeString(record?.severity || context?.severity || 'MEDIUM'),
+      severity: sanitizeString(
+        record?.severity || context?.severity || 'MEDIUM'
+      ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
     }),
@@ -4436,14 +5617,40 @@ const resourceConfigs = {
       facility_id: sanitizeString(values.facility_id) || undefined,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.emergencyCases.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.severityLabel', valueKey: 'severity' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.emergencyCases.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.severityLabel',
+        valueKey: 'severity',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyCases.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS]: {
@@ -4459,16 +5666,20 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdLabel',
-        placeholderKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdPlaceholder',
-        hintKey: 'clinical.resources.triageAssessments.form.emergencyCaseIdHint',
+        labelKey:
+          'clinical.resources.triageAssessments.form.emergencyCaseIdLabel',
+        placeholderKey:
+          'clinical.resources.triageAssessments.form.emergencyCaseIdPlaceholder',
+        hintKey:
+          'clinical.resources.triageAssessments.form.emergencyCaseIdHint',
       },
       {
         name: 'triage_level',
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.triageAssessments.form.triageLevelLabel',
-        placeholderKey: 'clinical.resources.triageAssessments.form.triageLevelPlaceholder',
+        placeholderKey:
+          'clinical.resources.triageAssessments.form.triageLevelPlaceholder',
         hintKey: 'clinical.resources.triageAssessments.form.triageLevelHint',
         options: TRIAGE_LEVEL_OPTIONS,
       },
@@ -4478,19 +5689,25 @@ const resourceConfigs = {
         required: false,
         maxLength: 5000,
         labelKey: 'clinical.resources.triageAssessments.form.notesLabel',
-        placeholderKey: 'clinical.resources.triageAssessments.form.notesPlaceholder',
+        placeholderKey:
+          'clinical.resources.triageAssessments.form.notesPlaceholder',
         hintKey: 'clinical.resources.triageAssessments.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.triage_level) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.triage_level) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const emergencyCaseId = sanitizeString(item?.emergency_case_id);
       if (!emergencyCaseId) return '';
       return `${t('clinical.resources.triageAssessments.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
     },
     getInitialValues: (record, context) => ({
-      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
-      triage_level: sanitizeString(record?.triage_level || context?.triageLevel || 'URGENT'),
+      emergency_case_id: sanitizeString(
+        record?.emergency_case_id || context?.emergencyCaseId
+      ),
+      triage_level: sanitizeString(
+        record?.triage_level || context?.triageLevel || 'URGENT'
+      ),
       notes: sanitizeString(record?.notes),
     }),
     toPayload: (values) => ({
@@ -4499,12 +5716,34 @@ const resourceConfigs = {
       notes: sanitizeString(values.notes) || null,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.triageAssessments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.triageAssessments.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
-      { labelKey: 'clinical.resources.triageAssessments.detail.triageLevelLabel', valueKey: 'triage_level' },
-      { labelKey: 'clinical.resources.triageAssessments.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.triageAssessments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.triageAssessments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.triageAssessments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.triageAssessments.detail.emergencyCaseLabel',
+        valueKey: 'emergency_case_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.triageAssessments.detail.triageLevelLabel',
+        valueKey: 'triage_level',
+      },
+      {
+        labelKey: 'clinical.resources.triageAssessments.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.triageAssessments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.triageAssessments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES]: {
@@ -4520,9 +5759,12 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdLabel',
-        placeholderKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdPlaceholder',
-        hintKey: 'clinical.resources.emergencyResponses.form.emergencyCaseIdHint',
+        labelKey:
+          'clinical.resources.emergencyResponses.form.emergencyCaseIdLabel',
+        placeholderKey:
+          'clinical.resources.emergencyResponses.form.emergencyCaseIdPlaceholder',
+        hintKey:
+          'clinical.resources.emergencyResponses.form.emergencyCaseIdHint',
       },
       {
         name: 'response_at',
@@ -4530,7 +5772,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.emergencyResponses.form.responseAtLabel',
-        placeholderKey: 'clinical.resources.emergencyResponses.form.responseAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyResponses.form.responseAtPlaceholder',
         hintKey: 'clinical.resources.emergencyResponses.form.responseAtHint',
       },
       {
@@ -4539,18 +5782,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 5000,
         labelKey: 'clinical.resources.emergencyResponses.form.notesLabel',
-        placeholderKey: 'clinical.resources.emergencyResponses.form.notesPlaceholder',
+        placeholderKey:
+          'clinical.resources.emergencyResponses.form.notesPlaceholder',
         hintKey: 'clinical.resources.emergencyResponses.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.response_at) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.response_at) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const emergencyCaseId = sanitizeString(item?.emergency_case_id);
       if (!emergencyCaseId) return '';
       return `${t('clinical.resources.emergencyResponses.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
     },
     getInitialValues: (record, context) => ({
-      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      emergency_case_id: sanitizeString(
+        record?.emergency_case_id || context?.emergencyCaseId
+      ),
       response_at: sanitizeString(record?.response_at),
       notes: sanitizeString(record?.notes),
     }),
@@ -4566,12 +5813,35 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.emergencyResponses.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.emergencyResponses.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
-      { labelKey: 'clinical.resources.emergencyResponses.detail.responseAtLabel', valueKey: 'response_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.emergencyResponses.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.emergencyResponses.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.emergencyResponses.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.emergencyResponses.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.emergencyResponses.detail.emergencyCaseLabel',
+        valueKey: 'emergency_case_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.emergencyResponses.detail.responseAtLabel',
+        valueKey: 'response_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyResponses.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyResponses.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.emergencyResponses.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.AMBULANCES]: {
@@ -4588,7 +5858,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 120,
         labelKey: 'clinical.resources.ambulances.form.identifierLabel',
-        placeholderKey: 'clinical.resources.ambulances.form.identifierPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulances.form.identifierPlaceholder',
         hintKey: 'clinical.resources.ambulances.form.identifierHint',
       },
       {
@@ -4606,11 +5877,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.ambulances.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.ambulances.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulances.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.ambulances.form.facilityIdHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.identifier) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.identifier) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
@@ -4627,13 +5900,36 @@ const resourceConfigs = {
       facility_id: sanitizeString(values.facility_id) || undefined,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.ambulances.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.ambulances.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.ambulances.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.ambulances.detail.identifierLabel', valueKey: 'identifier' },
-      { labelKey: 'clinical.resources.ambulances.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.ambulances.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulances.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.identifierLabel',
+        valueKey: 'identifier',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulances.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.AMBULANCE_DISPATCHES]: {
@@ -4649,8 +5945,10 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdLabel',
-        placeholderKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdPlaceholder',
+        labelKey:
+          'clinical.resources.ambulanceDispatches.form.ambulanceIdLabel',
+        placeholderKey:
+          'clinical.resources.ambulanceDispatches.form.ambulanceIdPlaceholder',
         hintKey: 'clinical.resources.ambulanceDispatches.form.ambulanceIdHint',
       },
       {
@@ -4658,17 +5956,22 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdLabel',
-        placeholderKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdPlaceholder',
-        hintKey: 'clinical.resources.ambulanceDispatches.form.emergencyCaseIdHint',
+        labelKey:
+          'clinical.resources.ambulanceDispatches.form.emergencyCaseIdLabel',
+        placeholderKey:
+          'clinical.resources.ambulanceDispatches.form.emergencyCaseIdPlaceholder',
+        hintKey:
+          'clinical.resources.ambulanceDispatches.form.emergencyCaseIdHint',
       },
       {
         name: 'dispatched_at',
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtLabel',
-        placeholderKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtPlaceholder',
+        labelKey:
+          'clinical.resources.ambulanceDispatches.form.dispatchedAtLabel',
+        placeholderKey:
+          'clinical.resources.ambulanceDispatches.form.dispatchedAtPlaceholder',
         hintKey: 'clinical.resources.ambulanceDispatches.form.dispatchedAtHint',
       },
       {
@@ -4676,20 +5979,26 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.ambulanceDispatches.form.statusLabel',
-        placeholderKey: 'clinical.resources.ambulanceDispatches.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulanceDispatches.form.statusPlaceholder',
         hintKey: 'clinical.resources.ambulanceDispatches.form.statusHint',
         options: AMBULANCE_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const status = sanitizeString(item?.status);
       if (!status) return '';
       return `${t('clinical.resources.ambulanceDispatches.detail.statusLabel')}: ${status}`;
     },
     getInitialValues: (record, context) => ({
-      ambulance_id: sanitizeString(record?.ambulance_id || context?.ambulanceId),
-      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      ambulance_id: sanitizeString(
+        record?.ambulance_id || context?.ambulanceId
+      ),
+      emergency_case_id: sanitizeString(
+        record?.emergency_case_id || context?.emergencyCaseId
+      ),
       dispatched_at: sanitizeString(record?.dispatched_at),
       status: sanitizeString(record?.status || context?.status || 'DISPATCHED'),
     }),
@@ -4706,13 +6015,40 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.ambulanceLabel', valueKey: 'ambulance_id' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.dispatchedAtLabel', valueKey: 'dispatched_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulanceDispatches.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.ambulanceDispatches.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.ambulanceDispatches.detail.ambulanceLabel',
+        valueKey: 'ambulance_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.ambulanceDispatches.detail.emergencyCaseLabel',
+        valueKey: 'emergency_case_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.ambulanceDispatches.detail.dispatchedAtLabel',
+        valueKey: 'dispatched_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceDispatches.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceDispatches.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceDispatches.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.AMBULANCE_TRIPS]: {
@@ -4729,7 +6065,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdLabel',
-        placeholderKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulanceTrips.form.ambulanceIdPlaceholder',
         hintKey: 'clinical.resources.ambulanceTrips.form.ambulanceIdHint',
       },
       {
@@ -4738,7 +6075,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdLabel',
-        placeholderKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulanceTrips.form.emergencyCaseIdPlaceholder',
         hintKey: 'clinical.resources.ambulanceTrips.form.emergencyCaseIdHint',
       },
       {
@@ -4747,7 +6085,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.ambulanceTrips.form.startedAtLabel',
-        placeholderKey: 'clinical.resources.ambulanceTrips.form.startedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulanceTrips.form.startedAtPlaceholder',
         hintKey: 'clinical.resources.ambulanceTrips.form.startedAtHint',
       },
       {
@@ -4756,27 +6095,37 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.ambulanceTrips.form.endedAtLabel',
-        placeholderKey: 'clinical.resources.ambulanceTrips.form.endedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.ambulanceTrips.form.endedAtPlaceholder',
         hintKey: 'clinical.resources.ambulanceTrips.form.endedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.ambulance_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const emergencyCaseId = sanitizeString(item?.emergency_case_id);
       if (!emergencyCaseId) return '';
       return `${t('clinical.resources.ambulanceTrips.detail.emergencyCaseLabel')}: ${emergencyCaseId}`;
     },
     getInitialValues: (record, context) => ({
-      ambulance_id: sanitizeString(record?.ambulance_id || context?.ambulanceId),
-      emergency_case_id: sanitizeString(record?.emergency_case_id || context?.emergencyCaseId),
+      ambulance_id: sanitizeString(
+        record?.ambulance_id || context?.ambulanceId
+      ),
+      emergency_case_id: sanitizeString(
+        record?.emergency_case_id || context?.emergencyCaseId
+      ),
       started_at: sanitizeString(record?.started_at),
       ended_at: sanitizeString(record?.ended_at),
     }),
     toPayload: (values) => ({
       ambulance_id: sanitizeString(values.ambulance_id),
       emergency_case_id: sanitizeString(values.emergency_case_id),
-      started_at: sanitizeString(values.started_at) ? toIsoDateTime(values.started_at) : null,
-      ended_at: sanitizeString(values.ended_at) ? toIsoDateTime(values.ended_at) : null,
+      started_at: sanitizeString(values.started_at)
+        ? toIsoDateTime(values.started_at)
+        : null,
+      ended_at: sanitizeString(values.ended_at)
+        ? toIsoDateTime(values.ended_at)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -4785,19 +6134,49 @@ const resourceConfigs = {
       if (startedAtError) errors.started_at = startedAtError;
       if (endedAtError) errors.ended_at = endedAtError;
       if (!endedAtError) {
-        const orderError = validateDateOrder(values.started_at, values.ended_at, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.started_at,
+          values.ended_at,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.ended_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.ambulanceLabel', valueKey: 'ambulance_id' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.emergencyCaseLabel', valueKey: 'emergency_case_id' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.startedAtLabel', valueKey: 'started_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.endedAtLabel', valueKey: 'ended_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.ambulanceTrips.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.ambulanceLabel',
+        valueKey: 'ambulance_id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.emergencyCaseLabel',
+        valueKey: 'emergency_case_id',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.startedAtLabel',
+        valueKey: 'started_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.endedAtLabel',
+        valueKey: 'ended_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.ambulanceTrips.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_TESTS]: {
@@ -4841,11 +6220,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 120,
         labelKey: 'clinical.resources.labTests.form.referenceRangeLabel',
-        placeholderKey: 'clinical.resources.labTests.form.referenceRangePlaceholder',
+        placeholderKey:
+          'clinical.resources.labTests.form.referenceRangePlaceholder',
         hintKey: 'clinical.resources.labTests.form.referenceRangeHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const codeValue = sanitizeString(item?.code);
       if (!codeValue) return '';
@@ -4864,14 +6245,40 @@ const resourceConfigs = {
       reference_range: sanitizeString(values.reference_range) || null,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.labTests.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labTests.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.labTests.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.labTests.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.labTests.detail.unitLabel', valueKey: 'unit' },
-      { labelKey: 'clinical.resources.labTests.detail.referenceRangeLabel', valueKey: 'reference_range' },
-      { labelKey: 'clinical.resources.labTests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labTests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labTests.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.unitLabel',
+        valueKey: 'unit',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.referenceRangeLabel',
+        valueKey: 'reference_range',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labTests.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_PANELS]: {
@@ -4901,7 +6308,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.labPanels.form.codeHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const codeValue = sanitizeString(item?.code);
       if (!codeValue) return '';
@@ -4916,12 +6324,32 @@ const resourceConfigs = {
       code: sanitizeString(values.code) || null,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.labPanels.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labPanels.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.labPanels.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.labPanels.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.labPanels.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labPanels.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labPanels.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: {
@@ -4938,7 +6366,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.labOrders.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.labOrders.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrders.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.labOrders.form.encounterIdHint',
       },
       {
@@ -4947,7 +6376,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.labOrders.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.labOrders.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrders.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.labOrders.form.patientIdHint',
       },
       {
@@ -4965,18 +6395,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.labOrders.form.orderedAtLabel',
-        placeholderKey: 'clinical.resources.labOrders.form.orderedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrders.form.orderedAtPlaceholder',
         hintKey: 'clinical.resources.labOrders.form.orderedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.labOrders.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
       status: sanitizeString(record?.status || context?.status || 'ORDERED'),
       ordered_at: sanitizeString(record?.ordered_at || context?.orderedAtFrom),
@@ -4994,13 +6428,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.labOrders.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labOrders.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.labOrders.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.labOrders.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.labOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.orderedAtLabel',
+        valueKey: 'ordered_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labOrders.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS]: {
@@ -5018,7 +6476,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.labOrderItems.form.labOrderIdLabel',
-        placeholderKey: 'clinical.resources.labOrderItems.form.labOrderIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrderItems.form.labOrderIdPlaceholder',
         hintKey: 'clinical.resources.labOrderItems.form.labOrderIdHint',
       },
       {
@@ -5028,7 +6487,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.labOrderItems.form.labTestIdLabel',
-        placeholderKey: 'clinical.resources.labOrderItems.form.labTestIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrderItems.form.labTestIdPlaceholder',
         hintKey: 'clinical.resources.labOrderItems.form.labTestIdHint',
       },
       {
@@ -5036,12 +6496,14 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.labOrderItems.form.statusLabel',
-        placeholderKey: 'clinical.resources.labOrderItems.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.labOrderItems.form.statusPlaceholder',
         hintKey: 'clinical.resources.labOrderItems.form.statusHint',
         options: LAB_ORDER_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.lab_test_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.lab_test_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -5063,12 +6525,32 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.labOrderItems.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labOrderItems.detail.labOrderLabel', valueKey: 'lab_order_id' },
-      { labelKey: 'clinical.resources.labOrderItems.detail.labTestLabel', valueKey: 'lab_test_id' },
-      { labelKey: 'clinical.resources.labOrderItems.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.labOrderItems.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labOrderItems.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.labOrderLabel',
+        valueKey: 'lab_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.labTestLabel',
+        valueKey: 'lab_test_id',
+      },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labOrderItems.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_SAMPLES]: {
@@ -5086,7 +6568,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.labSamples.form.labOrderIdLabel',
-        placeholderKey: 'clinical.resources.labSamples.form.labOrderIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labSamples.form.labOrderIdPlaceholder',
         hintKey: 'clinical.resources.labSamples.form.labOrderIdHint',
       },
       {
@@ -5104,7 +6587,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.labSamples.form.collectedAtLabel',
-        placeholderKey: 'clinical.resources.labSamples.form.collectedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.labSamples.form.collectedAtPlaceholder',
         hintKey: 'clinical.resources.labSamples.form.collectedAtHint',
       },
       {
@@ -5113,11 +6597,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.labSamples.form.receivedAtLabel',
-        placeholderKey: 'clinical.resources.labSamples.form.receivedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.labSamples.form.receivedAtPlaceholder',
         hintKey: 'clinical.resources.labSamples.form.receivedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.lab_order_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.lab_order_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -5151,19 +6637,49 @@ const resourceConfigs = {
       if (collectedAtError) errors.collected_at = collectedAtError;
       if (receivedAtError) errors.received_at = receivedAtError;
       if (!receivedAtError) {
-        const orderError = validateDateOrder(values.collected_at, values.received_at, t, { allowEqual: true });
+        const orderError = validateDateOrder(
+          values.collected_at,
+          values.received_at,
+          t,
+          { allowEqual: true }
+        );
         if (orderError) errors.received_at = orderError;
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.labSamples.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labSamples.detail.labOrderLabel', valueKey: 'lab_order_id' },
-      { labelKey: 'clinical.resources.labSamples.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.labSamples.detail.collectedAtLabel', valueKey: 'collected_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labSamples.detail.receivedAtLabel', valueKey: 'received_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labSamples.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labSamples.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.labOrderLabel',
+        valueKey: 'lab_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.collectedAtLabel',
+        valueKey: 'collected_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.receivedAtLabel',
+        valueKey: 'received_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labSamples.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_RESULTS]: {
@@ -5181,7 +6697,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.labResults.form.labOrderItemIdLabel',
-        placeholderKey: 'clinical.resources.labResults.form.labOrderItemIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labResults.form.labOrderItemIdPlaceholder',
         hintKey: 'clinical.resources.labResults.form.labOrderItemIdHint',
       },
       {
@@ -5199,7 +6716,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 120,
         labelKey: 'clinical.resources.labResults.form.resultValueLabel',
-        placeholderKey: 'clinical.resources.labResults.form.resultValuePlaceholder',
+        placeholderKey:
+          'clinical.resources.labResults.form.resultValuePlaceholder',
         hintKey: 'clinical.resources.labResults.form.resultValueHint',
       },
       {
@@ -5208,7 +6726,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 40,
         labelKey: 'clinical.resources.labResults.form.resultUnitLabel',
-        placeholderKey: 'clinical.resources.labResults.form.resultUnitPlaceholder',
+        placeholderKey:
+          'clinical.resources.labResults.form.resultUnitPlaceholder',
         hintKey: 'clinical.resources.labResults.form.resultUnitHint',
       },
       {
@@ -5217,7 +6736,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 5000,
         labelKey: 'clinical.resources.labResults.form.resultTextLabel',
-        placeholderKey: 'clinical.resources.labResults.form.resultTextPlaceholder',
+        placeholderKey:
+          'clinical.resources.labResults.form.resultTextPlaceholder',
         hintKey: 'clinical.resources.labResults.form.resultTextHint',
       },
       {
@@ -5226,18 +6746,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.labResults.form.reportedAtLabel',
-        placeholderKey: 'clinical.resources.labResults.form.reportedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.labResults.form.reportedAtPlaceholder',
         hintKey: 'clinical.resources.labResults.form.reportedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.lab_order_item_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.lab_order_item_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.labResults.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      lab_order_item_id: sanitizeString(record?.lab_order_item_id || context?.labOrderItemId),
+      lab_order_item_id: sanitizeString(
+        record?.lab_order_item_id || context?.labOrderItemId
+      ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       result_value: sanitizeString(record?.result_value),
       result_unit: sanitizeString(record?.result_unit),
@@ -5250,7 +6774,9 @@ const resourceConfigs = {
         result_value: sanitizeString(values.result_value) || null,
         result_unit: sanitizeString(values.result_unit) || null,
         result_text: sanitizeString(values.result_text) || null,
-        reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : null,
+        reported_at: sanitizeString(values.reported_at)
+          ? toIsoDateTime(values.reported_at)
+          : null,
       };
       if (!isEdit) {
         payload.lab_order_item_id = sanitizeString(values.lab_order_item_id);
@@ -5264,15 +6790,45 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.labResults.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labResults.detail.labOrderItemLabel', valueKey: 'lab_order_item_id' },
-      { labelKey: 'clinical.resources.labResults.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.labResults.detail.resultValueLabel', valueKey: 'result_value' },
-      { labelKey: 'clinical.resources.labResults.detail.resultUnitLabel', valueKey: 'result_unit' },
-      { labelKey: 'clinical.resources.labResults.detail.resultTextLabel', valueKey: 'result_text' },
-      { labelKey: 'clinical.resources.labResults.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labResults.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labResults.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labResults.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.labOrderItemLabel',
+        valueKey: 'lab_order_item_id',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.resultValueLabel',
+        valueKey: 'result_value',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.resultUnitLabel',
+        valueKey: 'result_unit',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.resultTextLabel',
+        valueKey: 'result_text',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.reportedAtLabel',
+        valueKey: 'reported_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labResults.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.LAB_QC_LOGS]: {
@@ -5290,7 +6846,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.labQcLogs.form.labTestIdLabel',
-        placeholderKey: 'clinical.resources.labQcLogs.form.labTestIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.labQcLogs.form.labTestIdPlaceholder',
         hintKey: 'clinical.resources.labQcLogs.form.labTestIdHint',
       },
       {
@@ -5321,7 +6878,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.labQcLogs.form.loggedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.status) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.status) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const labTestId = sanitizeString(item?.lab_test_id);
       if (!labTestId) return '';
@@ -5351,13 +6909,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.labQcLogs.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.labTestLabel', valueKey: 'lab_test_id' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.loggedAtLabel', valueKey: 'logged_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.labQcLogs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.labTestLabel',
+        valueKey: 'lab_test_id',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.loggedAtLabel',
+        valueKey: 'logged_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.labQcLogs.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.RADIOLOGY_TESTS]: {
@@ -5374,7 +6956,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 255,
         labelKey: 'clinical.resources.radiologyTests.form.nameLabel',
-        placeholderKey: 'clinical.resources.radiologyTests.form.namePlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyTests.form.namePlaceholder',
         hintKey: 'clinical.resources.radiologyTests.form.nameHint',
       },
       {
@@ -5383,7 +6966,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 80,
         labelKey: 'clinical.resources.radiologyTests.form.codeLabel',
-        placeholderKey: 'clinical.resources.radiologyTests.form.codePlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyTests.form.codePlaceholder',
         hintKey: 'clinical.resources.radiologyTests.form.codeHint',
       },
       {
@@ -5391,12 +6975,14 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.radiologyTests.form.modalityLabel',
-        placeholderKey: 'clinical.resources.radiologyTests.form.modalityPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyTests.form.modalityPlaceholder',
         hintKey: 'clinical.resources.radiologyTests.form.modalityHint',
         options: RADIOLOGY_MODALITY_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const modalityValue = sanitizeString(item?.modality);
       if (!modalityValue) return '';
@@ -5413,13 +6999,36 @@ const resourceConfigs = {
       modality: sanitizeString(values.modality),
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.radiologyTests.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.modalityLabel', valueKey: 'modality' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.radiologyTests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.modalityLabel',
+        valueKey: 'modality',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyTests.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.RADIOLOGY_ORDERS]: {
@@ -5436,7 +7045,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.radiologyOrders.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.radiologyOrders.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyOrders.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.radiologyOrders.form.encounterIdHint',
       },
       {
@@ -5445,7 +7055,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.radiologyOrders.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.radiologyOrders.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyOrders.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.radiologyOrders.form.patientIdHint',
       },
       {
@@ -5453,8 +7064,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdLabel',
-        placeholderKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdPlaceholder',
+        labelKey:
+          'clinical.resources.radiologyOrders.form.radiologyTestIdLabel',
+        placeholderKey:
+          'clinical.resources.radiologyOrders.form.radiologyTestIdPlaceholder',
         hintKey: 'clinical.resources.radiologyOrders.form.radiologyTestIdHint',
       },
       {
@@ -5462,7 +7075,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.radiologyOrders.form.statusLabel',
-        placeholderKey: 'clinical.resources.radiologyOrders.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyOrders.form.statusPlaceholder',
         hintKey: 'clinical.resources.radiologyOrders.form.statusHint',
         options: RADIOLOGY_ORDER_STATUS_OPTIONS,
       },
@@ -5472,20 +7086,26 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.radiologyOrders.form.orderedAtLabel',
-        placeholderKey: 'clinical.resources.radiologyOrders.form.orderedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyOrders.form.orderedAtPlaceholder',
         hintKey: 'clinical.resources.radiologyOrders.form.orderedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.radiologyOrders.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
-      radiology_test_id: sanitizeString(record?.radiology_test_id || context?.radiologyTestId),
+      radiology_test_id: sanitizeString(
+        record?.radiology_test_id || context?.radiologyTestId
+      ),
       status: sanitizeString(record?.status || context?.status || 'ORDERED'),
       ordered_at: sanitizeString(record?.ordered_at || context?.orderedAtFrom),
     }),
@@ -5503,14 +7123,42 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.radiologyOrders.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.radiologyTestLabel', valueKey: 'radiology_test_id' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.radiologyOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.radiologyOrders.detail.radiologyTestLabel',
+        valueKey: 'radiology_test_id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.orderedAtLabel',
+        valueKey: 'ordered_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyOrders.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS]: {
@@ -5526,16 +7174,20 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdLabel',
-        placeholderKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdPlaceholder',
-        hintKey: 'clinical.resources.radiologyResults.form.radiologyOrderIdHint',
+        labelKey:
+          'clinical.resources.radiologyResults.form.radiologyOrderIdLabel',
+        placeholderKey:
+          'clinical.resources.radiologyResults.form.radiologyOrderIdPlaceholder',
+        hintKey:
+          'clinical.resources.radiologyResults.form.radiologyOrderIdHint',
       },
       {
         name: 'status',
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.radiologyResults.form.statusLabel',
-        placeholderKey: 'clinical.resources.radiologyResults.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyResults.form.statusPlaceholder',
         hintKey: 'clinical.resources.radiologyResults.form.statusHint',
         options: RADIOLOGY_RESULT_STATUS_OPTIONS,
       },
@@ -5545,7 +7197,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 65535,
         labelKey: 'clinical.resources.radiologyResults.form.reportTextLabel',
-        placeholderKey: 'clinical.resources.radiologyResults.form.reportTextPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyResults.form.reportTextPlaceholder',
         hintKey: 'clinical.resources.radiologyResults.form.reportTextHint',
       },
       {
@@ -5554,18 +7207,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.radiologyResults.form.reportedAtLabel',
-        placeholderKey: 'clinical.resources.radiologyResults.form.reportedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.radiologyResults.form.reportedAtPlaceholder',
         hintKey: 'clinical.resources.radiologyResults.form.reportedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.radiologyResults.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      radiology_order_id: sanitizeString(record?.radiology_order_id || context?.radiologyOrderId),
+      radiology_order_id: sanitizeString(
+        record?.radiology_order_id || context?.radiologyOrderId
+      ),
       status: sanitizeString(record?.status || context?.status || 'DRAFT'),
       report_text: sanitizeString(record?.report_text),
       reported_at: sanitizeString(record?.reported_at),
@@ -5574,7 +7231,9 @@ const resourceConfigs = {
       radiology_order_id: sanitizeString(values.radiology_order_id),
       status: sanitizeString(values.status),
       report_text: sanitizeString(values.report_text) || null,
-      reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : null,
+      reported_at: sanitizeString(values.reported_at)
+        ? toIsoDateTime(values.reported_at)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -5583,13 +7242,38 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.radiologyResults.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.radiologyOrderLabel', valueKey: 'radiology_order_id' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.reportTextLabel', valueKey: 'report_text' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.radiologyResults.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.radiologyResults.detail.radiologyOrderLabel',
+        valueKey: 'radiology_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.reportTextLabel',
+        valueKey: 'report_text',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.reportedAtLabel',
+        valueKey: 'reported_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.radiologyResults.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.IMAGING_STUDIES]: {
@@ -5606,8 +7290,10 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdLabel',
-        placeholderKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdPlaceholder',
+        labelKey:
+          'clinical.resources.imagingStudies.form.radiologyOrderIdLabel',
+        placeholderKey:
+          'clinical.resources.imagingStudies.form.radiologyOrderIdPlaceholder',
         hintKey: 'clinical.resources.imagingStudies.form.radiologyOrderIdHint',
       },
       {
@@ -5615,7 +7301,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.imagingStudies.form.modalityLabel',
-        placeholderKey: 'clinical.resources.imagingStudies.form.modalityPlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingStudies.form.modalityPlaceholder',
         hintKey: 'clinical.resources.imagingStudies.form.modalityHint',
         options: RADIOLOGY_MODALITY_OPTIONS,
       },
@@ -5625,25 +7312,33 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.imagingStudies.form.performedAtLabel',
-        placeholderKey: 'clinical.resources.imagingStudies.form.performedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingStudies.form.performedAtPlaceholder',
         hintKey: 'clinical.resources.imagingStudies.form.performedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.radiology_order_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const modalityValue = sanitizeString(item?.modality);
       if (!modalityValue) return '';
       return `${t('clinical.resources.imagingStudies.detail.modalityLabel')}: ${modalityValue}`;
     },
     getInitialValues: (record, context) => ({
-      radiology_order_id: sanitizeString(record?.radiology_order_id || context?.radiologyOrderId),
+      radiology_order_id: sanitizeString(
+        record?.radiology_order_id || context?.radiologyOrderId
+      ),
       modality: sanitizeString(record?.modality || context?.modality || 'XRAY'),
-      performed_at: sanitizeString(record?.performed_at || context?.performedAt),
+      performed_at: sanitizeString(
+        record?.performed_at || context?.performedAt
+      ),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         modality: sanitizeString(values.modality),
-        performed_at: sanitizeString(values.performed_at) ? toIsoDateTime(values.performed_at) : null,
+        performed_at: sanitizeString(values.performed_at)
+          ? toIsoDateTime(values.performed_at)
+          : null,
       };
       if (!isEdit) {
         payload.radiology_order_id = sanitizeString(values.radiology_order_id);
@@ -5657,12 +7352,34 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.imagingStudies.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.imagingStudies.detail.radiologyOrderLabel', valueKey: 'radiology_order_id' },
-      { labelKey: 'clinical.resources.imagingStudies.detail.modalityLabel', valueKey: 'modality' },
-      { labelKey: 'clinical.resources.imagingStudies.detail.performedAtLabel', valueKey: 'performed_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.imagingStudies.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.imagingStudies.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.imagingStudies.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.imagingStudies.detail.radiologyOrderLabel',
+        valueKey: 'radiology_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.imagingStudies.detail.modalityLabel',
+        valueKey: 'modality',
+      },
+      {
+        labelKey: 'clinical.resources.imagingStudies.detail.performedAtLabel',
+        valueKey: 'performed_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.imagingStudies.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.imagingStudies.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.IMAGING_ASSETS]: {
@@ -5680,7 +7397,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.imagingAssets.form.imagingStudyIdLabel',
-        placeholderKey: 'clinical.resources.imagingAssets.form.imagingStudyIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingAssets.form.imagingStudyIdPlaceholder',
         hintKey: 'clinical.resources.imagingAssets.form.imagingStudyIdHint',
       },
       {
@@ -5690,7 +7408,8 @@ const resourceConfigs = {
         maxLength: 255,
         disableOnEdit: true,
         labelKey: 'clinical.resources.imagingAssets.form.storageKeyLabel',
-        placeholderKey: 'clinical.resources.imagingAssets.form.storageKeyPlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingAssets.form.storageKeyPlaceholder',
         hintKey: 'clinical.resources.imagingAssets.form.storageKeyHint',
       },
       {
@@ -5699,7 +7418,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 255,
         labelKey: 'clinical.resources.imagingAssets.form.fileNameLabel',
-        placeholderKey: 'clinical.resources.imagingAssets.form.fileNamePlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingAssets.form.fileNamePlaceholder',
         hintKey: 'clinical.resources.imagingAssets.form.fileNameHint',
       },
       {
@@ -5708,22 +7428,29 @@ const resourceConfigs = {
         required: false,
         maxLength: 120,
         labelKey: 'clinical.resources.imagingAssets.form.contentTypeLabel',
-        placeholderKey: 'clinical.resources.imagingAssets.form.contentTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.imagingAssets.form.contentTypePlaceholder',
         hintKey: 'clinical.resources.imagingAssets.form.contentTypeHint',
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.file_name) || sanitizeString(item?.storage_key) || sanitizeString(item?.id),
+      sanitizeString(item?.file_name) ||
+      sanitizeString(item?.storage_key) ||
+      sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const contentTypeValue = sanitizeString(item?.content_type);
       if (!contentTypeValue) return '';
       return `${t('clinical.resources.imagingAssets.detail.contentTypeLabel')}: ${contentTypeValue}`;
     },
     getInitialValues: (record, context) => ({
-      imaging_study_id: sanitizeString(record?.imaging_study_id || context?.imagingStudyId),
+      imaging_study_id: sanitizeString(
+        record?.imaging_study_id || context?.imagingStudyId
+      ),
       storage_key: sanitizeString(record?.storage_key),
       file_name: sanitizeString(record?.file_name),
-      content_type: sanitizeString(record?.content_type || context?.contentType),
+      content_type: sanitizeString(
+        record?.content_type || context?.contentType
+      ),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
@@ -5737,13 +7464,36 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.imagingAssets.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.imagingStudyLabel', valueKey: 'imaging_study_id' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.storageKeyLabel', valueKey: 'storage_key' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.fileNameLabel', valueKey: 'file_name' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.contentTypeLabel', valueKey: 'content_type' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.imagingAssets.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.imagingStudyLabel',
+        valueKey: 'imaging_study_id',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.storageKeyLabel',
+        valueKey: 'storage_key',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.fileNameLabel',
+        valueKey: 'file_name',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.contentTypeLabel',
+        valueKey: 'content_type',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.imagingAssets.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PACS_LINKS]: {
@@ -5761,7 +7511,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.pacsLinks.form.imagingStudyIdLabel',
-        placeholderKey: 'clinical.resources.pacsLinks.form.imagingStudyIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.pacsLinks.form.imagingStudyIdPlaceholder',
         hintKey: 'clinical.resources.pacsLinks.form.imagingStudyIdHint',
       },
       {
@@ -5779,25 +7530,31 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.pacsLinks.form.expiresAtLabel',
-        placeholderKey: 'clinical.resources.pacsLinks.form.expiresAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.pacsLinks.form.expiresAtPlaceholder',
         hintKey: 'clinical.resources.pacsLinks.form.expiresAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.url) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.url) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const imagingStudyId = sanitizeString(item?.imaging_study_id);
       if (!imagingStudyId) return '';
       return `${t('clinical.resources.pacsLinks.detail.imagingStudyLabel')}: ${imagingStudyId}`;
     },
     getInitialValues: (record, context) => ({
-      imaging_study_id: sanitizeString(record?.imaging_study_id || context?.imagingStudyId),
+      imaging_study_id: sanitizeString(
+        record?.imaging_study_id || context?.imagingStudyId
+      ),
       url: sanitizeString(record?.url),
       expires_at: sanitizeString(record?.expires_at || context?.expiresAt),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         url: sanitizeString(values.url),
-        expires_at: sanitizeString(values.expires_at) ? toIsoDateTime(values.expires_at) : null,
+        expires_at: sanitizeString(values.expires_at)
+          ? toIsoDateTime(values.expires_at)
+          : null,
       };
       if (!isEdit) {
         payload.imaging_study_id = sanitizeString(values.imaging_study_id);
@@ -5813,12 +7570,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.pacsLinks.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.pacsLinks.detail.imagingStudyLabel', valueKey: 'imaging_study_id' },
-      { labelKey: 'clinical.resources.pacsLinks.detail.urlLabel', valueKey: 'url' },
-      { labelKey: 'clinical.resources.pacsLinks.detail.expiresAtLabel', valueKey: 'expires_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.pacsLinks.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.pacsLinks.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.imagingStudyLabel',
+        valueKey: 'imaging_study_id',
+      },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.urlLabel',
+        valueKey: 'url',
+      },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.expiresAtLabel',
+        valueKey: 'expires_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.pacsLinks.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DRUGS]: {
@@ -5866,7 +7644,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.drugs.form.strengthHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const codeValue = sanitizeString(item?.code);
       if (!codeValue) return '';
@@ -5886,13 +7665,36 @@ const resourceConfigs = {
     }),
     detailRows: [
       { labelKey: 'clinical.resources.drugs.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.drugs.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.drugs.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.drugs.detail.codeLabel', valueKey: 'code' },
-      { labelKey: 'clinical.resources.drugs.detail.formLabel', valueKey: 'form' },
-      { labelKey: 'clinical.resources.drugs.detail.strengthLabel', valueKey: 'strength' },
-      { labelKey: 'clinical.resources.drugs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.drugs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.drugs.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.codeLabel',
+        valueKey: 'code',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.formLabel',
+        valueKey: 'form',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.strengthLabel',
+        valueKey: 'strength',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.drugs.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DRUG_BATCHES]: {
@@ -5919,7 +7721,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 80,
         labelKey: 'clinical.resources.drugBatches.form.batchNumberLabel',
-        placeholderKey: 'clinical.resources.drugBatches.form.batchNumberPlaceholder',
+        placeholderKey:
+          'clinical.resources.drugBatches.form.batchNumberPlaceholder',
         hintKey: 'clinical.resources.drugBatches.form.batchNumberHint',
       },
       {
@@ -5928,7 +7731,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.drugBatches.form.expiryDateLabel',
-        placeholderKey: 'clinical.resources.drugBatches.form.expiryDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.drugBatches.form.expiryDatePlaceholder',
         hintKey: 'clinical.resources.drugBatches.form.expiryDateHint',
       },
       {
@@ -5937,11 +7741,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 12,
         labelKey: 'clinical.resources.drugBatches.form.quantityLabel',
-        placeholderKey: 'clinical.resources.drugBatches.form.quantityPlaceholder',
+        placeholderKey:
+          'clinical.resources.drugBatches.form.quantityPlaceholder',
         hintKey: 'clinical.resources.drugBatches.form.quantityHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.batch_number) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.batch_number) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const drugIdValue = sanitizeString(item?.drug_id);
       if (!drugIdValue) return '';
@@ -5949,14 +7755,18 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       drug_id: sanitizeString(record?.drug_id || context?.drugId),
-      batch_number: sanitizeString(record?.batch_number || context?.batchNumber),
+      batch_number: sanitizeString(
+        record?.batch_number || context?.batchNumber
+      ),
       expiry_date: sanitizeString(record?.expiry_date),
       quantity: sanitizeString(record?.quantity),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         batch_number: sanitizeString(values.batch_number),
-        expiry_date: sanitizeString(values.expiry_date) ? toIsoDateTime(values.expiry_date) : null,
+        expiry_date: sanitizeString(values.expiry_date)
+          ? toIsoDateTime(values.expiry_date)
+          : null,
       };
       const quantity = parseOptionalInteger(values.quantity);
       if (Number.isInteger(quantity) && quantity >= 0) {
@@ -5970,19 +7780,46 @@ const resourceConfigs = {
     validate: (values, t) => {
       const errors = {};
       const expiryDateError = buildDateTimeError(values.expiry_date, t);
-      const quantityError = buildIntegerError(values.quantity, t, { min: 0, required: false });
+      const quantityError = buildIntegerError(values.quantity, t, {
+        min: 0,
+        required: false,
+      });
       if (expiryDateError) errors.expiry_date = expiryDateError;
       if (quantityError) errors.quantity = quantityError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.drugBatches.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.drugBatches.detail.drugLabel', valueKey: 'drug_id' },
-      { labelKey: 'clinical.resources.drugBatches.detail.batchNumberLabel', valueKey: 'batch_number' },
-      { labelKey: 'clinical.resources.drugBatches.detail.expiryDateLabel', valueKey: 'expiry_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.drugBatches.detail.quantityLabel', valueKey: 'quantity' },
-      { labelKey: 'clinical.resources.drugBatches.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.drugBatches.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.drugLabel',
+        valueKey: 'drug_id',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.batchNumberLabel',
+        valueKey: 'batch_number',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.expiryDateLabel',
+        valueKey: 'expiry_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.quantityLabel',
+        valueKey: 'quantity',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.drugBatches.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.FORMULARY_ITEMS]: {
@@ -6000,7 +7837,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.formularyItems.form.drugIdLabel',
-        placeholderKey: 'clinical.resources.formularyItems.form.drugIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.formularyItems.form.drugIdPlaceholder',
         hintKey: 'clinical.resources.formularyItems.form.drugIdHint',
       },
       {
@@ -6011,7 +7849,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.formularyItems.form.isActiveHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.drug_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.drug_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       if (typeof item?.is_active === 'boolean') {
         return `${t('clinical.resources.formularyItems.detail.isActiveLabel')}: ${item.is_active ? t('common.on') : t('common.off')}`;
@@ -6037,12 +7876,33 @@ const resourceConfigs = {
       return payload;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.formularyItems.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.formularyItems.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.formularyItems.detail.drugLabel', valueKey: 'drug_id' },
-      { labelKey: 'clinical.resources.formularyItems.detail.isActiveLabel', valueKey: 'is_active', type: 'boolean' },
-      { labelKey: 'clinical.resources.formularyItems.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.formularyItems.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.drugLabel',
+        valueKey: 'drug_id',
+      },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.isActiveLabel',
+        valueKey: 'is_active',
+        type: 'boolean',
+      },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.formularyItems.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PHARMACY_ORDERS]: {
@@ -6059,7 +7919,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.pharmacyOrders.form.encounterIdLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrders.form.encounterIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrders.form.encounterIdPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrders.form.encounterIdHint',
       },
       {
@@ -6068,7 +7929,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.pharmacyOrders.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrders.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrders.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrders.form.patientIdHint',
       },
       {
@@ -6076,7 +7938,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.pharmacyOrders.form.statusLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrders.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrders.form.statusPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrders.form.statusHint',
         options: PHARMACY_ORDER_STATUS_OPTIONS,
       },
@@ -6086,18 +7949,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.pharmacyOrders.form.orderedAtLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrders.form.orderedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrders.form.orderedAtPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrders.form.orderedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.patient_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.patient_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.pharmacyOrders.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      encounter_id: sanitizeString(record?.encounter_id || context?.encounterId),
+      encounter_id: sanitizeString(
+        record?.encounter_id || context?.encounterId
+      ),
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
       status: sanitizeString(record?.status || context?.status || 'ORDERED'),
       ordered_at: sanitizeString(record?.ordered_at || context?.orderedAtFrom),
@@ -6106,7 +7973,9 @@ const resourceConfigs = {
       encounter_id: sanitizeString(values.encounter_id) || null,
       patient_id: sanitizeString(values.patient_id),
       status: sanitizeString(values.status) || undefined,
-      ordered_at: sanitizeString(values.ordered_at) ? toIsoDateTime(values.ordered_at) : undefined,
+      ordered_at: sanitizeString(values.ordered_at)
+        ? toIsoDateTime(values.ordered_at)
+        : undefined,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -6115,13 +7984,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.encounterLabel', valueKey: 'encounter_id' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.pharmacyOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.encounterLabel',
+        valueKey: 'encounter_id',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.orderedAtLabel',
+        valueKey: 'ordered_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrders.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PHARMACY_ORDER_ITEMS]: {
@@ -6138,9 +8031,12 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdPlaceholder',
-        hintKey: 'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdHint',
+        labelKey:
+          'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdLabel',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdPlaceholder',
+        hintKey:
+          'clinical.resources.pharmacyOrderItems.form.pharmacyOrderIdHint',
       },
       {
         name: 'drug_id',
@@ -6149,7 +8045,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.drugIdLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.drugIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.drugIdPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.drugIdHint',
       },
       {
@@ -6158,7 +8055,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 12,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.quantityLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.quantityPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.quantityPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.quantityHint',
       },
       {
@@ -6167,7 +8065,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 80,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.dosageLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.dosagePlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.dosagePlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.dosageHint',
       },
       {
@@ -6175,7 +8074,8 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.frequencyLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.frequencyPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.frequencyPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.frequencyHint',
         options: MEDICATION_FREQUENCY_OPTIONS,
       },
@@ -6184,7 +8084,8 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.routeLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.routePlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.routePlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.routeHint',
         options: PHARMACY_ORDER_ITEM_ROUTE_OPTIONS,
       },
@@ -6193,19 +8094,23 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.pharmacyOrderItems.form.statusLabel',
-        placeholderKey: 'clinical.resources.pharmacyOrderItems.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.pharmacyOrderItems.form.statusPlaceholder',
         hintKey: 'clinical.resources.pharmacyOrderItems.form.statusHint',
         options: PRESCRIPTION_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.drug_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.drug_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.pharmacyOrderItems.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      pharmacy_order_id: sanitizeString(record?.pharmacy_order_id || context?.pharmacyOrderId),
+      pharmacy_order_id: sanitizeString(
+        record?.pharmacy_order_id || context?.pharmacyOrderId
+      ),
       drug_id: sanitizeString(record?.drug_id || context?.drugId),
       quantity: sanitizeString(record?.quantity ?? context?.quantity ?? 1),
       dosage: sanitizeString(record?.dosage || context?.dosage),
@@ -6229,21 +8134,57 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
-      const quantityError = buildIntegerError(values.quantity, t, { min: 1, required: true });
+      const quantityError = buildIntegerError(values.quantity, t, {
+        min: 1,
+        required: true,
+      });
       if (quantityError) errors.quantity = quantityError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.pharmacyOrderLabel', valueKey: 'pharmacy_order_id' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.drugLabel', valueKey: 'drug_id' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.quantityLabel', valueKey: 'quantity' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.dosageLabel', valueKey: 'dosage' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.frequencyLabel', valueKey: 'frequency' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.routeLabel', valueKey: 'route' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.pharmacyOrderItems.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.pharmacyOrderItems.detail.pharmacyOrderLabel',
+        valueKey: 'pharmacy_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.drugLabel',
+        valueKey: 'drug_id',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.quantityLabel',
+        valueKey: 'quantity',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.dosageLabel',
+        valueKey: 'dosage',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.frequencyLabel',
+        valueKey: 'frequency',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.routeLabel',
+        valueKey: 'route',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.pharmacyOrderItems.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DISPENSE_LOGS]: {
@@ -6260,8 +8201,10 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.dispenseLogs.form.pharmacyOrderItemIdLabel',
-        placeholderKey: 'clinical.resources.dispenseLogs.form.pharmacyOrderItemIdPlaceholder',
+        labelKey:
+          'clinical.resources.dispenseLogs.form.pharmacyOrderItemIdLabel',
+        placeholderKey:
+          'clinical.resources.dispenseLogs.form.pharmacyOrderItemIdPlaceholder',
         hintKey: 'clinical.resources.dispenseLogs.form.pharmacyOrderItemIdHint',
       },
       {
@@ -6269,7 +8212,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.dispenseLogs.form.statusLabel',
-        placeholderKey: 'clinical.resources.dispenseLogs.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.dispenseLogs.form.statusPlaceholder',
         hintKey: 'clinical.resources.dispenseLogs.form.statusHint',
         options: DISPENSE_LOG_STATUS_OPTIONS,
       },
@@ -6279,7 +8223,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.dispenseLogs.form.dispensedAtLabel',
-        placeholderKey: 'clinical.resources.dispenseLogs.form.dispensedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.dispenseLogs.form.dispensedAtPlaceholder',
         hintKey: 'clinical.resources.dispenseLogs.form.dispensedAtHint',
       },
       {
@@ -6288,49 +8233,88 @@ const resourceConfigs = {
         required: false,
         maxLength: 12,
         labelKey: 'clinical.resources.dispenseLogs.form.quantityDispensedLabel',
-        placeholderKey: 'clinical.resources.dispenseLogs.form.quantityDispensedPlaceholder',
+        placeholderKey:
+          'clinical.resources.dispenseLogs.form.quantityDispensedPlaceholder',
         hintKey: 'clinical.resources.dispenseLogs.form.quantityDispensedHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.pharmacy_order_item_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.pharmacy_order_item_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.dispenseLogs.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      pharmacy_order_item_id: sanitizeString(record?.pharmacy_order_item_id || context?.pharmacyOrderItemId),
+      pharmacy_order_item_id: sanitizeString(
+        record?.pharmacy_order_item_id || context?.pharmacyOrderItemId
+      ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
-      dispensed_at: sanitizeString(record?.dispensed_at || context?.dispensedAtFrom),
+      dispensed_at: sanitizeString(
+        record?.dispensed_at || context?.dispensedAtFrom
+      ),
       quantity_dispensed: sanitizeString(record?.quantity_dispensed ?? 0),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         status: sanitizeString(values.status),
-        dispensed_at: sanitizeString(values.dispensed_at) ? toIsoDateTime(values.dispensed_at) : null,
+        dispensed_at: sanitizeString(values.dispensed_at)
+          ? toIsoDateTime(values.dispensed_at)
+          : null,
         quantity_dispensed: parseRequiredInteger(values.quantity_dispensed, 0),
       };
       if (!isEdit) {
-        payload.pharmacy_order_item_id = sanitizeString(values.pharmacy_order_item_id);
+        payload.pharmacy_order_item_id = sanitizeString(
+          values.pharmacy_order_item_id
+        );
       }
       return payload;
     },
     validate: (values, t) => {
       const errors = {};
       const dispensedAtError = buildDateTimeError(values.dispensed_at, t);
-      const quantityError = buildIntegerError(values.quantity_dispensed, t, { min: 0, required: false });
+      const quantityError = buildIntegerError(values.quantity_dispensed, t, {
+        min: 0,
+        required: false,
+      });
       if (dispensedAtError) errors.dispensed_at = dispensedAtError;
       if (quantityError) errors.quantity_dispensed = quantityError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.dispenseLogs.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.pharmacyOrderItemLabel', valueKey: 'pharmacy_order_item_id' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.dispensedAtLabel', valueKey: 'dispensed_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.quantityDispensedLabel', valueKey: 'quantity_dispensed' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.dispenseLogs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.dispenseLogs.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.dispenseLogs.detail.pharmacyOrderItemLabel',
+        valueKey: 'pharmacy_order_item_id',
+      },
+      {
+        labelKey: 'clinical.resources.dispenseLogs.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.dispenseLogs.detail.dispensedAtLabel',
+        valueKey: 'dispensed_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.dispenseLogs.detail.quantityDispensedLabel',
+        valueKey: 'quantity_dispensed',
+      },
+      {
+        labelKey: 'clinical.resources.dispenseLogs.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.dispenseLogs.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ADVERSE_EVENTS]: {
@@ -6348,7 +8332,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.adverseEvents.form.patientIdLabel',
-        placeholderKey: 'clinical.resources.adverseEvents.form.patientIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.adverseEvents.form.patientIdPlaceholder',
         hintKey: 'clinical.resources.adverseEvents.form.patientIdHint',
       },
       {
@@ -6357,7 +8342,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.adverseEvents.form.drugIdLabel',
-        placeholderKey: 'clinical.resources.adverseEvents.form.drugIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.adverseEvents.form.drugIdPlaceholder',
         hintKey: 'clinical.resources.adverseEvents.form.drugIdHint',
       },
       {
@@ -6365,7 +8351,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.adverseEvents.form.severityLabel',
-        placeholderKey: 'clinical.resources.adverseEvents.form.severityPlaceholder',
+        placeholderKey:
+          'clinical.resources.adverseEvents.form.severityPlaceholder',
         hintKey: 'clinical.resources.adverseEvents.form.severityHint',
         options: ADVERSE_EVENT_SEVERITY_OPTIONS,
       },
@@ -6375,7 +8362,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 5000,
         labelKey: 'clinical.resources.adverseEvents.form.descriptionLabel',
-        placeholderKey: 'clinical.resources.adverseEvents.form.descriptionPlaceholder',
+        placeholderKey:
+          'clinical.resources.adverseEvents.form.descriptionPlaceholder',
         hintKey: 'clinical.resources.adverseEvents.form.descriptionHint',
       },
       {
@@ -6384,11 +8372,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.adverseEvents.form.reportedAtLabel',
-        placeholderKey: 'clinical.resources.adverseEvents.form.reportedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.adverseEvents.form.reportedAtPlaceholder',
         hintKey: 'clinical.resources.adverseEvents.form.reportedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.description) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.description) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const severityValue = sanitizeString(item?.severity);
       if (!severityValue) return '';
@@ -6399,14 +8389,18 @@ const resourceConfigs = {
       drug_id: sanitizeString(record?.drug_id || context?.drugId),
       severity: sanitizeString(record?.severity || context?.severity || 'MILD'),
       description: sanitizeString(record?.description),
-      reported_at: sanitizeString(record?.reported_at || context?.reportedAtFrom),
+      reported_at: sanitizeString(
+        record?.reported_at || context?.reportedAtFrom
+      ),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         drug_id: sanitizeString(values.drug_id) || null,
         severity: sanitizeString(values.severity),
         description: sanitizeString(values.description) || null,
-        reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : undefined,
+        reported_at: sanitizeString(values.reported_at)
+          ? toIsoDateTime(values.reported_at)
+          : undefined,
       };
       if (!isEdit) {
         payload.patient_id = sanitizeString(values.patient_id);
@@ -6420,14 +8414,41 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.adverseEvents.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.drugLabel', valueKey: 'drug_id' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.severityLabel', valueKey: 'severity' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.descriptionLabel', valueKey: 'description' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.adverseEvents.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.drugLabel',
+        valueKey: 'drug_id',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.severityLabel',
+        valueKey: 'severity',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.descriptionLabel',
+        valueKey: 'description',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.reportedAtLabel',
+        valueKey: 'reported_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.adverseEvents.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.INVENTORY_ITEMS]: {
@@ -6444,7 +8465,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 255,
         labelKey: 'clinical.resources.inventoryItems.form.nameLabel',
-        placeholderKey: 'clinical.resources.inventoryItems.form.namePlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryItems.form.namePlaceholder',
         hintKey: 'clinical.resources.inventoryItems.form.nameHint',
       },
       {
@@ -6452,7 +8474,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.inventoryItems.form.categoryLabel',
-        placeholderKey: 'clinical.resources.inventoryItems.form.categoryPlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryItems.form.categoryPlaceholder',
         hintKey: 'clinical.resources.inventoryItems.form.categoryHint',
         options: INVENTORY_CATEGORY_OPTIONS,
       },
@@ -6471,11 +8494,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 40,
         labelKey: 'clinical.resources.inventoryItems.form.unitLabel',
-        placeholderKey: 'clinical.resources.inventoryItems.form.unitPlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryItems.form.unitPlaceholder',
         hintKey: 'clinical.resources.inventoryItems.form.unitHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const categoryValue = sanitizeString(item?.category);
       if (!categoryValue) return '';
@@ -6483,7 +8508,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       name: sanitizeString(record?.name || context?.name),
-      category: sanitizeString(record?.category || context?.category || 'SUPPLY'),
+      category: sanitizeString(
+        record?.category || context?.category || 'SUPPLY'
+      ),
       sku: sanitizeString(record?.sku || context?.sku),
       unit: sanitizeString(record?.unit || context?.unit),
     }),
@@ -6494,14 +8521,40 @@ const resourceConfigs = {
       unit: sanitizeString(values.unit) || null,
     }),
     detailRows: [
-      { labelKey: 'clinical.resources.inventoryItems.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.categoryLabel', valueKey: 'category' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.skuLabel', valueKey: 'sku' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.unitLabel', valueKey: 'unit' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.inventoryItems.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.categoryLabel',
+        valueKey: 'category',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.skuLabel',
+        valueKey: 'sku',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.unitLabel',
+        valueKey: 'unit',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryItems.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.INVENTORY_STOCKS]: {
@@ -6518,8 +8571,10 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.inventoryStocks.form.inventoryItemIdLabel',
-        placeholderKey: 'clinical.resources.inventoryStocks.form.inventoryItemIdPlaceholder',
+        labelKey:
+          'clinical.resources.inventoryStocks.form.inventoryItemIdLabel',
+        placeholderKey:
+          'clinical.resources.inventoryStocks.form.inventoryItemIdPlaceholder',
         hintKey: 'clinical.resources.inventoryStocks.form.inventoryItemIdHint',
       },
       {
@@ -6528,7 +8583,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.inventoryStocks.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.inventoryStocks.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryStocks.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.inventoryStocks.form.facilityIdHint',
       },
       {
@@ -6537,7 +8593,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 12,
         labelKey: 'clinical.resources.inventoryStocks.form.quantityLabel',
-        placeholderKey: 'clinical.resources.inventoryStocks.form.quantityPlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryStocks.form.quantityPlaceholder',
         hintKey: 'clinical.resources.inventoryStocks.form.quantityHint',
       },
       {
@@ -6546,14 +8603,19 @@ const resourceConfigs = {
         required: true,
         maxLength: 12,
         labelKey: 'clinical.resources.inventoryStocks.form.reorderLevelLabel',
-        placeholderKey: 'clinical.resources.inventoryStocks.form.reorderLevelPlaceholder',
+        placeholderKey:
+          'clinical.resources.inventoryStocks.form.reorderLevelPlaceholder',
         hintKey: 'clinical.resources.inventoryStocks.form.reorderLevelHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
-    getItemSubtitle: (item, t) => `${t('clinical.resources.inventoryStocks.detail.quantityLabel')}: ${sanitizeString(item?.quantity) || '0'}`,
+    getItemTitle: (item) =>
+      sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
+    getItemSubtitle: (item, t) =>
+      `${t('clinical.resources.inventoryStocks.detail.quantityLabel')}: ${sanitizeString(item?.quantity) || '0'}`,
     getInitialValues: (record, context) => ({
-      inventory_item_id: sanitizeString(record?.inventory_item_id || context?.inventoryItemId),
+      inventory_item_id: sanitizeString(
+        record?.inventory_item_id || context?.inventoryItemId
+      ),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
       quantity: sanitizeString(record?.quantity),
       reorder_level: sanitizeString(record?.reorder_level ?? 0),
@@ -6571,20 +8633,50 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
-      const quantityError = buildIntegerError(values.quantity, t, { min: 0, required: true });
-      const reorderLevelError = buildIntegerError(values.reorder_level, t, { min: 0, required: true });
+      const quantityError = buildIntegerError(values.quantity, t, {
+        min: 0,
+        required: true,
+      });
+      const reorderLevelError = buildIntegerError(values.reorder_level, t, {
+        min: 0,
+        required: true,
+      });
       if (quantityError) errors.quantity = quantityError;
       if (reorderLevelError) errors.reorder_level = reorderLevelError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.inventoryStocks.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.inventoryItemLabel', valueKey: 'inventory_item_id' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.quantityLabel', valueKey: 'quantity' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.reorderLevelLabel', valueKey: 'reorder_level' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.inventoryStocks.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.inventoryStocks.detail.inventoryItemLabel',
+        valueKey: 'inventory_item_id',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.quantityLabel',
+        valueKey: 'quantity',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.reorderLevelLabel',
+        valueKey: 'reorder_level',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.inventoryStocks.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STOCK_MOVEMENTS]: {
@@ -6602,7 +8694,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.stockMovements.form.inventoryItemIdLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.inventoryItemIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.inventoryItemIdPlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.inventoryItemIdHint',
       },
       {
@@ -6611,7 +8704,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.stockMovements.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.facilityIdHint',
       },
       {
@@ -6619,7 +8713,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.stockMovements.form.movementTypeLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.movementTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.movementTypePlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.movementTypeHint',
         options: STOCK_MOVEMENT_TYPE_OPTIONS,
       },
@@ -6628,7 +8723,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.stockMovements.form.reasonLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.reasonPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.reasonPlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.reasonHint',
         options: STOCK_MOVEMENT_REASON_OPTIONS,
       },
@@ -6638,7 +8734,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 12,
         labelKey: 'clinical.resources.stockMovements.form.quantityLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.quantityPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.quantityPlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.quantityHint',
       },
       {
@@ -6647,20 +8744,26 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.stockMovements.form.occurredAtLabel',
-        placeholderKey: 'clinical.resources.stockMovements.form.occurredAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockMovements.form.occurredAtPlaceholder',
         hintKey: 'clinical.resources.stockMovements.form.occurredAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const movementTypeValue = sanitizeString(item?.movement_type);
       if (!movementTypeValue) return '';
       return `${t('clinical.resources.stockMovements.detail.movementTypeLabel')}: ${movementTypeValue}`;
     },
     getInitialValues: (record, context) => ({
-      inventory_item_id: sanitizeString(record?.inventory_item_id || context?.inventoryItemId),
+      inventory_item_id: sanitizeString(
+        record?.inventory_item_id || context?.inventoryItemId
+      ),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      movement_type: sanitizeString(record?.movement_type || context?.movementType || 'INBOUND'),
+      movement_type: sanitizeString(
+        record?.movement_type || context?.movementType || 'INBOUND'
+      ),
       reason: sanitizeString(record?.reason || context?.reason || 'OTHER'),
       quantity: sanitizeString(record?.quantity),
       occurred_at: sanitizeString(record?.occurred_at),
@@ -6671,7 +8774,9 @@ const resourceConfigs = {
         movement_type: sanitizeString(values.movement_type),
         reason: sanitizeString(values.reason),
         quantity: parseRequiredInteger(values.quantity, 0),
-        occurred_at: sanitizeString(values.occurred_at) ? toIsoDateTime(values.occurred_at) : undefined,
+        occurred_at: sanitizeString(values.occurred_at)
+          ? toIsoDateTime(values.occurred_at)
+          : undefined,
       };
       if (!isEdit) {
         payload.inventory_item_id = sanitizeString(values.inventory_item_id);
@@ -6680,22 +8785,54 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
-      const quantityError = buildIntegerError(values.quantity, t, { required: true });
+      const quantityError = buildIntegerError(values.quantity, t, {
+        required: true,
+      });
       const occurredAtError = buildDateTimeError(values.occurred_at, t);
       if (quantityError) errors.quantity = quantityError;
       if (occurredAtError) errors.occurred_at = occurredAtError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.stockMovements.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.stockMovements.detail.inventoryItemLabel', valueKey: 'inventory_item_id' },
-      { labelKey: 'clinical.resources.stockMovements.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.stockMovements.detail.movementTypeLabel', valueKey: 'movement_type' },
-      { labelKey: 'clinical.resources.stockMovements.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.stockMovements.detail.quantityLabel', valueKey: 'quantity' },
-      { labelKey: 'clinical.resources.stockMovements.detail.occurredAtLabel', valueKey: 'occurred_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.stockMovements.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.stockMovements.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.inventoryItemLabel',
+        valueKey: 'inventory_item_id',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.movementTypeLabel',
+        valueKey: 'movement_type',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.quantityLabel',
+        valueKey: 'quantity',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.occurredAtLabel',
+        valueKey: 'occurred_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.stockMovements.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.SUPPLIERS]: {
@@ -6721,7 +8858,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 255,
         labelKey: 'clinical.resources.suppliers.form.contactEmailLabel',
-        placeholderKey: 'clinical.resources.suppliers.form.contactEmailPlaceholder',
+        placeholderKey:
+          'clinical.resources.suppliers.form.contactEmailPlaceholder',
         hintKey: 'clinical.resources.suppliers.form.contactEmailHint',
       },
       {
@@ -6734,7 +8872,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.suppliers.form.phoneHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const contactEmailValue = sanitizeString(item?.contact_email);
       if (!contactEmailValue) return '';
@@ -6742,7 +8881,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       name: sanitizeString(record?.name || context?.name),
-      contact_email: sanitizeString(record?.contact_email || context?.contactEmail),
+      contact_email: sanitizeString(
+        record?.contact_email || context?.contactEmail
+      ),
       phone: sanitizeString(record?.phone),
     }),
     toPayload: (values) => ({
@@ -6757,13 +8898,36 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.suppliers.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.suppliers.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.suppliers.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.suppliers.detail.contactEmailLabel', valueKey: 'contact_email' },
-      { labelKey: 'clinical.resources.suppliers.detail.phoneLabel', valueKey: 'phone' },
-      { labelKey: 'clinical.resources.suppliers.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.suppliers.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.contactEmailLabel',
+        valueKey: 'contact_email',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.phoneLabel',
+        valueKey: 'phone',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.suppliers.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PURCHASE_REQUESTS]: {
@@ -6781,7 +8945,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.purchaseRequests.form.tenantIdLabel',
-        placeholderKey: 'clinical.resources.purchaseRequests.form.tenantIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseRequests.form.tenantIdPlaceholder',
         hintKey: 'clinical.resources.purchaseRequests.form.tenantIdHint',
       },
       {
@@ -6790,7 +8955,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.purchaseRequests.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.purchaseRequests.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseRequests.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.purchaseRequests.form.facilityIdHint',
       },
       {
@@ -6798,9 +8964,12 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.purchaseRequests.form.requestedByUserIdLabel',
-        placeholderKey: 'clinical.resources.purchaseRequests.form.requestedByUserIdPlaceholder',
-        hintKey: 'clinical.resources.purchaseRequests.form.requestedByUserIdHint',
+        labelKey:
+          'clinical.resources.purchaseRequests.form.requestedByUserIdLabel',
+        placeholderKey:
+          'clinical.resources.purchaseRequests.form.requestedByUserIdPlaceholder',
+        hintKey:
+          'clinical.resources.purchaseRequests.form.requestedByUserIdHint',
       },
       {
         name: 'status',
@@ -6808,7 +8977,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 60,
         labelKey: 'clinical.resources.purchaseRequests.form.statusLabel',
-        placeholderKey: 'clinical.resources.purchaseRequests.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseRequests.form.statusPlaceholder',
         hintKey: 'clinical.resources.purchaseRequests.form.statusHint',
       },
       {
@@ -6817,11 +8987,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.purchaseRequests.form.requestedAtLabel',
-        placeholderKey: 'clinical.resources.purchaseRequests.form.requestedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseRequests.form.requestedAtPlaceholder',
         hintKey: 'clinical.resources.purchaseRequests.form.requestedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.status) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.status) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const requestedByUserIdValue = sanitizeString(item?.requested_by_user_id);
       if (!requestedByUserIdValue) return '';
@@ -6830,16 +9002,23 @@ const resourceConfigs = {
     getInitialValues: (record, context) => ({
       tenant_id: sanitizeString(record?.tenant_id || context?.tenantId),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      requested_by_user_id: sanitizeString(record?.requested_by_user_id || context?.requestedByUserId),
+      requested_by_user_id: sanitizeString(
+        record?.requested_by_user_id || context?.requestedByUserId
+      ),
       status: sanitizeString(record?.status || context?.status),
-      requested_at: sanitizeString(record?.requested_at || context?.requestedAtFrom),
+      requested_at: sanitizeString(
+        record?.requested_at || context?.requestedAtFrom
+      ),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         facility_id: sanitizeString(values.facility_id) || null,
-        requested_by_user_id: sanitizeString(values.requested_by_user_id) || null,
+        requested_by_user_id:
+          sanitizeString(values.requested_by_user_id) || null,
         status: sanitizeString(values.status),
-        requested_at: sanitizeString(values.requested_at) ? toIsoDateTime(values.requested_at) : undefined,
+        requested_at: sanitizeString(values.requested_at)
+          ? toIsoDateTime(values.requested_at)
+          : undefined,
       };
       if (!isEdit) {
         payload.tenant_id = sanitizeString(values.tenant_id);
@@ -6853,14 +9032,42 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.purchaseRequests.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.requestedByUserLabel', valueKey: 'requested_by_user_id' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.requestedAtLabel', valueKey: 'requested_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.purchaseRequests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.purchaseRequests.detail.requestedByUserLabel',
+        valueKey: 'requested_by_user_id',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.requestedAtLabel',
+        valueKey: 'requested_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseRequests.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PURCHASE_ORDERS]: {
@@ -6876,8 +9083,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.purchaseOrders.form.purchaseRequestIdLabel',
-        placeholderKey: 'clinical.resources.purchaseOrders.form.purchaseRequestIdPlaceholder',
+        labelKey:
+          'clinical.resources.purchaseOrders.form.purchaseRequestIdLabel',
+        placeholderKey:
+          'clinical.resources.purchaseOrders.form.purchaseRequestIdPlaceholder',
         hintKey: 'clinical.resources.purchaseOrders.form.purchaseRequestIdHint',
       },
       {
@@ -6886,7 +9095,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.purchaseOrders.form.supplierIdLabel',
-        placeholderKey: 'clinical.resources.purchaseOrders.form.supplierIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseOrders.form.supplierIdPlaceholder',
         hintKey: 'clinical.resources.purchaseOrders.form.supplierIdHint',
       },
       {
@@ -6895,7 +9105,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 60,
         labelKey: 'clinical.resources.purchaseOrders.form.statusLabel',
-        placeholderKey: 'clinical.resources.purchaseOrders.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseOrders.form.statusPlaceholder',
         hintKey: 'clinical.resources.purchaseOrders.form.statusHint',
       },
       {
@@ -6904,18 +9115,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.purchaseOrders.form.orderedAtLabel',
-        placeholderKey: 'clinical.resources.purchaseOrders.form.orderedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.purchaseOrders.form.orderedAtPlaceholder',
         hintKey: 'clinical.resources.purchaseOrders.form.orderedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.status) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.status) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const supplierIdValue = sanitizeString(item?.supplier_id);
       if (!supplierIdValue) return '';
       return `${t('clinical.resources.purchaseOrders.detail.supplierLabel')}: ${supplierIdValue}`;
     },
     getInitialValues: (record, context) => ({
-      purchase_request_id: sanitizeString(record?.purchase_request_id || context?.purchaseRequestId),
+      purchase_request_id: sanitizeString(
+        record?.purchase_request_id || context?.purchaseRequestId
+      ),
       supplier_id: sanitizeString(record?.supplier_id || context?.supplierId),
       status: sanitizeString(record?.status || context?.status),
       ordered_at: sanitizeString(record?.ordered_at),
@@ -6924,7 +9139,9 @@ const resourceConfigs = {
       purchase_request_id: sanitizeString(values.purchase_request_id) || null,
       supplier_id: sanitizeString(values.supplier_id) || null,
       status: sanitizeString(values.status),
-      ordered_at: sanitizeString(values.ordered_at) ? toIsoDateTime(values.ordered_at) : undefined,
+      ordered_at: sanitizeString(values.ordered_at)
+        ? toIsoDateTime(values.ordered_at)
+        : undefined,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -6933,13 +9150,38 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.purchaseOrders.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.purchaseRequestLabel', valueKey: 'purchase_request_id' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.supplierLabel', valueKey: 'supplier_id' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.orderedAtLabel', valueKey: 'ordered_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.purchaseOrders.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.purchaseOrders.detail.purchaseRequestLabel',
+        valueKey: 'purchase_request_id',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.supplierLabel',
+        valueKey: 'supplier_id',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.orderedAtLabel',
+        valueKey: 'ordered_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.purchaseOrders.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.GOODS_RECEIPTS]: {
@@ -6957,7 +9199,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.goodsReceipts.form.purchaseOrderIdLabel',
-        placeholderKey: 'clinical.resources.goodsReceipts.form.purchaseOrderIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.goodsReceipts.form.purchaseOrderIdPlaceholder',
         hintKey: 'clinical.resources.goodsReceipts.form.purchaseOrderIdHint',
       },
       {
@@ -6966,7 +9209,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.goodsReceipts.form.receivedAtLabel',
-        placeholderKey: 'clinical.resources.goodsReceipts.form.receivedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.goodsReceipts.form.receivedAtPlaceholder',
         hintKey: 'clinical.resources.goodsReceipts.form.receivedAtHint',
       },
       {
@@ -6975,24 +9219,30 @@ const resourceConfigs = {
         required: true,
         maxLength: 60,
         labelKey: 'clinical.resources.goodsReceipts.form.statusLabel',
-        placeholderKey: 'clinical.resources.goodsReceipts.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.goodsReceipts.form.statusPlaceholder',
         hintKey: 'clinical.resources.goodsReceipts.form.statusHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.purchase_order_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.purchase_order_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.goodsReceipts.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      purchase_order_id: sanitizeString(record?.purchase_order_id || context?.purchaseOrderId),
+      purchase_order_id: sanitizeString(
+        record?.purchase_order_id || context?.purchaseOrderId
+      ),
       received_at: sanitizeString(record?.received_at),
       status: sanitizeString(record?.status || context?.status),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
-        received_at: sanitizeString(values.received_at) ? toIsoDateTime(values.received_at) : undefined,
+        received_at: sanitizeString(values.received_at)
+          ? toIsoDateTime(values.received_at)
+          : undefined,
         status: sanitizeString(values.status),
       };
       if (!isEdit) {
@@ -7007,12 +9257,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.goodsReceipts.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.goodsReceipts.detail.purchaseOrderLabel', valueKey: 'purchase_order_id' },
-      { labelKey: 'clinical.resources.goodsReceipts.detail.receivedAtLabel', valueKey: 'received_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.goodsReceipts.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.goodsReceipts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.goodsReceipts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.purchaseOrderLabel',
+        valueKey: 'purchase_order_id',
+      },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.receivedAtLabel',
+        valueKey: 'received_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.goodsReceipts.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS]: {
@@ -7029,8 +9300,10 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.stockAdjustments.form.inventoryItemIdLabel',
-        placeholderKey: 'clinical.resources.stockAdjustments.form.inventoryItemIdPlaceholder',
+        labelKey:
+          'clinical.resources.stockAdjustments.form.inventoryItemIdLabel',
+        placeholderKey:
+          'clinical.resources.stockAdjustments.form.inventoryItemIdPlaceholder',
         hintKey: 'clinical.resources.stockAdjustments.form.inventoryItemIdHint',
       },
       {
@@ -7039,7 +9312,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.stockAdjustments.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.stockAdjustments.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockAdjustments.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.stockAdjustments.form.facilityIdHint',
       },
       {
@@ -7048,7 +9322,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 12,
         labelKey: 'clinical.resources.stockAdjustments.form.quantityLabel',
-        placeholderKey: 'clinical.resources.stockAdjustments.form.quantityPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockAdjustments.form.quantityPlaceholder',
         hintKey: 'clinical.resources.stockAdjustments.form.quantityHint',
       },
       {
@@ -7056,7 +9331,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.stockAdjustments.form.reasonLabel',
-        placeholderKey: 'clinical.resources.stockAdjustments.form.reasonPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockAdjustments.form.reasonPlaceholder',
         hintKey: 'clinical.resources.stockAdjustments.form.reasonHint',
         options: STOCK_ADJUSTMENT_REASON_OPTIONS,
       },
@@ -7066,18 +9342,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.stockAdjustments.form.adjustedAtLabel',
-        placeholderKey: 'clinical.resources.stockAdjustments.form.adjustedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.stockAdjustments.form.adjustedAtPlaceholder',
         hintKey: 'clinical.resources.stockAdjustments.form.adjustedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.inventory_item_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const reasonValue = sanitizeString(item?.reason);
       if (!reasonValue) return '';
       return `${t('clinical.resources.stockAdjustments.detail.reasonLabel')}: ${reasonValue}`;
     },
     getInitialValues: (record, context) => ({
-      inventory_item_id: sanitizeString(record?.inventory_item_id || context?.inventoryItemId),
+      inventory_item_id: sanitizeString(
+        record?.inventory_item_id || context?.inventoryItemId
+      ),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
       quantity: sanitizeString(record?.quantity),
       reason: sanitizeString(record?.reason || context?.reason || 'CORRECTION'),
@@ -7088,7 +9368,9 @@ const resourceConfigs = {
         facility_id: sanitizeString(values.facility_id) || null,
         quantity: parseRequiredInteger(values.quantity, 0),
         reason: sanitizeString(values.reason),
-        adjusted_at: sanitizeString(values.adjusted_at) ? toIsoDateTime(values.adjusted_at) : undefined,
+        adjusted_at: sanitizeString(values.adjusted_at)
+          ? toIsoDateTime(values.adjusted_at)
+          : undefined,
       };
       if (!isEdit) {
         payload.inventory_item_id = sanitizeString(values.inventory_item_id);
@@ -7097,21 +9379,51 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
-      const quantityError = buildIntegerError(values.quantity, t, { required: true });
+      const quantityError = buildIntegerError(values.quantity, t, {
+        required: true,
+      });
       const adjustedAtError = buildDateTimeError(values.adjusted_at, t);
       if (quantityError) errors.quantity = quantityError;
       if (adjustedAtError) errors.adjusted_at = adjustedAtError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.stockAdjustments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.inventoryItemLabel', valueKey: 'inventory_item_id' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.quantityLabel', valueKey: 'quantity' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.adjustedAtLabel', valueKey: 'adjusted_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.stockAdjustments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.stockAdjustments.detail.inventoryItemLabel',
+        valueKey: 'inventory_item_id',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.quantityLabel',
+        valueKey: 'quantity',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.adjustedAtLabel',
+        valueKey: 'adjusted_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.stockAdjustments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PRICING_RULES]: {
@@ -7122,7 +9434,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -7137,7 +9450,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -7158,7 +9472,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.invoices.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.invoices.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.invoices.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.invoices.form.facilityIdHint',
       },
       {
@@ -7184,7 +9499,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.invoices.form.billingStatusLabel',
-        placeholderKey: 'clinical.resources.invoices.form.billingStatusPlaceholder',
+        placeholderKey:
+          'clinical.resources.invoices.form.billingStatusPlaceholder',
         hintKey: 'clinical.resources.invoices.form.billingStatusHint',
         options: BILLING_STATUS_OPTIONS,
       },
@@ -7194,7 +9510,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 24,
         labelKey: 'clinical.resources.invoices.form.totalAmountLabel',
-        placeholderKey: 'clinical.resources.invoices.form.totalAmountPlaceholder',
+        placeholderKey:
+          'clinical.resources.invoices.form.totalAmountPlaceholder',
         hintKey: 'clinical.resources.invoices.form.totalAmountHint',
       },
       {
@@ -7216,7 +9533,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.invoices.form.issuedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.id) || sanitizeString(item?.patient_id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.id) || sanitizeString(item?.patient_id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -7226,7 +9544,9 @@ const resourceConfigs = {
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
       status: sanitizeString(record?.status || context?.status || 'DRAFT'),
-      billing_status: sanitizeString(record?.billing_status || context?.billingStatus || 'DRAFT'),
+      billing_status: sanitizeString(
+        record?.billing_status || context?.billingStatus || 'DRAFT'
+      ),
       total_amount: sanitizeString(record?.total_amount),
       currency: sanitizeString(record?.currency || 'USD'),
       issued_at: sanitizeString(record?.issued_at),
@@ -7238,28 +9558,68 @@ const resourceConfigs = {
       billing_status: sanitizeString(values.billing_status),
       total_amount: sanitizeString(values.total_amount),
       currency: sanitizeString(values.currency),
-      issued_at: sanitizeString(values.issued_at) ? toIsoDateTime(values.issued_at) : undefined,
+      issued_at: sanitizeString(values.issued_at)
+        ? toIsoDateTime(values.issued_at)
+        : undefined,
     }),
     validate: (values, t) => {
       const errors = {};
       const issuedAtError = buildDateTimeError(values.issued_at, t);
-      const totalAmountError = buildDecimalError(values.total_amount, t, { required: true });
+      const totalAmountError = buildDecimalError(values.total_amount, t, {
+        required: true,
+      });
       if (issuedAtError) errors.issued_at = issuedAtError;
       if (totalAmountError) errors.total_amount = totalAmountError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.invoices.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.invoices.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.invoices.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.invoices.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.invoices.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.invoices.detail.billingStatusLabel', valueKey: 'billing_status' },
-      { labelKey: 'clinical.resources.invoices.detail.totalAmountLabel', valueKey: 'total_amount' },
-      { labelKey: 'clinical.resources.invoices.detail.currencyLabel', valueKey: 'currency' },
-      { labelKey: 'clinical.resources.invoices.detail.issuedAtLabel', valueKey: 'issued_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.invoices.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.invoices.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.invoices.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.billingStatusLabel',
+        valueKey: 'billing_status',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.totalAmountLabel',
+        valueKey: 'total_amount',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.currencyLabel',
+        valueKey: 'currency',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.issuedAtLabel',
+        valueKey: 'issued_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.invoices.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PAYMENTS]: {
@@ -7276,7 +9636,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.payments.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.payments.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.payments.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.payments.form.facilityIdHint',
       },
       {
@@ -7340,11 +9701,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 120,
         labelKey: 'clinical.resources.payments.form.transactionRefLabel',
-        placeholderKey: 'clinical.resources.payments.form.transactionRefPlaceholder',
+        placeholderKey:
+          'clinical.resources.payments.form.transactionRefPlaceholder',
         hintKey: 'clinical.resources.payments.form.transactionRefHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const methodValue = sanitizeString(item?.method);
       if (!methodValue) return '';
@@ -7367,7 +9730,9 @@ const resourceConfigs = {
         status: sanitizeString(values.status),
         method: sanitizeString(values.method),
         amount: sanitizeString(values.amount),
-        paid_at: sanitizeString(values.paid_at) ? toIsoDateTime(values.paid_at) : null,
+        paid_at: sanitizeString(values.paid_at)
+          ? toIsoDateTime(values.paid_at)
+          : null,
         transaction_ref: sanitizeString(values.transaction_ref) || null,
       };
       if (!isEdit) {
@@ -7378,24 +9743,65 @@ const resourceConfigs = {
     validate: (values, t) => {
       const errors = {};
       const paidAtError = buildDateTimeError(values.paid_at, t);
-      const amountError = buildDecimalError(values.amount, t, { required: true });
+      const amountError = buildDecimalError(values.amount, t, {
+        required: true,
+      });
       if (paidAtError) errors.paid_at = paidAtError;
       if (amountError) errors.amount = amountError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.payments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.payments.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.payments.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.payments.detail.patientLabel', valueKey: 'patient_id' },
-      { labelKey: 'clinical.resources.payments.detail.invoiceLabel', valueKey: 'invoice_id' },
-      { labelKey: 'clinical.resources.payments.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.payments.detail.methodLabel', valueKey: 'method' },
-      { labelKey: 'clinical.resources.payments.detail.amountLabel', valueKey: 'amount' },
-      { labelKey: 'clinical.resources.payments.detail.paidAtLabel', valueKey: 'paid_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.payments.detail.transactionRefLabel', valueKey: 'transaction_ref' },
-      { labelKey: 'clinical.resources.payments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.payments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.payments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.patientLabel',
+        valueKey: 'patient_id',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.invoiceLabel',
+        valueKey: 'invoice_id',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.methodLabel',
+        valueKey: 'method',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.amountLabel',
+        valueKey: 'amount',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.paidAtLabel',
+        valueKey: 'paid_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.transactionRefLabel',
+        valueKey: 'transaction_ref',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.payments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.REFUNDS]: {
@@ -7444,7 +9850,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.refunds.form.reasonHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.payment_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.payment_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const amountValue = sanitizeString(item?.amount);
       if (!amountValue) return '';
@@ -7459,7 +9866,9 @@ const resourceConfigs = {
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
         amount: sanitizeString(values.amount),
-        refunded_at: sanitizeString(values.refunded_at) ? toIsoDateTime(values.refunded_at) : undefined,
+        refunded_at: sanitizeString(values.refunded_at)
+          ? toIsoDateTime(values.refunded_at)
+          : undefined,
         reason: sanitizeString(values.reason) || null,
       };
       if (!isEdit) {
@@ -7470,19 +9879,42 @@ const resourceConfigs = {
     validate: (values, t) => {
       const errors = {};
       const refundedAtError = buildDateTimeError(values.refunded_at, t);
-      const amountError = buildDecimalError(values.amount, t, { required: true });
+      const amountError = buildDecimalError(values.amount, t, {
+        required: true,
+      });
       if (refundedAtError) errors.refunded_at = refundedAtError;
       if (amountError) errors.amount = amountError;
       return errors;
     },
     detailRows: [
       { labelKey: 'clinical.resources.refunds.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.refunds.detail.paymentLabel', valueKey: 'payment_id' },
-      { labelKey: 'clinical.resources.refunds.detail.amountLabel', valueKey: 'amount' },
-      { labelKey: 'clinical.resources.refunds.detail.refundedAtLabel', valueKey: 'refunded_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.refunds.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.refunds.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.refunds.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.refunds.detail.paymentLabel',
+        valueKey: 'payment_id',
+      },
+      {
+        labelKey: 'clinical.resources.refunds.detail.amountLabel',
+        valueKey: 'amount',
+      },
+      {
+        labelKey: 'clinical.resources.refunds.detail.refundedAtLabel',
+        valueKey: 'refunded_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.refunds.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey: 'clinical.resources.refunds.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.refunds.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS]: {
@@ -7499,7 +9931,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdLabel',
-        placeholderKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.insuranceClaims.form.coveragePlanIdPlaceholder',
         hintKey: 'clinical.resources.insuranceClaims.form.coveragePlanIdHint',
       },
       {
@@ -7508,7 +9941,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.insuranceClaims.form.invoiceIdLabel',
-        placeholderKey: 'clinical.resources.insuranceClaims.form.invoiceIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.insuranceClaims.form.invoiceIdPlaceholder',
         hintKey: 'clinical.resources.insuranceClaims.form.invoiceIdHint',
       },
       {
@@ -7516,7 +9950,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.insuranceClaims.form.statusLabel',
-        placeholderKey: 'clinical.resources.insuranceClaims.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.insuranceClaims.form.statusPlaceholder',
         hintKey: 'clinical.resources.insuranceClaims.form.statusHint',
         options: INSURANCE_CLAIM_STATUS_OPTIONS,
       },
@@ -7526,18 +9961,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.insuranceClaims.form.submittedAtLabel',
-        placeholderKey: 'clinical.resources.insuranceClaims.form.submittedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.insuranceClaims.form.submittedAtPlaceholder',
         hintKey: 'clinical.resources.insuranceClaims.form.submittedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.insuranceClaims.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      coverage_plan_id: sanitizeString(record?.coverage_plan_id || context?.coveragePlanId),
+      coverage_plan_id: sanitizeString(
+        record?.coverage_plan_id || context?.coveragePlanId
+      ),
       invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
       status: sanitizeString(record?.status || context?.status || 'SUBMITTED'),
       submitted_at: sanitizeString(record?.submitted_at),
@@ -7546,7 +9985,9 @@ const resourceConfigs = {
       coverage_plan_id: sanitizeString(values.coverage_plan_id),
       invoice_id: sanitizeString(values.invoice_id),
       status: sanitizeString(values.status) || undefined,
-      submitted_at: sanitizeString(values.submitted_at) ? toIsoDateTime(values.submitted_at) : undefined,
+      submitted_at: sanitizeString(values.submitted_at)
+        ? toIsoDateTime(values.submitted_at)
+        : undefined,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -7555,13 +9996,37 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.insuranceClaims.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.coveragePlanLabel', valueKey: 'coverage_plan_id' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.invoiceLabel', valueKey: 'invoice_id' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.submittedAtLabel', valueKey: 'submitted_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.insuranceClaims.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.coveragePlanLabel',
+        valueKey: 'coverage_plan_id',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.invoiceLabel',
+        valueKey: 'invoice_id',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.submittedAtLabel',
+        valueKey: 'submitted_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.insuranceClaims.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS]: {
@@ -7577,8 +10042,10 @@ const resourceConfigs = {
         type: 'text',
         required: true,
         maxLength: 64,
-        labelKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdLabel',
-        placeholderKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdPlaceholder',
+        labelKey:
+          'clinical.resources.preAuthorizations.form.coveragePlanIdLabel',
+        placeholderKey:
+          'clinical.resources.preAuthorizations.form.coveragePlanIdPlaceholder',
         hintKey: 'clinical.resources.preAuthorizations.form.coveragePlanIdHint',
       },
       {
@@ -7586,7 +10053,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.preAuthorizations.form.statusLabel',
-        placeholderKey: 'clinical.resources.preAuthorizations.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.preAuthorizations.form.statusPlaceholder',
         hintKey: 'clinical.resources.preAuthorizations.form.statusHint',
         options: PRE_AUTHORIZATION_STATUS_OPTIONS,
       },
@@ -7596,7 +10064,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.preAuthorizations.form.requestedAtLabel',
-        placeholderKey: 'clinical.resources.preAuthorizations.form.requestedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.preAuthorizations.form.requestedAtPlaceholder',
         hintKey: 'clinical.resources.preAuthorizations.form.requestedAtHint',
       },
       {
@@ -7605,18 +10074,22 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.preAuthorizations.form.approvedAtLabel',
-        placeholderKey: 'clinical.resources.preAuthorizations.form.approvedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.preAuthorizations.form.approvedAtPlaceholder',
         hintKey: 'clinical.resources.preAuthorizations.form.approvedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.coverage_plan_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.coverage_plan_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.preAuthorizations.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      coverage_plan_id: sanitizeString(record?.coverage_plan_id || context?.coveragePlanId),
+      coverage_plan_id: sanitizeString(
+        record?.coverage_plan_id || context?.coveragePlanId
+      ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       requested_at: sanitizeString(record?.requested_at),
       approved_at: sanitizeString(record?.approved_at),
@@ -7624,8 +10097,12 @@ const resourceConfigs = {
     toPayload: (values) => ({
       coverage_plan_id: sanitizeString(values.coverage_plan_id),
       status: sanitizeString(values.status) || undefined,
-      requested_at: sanitizeString(values.requested_at) ? toIsoDateTime(values.requested_at) : undefined,
-      approved_at: sanitizeString(values.approved_at) ? toIsoDateTime(values.approved_at) : null,
+      requested_at: sanitizeString(values.requested_at)
+        ? toIsoDateTime(values.requested_at)
+        : undefined,
+      approved_at: sanitizeString(values.approved_at)
+        ? toIsoDateTime(values.approved_at)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -7636,13 +10113,40 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.preAuthorizations.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.coveragePlanLabel', valueKey: 'coverage_plan_id' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.requestedAtLabel', valueKey: 'requested_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.approvedAtLabel', valueKey: 'approved_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.preAuthorizations.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.preAuthorizations.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.preAuthorizations.detail.coveragePlanLabel',
+        valueKey: 'coverage_plan_id',
+      },
+      {
+        labelKey: 'clinical.resources.preAuthorizations.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey:
+          'clinical.resources.preAuthorizations.detail.requestedAtLabel',
+        valueKey: 'requested_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.preAuthorizations.detail.approvedAtLabel',
+        valueKey: 'approved_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.preAuthorizations.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.preAuthorizations.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS]: {
@@ -7660,7 +10164,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.billingAdjustments.form.invoiceIdLabel',
-        placeholderKey: 'clinical.resources.billingAdjustments.form.invoiceIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.billingAdjustments.form.invoiceIdPlaceholder',
         hintKey: 'clinical.resources.billingAdjustments.form.invoiceIdHint',
       },
       {
@@ -7669,7 +10174,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 24,
         labelKey: 'clinical.resources.billingAdjustments.form.amountLabel',
-        placeholderKey: 'clinical.resources.billingAdjustments.form.amountPlaceholder',
+        placeholderKey:
+          'clinical.resources.billingAdjustments.form.amountPlaceholder',
         hintKey: 'clinical.resources.billingAdjustments.form.amountHint',
       },
       {
@@ -7677,7 +10183,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.billingAdjustments.form.statusLabel',
-        placeholderKey: 'clinical.resources.billingAdjustments.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.billingAdjustments.form.statusPlaceholder',
         hintKey: 'clinical.resources.billingAdjustments.form.statusHint',
         options: BILLING_STATUS_OPTIONS,
       },
@@ -7687,7 +10194,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 255,
         labelKey: 'clinical.resources.billingAdjustments.form.reasonLabel',
-        placeholderKey: 'clinical.resources.billingAdjustments.form.reasonPlaceholder',
+        placeholderKey:
+          'clinical.resources.billingAdjustments.form.reasonPlaceholder',
         hintKey: 'clinical.resources.billingAdjustments.form.reasonHint',
       },
       {
@@ -7696,11 +10204,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.billingAdjustments.form.adjustedAtLabel',
-        placeholderKey: 'clinical.resources.billingAdjustments.form.adjustedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.billingAdjustments.form.adjustedAtPlaceholder',
         hintKey: 'clinical.resources.billingAdjustments.form.adjustedAtHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -7718,7 +10228,9 @@ const resourceConfigs = {
         amount: Number.parseFloat(sanitizeString(values.amount)),
         status: sanitizeString(values.status),
         reason: sanitizeString(values.reason) || null,
-        adjusted_at: sanitizeString(values.adjusted_at) ? toIsoDateTime(values.adjusted_at) : undefined,
+        adjusted_at: sanitizeString(values.adjusted_at)
+          ? toIsoDateTime(values.adjusted_at)
+          : undefined,
       };
       if (!isEdit) {
         payload.invoice_id = sanitizeString(values.invoice_id);
@@ -7736,14 +10248,42 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.billingAdjustments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.invoiceLabel', valueKey: 'invoice_id' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.amountLabel', valueKey: 'amount' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.adjustedAtLabel', valueKey: 'adjusted_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.billingAdjustments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.invoiceLabel',
+        valueKey: 'invoice_id',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.amountLabel',
+        valueKey: 'amount',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey:
+          'clinical.resources.billingAdjustments.detail.adjustedAtLabel',
+        valueKey: 'adjusted_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.billingAdjustments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STAFF_POSITIONS]: {
@@ -7760,7 +10300,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffPositions.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.staffPositions.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffPositions.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.staffPositions.form.facilityIdHint',
       },
       {
@@ -7769,7 +10310,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffPositions.form.departmentIdLabel',
-        placeholderKey: 'clinical.resources.staffPositions.form.departmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffPositions.form.departmentIdPlaceholder',
         hintKey: 'clinical.resources.staffPositions.form.departmentIdHint',
       },
       {
@@ -7778,7 +10320,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 120,
         labelKey: 'clinical.resources.staffPositions.form.nameLabel',
-        placeholderKey: 'clinical.resources.staffPositions.form.namePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffPositions.form.namePlaceholder',
         hintKey: 'clinical.resources.staffPositions.form.nameHint',
       },
       {
@@ -7787,7 +10330,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 255,
         labelKey: 'clinical.resources.staffPositions.form.descriptionLabel',
-        placeholderKey: 'clinical.resources.staffPositions.form.descriptionPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffPositions.form.descriptionPlaceholder',
         hintKey: 'clinical.resources.staffPositions.form.descriptionHint',
       },
       {
@@ -7798,7 +10342,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.staffPositions.form.isActiveHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       if (typeof item?.is_active === 'boolean') {
         return `${t('clinical.resources.staffPositions.detail.isActiveLabel')}: ${item.is_active ? t('common.on') : t('common.off')}`;
@@ -7807,7 +10352,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      department_id: sanitizeString(
+        record?.department_id || context?.departmentId
+      ),
       name: sanitizeString(record?.name || context?.name),
       description: sanitizeString(record?.description),
       is_active:
@@ -7826,15 +10373,45 @@ const resourceConfigs = {
     }),
     validate: () => ({}),
     detailRows: [
-      { labelKey: 'clinical.resources.staffPositions.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.staffPositions.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.staffPositions.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.staffPositions.detail.departmentLabel', valueKey: 'department_id' },
-      { labelKey: 'clinical.resources.staffPositions.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.staffPositions.detail.descriptionLabel', valueKey: 'description' },
-      { labelKey: 'clinical.resources.staffPositions.detail.isActiveLabel', valueKey: 'is_active', type: 'boolean' },
-      { labelKey: 'clinical.resources.staffPositions.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffPositions.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.departmentLabel',
+        valueKey: 'department_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.descriptionLabel',
+        valueKey: 'description',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.isActiveLabel',
+        valueKey: 'is_active',
+        type: 'boolean',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffPositions.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STAFF_PROFILES]: {
@@ -7852,7 +10429,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.staffProfiles.form.userIdLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.userIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.userIdPlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.userIdHint',
       },
       {
@@ -7861,7 +10439,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffProfiles.form.departmentIdLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.departmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.departmentIdPlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.departmentIdHint',
       },
       {
@@ -7870,7 +10449,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 80,
         labelKey: 'clinical.resources.staffProfiles.form.staffNumberLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.staffNumberPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.staffNumberPlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.staffNumberHint',
       },
       {
@@ -7879,7 +10459,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 120,
         labelKey: 'clinical.resources.staffProfiles.form.positionLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.positionPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.positionPlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.positionHint',
       },
       {
@@ -7887,13 +10468,19 @@ const resourceConfigs = {
         type: 'select',
         required: false,
         labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.practitionerTypePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.practitionerTypePlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.practitionerTypeHint',
         options: [
-          { value: 'MO', labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeOptions.mo' },
+          {
+            value: 'MO',
+            labelKey:
+              'clinical.resources.staffProfiles.form.practitionerTypeOptions.mo',
+          },
           {
             value: 'SPECIALIST',
-            labelKey: 'clinical.resources.staffProfiles.form.practitionerTypeOptions.specialist',
+            labelKey:
+              'clinical.resources.staffProfiles.form.practitionerTypeOptions.specialist',
           },
         ],
       },
@@ -7903,18 +10490,23 @@ const resourceConfigs = {
         required: false,
         maxLength: 32,
         labelKey: 'clinical.resources.staffProfiles.form.consultationFeeLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.consultationFeePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.consultationFeePlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.consultationFeeHint',
         isHidden: ({ values }) =>
-          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+          sanitizeString(values?.practitioner_type).toUpperCase() !==
+          'SPECIALIST',
       },
       {
         name: 'consultation_currency',
         type: 'select',
         required: false,
-        labelKey: 'clinical.resources.staffProfiles.form.consultationCurrencyLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.consultationCurrencyPlaceholder',
-        hintKey: 'clinical.resources.staffProfiles.form.consultationCurrencyHint',
+        labelKey:
+          'clinical.resources.staffProfiles.form.consultationCurrencyLabel',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.consultationCurrencyPlaceholder',
+        hintKey:
+          'clinical.resources.staffProfiles.form.consultationCurrencyHint',
         options: [
           { value: 'USD', label: 'USD' },
           { value: 'UGX', label: 'UGX' },
@@ -7925,7 +10517,8 @@ const resourceConfigs = {
           { value: 'GBP', label: 'GBP' },
         ],
         isHidden: ({ values }) =>
-          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+          sanitizeString(values?.practitioner_type).toUpperCase() !==
+          'SPECIALIST',
       },
       {
         name: 'is_fee_overridden',
@@ -7934,7 +10527,8 @@ const resourceConfigs = {
         labelKey: 'clinical.resources.staffProfiles.form.feeOverrideLabel',
         hintKey: 'clinical.resources.staffProfiles.form.feeOverrideHint',
         isHidden: ({ values }) =>
-          sanitizeString(values?.practitioner_type).toUpperCase() !== 'SPECIALIST',
+          sanitizeString(values?.practitioner_type).toUpperCase() !==
+          'SPECIALIST',
       },
       {
         name: 'hire_date',
@@ -7942,11 +10536,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffProfiles.form.hireDateLabel',
-        placeholderKey: 'clinical.resources.staffProfiles.form.hireDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffProfiles.form.hireDatePlaceholder',
         hintKey: 'clinical.resources.staffProfiles.form.hireDateHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.staff_number) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.staff_number) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const positionValue = sanitizeString(item?.position);
       if (!positionValue) return '';
@@ -7954,12 +10550,22 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       user_id: sanitizeString(record?.user_id || context?.userId),
-      department_id: sanitizeString(record?.department_id || context?.departmentId),
-      staff_number: sanitizeString(record?.staff_number || context?.staffNumber),
+      department_id: sanitizeString(
+        record?.department_id || context?.departmentId
+      ),
+      staff_number: sanitizeString(
+        record?.staff_number || context?.staffNumber
+      ),
       position: sanitizeString(record?.position || context?.position),
-      practitioner_type: sanitizeString(record?.practitioner_type || context?.practitionerType),
-      consultation_fee: sanitizeString(record?.consultation_fee || context?.consultationFee),
-      consultation_currency: sanitizeString(record?.consultation_currency || context?.consultationCurrency || 'USD'),
+      practitioner_type: sanitizeString(
+        record?.practitioner_type || context?.practitionerType
+      ),
+      consultation_fee: sanitizeString(
+        record?.consultation_fee || context?.consultationFee
+      ),
+      consultation_currency: sanitizeString(
+        record?.consultation_currency || context?.consultationCurrency || 'USD'
+      ),
       is_fee_overridden:
         typeof record?.is_fee_overridden === 'boolean'
           ? record.is_fee_overridden
@@ -7967,19 +10573,27 @@ const resourceConfigs = {
       hire_date: sanitizeString(record?.hire_date),
     }),
     toPayload: (values, { isEdit = false } = {}) => {
-      const practitionerType = sanitizeString(values.practitioner_type).toUpperCase();
+      const practitionerType = sanitizeString(
+        values.practitioner_type
+      ).toUpperCase();
       const isSpecialist = practitionerType === 'SPECIALIST';
       const payload = {
         department_id: sanitizeString(values.department_id) || null,
         staff_number: sanitizeString(values.staff_number) || null,
         position: sanitizeString(values.position) || null,
         practitioner_type: practitionerType || null,
-        consultation_fee: isSpecialist ? sanitizeString(values.consultation_fee) || null : null,
+        consultation_fee: isSpecialist
+          ? sanitizeString(values.consultation_fee) || null
+          : null,
         consultation_currency: isSpecialist
           ? sanitizeString(values.consultation_currency).toUpperCase() || 'USD'
           : null,
-        is_fee_overridden: isSpecialist ? Boolean(values.is_fee_overridden) : false,
-        hire_date: sanitizeString(values.hire_date) ? toIsoDateTime(values.hire_date) : null,
+        is_fee_overridden: isSpecialist
+          ? Boolean(values.is_fee_overridden)
+          : false,
+        hire_date: sanitizeString(values.hire_date)
+          ? toIsoDateTime(values.hire_date)
+          : null,
       };
       if (!isEdit) {
         payload.user_id = sanitizeString(values.user_id);
@@ -7988,29 +10602,81 @@ const resourceConfigs = {
     },
     validate: (values, t) => {
       const errors = {};
-      const practitionerType = sanitizeString(values.practitioner_type).toUpperCase();
+      const practitionerType = sanitizeString(
+        values.practitioner_type
+      ).toUpperCase();
       const consultationFee = sanitizeString(values.consultation_fee);
       const hireDateError = buildDateTimeError(values.hire_date, t);
       if (hireDateError) errors.hire_date = hireDateError;
-      if (practitionerType === 'SPECIALIST' && consultationFee && !/^\d+(\.\d{1,2})?$/.test(consultationFee)) {
+      if (
+        practitionerType === 'SPECIALIST' &&
+        consultationFee &&
+        !/^\d+(\.\d{1,2})?$/.test(consultationFee)
+      ) {
         errors.consultation_fee = t('clinical.common.form.invalidNumber');
       }
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.staffProfiles.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.userLabel', valueKey: 'user_id' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.departmentLabel', valueKey: 'department_id' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.staffNumberLabel', valueKey: 'staff_number' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.positionLabel', valueKey: 'position' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.practitionerTypeLabel', valueKey: 'practitioner_type' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.consultationFeeLabel', valueKey: 'consultation_fee' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.consultationCurrencyLabel', valueKey: 'consultation_currency' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.feeOverrideLabel', valueKey: 'is_fee_overridden', type: 'boolean' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.hireDateLabel', valueKey: 'hire_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffProfiles.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.userLabel',
+        valueKey: 'user_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.departmentLabel',
+        valueKey: 'department_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.staffNumberLabel',
+        valueKey: 'staff_number',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.positionLabel',
+        valueKey: 'position',
+      },
+      {
+        labelKey:
+          'clinical.resources.staffProfiles.detail.practitionerTypeLabel',
+        valueKey: 'practitioner_type',
+      },
+      {
+        labelKey:
+          'clinical.resources.staffProfiles.detail.consultationFeeLabel',
+        valueKey: 'consultation_fee',
+      },
+      {
+        labelKey:
+          'clinical.resources.staffProfiles.detail.consultationCurrencyLabel',
+        valueKey: 'consultation_currency',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.feeOverrideLabel',
+        valueKey: 'is_fee_overridden',
+        type: 'boolean',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.hireDateLabel',
+        valueKey: 'hire_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffProfiles.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS]: {
@@ -8027,8 +10693,10 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         disableOnEdit: true,
-        labelKey: 'clinical.resources.staffAssignments.form.staffProfileIdLabel',
-        placeholderKey: 'clinical.resources.staffAssignments.form.staffProfileIdPlaceholder',
+        labelKey:
+          'clinical.resources.staffAssignments.form.staffProfileIdLabel',
+        placeholderKey:
+          'clinical.resources.staffAssignments.form.staffProfileIdPlaceholder',
         hintKey: 'clinical.resources.staffAssignments.form.staffProfileIdHint',
       },
       {
@@ -8037,7 +10705,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffAssignments.form.departmentIdLabel',
-        placeholderKey: 'clinical.resources.staffAssignments.form.departmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffAssignments.form.departmentIdPlaceholder',
         hintKey: 'clinical.resources.staffAssignments.form.departmentIdHint',
       },
       {
@@ -8046,7 +10715,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffAssignments.form.unitIdLabel',
-        placeholderKey: 'clinical.resources.staffAssignments.form.unitIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffAssignments.form.unitIdPlaceholder',
         hintKey: 'clinical.resources.staffAssignments.form.unitIdHint',
       },
       {
@@ -8055,7 +10725,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.staffAssignments.form.startDateLabel',
-        placeholderKey: 'clinical.resources.staffAssignments.form.startDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffAssignments.form.startDatePlaceholder',
         hintKey: 'clinical.resources.staffAssignments.form.startDateHint',
       },
       {
@@ -8064,19 +10735,25 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.staffAssignments.form.endDateLabel',
-        placeholderKey: 'clinical.resources.staffAssignments.form.endDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffAssignments.form.endDatePlaceholder',
         hintKey: 'clinical.resources.staffAssignments.form.endDateHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const departmentValue = sanitizeString(item?.department_id);
       if (!departmentValue) return '';
       return `${t('clinical.resources.staffAssignments.detail.departmentLabel')}: ${departmentValue}`;
     },
     getInitialValues: (record, context) => ({
-      staff_profile_id: sanitizeString(record?.staff_profile_id || context?.staffProfileId),
-      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      staff_profile_id: sanitizeString(
+        record?.staff_profile_id || context?.staffProfileId
+      ),
+      department_id: sanitizeString(
+        record?.department_id || context?.departmentId
+      ),
       unit_id: sanitizeString(record?.unit_id || context?.unitId),
       start_date: sanitizeString(record?.start_date),
       end_date: sanitizeString(record?.end_date),
@@ -8086,7 +10763,9 @@ const resourceConfigs = {
         department_id: sanitizeString(values.department_id) || null,
         unit_id: sanitizeString(values.unit_id) || null,
         start_date: toIsoDateTime(values.start_date),
-        end_date: sanitizeString(values.end_date) ? toIsoDateTime(values.end_date) : null,
+        end_date: sanitizeString(values.end_date)
+          ? toIsoDateTime(values.end_date)
+          : null,
       };
       if (!isEdit) {
         payload.staff_profile_id = sanitizeString(values.staff_profile_id);
@@ -8097,21 +10776,56 @@ const resourceConfigs = {
       const errors = {};
       const startDateError = buildDateTimeError(values.start_date, t);
       const endDateError = buildDateTimeError(values.end_date, t);
-      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      const dateOrderError = validateDateOrder(
+        values.start_date,
+        values.end_date,
+        t,
+        { allowEqual: true }
+      );
       if (startDateError) errors.start_date = startDateError;
       if (endDateError) errors.end_date = endDateError;
-      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      if (!startDateError && !endDateError && dateOrderError)
+        errors.end_date = dateOrderError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.staffAssignments.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.staffProfileLabel', valueKey: 'staff_profile_id' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.departmentLabel', valueKey: 'department_id' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.unitLabel', valueKey: 'unit_id' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffAssignments.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.staffAssignments.detail.staffProfileLabel',
+        valueKey: 'staff_profile_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.departmentLabel',
+        valueKey: 'department_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.unitLabel',
+        valueKey: 'unit_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.startDateLabel',
+        valueKey: 'start_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.endDateLabel',
+        valueKey: 'end_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffAssignments.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.STAFF_LEAVES]: {
@@ -8129,7 +10843,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.staffLeaves.form.staffProfileIdLabel',
-        placeholderKey: 'clinical.resources.staffLeaves.form.staffProfileIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.staffLeaves.form.staffProfileIdPlaceholder',
         hintKey: 'clinical.resources.staffLeaves.form.staffProfileIdHint',
       },
       {
@@ -8147,7 +10862,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.staffLeaves.form.startDateLabel',
-        placeholderKey: 'clinical.resources.staffLeaves.form.startDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffLeaves.form.startDatePlaceholder',
         hintKey: 'clinical.resources.staffLeaves.form.startDateHint',
       },
       {
@@ -8156,7 +10872,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.staffLeaves.form.endDateLabel',
-        placeholderKey: 'clinical.resources.staffLeaves.form.endDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.staffLeaves.form.endDatePlaceholder',
         hintKey: 'clinical.resources.staffLeaves.form.endDateHint',
       },
       {
@@ -8169,14 +10886,17 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.staffLeaves.form.reasonHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.staff_profile_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.staffLeaves.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      staff_profile_id: sanitizeString(record?.staff_profile_id || context?.staffProfileId),
+      staff_profile_id: sanitizeString(
+        record?.staff_profile_id || context?.staffProfileId
+      ),
       status: sanitizeString(record?.status || context?.status || 'REQUESTED'),
       start_date: sanitizeString(record?.start_date),
       end_date: sanitizeString(record?.end_date),
@@ -8198,21 +10918,55 @@ const resourceConfigs = {
       const errors = {};
       const startDateError = buildDateTimeError(values.start_date, t);
       const endDateError = buildDateTimeError(values.end_date, t);
-      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      const dateOrderError = validateDateOrder(
+        values.start_date,
+        values.end_date,
+        t,
+        { allowEqual: true }
+      );
       if (startDateError) errors.start_date = startDateError;
       if (endDateError) errors.end_date = endDateError;
-      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      if (!startDateError && !endDateError && dateOrderError)
+        errors.end_date = dateOrderError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.staffLeaves.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.staffProfileLabel', valueKey: 'staff_profile_id' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.reasonLabel', valueKey: 'reason' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.staffLeaves.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.staffProfileLabel',
+        valueKey: 'staff_profile_id',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.startDateLabel',
+        valueKey: 'start_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.endDateLabel',
+        valueKey: 'end_date',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.reasonLabel',
+        valueKey: 'reason',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.staffLeaves.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.SHIFTS]: {
@@ -8269,7 +11023,8 @@ const resourceConfigs = {
         hintKey: 'clinical.resources.shifts.form.endTimeHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.shift_type) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.shift_type) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -8277,7 +11032,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      shift_type: sanitizeString(record?.shift_type || context?.shiftType || 'DAY'),
+      shift_type: sanitizeString(
+        record?.shift_type || context?.shiftType || 'DAY'
+      ),
       status: sanitizeString(record?.status || context?.status || 'SCHEDULED'),
       start_time: sanitizeString(record?.start_time),
       end_time: sanitizeString(record?.end_time),
@@ -8293,22 +11050,55 @@ const resourceConfigs = {
       const errors = {};
       const startTimeError = buildDateTimeError(values.start_time, t);
       const endTimeError = buildDateTimeError(values.end_time, t);
-      const dateOrderError = validateDateOrder(values.start_time, values.end_time, t);
+      const dateOrderError = validateDateOrder(
+        values.start_time,
+        values.end_time,
+        t
+      );
       if (startTimeError) errors.start_time = startTimeError;
       if (endTimeError) errors.end_time = endTimeError;
-      if (!startTimeError && !endTimeError && dateOrderError) errors.end_time = dateOrderError;
+      if (!startTimeError && !endTimeError && dateOrderError)
+        errors.end_time = dateOrderError;
       return errors;
     },
     detailRows: [
       { labelKey: 'clinical.resources.shifts.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.shifts.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.shifts.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.shifts.detail.shiftTypeLabel', valueKey: 'shift_type' },
-      { labelKey: 'clinical.resources.shifts.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.shifts.detail.startTimeLabel', valueKey: 'start_time', type: 'datetime' },
-      { labelKey: 'clinical.resources.shifts.detail.endTimeLabel', valueKey: 'end_time', type: 'datetime' },
-      { labelKey: 'clinical.resources.shifts.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.shifts.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.shifts.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.shiftTypeLabel',
+        valueKey: 'shift_type',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.startTimeLabel',
+        valueKey: 'start_time',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.endTimeLabel',
+        valueKey: 'end_time',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.shifts.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.NURSE_ROSTERS]: {
@@ -8325,7 +11115,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.nurseRosters.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.nurseRosters.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.nurseRosters.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.nurseRosters.form.facilityIdHint',
       },
       {
@@ -8334,7 +11125,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.nurseRosters.form.departmentIdLabel',
-        placeholderKey: 'clinical.resources.nurseRosters.form.departmentIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.nurseRosters.form.departmentIdPlaceholder',
         hintKey: 'clinical.resources.nurseRosters.form.departmentIdHint',
       },
       {
@@ -8343,7 +11135,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.nurseRosters.form.periodStartLabel',
-        placeholderKey: 'clinical.resources.nurseRosters.form.periodStartPlaceholder',
+        placeholderKey:
+          'clinical.resources.nurseRosters.form.periodStartPlaceholder',
         hintKey: 'clinical.resources.nurseRosters.form.periodStartHint',
       },
       {
@@ -8352,7 +11145,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.nurseRosters.form.periodEndLabel',
-        placeholderKey: 'clinical.resources.nurseRosters.form.periodEndPlaceholder',
+        placeholderKey:
+          'clinical.resources.nurseRosters.form.periodEndPlaceholder',
         hintKey: 'clinical.resources.nurseRosters.form.periodEndHint',
       },
       {
@@ -8360,7 +11154,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.nurseRosters.form.statusLabel',
-        placeholderKey: 'clinical.resources.nurseRosters.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.nurseRosters.form.statusPlaceholder',
         hintKey: 'clinical.resources.nurseRosters.form.statusHint',
         options: NURSE_ROSTER_STATUS_OPTIONS,
       },
@@ -8373,7 +11168,9 @@ const resourceConfigs = {
     },
     getInitialValues: (record, context) => ({
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      department_id: sanitizeString(record?.department_id || context?.departmentId),
+      department_id: sanitizeString(
+        record?.department_id || context?.departmentId
+      ),
       period_start: sanitizeString(record?.period_start),
       period_end: sanitizeString(record?.period_end),
       status: sanitizeString(record?.status || context?.status || 'DRAFT'),
@@ -8389,22 +11186,58 @@ const resourceConfigs = {
       const errors = {};
       const periodStartError = buildDateTimeError(values.period_start, t);
       const periodEndError = buildDateTimeError(values.period_end, t);
-      const dateOrderError = validateDateOrder(values.period_start, values.period_end, t);
+      const dateOrderError = validateDateOrder(
+        values.period_start,
+        values.period_end,
+        t
+      );
       if (periodStartError) errors.period_start = periodStartError;
       if (periodEndError) errors.period_end = periodEndError;
-      if (!periodStartError && !periodEndError && dateOrderError) errors.period_end = dateOrderError;
+      if (!periodStartError && !periodEndError && dateOrderError)
+        errors.period_end = dateOrderError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.nurseRosters.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.departmentLabel', valueKey: 'department_id' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.periodStartLabel', valueKey: 'period_start', type: 'datetime' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.periodEndLabel', valueKey: 'period_end', type: 'datetime' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.nurseRosters.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.departmentLabel',
+        valueKey: 'department_id',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.periodStartLabel',
+        valueKey: 'period_start',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.periodEndLabel',
+        valueKey: 'period_end',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.nurseRosters.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.PAYROLL_RUNS]: {
@@ -8421,7 +11254,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.payrollRuns.form.periodStartLabel',
-        placeholderKey: 'clinical.resources.payrollRuns.form.periodStartPlaceholder',
+        placeholderKey:
+          'clinical.resources.payrollRuns.form.periodStartPlaceholder',
         hintKey: 'clinical.resources.payrollRuns.form.periodStartHint',
       },
       {
@@ -8430,7 +11264,8 @@ const resourceConfigs = {
         required: true,
         maxLength: 64,
         labelKey: 'clinical.resources.payrollRuns.form.periodEndLabel',
-        placeholderKey: 'clinical.resources.payrollRuns.form.periodEndPlaceholder',
+        placeholderKey:
+          'clinical.resources.payrollRuns.form.periodEndPlaceholder',
         hintKey: 'clinical.resources.payrollRuns.form.periodEndHint',
       },
       {
@@ -8463,20 +11298,50 @@ const resourceConfigs = {
       const errors = {};
       const periodStartError = buildDateTimeError(values.period_start, t);
       const periodEndError = buildDateTimeError(values.period_end, t);
-      const dateOrderError = validateDateOrder(values.period_start, values.period_end, t);
+      const dateOrderError = validateDateOrder(
+        values.period_start,
+        values.period_end,
+        t
+      );
       if (periodStartError) errors.period_start = periodStartError;
       if (periodEndError) errors.period_end = periodEndError;
-      if (!periodStartError && !periodEndError && dateOrderError) errors.period_end = dateOrderError;
+      if (!periodStartError && !periodEndError && dateOrderError)
+        errors.period_end = dateOrderError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.payrollRuns.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.periodStartLabel', valueKey: 'period_start', type: 'datetime' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.periodEndLabel', valueKey: 'period_end', type: 'datetime' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.payrollRuns.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.periodStartLabel',
+        valueKey: 'period_start',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.periodEndLabel',
+        valueKey: 'period_end',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.payrollRuns.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_TASKS]: {
@@ -8493,7 +11358,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingTasks.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.housekeepingTasks.form.facilityIdHint',
       },
       {
@@ -8502,7 +11368,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingTasks.form.roomIdLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.roomIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.roomIdPlaceholder',
         hintKey: 'clinical.resources.housekeepingTasks.form.roomIdHint',
       },
       {
@@ -8510,16 +11377,20 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdPlaceholder',
-        hintKey: 'clinical.resources.housekeepingTasks.form.assignedToStaffIdHint',
+        labelKey:
+          'clinical.resources.housekeepingTasks.form.assignedToStaffIdLabel',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.assignedToStaffIdPlaceholder',
+        hintKey:
+          'clinical.resources.housekeepingTasks.form.assignedToStaffIdHint',
       },
       {
         name: 'status',
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.housekeepingTasks.form.statusLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.statusPlaceholder',
         hintKey: 'clinical.resources.housekeepingTasks.form.statusHint',
         options: HOUSEKEEPING_TASK_STATUS_OPTIONS,
       },
@@ -8529,7 +11400,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingTasks.form.scheduledAtLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.scheduledAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.scheduledAtPlaceholder',
         hintKey: 'clinical.resources.housekeepingTasks.form.scheduledAtHint',
       },
       {
@@ -8538,7 +11410,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingTasks.form.completedAtLabel',
-        placeholderKey: 'clinical.resources.housekeepingTasks.form.completedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingTasks.form.completedAtPlaceholder',
         hintKey: 'clinical.resources.housekeepingTasks.form.completedAtHint',
       },
     ],
@@ -8551,7 +11424,9 @@ const resourceConfigs = {
     getInitialValues: (record, context) => ({
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
       room_id: sanitizeString(record?.room_id || context?.roomId),
-      assigned_to_staff_id: sanitizeString(record?.assigned_to_staff_id || context?.userId),
+      assigned_to_staff_id: sanitizeString(
+        record?.assigned_to_staff_id || context?.userId
+      ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       scheduled_at: sanitizeString(record?.scheduled_at),
       completed_at: sanitizeString(record?.completed_at),
@@ -8561,8 +11436,12 @@ const resourceConfigs = {
       room_id: sanitizeString(values.room_id) || null,
       assigned_to_staff_id: sanitizeString(values.assigned_to_staff_id) || null,
       status: sanitizeString(values.status),
-      scheduled_at: sanitizeString(values.scheduled_at) ? toIsoDateTime(values.scheduled_at) : null,
-      completed_at: sanitizeString(values.completed_at) ? toIsoDateTime(values.completed_at) : null,
+      scheduled_at: sanitizeString(values.scheduled_at)
+        ? toIsoDateTime(values.scheduled_at)
+        : null,
+      completed_at: sanitizeString(values.completed_at)
+        ? toIsoDateTime(values.completed_at)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -8573,15 +11452,49 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.roomLabel', valueKey: 'room_id' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.assignedToStaffLabel', valueKey: 'assigned_to_staff_id' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.scheduledAtLabel', valueKey: 'scheduled_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.completedAtLabel', valueKey: 'completed_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingTasks.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.roomLabel',
+        valueKey: 'room_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingTasks.detail.assignedToStaffLabel',
+        valueKey: 'assigned_to_staff_id',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingTasks.detail.scheduledAtLabel',
+        valueKey: 'scheduled_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingTasks.detail.completedAtLabel',
+        valueKey: 'completed_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingTasks.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.HOUSEKEEPING_SCHEDULES]: {
@@ -8597,8 +11510,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.housekeepingSchedules.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.housekeepingSchedules.form.facilityIdPlaceholder',
+        labelKey:
+          'clinical.resources.housekeepingSchedules.form.facilityIdLabel',
+        placeholderKey:
+          'clinical.resources.housekeepingSchedules.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.housekeepingSchedules.form.facilityIdHint',
       },
       {
@@ -8607,7 +11522,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingSchedules.form.roomIdLabel',
-        placeholderKey: 'clinical.resources.housekeepingSchedules.form.roomIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingSchedules.form.roomIdPlaceholder',
         hintKey: 'clinical.resources.housekeepingSchedules.form.roomIdHint',
       },
       {
@@ -8615,8 +11531,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 80,
-        labelKey: 'clinical.resources.housekeepingSchedules.form.frequencyLabel',
-        placeholderKey: 'clinical.resources.housekeepingSchedules.form.frequencyPlaceholder',
+        labelKey:
+          'clinical.resources.housekeepingSchedules.form.frequencyLabel',
+        placeholderKey:
+          'clinical.resources.housekeepingSchedules.form.frequencyPlaceholder',
         hintKey: 'clinical.resources.housekeepingSchedules.form.frequencyHint',
       },
       {
@@ -8624,8 +11542,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 64,
-        labelKey: 'clinical.resources.housekeepingSchedules.form.startDateLabel',
-        placeholderKey: 'clinical.resources.housekeepingSchedules.form.startDatePlaceholder',
+        labelKey:
+          'clinical.resources.housekeepingSchedules.form.startDateLabel',
+        placeholderKey:
+          'clinical.resources.housekeepingSchedules.form.startDatePlaceholder',
         hintKey: 'clinical.resources.housekeepingSchedules.form.startDateHint',
       },
       {
@@ -8634,11 +11554,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.housekeepingSchedules.form.endDateLabel',
-        placeholderKey: 'clinical.resources.housekeepingSchedules.form.endDatePlaceholder',
+        placeholderKey:
+          'clinical.resources.housekeepingSchedules.form.endDatePlaceholder',
         hintKey: 'clinical.resources.housekeepingSchedules.form.endDateHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.frequency) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.frequency) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const roomValue = sanitizeString(item?.room_id);
       if (!roomValue) return '';
@@ -8655,28 +11577,72 @@ const resourceConfigs = {
       facility_id: sanitizeString(values.facility_id) || null,
       room_id: sanitizeString(values.room_id) || null,
       frequency: sanitizeString(values.frequency) || null,
-      start_date: sanitizeString(values.start_date) ? toIsoDateTime(values.start_date) : null,
-      end_date: sanitizeString(values.end_date) ? toIsoDateTime(values.end_date) : null,
+      start_date: sanitizeString(values.start_date)
+        ? toIsoDateTime(values.start_date)
+        : null,
+      end_date: sanitizeString(values.end_date)
+        ? toIsoDateTime(values.end_date)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
       const startDateError = buildDateTimeError(values.start_date, t);
       const endDateError = buildDateTimeError(values.end_date, t);
-      const dateOrderError = validateDateOrder(values.start_date, values.end_date, t, { allowEqual: true });
+      const dateOrderError = validateDateOrder(
+        values.start_date,
+        values.end_date,
+        t,
+        { allowEqual: true }
+      );
       if (startDateError) errors.start_date = startDateError;
       if (endDateError) errors.end_date = endDateError;
-      if (!startDateError && !endDateError && dateOrderError) errors.end_date = dateOrderError;
+      if (!startDateError && !endDateError && dateOrderError)
+        errors.end_date = dateOrderError;
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.roomLabel', valueKey: 'room_id' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.frequencyLabel', valueKey: 'frequency' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.startDateLabel', valueKey: 'start_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.endDateLabel', valueKey: 'end_date', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.housekeepingSchedules.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.housekeepingSchedules.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.housekeepingSchedules.detail.roomLabel',
+        valueKey: 'room_id',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.frequencyLabel',
+        valueKey: 'frequency',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.startDateLabel',
+        valueKey: 'start_date',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.endDateLabel',
+        valueKey: 'end_date',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.housekeepingSchedules.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.MAINTENANCE_REQUESTS]: {
@@ -8693,7 +11659,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.maintenanceRequests.form.facilityIdLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.facilityIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.facilityIdPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.facilityIdHint',
       },
       {
@@ -8702,7 +11669,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.maintenanceRequests.form.assetIdLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.assetIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.assetIdPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.assetIdHint',
       },
       {
@@ -8710,7 +11678,8 @@ const resourceConfigs = {
         type: 'select',
         required: true,
         labelKey: 'clinical.resources.maintenanceRequests.form.statusLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.statusPlaceholder',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.statusPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.statusHint',
         options: MAINTENANCE_STATUS_OPTIONS,
       },
@@ -8719,8 +11688,10 @@ const resourceConfigs = {
         type: 'text',
         required: false,
         maxLength: 255,
-        labelKey: 'clinical.resources.maintenanceRequests.form.descriptionLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.descriptionPlaceholder',
+        labelKey:
+          'clinical.resources.maintenanceRequests.form.descriptionLabel',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.descriptionPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.descriptionHint',
       },
       {
@@ -8729,7 +11700,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.maintenanceRequests.form.reportedAtLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.reportedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.reportedAtPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.reportedAtHint',
       },
       {
@@ -8738,7 +11710,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.maintenanceRequests.form.resolvedAtLabel',
-        placeholderKey: 'clinical.resources.maintenanceRequests.form.resolvedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.maintenanceRequests.form.resolvedAtPlaceholder',
         hintKey: 'clinical.resources.maintenanceRequests.form.resolvedAtHint',
       },
     ],
@@ -8761,8 +11734,12 @@ const resourceConfigs = {
       asset_id: sanitizeString(values.asset_id) || null,
       status: sanitizeString(values.status),
       description: sanitizeString(values.description) || null,
-      reported_at: sanitizeString(values.reported_at) ? toIsoDateTime(values.reported_at) : undefined,
-      resolved_at: sanitizeString(values.resolved_at) ? toIsoDateTime(values.resolved_at) : null,
+      reported_at: sanitizeString(values.reported_at)
+        ? toIsoDateTime(values.reported_at)
+        : undefined,
+      resolved_at: sanitizeString(values.resolved_at)
+        ? toIsoDateTime(values.resolved_at)
+        : null,
     }),
     validate: (values, t) => {
       const errors = {};
@@ -8773,15 +11750,49 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.assetLabel', valueKey: 'asset_id' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.descriptionLabel', valueKey: 'description' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.reportedAtLabel', valueKey: 'reported_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.resolvedAtLabel', valueKey: 'resolved_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.maintenanceRequests.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.assetLabel',
+        valueKey: 'asset_id',
+      },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey:
+          'clinical.resources.maintenanceRequests.detail.descriptionLabel',
+        valueKey: 'description',
+      },
+      {
+        labelKey:
+          'clinical.resources.maintenanceRequests.detail.reportedAtLabel',
+        valueKey: 'reported_at',
+        type: 'datetime',
+      },
+      {
+        labelKey:
+          'clinical.resources.maintenanceRequests.detail.resolvedAtLabel',
+        valueKey: 'resolved_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.maintenanceRequests.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ASSETS]: {
@@ -8829,7 +11840,8 @@ const resourceConfigs = {
         options: MAINTENANCE_STATUS_OPTIONS,
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
@@ -8850,13 +11862,36 @@ const resourceConfigs = {
     validate: () => ({}),
     detailRows: [
       { labelKey: 'clinical.resources.assets.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.assets.detail.tenantLabel', valueKey: 'tenant_id' },
-      { labelKey: 'clinical.resources.assets.detail.facilityLabel', valueKey: 'facility_id' },
-      { labelKey: 'clinical.resources.assets.detail.nameLabel', valueKey: 'name' },
-      { labelKey: 'clinical.resources.assets.detail.assetTagLabel', valueKey: 'asset_tag' },
-      { labelKey: 'clinical.resources.assets.detail.statusLabel', valueKey: 'status' },
-      { labelKey: 'clinical.resources.assets.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.assets.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.assets.detail.tenantLabel',
+        valueKey: 'tenant_id',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.facilityLabel',
+        valueKey: 'facility_id',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.nameLabel',
+        valueKey: 'name',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.assetTagLabel',
+        valueKey: 'asset_tag',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.statusLabel',
+        valueKey: 'status',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.assets.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.ASSET_SERVICE_LOGS]: {
@@ -8874,7 +11909,8 @@ const resourceConfigs = {
         maxLength: 64,
         disableOnEdit: true,
         labelKey: 'clinical.resources.assetServiceLogs.form.assetIdLabel',
-        placeholderKey: 'clinical.resources.assetServiceLogs.form.assetIdPlaceholder',
+        placeholderKey:
+          'clinical.resources.assetServiceLogs.form.assetIdPlaceholder',
         hintKey: 'clinical.resources.assetServiceLogs.form.assetIdHint',
       },
       {
@@ -8883,7 +11919,8 @@ const resourceConfigs = {
         required: false,
         maxLength: 64,
         labelKey: 'clinical.resources.assetServiceLogs.form.servicedAtLabel',
-        placeholderKey: 'clinical.resources.assetServiceLogs.form.servicedAtPlaceholder',
+        placeholderKey:
+          'clinical.resources.assetServiceLogs.form.servicedAtPlaceholder',
         hintKey: 'clinical.resources.assetServiceLogs.form.servicedAtHint',
       },
       {
@@ -8892,11 +11929,13 @@ const resourceConfigs = {
         required: false,
         maxLength: 255,
         labelKey: 'clinical.resources.assetServiceLogs.form.notesLabel',
-        placeholderKey: 'clinical.resources.assetServiceLogs.form.notesPlaceholder',
+        placeholderKey:
+          'clinical.resources.assetServiceLogs.form.notesPlaceholder',
         hintKey: 'clinical.resources.assetServiceLogs.form.notesHint',
       },
     ],
-    getItemTitle: (item) => sanitizeString(item?.asset_id) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.asset_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
       const servicedAtValue = sanitizeString(item?.serviced_at);
       if (!servicedAtValue) return '';
@@ -8909,7 +11948,9 @@ const resourceConfigs = {
     }),
     toPayload: (values, { isEdit = false } = {}) => {
       const payload = {
-        serviced_at: sanitizeString(values.serviced_at) ? toIsoDateTime(values.serviced_at) : undefined,
+        serviced_at: sanitizeString(values.serviced_at)
+          ? toIsoDateTime(values.serviced_at)
+          : undefined,
         notes: sanitizeString(values.notes) || null,
       };
       if (!isEdit) {
@@ -8924,12 +11965,33 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.idLabel', valueKey: 'id' },
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.assetLabel', valueKey: 'asset_id' },
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.servicedAtLabel', valueKey: 'serviced_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.notesLabel', valueKey: 'notes' },
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.createdLabel', valueKey: 'created_at', type: 'datetime' },
-      { labelKey: 'clinical.resources.assetServiceLogs.detail.updatedLabel', valueKey: 'updated_at', type: 'datetime' },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.idLabel',
+        valueKey: 'id',
+      },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.assetLabel',
+        valueKey: 'asset_id',
+      },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.servicedAtLabel',
+        valueKey: 'serviced_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.notesLabel',
+        valueKey: 'notes',
+      },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.createdLabel',
+        valueKey: 'created_at',
+        type: 'datetime',
+      },
+      {
+        labelKey: 'clinical.resources.assetServiceLogs.detail.updatedLabel',
+        valueKey: 'updated_at',
+        type: 'datetime',
+      },
     ],
   },
   [CLINICAL_RESOURCE_IDS.DASHBOARD_WIDGETS]: {
@@ -8940,7 +12002,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -8955,7 +12018,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.title) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.title) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -8985,7 +12049,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.name) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.name) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -9000,7 +12065,8 @@ const resourceConfigs = {
     supportsFacility: false,
     listParams: { page: 1, limit: 20 },
     fields: [],
-    getItemTitle: (item) => sanitizeString(item?.action) || sanitizeString(item?.id),
+    getItemTitle: (item) =>
+      sanitizeString(item?.action) || sanitizeString(item?.id),
     getItemSubtitle: () => '',
     getInitialValues: () => ({}),
     toPayload: () => ({}),
@@ -9154,21 +12220,66 @@ const TIER_10_GENERIC_RESOURCES = [
     requiresTenant: true,
     allowDelete: false,
   },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
-  { id: CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS, routeRoot: BIOMEDICAL_ROUTE_ROOT },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CATEGORIES,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_REGISTRIES,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_LOCATION_HISTORIES,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DISPOSAL_TRANSFERS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_MAINTENANCE_PLANS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WORK_ORDERS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_CALIBRATION_LOGS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SAFETY_TEST_LOGS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_DOWNTIME_LOGS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_INCIDENT_REPORTS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_RECALL_NOTICES,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SPARE_PARTS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_WARRANTY_CONTRACTS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_SERVICE_PROVIDERS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
+  {
+    id: CLINICAL_RESOURCE_IDS.EQUIPMENT_UTILIZATION_SNAPSHOTS,
+    routeRoot: BIOMEDICAL_ROUTE_ROOT,
+  },
 ];
 
 Object.assign(
@@ -9181,7 +12292,8 @@ Object.assign(
   )
 );
 
-const getClinicalResourceConfig = (resourceId) => resourceConfigs[resourceId] || null;
+const getClinicalResourceConfig = (resourceId) =>
+  resourceConfigs[resourceId] || null;
 
 export {
   CLINICAL_RESOURCE_IDS,

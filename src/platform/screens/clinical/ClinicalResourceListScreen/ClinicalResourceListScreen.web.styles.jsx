@@ -29,10 +29,24 @@ const StyledToolbar = styled.div.withConfig({
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 
   @media (min-width: ${({ theme }) => getTablet(theme)}px) {
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+`;
+
+const StyledSearchField = styled.div.withConfig({
+  displayName: 'ClinicalResourceListScreen_StyledSearchField',
+  componentId: 'ClinicalResourceListScreen_StyledSearchField',
+})`
+  width: 100%;
+
+  @media (min-width: ${({ theme }) => getTablet(theme)}px) {
+    max-width: 420px;
+    flex: 1;
   }
 `;
 
@@ -43,6 +57,8 @@ const StyledToolbarActions = styled.div.withConfig({
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  flex-wrap: wrap;
 `;
 
 const StyledAddButton = styled.button.withConfig({
@@ -110,6 +126,7 @@ export {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledSearchField,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,

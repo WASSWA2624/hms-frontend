@@ -11,6 +11,7 @@ import {
   OfflineState,
   OfflineStateSizes,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -20,6 +21,7 @@ import {
   StyledContent,
   StyledList,
   StyledListBody,
+  StyledSearchField,
   StyledStateStack,
   StyledToolbar,
   StyledToolbarActions,
@@ -31,6 +33,10 @@ const ClinicalResourceListScreenWeb = ({ resourceId }) => {
   const {
     config,
     items,
+    totalItems = items.length,
+    hasActiveSearch = false,
+    hasNoResults = false,
+    search = '',
     isLoading,
     hasError,
     errorMessage,
@@ -38,6 +44,8 @@ const ClinicalResourceListScreenWeb = ({ resourceId }) => {
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch = () => {},
+    onClearSearch = () => {},
     onItemPress,
     onDelete,
     onAdd,
@@ -54,7 +62,10 @@ const ClinicalResourceListScreenWeb = ({ resourceId }) => {
 
   const showError = !isLoading && hasError && !isOffline;
   const showOffline = !isLoading && isOffline;
-  const showEmpty = !isLoading && !showError && !showOffline && items.length === 0;
+  const showEmpty =
+    !isLoading && !showError && !showOffline && totalItems === 0;
+  const showNoResults =
+    !isLoading && !showError && !showOffline && hasNoResults;
 
   return (
     <StyledContainer role="main" aria-label={t(titleKey)}>
@@ -70,7 +81,28 @@ const ClinicalResourceListScreenWeb = ({ resourceId }) => {
       ) : null}
       <StyledContent>
         <StyledToolbar data-testid="clinical-resource-list-toolbar">
+          <StyledSearchField>
+            <TextField
+              value={search}
+              onChange={(event) => onSearch(event.target.value)}
+              placeholder={t('clinical.common.list.searchPlaceholder')}
+              accessibilityLabel={t('clinical.common.list.searchLabel')}
+              density="compact"
+              type="search"
+              testID="clinical-resource-list-search"
+            />
+          </StyledSearchField>
           <StyledToolbarActions>
+            {hasActiveSearch ? (
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onClearSearch}
+                testID="clinical-resource-list-search-clear"
+              >
+                {t('common.clearSearch')}
+              </Button>
+            ) : null}
             <StyledAddButton
               type="button"
               onClick={onAdd}
@@ -149,7 +181,15 @@ const ClinicalResourceListScreenWeb = ({ resourceId }) => {
               />
             ) : null}
 
-            {items.length > 0 ? (
+            {showNoResults ? (
+              <EmptyState
+                title={t('clinical.common.list.noResultsTitle')}
+                description={t('clinical.common.list.noResultsMessage')}
+                testID="clinical-resource-list-no-results"
+              />
+            ) : null}
+
+            {items.length > 0 && !showNoResults ? (
               <StyledList role="list">
                 {items.map((item) => {
                   const itemTitle = config.getItemTitle(item, t);

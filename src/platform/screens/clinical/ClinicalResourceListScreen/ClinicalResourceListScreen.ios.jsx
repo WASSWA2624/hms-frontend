@@ -11,6 +11,7 @@ import {
   OfflineState,
   OfflineStateSizes,
   Snackbar,
+  TextField,
 } from '@platform/components';
 import { useI18n } from '@hooks';
 import {
@@ -32,6 +33,10 @@ const ClinicalResourceListScreenIOS = ({ resourceId }) => {
   const {
     config,
     items,
+    totalItems = items.length,
+    hasActiveSearch = false,
+    hasNoResults = false,
+    search = '',
     isLoading,
     hasError,
     errorMessage,
@@ -39,6 +44,8 @@ const ClinicalResourceListScreenIOS = ({ resourceId }) => {
     noticeMessage,
     onDismissNotice,
     onRetry,
+    onSearch = () => {},
+    onClearSearch = () => {},
     onItemPress,
     onDelete,
     onAdd,
@@ -65,7 +72,26 @@ const ClinicalResourceListScreenIOS = ({ resourceId }) => {
 
       <StyledContent>
         <StyledToolbar>
+          <TextField
+            value={search}
+            onChangeText={onSearch}
+            placeholder={t('clinical.common.list.searchPlaceholder')}
+            accessibilityLabel={t('clinical.common.list.searchLabel')}
+            density="compact"
+            type="search"
+            testID="clinical-resource-list-search"
+          />
           <StyledToolbarActions>
+            {hasActiveSearch ? (
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onClearSearch}
+                testID="clinical-resource-list-search-clear"
+              >
+                {t('common.clearSearch')}
+              </Button>
+            ) : null}
             <StyledAddButton
               onPress={onAdd}
               disabled={!canCreate}
@@ -133,7 +159,7 @@ const ClinicalResourceListScreenIOS = ({ resourceId }) => {
               <LoadingSpinner accessibilityLabel={t('common.loading')} testID="clinical-resource-list-loading" />
             ) : null}
 
-            {!isLoading && !hasError && !isOffline && items.length === 0 ? (
+            {!isLoading && !hasError && !isOffline && totalItems === 0 ? (
               <EmptyState
                 title={t(`${config.i18nKey}.list.emptyTitle`)}
                 description={t(`${config.i18nKey}.list.emptyMessage`)}
@@ -141,7 +167,15 @@ const ClinicalResourceListScreenIOS = ({ resourceId }) => {
               />
             ) : null}
 
-            {items.length > 0 ? (
+            {!isLoading && !hasError && !isOffline && hasNoResults ? (
+              <EmptyState
+                title={t('clinical.common.list.noResultsTitle')}
+                description={t('clinical.common.list.noResultsMessage')}
+                testID="clinical-resource-list-no-results"
+              />
+            ) : null}
+
+            {items.length > 0 && !hasNoResults ? (
               <StyledList>
                 {items.map((item, index) => {
                   const itemTitle = config.getItemTitle(item, t);

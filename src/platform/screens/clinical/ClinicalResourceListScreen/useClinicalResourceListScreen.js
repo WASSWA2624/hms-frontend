@@ -34,8 +34,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
       encounterId: sanitizeString(item.id) || baseContext.encounterId,
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
-      providerUserId: sanitizeString(item.provider_user_id) || baseContext.providerUserId,
-      encounterType: sanitizeString(item.encounter_type) || baseContext.encounterType,
+      providerUserId:
+        sanitizeString(item.provider_user_id) || baseContext.providerUserId,
+      encounterType:
+        sanitizeString(item.encounter_type) || baseContext.encounterType,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -44,7 +46,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
-      authorUserId: sanitizeString(item.author_user_id) || baseContext.authorUserId,
+      authorUserId:
+        sanitizeString(item.author_user_id) || baseContext.authorUserId,
     };
   }
 
@@ -52,7 +55,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
-      diagnosisType: sanitizeString(item.diagnosis_type) || baseContext.diagnosisType,
+      diagnosisType:
+        sanitizeString(item.diagnosis_type) || baseContext.diagnosisType,
       code: sanitizeString(item.code) || baseContext.code,
     };
   }
@@ -94,8 +98,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
-      fromDepartmentId: sanitizeString(item.from_department_id) || baseContext.fromDepartmentId,
-      toDepartmentId: sanitizeString(item.to_department_id) || baseContext.toDepartmentId,
+      fromDepartmentId:
+        sanitizeString(item.from_department_id) || baseContext.fromDepartmentId,
+      toDepartmentId:
+        sanitizeString(item.to_department_id) || baseContext.toDepartmentId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -138,7 +144,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
-      nurseUserId: sanitizeString(item.nurse_user_id) || baseContext.nurseUserId,
+      nurseUserId:
+        sanitizeString(item.nurse_user_id) || baseContext.nurseUserId,
     };
   }
 
@@ -146,7 +153,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
-      prescriptionId: sanitizeString(item.prescription_id) || baseContext.prescriptionId,
+      prescriptionId:
+        sanitizeString(item.prescription_id) || baseContext.prescriptionId,
       route: sanitizeString(item.route) || baseContext.route,
     };
   }
@@ -174,7 +182,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       ...baseContext,
       icuStayId: sanitizeString(item.id) || baseContext.icuStayId,
       admissionId: sanitizeString(item.admission_id) || baseContext.admissionId,
-      startedAtFrom: sanitizeString(item.started_at) || baseContext.startedAtFrom,
+      startedAtFrom:
+        sanitizeString(item.started_at) || baseContext.startedAtFrom,
       endedAtTo: sanitizeString(item.ended_at) || baseContext.endedAtTo,
     };
   }
@@ -183,7 +192,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       icuStayId: sanitizeString(item.icu_stay_id) || baseContext.icuStayId,
-      observedAtFrom: sanitizeString(item.observed_at) || baseContext.observedAtFrom,
+      observedAtFrom:
+        sanitizeString(item.observed_at) || baseContext.observedAtFrom,
     };
   }
 
@@ -198,25 +208,42 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.THEATRE_CASES) {
     return {
       ...baseContext,
-      theatreCaseId: sanitizeString(item.id) || baseContext.theatreCaseId,
-      encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
+      theatreCaseId:
+        sanitizeString(item.display_id) ||
+        sanitizeString(item.human_friendly_id) ||
+        sanitizeString(item.id) ||
+        baseContext.theatreCaseId,
+      encounterId:
+        sanitizeString(item.encounter_display_id) ||
+        sanitizeString(item.encounter_id) ||
+        baseContext.encounterId,
       status: sanitizeString(item.status) || baseContext.status,
-      scheduledFrom: sanitizeString(item.scheduled_at) || baseContext.scheduledFrom,
+      scheduledFrom:
+        sanitizeString(item.scheduled_at) || baseContext.scheduledFrom,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.ANESTHESIA_RECORDS) {
     return {
       ...baseContext,
-      theatreCaseId: sanitizeString(item.theatre_case_id) || baseContext.theatreCaseId,
-      anesthetistUserId: sanitizeString(item.anesthetist_user_id) || baseContext.anesthetistUserId,
+      theatreCaseId:
+        sanitizeString(item.theatre_case_display_id) ||
+        sanitizeString(item.theatre_case_id) ||
+        baseContext.theatreCaseId,
+      anesthetistUserId:
+        sanitizeString(item.anesthetist_user_display_id) ||
+        sanitizeString(item.anesthetist_user_id) ||
+        baseContext.anesthetistUserId,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.POST_OP_NOTES) {
     return {
       ...baseContext,
-      theatreCaseId: sanitizeString(item.theatre_case_id) || baseContext.theatreCaseId,
+      theatreCaseId:
+        sanitizeString(item.theatre_case_display_id) ||
+        sanitizeString(item.theatre_case_id) ||
+        baseContext.theatreCaseId,
     };
   }
 
@@ -235,7 +262,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.TRIAGE_ASSESSMENTS) {
     return {
       ...baseContext,
-      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      emergencyCaseId:
+        sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
       triageLevel: sanitizeString(item.triage_level) || baseContext.triageLevel,
     };
   }
@@ -243,7 +271,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.EMERGENCY_RESPONSES) {
     return {
       ...baseContext,
-      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      emergencyCaseId:
+        sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
     };
   }
 
@@ -261,7 +290,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       ambulanceId: sanitizeString(item.ambulance_id) || baseContext.ambulanceId,
-      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      emergencyCaseId:
+        sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -270,8 +300,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       ambulanceId: sanitizeString(item.ambulance_id) || baseContext.ambulanceId,
-      emergencyCaseId: sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
-      startedAtFrom: sanitizeString(item.started_at) || baseContext.startedAtFrom,
+      emergencyCaseId:
+        sanitizeString(item.emergency_case_id) || baseContext.emergencyCaseId,
+      startedAtFrom:
+        sanitizeString(item.started_at) || baseContext.startedAtFrom,
       endedAtTo: sanitizeString(item.ended_at) || baseContext.endedAtTo,
     };
   }
@@ -301,7 +333,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
       status: sanitizeString(item.status) || baseContext.status,
-      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+      orderedAtFrom:
+        sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
     };
   }
 
@@ -326,7 +359,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.LAB_RESULTS) {
     return {
       ...baseContext,
-      labOrderItemId: sanitizeString(item.lab_order_item_id) || baseContext.labOrderItemId,
+      labOrderItemId:
+        sanitizeString(item.lab_order_item_id) || baseContext.labOrderItemId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -354,16 +388,19 @@ const buildItemContext = (resourceId, item, baseContext) => {
       radiologyOrderId: sanitizeString(item.id) || baseContext.radiologyOrderId,
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
-      radiologyTestId: sanitizeString(item.radiology_test_id) || baseContext.radiologyTestId,
+      radiologyTestId:
+        sanitizeString(item.radiology_test_id) || baseContext.radiologyTestId,
       status: sanitizeString(item.status) || baseContext.status,
-      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+      orderedAtFrom:
+        sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.RADIOLOGY_RESULTS) {
     return {
       ...baseContext,
-      radiologyOrderId: sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
+      radiologyOrderId:
+        sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -372,7 +409,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       imagingStudyId: sanitizeString(item.id) || baseContext.imagingStudyId,
-      radiologyOrderId: sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
+      radiologyOrderId:
+        sanitizeString(item.radiology_order_id) || baseContext.radiologyOrderId,
       modality: sanitizeString(item.modality) || baseContext.modality,
       performedAt: sanitizeString(item.performed_at) || baseContext.performedAt,
     };
@@ -381,7 +419,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.IMAGING_ASSETS) {
     return {
       ...baseContext,
-      imagingStudyId: sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
+      imagingStudyId:
+        sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
       contentType: sanitizeString(item.content_type) || baseContext.contentType,
     };
   }
@@ -389,7 +428,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.PACS_LINKS) {
     return {
       ...baseContext,
-      imagingStudyId: sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
+      imagingStudyId:
+        sanitizeString(item.imaging_study_id) || baseContext.imagingStudyId,
       expiresAt: sanitizeString(item.expires_at) || baseContext.expiresAt,
     };
   }
@@ -419,7 +459,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
       ...baseContext,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       drugId: sanitizeString(item.drug_id) || baseContext.drugId,
-      isActive: typeof item.is_active === 'boolean' ? item.is_active : baseContext.isActive,
+      isActive:
+        typeof item.is_active === 'boolean'
+          ? item.is_active
+          : baseContext.isActive,
     };
   }
 
@@ -430,15 +473,18 @@ const buildItemContext = (resourceId, item, baseContext) => {
       encounterId: sanitizeString(item.encounter_id) || baseContext.encounterId,
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
       status: sanitizeString(item.status) || baseContext.status,
-      orderedAtFrom: sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
+      orderedAtFrom:
+        sanitizeString(item.ordered_at) || baseContext.orderedAtFrom,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.PHARMACY_ORDER_ITEMS) {
     return {
       ...baseContext,
-      pharmacyOrderItemId: sanitizeString(item.id) || baseContext.pharmacyOrderItemId,
-      pharmacyOrderId: sanitizeString(item.pharmacy_order_id) || baseContext.pharmacyOrderId,
+      pharmacyOrderItemId:
+        sanitizeString(item.id) || baseContext.pharmacyOrderItemId,
+      pharmacyOrderId:
+        sanitizeString(item.pharmacy_order_id) || baseContext.pharmacyOrderId,
       drugId: sanitizeString(item.drug_id) || baseContext.drugId,
       status: sanitizeString(item.status) || baseContext.status,
       frequency: sanitizeString(item.frequency) || baseContext.frequency,
@@ -449,9 +495,12 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.DISPENSE_LOGS) {
     return {
       ...baseContext,
-      pharmacyOrderItemId: sanitizeString(item.pharmacy_order_item_id) || baseContext.pharmacyOrderItemId,
+      pharmacyOrderItemId:
+        sanitizeString(item.pharmacy_order_item_id) ||
+        baseContext.pharmacyOrderItemId,
       status: sanitizeString(item.status) || baseContext.status,
-      dispensedAtFrom: sanitizeString(item.dispensed_at) || baseContext.dispensedAtFrom,
+      dispensedAtFrom:
+        sanitizeString(item.dispensed_at) || baseContext.dispensedAtFrom,
     };
   }
 
@@ -461,7 +510,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
       drugId: sanitizeString(item.drug_id) || baseContext.drugId,
       severity: sanitizeString(item.severity) || baseContext.severity,
-      reportedAtFrom: sanitizeString(item.reported_at) || baseContext.reportedAtFrom,
+      reportedAtFrom:
+        sanitizeString(item.reported_at) || baseContext.reportedAtFrom,
     };
   }
 
@@ -480,7 +530,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.INVENTORY_STOCKS) {
     return {
       ...baseContext,
-      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      inventoryItemId:
+        sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
     };
   }
@@ -488,9 +539,11 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.STOCK_MOVEMENTS) {
     return {
       ...baseContext,
-      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      inventoryItemId:
+        sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      movementType: sanitizeString(item.movement_type) || baseContext.movementType,
+      movementType:
+        sanitizeString(item.movement_type) || baseContext.movementType,
       reason: sanitizeString(item.reason) || baseContext.reason,
       fromDate: sanitizeString(item.occurred_at) || baseContext.fromDate,
     };
@@ -502,19 +555,24 @@ const buildItemContext = (resourceId, item, baseContext) => {
       supplierId: sanitizeString(item.id) || baseContext.supplierId,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       name: sanitizeString(item.name) || baseContext.name,
-      contactEmail: sanitizeString(item.contact_email) || baseContext.contactEmail,
+      contactEmail:
+        sanitizeString(item.contact_email) || baseContext.contactEmail,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.PURCHASE_REQUESTS) {
     return {
       ...baseContext,
-      purchaseRequestId: sanitizeString(item.id) || baseContext.purchaseRequestId,
+      purchaseRequestId:
+        sanitizeString(item.id) || baseContext.purchaseRequestId,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      requestedByUserId: sanitizeString(item.requested_by_user_id) || baseContext.requestedByUserId,
+      requestedByUserId:
+        sanitizeString(item.requested_by_user_id) ||
+        baseContext.requestedByUserId,
       status: sanitizeString(item.status) || baseContext.status,
-      requestedAtFrom: sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
+      requestedAtFrom:
+        sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
     };
   }
 
@@ -522,7 +580,9 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       purchaseOrderId: sanitizeString(item.id) || baseContext.purchaseOrderId,
-      purchaseRequestId: sanitizeString(item.purchase_request_id) || baseContext.purchaseRequestId,
+      purchaseRequestId:
+        sanitizeString(item.purchase_request_id) ||
+        baseContext.purchaseRequestId,
       supplierId: sanitizeString(item.supplier_id) || baseContext.supplierId,
       status: sanitizeString(item.status) || baseContext.status,
     };
@@ -531,7 +591,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.GOODS_RECEIPTS) {
     return {
       ...baseContext,
-      purchaseOrderId: sanitizeString(item.purchase_order_id) || baseContext.purchaseOrderId,
+      purchaseOrderId:
+        sanitizeString(item.purchase_order_id) || baseContext.purchaseOrderId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -539,7 +600,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.STOCK_ADJUSTMENTS) {
     return {
       ...baseContext,
-      inventoryItemId: sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
+      inventoryItemId:
+        sanitizeString(item.inventory_item_id) || baseContext.inventoryItemId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
       reason: sanitizeString(item.reason) || baseContext.reason,
     };
@@ -553,7 +615,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
       patientId: sanitizeString(item.patient_id) || baseContext.patientId,
       status: sanitizeString(item.status) || baseContext.status,
-      billingStatus: sanitizeString(item.billing_status) || baseContext.billingStatus,
+      billingStatus:
+        sanitizeString(item.billing_status) || baseContext.billingStatus,
     };
   }
 
@@ -574,27 +637,33 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       paymentId: sanitizeString(item.payment_id) || baseContext.paymentId,
-      refundedAtFrom: sanitizeString(item.refunded_at) || baseContext.refundedAtFrom,
+      refundedAtFrom:
+        sanitizeString(item.refunded_at) || baseContext.refundedAtFrom,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.INSURANCE_CLAIMS) {
     return {
       ...baseContext,
-      coveragePlanId: sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
+      coveragePlanId:
+        sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
       invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
       status: sanitizeString(item.status) || baseContext.status,
-      submittedAtFrom: sanitizeString(item.submitted_at) || baseContext.submittedAtFrom,
+      submittedAtFrom:
+        sanitizeString(item.submitted_at) || baseContext.submittedAtFrom,
     };
   }
 
   if (resourceId === CLINICAL_RESOURCE_IDS.PRE_AUTHORIZATIONS) {
     return {
       ...baseContext,
-      coveragePlanId: sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
+      coveragePlanId:
+        sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
       status: sanitizeString(item.status) || baseContext.status,
-      requestedAtFrom: sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
-      approvedAtFrom: sanitizeString(item.approved_at) || baseContext.approvedAtFrom,
+      requestedAtFrom:
+        sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
+      approvedAtFrom:
+        sanitizeString(item.approved_at) || baseContext.approvedAtFrom,
     };
   }
 
@@ -611,7 +680,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       ...baseContext,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      departmentId:
+        sanitizeString(item.department_id) || baseContext.departmentId,
       name: sanitizeString(item.name) || baseContext.name,
       isActive:
         typeof item?.is_active === 'boolean'
@@ -626,7 +696,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       staffProfileId: sanitizeString(item.id) || baseContext.staffProfileId,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       userId: sanitizeString(item.user_id) || baseContext.userId,
-      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      departmentId:
+        sanitizeString(item.department_id) || baseContext.departmentId,
       staffNumber: sanitizeString(item.staff_number) || baseContext.staffNumber,
       position: sanitizeString(item.position) || baseContext.position,
     };
@@ -635,8 +706,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_ASSIGNMENTS) {
     return {
       ...baseContext,
-      staffProfileId: sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
-      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      staffProfileId:
+        sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
+      departmentId:
+        sanitizeString(item.department_id) || baseContext.departmentId,
       unitId: sanitizeString(item.unit_id) || baseContext.unitId,
     };
   }
@@ -644,7 +717,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.STAFF_LEAVES) {
     return {
       ...baseContext,
-      staffProfileId: sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
+      staffProfileId:
+        sanitizeString(item.staff_profile_id) || baseContext.staffProfileId,
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
@@ -656,7 +730,8 @@ const buildItemContext = (resourceId, item, baseContext) => {
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
       shiftType: sanitizeString(item.shift_type) || baseContext.shiftType,
       status: sanitizeString(item.status) || baseContext.status,
-      startTimeFrom: sanitizeString(item.start_time) || baseContext.startTimeFrom,
+      startTimeFrom:
+        sanitizeString(item.start_time) || baseContext.startTimeFrom,
       endTimeFrom: sanitizeString(item.end_time) || baseContext.endTimeFrom,
     };
   }
@@ -666,9 +741,11 @@ const buildItemContext = (resourceId, item, baseContext) => {
       ...baseContext,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      departmentId: sanitizeString(item.department_id) || baseContext.departmentId,
+      departmentId:
+        sanitizeString(item.department_id) || baseContext.departmentId,
       status: sanitizeString(item.status) || baseContext.status,
-      periodStartFrom: sanitizeString(item.period_start) || baseContext.periodStartFrom,
+      periodStartFrom:
+        sanitizeString(item.period_start) || baseContext.periodStartFrom,
     };
   }
 
@@ -677,8 +754,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
       ...baseContext,
       tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
       status: sanitizeString(item.status) || baseContext.status,
-      periodStartFrom: sanitizeString(item.period_start) || baseContext.periodStartFrom,
-      periodEndFrom: sanitizeString(item.period_end) || baseContext.periodEndFrom,
+      periodStartFrom:
+        sanitizeString(item.period_start) || baseContext.periodStartFrom,
+      periodEndFrom:
+        sanitizeString(item.period_end) || baseContext.periodEndFrom,
     };
   }
 
@@ -726,14 +805,16 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       assetId: sanitizeString(item.asset_id) || baseContext.assetId,
-      servicedAtFrom: sanitizeString(item.serviced_at) || baseContext.servicedAtFrom,
+      servicedAtFrom:
+        sanitizeString(item.serviced_at) || baseContext.servicedAtFrom,
     };
   }
 
   return baseContext;
 };
 
-const getSearchParamValue = (value) => (Array.isArray(value) ? value[0] : value);
+const getSearchParamValue = (value) =>
+  Array.isArray(value) ? value[0] : value;
 
 const buildSearchParamsSignature = (params = {}) => {
   if (!params || typeof params !== 'object') return '';
@@ -748,6 +829,48 @@ const buildSearchParamsSignature = (params = {}) => {
       return `${key}:${sanitizeString(value)}`;
     })
     .join('|');
+};
+
+const normalizeSearchValue = (value) => sanitizeString(value).toLowerCase();
+
+const appendSearchValue = (target, value) => {
+  if (value === undefined || value === null) return;
+
+  if (Array.isArray(value)) {
+    value.forEach((entry) => appendSearchValue(target, entry));
+    return;
+  }
+
+  if (typeof value === 'object') {
+    Object.values(value).forEach((entry) => appendSearchValue(target, entry));
+    return;
+  }
+
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    const normalized = normalizeSearchValue(value);
+    if (normalized) target.push(normalized);
+  }
+};
+
+const buildSearchHaystack = (item, config, t) => {
+  const values = [];
+
+  if (item && typeof item === 'object') {
+    appendSearchValue(values, item);
+  }
+
+  if (config?.getItemTitle) {
+    appendSearchValue(values, config.getItemTitle(item, t));
+  }
+  if (config?.getItemSubtitle) {
+    appendSearchValue(values, config.getItemSubtitle(item, t));
+  }
+
+  return values.join(' ');
 };
 
 const useClinicalResourceListScreen = (resourceId) => {
@@ -783,15 +906,27 @@ const useClinicalResourceListScreen = (resourceId) => {
     isResolved,
   } = useScopeAccess(resolvedScope);
 
-  const { list, remove, data, isLoading, errorCode, reset } = useClinicalResourceCrud(resourceId);
+  const { list, remove, data, isLoading, errorCode, reset } =
+    useClinicalResourceCrud(resourceId);
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const [search, setSearch] = useState('');
 
-  const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
-  const normalizedFacilityId = useMemo(() => sanitizeString(facilityId), [facilityId]);
+  const normalizedTenantId = useMemo(
+    () => sanitizeString(tenantId),
+    [tenantId]
+  );
+  const normalizedFacilityId = useMemo(
+    () => sanitizeString(facilityId),
+    [facilityId]
+  );
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
   const canList = Boolean(config && canAccessClinical && hasScope);
-  const canCreateResource = Boolean(canCreateClinicalRecords && config?.allowCreate !== false);
-  const canDeleteResource = Boolean(canDeleteClinicalRecords && config?.allowDelete !== false);
+  const canCreateResource = Boolean(
+    canCreateClinicalRecords && config?.allowCreate !== false
+  );
+  const canDeleteResource = Boolean(
+    canDeleteClinicalRecords && config?.allowDelete !== false
+  );
   const resourceLabel = useMemo(() => {
     if (!config) return '';
     const labelKey = `${config.i18nKey}.label`;
@@ -805,14 +940,35 @@ const useClinicalResourceListScreen = (resourceId) => {
     if (Array.isArray(data?.items)) return data.items;
     return [];
   }, [data]);
+  const normalizedSearch = useMemo(() => normalizeSearchValue(search), [search]);
+
+  const filteredItems = useMemo(() => {
+    if (!normalizedSearch) return items;
+    const terms = normalizedSearch.split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return items;
+
+    return items.filter((item) => {
+      const haystack = buildSearchHaystack(item, config, t);
+      if (!haystack) return false;
+      return terms.every((term) => haystack.includes(term));
+    });
+  }, [items, config, t, normalizedSearch]);
+
+  const hasActiveSearch = normalizedSearch.length > 0;
+  const hasNoResults = hasActiveSearch && filteredItems.length === 0 && items.length > 0;
 
   const errorMessage = useMemo(() => {
     if (!config) return null;
-    return resolveErrorMessage(t, errorCode, `${config.i18nKey}.list.loadError`);
+    return resolveErrorMessage(
+      t,
+      errorCode,
+      `${config.i18nKey}.list.loadError`
+    );
   }, [config, errorCode, t]);
 
   const listPath = useMemo(
-    () => withClinicalContext(config?.routePath || CLINICAL_ROUTE_ROOT, context),
+    () =>
+      withClinicalContext(config?.routePath || CLINICAL_ROUTE_ROOT, context),
     [config?.routePath, context]
   );
 
@@ -822,7 +978,11 @@ const useClinicalResourceListScreen = (resourceId) => {
     if (config.requiresTenant && !canManageAllTenants) {
       params.tenant_id = normalizedTenantId;
     }
-    if (config.supportsFacility && !canManageAllTenants && normalizedFacilityId) {
+    if (
+      config.supportsFacility &&
+      !canManageAllTenants &&
+      normalizedFacilityId
+    ) {
       params.facility_id = normalizedFacilityId;
     }
     const filters = getContextFilters(resourceId, context);
@@ -883,13 +1043,25 @@ const useClinicalResourceListScreen = (resourceId) => {
     fetchList();
   }, [fetchList]);
 
+  const handleSearch = useCallback((value) => {
+    setSearch(value ?? '');
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearch('');
+  }, []);
+
   const handleItemPress = useCallback(
     (id) => {
       const normalizedId = normalizeSearchParam(id);
       if (!normalizedId || !config) return;
-      const item = items.find((candidate) => String(candidate?.id) === String(normalizedId));
+      const item = items.find(
+        (candidate) => String(candidate?.id) === String(normalizedId)
+      );
       const nextContext = buildItemContext(resourceId, item, context);
-      router.push(withClinicalContext(`${config.routePath}/${normalizedId}`, nextContext));
+      router.push(
+        withClinicalContext(`${config.routePath}/${normalizedId}`, nextContext)
+      );
     },
     [config, items, resourceId, context, router]
   );
@@ -923,7 +1095,11 @@ const useClinicalResourceListScreen = (resourceId) => {
   return {
     config,
     context,
-    items,
+    items: filteredItems,
+    totalItems: items.length,
+    hasActiveSearch,
+    hasNoResults,
+    search,
     isLoading: !isResolved || isLoading,
     hasError: isResolved && Boolean(errorCode),
     errorMessage,
@@ -931,13 +1107,19 @@ const useClinicalResourceListScreen = (resourceId) => {
     noticeMessage,
     onDismissNotice: () => setNoticeMessage(null),
     onRetry: handleRetry,
+    onSearch: handleSearch,
+    onClearSearch: handleClearSearch,
     onItemPress: handleItemPress,
     onDelete: handleDelete,
     onAdd: handleAdd,
     canCreate: canCreateResource,
     canDelete: canDeleteResource,
-    createBlockedReason: canCreateResource ? '' : t('clinical.access.createDenied'),
-    deleteBlockedReason: canDeleteResource ? '' : t('clinical.access.deleteDenied'),
+    createBlockedReason: canCreateResource
+      ? ''
+      : t('clinical.access.createDenied'),
+    deleteBlockedReason: canDeleteResource
+      ? ''
+      : t('clinical.access.deleteDenied'),
     listPath,
   };
 };

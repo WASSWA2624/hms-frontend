@@ -23,6 +23,7 @@ const StyledToolbar = styled.View.withConfig({
   componentId: 'ClinicalResourceListScreen_StyledToolbar',
 })`
   flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledToolbarActions = styled.View.withConfig({
@@ -31,6 +32,9 @@ const StyledToolbarActions = styled.View.withConfig({
 })`
   flex-direction: row;
   justify-content: flex-end;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  flex-wrap: wrap;
 `;
 
 const StyledAddButton = styled.Pressable.withConfig({
