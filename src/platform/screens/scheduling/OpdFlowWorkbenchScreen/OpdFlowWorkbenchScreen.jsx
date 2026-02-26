@@ -30,10 +30,16 @@ import {
   StyledFieldRow,
   StyledFlowList,
   StyledFlowListBadgeWrap,
+  StyledFlowListEncounterMeta,
   StyledFlowListItem,
   StyledFlowListItemHeader,
+  StyledFlowListMetaGroup,
+  StyledFlowListMetaRow,
   StyledFlowListNumber,
+  StyledFlowListProgress,
+  StyledFlowListProgressDot,
   StyledFlowListSearch,
+  StyledFlowStageChip,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
   StyledFlowListTitle,
@@ -106,26 +112,53 @@ const renderLinkedId = (t, label, value) => (
   </StyledLinkedRecordItem>
 );
 
-const resolveStageBadgeVariant = (stage) => {
+const FLOW_PHASES = Object.freeze({
+  REGISTRATION: 'registration',
+  TRIAGE: 'triage',
+  REVIEW: 'review',
+  ORDERS: 'orders',
+  FINAL: 'final',
+  UNKNOWN: 'unknown',
+});
+
+const FLOW_PHASE_BY_STAGE = Object.freeze({
+  WAITING_CONSULTATION_PAYMENT: FLOW_PHASES.REGISTRATION,
+  WAITING_VITALS: FLOW_PHASES.REGISTRATION,
+  WAITING_DOCTOR_ASSIGNMENT: FLOW_PHASES.TRIAGE,
+  WAITING_DOCTOR_REVIEW: FLOW_PHASES.REVIEW,
+  LAB_REQUESTED: FLOW_PHASES.ORDERS,
+  RADIOLOGY_REQUESTED: FLOW_PHASES.ORDERS,
+  LAB_AND_RADIOLOGY_REQUESTED: FLOW_PHASES.ORDERS,
+  PHARMACY_REQUESTED: FLOW_PHASES.ORDERS,
+  WAITING_DISPOSITION: FLOW_PHASES.ORDERS,
+  ADMITTED: FLOW_PHASES.FINAL,
+  DISCHARGED: FLOW_PHASES.FINAL,
+});
+
+const FLOW_PROGRESS_INDEX_BY_STAGE = Object.freeze({
+  WAITING_CONSULTATION_PAYMENT: 0,
+  WAITING_VITALS: 0,
+  WAITING_DOCTOR_ASSIGNMENT: 1,
+  WAITING_DOCTOR_REVIEW: 2,
+  LAB_REQUESTED: 3,
+  RADIOLOGY_REQUESTED: 3,
+  LAB_AND_RADIOLOGY_REQUESTED: 3,
+  PHARMACY_REQUESTED: 3,
+  WAITING_DISPOSITION: 3,
+  ADMITTED: 4,
+  DISCHARGED: 4,
+});
+
+const FLOW_PROGRESS_DOT_COUNT = 5;
+
+const resolveFlowPhase = (stage) =>
+  FLOW_PHASE_BY_STAGE[toCleanText(stage).toUpperCase()] || FLOW_PHASES.UNKNOWN;
+
+const resolveFlowProgressIndex = (stage) => {
   const normalized = toCleanText(stage).toUpperCase();
-  if (normalized === 'ADMITTED' || normalized === 'DISCHARGED') return 'success';
-  if (
-    normalized === 'LAB_REQUESTED' ||
-    normalized === 'RADIOLOGY_REQUESTED' ||
-    normalized === 'LAB_AND_RADIOLOGY_REQUESTED' ||
-    normalized === 'PHARMACY_REQUESTED'
-  ) {
-    return 'warning';
-  }
-  if (
-    normalized === 'WAITING_CONSULTATION_PAYMENT' ||
-    normalized === 'WAITING_VITALS' ||
-    normalized === 'WAITING_DOCTOR_ASSIGNMENT' ||
-    normalized === 'WAITING_DOCTOR_REVIEW'
-  ) {
-    return 'primary';
-  }
-  return 'error';
+  return Number.isInteger(FLOW_PROGRESS_INDEX_BY_STAGE[normalized])
+    ? FLOW_PROGRESS_INDEX_BY_STAGE[normalized]
+    : -1;
 };
 
 const resolvePatientName = (flowItem, fallbackTitle) => {
@@ -1531,14 +1564,15 @@ const OpdFlowWorkbenchScreen = ({
                     const stageLabel = stage
                       ? t(`scheduling.opdFlow.stages.${stage}`)
                       : t('scheduling.opdFlow.stages.UNKNOWN');
-                    const stageTone = resolveStageBadgeVariant(stage);
+                    const phaseTone = resolveFlowPhase(stage);
+                    const progressIndex = resolveFlowProgressIndex(stage);
 
                     return (
                       <StyledFlowListItem
                         key={flowId || `opd-flow-item-${index + 1}`}
                         onPress={() => isSelectable && screen.onSelectFlow(flowItem)}
                         $selected={isSelected}
-                        $tone={stageTone}
+                        $tone={phaseTone}
                         disabled={!isSelectable}
                         accessibilityRole="button"
                         accessibilityLabel={patientName}
@@ -1546,23 +1580,52 @@ const OpdFlowWorkbenchScreen = ({
                         testID={`opd-workbench-list-item-${index + 1}`}
                       >
                         <StyledFlowListItemHeader>
-                          <StyledFlowListNumber>{index + 1}</StyledFlowListNumber>
+                          <StyledFlowListNumber $tone={phaseTone}>{index + 1}</StyledFlowListNumber>
                           <StyledFlowListPrimary>
                             <StyledFlowListTitle $selected={isSelected}>
                               {patientName}
                             </StyledFlowListTitle>
+                          </StyledFlowListPrimary>
+                          <StyledFlowListBadgeWrap>
+                            <StyledFlowStageChip
+                              $tone={phaseTone}
+                              testID={`opd-workbench-list-stage-${index + 1}`}
+                            >
+                              {stageLabel}
+                            </StyledFlowStageChip>
+                          </StyledFlowListBadgeWrap>
+                        </StyledFlowListItemHeader>
+                        <StyledFlowListMetaRow>
+                          <StyledFlowListMetaGroup>
                             <StyledFlowListPatientMeta>
                               {`${t('scheduling.opdFlow.start.patientId')}: ${
                                 patientHumanFriendlyId || t('common.notAvailable')
                               }`}
                             </StyledFlowListPatientMeta>
-                          </StyledFlowListPrimary>
-                          <StyledFlowListBadgeWrap>
-                            <Badge variant={stageTone} size="small">
-                              {stageLabel}
-                            </Badge>
-                          </StyledFlowListBadgeWrap>
-                        </StyledFlowListItemHeader>
+                            <StyledFlowListEncounterMeta>
+                              {`\u2022 ${t('scheduling.opdFlow.snapshot.encounterId')}: ${
+                                encounterHumanFriendlyId || t('common.notAvailable')
+                              }`}
+                            </StyledFlowListEncounterMeta>
+                          </StyledFlowListMetaGroup>
+                          <StyledFlowListProgress testID={`opd-workbench-list-progress-${index + 1}`}>
+                            {Array.from({ length: FLOW_PROGRESS_DOT_COUNT }).map((_, stepIndex) => {
+                              let state = 'upcoming';
+                              if (progressIndex >= 0 && stepIndex < progressIndex) {
+                                state = 'completed';
+                              } else if (progressIndex >= 0 && stepIndex === progressIndex) {
+                                state = 'current';
+                              }
+                              return (
+                                <StyledFlowListProgressDot
+                                  key={`progress-dot-${index + 1}-${stepIndex + 1}`}
+                                  $state={state}
+                                  $tone={phaseTone}
+                                />
+                              );
+                            })}
+                          </StyledFlowListProgress>
+                        </StyledFlowListMetaRow>
                       </StyledFlowListItem>
                     );
                   })}

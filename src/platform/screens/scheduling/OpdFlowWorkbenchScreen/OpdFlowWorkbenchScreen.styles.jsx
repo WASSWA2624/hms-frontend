@@ -37,36 +37,80 @@ const PROGRESS_TONE_MAP = Object.freeze({
 
 const resolveProgressTone = (tone) => PROGRESS_TONE_MAP[tone] || PROGRESS_TONE_MAP.indigo;
 const FLOW_LIST_TONE_MAP = Object.freeze({
-  primary: {
+  registration: {
     accent: '#0f6cbd',
-    border: '#b9d9f4',
-    surface: '#f7fbff',
-    numberSurface: '#dceeff',
+    border: '#bfdcff',
+    surface: '#f6faff',
+    numberSurface: '#dbeeff',
     numberText: '#0f3f6d',
+    chipSurface: '#e8f3ff',
+    chipBorder: '#9bc5ff',
+    chipText: '#0a4f8a',
+    progressActive: '#0f6cbd',
+    progressComplete: '#5aa4e8',
   },
-  warning: {
+  triage: {
     accent: '#b45309',
-    border: '#f1d3b5',
-    surface: '#fff9f2',
+    border: '#f5d8bd',
+    surface: '#fffaf3',
     numberSurface: '#fde8d4',
-    numberText: '#7c2d12',
+    numberText: '#7a3710',
+    chipSurface: '#fff2e2',
+    chipBorder: '#f6c892',
+    chipText: '#93470a',
+    progressActive: '#b45309',
+    progressComplete: '#df9a57',
   },
-  success: {
+  review: {
+    accent: '#0f766e',
+    border: '#bceae5',
+    surface: '#f3fcfb',
+    numberSurface: '#d6f4f1',
+    numberText: '#115e59',
+    chipSurface: '#e7faf7',
+    chipBorder: '#93ddd5',
+    chipText: '#0f6760',
+    progressActive: '#0f766e',
+    progressComplete: '#41a79f',
+  },
+  orders: {
+    accent: '#475569',
+    border: '#ccd5df',
+    surface: '#f8fafc',
+    numberSurface: '#e4eaf0',
+    numberText: '#334155',
+    chipSurface: '#edf1f5',
+    chipBorder: '#c2ccd7',
+    chipText: '#3f4f63',
+    progressActive: '#475569',
+    progressComplete: '#7a8a9b',
+  },
+  final: {
     accent: '#15803d',
-    border: '#b8e3c6',
-    surface: '#f5fdf7',
-    numberSurface: '#d8f3df',
+    border: '#bfe4cb',
+    surface: '#f4fdf7',
+    numberSurface: '#daf4e2',
     numberText: '#166534',
+    chipSurface: '#e9f9ee',
+    chipBorder: '#9fddb4',
+    chipText: '#166534',
+    progressActive: '#15803d',
+    progressComplete: '#49a86a',
   },
-  error: {
-    accent: '#b42318',
-    border: '#f0c6c3',
-    surface: '#fff7f6',
-    numberSurface: '#fddedb',
-    numberText: '#912018',
+  unknown: {
+    accent: '#6b7280',
+    border: '#d6dae2',
+    surface: '#f8fafc',
+    numberSurface: '#eceff4',
+    numberText: '#374151',
+    chipSurface: '#eff2f6',
+    chipBorder: '#d2d9e2',
+    chipText: '#4b5563',
+    progressActive: '#6b7280',
+    progressComplete: '#9aa3b2',
   },
 });
-const resolveFlowListTone = (tone) => FLOW_LIST_TONE_MAP[tone] || FLOW_LIST_TONE_MAP.error;
+const resolveFlowListTone = (tone) => FLOW_LIST_TONE_MAP[tone] || FLOW_LIST_TONE_MAP.unknown;
 
 const StyledContainer = styled.section.withConfig({
   displayName: 'OpdFlowWorkbench_StyledContainer',
@@ -175,7 +219,7 @@ const StyledFlowList = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs + 4}px;
+  gap: ${({ theme }) => theme.spacing.xs + 1}px;
   height: clamp(380px, 72vh, 820px);
   overflow-y: auto;
   padding-right: ${({ theme }) => theme.spacing.xs}px;
@@ -207,48 +251,45 @@ const StyledFlowListItem = styled(Pressable).withConfig({
   componentId: 'OpdFlowWorkbench_StyledFlowListItem',
   shouldForwardProp: (prop) => !['$selected', '$tone'].includes(prop),
 })`
-  ${({ $tone }) => {
+  ${({ $tone, $selected }) => {
     const tone = resolveFlowListTone($tone);
+    const borderColor = $selected ? '#0f6cbd' : tone.border;
+    const leftColor = tone.accent;
+    const surface = $selected ? '#f0f7ff' : tone.surface;
+    const shadow = $selected
+      ? '0 6px 16px rgba(15, 108, 189, 0.2)'
+      : '0 2px 8px rgba(15, 23, 42, 0.1)';
     return `
-      --flow-accent: ${tone.accent};
-      --flow-border: ${tone.border};
-      --flow-surface: ${tone.surface};
-      --flow-number-surface: ${tone.numberSurface};
-      --flow-number-text: ${tone.numberText};
+      border-color: ${borderColor};
+      border-left-color: ${leftColor};
+      background-color: ${surface};
+      box-shadow: ${shadow};
     `;
   }}
   width: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 82px;
+  min-height: 62px;
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.primary : 'var(--flow-border)'};
   border-left-width: 4px;
-  border-left-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.primary : 'var(--flow-accent)'};
-  background-color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.background.secondary : 'var(--flow-surface)'};
-  padding: ${({ theme }) => `${theme.spacing.sm - 1}px ${theme.spacing.sm + 2}px`};
+  padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm}px`};
   text-align: left;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  box-shadow: ${({ $selected }) =>
-    $selected ? '0 8px 18px rgba(0, 120, 212, 0.16)' : '0 2px 6px rgba(15, 23, 42, 0.08)'};
+  overflow: hidden;
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    box-shadow 0.2s ease;
 
   &:hover {
-    border-color: ${({ theme, $selected }) => ($selected ? theme.colors.primary : 'var(--flow-accent)')};
-    background-color: ${({ theme, $selected }) =>
-      $selected ? theme.colors.background.secondary : theme.colors.background.tertiary};
+    border-color: ${({ $selected, $tone }) =>
+      $selected ? '#0f6cbd' : resolveFlowListTone($tone).accent};
+    background-color: ${({ $selected, $tone }) =>
+      $selected ? '#edf6ff' : resolveFlowListTone($tone).surface};
     box-shadow: ${({ $selected }) =>
-      $selected ? '0 6px 16px rgba(0, 120, 212, 0.2)' : '0 4px 10px rgba(0, 0, 0, 0.1)'};
-    transform: translateY(-1px);
+      $selected ? '0 5px 14px rgba(15, 108, 189, 0.2)' : '0 2px 7px rgba(15, 23, 42, 0.12)'};
   }
 
   &:focus-visible {
@@ -264,22 +305,23 @@ const StyledFlowListItemHeader = styled.div.withConfig({
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs + 4}px;
+  gap: ${({ theme }) => theme.spacing.xs + 2}px;
 `;
 
 const StyledFlowListNumber = styled.span.withConfig({
   displayName: 'OpdFlowWorkbench_StyledFlowListNumber',
   componentId: 'OpdFlowWorkbench_StyledFlowListNumber',
+  shouldForwardProp: (prop) => !['$tone'].includes(prop),
 })`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  height: 26px;
+  min-width: 22px;
+  height: 22px;
   border-radius: 999px;
-  border: 1px solid var(--flow-border);
-  background: var(--flow-number-surface);
-  color: var(--flow-number-text);
+  border: 1px solid ${({ $tone }) => resolveFlowListTone($tone).border};
+  background: ${({ $tone }) => resolveFlowListTone($tone).numberSurface};
+  color: ${({ $tone }) => resolveFlowListTone($tone).numberText};
   font-family: ${({ theme }) => theme.typography.fontFamily.bold};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
@@ -292,7 +334,7 @@ const StyledFlowListPrimary = styled.div.withConfig({
 })`
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
   min-width: 0;
 `;
 
@@ -315,15 +357,108 @@ const StyledFlowListTitle = styled.h4.withConfig({
   text-overflow: ellipsis;
 `;
 
-const StyledFlowListPatientMeta = styled.p.withConfig({
+const StyledFlowListMetaRow = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListMetaRow',
+  componentId: 'OpdFlowWorkbench_StyledFlowListMetaRow',
+})`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
+const StyledFlowListMetaGroup = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListMetaGroup',
+  componentId: 'OpdFlowWorkbench_StyledFlowListMetaGroup',
+})`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+`;
+
+const StyledFlowListPatientMeta = styled.span.withConfig({
   displayName: 'OpdFlowWorkbench_StyledFlowListPatientMeta',
   componentId: 'OpdFlowWorkbench_StyledFlowListPatientMeta',
 })`
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
   line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xs * 1.35)}px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledFlowListEncounterMeta = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListEncounterMeta',
+  componentId: 'OpdFlowWorkbench_StyledFlowListEncounterMeta',
+})`
+  margin: 0;
+  font-family: ${({ theme }) => theme.typography.fontFamily.regular};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
+  line-height: ${({ theme }) => Math.round(theme.typography.fontSize.xs * 1.35)}px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledFlowStageChip = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowStageChip',
+  componentId: 'OpdFlowWorkbench_StyledFlowStageChip',
+  shouldForwardProp: (prop) => !['$tone'].includes(prop),
+})`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 220px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid ${({ $tone }) => resolveFlowListTone($tone).chipBorder};
+  background: ${({ $tone }) => resolveFlowListTone($tone).chipSurface};
+  color: ${({ $tone }) => resolveFlowListTone($tone).chipText};
+  font-family: ${({ theme }) => theme.typography.fontFamily.medium};
+  font-size: ${({ theme }) => theme.typography.fontSize.xs - 1}px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  line-height: ${({ theme }) => Math.round((theme.typography.fontSize.xs - 1) * 1.3)}px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledFlowListProgress = styled.div.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListProgress',
+  componentId: 'OpdFlowWorkbench_StyledFlowListProgress',
+})`
+  display: inline-grid;
+  grid-template-columns: repeat(5, 8px);
+  gap: 4px;
+  align-items: center;
+`;
+
+const StyledFlowListProgressDot = styled.span.withConfig({
+  displayName: 'OpdFlowWorkbench_StyledFlowListProgressDot',
+  componentId: 'OpdFlowWorkbench_StyledFlowListProgressDot',
+  shouldForwardProp: (prop) => !['$state', '$tone'].includes(prop),
+})`
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: ${({ $state, $tone }) => {
+    if ($state === 'current') return resolveFlowListTone($tone).progressActive;
+    if ($state === 'completed') return resolveFlowListTone($tone).progressComplete;
+    return 'rgba(148, 163, 184, 0.35)';
+  }};
+  border: 1px solid
+    ${({ $state, $tone }) => {
+      if ($state === 'current') return resolveFlowListTone($tone).progressActive;
+      if ($state === 'completed') return resolveFlowListTone($tone).progressComplete;
+      return 'rgba(148, 163, 184, 0.45)';
+    }};
 `;
 
 const StyledFlowListBadgeWrap = styled.div.withConfig({
@@ -332,7 +467,7 @@ const StyledFlowListBadgeWrap = styled.div.withConfig({
 })`
   flex-shrink: 0;
   display: inline-flex;
-  max-width: 190px;
+  max-width: 220px;
 `;
 
 const StyledFlowListSearch = styled.div.withConfig({
@@ -705,10 +840,16 @@ export {
   StyledFieldRow,
   StyledFlowList,
   StyledFlowListBadgeWrap,
+  StyledFlowListEncounterMeta,
   StyledFlowListItem,
   StyledFlowListItemHeader,
+  StyledFlowListMetaGroup,
+  StyledFlowListMetaRow,
   StyledFlowListNumber,
+  StyledFlowListProgress,
+  StyledFlowListProgressDot,
   StyledFlowListSearch,
+  StyledFlowStageChip,
   StyledFlowListPatientMeta,
   StyledFlowListPrimary,
   StyledFlowListTitle,

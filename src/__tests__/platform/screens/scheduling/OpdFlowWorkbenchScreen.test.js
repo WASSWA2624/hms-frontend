@@ -5,6 +5,9 @@ const lightTheme = require('@theme/light.theme').default || require('@theme/ligh
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
+  useClinicalAlert: jest.fn(),
+  useReferral: jest.fn(),
+  useFollowUp: jest.fn(),
 }));
 
 jest.mock('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkbenchScreen', () => ({
@@ -12,7 +15,7 @@ jest.mock('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkben
   default: jest.fn(),
 }));
 
-const { useI18n } = require('@hooks');
+const { useI18n, useClinicalAlert, useReferral, useFollowUp } = require('@hooks');
 const useOpdFlowWorkbenchScreen =
   require('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkbenchScreen').default;
 const OpdFlowWorkbenchScreen =
@@ -222,6 +225,20 @@ describe('OpdFlowWorkbenchScreen', () => {
       t: (key, values = {}) =>
         String(key).replace(/\{\{(\w+)\}\}/g, (_match, token) => String(values[token] || '')),
     });
+    useClinicalAlert.mockReturnValue({
+      acknowledge: jest.fn().mockResolvedValue(true),
+      resolve: jest.fn().mockResolvedValue(true),
+    });
+    useReferral.mockReturnValue({
+      approve: jest.fn().mockResolvedValue(true),
+      start: jest.fn().mockResolvedValue(true),
+      cancel: jest.fn().mockResolvedValue(true),
+      redeem: jest.fn().mockResolvedValue(true),
+    });
+    useFollowUp.mockReturnValue({
+      complete: jest.fn().mockResolvedValue(true),
+      cancel: jest.fn().mockResolvedValue(true),
+    });
     useOpdFlowWorkbenchScreen.mockReturnValue(buildBaseHook());
   });
 
@@ -231,13 +248,46 @@ describe('OpdFlowWorkbenchScreen', () => {
     expect(getByTestId('opd-workbench-screen')).toBeTruthy();
     expect(getByTestId('opd-workbench-stage-label')).toBeTruthy();
     expect(getByTestId('opd-workbench-list-item-1')).toBeTruthy();
+    expect(getByTestId('opd-workbench-list-stage-1')).toBeTruthy();
+    expect(getByTestId('opd-workbench-list-progress-1')).toBeTruthy();
     expect(getByText('scheduling.opdFlow.progress.title')).toBeTruthy();
     expect(getByText('scheduling.opdFlow.guidance.title')).toBeTruthy();
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('scheduling.opdFlow.start.patientId: PAT-001')).toBeTruthy();
+    expect(getByText(/scheduling\.opdFlow\.snapshot\.encounterId: ENC-001/)).toBeTruthy();
     expect(getAllByText('scheduling.opdFlow.stages.WAITING_CONSULTATION_PAYMENT').length).toBeGreaterThan(0);
     expect(queryByText('scheduling.opdFlow.start.arrivalMode')).toBeNull();
     expect(queryByText('scheduling.resources.appointments.detail.scheduledStartLabel')).toBeNull();
+  });
+
+  it('shows fallback metadata when patient and encounter IDs are unavailable', () => {
+    const hookValue = buildBaseHook();
+    hookValue.flowList = [
+      {
+        id: 'enc-1',
+        encounter: {
+          id: 'enc-1',
+          patient_id: 'patient-1',
+          human_friendly_id: '',
+          patient: {
+            id: 'patient-1',
+            first_name: 'Jane',
+            last_name: 'Doe',
+            human_friendly_id: '',
+          },
+        },
+        flow: { stage: 'UNKNOWN_STAGE', next_step: null, timeline: [] },
+        timeline: [],
+        linked_record_ids: { encounter_id: '', lab_order_ids: [], radiology_order_ids: [] },
+      },
+    ];
+    hookValue.selectedFlowId = '';
+    useOpdFlowWorkbenchScreen.mockReturnValue(hookValue);
+
+    const { getByText, getByTestId } = renderWithTheme(<OpdFlowWorkbenchScreen />);
+    expect(getByTestId('opd-workbench-list-item-1')).toBeTruthy();
+    expect(getByText('scheduling.opdFlow.start.patientId: common.notAvailable')).toBeTruthy();
+    expect(getByText(/scheduling\.opdFlow\.snapshot\.encounterId: common\.notAvailable/)).toBeTruthy();
   });
 
   it('shows flow-search loading indicator while query results are loading', () => {
