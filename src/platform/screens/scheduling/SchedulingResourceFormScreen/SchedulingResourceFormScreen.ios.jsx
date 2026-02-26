@@ -22,6 +22,11 @@ import {
   StyledFormGrid,
   StyledFullRow,
   StyledInlineStates,
+  StyledLookupStack,
+  StyledRepeaterGrid,
+  StyledRepeaterHeader,
+  StyledRepeaterItem,
+  StyledRepeaterStack,
 } from './SchedulingResourceFormScreen.ios.styles';
 import useSchedulingResourceFormScreen from './useSchedulingResourceFormScreen';
 
@@ -32,6 +37,11 @@ const SchedulingResourceFormScreenIOS = ({ resourceId }) => {
     isEdit,
     values,
     setFieldValue,
+    setLookupQuery,
+    lookupStateByField,
+    addRepeaterItem,
+    removeRepeaterItem,
+    setRepeaterFieldValue,
     errors,
     isLoading,
     hasError,
@@ -181,6 +191,139 @@ const SchedulingResourceFormScreenIOS = ({ resourceId }) => {
                 );
               }
 
+              if (field.type === 'lookup') {
+                const lookupState = lookupStateByField[field.name] || {};
+                const lookupSearchLabel = t('scheduling.common.form.lookupSearchLabel', {
+                  field: t(field.labelKey),
+                });
+                return (
+                  <StyledFieldGroup key={field.name}>
+                    <StyledLookupStack>
+                      <TextField
+                        label={lookupSearchLabel}
+                        placeholder={t('scheduling.common.form.lookupSearchPlaceholder')}
+                        value={lookupState.query || ''}
+                        onChangeText={(nextValue) => setLookupQuery(field.name, nextValue)}
+                        accessibilityLabel={lookupSearchLabel}
+                        accessibilityHint={t('scheduling.common.form.lookupSearchHint')}
+                        helperText={lookupState.isLoading ? t('common.loading') : t('scheduling.common.form.lookupSearchHint')}
+                        density="compact"
+                        disabled={isLoading}
+                        testID={`scheduling-resource-form-${field.name}-search`}
+                      />
+                      <Select
+                        label={t(field.labelKey)}
+                        placeholder={t(field.placeholderKey)}
+                        options={lookupState.options || []}
+                        value={fieldValue || ''}
+                        onValueChange={(nextValue) => setFieldValue(field.name, nextValue)}
+                        accessibilityLabel={t(field.labelKey)}
+                        accessibilityHint={t(field.hintKey)}
+                        helperText={fieldError || lookupState.error || t(field.hintKey)}
+                        errorMessage={fieldError}
+                        required={Boolean(field.required)}
+                        compact
+                        disabled={isLoading}
+                        testID={`scheduling-resource-form-${field.name}`}
+                      />
+                    </StyledLookupStack>
+                  </StyledFieldGroup>
+                );
+              }
+
+              if (field.type === 'repeater') {
+                const repeaterItems = Array.isArray(fieldValue) ? fieldValue : [];
+                return (
+                  <StyledFullRow key={field.name}>
+                    <StyledFieldGroup>
+                      <Text variant="body">{t(field.labelKey)}</Text>
+                      <Text variant="body">{t(field.hintKey)}</Text>
+                      <StyledRepeaterStack>
+                        {repeaterItems.map((item, index) => (
+                          <StyledRepeaterItem key={`${field.name}-${index}`}>
+                            <StyledRepeaterHeader>
+                              <Text variant="body">
+                                {t(field.itemLabelKey || 'scheduling.common.form.repeaterRowLabel', {
+                                  index: index + 1,
+                                })}
+                              </Text>
+                              <Button
+                                variant="surface"
+                                size="small"
+                                onPress={() => removeRepeaterItem(field.name, index)}
+                                accessibilityLabel={t(field.removeLabelKey || 'scheduling.common.form.removeRow')}
+                                accessibilityHint={t(field.removeLabelKey || 'scheduling.common.form.removeRow')}
+                                testID={`scheduling-resource-form-${field.name}-remove-${index}`}
+                                disabled={isLoading}
+                              >
+                                {t(field.removeLabelKey || 'scheduling.common.form.removeRow')}
+                              </Button>
+                            </StyledRepeaterHeader>
+                            <StyledRepeaterGrid>
+                              {(field.fields || []).map((itemField) => {
+                                const itemValue = item?.[itemField.name];
+                                const itemError = errors[`${field.name}.${index}.${itemField.name}`];
+
+                                if (itemField.type === 'switch') {
+                                  return (
+                                    <StyledFieldGroup key={`${field.name}-${index}-${itemField.name}`}>
+                                      <Switch
+                                        value={Boolean(itemValue)}
+                                        onValueChange={(nextValue) =>
+                                          setRepeaterFieldValue(field.name, index, itemField.name, nextValue)
+                                        }
+                                        label={t(itemField.labelKey)}
+                                        accessibilityLabel={t(itemField.labelKey)}
+                                        accessibilityHint={t(itemField.hintKey)}
+                                        disabled={isLoading}
+                                        testID={`scheduling-resource-form-${field.name}-${index}-${itemField.name}`}
+                                      />
+                                    </StyledFieldGroup>
+                                  );
+                                }
+
+                                return (
+                                  <StyledFieldGroup key={`${field.name}-${index}-${itemField.name}`}>
+                                    <TextField
+                                      label={t(itemField.labelKey)}
+                                      placeholder={t(itemField.placeholderKey)}
+                                      value={itemValue || ''}
+                                      onChangeText={(nextValue) =>
+                                        setRepeaterFieldValue(field.name, index, itemField.name, nextValue)
+                                      }
+                                      type={itemField.type === 'datetime' ? 'text' : undefined}
+                                      accessibilityLabel={t(itemField.labelKey)}
+                                      accessibilityHint={t(itemField.hintKey)}
+                                      helperText={itemError || t(itemField.hintKey)}
+                                      errorMessage={itemError}
+                                      required={Boolean(itemField.required)}
+                                      density="compact"
+                                      disabled={isLoading}
+                                      testID={`scheduling-resource-form-${field.name}-${index}-${itemField.name}`}
+                                    />
+                                  </StyledFieldGroup>
+                                );
+                              })}
+                            </StyledRepeaterGrid>
+                          </StyledRepeaterItem>
+                        ))}
+                        <Button
+                          variant="surface"
+                          size="small"
+                          onPress={() => addRepeaterItem(field.name)}
+                          accessibilityLabel={t(field.addLabelKey || 'scheduling.common.form.addRow')}
+                          accessibilityHint={t(field.addLabelKey || 'scheduling.common.form.addRow')}
+                          testID={`scheduling-resource-form-${field.name}-add`}
+                          disabled={isLoading}
+                        >
+                          {t(field.addLabelKey || 'scheduling.common.form.addRow')}
+                        </Button>
+                      </StyledRepeaterStack>
+                    </StyledFieldGroup>
+                  </StyledFullRow>
+                );
+              }
+
               return (
                 <StyledFieldGroup key={field.name}>
                   <TextField
@@ -188,6 +331,7 @@ const SchedulingResourceFormScreenIOS = ({ resourceId }) => {
                     placeholder={t(field.placeholderKey)}
                     value={fieldValue || ''}
                     onChangeText={(nextValue) => setFieldValue(field.name, nextValue)}
+                    type={field.type === 'datetime' ? 'text' : undefined}
                     accessibilityLabel={t(field.labelKey)}
                     accessibilityHint={t(field.hintKey)}
                     helperText={fieldError || t(field.hintKey)}

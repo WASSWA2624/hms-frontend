@@ -48,6 +48,7 @@ const SchedulingOverviewScreenWeb = () => {
     cards,
     overviewSummary,
     helpContent,
+    quickActions,
     opdQuickCtaLabel,
     opdQuickCtaHint,
     opdEmphasis,
@@ -117,6 +118,23 @@ const SchedulingOverviewScreenWeb = () => {
           >
             {opdQuickCtaLabel}
           </Button>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {(quickActions || []).map((action) => (
+              <Button
+                key={action.id}
+                variant="surface"
+                size="small"
+                onPress={action.onPress}
+                accessibilityLabel={action.label}
+                accessibilityHint={action.hint}
+                icon={<Icon glyph="+" size="xs" decorative />}
+                testID={`scheduling-overview-quick-${action.id}`}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
 
           {showCreateAppointmentAction ? (
             <Button

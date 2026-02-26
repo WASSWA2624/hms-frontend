@@ -312,6 +312,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const providerUserParam = getSearchParamValue(searchParams?.providerUserId);
   const scheduleParam = getSearchParamValue(searchParams?.scheduleId);
   const appointmentParam = getSearchParamValue(searchParams?.appointmentId);
+  const reminderBoardParam = getSearchParamValue(searchParams?.reminderBoard);
   const statusParam = getSearchParamValue(searchParams?.status);
   const dayOfWeekParam = getSearchParamValue(searchParams?.dayOfWeek);
   const isAvailableParam = getSearchParamValue(searchParams?.isAvailable);
@@ -388,7 +389,11 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const [isTableSettingsOpen, setIsTableSettingsOpen] = useState(false);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState(null);
-  const [reminderBoardFilter, setReminderBoardFilter] = useState(REMINDER_BOARD_FILTERS[0]);
+  const [reminderBoardFilter, setReminderBoardFilter] = useState(() => (
+    REMINDER_BOARD_FILTERS.includes(reminderBoardParam)
+      ? reminderBoardParam
+      : REMINDER_BOARD_FILTERS[0]
+  ));
 
   const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => normalizeValue(facilityId), [facilityId]);
@@ -774,6 +779,12 @@ const useSchedulingResourceListScreen = (resourceId) => {
     if (!canList || isOffline) return;
     fetchList();
   }, [canList, isOffline, fetchList]);
+
+  useEffect(() => {
+    if (resourceId !== SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS) return;
+    if (!REMINDER_BOARD_FILTERS.includes(reminderBoardParam)) return;
+    setReminderBoardFilter(reminderBoardParam);
+  }, [resourceId, reminderBoardParam]);
 
   useEffect(() => {
     if (!noticeValue || !config) return;

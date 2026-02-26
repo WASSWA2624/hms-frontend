@@ -80,10 +80,30 @@ const deleteAppointmentReminder = async (id) =>
     return normalizeAppointmentReminder(response.data);
   });
 
+const markAppointmentReminderSent = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseAppointmentReminderId(id);
+    const parsed = parseAppointmentReminderPayload(payload);
+    const queued = await queueRequestIfOffline({
+      url: endpoints.APPOINTMENT_REMINDERS.MARK_SENT(parsedId),
+      method: 'POST',
+      body: parsed,
+    });
+    if (queued) {
+      return normalizeAppointmentReminder({
+        id: parsedId,
+        sent_at: parsed.sent_at || new Date().toISOString(),
+      });
+    }
+    const response = await appointmentReminderApi.markSent(parsedId, parsed);
+    return normalizeAppointmentReminder(response.data);
+  });
+
 export {
   listAppointmentReminders,
   getAppointmentReminder,
   createAppointmentReminder,
   updateAppointmentReminder,
   deleteAppointmentReminder,
+  markAppointmentReminderSent,
 };

@@ -209,4 +209,24 @@ describe('useSchedulingOverviewScreen', () => {
 
     expect(mockPush).toHaveBeenCalledWith('/scheduling/opd-flows');
   });
+
+  it('navigates to due reminders quick action', () => {
+    const { result } = renderHook(() => useSchedulingOverviewScreen());
+
+    act(() => {
+      result.current.onOpenDueReminders();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/scheduling/appointment-reminders?reminderBoard=DUE');
+  });
+
+  it('navigates to active queues quick action', () => {
+    const { result } = renderHook(() => useSchedulingOverviewScreen());
+
+    act(() => {
+      result.current.onOpenActiveQueues();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/scheduling/visit-queues?status=IN_PROGRESS');
+  });
 });

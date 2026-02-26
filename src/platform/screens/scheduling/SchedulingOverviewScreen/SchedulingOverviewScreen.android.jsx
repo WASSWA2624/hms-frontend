@@ -47,6 +47,9 @@ const SchedulingOverviewScreenAndroid = () => {
     cards,
     overviewSummary,
     helpContent,
+    quickActions,
+    opdQuickCtaLabel,
+    opdQuickCtaHint,
     recentAppointments,
     showCreateAppointmentAction,
     isLoading,
@@ -57,6 +60,7 @@ const SchedulingOverviewScreenAndroid = () => {
     onOpenResource,
     onOpenAppointment,
     onCreateAppointment,
+    onOpenOpdWorkbench,
   } = useSchedulingOverviewScreen();
 
   return (
@@ -104,6 +108,33 @@ const SchedulingOverviewScreenAndroid = () => {
               {t('scheduling.overview.createAppointment')}
             </Button>
           ) : null}
+
+          <Button
+            variant="surface"
+            size="small"
+            onPress={onOpenOpdWorkbench}
+            accessibilityLabel={opdQuickCtaLabel}
+            accessibilityHint={opdQuickCtaHint}
+            icon={<Icon glyph="+" size="xs" decorative />}
+            testID="scheduling-overview-open-opd-workbench"
+          >
+            {opdQuickCtaLabel}
+          </Button>
+
+          {(quickActions || []).map((action) => (
+            <Button
+              key={action.id}
+              variant="surface"
+              size="small"
+              onPress={action.onPress}
+              accessibilityLabel={action.label}
+              accessibilityHint={action.hint}
+              icon={<Icon glyph="+" size="xs" decorative />}
+              testID={`scheduling-overview-quick-${action.id}`}
+            >
+              {action.label}
+            </Button>
+          ))}
         </StyledHeader>
 
         <Modal

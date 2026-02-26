@@ -20,6 +20,13 @@ const SCHEDULING_RESOURCE_LIST_ORDER = [
   SCHEDULING_RESOURCE_IDS.VISIT_QUEUES,
 ];
 
+const SCHEDULING_LOOKUP_SOURCES = {
+  PATIENT: 'patient',
+  PROVIDER_USER: 'providerUser',
+  APPOINTMENT: 'appointment',
+  PROVIDER_SCHEDULE: 'providerSchedule',
+};
+
 const SCHEDULING_ROUTE_ROOT = '/scheduling';
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -110,6 +117,61 @@ const DAY_OF_WEEK_OPTIONS = [
   { value: '6', labelKey: 'scheduling.options.dayOfWeek.saturday' },
 ];
 
+const SCHEDULE_TYPE_OPTIONS = [
+  { value: 'RECURRING', labelKey: 'scheduling.options.scheduleType.recurring' },
+  { value: 'OVERRIDE', labelKey: 'scheduling.options.scheduleType.override' },
+];
+
+const padDatePart = (value) => String(value).padStart(2, '0');
+
+const toDateTimeInputValue = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(normalized)) return normalized;
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return normalized;
+  return `${parsed.getFullYear()}-${padDatePart(parsed.getMonth() + 1)}-${padDatePart(parsed.getDate())}T${padDatePart(parsed.getHours())}:${padDatePart(parsed.getMinutes())}`;
+};
+
+const addMinutes = (baseDate, minutes) => new Date(baseDate.getTime() + (minutes * 60 * 1000));
+
+const roundToNextHalfHour = (sourceDate = new Date()) => {
+  const date = new Date(sourceDate);
+  date.setSeconds(0, 0);
+  const minutes = date.getMinutes();
+  const roundedMinutes = minutes === 0 || minutes === 30
+    ? minutes
+    : minutes < 30
+      ? 30
+      : 60;
+  if (roundedMinutes === 60) {
+    date.setHours(date.getHours() + 1, 0, 0, 0);
+  } else {
+    date.setMinutes(roundedMinutes, 0, 0);
+  }
+  return date;
+};
+
+const getDefaultAppointmentWindow = () => {
+  const start = roundToNextHalfHour(new Date());
+  const end = addMinutes(start, 30);
+  return {
+    start: toDateTimeInputValue(start.toISOString()),
+    end: toDateTimeInputValue(end.toISOString()),
+  };
+};
+
+const getNowPlusMinutesInput = (minutes = 0) => toDateTimeInputValue(addMinutes(new Date(), minutes).toISOString());
+
+const resolveDefaultTimezone = () => {
+  try {
+    const resolved = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return sanitizeString(resolved) || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+};
+
 const buildDateTimeError = (value, t) => {
   if (!sanitizeString(value)) return null;
   if (toIsoDateTime(value)) return null;
@@ -122,6 +184,23 @@ const validateDateOrder = (startValue, endValue, t) => {
   if (!startIso || !endIso) return null;
   if (new Date(startIso).getTime() < new Date(endIso).getTime()) return null;
   return t('scheduling.common.form.endAfterStart');
+};
+
+const toScheduleOverrideInputValue = (value) => ({
+  override_date: toDateTimeInputValue(value?.override_date),
+  start_time: toDateTimeInputValue(value?.start_time),
+  end_time: toDateTimeInputValue(value?.end_time),
+  is_available: value?.is_available !== false,
+});
+
+const getDefaultScheduleOverrideValue = () => {
+  const defaultWindow = getDefaultAppointmentWindow();
+  return {
+    override_date: defaultWindow.start,
+    start_time: defaultWindow.start,
+    end_time: defaultWindow.end,
+    is_available: true,
+  };
 };
 
 const getContextFilters = (resourceId, context) => {
@@ -191,7 +270,10 @@ const resourceConfigs = {
     fields: [
       {
         name: 'patient_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PATIENT,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointments.form.patientIdLabel',
@@ -200,7 +282,10 @@ const resourceConfigs = {
       },
       {
         name: 'provider_user_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PROVIDER_USER,
+        },
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointments.form.providerUserIdLabel',
@@ -218,7 +303,7 @@ const resourceConfigs = {
       },
       {
         name: 'scheduled_start',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointments.form.scheduledStartLabel',
@@ -227,7 +312,7 @@ const resourceConfigs = {
       },
       {
         name: 'scheduled_end',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointments.form.scheduledEndLabel',
@@ -262,15 +347,18 @@ const resourceConfigs = {
       if (!status) return '';
       return `${t('scheduling.resources.appointments.detail.statusLabel')}: ${status}`;
     },
-    getInitialValues: (record, context) => ({
+    getInitialValues: (record, context) => {
+      const defaultWindow = getDefaultAppointmentWindow();
+      return {
       patient_id: sanitizeString(record?.patient_id || context?.patientId),
       provider_user_id: sanitizeString(record?.provider_user_id || context?.providerUserId),
       status: sanitizeString(record?.status || 'SCHEDULED'),
-      scheduled_start: sanitizeString(record?.scheduled_start),
-      scheduled_end: sanitizeString(record?.scheduled_end),
+      scheduled_start: toDateTimeInputValue(record?.scheduled_start) || defaultWindow.start,
+      scheduled_end: toDateTimeInputValue(record?.scheduled_end) || defaultWindow.end,
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
       reason: sanitizeString(record?.reason),
-    }),
+      };
+    },
     toPayload: (values) => ({
       patient_id: sanitizeString(values.patient_id),
       provider_user_id: sanitizeString(values.provider_user_id) || undefined,
@@ -316,7 +404,10 @@ const resourceConfigs = {
     fields: [
       {
         name: 'appointment_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.APPOINTMENT,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentParticipants.form.appointmentIdLabel',
@@ -325,7 +416,10 @@ const resourceConfigs = {
       },
       {
         name: 'participant_user_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PROVIDER_USER,
+        },
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentParticipants.form.participantUserIdLabel',
@@ -334,7 +428,10 @@ const resourceConfigs = {
       },
       {
         name: 'participant_patient_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PATIENT,
+        },
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentParticipants.form.participantPatientIdLabel',
@@ -394,7 +491,10 @@ const resourceConfigs = {
     fields: [
       {
         name: 'appointment_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.APPOINTMENT,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentReminders.form.appointmentIdLabel',
@@ -412,7 +512,7 @@ const resourceConfigs = {
       },
       {
         name: 'scheduled_at',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentReminders.form.scheduledAtLabel',
@@ -421,7 +521,7 @@ const resourceConfigs = {
       },
       {
         name: 'sent_at',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.appointmentReminders.form.sentAtLabel',
@@ -441,8 +541,8 @@ const resourceConfigs = {
     getInitialValues: (record, context) => ({
       appointment_id: sanitizeString(record?.appointment_id || context?.appointmentId),
       channel: sanitizeString(record?.channel),
-      scheduled_at: sanitizeString(record?.scheduled_at),
-      sent_at: sanitizeString(record?.sent_at),
+      scheduled_at: toDateTimeInputValue(record?.scheduled_at),
+      sent_at: toDateTimeInputValue(record?.sent_at),
     }),
     toPayload: (values) => ({
       appointment_id: sanitizeString(values.appointment_id),
@@ -479,12 +579,51 @@ const resourceConfigs = {
     fields: [
       {
         name: 'provider_user_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PROVIDER_USER,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.providerSchedules.form.providerUserIdLabel',
         placeholderKey: 'scheduling.resources.providerSchedules.form.providerUserIdPlaceholder',
         hintKey: 'scheduling.resources.providerSchedules.form.providerUserIdHint',
+      },
+      {
+        name: 'schedule_type',
+        type: 'select',
+        required: true,
+        labelKey: 'scheduling.resources.providerSchedules.form.scheduleTypeLabel',
+        placeholderKey: 'scheduling.resources.providerSchedules.form.scheduleTypePlaceholder',
+        hintKey: 'scheduling.resources.providerSchedules.form.scheduleTypeHint',
+        options: SCHEDULE_TYPE_OPTIONS,
+      },
+      {
+        name: 'timezone',
+        type: 'text',
+        required: true,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.providerSchedules.form.timezoneLabel',
+        placeholderKey: 'scheduling.resources.providerSchedules.form.timezonePlaceholder',
+        hintKey: 'scheduling.resources.providerSchedules.form.timezoneHint',
+      },
+      {
+        name: 'effective_from',
+        type: 'datetime',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.providerSchedules.form.effectiveFromLabel',
+        placeholderKey: 'scheduling.resources.providerSchedules.form.effectiveFromPlaceholder',
+        hintKey: 'scheduling.resources.providerSchedules.form.effectiveFromHint',
+      },
+      {
+        name: 'effective_to',
+        type: 'datetime',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.providerSchedules.form.effectiveToLabel',
+        placeholderKey: 'scheduling.resources.providerSchedules.form.effectiveToPlaceholder',
+        hintKey: 'scheduling.resources.providerSchedules.form.effectiveToHint',
       },
       {
         name: 'day_of_week',
@@ -497,7 +636,7 @@ const resourceConfigs = {
       },
       {
         name: 'start_time',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.providerSchedules.form.startTimeLabel',
@@ -506,7 +645,7 @@ const resourceConfigs = {
       },
       {
         name: 'end_time',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.providerSchedules.form.endTimeLabel',
@@ -522,6 +661,50 @@ const resourceConfigs = {
         placeholderKey: 'scheduling.resources.providerSchedules.form.facilityIdPlaceholder',
         hintKey: 'scheduling.resources.providerSchedules.form.facilityIdHint',
       },
+      {
+        name: 'schedule_overrides',
+        type: 'repeater',
+        required: false,
+        labelKey: 'scheduling.resources.providerSchedules.form.scheduleOverridesLabel',
+        hintKey: 'scheduling.resources.providerSchedules.form.scheduleOverridesHint',
+        addLabelKey: 'scheduling.common.form.addRow',
+        removeLabelKey: 'scheduling.common.form.removeRow',
+        itemLabelKey: 'scheduling.resources.providerSchedules.form.overrideRowLabel',
+        fields: [
+          {
+            name: 'override_date',
+            type: 'datetime',
+            required: true,
+            labelKey: 'scheduling.resources.providerSchedules.form.overrideDateLabel',
+            placeholderKey: 'scheduling.resources.providerSchedules.form.overrideDatePlaceholder',
+            hintKey: 'scheduling.resources.providerSchedules.form.overrideDateHint',
+          },
+          {
+            name: 'start_time',
+            type: 'datetime',
+            required: true,
+            labelKey: 'scheduling.resources.providerSchedules.form.overrideStartTimeLabel',
+            placeholderKey: 'scheduling.resources.providerSchedules.form.overrideStartTimePlaceholder',
+            hintKey: 'scheduling.resources.providerSchedules.form.overrideStartTimeHint',
+          },
+          {
+            name: 'end_time',
+            type: 'datetime',
+            required: true,
+            labelKey: 'scheduling.resources.providerSchedules.form.overrideEndTimeLabel',
+            placeholderKey: 'scheduling.resources.providerSchedules.form.overrideEndTimePlaceholder',
+            hintKey: 'scheduling.resources.providerSchedules.form.overrideEndTimeHint',
+          },
+          {
+            name: 'is_available',
+            type: 'switch',
+            required: false,
+            labelKey: 'scheduling.resources.providerSchedules.form.overrideAvailableLabel',
+            hintKey: 'scheduling.resources.providerSchedules.form.overrideAvailableHint',
+          },
+        ],
+        createItem: () => getDefaultScheduleOverrideValue(),
+      },
     ],
     getItemTitle: (item) => sanitizeString(item?.provider_user_id) || sanitizeString(item?.id),
     getItemSubtitle: (item, t) => {
@@ -529,19 +712,49 @@ const resourceConfigs = {
       if (!day) return '';
       return `${t('scheduling.resources.providerSchedules.detail.dayOfWeekLabel')}: ${day}`;
     },
-    getInitialValues: (record, context) => ({
+    getInitialValues: (record, context) => {
+      const defaultWindow = getDefaultAppointmentWindow();
+      return {
       provider_user_id: sanitizeString(record?.provider_user_id || context?.providerUserId),
+      schedule_type: sanitizeString(record?.schedule_type || 'RECURRING'),
+      timezone: sanitizeString(record?.timezone || resolveDefaultTimezone()),
+      effective_from: toDateTimeInputValue(record?.effective_from),
+      effective_to: toDateTimeInputValue(record?.effective_to),
       day_of_week: sanitizeString(record?.day_of_week),
-      start_time: sanitizeString(record?.start_time),
-      end_time: sanitizeString(record?.end_time),
+      start_time: toDateTimeInputValue(record?.start_time) || defaultWindow.start,
+      end_time: toDateTimeInputValue(record?.end_time) || defaultWindow.end,
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-    }),
+      schedule_overrides: Array.isArray(record?.schedule_overrides)
+        ? record.schedule_overrides.map((entry) => toScheduleOverrideInputValue(entry))
+        : [],
+      };
+    },
     toPayload: (values) => ({
       provider_user_id: sanitizeString(values.provider_user_id),
+      schedule_type: sanitizeString(values.schedule_type || 'RECURRING'),
+      timezone: sanitizeString(values.timezone || resolveDefaultTimezone()),
+      effective_from: toIsoDateTime(values.effective_from) || undefined,
+      effective_to: toIsoDateTime(values.effective_to) || undefined,
       day_of_week: toDayOfWeek(values.day_of_week),
       start_time: toIsoDateTime(values.start_time),
       end_time: toIsoDateTime(values.end_time),
       facility_id: sanitizeString(values.facility_id) || undefined,
+      schedule_overrides: Array.isArray(values.schedule_overrides)
+        ? values.schedule_overrides
+          .map((entry) => {
+            const overrideDate = toIsoDateTime(entry?.override_date);
+            const startTime = toIsoDateTime(entry?.start_time);
+            const endTime = toIsoDateTime(entry?.end_time);
+            if (!overrideDate || !startTime || !endTime) return null;
+            return {
+              override_date: overrideDate,
+              start_time: startTime,
+              end_time: endTime,
+              is_available: entry?.is_available !== false,
+            };
+          })
+          .filter(Boolean)
+        : [],
     }),
     validate: (values, t) => {
       const errors = {};
@@ -550,12 +763,49 @@ const resourceConfigs = {
       }
       const startError = buildDateTimeError(values.start_time, t);
       const endError = buildDateTimeError(values.end_time, t);
+      const effectiveFromError = buildDateTimeError(values.effective_from, t);
+      const effectiveToError = buildDateTimeError(values.effective_to, t);
       if (startError) errors.start_time = startError;
       if (endError) errors.end_time = endError;
+      if (effectiveFromError) errors.effective_from = effectiveFromError;
+      if (effectiveToError) errors.effective_to = effectiveToError;
       if (!endError) {
         const orderError = validateDateOrder(values.start_time, values.end_time, t);
         if (orderError) errors.end_time = orderError;
       }
+      if (!effectiveToError) {
+        const effectiveOrderError = validateDateOrder(values.effective_from, values.effective_to, t);
+        if (effectiveOrderError) errors.effective_to = effectiveOrderError;
+      }
+
+      const scheduleOverrides = Array.isArray(values.schedule_overrides) ? values.schedule_overrides : [];
+      scheduleOverrides.forEach((entry, index) => {
+        const prefix = `schedule_overrides.${index}`;
+
+        if (!sanitizeString(entry?.override_date)) {
+          errors[`${prefix}.override_date`] = t('scheduling.common.form.requiredField');
+        }
+        if (!sanitizeString(entry?.start_time)) {
+          errors[`${prefix}.start_time`] = t('scheduling.common.form.requiredField');
+        }
+        if (!sanitizeString(entry?.end_time)) {
+          errors[`${prefix}.end_time`] = t('scheduling.common.form.requiredField');
+        }
+
+        const overrideDateError = buildDateTimeError(entry?.override_date, t);
+        const overrideStartError = buildDateTimeError(entry?.start_time, t);
+        const overrideEndError = buildDateTimeError(entry?.end_time, t);
+
+        if (overrideDateError) errors[`${prefix}.override_date`] = overrideDateError;
+        if (overrideStartError) errors[`${prefix}.start_time`] = overrideStartError;
+        if (overrideEndError) errors[`${prefix}.end_time`] = overrideEndError;
+
+        if (!overrideEndError && sanitizeString(entry?.start_time)) {
+          const overrideOrderError = validateDateOrder(entry?.start_time, entry?.end_time, t);
+          if (overrideOrderError) errors[`${prefix}.end_time`] = overrideOrderError;
+        }
+      });
+
       return errors;
     },
     detailRows: [
@@ -563,6 +813,10 @@ const resourceConfigs = {
       { labelKey: 'scheduling.resources.providerSchedules.detail.tenantLabel', valueKey: 'tenant_id' },
       { labelKey: 'scheduling.resources.providerSchedules.detail.facilityLabel', valueKey: 'facility_id' },
       { labelKey: 'scheduling.resources.providerSchedules.detail.providerLabel', valueKey: 'provider_user_id' },
+      { labelKey: 'scheduling.resources.providerSchedules.detail.scheduleTypeLabel', valueKey: 'schedule_type' },
+      { labelKey: 'scheduling.resources.providerSchedules.detail.timezoneLabel', valueKey: 'timezone' },
+      { labelKey: 'scheduling.resources.providerSchedules.detail.effectiveFromLabel', valueKey: 'effective_from', type: 'datetime' },
+      { labelKey: 'scheduling.resources.providerSchedules.detail.effectiveToLabel', valueKey: 'effective_to', type: 'datetime' },
       { labelKey: 'scheduling.resources.providerSchedules.detail.dayOfWeekLabel', valueKey: 'day_of_week' },
       { labelKey: 'scheduling.resources.providerSchedules.detail.startTimeLabel', valueKey: 'start_time', type: 'datetime' },
       { labelKey: 'scheduling.resources.providerSchedules.detail.endTimeLabel', valueKey: 'end_time', type: 'datetime' },
@@ -580,7 +834,10 @@ const resourceConfigs = {
     fields: [
       {
         name: 'schedule_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PROVIDER_SCHEDULE,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.availabilitySlots.form.scheduleIdLabel',
@@ -588,8 +845,17 @@ const resourceConfigs = {
         hintKey: 'scheduling.resources.availabilitySlots.form.scheduleIdHint',
       },
       {
+        name: 'override_date',
+        type: 'datetime',
+        required: false,
+        maxLength: 64,
+        labelKey: 'scheduling.resources.availabilitySlots.form.overrideDateLabel',
+        placeholderKey: 'scheduling.resources.availabilitySlots.form.overrideDatePlaceholder',
+        hintKey: 'scheduling.resources.availabilitySlots.form.overrideDateHint',
+      },
+      {
         name: 'start_time',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.availabilitySlots.form.startTimeLabel',
@@ -598,7 +864,7 @@ const resourceConfigs = {
       },
       {
         name: 'end_time',
-        type: 'text',
+        type: 'datetime',
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.availabilitySlots.form.endTimeLabel',
@@ -622,22 +888,29 @@ const resourceConfigs = {
         : t('scheduling.resources.availabilitySlots.detail.availableFalse');
       return `${t('scheduling.resources.availabilitySlots.detail.availableLabel')}: ${available}`;
     },
-    getInitialValues: (record, context) => ({
+    getInitialValues: (record, context) => {
+      const defaultWindow = getDefaultAppointmentWindow();
+      return {
       schedule_id: sanitizeString(record?.schedule_id || context?.scheduleId),
-      start_time: sanitizeString(record?.start_time),
-      end_time: sanitizeString(record?.end_time),
+      override_date: toDateTimeInputValue(record?.override_date),
+      start_time: toDateTimeInputValue(record?.start_time) || defaultWindow.start,
+      end_time: toDateTimeInputValue(record?.end_time) || defaultWindow.end,
       is_available: record?.is_available !== false,
-    }),
+      };
+    },
     toPayload: (values) => ({
       schedule_id: sanitizeString(values.schedule_id),
+      override_date: toIsoDateTime(values.override_date) || undefined,
       start_time: toIsoDateTime(values.start_time),
       end_time: toIsoDateTime(values.end_time),
       is_available: values.is_available !== false,
     }),
     validate: (values, t) => {
       const errors = {};
+      const overrideError = buildDateTimeError(values.override_date, t);
       const startError = buildDateTimeError(values.start_time, t);
       const endError = buildDateTimeError(values.end_time, t);
+      if (overrideError) errors.override_date = overrideError;
       if (startError) errors.start_time = startError;
       if (endError) errors.end_time = endError;
       if (!endError) {
@@ -649,6 +922,7 @@ const resourceConfigs = {
     detailRows: [
       { labelKey: 'scheduling.resources.availabilitySlots.detail.idLabel', valueKey: 'id' },
       { labelKey: 'scheduling.resources.availabilitySlots.detail.scheduleLabel', valueKey: 'schedule_id' },
+      { labelKey: 'scheduling.resources.availabilitySlots.detail.overrideDateLabel', valueKey: 'override_date', type: 'datetime' },
       { labelKey: 'scheduling.resources.availabilitySlots.detail.startTimeLabel', valueKey: 'start_time', type: 'datetime' },
       { labelKey: 'scheduling.resources.availabilitySlots.detail.endTimeLabel', valueKey: 'end_time', type: 'datetime' },
       { labelKey: 'scheduling.resources.availabilitySlots.detail.availableLabel', valueKey: 'is_available', type: 'boolean' },
@@ -666,7 +940,10 @@ const resourceConfigs = {
     fields: [
       {
         name: 'patient_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PATIENT,
+        },
         required: true,
         maxLength: 64,
         labelKey: 'scheduling.resources.visitQueues.form.patientIdLabel',
@@ -675,7 +952,10 @@ const resourceConfigs = {
       },
       {
         name: 'appointment_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.APPOINTMENT,
+        },
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.visitQueues.form.appointmentIdLabel',
@@ -684,7 +964,10 @@ const resourceConfigs = {
       },
       {
         name: 'provider_user_id',
-        type: 'text',
+        type: 'lookup',
+        lookup: {
+          source: SCHEDULING_LOOKUP_SOURCES.PROVIDER_USER,
+        },
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.visitQueues.form.providerUserIdLabel',
@@ -702,7 +985,7 @@ const resourceConfigs = {
       },
       {
         name: 'queued_at',
-        type: 'text',
+        type: 'datetime',
         required: false,
         maxLength: 64,
         labelKey: 'scheduling.resources.visitQueues.form.queuedAtLabel',
@@ -732,7 +1015,7 @@ const resourceConfigs = {
       appointment_id: sanitizeString(record?.appointment_id || context?.appointmentId),
       provider_user_id: sanitizeString(record?.provider_user_id || context?.providerUserId),
       status: sanitizeString(record?.status || 'SCHEDULED'),
-      queued_at: sanitizeString(record?.queued_at),
+      queued_at: toDateTimeInputValue(record?.queued_at) || getNowPlusMinutesInput(0),
       facility_id: sanitizeString(record?.facility_id || context?.facilityId),
     }),
     toPayload: (values) => ({
@@ -773,6 +1056,7 @@ export {
   normalizeRouteId,
   normalizeSearchParam,
   sanitizeString,
+  SCHEDULING_LOOKUP_SOURCES,
   SCHEDULING_RESOURCE_IDS,
   SCHEDULING_RESOURCE_LIST_ORDER,
   SCHEDULING_ROUTE_ROOT,

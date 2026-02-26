@@ -42,11 +42,57 @@ const StyledFieldGroup = styled.View.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledLookupStack = styled.View.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledLookupStack',
+  componentId: 'SchedulingResourceFormScreen_StyledLookupStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 const StyledFullRow = styled.View.withConfig({
   displayName: 'SchedulingResourceFormScreen_StyledFullRow',
   componentId: 'SchedulingResourceFormScreen_StyledFullRow',
 })`
   width: 100%;
+`;
+
+const StyledRepeaterStack = styled.View.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterStack',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterStack',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterItem = styled.View.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterItem',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterItem',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radii?.md ?? 8}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterHeader = styled.View.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterHeader',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterHeader',
+})`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterGrid = styled.View.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterGrid',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterGrid',
+})`
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledHelperStack = styled.View.withConfig({
@@ -75,5 +121,10 @@ export {
   StyledFullRow,
   StyledHelperStack,
   StyledInlineStates,
+  StyledLookupStack,
+  StyledRepeaterGrid,
+  StyledRepeaterHeader,
+  StyledRepeaterItem,
+  StyledRepeaterStack,
 };
 

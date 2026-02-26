@@ -2,12 +2,14 @@
  * Appointment Reminder Usecase Tests
  * File: appointment-reminder.usecase.test.js
  */
+import { endpoints } from '@config/endpoints';
 import {
   listAppointmentReminders,
   getAppointmentReminder,
   createAppointmentReminder,
   updateAppointmentReminder,
   deleteAppointmentReminder,
+  markAppointmentReminderSent,
 } from '@features/appointment-reminder';
 import { appointmentReminderApi } from '@features/appointment-reminder/appointment-reminder.api';
 import { queueRequestIfOffline } from '@offline/request';
@@ -20,6 +22,7 @@ jest.mock('@features/appointment-reminder/appointment-reminder.api', () => ({
     create: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
+    markSent: jest.fn(),
   },
 }));
 
@@ -29,11 +32,15 @@ jest.mock('@offline/request', () => ({
 
 describe('appointment-reminder.usecase', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     appointmentReminderApi.list.mockResolvedValue({ data: [{ id: '1' }] });
     appointmentReminderApi.get.mockResolvedValue({ data: { id: '1' } });
     appointmentReminderApi.create.mockResolvedValue({ data: { id: '1' } });
     appointmentReminderApi.update.mockResolvedValue({ data: { id: '1' } });
     appointmentReminderApi.remove.mockResolvedValue({ data: { id: '1' } });
+    appointmentReminderApi.markSent.mockResolvedValue({
+      data: { id: '1', sent_at: '2026-01-01T00:00:00.000Z' },
+    });
   });
 
   runCrudUsecaseTests(
@@ -46,4 +53,33 @@ describe('appointment-reminder.usecase', () => {
     },
     { queueRequestIfOffline }
   );
+
+  it('marks reminder sent online', async () => {
+    queueRequestIfOffline.mockResolvedValue(false);
+
+    await expect(markAppointmentReminderSent('1', { sent_at: '2026-01-01T00:00:00.000Z' })).resolves.toMatchObject({
+      id: '1',
+      sent_at: '2026-01-01T00:00:00.000Z',
+    });
+    expect(queueRequestIfOffline).toHaveBeenCalledWith({
+      url: endpoints.APPOINTMENT_REMINDERS.MARK_SENT('1'),
+      method: 'POST',
+      body: { sent_at: '2026-01-01T00:00:00.000Z' },
+    });
+    expect(appointmentReminderApi.markSent).toHaveBeenCalledWith('1', { sent_at: '2026-01-01T00:00:00.000Z' });
+  });
+
+  it('queues mark reminder sent offline', async () => {
+    queueRequestIfOffline.mockResolvedValue(true);
+
+    await expect(markAppointmentReminderSent('1', { sent_at: '2026-01-01T00:00:00.000Z' })).resolves.toMatchObject({
+      id: '1',
+      sent_at: '2026-01-01T00:00:00.000Z',
+    });
+    expect(appointmentReminderApi.markSent).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid id for mark sent', async () => {
+    await expect(markAppointmentReminderSent(null, {})).rejects.toBeDefined();
+  });
 });

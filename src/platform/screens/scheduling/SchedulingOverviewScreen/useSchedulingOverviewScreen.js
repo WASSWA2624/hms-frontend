@@ -276,10 +276,45 @@ const useSchedulingOverviewScreen = () => {
     router.push('/scheduling/opd-flows');
   }, [canViewOverview, router]);
 
+  const handleOpenDueReminders = useCallback(() => {
+    if (!canViewOverview) return;
+    router.push('/scheduling/appointment-reminders?reminderBoard=DUE');
+  }, [canViewOverview, router]);
+
+  const handleOpenActiveQueues = useCallback(() => {
+    if (!canViewOverview) return;
+    router.push('/scheduling/visit-queues?status=IN_PROGRESS');
+  }, [canViewOverview, router]);
+
+  const quickActions = useMemo(
+    () => [
+      {
+        id: 'opd-workbench',
+        label: t('scheduling.overview.opdQuickCta'),
+        hint: t('scheduling.overview.opdQuickCtaHint'),
+        onPress: handleOpenOpdWorkbench,
+      },
+      {
+        id: 'due-reminders',
+        label: t('scheduling.overview.quickDueReminders'),
+        hint: t('scheduling.overview.quickDueRemindersHint'),
+        onPress: handleOpenDueReminders,
+      },
+      {
+        id: 'active-queues',
+        label: t('scheduling.overview.quickActiveQueues'),
+        hint: t('scheduling.overview.quickActiveQueuesHint'),
+        onPress: handleOpenActiveQueues,
+      },
+    ],
+    [t, handleOpenOpdWorkbench, handleOpenDueReminders, handleOpenActiveQueues]
+  );
+
   return {
     cards,
     overviewSummary,
     helpContent,
+    quickActions,
     opdQuickCtaLabel: t('scheduling.overview.opdQuickCta'),
     opdQuickCtaHint: t('scheduling.overview.opdQuickCtaHint'),
     opdEmphasis: t('scheduling.overview.opdEmphasis'),
@@ -295,6 +330,8 @@ const useSchedulingOverviewScreen = () => {
     onOpenAppointment: handleOpenAppointment,
     onCreateAppointment: handleCreateAppointment,
     onOpenOpdWorkbench: handleOpenOpdWorkbench,
+    onOpenDueReminders: handleOpenDueReminders,
+    onOpenActiveQueues: handleOpenActiveQueues,
   };
 };
 

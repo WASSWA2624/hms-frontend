@@ -51,11 +51,64 @@ const StyledFieldGroup = styled.div.withConfig({
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
+const StyledLookupStack = styled.div.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledLookupStack',
+  componentId: 'SchedulingResourceFormScreen_StyledLookupStack',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+`;
+
 const StyledFullRow = styled.div.withConfig({
   displayName: 'SchedulingResourceFormScreen_StyledFullRow',
   componentId: 'SchedulingResourceFormScreen_StyledFullRow',
 })`
   grid-column: 1 / -1;
+`;
+
+const StyledRepeaterStack = styled.div.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterStack',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterStack',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterItem = styled.div.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterItem',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterItem',
+})`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+  border: 1px solid ${({ theme }) => theme.colors.background.tertiary};
+  border-radius: ${({ theme }) => theme.radii?.md ?? 8}px;
+  padding: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterHeader = styled.div.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterHeader',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterHeader',
+})`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm}px;
+`;
+
+const StyledRepeaterGrid = styled.div.withConfig({
+  displayName: 'SchedulingResourceFormScreen_StyledRepeaterGrid',
+  componentId: 'SchedulingResourceFormScreen_StyledRepeaterGrid',
+})`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.spacing.sm}px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints?.tablet ?? 768}px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const StyledHelperStack = styled.div.withConfig({
@@ -85,5 +138,10 @@ export {
   StyledFullRow,
   StyledHelperStack,
   StyledInlineStates,
+  StyledLookupStack,
+  StyledRepeaterGrid,
+  StyledRepeaterHeader,
+  StyledRepeaterItem,
+  StyledRepeaterStack,
 };
 

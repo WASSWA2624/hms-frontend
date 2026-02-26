@@ -9,6 +9,6 @@ import { renderHookResult } from '../helpers/render-hook';
 describe('useAppointmentReminder', () => {
   it('exposes CRUD handlers', () => {
     const result = renderHookResult(useAppointmentReminder);
-    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove']);
+    expectCrudHook(result, ['list', 'get', 'create', 'update', 'remove', 'markSent']);
   });
 });

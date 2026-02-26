@@ -9,6 +9,7 @@ import {
   deleteAppointmentReminder,
   getAppointmentReminder,
   listAppointmentReminders,
+  markAppointmentReminderSent,
   updateAppointmentReminder,
 } from '@features/appointment-reminder';
 
@@ -20,6 +21,7 @@ const useAppointmentReminder = () => {
       create: createAppointmentReminder,
       update: updateAppointmentReminder,
       remove: deleteAppointmentReminder,
+      markSent: markAppointmentReminderSent,
     }),
     []
   );

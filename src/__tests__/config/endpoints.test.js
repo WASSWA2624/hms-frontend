@@ -77,6 +77,9 @@ describe('endpoints.js', () => {
     expect(endpoints.APPOINTMENTS.CANCEL('id')).toMatch(
       /\/appointments\/id\/cancel$/
     );
+    expect(endpoints.APPOINTMENT_REMINDERS.MARK_SENT('id')).toMatch(
+      /\/appointment-reminders\/id\/mark-sent$/
+    );
     expect(endpoints.VISIT_QUEUES.PRIORITIZE('id')).toMatch(
       /\/visit-queues\/id\/prioritize$/
     );

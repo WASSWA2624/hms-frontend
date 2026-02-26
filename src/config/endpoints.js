@@ -251,6 +251,7 @@ export const endpoints = {
     GET: (id) => `${baseUrl}/appointment-reminders/${id}`,
     UPDATE: (id) => `${baseUrl}/appointment-reminders/${id}`,
     DELETE: (id) => `${baseUrl}/appointment-reminders/${id}`,
+    MARK_SENT: (id) => `${baseUrl}/appointment-reminders/${id}/mark-sent`,
   },
   PROVIDER_SCHEDULES: {
     LIST: `${baseUrl}/provider-schedules`,

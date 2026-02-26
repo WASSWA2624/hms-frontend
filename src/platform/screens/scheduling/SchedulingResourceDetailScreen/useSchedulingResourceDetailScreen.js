@@ -59,6 +59,7 @@ const useSchedulingResourceDetailScreen = (resourceId) => {
   const { isOffline } = useNetwork();
   const {
     canAccessScheduling,
+    canCreateSchedulingRecords,
     canEditSchedulingRecords,
     canDeleteSchedulingRecords,
     canCancelAppointments,
@@ -67,7 +68,18 @@ const useSchedulingResourceDetailScreen = (resourceId) => {
     isResolved,
   } = useSchedulingAccess();
 
-  const { get, remove, cancel, data, isLoading, errorCode, reset } = useSchedulingResourceCrud(resourceId);
+  const {
+    get,
+    remove,
+    cancel,
+    prioritize,
+    markSent,
+    update,
+    data,
+    isLoading,
+    errorCode,
+    reset,
+  } = useSchedulingResourceCrud(resourceId);
 
   const normalizedTenantId = useMemo(() => sanitizeString(tenantId), [tenantId]);
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);
@@ -160,7 +172,92 @@ const useSchedulingResourceDetailScreen = (resourceId) => {
     }
   }, [resourceId, canCancelAppointments, routeRecordId, cancel, t, listPath, router]);
 
+  const handleMarkReminderSent = useCallback(async () => {
+    const isReminderResource = resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS;
+    if (!isReminderResource || !canEditSchedulingRecords || !routeRecordId || typeof markSent !== 'function') return;
+    try {
+      const result = await markSent(routeRecordId, {});
+      if (!result) return;
+      const separator = listPath.includes('?') ? '&' : '?';
+      router.push(`${listPath}${separator}notice=${isOffline ? 'queued' : 'updated'}`);
+    } catch {
+      // Hook-level error handling already updates state.
+    }
+  }, [resourceId, canEditSchedulingRecords, routeRecordId, markSent, listPath, router, isOffline]);
+
+  const handlePrioritizeQueue = useCallback(async () => {
+    const isVisitQueueResource = resourceId === SCHEDULING_RESOURCE_IDS.VISIT_QUEUES;
+    if (!isVisitQueueResource || !canEditSchedulingRecords || !routeRecordId || typeof prioritize !== 'function') return;
+    try {
+      const result = await prioritize(routeRecordId, {});
+      if (!result) return;
+      const separator = listPath.includes('?') ? '&' : '?';
+      router.push(`${listPath}${separator}notice=${isOffline ? 'queued' : 'updated'}`);
+    } catch {
+      // Hook-level error handling already updates state.
+    }
+  }, [resourceId, canEditSchedulingRecords, routeRecordId, prioritize, listPath, router, isOffline]);
+
+  const handleToggleAvailability = useCallback(async () => {
+    const isSlotResource = resourceId === SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS;
+    if (!isSlotResource || !canEditSchedulingRecords || !routeRecordId || typeof update !== 'function') return;
+    const nextAvailability = !(item?.is_available !== false);
+    try {
+      const result = await update(routeRecordId, { is_available: nextAvailability });
+      if (!result) return;
+      const separator = listPath.includes('?') ? '&' : '?';
+      router.push(`${listPath}${separator}notice=${isOffline ? 'queued' : 'updated'}`);
+    } catch {
+      // Hook-level error handling already updates state.
+    }
+  }, [resourceId, canEditSchedulingRecords, routeRecordId, update, item?.is_available, listPath, router, isOffline]);
+
+  const handleCreateAppointmentParticipant = useCallback(() => {
+    if (resourceId !== SCHEDULING_RESOURCE_IDS.APPOINTMENTS || !canCreateSchedulingRecords || !item?.id) return;
+    const path = withSchedulingContext('/scheduling/appointment-participants/create', {
+      ...context,
+      appointmentId: item.id,
+      patientId: item.patient_id || context.patientId,
+      providerUserId: item.provider_user_id || context.providerUserId,
+    });
+    router.push(path);
+  }, [resourceId, canCreateSchedulingRecords, item, context, router]);
+
+  const handleCreateAppointmentReminder = useCallback(() => {
+    if (resourceId !== SCHEDULING_RESOURCE_IDS.APPOINTMENTS || !canCreateSchedulingRecords || !item?.id) return;
+    const path = withSchedulingContext('/scheduling/appointment-reminders/create', {
+      ...context,
+      appointmentId: item.id,
+      patientId: item.patient_id || context.patientId,
+      providerUserId: item.provider_user_id || context.providerUserId,
+    });
+    router.push(path);
+  }, [resourceId, canCreateSchedulingRecords, item, context, router]);
+
+  const handleCreateVisitQueue = useCallback(() => {
+    if (resourceId !== SCHEDULING_RESOURCE_IDS.APPOINTMENTS || !canCreateSchedulingRecords || !item?.id) return;
+    const path = withSchedulingContext('/scheduling/visit-queues/create', {
+      ...context,
+      appointmentId: item.id,
+      patientId: item.patient_id || context.patientId,
+      providerUserId: item.provider_user_id || context.providerUserId,
+    });
+    router.push(path);
+  }, [resourceId, canCreateSchedulingRecords, item, context, router]);
+
   const canCancel = resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENTS && canCancelAppointments;
+  const canMarkReminderSent = resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS
+    && canEditSchedulingRecords
+    && typeof markSent === 'function';
+  const canPrioritizeQueue = resourceId === SCHEDULING_RESOURCE_IDS.VISIT_QUEUES
+    && canEditSchedulingRecords
+    && typeof prioritize === 'function';
+  const canToggleAvailability = resourceId === SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS
+    && canEditSchedulingRecords
+    && typeof update === 'function';
+  const canCreateFromAppointment = resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENTS
+    && canCreateSchedulingRecords
+    && Boolean(item?.id);
 
   return {
     config,
@@ -176,12 +273,26 @@ const useSchedulingResourceDetailScreen = (resourceId) => {
     onEdit: handleEdit,
     onDelete: handleDelete,
     onCancelAppointment: handleCancelAppointment,
+    onMarkReminderSent: handleMarkReminderSent,
+    onPrioritizeQueue: handlePrioritizeQueue,
+    onToggleAvailability: handleToggleAvailability,
+    onCreateAppointmentParticipant: handleCreateAppointmentParticipant,
+    onCreateAppointmentReminder: handleCreateAppointmentReminder,
+    onCreateVisitQueue: handleCreateVisitQueue,
     canEdit: canEditSchedulingRecords,
     canDelete: canDeleteSchedulingRecords,
     canCancel,
+    canMarkReminderSent,
+    canPrioritizeQueue,
+    canToggleAvailability,
+    canCreateFromAppointment,
     editBlockedReason: canEditSchedulingRecords ? '' : t('scheduling.access.editDenied'),
     deleteBlockedReason: canDeleteSchedulingRecords ? '' : t('scheduling.access.deleteDenied'),
     cancelBlockedReason: canCancel ? '' : t('scheduling.access.cancelDenied'),
+    markSentBlockedReason: canMarkReminderSent ? '' : t('scheduling.access.editDenied'),
+    prioritizeBlockedReason: canPrioritizeQueue ? '' : t('scheduling.access.editDenied'),
+    toggleAvailabilityBlockedReason: canToggleAvailability ? '' : t('scheduling.access.editDenied'),
+    createBlockedReason: canCreateSchedulingRecords ? '' : t('scheduling.access.createDenied'),
     listPath,
   };
 };

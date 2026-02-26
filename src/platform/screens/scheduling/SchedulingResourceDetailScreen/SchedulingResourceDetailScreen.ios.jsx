@@ -41,12 +41,26 @@ const SchedulingResourceDetailScreenIOS = ({ resourceId }) => {
     onEdit,
     onDelete,
     onCancelAppointment,
+    onMarkReminderSent,
+    onPrioritizeQueue,
+    onToggleAvailability,
+    onCreateAppointmentParticipant,
+    onCreateAppointmentReminder,
+    onCreateVisitQueue,
     canEdit,
     canDelete,
     canCancel,
+    canMarkReminderSent,
+    canPrioritizeQueue,
+    canToggleAvailability,
+    canCreateFromAppointment,
     editBlockedReason,
     deleteBlockedReason,
     cancelBlockedReason,
+    markSentBlockedReason,
+    prioritizeBlockedReason,
+    toggleAvailabilityBlockedReason,
+    createBlockedReason,
   } = useSchedulingResourceDetailScreen(resourceId);
 
   const rows = useMemo(() => config?.detailRows || [], [config?.detailRows]);
@@ -210,17 +224,90 @@ const SchedulingResourceDetailScreenIOS = ({ resourceId }) => {
           </Button>
 
           {resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENTS ? (
+            <>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCancelAppointment}
+                disabled={!canCancel}
+                accessibilityLabel={t(`${config.i18nKey}.cancel.actionLabel`)}
+                accessibilityHint={!canCancel ? cancelBlockedReason : t(`${config.i18nKey}.cancel.actionHint`)}
+                icon={<Icon glyph="?" size="xs" decorative />}
+                testID="scheduling-appointment-cancel"
+              >
+                {t(`${config.i18nKey}.cancel.actionLabel`)}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCreateAppointmentParticipant}
+                disabled={!canCreateFromAppointment}
+                accessibilityHint={!canCreateFromAppointment ? createBlockedReason : undefined}
+                testID="scheduling-appointment-create-participant"
+              >
+                {t('scheduling.resources.appointments.detail.createParticipant')}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCreateAppointmentReminder}
+                disabled={!canCreateFromAppointment}
+                accessibilityHint={!canCreateFromAppointment ? createBlockedReason : undefined}
+                testID="scheduling-appointment-create-reminder"
+              >
+                {t('scheduling.resources.appointments.detail.createReminder')}
+              </Button>
+              <Button
+                variant="surface"
+                size="small"
+                onPress={onCreateVisitQueue}
+                disabled={!canCreateFromAppointment}
+                accessibilityHint={!canCreateFromAppointment ? createBlockedReason : undefined}
+                testID="scheduling-appointment-create-queue"
+              >
+                {t('scheduling.resources.appointments.detail.createQueue')}
+              </Button>
+            </>
+          ) : null}
+
+          {resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS ? (
             <Button
               variant="surface"
               size="small"
-              onPress={onCancelAppointment}
-              disabled={!canCancel}
-              accessibilityLabel={t(`${config.i18nKey}.cancel.actionLabel`)}
-              accessibilityHint={!canCancel ? cancelBlockedReason : t(`${config.i18nKey}.cancel.actionHint`)}
-              icon={<Icon glyph="?" size="xs" decorative />}
-              testID="scheduling-appointment-cancel"
+              onPress={onMarkReminderSent}
+              disabled={!canMarkReminderSent}
+              accessibilityHint={!canMarkReminderSent ? markSentBlockedReason : undefined}
+              testID="scheduling-reminder-mark-sent"
             >
-              {t(`${config.i18nKey}.cancel.actionLabel`)}
+              {t('scheduling.resources.appointmentReminders.detail.markSent')}
+            </Button>
+          ) : null}
+
+          {resourceId === SCHEDULING_RESOURCE_IDS.VISIT_QUEUES ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onPrioritizeQueue}
+              disabled={!canPrioritizeQueue}
+              accessibilityHint={!canPrioritizeQueue ? prioritizeBlockedReason : undefined}
+              testID="scheduling-visit-queue-prioritize"
+            >
+              {t('scheduling.resources.visitQueues.detail.prioritize')}
+            </Button>
+          ) : null}
+
+          {resourceId === SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS ? (
+            <Button
+              variant="surface"
+              size="small"
+              onPress={onToggleAvailability}
+              disabled={!canToggleAvailability}
+              accessibilityHint={!canToggleAvailability ? toggleAvailabilityBlockedReason : undefined}
+              testID="scheduling-availability-toggle"
+            >
+              {item?.is_available !== false
+                ? t('scheduling.resources.availabilitySlots.detail.markUnavailable')
+                : t('scheduling.resources.availabilitySlots.detail.markAvailable')}
             </Button>
           ) : null}
         </StyledActions>
