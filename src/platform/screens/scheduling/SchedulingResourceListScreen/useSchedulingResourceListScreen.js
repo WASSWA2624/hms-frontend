@@ -117,6 +117,7 @@ const DEFAULT_COLUMN_ORDER = Object.freeze([...TABLE_COLUMNS]);
 const DEFAULT_VISIBLE_COLUMNS = Object.freeze(['title', 'subtitle', 'updatedAt']);
 const DEFAULT_SORT_FIELD = 'updatedAt';
 const DEFAULT_SORT_DIRECTION = 'desc';
+const REMINDER_BOARD_FILTERS = Object.freeze(['ALL', 'DUE', 'OVERDUE', 'SENT']);
 const STATUS_FIELDS = new Set(['is_active', 'is_primary']);
 
 const normalizeValue = (value) => sanitizeString(value);
@@ -344,13 +345,25 @@ const useSchedulingResourceListScreen = (resourceId) => {
     canCreateSchedulingRecords,
     canEditSchedulingRecords,
     canDeleteSchedulingRecords,
+    canCancelAppointments,
     canManageAllTenants,
     tenantId,
     facilityId,
     isResolved,
   } = useSchedulingAccess();
 
-  const { list, remove, data, isLoading, errorCode, reset } = useSchedulingResourceCrud(resourceId);
+  const {
+    list,
+    remove,
+    cancel,
+    prioritize,
+    markSent,
+    update,
+    data,
+    isLoading,
+    errorCode,
+    reset,
+  } = useSchedulingResourceCrud(resourceId);
 
   const filterCounterRef = useRef(1);
   const [search, setSearch] = useState('');
@@ -375,6 +388,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const [isTableSettingsOpen, setIsTableSettingsOpen] = useState(false);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const [reminderBoardFilter, setReminderBoardFilter] = useState(REMINDER_BOARD_FILTERS[0]);
 
   const normalizedTenantId = useMemo(() => normalizeValue(tenantId), [tenantId]);
   const normalizedFacilityId = useMemo(() => normalizeValue(facilityId), [facilityId]);
@@ -393,6 +407,26 @@ const useSchedulingResourceListScreen = (resourceId) => {
   const canDelete = Boolean(
     canDeleteSchedulingRecords
       && config?.supportsDelete !== false
+  );
+  const canCancelAppointment = Boolean(
+    resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENTS
+      && canCancelAppointments
+      && typeof cancel === 'function'
+  );
+  const canMarkReminderSent = Boolean(
+    resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS
+      && canEdit
+      && typeof markSent === 'function'
+  );
+  const canPrioritizeQueue = Boolean(
+    resourceId === SCHEDULING_RESOURCE_IDS.VISIT_QUEUES
+      && canEdit
+      && typeof prioritize === 'function'
+  );
+  const canToggleAvailability = Boolean(
+    resourceId === SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS
+      && canEdit
+      && typeof update === 'function'
   );
 
   const preferenceSubject = useMemo(
@@ -439,12 +473,12 @@ const useSchedulingResourceListScreen = (resourceId) => {
       if (!isRecordInTenantScope(item, canManageAllTenants, normalizedTenantId)) {
         return false;
       }
-      if (config?.supportsPatientFilter && schedulingContext) {
-        return normalizeValue(item?.patient_id) === schedulingContext;
+      if (config?.supportsPatientFilter && schedulingContext?.patientId) {
+        return normalizeValue(item?.patient_id) === normalizeValue(schedulingContext.patientId);
       }
       return true;
     }),
-    [rawItems, canManageAllTenants, normalizedTenantId, config?.supportsPatientFilter, schedulingContext]
+    [rawItems, canManageAllTenants, normalizedTenantId, config?.supportsPatientFilter, schedulingContext?.patientId]
   );
 
   const records = useMemo(
@@ -690,8 +724,26 @@ const useSchedulingResourceListScreen = (resourceId) => {
       params.facility_id = normalizedFacilityId;
     }
 
-    if (config.supportsPatientFilter && schedulingContext) {
-      params.patient_id = schedulingContext;
+    const contextFilters = getContextFilters(resourceId, schedulingContext);
+    Object.entries(contextFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params[key] = value;
+      }
+    });
+
+    if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS) {
+      if (reminderBoardFilter === 'DUE') {
+        params.due_state = 'DUE';
+        params.is_sent = false;
+      } else if (reminderBoardFilter === 'OVERDUE') {
+        params.due_state = 'OVERDUE';
+        params.is_sent = false;
+      } else if (reminderBoardFilter === 'SENT') {
+        params.is_sent = true;
+      } else {
+        delete params.due_state;
+        delete params.is_sent;
+      }
     }
 
     reset();
@@ -704,7 +756,9 @@ const useSchedulingResourceListScreen = (resourceId) => {
     canManageAllTenants,
     normalizedTenantId,
     normalizedFacilityId,
+    resourceId,
     schedulingContext,
+    reminderBoardFilter,
     reset,
     list,
   ]);
@@ -852,6 +906,161 @@ const useSchedulingResourceListScreen = (resourceId) => {
     ]
   );
 
+  const handleCancelAppointment = useCallback(
+    async (id, event) => {
+      if (!canCancelAppointment || typeof cancel !== 'function') return;
+      if (event?.stopPropagation) event.stopPropagation();
+
+      const normalizedId = normalizeSearchParam(id);
+      if (!normalizedId) return;
+
+      const targetRecord = resolveRecordById(normalizedId);
+      if (!hasRecordAccess(targetRecord)) {
+        const separator = listPath.includes('?') ? '&' : '?';
+        router.push(`${listPath}${separator}notice=accessDenied`);
+        return;
+      }
+
+      if (!confirmAction(t('scheduling.resources.appointments.cancel.confirm'))) return;
+
+      try {
+        const result = await cancel(normalizedId, {});
+        if (!result) return;
+        fetchList();
+        setNoticeMessage(buildNoticeMessage(t, isOffline ? 'queued' : 'cancelled', resourceLabel));
+      } catch {
+        // Hook-level error handling already updates state.
+      }
+    },
+    [
+      canCancelAppointment,
+      cancel,
+      resolveRecordById,
+      hasRecordAccess,
+      listPath,
+      router,
+      t,
+      fetchList,
+      isOffline,
+      resourceLabel,
+    ]
+  );
+
+  const handleMarkReminderSent = useCallback(
+    async (id, event) => {
+      if (!canMarkReminderSent || typeof markSent !== 'function') return;
+      if (event?.stopPropagation) event.stopPropagation();
+
+      const normalizedId = normalizeSearchParam(id);
+      if (!normalizedId) return;
+
+      const targetRecord = resolveRecordById(normalizedId);
+      if (!hasRecordAccess(targetRecord)) {
+        const separator = listPath.includes('?') ? '&' : '?';
+        router.push(`${listPath}${separator}notice=accessDenied`);
+        return;
+      }
+
+      try {
+        const result = await markSent(normalizedId, {});
+        if (!result) return;
+        fetchList();
+        setNoticeMessage(buildNoticeMessage(t, isOffline ? 'queued' : 'updated', resourceLabel));
+      } catch {
+        // Hook-level error handling already updates state.
+      }
+    },
+    [
+      canMarkReminderSent,
+      markSent,
+      resolveRecordById,
+      hasRecordAccess,
+      listPath,
+      router,
+      fetchList,
+      t,
+      isOffline,
+      resourceLabel,
+    ]
+  );
+
+  const handlePrioritizeQueue = useCallback(
+    async (id, event) => {
+      if (!canPrioritizeQueue || typeof prioritize !== 'function') return;
+      if (event?.stopPropagation) event.stopPropagation();
+
+      const normalizedId = normalizeSearchParam(id);
+      if (!normalizedId) return;
+
+      const targetRecord = resolveRecordById(normalizedId);
+      if (!hasRecordAccess(targetRecord)) {
+        const separator = listPath.includes('?') ? '&' : '?';
+        router.push(`${listPath}${separator}notice=accessDenied`);
+        return;
+      }
+
+      try {
+        const result = await prioritize(normalizedId, {});
+        if (!result) return;
+        fetchList();
+        setNoticeMessage(buildNoticeMessage(t, isOffline ? 'queued' : 'updated', resourceLabel));
+      } catch {
+        // Hook-level error handling already updates state.
+      }
+    },
+    [
+      canPrioritizeQueue,
+      prioritize,
+      resolveRecordById,
+      hasRecordAccess,
+      listPath,
+      router,
+      fetchList,
+      isOffline,
+      t,
+      resourceLabel,
+    ]
+  );
+
+  const handleToggleAvailability = useCallback(
+    async (id, event) => {
+      if (!canToggleAvailability || typeof update !== 'function') return;
+      if (event?.stopPropagation) event.stopPropagation();
+
+      const normalizedId = normalizeSearchParam(id);
+      if (!normalizedId) return;
+
+      const targetRecord = resolveRecordById(normalizedId);
+      if (!hasRecordAccess(targetRecord)) {
+        const separator = listPath.includes('?') ? '&' : '?';
+        router.push(`${listPath}${separator}notice=accessDenied`);
+        return;
+      }
+
+      const nextAvailability = !(targetRecord?.is_available !== false);
+      try {
+        const result = await update(normalizedId, { is_available: nextAvailability });
+        if (!result) return;
+        fetchList();
+        setNoticeMessage(buildNoticeMessage(t, isOffline ? 'queued' : 'updated', resourceLabel));
+      } catch {
+        // Hook-level error handling already updates state.
+      }
+    },
+    [
+      canToggleAvailability,
+      update,
+      resolveRecordById,
+      hasRecordAccess,
+      listPath,
+      router,
+      fetchList,
+      isOffline,
+      t,
+      resourceLabel,
+    ]
+  );
+
   const handleSearch = useCallback((value) => {
     setSearch(value ?? '');
     setPage(1);
@@ -864,6 +1073,12 @@ const useSchedulingResourceListScreen = (resourceId) => {
 
   const handleFilterLogicChange = useCallback((value) => {
     setFilterLogic(sanitizeFilterLogic(value));
+    setPage(1);
+  }, []);
+
+  const handleReminderBoardFilterChange = useCallback((value) => {
+    const normalized = REMINDER_BOARD_FILTERS.includes(value) ? value : REMINDER_BOARD_FILTERS[0];
+    setReminderBoardFilter(normalized);
     setPage(1);
   }, []);
 
@@ -1165,6 +1380,16 @@ const useSchedulingResourceListScreen = (resourceId) => {
     [searchFieldOptions, t]
   );
 
+  const reminderBoardFilterOptions = useMemo(
+    () => [
+      { value: 'ALL', label: t('common.all') },
+      { value: 'DUE', label: t('scheduling.resources.appointmentReminders.list.quickDue') },
+      { value: 'OVERDUE', label: t('scheduling.resources.appointmentReminders.list.quickOverdue') },
+      { value: 'SENT', label: t('scheduling.resources.appointmentReminders.list.quickSent') },
+    ],
+    [t]
+  );
+
   const filterFieldOptions = useMemo(
     () => searchFieldOptions.map((field) => ({
       value: field.id,
@@ -1237,6 +1462,67 @@ const useSchedulingResourceListScreen = (resourceId) => {
     ],
   }), [t, resourceLabel]);
 
+  const resolveRowAction = useCallback((item) => {
+    const itemId = normalizeValue(item?.id);
+    if (!itemId) return null;
+
+    if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENTS && canCancelAppointment) {
+      const isAlreadyCancelled = normalizeValue(item?.status).toUpperCase() === 'CANCELLED';
+      return {
+        key: 'cancel',
+        label: t('scheduling.resources.appointments.cancel.actionLabel'),
+        disabled: isAlreadyCancelled,
+        onPress: (event) => handleCancelAppointment(itemId, event),
+      };
+    }
+
+    if (resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS && canMarkReminderSent) {
+      const isSent = Boolean(item?.sent_at);
+      return {
+        key: 'markSent',
+        label: t('scheduling.resources.appointmentReminders.detail.markSent'),
+        disabled: isSent,
+        onPress: (event) => handleMarkReminderSent(itemId, event),
+      };
+    }
+
+    if (resourceId === SCHEDULING_RESOURCE_IDS.VISIT_QUEUES && canPrioritizeQueue) {
+      const status = normalizeValue(item?.status).toUpperCase();
+      const isTerminal = status === 'COMPLETED' || status === 'CANCELLED' || status === 'NO_SHOW';
+      return {
+        key: 'prioritize',
+        label: t('scheduling.resources.visitQueues.detail.prioritize'),
+        disabled: isTerminal,
+        onPress: (event) => handlePrioritizeQueue(itemId, event),
+      };
+    }
+
+    if (resourceId === SCHEDULING_RESOURCE_IDS.AVAILABILITY_SLOTS && canToggleAvailability) {
+      const isAvailable = item?.is_available !== false;
+      return {
+        key: 'toggleAvailability',
+        label: isAvailable
+          ? t('scheduling.resources.availabilitySlots.detail.markUnavailable')
+          : t('scheduling.resources.availabilitySlots.detail.markAvailable'),
+        disabled: false,
+        onPress: (event) => handleToggleAvailability(itemId, event),
+      };
+    }
+
+    return null;
+  }, [
+    resourceId,
+    canCancelAppointment,
+    canMarkReminderSent,
+    canPrioritizeQueue,
+    canToggleAvailability,
+    t,
+    handleCancelAppointment,
+    handleMarkReminderSent,
+    handlePrioritizeQueue,
+    handleToggleAvailability,
+  ]);
+
   return {
     config,
     locale,
@@ -1254,6 +1540,9 @@ const useSchedulingResourceListScreen = (resourceId) => {
     search,
     searchScope,
     searchScopeOptions,
+    reminderBoardFilter,
+    reminderBoardFilterOptions,
+    showReminderBoardFilters: resourceId === SCHEDULING_RESOURCE_IDS.APPOINTMENT_REMINDERS,
     filters: sanitizeFilters(filters),
     filterFieldOptions,
     filterLogic,
@@ -1280,6 +1569,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
     onRetry: handleRetry,
     onSearch: handleSearch,
     onSearchScopeChange: handleSearchScopeChange,
+    onReminderBoardFilterChange: handleReminderBoardFilterChange,
     onFilterLogicChange: handleFilterLogicChange,
     onFilterFieldChange: handleFilterFieldChange,
     onFilterOperatorChange: handleFilterOperatorChange,
@@ -1319,6 +1609,7 @@ const useSchedulingResourceListScreen = (resourceId) => {
     onClearSelection: handleClearSelection,
     onBulkDelete: canDelete ? handleBulkDelete : undefined,
     resolveFilterOperatorOptions,
+    resolveRowAction,
     onItemPress: handleItemPress,
     onEdit: canEdit ? handleEdit : undefined,
     onDelete: canDelete ? handleDelete : undefined,
