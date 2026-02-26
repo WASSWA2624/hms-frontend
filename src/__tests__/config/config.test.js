@@ -103,6 +103,7 @@ describe('Config Layer', () => {
       expect(config.featureFlags).toBeDefined();
       expect(config.featureFlags.OFFLINE_MODE).toBe(true);
       expect(config.featureFlags.ANALYTICS_ENABLED).toBe(false);
+      expect(config.featureFlags.IPD_WORKBENCH_V1).toBe(false);
     });
   });
 

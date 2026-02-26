@@ -251,4 +251,15 @@ describe('useDashboardScreen Hook', () => {
     expect(result.current.state).toBe(STATES.NEEDS_TENANT_CONTEXT);
     unmount();
   });
+
+  it('exposes legacy IPD admit quick-action path when workbench flag is disabled', async () => {
+    const { result, unmount } = renderHook(() => useDashboardScreen());
+
+    await flushHook();
+
+    const admitAction = result.current.quickActions.find((item) => item.id === 'admit');
+    expect(admitAction).toBeDefined();
+    expect(admitAction.path).toBe('/ipd/admissions/create');
+    unmount();
+  });
 });

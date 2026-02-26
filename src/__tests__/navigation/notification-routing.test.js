@@ -30,6 +30,19 @@ describe('notification-routing', () => {
     expect(route).toBe('/clinical');
   });
 
+  it('routes IPD context notifications to IPD workbench when no direct path exists', () => {
+    const route = resolveNotificationRoute(
+      {
+        notification_type: 'SYSTEM',
+        title: 'IPD transfer updated',
+        message: 'Patient transfer request was approved',
+      },
+      () => true
+    );
+
+    expect(route).toBe('/ipd');
+  });
+
   it('uses OPD icon when notification route points to OPD flow workbench', () => {
     const icon = resolveNotificationIcon({
       notification_type: 'SYSTEM',
@@ -39,12 +52,28 @@ describe('notification-routing', () => {
     expect(icon).toBe('\u2695');
   });
 
+  it('uses IPD icon when notification route points to IPD workbench', () => {
+    const icon = resolveNotificationIcon({
+      notification_type: 'SYSTEM',
+      target_path: '/ipd?id=ADM-001',
+    });
+
+    expect(icon).toBe('\u{1F6CF}');
+  });
+
   it('keeps OPD notifications sticky by disabling auto mark-read on open', () => {
     expect(
       shouldAutoMarkNotificationRead({
         notification_type: 'SYSTEM',
         title: 'OPD flow updated',
         target_path: '/scheduling/opd-flows/enc-1',
+      })
+    ).toBe(false);
+    expect(
+      shouldAutoMarkNotificationRead({
+        notification_type: 'SYSTEM',
+        title: 'IPD discharge planned',
+        target_path: '/ipd',
       })
     ).toBe(false);
     expect(

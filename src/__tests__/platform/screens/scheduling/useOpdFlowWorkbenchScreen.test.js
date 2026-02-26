@@ -19,6 +19,10 @@ const mockListStaffProfiles = jest.fn();
 const mockGetFacility = jest.fn();
 const mockGetTenant = jest.fn();
 
+jest.mock('@config/feature.flags', () => ({
+  IPD_WORKBENCH_V1: false,
+}));
+
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
@@ -195,14 +199,29 @@ describe('useOpdFlowWorkbenchScreen', () => {
     renderHook(() => useOpdFlowWorkbenchScreen());
 
     await waitFor(() => expect(mockList).toHaveBeenCalled());
-    expect(mockList).toHaveBeenCalledWith({
-      page: 1,
-      limit: 25,
-      sort_by: 'started_at',
-      order: 'desc',
-      tenant_id: 'tenant-1',
-      facility_id: 'facility-1',
-    });
+    const calls = mockList.mock.calls.map((entry) => entry[0]);
+    expect(calls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          page: 1,
+          limit: 25,
+          sort_by: 'started_at',
+          order: 'desc',
+          tenant_id: 'tenant-1',
+          facility_id: 'facility-1',
+          queue_scope: 'ASSIGNED',
+        }),
+        expect.objectContaining({
+          page: 1,
+          limit: 25,
+          sort_by: 'started_at',
+          order: 'desc',
+          tenant_id: 'tenant-1',
+          facility_id: 'facility-1',
+          queue_scope: 'WAITING',
+        }),
+      ])
+    );
   });
 
   it('resolves UUID scope identifiers to friendly IDs before loading OPD flows', async () => {
@@ -234,22 +253,38 @@ describe('useOpdFlowWorkbenchScreen', () => {
     renderHook(() => useOpdFlowWorkbenchScreen());
 
     await waitFor(() => expect(mockList).toHaveBeenCalled());
-    expect(mockList).toHaveBeenCalledWith({
-      page: 1,
-      limit: 25,
-      sort_by: 'started_at',
-      order: 'desc',
-      tenant_id: 'TEN-001',
-      facility_id: 'FAC-001',
-    });
+    const calls = mockList.mock.calls.map((entry) => entry[0]);
+    expect(calls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          page: 1,
+          limit: 25,
+          sort_by: 'started_at',
+          order: 'desc',
+          tenant_id: 'TEN-001',
+          facility_id: 'FAC-001',
+          queue_scope: 'ASSIGNED',
+        }),
+        expect.objectContaining({
+          page: 1,
+          limit: 25,
+          sort_by: 'started_at',
+          order: 'desc',
+          tenant_id: 'TEN-001',
+          facility_id: 'FAC-001',
+          queue_scope: 'WAITING',
+        }),
+      ])
+    );
   });
 
   it('does not continuously refetch the OPD flow list on stable renders', async () => {
     const { rerender } = renderHook(() => useOpdFlowWorkbenchScreen());
 
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBeGreaterThanOrEqual(2));
+    const initialCalls = mockList.mock.calls.length;
     rerender({});
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBe(initialCalls));
   });
 
   it('fetches all search result pages for OPD flow list queries', async () => {
@@ -260,7 +295,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
 
     const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBeGreaterThanOrEqual(2));
 
     mockList.mockClear();
     mockList.mockImplementation(async (params = {}) => {
@@ -307,7 +342,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
     });
 
     const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBeGreaterThanOrEqual(2));
 
     const staleSearch = createDeferred();
     mockList.mockClear();
@@ -373,7 +408,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
   it('selects an OPD flow in-place and syncs URL params without pushing history', async () => {
     const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
 
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBeGreaterThanOrEqual(2));
     await waitFor(() => expect(result.current.flowList.length).toBeGreaterThan(0));
 
     mockPush.mockClear();
@@ -397,7 +432,7 @@ describe('useOpdFlowWorkbenchScreen', () => {
 
     const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
 
-    await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockList.mock.calls.length).toBeGreaterThanOrEqual(2));
     await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(result.current.isSelectedFlowLoading).toBe(true));
 
@@ -549,5 +584,16 @@ describe('useOpdFlowWorkbenchScreen', () => {
         unit: '%',
       })
     );
+  });
+
+  it('uses legacy IPD admission create route when workbench flag is disabled', async () => {
+    const { result } = renderHook(() => useOpdFlowWorkbenchScreen());
+    await waitFor(() => expect(result.current.onOpenAdmissionShortcut).toBeDefined());
+
+    act(() => {
+      result.current.onOpenAdmissionShortcut();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/ipd/admissions/create');
   });
 });

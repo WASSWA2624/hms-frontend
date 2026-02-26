@@ -22,8 +22,11 @@
     "continue": "Continue",
     "close": "Close",
     "select": "Select",
+    "selectOption": "Select an option",
     "selectPlaceholder": "Select…",
     "closeSelect": "Close select",
+    "none": "None",
+    "all": "All",
     "remove": "Remove",
     "goToHome": "Go to home",
     "viewNotifications": "View notifications",
@@ -53,6 +56,7 @@
     "errorState": "Error state",
     "offlineState": "Offline state",
     "message": "Message",
+    "error": "Something went wrong.",
     "toastDismissHint": "Press Escape to dismiss",
     "action": "Action",
     "tooltip": "Tooltip",
@@ -14075,6 +14079,105 @@
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
       "openPrimaryItem": "Open admission {{item}}"
+    },
+    "workbench": {
+      "title": "IPD Workbench",
+      "description": "Manage the full inpatient journey from admission to discharge in one place.",
+      "list": {
+        "title": "Inpatients",
+        "count": "{{count}} inpatients",
+        "total": "{{total}} total"
+      },
+      "filters": {
+        "search": "Search patient, admission, or bed",
+        "stage": "Stage",
+        "ward": "Ward",
+        "transfer": "Transfer state",
+        "bedState": "Bed state",
+        "allStages": "All stages",
+        "allTransferStates": "All transfer states",
+        "allWards": "All wards",
+        "allBedStates": "All bed states",
+        "hasBed": "In bed",
+        "noBed": "No active bed",
+        "clear": "Clear filters"
+      },
+      "start": {
+        "title": "Start admission",
+        "patientId": "Patient ID",
+        "encounterId": "Encounter ID",
+        "initialBed": "Initial bed",
+        "admittedAt": "Admitted at"
+      },
+      "snapshot": {
+        "title": "Admission snapshot",
+        "admissionId": "Admission",
+        "patient": "Patient",
+        "patientId": "Patient ID",
+        "stage": "Stage",
+        "nextStep": "Next step",
+        "activeBed": "Active bed",
+        "ward": "Ward",
+        "transferStatus": "Transfer status"
+      },
+      "actions": {
+        "title": "Quick actions",
+        "startAdmission": "Start admission",
+        "assignBed": "Assign bed",
+        "releaseBed": "Release bed",
+        "fromWard": "From ward",
+        "toWard": "To ward",
+        "requestTransfer": "Request transfer",
+        "transferAction": "Transfer action",
+        "transferBed": "Destination bed",
+        "transferRequestId": "Transfer request ID",
+        "updateTransfer": "Update transfer",
+        "wardRoundNotes": "Ward round notes",
+        "wardRoundAt": "Round time",
+        "addWardRound": "Add ward round",
+        "nurseId": "Nurse user ID",
+        "nursingNote": "Nursing note",
+        "addNursingNote": "Add nursing note",
+        "medicationDose": "Dose",
+        "medicationUnit": "Unit",
+        "medicationRoute": "Route",
+        "medicationAt": "Administered at",
+        "addMedication": "Add medication",
+        "dischargeSummary": "Discharge summary",
+        "dischargeAt": "Discharge time",
+        "planDischarge": "Plan discharge",
+        "finalizeDischarge": "Finalize discharge"
+      },
+      "timeline": {
+        "title": "Recent activity",
+        "emptyTitle": "No activity yet",
+        "emptyDescription": "Actions recorded for this admission will appear here."
+      },
+      "states": {
+        "accessDeniedTitle": "IPD access required",
+        "accessDeniedDescription": "You do not have permission to use the IPD workbench.",
+        "loadErrorTitle": "Unable to load IPD workbench",
+        "loadErrorDescription": "Try again to refresh inpatient data.",
+        "offlineNotice": "You are offline. Actions that require server validation are disabled.",
+        "emptyTitle": "No inpatients found",
+        "emptyDescription": "Start a new admission or adjust your filters.",
+        "noSelectionTitle": "Select an admission",
+        "noSelectionDescription": "Choose an inpatient from the list to view details and actions."
+      },
+      "validation": {
+        "patientRequired": "Patient ID is required.",
+        "bedRequired": "Select a bed to continue.",
+        "toWardRequired": "Select destination ward for transfer.",
+        "transferActionRequired": "Select a transfer action.",
+        "transferBedRequired": "Destination bed is required to complete transfer.",
+        "nursingNoteRequired": "Enter a nursing note before saving.",
+        "medicationDoseRequired": "Medication dose is required.",
+        "dischargeSummaryRequired": "Discharge summary is required."
+      },
+      "errors": {
+        "readOnly": "You do not have write access for IPD actions.",
+        "actionFailed": "Unable to complete IPD action."
+      }
     }
   },
   "icu": {

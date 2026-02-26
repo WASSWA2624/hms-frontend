@@ -19,9 +19,15 @@ describe('feature.flags.js', () => {
     expect(typeof featureFlags.ANALYTICS_ENABLED).toBe('boolean');
   });
 
+  test('should export IPD_WORKBENCH_V1', () => {
+    expect(featureFlags.IPD_WORKBENCH_V1).toBeDefined();
+    expect(typeof featureFlags.IPD_WORKBENCH_V1).toBe('boolean');
+  });
+
   test('should have correct feature flag values', () => {
     expect(featureFlags.OFFLINE_MODE).toBe(true);
     expect(featureFlags.ANALYTICS_ENABLED).toBe(false);
+    expect(featureFlags.IPD_WORKBENCH_V1).toBe(false);
   });
 });
 

@@ -35,6 +35,7 @@ describe('config/index.js (barrel export)', () => {
     expect(config.featureFlags).toBeDefined();
     expect(config.featureFlags.OFFLINE_MODE).toBeDefined();
     expect(config.featureFlags.ANALYTICS_ENABLED).toBeDefined();
+    expect(config.featureFlags.IPD_WORKBENCH_V1).toBeDefined();
   });
 
   test('should have correct barrel export structure', () => {

@@ -121,6 +121,39 @@ describe('endpoints.js', () => {
     );
   });
 
+  test('should expose IPD flow workbench action endpoints', () => {
+    expect(endpoints.IPD_FLOWS.LIST).toMatch(/\/ipd-flows$/);
+    expect(endpoints.IPD_FLOWS.GET('id')).toMatch(/\/ipd-flows\/id$/);
+    expect(endpoints.IPD_FLOWS.START).toMatch(/\/ipd-flows\/start$/);
+    expect(endpoints.IPD_FLOWS.ASSIGN_BED('id')).toMatch(
+      /\/ipd-flows\/id\/assign-bed$/
+    );
+    expect(endpoints.IPD_FLOWS.RELEASE_BED('id')).toMatch(
+      /\/ipd-flows\/id\/release-bed$/
+    );
+    expect(endpoints.IPD_FLOWS.REQUEST_TRANSFER('id')).toMatch(
+      /\/ipd-flows\/id\/request-transfer$/
+    );
+    expect(endpoints.IPD_FLOWS.UPDATE_TRANSFER('id')).toMatch(
+      /\/ipd-flows\/id\/update-transfer$/
+    );
+    expect(endpoints.IPD_FLOWS.ADD_WARD_ROUND('id')).toMatch(
+      /\/ipd-flows\/id\/add-ward-round$/
+    );
+    expect(endpoints.IPD_FLOWS.ADD_NURSING_NOTE('id')).toMatch(
+      /\/ipd-flows\/id\/add-nursing-note$/
+    );
+    expect(endpoints.IPD_FLOWS.ADD_MEDICATION_ADMINISTRATION('id')).toMatch(
+      /\/ipd-flows\/id\/add-medication-administration$/
+    );
+    expect(endpoints.IPD_FLOWS.PLAN_DISCHARGE('id')).toMatch(
+      /\/ipd-flows\/id\/plan-discharge$/
+    );
+    expect(endpoints.IPD_FLOWS.FINALIZE_DISCHARGE('id')).toMatch(
+      /\/ipd-flows\/id\/finalize-discharge$/
+    );
+  });
+
   test('should expose diagnostics workflow action endpoint', () => {
     expect(endpoints.LAB_RESULTS.RELEASE('id')).toMatch(
       /\/lab-results\/id\/release$/
