@@ -23,7 +23,9 @@ const isoDateTimeSchema = z.string().datetime();
 
 const parseBooleanLike = (value) => {
   if (typeof value === 'boolean') return value;
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
   if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
   return undefined;
@@ -33,7 +35,9 @@ const booleanLikeSchema = z
   .optional()
   .transform((value) => parseBooleanLike(value));
 const normalizeRouteStateValue = (value) => {
-  const normalized = Array.isArray(value) ? String(value[0] || '').trim() : String(value || '').trim();
+  const normalized = Array.isArray(value)
+    ? String(value[0] || '').trim()
+    : String(value || '').trim();
   return normalized || undefined;
 };
 
@@ -151,7 +155,9 @@ const addMedicationAdministrationPayloadSchema = z.object({
   administered_at: isoDateTimeSchema.optional(),
   dose: z.string().trim().min(1).max(80),
   unit: z.string().trim().max(40).optional().nullable(),
-  route: z.enum(['ORAL', 'IV', 'IM', 'TOPICAL', 'INHALATION', 'OTHER']).optional(),
+  route: z
+    .enum(['ORAL', 'IV', 'IM', 'TOPICAL', 'INHALATION', 'OTHER'])
+    .optional(),
 });
 
 const planDischargePayloadSchema = z.object({
@@ -192,7 +198,8 @@ const resolveCriticalAlertPayloadSchema = z.object({
 const parseIpdFlowId = (value) => identifierSchema.parse(value);
 const parseIpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
 const parseGetIpdFlowParams = (value) => getParamsSchema.parse(value ?? {});
-const parseResolveLegacyRouteParams = (value) => resolveLegacyRouteParamsSchema.parse(value ?? {});
+const parseResolveLegacyRouteParams = (value) =>
+  resolveLegacyRouteParamsSchema.parse(value ?? {});
 const parseIpdWorkbenchRouteState = (value) =>
   workbenchRouteStateSchema.parse({
     id: normalizeRouteStateValue(value?.id),
@@ -201,22 +208,34 @@ const parseIpdWorkbenchRouteState = (value) =>
     resource: normalizeRouteStateValue(value?.resource),
     legacyId: normalizeRouteStateValue(value?.legacyId),
   });
-const parseStartIpdFlowPayload = (value) => startPayloadSchema.parse(value ?? {});
-const parseAssignBedPayload = (value) => assignBedPayloadSchema.parse(value ?? {});
-const parseReleaseBedPayload = (value) => releaseBedPayloadSchema.parse(value ?? {});
-const parseRequestTransferPayload = (value) => requestTransferPayloadSchema.parse(value ?? {});
-const parseUpdateTransferPayload = (value) => updateTransferPayloadSchema.parse(value ?? {});
-const parseAddWardRoundPayload = (value) => addWardRoundPayloadSchema.parse(value ?? {});
-const parseAddNursingNotePayload = (value) => addNursingNotePayloadSchema.parse(value ?? {});
+const parseStartIpdFlowPayload = (value) =>
+  startPayloadSchema.parse(value ?? {});
+const parseAssignBedPayload = (value) =>
+  assignBedPayloadSchema.parse(value ?? {});
+const parseReleaseBedPayload = (value) =>
+  releaseBedPayloadSchema.parse(value ?? {});
+const parseRequestTransferPayload = (value) =>
+  requestTransferPayloadSchema.parse(value ?? {});
+const parseUpdateTransferPayload = (value) =>
+  updateTransferPayloadSchema.parse(value ?? {});
+const parseAddWardRoundPayload = (value) =>
+  addWardRoundPayloadSchema.parse(value ?? {});
+const parseAddNursingNotePayload = (value) =>
+  addNursingNotePayloadSchema.parse(value ?? {});
 const parseAddMedicationAdministrationPayload = (value) =>
   addMedicationAdministrationPayloadSchema.parse(value ?? {});
-const parsePlanDischargePayload = (value) => planDischargePayloadSchema.parse(value ?? {});
+const parsePlanDischargePayload = (value) =>
+  planDischargePayloadSchema.parse(value ?? {});
 const parseFinalizeDischargePayload = (value) =>
   finalizeDischargePayloadSchema.parse(value ?? {});
-const parseStartIcuStayPayload = (value) => startIcuStayPayloadSchema.parse(value ?? {});
-const parseEndIcuStayPayload = (value) => endIcuStayPayloadSchema.parse(value ?? {});
-const parseAddIcuObservationPayload = (value) => addIcuObservationPayloadSchema.parse(value ?? {});
-const parseAddCriticalAlertPayload = (value) => addCriticalAlertPayloadSchema.parse(value ?? {});
+const parseStartIcuStayPayload = (value) =>
+  startIcuStayPayloadSchema.parse(value ?? {});
+const parseEndIcuStayPayload = (value) =>
+  endIcuStayPayloadSchema.parse(value ?? {});
+const parseAddIcuObservationPayload = (value) =>
+  addIcuObservationPayloadSchema.parse(value ?? {});
+const parseAddCriticalAlertPayload = (value) =>
+  addCriticalAlertPayloadSchema.parse(value ?? {});
 const parseResolveCriticalAlertPayload = (value) =>
   resolveCriticalAlertPayloadSchema.parse(value ?? {});
 

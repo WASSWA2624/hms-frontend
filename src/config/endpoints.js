@@ -172,7 +172,8 @@ export const endpoints = {
     GET_CONTACTS: (id) => `${baseUrl}/patients/${id}/contacts`,
     GET_GUARDIANS: (id) => `${baseUrl}/patients/${id}/guardians`,
     GET_ALLERGIES: (id) => `${baseUrl}/patients/${id}/allergies`,
-    GET_MEDICAL_HISTORIES: (id) => `${baseUrl}/patients/${id}/medical-histories`,
+    GET_MEDICAL_HISTORIES: (id) =>
+      `${baseUrl}/patients/${id}/medical-histories`,
     GET_DOCUMENTS: (id) => `${baseUrl}/patients/${id}/documents`,
   },
   PATIENT_IDENTIFIERS: {
@@ -290,13 +291,16 @@ export const endpoints = {
   IPD_FLOWS: {
     LIST: `${baseUrl}/ipd-flows`,
     GET: (id) => `${baseUrl}/ipd-flows/${id}`,
-    RESOLVE_LEGACY: (resource, id) => `${baseUrl}/ipd-flows/resolve-legacy/${resource}/${id}`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/ipd-flows/resolve-legacy/${resource}/${id}`,
     START: `${baseUrl}/ipd-flows/start`,
     START_ICU_STAY: (id) => `${baseUrl}/ipd-flows/${id}/start-icu-stay`,
     END_ICU_STAY: (id) => `${baseUrl}/ipd-flows/${id}/end-icu-stay`,
-    ADD_ICU_OBSERVATION: (id) => `${baseUrl}/ipd-flows/${id}/add-icu-observation`,
+    ADD_ICU_OBSERVATION: (id) =>
+      `${baseUrl}/ipd-flows/${id}/add-icu-observation`,
     ADD_CRITICAL_ALERT: (id) => `${baseUrl}/ipd-flows/${id}/add-critical-alert`,
-    RESOLVE_CRITICAL_ALERT: (id) => `${baseUrl}/ipd-flows/${id}/resolve-critical-alert`,
+    RESOLVE_CRITICAL_ALERT: (id) =>
+      `${baseUrl}/ipd-flows/${id}/resolve-critical-alert`,
     ASSIGN_BED: (id) => `${baseUrl}/ipd-flows/${id}/assign-bed`,
     RELEASE_BED: (id) => `${baseUrl}/ipd-flows/${id}/release-bed`,
     REQUEST_TRANSFER: (id) => `${baseUrl}/ipd-flows/${id}/request-transfer`,
@@ -957,7 +961,8 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/equipment-work-orders/${id}`,
     DELETE: (id) => `${baseUrl}/equipment-work-orders/${id}`,
     START: (id) => `${baseUrl}/equipment-work-orders/${id}/start`,
-    RETURN_TO_SERVICE: (id) => `${baseUrl}/equipment-work-orders/${id}/return-to-service`,
+    RETURN_TO_SERVICE: (id) =>
+      `${baseUrl}/equipment-work-orders/${id}/return-to-service`,
   },
   EQUIPMENT_CALIBRATION_LOGS: {
     LIST: `${baseUrl}/equipment-calibration-logs`,
@@ -1054,7 +1059,8 @@ export const endpoints = {
     UPGRADE: (id) => `${baseUrl}/subscriptions/${id}/upgrade`,
     DOWNGRADE: (id) => `${baseUrl}/subscriptions/${id}/downgrade`,
     RENEW: (id) => `${baseUrl}/subscriptions/${id}/renew`,
-    PRORATION_PREVIEW: (id) => `${baseUrl}/subscriptions/${id}/proration-preview`,
+    PRORATION_PREVIEW: (id) =>
+      `${baseUrl}/subscriptions/${id}/proration-preview`,
     USAGE_SUMMARY: (id) => `${baseUrl}/subscriptions/${id}/usage-summary`,
     FIT_CHECK: (id) => `${baseUrl}/subscriptions/${id}/fit-check`,
     UPGRADE_RECOMMENDATION: (id) =>

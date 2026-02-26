@@ -10,4 +10,3 @@ export {
   CLINICAL_RESOURCE_IDS,
   CLINICAL_RESOURCE_LIST_ORDER,
 } from './ClinicalResourceConfigs';
-

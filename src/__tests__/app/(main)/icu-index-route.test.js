@@ -17,7 +17,8 @@ describe('ICU index route', () => {
       ICU_WORKBENCH_V1: true,
     }));
     jest.doMock('@platform/screens', () => ({
-      ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
+      ClinicalOverviewScreen: (...args) =>
+        mockScreens.ClinicalOverviewScreen(...args),
       IcuWorkbenchScreen: (...args) => mockScreens.IcuWorkbenchScreen(...args),
     }));
 
@@ -38,7 +39,8 @@ describe('ICU index route', () => {
       ICU_WORKBENCH_V1: false,
     }));
     jest.doMock('@platform/screens', () => ({
-      ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
+      ClinicalOverviewScreen: (...args) =>
+        mockScreens.ClinicalOverviewScreen(...args),
       IcuWorkbenchScreen: (...args) => mockScreens.IcuWorkbenchScreen(...args),
     }));
 
@@ -46,7 +48,9 @@ describe('ICU index route', () => {
     render(React.createElement(routeModule.default));
 
     expect(mockScreens.ClinicalOverviewScreen).toHaveBeenCalledTimes(1);
-    expect(mockScreens.ClinicalOverviewScreen.mock.calls[0]?.[0]).toMatchObject({ scope: 'icu' });
+    expect(mockScreens.ClinicalOverviewScreen.mock.calls[0]?.[0]).toMatchObject(
+      { scope: 'icu' }
+    );
     expect(mockScreens.IcuWorkbenchScreen).not.toHaveBeenCalled();
   });
 });

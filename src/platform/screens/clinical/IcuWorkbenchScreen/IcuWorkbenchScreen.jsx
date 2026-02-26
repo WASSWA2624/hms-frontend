@@ -68,8 +68,12 @@ const IcuWorkbenchScreen = () => {
   const icuQueueScopeOptions = toSelectOptions(screen.icuQueueScopeOptions);
   const icuStatusOptions = toSelectOptions(screen.icuStatusOptions);
   const transferStatusOptions = toSelectOptions(screen.transferStatusOptions);
-  const criticalSeverityOptions = toSelectOptions(screen.criticalSeverityOptions);
-  const hasCriticalAlertOptions = toSelectOptions(screen.hasCriticalAlertOptions);
+  const criticalSeverityOptions = toSelectOptions(
+    screen.criticalSeverityOptions
+  );
+  const hasCriticalAlertOptions = toSelectOptions(
+    screen.hasCriticalAlertOptions
+  );
   const hasActiveBedOptions = toSelectOptions(screen.hasActiveBedOptions);
   const bedOptions = toSelectOptions(screen.bedOptions);
   const stayOptions = toSelectOptions(screen.stayOptions);
@@ -89,7 +93,8 @@ const IcuWorkbenchScreen = () => {
         <StyledHeading>
           <StyledTitle>ICU Command Center</StyledTitle>
           <StyledDescription>
-            Centralized ICU operations for stays, observations, alerts, and inpatient actions.
+            Centralized ICU operations for stays, observations, alerts, and
+            inpatient actions.
           </StyledDescription>
         </StyledHeading>
         <Button
@@ -104,7 +109,10 @@ const IcuWorkbenchScreen = () => {
       </StyledHeader>
 
       {screen.isLoading ? (
-        <LoadingSpinner accessibilityLabel={t('common.loading')} testID="icu-workbench-loading" />
+        <LoadingSpinner
+          accessibilityLabel={t('common.loading')}
+          testID="icu-workbench-loading"
+        />
       ) : null}
 
       {!screen.isLoading && !screen.canViewWorkbench ? (
@@ -213,7 +221,11 @@ const IcuWorkbenchScreen = () => {
                 />
               </StyledFilterGrid>
               <StyledInlineActions>
-                <Button variant="surface" size="small" onPress={screen.onClearFilters}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onClearFilters}
+                >
                   {t('ipd.workbench.filters.clear')}
                 </Button>
                 <Button
@@ -228,7 +240,9 @@ const IcuWorkbenchScreen = () => {
                 <Button
                   variant="surface"
                   size="small"
-                  onPress={() => screen.setIsObservationFormOpen((prev) => !prev)}
+                  onPress={() =>
+                    screen.setIsObservationFormOpen((prev) => !prev)
+                  }
                   disabled={!screen.canMutate}
                   icon={<Icon glyph={'\u2695'} size="xs" decorative />}
                 >
@@ -253,7 +267,9 @@ const IcuWorkbenchScreen = () => {
                   <TextField
                     label="Started at"
                     value={screen.startIcuDraft.started_at}
-                    onChangeText={(value) => screen.onStartIcuDraftChange('started_at', value)}
+                    onChangeText={(value) =>
+                      screen.onStartIcuDraftChange('started_at', value)
+                    }
                     type="datetime-local"
                     density="compact"
                   />
@@ -263,7 +279,9 @@ const IcuWorkbenchScreen = () => {
                     variant="primary"
                     size="small"
                     onPress={screen.onStartIcuStay}
-                    disabled={!screen.canMutate || !screen.actionMatrix.canStartIcuStay}
+                    disabled={
+                      !screen.canMutate || !screen.actionMatrix.canStartIcuStay
+                    }
                   >
                     Start ICU Stay
                   </Button>
@@ -271,7 +289,9 @@ const IcuWorkbenchScreen = () => {
                     variant="surface"
                     size="small"
                     onPress={screen.onEndIcuStay}
-                    disabled={!screen.canMutate || !screen.actionMatrix.canEndIcuStay}
+                    disabled={
+                      !screen.canMutate || !screen.actionMatrix.canEndIcuStay
+                    }
                   >
                     End Active ICU Stay
                   </Button>
@@ -286,22 +306,31 @@ const IcuWorkbenchScreen = () => {
                   <Select
                     label="ICU stay"
                     value={screen.observationDraft.icu_stay_id}
-                    options={[{ value: '', label: t('common.selectOption') }, ...stayOptions]}
-                    onValueChange={(value) => screen.onObservationDraftChange('icu_stay_id', value)}
+                    options={[
+                      { value: '', label: t('common.selectOption') },
+                      ...stayOptions,
+                    ]}
+                    onValueChange={(value) =>
+                      screen.onObservationDraftChange('icu_stay_id', value)
+                    }
                     compact
                     searchable
                   />
                   <TextField
                     label="Observed at"
                     value={screen.observationDraft.observed_at}
-                    onChangeText={(value) => screen.onObservationDraftChange('observed_at', value)}
+                    onChangeText={(value) =>
+                      screen.onObservationDraftChange('observed_at', value)
+                    }
                     type="datetime-local"
                     density="compact"
                   />
                   <TextArea
                     label="Observation"
                     value={screen.observationDraft.observation}
-                    onChangeText={(value) => screen.onObservationDraftChange('observation', value)}
+                    onChangeText={(value) =>
+                      screen.onObservationDraftChange('observation', value)
+                    }
                     rows={3}
                   />
                 </StyledFieldRow>
@@ -310,7 +339,10 @@ const IcuWorkbenchScreen = () => {
                     variant="primary"
                     size="small"
                     onPress={screen.onAddIcuObservation}
-                    disabled={!screen.canMutate || !screen.actionMatrix.canAddIcuObservation}
+                    disabled={
+                      !screen.canMutate ||
+                      !screen.actionMatrix.canAddIcuObservation
+                    }
                   >
                     Save Observation
                   </Button>
@@ -325,8 +357,13 @@ const IcuWorkbenchScreen = () => {
                   <Select
                     label="ICU stay"
                     value={screen.criticalAlertDraft.icu_stay_id}
-                    options={[{ value: '', label: t('common.selectOption') }, ...stayOptions]}
-                    onValueChange={(value) => screen.onCriticalAlertDraftChange('icu_stay_id', value)}
+                    options={[
+                      { value: '', label: t('common.selectOption') },
+                      ...stayOptions,
+                    ]}
+                    onValueChange={(value) =>
+                      screen.onCriticalAlertDraftChange('icu_stay_id', value)
+                    }
                     compact
                     searchable
                   />
@@ -334,19 +371,26 @@ const IcuWorkbenchScreen = () => {
                     label="Severity"
                     value={screen.criticalAlertDraft.severity}
                     options={criticalSeverityOptions.filter((row) => row.value)}
-                    onValueChange={(value) => screen.onCriticalAlertDraftChange('severity', value)}
+                    onValueChange={(value) =>
+                      screen.onCriticalAlertDraftChange('severity', value)
+                    }
                     compact
                   />
                   <TextArea
                     label="Alert message"
                     value={screen.criticalAlertDraft.message}
-                    onChangeText={(value) => screen.onCriticalAlertDraftChange('message', value)}
+                    onChangeText={(value) =>
+                      screen.onCriticalAlertDraftChange('message', value)
+                    }
                     rows={3}
                   />
                   <Select
                     label="Resolve alert"
                     value={screen.resolveAlertDraft.critical_alert_id}
-                    options={[{ value: '', label: t('common.selectOption') }, ...alertOptions]}
+                    options={[
+                      { value: '', label: t('common.selectOption') },
+                      ...alertOptions,
+                    ]}
                     onValueChange={screen.onResolveAlertDraftChange}
                     compact
                     searchable
@@ -357,7 +401,10 @@ const IcuWorkbenchScreen = () => {
                     variant="primary"
                     size="small"
                     onPress={screen.onAddCriticalAlert}
-                    disabled={!screen.canMutate || !screen.actionMatrix.canAddCriticalAlert}
+                    disabled={
+                      !screen.canMutate ||
+                      !screen.actionMatrix.canAddCriticalAlert
+                    }
                   >
                     Raise Alert
                   </Button>
@@ -365,7 +412,10 @@ const IcuWorkbenchScreen = () => {
                     variant="surface"
                     size="small"
                     onPress={screen.onResolveCriticalAlert}
-                    disabled={!screen.canMutate || !screen.actionMatrix.canResolveCriticalAlert}
+                    disabled={
+                      !screen.canMutate ||
+                      !screen.actionMatrix.canResolveCriticalAlert
+                    }
                   >
                     Resolve Alert
                   </Button>
@@ -376,11 +426,15 @@ const IcuWorkbenchScreen = () => {
             <Card variant="outlined">
               <StyledInlineActions>
                 <Text variant="caption">
-                  {t('ipd.workbench.list.count', { count: screen.flowList.length })}
+                  {t('ipd.workbench.list.count', {
+                    count: screen.flowList.length,
+                  })}
                 </Text>
                 {screen.pagination?.total ? (
                   <Text variant="caption">
-                    {t('ipd.workbench.list.total', { total: screen.pagination.total })}
+                    {t('ipd.workbench.list.total', {
+                      total: screen.pagination.total,
+                    })}
                   </Text>
                 ) : null}
               </StyledInlineActions>
@@ -393,7 +447,8 @@ const IcuWorkbenchScreen = () => {
               ) : (
                 <StyledFlowList>
                   {screen.flowList.map((item, index) => {
-                    const flowId = item.display_id || item.human_friendly_id || item.id;
+                    const flowId =
+                      item.display_id || item.human_friendly_id || item.id;
                     const isSelected =
                       String(screen.selectedFlowId || '').toUpperCase() ===
                       String(flowId || '').toUpperCase();
@@ -407,14 +462,21 @@ const IcuWorkbenchScreen = () => {
                       >
                         <StyledFlowTitleRow>
                           <StyledFlowTitle>
-                            {item.patient_display_name || t('common.notAvailable')}
+                            {item.patient_display_name ||
+                              t('common.notAvailable')}
                           </StyledFlowTitle>
-                          <Badge>{item.stage || t('common.notAvailable')}</Badge>
+                          <Badge>
+                            {item.stage || t('common.notAvailable')}
+                          </Badge>
                         </StyledFlowTitleRow>
                         <StyledChipRow>
-                          <Chip size="small">ICU: {item.icu_status || 'NONE'}</Chip>
+                          <Chip size="small">
+                            ICU: {item.icu_status || 'NONE'}
+                          </Chip>
                           {item.critical_severity ? (
-                            <Chip size="small">Severity: {item.critical_severity}</Chip>
+                            <Chip size="small">
+                              Severity: {item.critical_severity}
+                            </Chip>
                           ) : null}
                         </StyledChipRow>
                         <StyledFlowMeta>{`Admission: ${
@@ -471,7 +533,11 @@ const IcuWorkbenchScreen = () => {
                     screen.selectedSummary.stage,
                     t('common.notAvailable')
                   )}
-                  {renderSnapshotField('ICU status', screen.selectedSummary.icuStatus, t('common.notAvailable'))}
+                  {renderSnapshotField(
+                    'ICU status',
+                    screen.selectedSummary.icuStatus,
+                    t('common.notAvailable')
+                  )}
                   {renderSnapshotField(
                     'Active ICU stay',
                     screen.selectedSummary.activeIcuStayId,
@@ -512,21 +578,43 @@ const IcuWorkbenchScreen = () => {
             </Card>
 
             <Card variant="outlined">
-              <StyledSectionTitle>{t('ipd.workbench.quickLinks.title')}</StyledSectionTitle>
+              <StyledSectionTitle>
+                {t('ipd.workbench.quickLinks.title')}
+              </StyledSectionTitle>
               <StyledInlineActions>
-                <Button variant="surface" size="small" onPress={screen.onOpenPatientProfile}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onOpenPatientProfile}
+                >
                   {t('ipd.workbench.quickLinks.patient')}
                 </Button>
-                <Button variant="surface" size="small" onPress={screen.onOpenLabOrderCreate}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onOpenLabOrderCreate}
+                >
                   {t('ipd.workbench.quickLinks.labOrder')}
                 </Button>
-                <Button variant="surface" size="small" onPress={screen.onOpenRadiologyOrderCreate}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onOpenRadiologyOrderCreate}
+                >
                   {t('ipd.workbench.quickLinks.radiologyOrder')}
                 </Button>
-                <Button variant="surface" size="small" onPress={screen.onOpenPharmacyOrderCreate}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onOpenPharmacyOrderCreate}
+                >
                   {t('ipd.workbench.quickLinks.pharmacyOrder')}
                 </Button>
-                <Button variant="surface" size="small" onPress={screen.onOpenBillingInvoiceCreate}>
+                <Button
+                  variant="surface"
+                  size="small"
+                  onPress={screen.onOpenBillingInvoiceCreate}
+                >
                   {t('ipd.workbench.quickLinks.invoice')}
                 </Button>
               </StyledInlineActions>
@@ -543,7 +631,10 @@ const IcuWorkbenchScreen = () => {
                   <Select
                     label={t('ipd.workbench.actions.assignBed')}
                     value={screen.assignBedDraft.bed_id}
-                    options={[{ value: '', label: t('common.selectOption') }, ...bedOptions]}
+                    options={[
+                      { value: '', label: t('common.selectOption') },
+                      ...bedOptions,
+                    ]}
                     onValueChange={screen.onAssignBedDraftChange}
                     searchable
                     compact
@@ -553,7 +644,9 @@ const IcuWorkbenchScreen = () => {
                       variant="primary"
                       size="small"
                       onPress={screen.onAssignBed}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canAssignBed}
+                      disabled={
+                        !screen.canMutate || !screen.actionMatrix.canAssignBed
+                      }
                     >
                       {t('ipd.workbench.actions.assignBed')}
                     </Button>
@@ -561,7 +654,9 @@ const IcuWorkbenchScreen = () => {
                       variant="surface"
                       size="small"
                       onPress={screen.onReleaseBed}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canReleaseBed}
+                      disabled={
+                        !screen.canMutate || !screen.actionMatrix.canReleaseBed
+                      }
                     >
                       {t('ipd.workbench.actions.releaseBed')}
                     </Button>
@@ -573,28 +668,39 @@ const IcuWorkbenchScreen = () => {
                     label={t('ipd.workbench.actions.fromWard')}
                     value={screen.transferDraft.from_ward_id}
                     options={wardOptions}
-                    onValueChange={(value) => screen.onTransferDraftChange('from_ward_id', value)}
+                    onValueChange={(value) =>
+                      screen.onTransferDraftChange('from_ward_id', value)
+                    }
                     compact
                   />
                   <Select
                     label={t('ipd.workbench.actions.toWard')}
                     value={screen.transferDraft.to_ward_id}
                     options={wardOptions}
-                    onValueChange={(value) => screen.onTransferDraftChange('to_ward_id', value)}
+                    onValueChange={(value) =>
+                      screen.onTransferDraftChange('to_ward_id', value)
+                    }
                     compact
                   />
                   <Select
                     label={t('ipd.workbench.actions.transferAction')}
                     value={screen.transferDraft.action}
                     options={transferActionOptions}
-                    onValueChange={(value) => screen.onTransferDraftChange('action', value)}
+                    onValueChange={(value) =>
+                      screen.onTransferDraftChange('action', value)
+                    }
                     compact
                   />
                   <Select
                     label={t('ipd.workbench.actions.transferBed')}
                     value={screen.transferDraft.to_bed_id}
-                    options={[{ value: '', label: t('common.selectOption') }, ...bedOptions]}
-                    onValueChange={(value) => screen.onTransferDraftChange('to_bed_id', value)}
+                    options={[
+                      { value: '', label: t('common.selectOption') },
+                      ...bedOptions,
+                    ]}
+                    onValueChange={(value) =>
+                      screen.onTransferDraftChange('to_bed_id', value)
+                    }
                     compact
                     searchable
                   />
@@ -611,7 +717,10 @@ const IcuWorkbenchScreen = () => {
                       variant="surface"
                       size="small"
                       onPress={screen.onRequestTransfer}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canRequestTransfer}
+                      disabled={
+                        !screen.canMutate ||
+                        !screen.actionMatrix.canRequestTransfer
+                      }
                     >
                       {t('ipd.workbench.actions.requestTransfer')}
                     </Button>
@@ -619,7 +728,10 @@ const IcuWorkbenchScreen = () => {
                       variant="primary"
                       size="small"
                       onPress={screen.onUpdateTransfer}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canUpdateTransfer}
+                      disabled={
+                        !screen.canMutate ||
+                        !screen.actionMatrix.canUpdateTransfer
+                      }
                     >
                       {t('ipd.workbench.actions.updateTransfer')}
                     </Button>
@@ -630,13 +742,17 @@ const IcuWorkbenchScreen = () => {
                   <TextArea
                     label={t('ipd.workbench.actions.wardRoundNotes')}
                     value={screen.wardRoundDraft.notes}
-                    onChangeText={(value) => screen.onWardRoundDraftChange('notes', value)}
+                    onChangeText={(value) =>
+                      screen.onWardRoundDraftChange('notes', value)
+                    }
                     rows={3}
                   />
                   <TextField
                     label={t('ipd.workbench.actions.wardRoundAt')}
                     value={screen.wardRoundDraft.round_at}
-                    onChangeText={(value) => screen.onWardRoundDraftChange('round_at', value)}
+                    onChangeText={(value) =>
+                      screen.onWardRoundDraftChange('round_at', value)
+                    }
                     type="datetime-local"
                     density="compact"
                   />
@@ -654,13 +770,17 @@ const IcuWorkbenchScreen = () => {
                   <TextField
                     label={t('ipd.workbench.actions.nurseId')}
                     value={screen.nursingDraft.nurse_user_id}
-                    onChangeText={(value) => screen.onNursingDraftChange('nurse_user_id', value)}
+                    onChangeText={(value) =>
+                      screen.onNursingDraftChange('nurse_user_id', value)
+                    }
                     density="compact"
                   />
                   <TextArea
                     label={t('ipd.workbench.actions.nursingNote')}
                     value={screen.nursingDraft.note}
-                    onChangeText={(value) => screen.onNursingDraftChange('note', value)}
+                    onChangeText={(value) =>
+                      screen.onNursingDraftChange('note', value)
+                    }
                     rows={3}
                   />
                   <Button
@@ -677,20 +797,26 @@ const IcuWorkbenchScreen = () => {
                   <TextField
                     label={t('ipd.workbench.actions.medicationDose')}
                     value={screen.medicationDraft.dose}
-                    onChangeText={(value) => screen.onMedicationDraftChange('dose', value)}
+                    onChangeText={(value) =>
+                      screen.onMedicationDraftChange('dose', value)
+                    }
                     density="compact"
                   />
                   <TextField
                     label={t('ipd.workbench.actions.medicationUnit')}
                     value={screen.medicationDraft.unit}
-                    onChangeText={(value) => screen.onMedicationDraftChange('unit', value)}
+                    onChangeText={(value) =>
+                      screen.onMedicationDraftChange('unit', value)
+                    }
                     density="compact"
                   />
                   <Select
                     label={t('ipd.workbench.actions.medicationRoute')}
                     value={screen.medicationDraft.route}
                     options={medicationRouteOptions}
-                    onValueChange={(value) => screen.onMedicationDraftChange('route', value)}
+                    onValueChange={(value) =>
+                      screen.onMedicationDraftChange('route', value)
+                    }
                     compact
                   />
                   <TextField
@@ -716,13 +842,17 @@ const IcuWorkbenchScreen = () => {
                   <TextArea
                     label={t('ipd.workbench.actions.dischargeSummary')}
                     value={screen.dischargeDraft.summary}
-                    onChangeText={(value) => screen.onDischargeDraftChange('summary', value)}
+                    onChangeText={(value) =>
+                      screen.onDischargeDraftChange('summary', value)
+                    }
                     rows={4}
                   />
                   <TextField
                     label={t('ipd.workbench.actions.dischargeAt')}
                     value={screen.dischargeDraft.discharged_at}
-                    onChangeText={(value) => screen.onDischargeDraftChange('discharged_at', value)}
+                    onChangeText={(value) =>
+                      screen.onDischargeDraftChange('discharged_at', value)
+                    }
                     type="datetime-local"
                     density="compact"
                   />
@@ -731,7 +861,10 @@ const IcuWorkbenchScreen = () => {
                       variant="surface"
                       size="small"
                       onPress={screen.onPlanDischarge}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canPlanDischarge}
+                      disabled={
+                        !screen.canMutate ||
+                        !screen.actionMatrix.canPlanDischarge
+                      }
                     >
                       {t('ipd.workbench.actions.planDischarge')}
                     </Button>
@@ -739,18 +872,25 @@ const IcuWorkbenchScreen = () => {
                       variant="primary"
                       size="small"
                       onPress={screen.onFinalizeDischarge}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canFinalizeDischarge}
+                      disabled={
+                        !screen.canMutate ||
+                        !screen.actionMatrix.canFinalizeDischarge
+                      }
                     >
                       {t('ipd.workbench.actions.finalizeDischarge')}
                     </Button>
                   </StyledInlineActions>
                 </StyledFieldRow>
               </Accordion>
-              {screen.formError ? <StyledErrorText>{screen.formError}</StyledErrorText> : null}
+              {screen.formError ? (
+                <StyledErrorText>{screen.formError}</StyledErrorText>
+              ) : null}
             </Card>
 
             <Card variant="outlined">
-              <StyledSectionTitle>{t('ipd.workbench.timeline.title')}</StyledSectionTitle>
+              <StyledSectionTitle>
+                {t('ipd.workbench.timeline.title')}
+              </StyledSectionTitle>
               {screen.timelineItems.length === 0 ? (
                 <EmptyState
                   title={t('ipd.workbench.timeline.emptyTitle')}
@@ -759,7 +899,9 @@ const IcuWorkbenchScreen = () => {
               ) : (
                 <StyledTimeline>
                   {screen.timelineItems.map((entry) => (
-                    <StyledTimelineItem key={entry.id}>{`${entry.label} | ${entry.timestamp}`}</StyledTimelineItem>
+                    <StyledTimelineItem
+                      key={entry.id}
+                    >{`${entry.label} | ${entry.timestamp}`}</StyledTimelineItem>
                   ))}
                 </StyledTimeline>
               )}

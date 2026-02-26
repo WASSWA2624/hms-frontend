@@ -16,12 +16,16 @@ jest.mock('@config/feature.flags', () => ({
 }));
 
 jest.mock('@platform/screens', () => ({
-  ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
+  ClinicalOverviewScreen: (...args) =>
+    mockScreens.ClinicalOverviewScreen(...args),
   IpdWorkbenchScreen: (...args) => mockScreens.IpdWorkbenchScreen(...args),
   IcuWorkbenchScreen: (...args) => mockScreens.IcuWorkbenchScreen(...args),
-  ClinicalResourceListScreen: (...args) => mockScreens.ClinicalResourceListScreen(...args),
-  ClinicalResourceDetailScreen: (...args) => mockScreens.ClinicalResourceDetailScreen(...args),
-  ClinicalResourceFormScreen: (...args) => mockScreens.ClinicalResourceFormScreen(...args),
+  ClinicalResourceListScreen: (...args) =>
+    mockScreens.ClinicalResourceListScreen(...args),
+  ClinicalResourceDetailScreen: (...args) =>
+    mockScreens.ClinicalResourceDetailScreen(...args),
+  ClinicalResourceFormScreen: (...args) =>
+    mockScreens.ClinicalResourceFormScreen(...args),
 }));
 
 const RESOURCES_WITH_EDIT = {
@@ -95,8 +99,11 @@ const OVERVIEW_ROUTE_CASES = [
   },
 ];
 
-const RESOURCE_ROUTE_CASES = Object.entries(RESOURCES_WITH_EDIT).flatMap(([scope, resourceIds]) =>
-  resourceIds.flatMap((resourceId) => buildResourceRouteCases(scope, resourceId))
+const RESOURCE_ROUTE_CASES = Object.entries(RESOURCES_WITH_EDIT).flatMap(
+  ([scope, resourceIds]) =>
+    resourceIds.flatMap((resourceId) =>
+      buildResourceRouteCases(scope, resourceId)
+    )
 );
 
 const TIER_7_ROUTE_CASES = [...OVERVIEW_ROUTE_CASES, ...RESOURCE_ROUTE_CASES];
@@ -106,17 +113,20 @@ describe('Tier 7 IPD ICU Theatre Emergency Routes', () => {
     jest.clearAllMocks();
   });
 
-  test.each(TIER_7_ROUTE_CASES)('$routePath renders $screenKey', ({ routePath, screenKey, expectedProps }) => {
-    const routeModule = require(routePath);
-    expect(routeModule.default).toBeDefined();
-    expect(typeof routeModule.default).toBe('function');
+  test.each(TIER_7_ROUTE_CASES)(
+    '$routePath renders $screenKey',
+    ({ routePath, screenKey, expectedProps }) => {
+      const routeModule = require(routePath);
+      expect(routeModule.default).toBeDefined();
+      expect(typeof routeModule.default).toBe('function');
 
-    render(React.createElement(routeModule.default));
-    expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
+      render(React.createElement(routeModule.default));
+      expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
 
-    if (expectedProps) {
-      const calledProps = mockScreens[screenKey].mock.calls[0]?.[0] || {};
-      expect(calledProps).toMatchObject(expectedProps);
+      if (expectedProps) {
+        const calledProps = mockScreens[screenKey].mock.calls[0]?.[0] || {};
+        expect(calledProps).toMatchObject(expectedProps);
+      }
     }
-  });
+  );
 });

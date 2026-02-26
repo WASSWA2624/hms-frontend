@@ -57,7 +57,10 @@ const getIpdFlow = async (id, params = {}) =>
 const resolveIpdLegacyRoute = async (resource, id) =>
   execute(async () => {
     const parsed = parseResolveLegacyRouteParams({ resource, id });
-    const response = await ipdFlowApi.resolveLegacyRoute(parsed.resource, parsed.id);
+    const response = await ipdFlowApi.resolveLegacyRoute(
+      parsed.resource,
+      parsed.id
+    );
     return normalizeIpdLegacyResolution(response.data);
   });
 
@@ -160,7 +163,10 @@ const addMedicationAdministration = async (id, payload = {}) =>
   execute(async () => {
     const parsedId = parseIpdFlowId(id);
     const parsed = parseAddMedicationAdministrationPayload(payload);
-    const response = await ipdFlowApi.addMedicationAdministration(parsedId, parsed);
+    const response = await ipdFlowApi.addMedicationAdministration(
+      parsedId,
+      parsed
+    );
     return normalizeIpdFlowSnapshot(response.data);
   });
 

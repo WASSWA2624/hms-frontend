@@ -27,17 +27,36 @@ const STAGE_OPTIONS = [
   'CANCELLED',
 ];
 const ICU_STATUS_OPTIONS = ['', 'ACTIVE', 'ENDED', 'NONE'];
-const TRANSFER_STATUS_OPTIONS = ['', 'REQUESTED', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+const TRANSFER_STATUS_OPTIONS = [
+  '',
+  'REQUESTED',
+  'APPROVED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'CANCELLED',
+];
 const CRITICAL_SEVERITY_OPTIONS = ['', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const QUEUE_SCOPE_OPTIONS = ['ACTIVE', 'ALL'];
 const ICU_QUEUE_SCOPE_OPTIONS = ['WITH_ICU', 'ACTIVE', 'ALL'];
 const TRANSFER_ACTION_OPTIONS = ['APPROVE', 'START', 'COMPLETE', 'CANCEL'];
-const MEDICATION_ROUTE_OPTIONS = ['ORAL', 'IV', 'IM', 'TOPICAL', 'INHALATION', 'OTHER'];
+const MEDICATION_ROUTE_OPTIONS = [
+  'ORAL',
+  'IV',
+  'IM',
+  'TOPICAL',
+  'INHALATION',
+  'OTHER',
+];
 const TERMINAL_STAGES = new Set(['DISCHARGED', 'CANCELLED']);
-const OPEN_TRANSFER_STATUSES = new Set(['REQUESTED', 'APPROVED', 'IN_PROGRESS']);
+const OPEN_TRANSFER_STATUSES = new Set([
+  'REQUESTED',
+  'APPROVED',
+  'IN_PROGRESS',
+]);
 
 const sanitize = (value) => String(value || '').trim();
-const normalizeScalar = (value) => (Array.isArray(value) ? sanitize(value[0]) : sanitize(value));
+const normalizeScalar = (value) =>
+  Array.isArray(value) ? sanitize(value[0]) : sanitize(value);
 const isUuidLike = (value) => UUID_LIKE_REGEX.test(sanitize(value));
 const toIdentifier = (value) => sanitize(value);
 const toPublic = (value) => {
@@ -63,16 +82,32 @@ const toLocalDateTimeInput = (date = new Date()) => {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 };
 const resolveItems = (result) =>
-  Array.isArray(result?.items) ? result.items : Array.isArray(result) ? result : [];
+  Array.isArray(result?.items)
+    ? result.items
+    : Array.isArray(result)
+      ? result
+      : [];
 const resolvePagination = (result) =>
   result && typeof result === 'object' ? result.pagination || null : null;
 const resolveAdmissionId = (snapshot) =>
-  toPublic(snapshot?.display_id || snapshot?.human_friendly_id || snapshot?.admission_id || snapshot?.id);
+  toPublic(
+    snapshot?.display_id ||
+      snapshot?.human_friendly_id ||
+      snapshot?.admission_id ||
+      snapshot?.id
+  );
 const resolvePatientId = (snapshot) =>
-  toPublic(snapshot?.patient_display_id || snapshot?.patient?.human_friendly_id || snapshot?.patient?.id);
+  toPublic(
+    snapshot?.patient_display_id ||
+      snapshot?.patient?.human_friendly_id ||
+      snapshot?.patient?.id
+  );
 const resolvePatientName = (snapshot) =>
   sanitize(snapshot?.patient_display_name) ||
-  [sanitize(snapshot?.patient?.first_name), sanitize(snapshot?.patient?.last_name)]
+  [
+    sanitize(snapshot?.patient?.first_name),
+    sanitize(snapshot?.patient?.last_name),
+  ]
     .filter(Boolean)
     .join(' ') ||
   resolvePatientId(snapshot) ||
@@ -89,13 +124,28 @@ const defaultTransferDraft = {
   to_bed_id: '',
 };
 const defaultStartIcuDraft = () => ({ started_at: toLocalDateTimeInput() });
-const defaultEndIcuDraft = () => ({ icu_stay_id: '', ended_at: toLocalDateTimeInput() });
-const defaultObservationDraft = () => ({ icu_stay_id: '', observed_at: toLocalDateTimeInput(), observation: '' });
-const defaultCriticalAlertDraft = () => ({ icu_stay_id: '', severity: 'HIGH', message: '' });
+const defaultEndIcuDraft = () => ({
+  icu_stay_id: '',
+  ended_at: toLocalDateTimeInput(),
+});
+const defaultObservationDraft = () => ({
+  icu_stay_id: '',
+  observed_at: toLocalDateTimeInput(),
+  observation: '',
+});
+const defaultCriticalAlertDraft = () => ({
+  icu_stay_id: '',
+  severity: 'HIGH',
+  message: '',
+});
 
 const deriveActionMatrix = (snapshot) => {
-  const stage = sanitize(snapshot?.stage || snapshot?.flow?.stage).toUpperCase();
-  const transferStatus = sanitize(snapshot?.open_transfer_request?.status || snapshot?.transfer_status).toUpperCase();
+  const stage = sanitize(
+    snapshot?.stage || snapshot?.flow?.stage
+  ).toUpperCase();
+  const transferStatus = sanitize(
+    snapshot?.open_transfer_request?.status || snapshot?.transfer_status
+  ).toUpperCase();
   const hasActiveBed =
     typeof snapshot?.has_active_bed === 'boolean'
       ? snapshot.has_active_bed
@@ -139,8 +189,14 @@ const useIcuWorkbenchScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { user } = useAuth();
-  const { canRead, canWrite, canManageAllTenants, tenantId, facilityId, isResolved } =
-    useScopeAccess(SCOPE_KEYS.ICU);
+  const {
+    canRead,
+    canWrite,
+    canManageAllTenants,
+    tenantId,
+    facilityId,
+    isResolved,
+  } = useScopeAccess(SCOPE_KEYS.ICU);
   const {
     list,
     get,
@@ -182,7 +238,8 @@ const useIcuWorkbenchScreen = () => {
   const [transferStatusFilter, setTransferStatusFilter] = useState('');
   const [hasActiveBedFilter, setHasActiveBedFilter] = useState('');
   const [isListLoading, setIsListLoading] = useState(false);
-  const [isSelectedSnapshotLoading, setIsSelectedSnapshotLoading] = useState(false);
+  const [isSelectedSnapshotLoading, setIsSelectedSnapshotLoading] =
+    useState(false);
   const [formError, setFormError] = useState('');
   const [wardOptions, setWardOptions] = useState([]);
   const [bedOptions, setBedOptions] = useState([]);
@@ -194,14 +251,26 @@ const useIcuWorkbenchScreen = () => {
 
   const [startIcuDraft, setStartIcuDraft] = useState(defaultStartIcuDraft);
   const [endIcuDraft, setEndIcuDraft] = useState(defaultEndIcuDraft);
-  const [observationDraft, setObservationDraft] = useState(defaultObservationDraft);
-  const [criticalAlertDraft, setCriticalAlertDraft] = useState(defaultCriticalAlertDraft);
-  const [resolveAlertDraft, setResolveAlertDraft] = useState({ critical_alert_id: '' });
+  const [observationDraft, setObservationDraft] = useState(
+    defaultObservationDraft
+  );
+  const [criticalAlertDraft, setCriticalAlertDraft] = useState(
+    defaultCriticalAlertDraft
+  );
+  const [resolveAlertDraft, setResolveAlertDraft] = useState({
+    critical_alert_id: '',
+  });
 
   const [assignBedDraft, setAssignBedDraft] = useState({ bed_id: '' });
   const [transferDraft, setTransferDraft] = useState(defaultTransferDraft);
-  const [wardRoundDraft, setWardRoundDraft] = useState({ notes: '', round_at: '' });
-  const [nursingDraft, setNursingDraft] = useState({ nurse_user_id: '', note: '' });
+  const [wardRoundDraft, setWardRoundDraft] = useState({
+    notes: '',
+    round_at: '',
+  });
+  const [nursingDraft, setNursingDraft] = useState({
+    nurse_user_id: '',
+    note: '',
+  });
   const [medicationDraft, setMedicationDraft] = useState({
     dose: '',
     unit: '',
@@ -231,12 +300,19 @@ const useIcuWorkbenchScreen = () => {
   }, [canManageAllTenants, facilityId, tenantId]);
 
   const hasScope =
-    canManageAllTenants || Boolean(scopeParams.tenant_id) || Boolean(scopeParams.facility_id);
-  const canViewWorkbench = isResolved && (canRead || canManageAllTenants) && hasScope;
+    canManageAllTenants ||
+    Boolean(scopeParams.tenant_id) ||
+    Boolean(scopeParams.facility_id);
+  const canViewWorkbench =
+    isResolved && (canRead || canManageAllTenants) && hasScope;
   const canMutate = canWrite && !isOffline;
   const requestedFlowId = normalizeScalar(parsedRouteState?.id);
-  const requestedAction = normalizeScalar(parsedRouteState?.action).toLowerCase();
-  const requestedResource = normalizeScalar(parsedRouteState?.resource).toLowerCase();
+  const requestedAction = normalizeScalar(
+    parsedRouteState?.action
+  ).toLowerCase();
+  const requestedResource = normalizeScalar(
+    parsedRouteState?.resource
+  ).toLowerCase();
   const requestedLegacyId = normalizeScalar(parsedRouteState?.legacyId);
   const requestedPanel = normalizeScalar(parsedRouteState?.panel).toLowerCase();
 
@@ -254,9 +330,11 @@ const useIcuWorkbenchScreen = () => {
     if (sanitize(debouncedSearch)) next.search = sanitize(debouncedSearch);
     if (sanitize(stageFilter)) next.stage = sanitize(stageFilter);
     if (sanitize(wardFilter)) next.ward_id = sanitize(wardFilter);
-    if (sanitize(transferStatusFilter)) next.transfer_status = sanitize(transferStatusFilter);
+    if (sanitize(transferStatusFilter))
+      next.transfer_status = sanitize(transferStatusFilter);
     if (sanitize(icuStatusFilter)) next.icu_status = sanitize(icuStatusFilter);
-    if (sanitize(criticalSeverityFilter)) next.critical_severity = sanitize(criticalSeverityFilter);
+    if (sanitize(criticalSeverityFilter))
+      next.critical_severity = sanitize(criticalSeverityFilter);
     if (sanitize(hasCriticalAlertFilter)) {
       next.has_critical_alert = sanitize(hasCriticalAlertFilter) === 'true';
     }
@@ -301,7 +379,8 @@ const useIcuWorkbenchScreen = () => {
     if (!admissionId) return;
     setFlowList((previous) => {
       const index = previous.findIndex(
-        (item) => resolveAdmissionId(item).toUpperCase() === admissionId.toUpperCase()
+        (item) =>
+          resolveAdmissionId(item).toUpperCase() === admissionId.toUpperCase()
       );
       if (index < 0) return [snapshot, ...previous];
       const next = [...previous];
@@ -345,7 +424,15 @@ const useIcuWorkbenchScreen = () => {
         if (!light) setIsListLoading(false);
       }
     },
-    [buildListParams, canViewWorkbench, isOffline, list, reset, selectedFlowId, syncSelectedUrl]
+    [
+      buildListParams,
+      canViewWorkbench,
+      isOffline,
+      list,
+      reset,
+      selectedFlowId,
+      syncSelectedUrl,
+    ]
   );
 
   const loadSelected = useCallback(async () => {
@@ -362,7 +449,8 @@ const useIcuWorkbenchScreen = () => {
         setSelectedFlow(snapshot);
         if (
           publicAdmissionId &&
-          publicAdmissionId.toUpperCase() !== sanitize(selectedFlowId).toUpperCase()
+          publicAdmissionId.toUpperCase() !==
+            sanitize(selectedFlowId).toUpperCase()
         ) {
           setSelectedFlowId(publicAdmissionId);
           syncSelectedUrl(publicAdmissionId);
@@ -372,20 +460,39 @@ const useIcuWorkbenchScreen = () => {
     } finally {
       setIsSelectedSnapshotLoading(false);
     }
-  }, [canViewWorkbench, get, isOffline, selectedFlowId, syncSelectedUrl, upsertFlow]);
+  }, [
+    canViewWorkbench,
+    get,
+    isOffline,
+    selectedFlowId,
+    syncSelectedUrl,
+    upsertFlow,
+  ]);
 
   const loadOptions = useCallback(async () => {
     if (!canViewWorkbench || isOffline) return;
     try {
       const [wardsResult, bedsResult] = await Promise.all([
-        listWards({ ...scopeParams, limit: 120, sort_by: 'name', order: 'asc' }),
-        listBeds({ ...scopeParams, limit: 180, sort_by: 'label', order: 'asc' }),
+        listWards({
+          ...scopeParams,
+          limit: 120,
+          sort_by: 'name',
+          order: 'asc',
+        }),
+        listBeds({
+          ...scopeParams,
+          limit: 180,
+          sort_by: 'label',
+          order: 'asc',
+        }),
       ]);
       setWardOptions(
         resolveItems(wardsResult)
           .map((row) => ({
             value: toPublic(row?.human_friendly_id || row?.id),
-            label: sanitize(row?.name) || toPublic(row?.human_friendly_id || row?.id),
+            label:
+              sanitize(row?.name) ||
+              toPublic(row?.human_friendly_id || row?.id),
           }))
           .filter((row) => row.value)
       );
@@ -394,7 +501,9 @@ const useIcuWorkbenchScreen = () => {
           .filter((row) => sanitize(row?.status).toUpperCase() === 'AVAILABLE')
           .map((row) => ({
             value: toPublic(row?.human_friendly_id || row?.id),
-            label: sanitize(row?.label) || toPublic(row?.human_friendly_id || row?.id),
+            label:
+              sanitize(row?.label) ||
+              toPublic(row?.human_friendly_id || row?.id),
           }))
           .filter((row) => row.value)
       );
@@ -425,7 +534,10 @@ const useIcuWorkbenchScreen = () => {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(sanitize(searchText)), 280);
+    const timer = setTimeout(
+      () => setDebouncedSearch(sanitize(searchText)),
+      280
+    );
     return () => clearTimeout(timer);
   }, [searchText]);
 
@@ -436,9 +548,12 @@ const useIcuWorkbenchScreen = () => {
   useEffect(() => {
     if (!requestedAction) return;
     if (requestedAction.includes('start_icu_stay')) setIsStartIcuFormOpen(true);
-    if (requestedAction.includes('add_icu_observation')) setIsObservationFormOpen(true);
-    if (requestedAction.includes('add_critical_alert')) setIsAlertFormOpen(true);
-    if (requestedAction.includes('resolve_critical_alert')) setIsAlertFormOpen(true);
+    if (requestedAction.includes('add_icu_observation'))
+      setIsObservationFormOpen(true);
+    if (requestedAction.includes('add_critical_alert'))
+      setIsAlertFormOpen(true);
+    if (requestedAction.includes('resolve_critical_alert'))
+      setIsAlertFormOpen(true);
     if (
       requestedAction.includes('assign_bed') ||
       requestedAction.includes('transfer') ||
@@ -472,7 +587,10 @@ const useIcuWorkbenchScreen = () => {
     const latestIcuStayId = resolveLatestIcuStayId(selectedFlow);
     const preferredStayId = activeIcuStayId || latestIcuStayId;
     if (preferredStayId) {
-      setEndIcuDraft((prev) => ({ ...prev, icu_stay_id: prev.icu_stay_id || preferredStayId }));
+      setEndIcuDraft((prev) => ({
+        ...prev,
+        icu_stay_id: prev.icu_stay_id || preferredStayId,
+      }));
       setObservationDraft((prev) => ({
         ...prev,
         icu_stay_id: prev.icu_stay_id || preferredStayId,
@@ -498,15 +616,25 @@ const useIcuWorkbenchScreen = () => {
         selectedFlow?.active_bed_assignment?.bed?.ward?.human_friendly_id
     );
     if (fromWard) {
-      setTransferDraft((prev) => ({ ...prev, from_ward_id: prev.from_ward_id || fromWard }));
+      setTransferDraft((prev) => ({
+        ...prev,
+        from_ward_id: prev.from_ward_id || fromWard,
+      }));
     }
-    if (sanitize(selectedFlow?.latest_discharge_summary?.status).toUpperCase() === 'PLANNED') {
+    if (
+      sanitize(selectedFlow?.latest_discharge_summary?.status).toUpperCase() ===
+      'PLANNED'
+    ) {
       setDischargeDraft((prev) => ({
         ...prev,
-        summary: sanitize(prev.summary) || sanitize(selectedFlow?.latest_discharge_summary?.summary),
+        summary:
+          sanitize(prev.summary) ||
+          sanitize(selectedFlow?.latest_discharge_summary?.summary),
         discharged_at:
           sanitize(prev.discharged_at) ||
-          toLocalDateTimeInput(selectedFlow?.latest_discharge_summary?.discharged_at || new Date()),
+          toLocalDateTimeInput(
+            selectedFlow?.latest_discharge_summary?.discharged_at || new Date()
+          ),
       }));
     }
   }, [selectedFlow]);
@@ -562,9 +690,14 @@ const useIcuWorkbenchScreen = () => {
       const now = Date.now();
       if (now - lastRealtimeRefreshRef.current < 700) return;
       lastRealtimeRefreshRef.current = now;
-      const eventAdmissionId = toPublic(payload?.admission_public_id || payload?.admission_id).toUpperCase();
+      const eventAdmissionId = toPublic(
+        payload?.admission_public_id || payload?.admission_id
+      ).toUpperCase();
       const selectedId = toPublic(
-        selectedFlowId || selectedFlow?.id || selectedFlow?.display_id || selectedFlow?.human_friendly_id
+        selectedFlowId ||
+          selectedFlow?.id ||
+          selectedFlow?.display_id ||
+          selectedFlow?.human_friendly_id
       ).toUpperCase();
       if (eventAdmissionId && selectedId && eventAdmissionId === selectedId) {
         loadSelected();
@@ -575,15 +708,26 @@ const useIcuWorkbenchScreen = () => {
     [loadQueue, loadSelected, selectedFlow, selectedFlowId]
   );
 
-  useRealtimeEvent('ipd.flow.updated', onRealtime, { enabled: canViewWorkbench && !isOffline });
-  useRealtimeEvent('admission.patient_admitted', onRealtime, { enabled: canViewWorkbench && !isOffline });
-  useRealtimeEvent('admission.patient_transferred', onRealtime, { enabled: canViewWorkbench && !isOffline });
-  useRealtimeEvent('admission.patient_discharged', onRealtime, { enabled: canViewWorkbench && !isOffline });
+  useRealtimeEvent('ipd.flow.updated', onRealtime, {
+    enabled: canViewWorkbench && !isOffline,
+  });
+  useRealtimeEvent('admission.patient_admitted', onRealtime, {
+    enabled: canViewWorkbench && !isOffline,
+  });
+  useRealtimeEvent('admission.patient_transferred', onRealtime, {
+    enabled: canViewWorkbench && !isOffline,
+  });
+  useRealtimeEvent('admission.patient_discharged', onRealtime, {
+    enabled: canViewWorkbench && !isOffline,
+  });
   useRealtimeEvent('admission.bed_assignment_changed', onRealtime, {
     enabled: canViewWorkbench && !isOffline,
   });
 
-  const actionMatrix = useMemo(() => deriveActionMatrix(selectedFlow), [selectedFlow]);
+  const actionMatrix = useMemo(
+    () => deriveActionMatrix(selectedFlow),
+    [selectedFlow]
+  );
 
   const selectedSummary = useMemo(
     () => ({
@@ -591,15 +735,21 @@ const useIcuWorkbenchScreen = () => {
       patientName: resolvePatientName(selectedFlow),
       patientId: resolvePatientId(selectedFlow),
       stage: sanitize(selectedFlow?.stage || selectedFlow?.flow?.stage),
-      nextStep: sanitize(selectedFlow?.next_step || selectedFlow?.flow?.next_step),
+      nextStep: sanitize(
+        selectedFlow?.next_step || selectedFlow?.flow?.next_step
+      ),
       activeBed: sanitize(selectedFlow?.active_bed_assignment?.bed?.label),
       activeWard: sanitize(
-        selectedFlow?.active_bed_assignment?.bed?.ward?.name || selectedFlow?.ward_display_name
+        selectedFlow?.active_bed_assignment?.bed?.ward?.name ||
+          selectedFlow?.ward_display_name
       ),
       transferStatus: sanitize(
-        selectedFlow?.open_transfer_request?.status || selectedFlow?.transfer_status
+        selectedFlow?.open_transfer_request?.status ||
+          selectedFlow?.transfer_status
       ),
-      icuStatus: sanitize(selectedFlow?.icu_status || selectedFlow?.icu?.status),
+      icuStatus: sanitize(
+        selectedFlow?.icu_status || selectedFlow?.icu?.status
+      ),
       activeIcuStayId: resolveActiveIcuStayId(selectedFlow),
       latestIcuStayId: resolveLatestIcuStayId(selectedFlow),
       criticalSeverity: sanitize(
@@ -607,7 +757,9 @@ const useIcuWorkbenchScreen = () => {
           selectedFlow?.icu?.critical_severity ||
           selectedFlow?.icu?.critical_alert_summary?.highest_severity
       ),
-      criticalAlertCount: Number(selectedFlow?.icu?.critical_alert_summary?.total || 0),
+      criticalAlertCount: Number(
+        selectedFlow?.icu?.critical_alert_summary?.total || 0
+      ),
     }),
     [selectedFlow]
   );
@@ -667,7 +819,8 @@ const useIcuWorkbenchScreen = () => {
         .slice(0, 24)
         .map((entry, index) => ({
           id: `${sanitize(entry?.type)}-${sanitize(entry?.at)}-${index + 1}`,
-          label: sanitize(entry?.label || entry?.type) || t('common.notAvailable'),
+          label:
+            sanitize(entry?.label || entry?.type) || t('common.notAvailable'),
           timestamp: Number.isNaN(new Date(entry?.at).getTime())
             ? sanitize(entry?.at)
             : new Date(entry?.at).toLocaleString(),
@@ -770,17 +923,22 @@ const useIcuWorkbenchScreen = () => {
     setIsSecondaryActionsOpen,
     onStartIcuDraftChange: (field, value) =>
       setStartIcuDraft((prev) => ({ ...prev, [field]: value })),
-    onEndIcuDraftChange: (field, value) => setEndIcuDraft((prev) => ({ ...prev, [field]: value })),
+    onEndIcuDraftChange: (field, value) =>
+      setEndIcuDraft((prev) => ({ ...prev, [field]: value })),
     onObservationDraftChange: (field, value) =>
       setObservationDraft((prev) => ({ ...prev, [field]: value })),
     onCriticalAlertDraftChange: (field, value) =>
       setCriticalAlertDraft((prev) => ({ ...prev, [field]: value })),
     onResolveAlertDraftChange: (value) =>
       setResolveAlertDraft((prev) => ({ ...prev, critical_alert_id: value })),
-    onAssignBedDraftChange: (value) => setAssignBedDraft((prev) => ({ ...prev, bed_id: value })),
-    onTransferDraftChange: (field, value) => setTransferDraft((prev) => ({ ...prev, [field]: value })),
-    onWardRoundDraftChange: (field, value) => setWardRoundDraft((prev) => ({ ...prev, [field]: value })),
-    onNursingDraftChange: (field, value) => setNursingDraft((prev) => ({ ...prev, [field]: value })),
+    onAssignBedDraftChange: (value) =>
+      setAssignBedDraft((prev) => ({ ...prev, bed_id: value })),
+    onTransferDraftChange: (field, value) =>
+      setTransferDraft((prev) => ({ ...prev, [field]: value })),
+    onWardRoundDraftChange: (field, value) =>
+      setWardRoundDraft((prev) => ({ ...prev, [field]: value })),
+    onNursingDraftChange: (field, value) =>
+      setNursingDraft((prev) => ({ ...prev, [field]: value })),
     onMedicationDraftChange: (field, value) =>
       setMedicationDraft((prev) => ({ ...prev, [field]: value })),
     onDischargeDraftChange: (field, value) =>
@@ -813,7 +971,8 @@ const useIcuWorkbenchScreen = () => {
       await runMutation(
         () =>
           startIcuStay(admissionId, {
-            started_at: toIso(startIcuDraft.started_at) || new Date().toISOString(),
+            started_at:
+              toIso(startIcuDraft.started_at) || new Date().toISOString(),
           }),
         { refreshQueue: true }
       );
@@ -844,7 +1003,8 @@ const useIcuWorkbenchScreen = () => {
       const result = await runMutation(() =>
         addIcuObservation(admissionId, {
           icu_stay_id: toPublic(observationDraft.icu_stay_id) || undefined,
-          observed_at: toIso(observationDraft.observed_at) || new Date().toISOString(),
+          observed_at:
+            toIso(observationDraft.observed_at) || new Date().toISOString(),
           observation,
         })
       );
@@ -866,7 +1026,9 @@ const useIcuWorkbenchScreen = () => {
       const result = await runMutation(() =>
         addCriticalAlert(admissionId, {
           icu_stay_id: toPublic(criticalAlertDraft.icu_stay_id) || undefined,
-          severity: sanitize(criticalAlertDraft.severity || 'HIGH').toUpperCase(),
+          severity: sanitize(
+            criticalAlertDraft.severity || 'HIGH'
+          ).toUpperCase(),
           message,
         })
       );
@@ -915,7 +1077,9 @@ const useIcuWorkbenchScreen = () => {
       if (!actionMatrix.canReleaseBed) return;
       const admissionId = toPublic(selectedFlowId);
       if (!admissionId) return;
-      await runMutation(() => releaseBed(admissionId, {}), { refreshOptions: true });
+      await runMutation(() => releaseBed(admissionId, {}), {
+        refreshOptions: true,
+      });
     },
     onRequestTransfer: async () => {
       if (!actionMatrix.canRequestTransfer) return;
@@ -944,7 +1108,8 @@ const useIcuWorkbenchScreen = () => {
       await runMutation(() =>
         updateTransfer(admissionId, {
           action,
-          transfer_request_id: toPublic(transferDraft.transfer_request_id) || undefined,
+          transfer_request_id:
+            toPublic(transferDraft.transfer_request_id) || undefined,
           to_bed_id: toPublic(transferDraft.to_bed_id) || undefined,
         })
       );
@@ -1040,9 +1205,12 @@ const useIcuWorkbenchScreen = () => {
       const id = resolvePatientId(selectedFlow);
       if (id) router.push(`/patients/patients/${encodeURIComponent(id)}`);
     },
-    onOpenLabOrderCreate: () => router.push('/diagnostics/lab/lab-orders/create'),
-    onOpenRadiologyOrderCreate: () => router.push('/diagnostics/radiology/radiology-orders/create'),
-    onOpenPharmacyOrderCreate: () => router.push('/pharmacy/pharmacy-orders/create'),
+    onOpenLabOrderCreate: () =>
+      router.push('/diagnostics/lab/lab-orders/create'),
+    onOpenRadiologyOrderCreate: () =>
+      router.push('/diagnostics/radiology/radiology-orders/create'),
+    onOpenPharmacyOrderCreate: () =>
+      router.push('/pharmacy/pharmacy-orders/create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),
     onRetry: () => {
       if (selectedFlowId) loadSelected();

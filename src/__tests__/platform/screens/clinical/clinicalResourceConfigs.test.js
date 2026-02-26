@@ -55,7 +55,7 @@ describe('clinicalResourceConfigs', () => {
     expect(config?.routePath).toBe('/clinical/clinical-alerts');
     expect(config?.requiresTenant).toBe(false);
     expect(config?.supportsFacility).toBe(false);
-    expect(config?.fields?.length).toBe(3);
+    expect(config?.fields?.length).toBe(5);
   });
 
   it('keeps IPD resources in tier 7 order', () => {

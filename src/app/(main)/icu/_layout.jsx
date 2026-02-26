@@ -9,8 +9,9 @@ export default function IcuLayoutRoute() {
   const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
-  const { canRead, canManageAllTenants, tenantId, isResolved } =
-    useScopeAccess(SCOPE_KEYS.ICU);
+  const { canRead, canManageAllTenants, tenantId, isResolved } = useScopeAccess(
+    SCOPE_KEYS.ICU
+  );
   const normalizedTenantId = String(tenantId || '').trim();
   const canAccessIcu = canRead;
   const hasScope = canManageAllTenants || Boolean(normalizedTenantId);

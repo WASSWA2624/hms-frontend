@@ -72,7 +72,11 @@ describe('ipd-flow.model', () => {
     expect(result.icu.recent_observations[0].icu_stay_id).toBe('ICU-STAY-22');
     expect(result.icu.recent_alerts[0].id).toBe('ALR-9001');
     expect(result.critical_severity).toBe('CRITICAL');
-    expect(result.timeline.some((entry) => entry.type === 'CRITICAL_ALERT')).toBe(true);
-    expect(result.timeline.some((entry) => entry.type === 'ICU_OBSERVATION')).toBe(true);
+    expect(
+      result.timeline.some((entry) => entry.type === 'CRITICAL_ALERT')
+    ).toBe(true);
+    expect(
+      result.timeline.some((entry) => entry.type === 'ICU_OBSERVATION')
+    ).toBe(true);
   });
 });

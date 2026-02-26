@@ -10,7 +10,11 @@ const StyledContainer = styled.section`
   padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
   border-radius: ${({ theme }) => theme.radius.lg}px;
   background:
-    linear-gradient(180deg, rgba(191, 36, 54, 0.06) 0%, rgba(191, 36, 54, 0) 72%),
+    linear-gradient(
+      180deg,
+      rgba(191, 36, 54, 0.06) 0%,
+      rgba(191, 36, 54, 0) 72%
+    ),
     ${({ theme }) => theme.colors.background.primary};
 `;
 
@@ -113,13 +117,20 @@ const StyledFlowListItem = styled(Pressable)`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  border: 1px solid ${({ $selected, theme }) => ($selected ? '#b42332' : theme.colors.border.light)};
-  border-left: 4px solid ${({ $selected, theme }) => ($selected ? '#b42332' : theme.colors.border.medium)};
+  border: 1px solid
+    ${({ $selected, theme }) =>
+      $selected ? '#b42332' : theme.colors.border.light};
+  border-left: 4px solid
+    ${({ $selected, theme }) =>
+      $selected ? '#b42332' : theme.colors.border.medium};
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
   padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm}px`};
-  background: ${({ theme, $selected }) => ($selected ? '#fff1f3' : theme.colors.surface.primary)};
+  background: ${({ theme, $selected }) =>
+    $selected ? '#fff1f3' : theme.colors.surface.primary};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 8px 18px rgba(180, 35, 50, 0.22)' : '0 2px 8px rgba(15, 23, 42, 0.1)'};
+    $selected
+      ? '0 8px 18px rgba(180, 35, 50, 0.22)'
+      : '0 2px 8px rgba(15, 23, 42, 0.1)'};
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,

@@ -78,7 +78,16 @@ const IcuLegacyRouteRedirect = ({
     };
 
     run();
-  }, [action, legacyId, mode, panel, redirectSeed, resolveLegacyRoute, resource, router]);
+  }, [
+    action,
+    legacyId,
+    mode,
+    panel,
+    redirectSeed,
+    resolveLegacyRoute,
+    resource,
+    router,
+  ]);
 
   return (
     <LoadingSpinner

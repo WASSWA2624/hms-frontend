@@ -31,7 +31,9 @@ describe('ipd-flow.rules', () => {
   });
 
   it('parses ICU include_icu query for get-by-id', () => {
-    expect(parseGetIpdFlowParams({ include_icu: 'false' })).toEqual({ include_icu: false });
+    expect(parseGetIpdFlowParams({ include_icu: 'false' })).toEqual({
+      include_icu: false,
+    });
   });
 
   it('accepts ICU resources in legacy resolver params', () => {
@@ -47,7 +49,9 @@ describe('ipd-flow.rules', () => {
   });
 
   it('parses ICU action payloads', () => {
-    expect(parseStartIcuStayPayload({ started_at: '2026-02-26T06:00:00.000Z' })).toEqual({
+    expect(
+      parseStartIcuStayPayload({ started_at: '2026-02-26T06:00:00.000Z' })
+    ).toEqual({
       started_at: '2026-02-26T06:00:00.000Z',
     });
 
@@ -85,7 +89,9 @@ describe('ipd-flow.rules', () => {
       message: 'Ventilator disconnected',
     });
 
-    expect(parseResolveCriticalAlertPayload({ critical_alert_id: 'ALR-2002' })).toEqual({
+    expect(
+      parseResolveCriticalAlertPayload({ critical_alert_id: 'ALR-2002' })
+    ).toEqual({
       critical_alert_id: 'ALR-2002',
     });
   });

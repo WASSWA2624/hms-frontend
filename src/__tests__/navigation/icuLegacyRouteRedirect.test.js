@@ -40,7 +40,8 @@ describe('icuLegacyRouteRedirect', () => {
       resource: 'icu-observations',
     });
 
-    const IcuLegacyRouteRedirect = require('@navigation/icuLegacyRouteRedirect').default;
+    const IcuLegacyRouteRedirect =
+      require('@navigation/icuLegacyRouteRedirect').default;
 
     render(
       React.createElement(IcuLegacyRouteRedirect, {
@@ -53,7 +54,10 @@ describe('icuLegacyRouteRedirect', () => {
     );
 
     await waitFor(() => {
-      expect(mockResolveLegacyRoute).toHaveBeenCalledWith('icu-observations', 'ICU-OBS-1');
+      expect(mockResolveLegacyRoute).toHaveBeenCalledWith(
+        'icu-observations',
+        'ICU-OBS-1'
+      );
       expect(mockReplace).toHaveBeenCalledWith(
         '/icu?id=ADM-1009&panel=observations&action=open_icu_observation&resource=icu-observations&legacyId=ICU-OBS-1'
       );
@@ -64,7 +68,8 @@ describe('icuLegacyRouteRedirect', () => {
     mockUseLocalSearchParams.mockReturnValue({});
     mockResolveLegacyRoute.mockResolvedValue(null);
 
-    const IcuLegacyRouteRedirect = require('@navigation/icuLegacyRouteRedirect').default;
+    const IcuLegacyRouteRedirect =
+      require('@navigation/icuLegacyRouteRedirect').default;
 
     render(
       React.createElement(IcuLegacyRouteRedirect, {

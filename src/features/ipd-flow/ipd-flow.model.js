@@ -8,7 +8,9 @@ const UUID_LIKE_REGEX =
 
 const sanitizeString = (value) => String(value || '').trim();
 const normalizeObject = (value) =>
-  value && typeof value === 'object' && !Array.isArray(value) ? { ...value } : null;
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? { ...value }
+    : null;
 const normalizeArray = (value) => (Array.isArray(value) ? value : []);
 
 const toPublicId = (value) => {
@@ -29,7 +31,8 @@ const toUpperToken = (value) => {
 
 const resolvePublicRecordId = (record) => {
   if (!record) return null;
-  if (typeof record === 'string' || typeof record === 'number') return toPublicId(record);
+  if (typeof record === 'string' || typeof record === 'number')
+    return toPublicId(record);
 
   return (
     toPublicId(record.human_friendly_id) ||
@@ -47,8 +50,16 @@ const normalizeTimelineItem = (item) => {
   return {
     ...row,
     type: sanitizeString(row.type || row.event || 'ACTIVITY').toUpperCase(),
-    at: sanitizeString(row.at || row.timestamp || row.created_at || row.round_at || row.administered_at),
-    label: toDisplayText(row.label || row.title || row.note || row.notes || row.summary),
+    at: sanitizeString(
+      row.at ||
+        row.timestamp ||
+        row.created_at ||
+        row.round_at ||
+        row.administered_at
+    ),
+    label: toDisplayText(
+      row.label || row.title || row.note || row.notes || row.summary
+    ),
   };
 };
 
@@ -65,10 +76,14 @@ const buildDerivedTimeline = (snapshot) => {
     label: item?.note || 'Nursing note recorded',
   }));
 
-  const medicationAdministrations = normalizeArray(snapshot?.medication_administrations).map((item) => ({
+  const medicationAdministrations = normalizeArray(
+    snapshot?.medication_administrations
+  ).map((item) => ({
     type: 'MEDICATION_ADMINISTRATION',
     at: item?.administered_at || item?.created_at,
-    label: item?.dose ? `Dose ${item.dose}${item.unit ? ` ${item.unit}` : ''}` : 'Medication administered',
+    label: item?.dose
+      ? `Dose ${item.dose}${item.unit ? ` ${item.unit}` : ''}`
+      : 'Medication administered',
   }));
 
   const transfers = normalizeArray(snapshot?.transfer_requests).map((item) => ({
@@ -77,19 +92,32 @@ const buildDerivedTimeline = (snapshot) => {
     label: item?.status ? `Transfer ${item.status}` : 'Transfer updated',
   }));
 
-  const icuObservations = normalizeArray(snapshot?.icu?.recent_observations).map((item) => ({
+  const icuObservations = normalizeArray(
+    snapshot?.icu?.recent_observations
+  ).map((item) => ({
     type: 'ICU_OBSERVATION',
     at: item?.observed_at || item?.created_at,
     label: item?.observation || 'ICU observation recorded',
   }));
 
-  const criticalAlerts = normalizeArray(snapshot?.icu?.recent_alerts).map((item) => ({
-    type: 'CRITICAL_ALERT',
-    at: item?.created_at,
-    label: item?.severity ? `${item.severity}: ${item.message || 'Critical alert raised'}` : item?.message || 'Critical alert raised',
-  }));
+  const criticalAlerts = normalizeArray(snapshot?.icu?.recent_alerts).map(
+    (item) => ({
+      type: 'CRITICAL_ALERT',
+      at: item?.created_at,
+      label: item?.severity
+        ? `${item.severity}: ${item.message || 'Critical alert raised'}`
+        : item?.message || 'Critical alert raised',
+    })
+  );
 
-  return [...wardRounds, ...nursingNotes, ...medicationAdministrations, ...transfers, ...icuObservations, ...criticalAlerts]
+  return [
+    ...wardRounds,
+    ...nursingNotes,
+    ...medicationAdministrations,
+    ...transfers,
+    ...icuObservations,
+    ...criticalAlerts,
+  ]
     .map(normalizeTimelineItem)
     .filter((entry) => entry && entry.at)
     .sort((left, right) => {
@@ -104,8 +132,12 @@ const normalizeIcuStay = (value) => {
   if (!row) return null;
 
   const stayId = resolvePublicRecordId(row);
-  const admissionId = toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null;
-  const patientId = toPublicId(row.patient_display_id) || toPublicId(row.patient_id) || null;
+  const admissionId =
+    toPublicId(row.admission_display_id) ||
+    toPublicId(row.admission_id) ||
+    null;
+  const patientId =
+    toPublicId(row.patient_display_id) || toPublicId(row.patient_id) || null;
 
   return {
     ...row,
@@ -126,8 +158,14 @@ const normalizeIcuObservation = (value) => {
     ...row,
     id: resolvePublicRecordId(row),
     display_id: resolvePublicRecordId(row),
-    icu_stay_id: toPublicId(row.icu_stay_display_id) || toPublicId(row.icu_stay_id) || null,
-    admission_id: toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null,
+    icu_stay_id:
+      toPublicId(row.icu_stay_display_id) ||
+      toPublicId(row.icu_stay_id) ||
+      null,
+    admission_id:
+      toPublicId(row.admission_display_id) ||
+      toPublicId(row.admission_id) ||
+      null,
     patient_display_id: toPublicId(row.patient_display_id) || null,
     patient_display_name: toDisplayText(row.patient_display_name),
   };
@@ -141,8 +179,14 @@ const normalizeCriticalAlert = (value) => {
     ...row,
     id: resolvePublicRecordId(row),
     display_id: resolvePublicRecordId(row),
-    icu_stay_id: toPublicId(row.icu_stay_display_id) || toPublicId(row.icu_stay_id) || null,
-    admission_id: toPublicId(row.admission_display_id) || toPublicId(row.admission_id) || null,
+    icu_stay_id:
+      toPublicId(row.icu_stay_display_id) ||
+      toPublicId(row.icu_stay_id) ||
+      null,
+    admission_id:
+      toPublicId(row.admission_display_id) ||
+      toPublicId(row.admission_id) ||
+      null,
     patient_display_id: toPublicId(row.patient_display_id) || null,
     patient_display_name: toDisplayText(row.patient_display_name),
     severity: toUpperToken(row.severity) || null,
@@ -161,7 +205,9 @@ const normalizeIcuAlertSummary = (value) => {
     };
   }
 
-  const recent = normalizeArray(summary.recent).map(normalizeCriticalAlert).filter(Boolean);
+  const recent = normalizeArray(summary.recent)
+    .map(normalizeCriticalAlert)
+    .filter(Boolean);
 
   return {
     ...summary,
@@ -183,14 +229,22 @@ const normalizeIcuOverlay = (value) => {
 
   const activeStay = normalizeIcuStay(overlay.active_stay);
   const latestStay = normalizeIcuStay(overlay.latest_stay);
-  const recentStays = normalizeArray(overlay.recent_stays).map(normalizeIcuStay).filter(Boolean);
+  const recentStays = normalizeArray(overlay.recent_stays)
+    .map(normalizeIcuStay)
+    .filter(Boolean);
   const recentObservations = normalizeArray(overlay.recent_observations)
     .map(normalizeIcuObservation)
     .filter(Boolean);
-  const recentAlerts = normalizeArray(overlay.recent_alerts).map(normalizeCriticalAlert).filter(Boolean);
-  const criticalAlertSummary = normalizeIcuAlertSummary(overlay.critical_alert_summary);
+  const recentAlerts = normalizeArray(overlay.recent_alerts)
+    .map(normalizeCriticalAlert)
+    .filter(Boolean);
+  const criticalAlertSummary = normalizeIcuAlertSummary(
+    overlay.critical_alert_summary
+  );
   const criticalSeverity =
-    toUpperToken(overlay.critical_severity) || criticalAlertSummary.highest_severity || null;
+    toUpperToken(overlay.critical_severity) ||
+    criticalAlertSummary.highest_severity ||
+    null;
 
   return {
     ...overlay,
@@ -218,9 +272,12 @@ const normalizeIpdFlowSnapshot = (value) => {
   const encounter = normalizeObject(snapshot.encounter) || null;
   const flow = normalizeObject(snapshot.flow) || {};
   const flowSummary = normalizeObject(snapshot.flow_summary) || {};
-  const activeBedAssignment = normalizeObject(snapshot.active_bed_assignment) || null;
-  const openTransferRequest = normalizeObject(snapshot.open_transfer_request) || null;
-  const latestDischargeSummary = normalizeObject(snapshot.latest_discharge_summary) || null;
+  const activeBedAssignment =
+    normalizeObject(snapshot.active_bed_assignment) || null;
+  const openTransferRequest =
+    normalizeObject(snapshot.open_transfer_request) || null;
+  const latestDischargeSummary =
+    normalizeObject(snapshot.latest_discharge_summary) || null;
   const icuOverlay = normalizeIcuOverlay(snapshot.icu);
 
   const admissionPublicId =
@@ -242,7 +299,9 @@ const normalizeIpdFlowSnapshot = (value) => {
 
   const patientDisplayName =
     toDisplayText(snapshot.patient_display_name) ||
-    [toDisplayText(patient?.first_name), toDisplayText(patient?.last_name)].filter(Boolean).join(' ') ||
+    [toDisplayText(patient?.first_name), toDisplayText(patient?.last_name)]
+      .filter(Boolean)
+      .join(' ') ||
     patientPublicId ||
     'Unknown patient';
 
@@ -259,17 +318,26 @@ const normalizeIpdFlowSnapshot = (value) => {
       return rightDate - leftDate;
     });
 
-  const icuStatus = toUpperToken(snapshot.icu_status) || toUpperToken(icuOverlay?.status) || null;
+  const icuStatus =
+    toUpperToken(snapshot.icu_status) ||
+    toUpperToken(icuOverlay?.status) ||
+    null;
   const hasCriticalAlert =
     typeof snapshot.has_critical_alert === 'boolean'
       ? snapshot.has_critical_alert
       : Boolean(icuOverlay?.has_critical_alert);
   const criticalSeverity =
-    toUpperToken(snapshot.critical_severity) || toUpperToken(icuOverlay?.critical_severity) || null;
+    toUpperToken(snapshot.critical_severity) ||
+    toUpperToken(icuOverlay?.critical_severity) ||
+    null;
   const activeIcuStayId =
-    toPublicId(snapshot.active_icu_stay_id) || toPublicId(icuOverlay?.active_stay?.id) || null;
+    toPublicId(snapshot.active_icu_stay_id) ||
+    toPublicId(icuOverlay?.active_stay?.id) ||
+    null;
   const latestIcuStayId =
-    toPublicId(snapshot.latest_icu_stay_id) || toPublicId(icuOverlay?.latest_stay?.id) || null;
+    toPublicId(snapshot.latest_icu_stay_id) ||
+    toPublicId(icuOverlay?.latest_stay?.id) ||
+    null;
 
   return {
     ...snapshot,
@@ -304,11 +372,20 @@ const normalizeIpdFlowSnapshot = (value) => {
       : null,
     flow,
     flow_summary: flowSummary,
-    stage: sanitizeString(snapshot.stage || flow.stage || flowSummary.stage).toUpperCase(),
-    next_step: sanitizeString(snapshot.next_step || flow.next_step || flowSummary.next_step).toUpperCase() || null,
+    stage: sanitizeString(
+      snapshot.stage || flow.stage || flowSummary.stage
+    ).toUpperCase(),
+    next_step:
+      sanitizeString(
+        snapshot.next_step || flow.next_step || flowSummary.next_step
+      ).toUpperCase() || null,
     transfer_status:
-      sanitizeString(snapshot.transfer_status || flow.transfer_status || openTransferRequest?.status || flowSummary.transfer_status).toUpperCase() ||
-      null,
+      sanitizeString(
+        snapshot.transfer_status ||
+          flow.transfer_status ||
+          openTransferRequest?.status ||
+          flowSummary.transfer_status
+      ).toUpperCase() || null,
     active_bed_assignment: activeBedAssignment,
     open_transfer_request: openTransferRequest,
     latest_discharge_summary: latestDischargeSummary,
@@ -316,7 +393,9 @@ const normalizeIpdFlowSnapshot = (value) => {
     discharge_summaries: normalizeArray(snapshot.discharge_summaries),
     ward_rounds: normalizeArray(snapshot.ward_rounds),
     nursing_notes: normalizeArray(snapshot.nursing_notes),
-    medication_administrations: normalizeArray(snapshot.medication_administrations),
+    medication_administrations: normalizeArray(
+      snapshot.medication_administrations
+    ),
     patient_display_name: patientDisplayName,
     patient_display_id: patientPublicId,
     ward_display_name:
@@ -363,7 +442,9 @@ const normalizeIpdFlowList = (value) => {
   }
 
   if (value && typeof value === 'object') {
-    const items = normalizeArray(value.items).map(normalizeIpdFlowListItem).filter(Boolean);
+    const items = normalizeArray(value.items)
+      .map(normalizeIpdFlowListItem)
+      .filter(Boolean);
     return {
       items,
       pagination: normalizeObject(value.pagination),

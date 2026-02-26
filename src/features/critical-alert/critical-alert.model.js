@@ -16,11 +16,18 @@ const toPublic = (value) => {
 const normalizeCriticalAlert = (value) => {
   if (!value || typeof value !== 'object') return null;
 
-  const id = toPublic(value.display_id) || toPublic(value.human_friendly_id) || toPublic(value.id);
+  const id =
+    toPublic(value.display_id) ||
+    toPublic(value.human_friendly_id) ||
+    toPublic(value.id);
   const icuStayId =
-    toPublic(value.icu_stay_display_id) || toPublic(value.icu_stay?.human_friendly_id) || toPublic(value.icu_stay_id);
+    toPublic(value.icu_stay_display_id) ||
+    toPublic(value.icu_stay?.human_friendly_id) ||
+    toPublic(value.icu_stay_id);
   const admissionId =
-    toPublic(value.admission_display_id) || toPublic(value.icu_stay?.admission?.human_friendly_id) || toPublic(value.admission_id);
+    toPublic(value.admission_display_id) ||
+    toPublic(value.icu_stay?.admission?.human_friendly_id) ||
+    toPublic(value.admission_id);
   const patientId =
     toPublic(value.patient_display_id) ||
     toPublic(value.icu_stay?.admission?.patient?.human_friendly_id) ||
