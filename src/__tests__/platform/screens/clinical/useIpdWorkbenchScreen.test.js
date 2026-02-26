@@ -220,6 +220,33 @@ describe('useIpdWorkbenchScreen', () => {
     expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ queue_scope: 'ACTIVE' }));
   });
 
+  it('keeps tenant-scoped access when tenant and facility IDs are UUIDs', async () => {
+    const tenantUuid = '550e8400-e29b-41d4-a716-446655440000';
+    const facilityUuid = '550e8400-e29b-41d4-a716-446655440001';
+
+    useScopeAccess.mockReturnValue({
+      canRead: true,
+      canWrite: true,
+      canManageAllTenants: false,
+      tenantId: tenantUuid,
+      facilityId: facilityUuid,
+      isResolved: true,
+    });
+
+    const { result } = renderHook(() => useIpdWorkbenchScreen());
+
+    await waitFor(() =>
+      expect(mockList).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenant_id: tenantUuid,
+          facility_id: facilityUuid,
+          queue_scope: 'ACTIVE',
+        })
+      )
+    );
+    expect(result.current.canViewWorkbench).toBe(true);
+  });
+
   it('prefills start admission form from query params', async () => {
     mockSearchParams = {
       action: 'start_admission',

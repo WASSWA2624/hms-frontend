@@ -27,6 +27,7 @@ const OPEN_TRANSFER_STATUSES = new Set(['REQUESTED', 'APPROVED', 'IN_PROGRESS'])
 const sanitize = (value) => String(value || '').trim();
 const normalizeScalar = (value) => (Array.isArray(value) ? sanitize(value[0]) : sanitize(value));
 const isUuidLike = (value) => UUID_LIKE_REGEX.test(sanitize(value));
+const toIdentifier = (value) => sanitize(value);
 const toPublic = (value) => {
   const text = sanitize(value);
   if (!text || isUuidLike(text)) return '';
@@ -126,12 +127,13 @@ const useIpdWorkbenchScreen = () => {
   const scopeParams = useMemo(() => {
     if (canManageAllTenants) return {};
     const next = {};
-    if (toPublic(tenantId)) next.tenant_id = toPublic(tenantId);
-    if (toPublic(facilityId)) next.facility_id = toPublic(facilityId);
+    if (toIdentifier(tenantId)) next.tenant_id = toIdentifier(tenantId);
+    if (toIdentifier(facilityId)) next.facility_id = toIdentifier(facilityId);
     return next;
   }, [canManageAllTenants, facilityId, tenantId]);
 
-  const canViewWorkbench = isResolved && (canRead || canManageAllTenants) && (canManageAllTenants || Boolean(scopeParams.tenant_id));
+  const hasScope = canManageAllTenants || Boolean(scopeParams.tenant_id) || Boolean(scopeParams.facility_id);
+  const canViewWorkbench = isResolved && (canRead || canManageAllTenants) && hasScope;
   const canMutate = canWrite && !isOffline;
   const requestedFlowId = normalizeScalar(parsedRouteState?.id);
   const requestedAction = normalizeScalar(parsedRouteState?.action).toLowerCase();
