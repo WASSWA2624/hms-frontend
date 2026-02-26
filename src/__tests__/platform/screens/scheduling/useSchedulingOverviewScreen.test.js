@@ -84,7 +84,7 @@ describe('useSchedulingOverviewScreen', () => {
   it('places OPD workbench card first in scheduling resources', () => {
     const { result } = renderHook(() => useSchedulingOverviewScreen());
     expect(result.current.cards[0]?.id).toBe('opd-flows');
-    expect(result.current.cards[0]?.routePath).toBe('/scheduling/opd-flows');
+    expect(result.current.cards[0]?.routePath).toBe('/clinical');
   });
 
   it('includes tenant and facility scope when user cannot manage all tenants', () => {
@@ -207,7 +207,7 @@ describe('useSchedulingOverviewScreen', () => {
       result.current.onOpenOpdWorkbench();
     });
 
-    expect(mockPush).toHaveBeenCalledWith('/scheduling/opd-flows');
+    expect(mockPush).toHaveBeenCalledWith('/clinical');
   });
 
   it('navigates to due reminders quick action', () => {

@@ -27,7 +27,7 @@ describe('notification-routing', () => {
       () => true
     );
 
-    expect(route).toBe('/scheduling/opd-flows');
+    expect(route).toBe('/clinical');
   });
 
   it('uses OPD icon when notification route points to OPD flow workbench', () => {
