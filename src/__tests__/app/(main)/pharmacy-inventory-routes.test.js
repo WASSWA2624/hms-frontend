@@ -33,7 +33,7 @@ const RESOURCES = {
 const buildRouteCases = (scope, resource) => {
   const isInventory = scope === 'inventory';
   const basePath = `../../../app/(main)/${scope}/${resource}`;
-  const root = isInventory ? '/inventory?panel=inventory' : '/pharmacy';
+  const root = isInventory ? '/pharmacy?panel=inventory' : '/pharmacy';
 
   return [
     {
@@ -70,7 +70,7 @@ const ROUTE_CASES = [
   },
   {
     routePath: '../../../app/(main)/inventory/[...missing]',
-    expectedHref: '/inventory?panel=inventory',
+    expectedHref: '/pharmacy?panel=inventory',
   },
   ...Object.entries(RESOURCES).flatMap(([scope, resources]) =>
     resources.flatMap((resource) =>

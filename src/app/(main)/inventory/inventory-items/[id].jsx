@@ -5,8 +5,8 @@ export default function LegacyRoute() {
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const normalizedId = String(id || '').trim();
   const href = normalizedId
-    ? `/inventory?panel=inventory&resource=inventory-items&legacyId=${encodeURIComponent(normalizedId)}`
-    : '/inventory?panel=inventory';
+    ? `/pharmacy?panel=inventory&resource=inventory-items&legacyId=${encodeURIComponent(normalizedId)}`
+    : '/pharmacy?panel=inventory';
 
   return <Redirect href={href} />;
 }

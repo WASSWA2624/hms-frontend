@@ -57,7 +57,6 @@ const EMERGENCY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.EMERGENCY, 'read');
 const LAB_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.LAB, 'read');
 const RADIOLOGY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.RADIOLOGY, 'read');
 const PHARMACY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.PHARMACY, 'read');
-const INVENTORY_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.INVENTORY, 'read');
 const BILLING_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.BILLING, 'read');
 const HR_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.HR, 'read');
 const HOUSEKEEPING_ACCESS_ROLES = getScopeRoleKeys(SCOPE_KEYS.HOUSEKEEPING, 'read');
@@ -205,14 +204,6 @@ export const MAIN_NAV_ITEMS = Object.freeze([
     path: '/pharmacy',
     name: `${MAIN_NAV_I18N}.pharmacy`,
     roles: PHARMACY_ACCESS_ROLES,
-    children: null,
-  },
-  {
-    id: 'inventory',
-    icon: 'layers-outline',
-    path: '/inventory',
-    name: `${MAIN_NAV_I18N}.inventory`,
-    roles: INVENTORY_ACCESS_ROLES,
     children: null,
   },
   {

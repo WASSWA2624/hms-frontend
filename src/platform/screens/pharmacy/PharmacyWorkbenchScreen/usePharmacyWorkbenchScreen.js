@@ -176,7 +176,7 @@ const usePharmacyWorkbenchScreen = (defaultPanel = 'orders') => {
       Object.entries(extras).forEach(([key, value]) => {
         if (sanitize(value)) query.set(key, sanitize(value));
       });
-      const targetPath = normalizedPanel === 'inventory' ? '/inventory' : '/pharmacy';
+      const targetPath = '/pharmacy';
       const serialized = query.toString();
       return `${targetPath}${serialized ? `?${serialized}` : ''}`;
     },

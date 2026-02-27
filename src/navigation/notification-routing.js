@@ -206,7 +206,7 @@ const buildNotificationRouteCandidates = (
     pushRouteCandidate(candidates, '/pharmacy');
   }
   if (text.includes('stock') || text.includes('inventory') || text.includes('supply')) {
-    pushRouteCandidate(candidates, '/inventory?panel=inventory');
+    pushRouteCandidate(candidates, '/pharmacy?panel=inventory');
   }
 
   const type = getNotificationType(notification);

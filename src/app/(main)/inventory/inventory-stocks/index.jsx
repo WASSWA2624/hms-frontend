@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
 
 export default function LegacyRoute() {
-  return <Redirect href="/inventory?panel=inventory&resource=inventory-stocks" />;
+  return <Redirect href="/pharmacy?panel=inventory&resource=inventory-stocks" />;
 }

@@ -1,10 +1,5 @@
-import { PHARMACY_WORKSPACE_V1 } from '@config/feature.flags';
-import { ClinicalOverviewScreen, PharmacyWorkbenchScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function InventoryIndexRoute() {
-  if (PHARMACY_WORKSPACE_V1) {
-    return <PharmacyWorkbenchScreen defaultPanel="inventory" />;
-  }
-
-  return <ClinicalOverviewScreen scope="inventory" />;
+  return <Redirect href="/pharmacy?panel=inventory" />;
 }
