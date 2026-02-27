@@ -570,6 +570,16 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/lab-qc-logs/${id}`,
     DELETE: (id) => `${baseUrl}/lab-qc-logs/${id}`,
   },
+  LAB_WORKSPACE: {
+    WORKBENCH: `${baseUrl}/lab/workbench`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/lab/resolve-legacy/${resource}/${id}`,
+    ORDER_WORKFLOW: (id) => `${baseUrl}/lab/orders/${id}/workflow`,
+    COLLECT_ORDER: (id) => `${baseUrl}/lab/orders/${id}/collect`,
+    RECEIVE_SAMPLE: (id) => `${baseUrl}/lab/samples/${id}/receive`,
+    REJECT_SAMPLE: (id) => `${baseUrl}/lab/samples/${id}/reject`,
+    RELEASE_ORDER_ITEM: (id) => `${baseUrl}/lab/order-items/${id}/release`,
+  },
   RADIOLOGY_TESTS: {
     LIST: `${baseUrl}/radiology-tests`,
     CREATE: `${baseUrl}/radiology-tests`,

@@ -313,7 +313,7 @@ const IPD_ROUTE_ROOT = '/ipd';
 const ICU_ROUTE_ROOT = '/icu';
 const THEATRE_ROUTE_ROOT = '/theatre';
 const EMERGENCY_ROUTE_ROOT = '/emergency';
-const LAB_ROUTE_ROOT = '/diagnostics/lab';
+const LAB_ROUTE_ROOT = '/lab';
 const RADIOLOGY_ROUTE_ROOT = '/diagnostics/radiology';
 const PHARMACY_ROUTE_ROOT = '/pharmacy';
 const INVENTORY_ROUTE_ROOT = '/inventory';
@@ -6181,7 +6181,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_TESTS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_TESTS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-tests`,
+    routePath: `${LAB_ROUTE_ROOT}/tests`,
     i18nKey: 'clinical.resources.labTests',
     requiresTenant: true,
     supportsFacility: false,
@@ -6283,7 +6283,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_PANELS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_PANELS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-panels`,
+    routePath: `${LAB_ROUTE_ROOT}/panels`,
     i18nKey: 'clinical.resources.labPanels',
     requiresTenant: true,
     supportsFacility: false,
@@ -6354,7 +6354,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_ORDERS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_ORDERS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-orders`,
+    routePath: `${LAB_ROUTE_ROOT}/orders`,
     i18nKey: 'clinical.resources.labOrders',
     requiresTenant: false,
     supportsFacility: false,
@@ -6463,7 +6463,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-order-items`,
+    routePath: `${LAB_ROUTE_ROOT}/order-items`,
     i18nKey: 'clinical.resources.labOrderItems',
     requiresTenant: false,
     supportsFacility: false,
@@ -6555,7 +6555,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_SAMPLES]: {
     id: CLINICAL_RESOURCE_IDS.LAB_SAMPLES,
-    routePath: `${LAB_ROUTE_ROOT}/lab-samples`,
+    routePath: `${LAB_ROUTE_ROOT}/samples`,
     i18nKey: 'clinical.resources.labSamples',
     requiresTenant: false,
     supportsFacility: false,
@@ -6684,7 +6684,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_RESULTS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_RESULTS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-results`,
+    routePath: `${LAB_ROUTE_ROOT}/results`,
     i18nKey: 'clinical.resources.labResults',
     requiresTenant: false,
     supportsFacility: false,
@@ -6833,7 +6833,7 @@ const resourceConfigs = {
   },
   [CLINICAL_RESOURCE_IDS.LAB_QC_LOGS]: {
     id: CLINICAL_RESOURCE_IDS.LAB_QC_LOGS,
-    routePath: `${LAB_ROUTE_ROOT}/lab-qc-logs`,
+    routePath: `${LAB_ROUTE_ROOT}/qc-logs`,
     i18nKey: 'clinical.resources.labQcLogs',
     requiresTenant: false,
     supportsFacility: false,
