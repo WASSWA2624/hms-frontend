@@ -11,7 +11,7 @@ const StyledContainer = styled.section`
   padding: ${({ theme }) => `${theme.spacing.sm}px ${theme.spacing.sm + 2}px`};
   border-radius: ${({ theme }) => theme.radius.lg}px;
   background:
-    linear-gradient(160deg, rgba(14, 116, 144, 0.06) 0%, rgba(14, 116, 144, 0) 72%),
+    linear-gradient(160deg, rgba(15, 110, 170, 0.08) 0%, rgba(15, 110, 170, 0) 72%),
     ${({ theme }) => theme.colors.background.primary};
 `;
 
@@ -49,7 +49,7 @@ const StyledDescription = styled.p`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   color: ${({ theme }) => theme.colors.text.secondary};
-  max-width: 88ch;
+  max-width: 90ch;
 `;
 
 const StyledSummaryGrid = styled.div`
@@ -76,7 +76,7 @@ const StyledSummaryCard = styled.div`
   background: ${({ theme }) => theme.colors.surface.primary};
 `;
 
-const StyledSummaryRadiologyel = styled.span`
+const StyledSummaryLabel = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.secondary};
@@ -90,7 +90,7 @@ const StyledSummaryValue = styled.span`
 
 const StyledLayout = styled.div`
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(340px, 1.15fr) minmax(300px, 1fr);
+  grid-template-columns: minmax(300px, 0.95fr) minmax(340px, 1.2fr) minmax(320px, 1fr);
   gap: ${({ theme }) => theme.spacing.md + 2}px;
 
   @media (max-width: ${({ theme }) => getDesktop(theme)}px) {
@@ -136,19 +136,10 @@ const StyledWorklist = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs + 1}px;
-  height: clamp(360px, 68vh, 800px);
+  height: clamp(360px, 70vh, 840px);
   overflow-y: auto;
   padding-right: ${({ theme }) => theme.spacing.xs}px;
   overscroll-behavior: contain;
-
-  &::-webkit-scrollbar {
-    width: 9px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.colors.border.medium};
-    border-radius: 999px;
-  }
 
   @media (max-width: ${({ theme }) => getTablet(theme)}px) {
     max-height: none;
@@ -161,22 +152,13 @@ const StyledWorklistItem = styled(Pressable)`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs}px;
-  border: 1px solid ${({ $selected, theme }) => ($selected ? '#0c4a6e' : theme.colors.border.light)};
+  border: 1px solid ${({ $selected, theme }) => ($selected ? '#0f4f73' : theme.colors.border.light)};
   border-left: 4px solid ${({ $selected, theme }) => ($selected ? '#0ea5b7' : theme.colors.border.medium)};
   border-radius: ${({ theme }) => theme.radius.md + 2}px;
   padding: ${({ theme }) => `${theme.spacing.xs + 2}px ${theme.spacing.sm}px`};
-  background: ${({ theme, $selected }) => ($selected ? '#eefbff' : theme.colors.surface.primary)};
+  background: ${({ theme, $selected }) => ($selected ? '#ecf8ff' : theme.colors.surface.primary)};
   box-shadow: ${({ $selected }) =>
-    $selected ? '0 6px 16px rgba(14, 116, 144, 0.2)' : '0 2px 8px rgba(15, 23, 42, 0.1)'};
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: #0ea5b7;
-    background: #ebf9fb;
-  }
+    $selected ? '0 6px 14px rgba(14, 116, 144, 0.2)' : '0 2px 8px rgba(15, 23, 42, 0.08)'};
 `;
 
 const StyledItemHeader = styled.div`
@@ -219,7 +201,7 @@ const StyledSnapshotField = styled.div`
   padding: ${({ theme }) => `${theme.spacing.xs + 1}px ${theme.spacing.sm}px`};
 `;
 
-const StyledSnapshotRadiologyel = styled.span`
+const StyledSnapshotLabel = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
   color: ${({ theme }) => theme.colors.text.tertiary};
@@ -231,7 +213,15 @@ const StyledSnapshotValue = styled.span`
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
-const StyledTimeline = styled.ul`
+const StyledSubsection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs}px;
+  padding-top: ${({ theme }) => theme.spacing.xs}px;
+  border-top: 1px solid ${({ theme }) => theme.colors.border.light};
+`;
+
+const StyledList = styled.ul`
   margin: 0;
   padding-left: ${({ theme }) => theme.spacing.md}px;
   display: flex;
@@ -239,16 +229,10 @@ const StyledTimeline = styled.ul`
   gap: ${({ theme }) => theme.spacing.xs}px;
 `;
 
-const StyledTimelineItem = styled.li`
+const StyledListItem = styled.li`
   font-family: ${({ theme }) => theme.typography.fontFamily.regular};
   font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
   color: ${({ theme }) => theme.colors.text.primary};
-`;
-
-const StyledActionStack = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm}px;
 `;
 
 const StyledActionGrid = styled.div`
@@ -261,10 +245,18 @@ const StyledActionGrid = styled.div`
   }
 `;
 
-const StyledErrorText = styled.p`
+const StyledInfoText = styled.p`
   margin: 0;
   font-family: ${({ theme }) => theme.typography.fontFamily.medium};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xs + 1}px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const StyledSuccessText = styled(StyledInfoText)`
+  color: #0f766e;
+`;
+
+const StyledErrorText = styled(StyledInfoText)`
   color: ${({ theme }) => theme.colors.error};
 `;
 
@@ -276,7 +268,7 @@ export {
   StyledDescription,
   StyledSummaryGrid,
   StyledSummaryCard,
-  StyledSummaryRadiologyel,
+  StyledSummaryLabel,
   StyledSummaryValue,
   StyledLayout,
   StyledPanel,
@@ -290,12 +282,14 @@ export {
   StyledItemMeta,
   StyledSnapshotGrid,
   StyledSnapshotField,
-  StyledSnapshotRadiologyel,
+  StyledSnapshotLabel,
   StyledSnapshotValue,
-  StyledTimeline,
-  StyledTimelineItem,
-  StyledActionStack,
+  StyledSubsection,
+  StyledList,
+  StyledListItem,
   StyledActionGrid,
+  StyledInfoText,
+  StyledSuccessText,
   StyledErrorText,
 };
 

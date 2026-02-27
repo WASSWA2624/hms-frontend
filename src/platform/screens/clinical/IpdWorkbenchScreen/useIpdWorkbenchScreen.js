@@ -384,7 +384,8 @@ const useIpdWorkbenchScreen = () => {
     onSelectFlow: (flow) => { const id = resolveAdmissionId(flow); if (!id) return; setSelectedFlowId(id); setSelectedFlow(flow); syncSelectedUrl(id); },
     onOpenPatientProfile: () => { const id = resolvePatientId(selectedFlow); if (id) router.push(`/patients/patients/${encodeURIComponent(id)}`); },
     onOpenLabOrderCreate: () => router.push('/lab/orders/create'),
-    onOpenRadiologyOrderCreate: () => router.push('/diagnostics/radiology/radiology-orders/create'),
+    onOpenRadiologyOrderCreate: () =>
+      router.push('/radiology?resource=radiology-orders&action=create'),
     onOpenPharmacyOrderCreate: () => router.push('/pharmacy/pharmacy-orders/create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),
     onRetry: () => { if (selectedFlowId) loadSelected(); loadQueue(false); loadOptions(); },

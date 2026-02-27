@@ -1208,7 +1208,7 @@ const useIcuWorkbenchScreen = () => {
     onOpenLabOrderCreate: () =>
       router.push('/lab/orders/create'),
     onOpenRadiologyOrderCreate: () =>
-      router.push('/diagnostics/radiology/radiology-orders/create'),
+      router.push('/radiology?resource=radiology-orders&action=create'),
     onOpenPharmacyOrderCreate: () =>
       router.push('/pharmacy/pharmacy-orders/create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),

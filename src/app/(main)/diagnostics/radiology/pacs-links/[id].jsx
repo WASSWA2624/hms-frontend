@@ -1,5 +1,12 @@
-import { ClinicalResourceDetailScreen } from '@platform/screens';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
-export default function PacsLinksDetailRoute() {
-  return <ClinicalResourceDetailScreen resourceId="pacs-links" />;
+export default function LegacyPacsLinksDetailRoute() {
+  const params = useLocalSearchParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const normalizedId = String(id || '').trim();
+  const href = normalizedId
+    ? `/radiology?resource=pacs-links&legacyId=${encodeURIComponent(normalizedId)}`
+    : '/radiology';
+
+  return <Redirect href={href} />;
 }

@@ -5,7 +5,7 @@ const mockRedirect = jest.fn(() => null);
 
 const mockScreens = {
   LabWorkbenchScreen: jest.fn(() => null),
-  ClinicalOverviewScreen: jest.fn(() => null),
+  RadiologyWorkbenchScreen: jest.fn(() => null),
   ClinicalResourceListScreen: jest.fn(() => null),
   ClinicalResourceDetailScreen: jest.fn(() => null),
   ClinicalResourceFormScreen: jest.fn(() => null),
@@ -13,12 +13,12 @@ const mockScreens = {
 
 jest.mock('expo-router', () => ({
   Redirect: (...args) => mockRedirect(...args),
-  useLocalSearchParams: jest.fn(() => ({ id: 'LAB0000123' })),
+  useLocalSearchParams: jest.fn(() => ({ id: 'LAB0000123', orderRef: 'RAD0000123' })),
 }));
 
 jest.mock('@platform/screens', () => ({
   LabWorkbenchScreen: (...args) => mockScreens.LabWorkbenchScreen(...args),
-  ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
+  RadiologyWorkbenchScreen: (...args) => mockScreens.RadiologyWorkbenchScreen(...args),
   ClinicalResourceListScreen: (...args) =>
     mockScreens.ClinicalResourceListScreen(...args),
   ClinicalResourceDetailScreen: (...args) =>
@@ -37,7 +37,16 @@ const LAB_RESOURCE_MAPPINGS = [
   { resourceId: 'lab-qc-logs', canonicalSegment: 'qc-logs', legacySegment: 'lab-qc-logs' },
 ];
 
-const buildCanonicalCases = ({ resourceId, canonicalSegment }) => {
+const RADIOLOGY_RESOURCE_MAPPINGS = [
+  { resourceId: 'radiology-orders', segment: 'radiology-orders' },
+  { resourceId: 'radiology-results', segment: 'radiology-results' },
+  { resourceId: 'radiology-tests', segment: 'radiology-tests' },
+  { resourceId: 'imaging-studies', segment: 'imaging-studies' },
+  { resourceId: 'imaging-assets', segment: 'imaging-assets' },
+  { resourceId: 'pacs-links', segment: 'pacs-links' },
+];
+
+const buildLabCanonicalCases = ({ resourceId, canonicalSegment }) => {
   const basePath = `../../../app/(main)/lab/${canonicalSegment}`;
   return [
     {
@@ -63,7 +72,7 @@ const buildCanonicalCases = ({ resourceId, canonicalSegment }) => {
   ];
 };
 
-const buildLegacyRedirectCases = ({ legacySegment, canonicalSegment }) => {
+const buildLabLegacyRedirectCases = ({ legacySegment, canonicalSegment }) => {
   const basePath = `../../../app/(main)/diagnostics/lab/${legacySegment}`;
   return [
     {
@@ -89,31 +98,74 @@ const buildLegacyRedirectCases = ({ legacySegment, canonicalSegment }) => {
   ];
 };
 
+const buildRadiologyCanonicalRedirectCases = ({ resourceId, segment }) => {
+  const basePath = `../../../app/(main)/radiology/${segment}`;
+  return [
+    {
+      routePath: `${basePath}/index`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}`,
+    },
+    {
+      routePath: `${basePath}/create`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&action=create`,
+    },
+    {
+      routePath: `${basePath}/[id]`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&legacyId=LAB0000123`,
+    },
+    {
+      routePath: `${basePath}/[id]/edit`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&legacyId=LAB0000123&action=edit`,
+    },
+  ];
+};
+
+const buildRadiologyLegacyRedirectCases = ({ resourceId, segment }) => {
+  const basePath = `../../../app/(main)/diagnostics/radiology/${segment}`;
+  return [
+    {
+      routePath: `${basePath}/index`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}`,
+    },
+    {
+      routePath: `${basePath}/create`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&action=create`,
+    },
+    {
+      routePath: `${basePath}/[id]`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&legacyId=LAB0000123`,
+    },
+    {
+      routePath: `${basePath}/[id]/edit`,
+      screenKey: 'Redirect',
+      expectedHref: `/radiology?resource=${resourceId}&legacyId=LAB0000123&action=edit`,
+    },
+  ];
+};
+
 const ROUTE_CASES = [
-  {
-    routePath: '../../../app/(main)/lab/index',
-    screenKey: 'LabWorkbenchScreen',
-  },
-  {
-    routePath: '../../../app/(main)/diagnostics/lab/index',
-    screenKey: 'Redirect',
-    expectedHref: '/lab',
-  },
-  {
-    routePath: '../../../app/(main)/diagnostics/lab/[...missing]',
-    screenKey: 'Redirect',
-    expectedHref: '/lab',
-  },
-  {
-    routePath: '../../../app/(main)/diagnostics/radiology/index',
-    screenKey: 'ClinicalOverviewScreen',
-    expectedProps: { scope: 'radiology' },
-  },
-  ...LAB_RESOURCE_MAPPINGS.flatMap((mapping) => buildCanonicalCases(mapping)),
-  ...LAB_RESOURCE_MAPPINGS.flatMap((mapping) => buildLegacyRedirectCases(mapping)),
+  { routePath: '../../../app/(main)/lab/index', screenKey: 'LabWorkbenchScreen' },
+  { routePath: '../../../app/(main)/diagnostics/lab/index', screenKey: 'Redirect', expectedHref: '/lab' },
+  { routePath: '../../../app/(main)/diagnostics/lab/[...missing]', screenKey: 'Redirect', expectedHref: '/lab' },
+  { routePath: '../../../app/(main)/radiology/index', screenKey: 'RadiologyWorkbenchScreen' },
+  { routePath: '../../../app/(main)/radiology/[...missing]', screenKey: 'Redirect', expectedHref: '/radiology' },
+  { routePath: '../../../app/(main)/radiology/[orderRef]', screenKey: 'Redirect', expectedHref: '/radiology?id=RAD0000123' },
+  { routePath: '../../../app/(main)/diagnostics/radiology/index', screenKey: 'Redirect', expectedHref: '/radiology' },
+  { routePath: '../../../app/(main)/diagnostics/radiology/[...missing]', screenKey: 'Redirect', expectedHref: '/radiology' },
+  ...LAB_RESOURCE_MAPPINGS.flatMap((mapping) => buildLabCanonicalCases(mapping)),
+  ...LAB_RESOURCE_MAPPINGS.flatMap((mapping) => buildLabLegacyRedirectCases(mapping)),
+  ...RADIOLOGY_RESOURCE_MAPPINGS.flatMap((mapping) => buildRadiologyCanonicalRedirectCases(mapping)),
+  ...RADIOLOGY_RESOURCE_MAPPINGS.flatMap((mapping) => buildRadiologyLegacyRedirectCases(mapping)),
 ];
 
-describe('Tier 8 Diagnostics + Lab Canonical Routes', () => {
+describe('Diagnostics Canonical Route Contracts', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -143,3 +195,4 @@ describe('Tier 8 Diagnostics + Lab Canonical Routes', () => {
     }
   );
 });
+

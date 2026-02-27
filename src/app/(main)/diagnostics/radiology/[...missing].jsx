@@ -1,5 +1,5 @@
-import { NotFoundScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function DiagnosticsRadiologyMissingRoute() {
-  return <NotFoundScreen />;
+  return <Redirect href="/radiology" />;
 }

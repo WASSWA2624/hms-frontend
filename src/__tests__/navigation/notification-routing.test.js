@@ -43,6 +43,19 @@ describe('notification-routing', () => {
     expect(route).toBe('/ipd');
   });
 
+  it('routes radiology context notifications to radiology workspace', () => {
+    const route = resolveNotificationRoute(
+      {
+        notification_type: 'RADIOLOGY',
+        title: 'PACS sync complete',
+        message: 'Imaging study synchronized',
+      },
+      () => true
+    );
+
+    expect(route).toBe('/radiology');
+  });
+
   it('uses OPD icon when notification route points to OPD flow workbench', () => {
     const icon = resolveNotificationIcon({
       notification_type: 'SYSTEM',
@@ -59,6 +72,15 @@ describe('notification-routing', () => {
     });
 
     expect(icon).toBe('\u{1F6CF}');
+  });
+
+  it('uses radiology icon when notification route points to radiology workspace', () => {
+    const icon = resolveNotificationIcon({
+      notification_type: 'RADIOLOGY',
+      target_path: '/radiology?id=RAD-001',
+    });
+
+    expect(icon).toBe('\u{1F5BB}');
   });
 
   it('keeps OPD notifications sticky by disabling auto mark-read on open', () => {

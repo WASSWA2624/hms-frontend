@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function RadiologyOrdersCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="radiology-orders" />;
+export default function LegacyRadiologyOrdersCreateRoute() {
+  return <Redirect href="/radiology?resource=radiology-orders&action=create" />;
 }

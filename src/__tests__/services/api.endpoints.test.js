@@ -125,6 +125,48 @@ describe('services/api/endpoints', () => {
     expect(endpoints.LAB_WORKSPACE.RELEASE_ORDER_ITEM('id')).toMatch(
       /\/lab\/order-items\/id\/release$/
     );
+    expect(endpoints.RADIOLOGY_WORKSPACE.WORKBENCH).toMatch(
+      /\/radiology\/workbench$/
+    );
+    expect(
+      endpoints.RADIOLOGY_WORKSPACE.RESOLVE_LEGACY('radiology-orders', 'id')
+    ).toMatch(/\/radiology\/resolve-legacy\/radiology-orders\/id$/);
+    expect(endpoints.RADIOLOGY_WORKSPACE.ORDER_WORKFLOW('id')).toMatch(
+      /\/radiology\/orders\/id\/workflow$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.ASSIGN_ORDER('id')).toMatch(
+      /\/radiology\/orders\/id\/assign$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.START_ORDER('id')).toMatch(
+      /\/radiology\/orders\/id\/start$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.COMPLETE_ORDER('id')).toMatch(
+      /\/radiology\/orders\/id\/complete$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.CANCEL_ORDER('id')).toMatch(
+      /\/radiology\/orders\/id\/cancel$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.CREATE_STUDY('id')).toMatch(
+      /\/radiology\/orders\/id\/studies$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.INIT_ASSET_UPLOAD('id')).toMatch(
+      /\/radiology\/studies\/id\/assets\/init-upload$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.COMMIT_ASSET_UPLOAD('id')).toMatch(
+      /\/radiology\/studies\/id\/assets\/commit-upload$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.SYNC_STUDY('id')).toMatch(
+      /\/radiology\/studies\/id\/pacs-sync$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.DRAFT_RESULT('id')).toMatch(
+      /\/radiology\/orders\/id\/results\/draft$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.FINALIZE_RESULT('id')).toMatch(
+      /\/radiology\/results\/id\/finalize$/
+    );
+    expect(endpoints.RADIOLOGY_WORKSPACE.ADDENDUM_RESULT('id')).toMatch(
+      /\/radiology\/results\/id\/addendum$/
+    );
     expect(endpoints.RADIOLOGY_RESULTS.SIGN_OFF('id')).toMatch(
       /\/radiology-results\/id\/sign-off$/
     );

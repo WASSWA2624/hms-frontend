@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function ImagingAssetsCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="imaging-assets" />;
+export default function LegacyImagingAssetsCreateRoute() {
+  return <Redirect href="/radiology?resource=imaging-assets&action=create" />;
 }

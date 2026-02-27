@@ -205,7 +205,7 @@ describe('clinicalResourceConfigs', () => {
     expect(labOrderItemsConfig?.fields?.length).toBe(3);
     expect(labOrderItemsConfig?.requiresTenant).toBe(false);
 
-    expect(imagingAssetsConfig?.routePath).toBe('/diagnostics/radiology/imaging-assets');
+    expect(imagingAssetsConfig?.routePath).toBe('/radiology/imaging-assets');
     expect(imagingAssetsConfig?.fields?.length).toBe(4);
     expect(imagingAssetsConfig?.requiresTenant).toBe(false);
   });

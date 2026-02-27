@@ -19,65 +19,58 @@ import { useI18n } from '@hooks';
 import useRadiologyWorkbenchScreen from './useRadiologyWorkbenchScreen';
 import {
   StyledActionGrid,
-  StyledActionStack,
   StyledContainer,
   StyledDescription,
   StyledErrorText,
   StyledFilterGrid,
   StyledHeader,
   StyledHeading,
+  StyledInfoText,
   StyledInlineActions,
   StyledItemHeader,
   StyledItemMeta,
   StyledItemTitle,
   StyledLayout,
+  StyledList,
+  StyledListItem,
   StyledPanel,
   StyledSectionTitle,
   StyledSnapshotField,
   StyledSnapshotGrid,
-  StyledSnapshotRadiologyel,
+  StyledSnapshotLabel,
   StyledSnapshotValue,
+  StyledSubsection,
+  StyledSuccessText,
   StyledSummaryCard,
   StyledSummaryGrid,
-  StyledSummaryRadiologyel,
+  StyledSummaryLabel,
   StyledSummaryValue,
-  StyledTimeline,
-  StyledTimelineItem,
   StyledTitle,
   StyledWorklist,
   StyledWorklistItem,
 } from './RadiologyWorkbenchScreen.styles';
 
-const STATUS_ICON_MAP = {
-  ORDERED: '\u{1F9FE}',
-  COLLECTED: '\u{1F9EA}',
-  IN_PROCESS: '\u2699',
+const STATUS_ICON = {
+  ORDERED: '\u{1F4CB}',
+  IN_PROCESS: '\u{1F3A5}',
   COMPLETED: '\u2705',
   CANCELLED: '\u26D4',
-  CRITICAL: '\u26A0',
-  REJECTED: '\u{1F6AB}',
 };
 
-const toSelectOptions = (options = [], fallbackRadiologyel = '') => [
-  {
-    value: '',
-    Radiologyel: fallbackRadiologyel,
-  },
+const toSelectOptions = (options = [], fallbackLabel = '') => [
+  { value: '', label: fallbackLabel },
   ...(Array.isArray(options)
-    ? options.map((value) =>
-        typeof value === 'string'
-          ? { value, Radiologyel: value.replace(/_/g, ' ') }
-          : {
-              value: value.value,
-              Radiologyel: value.Radiologyel || value.value,
-            }
+    ? options.map((entry) =>
+        typeof entry === 'string'
+          ? { value: entry, label: entry.replace(/_/g, ' ') }
+          : { value: entry.value, label: entry.label || entry.value }
       )
     : []),
 ];
 
-const renderSnapshotField = (Radiologyel, value, fallback) => (
+const renderSnapshotField = (label, value, fallback) => (
   <StyledSnapshotField>
-    <StyledSnapshotRadiologyel>{Radiologyel}</StyledSnapshotRadiologyel>
+    <StyledSnapshotLabel>{label}</StyledSnapshotLabel>
     <StyledSnapshotValue>{value || fallback}</StyledSnapshotValue>
   </StyledSnapshotField>
 );
@@ -86,58 +79,48 @@ const RadiologyWorkbenchScreen = () => {
   const { t } = useI18n();
   const screen = useRadiologyWorkbenchScreen();
 
-  const stageOptions = toSelectOptions(
-    screen.stageOptions,
-    t('Radiology.workbench.filters.allStages')
-  );
+  const stageOptions = toSelectOptions(screen.stageOptions, t('radiology.workbench.filters.allStages'));
   const statusOptions = toSelectOptions(
     screen.statusOptions,
-    t('Radiology.workbench.filters.allStatuses')
+    t('radiology.workbench.filters.allStatuses')
   );
-  const criticalityOptions = toSelectOptions(
-    screen.criticalityOptions,
-    t('Radiology.workbench.filters.allCriticality')
+  const modalityOptions = toSelectOptions(
+    screen.modalityOptions,
+    t('radiology.workbench.filters.allModalities')
   );
-  const sampleOptions = toSelectOptions(
-    screen.sampleOptions,
-    t('common.selectOption')
+  const studyOptions = toSelectOptions(screen.studyOptions, t('common.selectOption'));
+  const draftResultOptions = toSelectOptions(
+    screen.draftResultOptions,
+    t('radiology.workbench.reporting.noDraftResult')
   );
-  const orderItemOptions = toSelectOptions(
-    screen.orderItemOptions,
-    t('common.selectOption')
-  );
-  const resultOptions = toSelectOptions(
-    screen.resultOptions,
-    t('common.selectOption')
-  );
-  const resultStatusOptions = toSelectOptions(
-    screen.resultStatusOptions,
-    t('common.selectOption')
+  const finalResultOptions = toSelectOptions(
+    screen.finalResultOptions,
+    t('radiology.workbench.reporting.noFinalResult')
   );
 
   return (
-    <StyledContainer testID="Radiology-workbench-screen">
+    <StyledContainer testID="radiology-workbench-screen">
       <StyledHeader>
         <StyledHeading>
-          <StyledTitle>{t('Radiology.workbench.title')}</StyledTitle>
-          <StyledDescription>{t('Radiology.workbench.description')}</StyledDescription>
+          <StyledTitle>{t('radiology.workbench.title')}</StyledTitle>
+          <StyledDescription>{t('radiology.workbench.description')}</StyledDescription>
         </StyledHeading>
-
         <StyledInlineActions>
           <Button
             variant="surface"
             size="small"
-            onPress={screen.onOpenCreateOrder}
-            icon={<Icon glyph="+" size="xs" decorative />}
+            onPress={screen.onOpenOrderRoute}
+            disabled={!screen.selectedOrderId}
+            icon={<Icon glyph="\u{1F50E}" size="xs" decorative />}
           >
-            {t('Radiology.workbench.quickLinks.createOrder')}
+            {t('radiology.workbench.quickLinks.openOrder')}
           </Button>
           <Button
             variant="surface"
             size="small"
             onPress={screen.onRetry}
-            icon={<Icon glyph={'\u21bb'} size="xs" decorative />}
-            testID="Radiology-workbench-refresh"
+            icon={<Icon glyph="\u21BB" size="xs" decorative />}
+            testID="radiology-workbench-refresh"
           >
             {t('common.retry')}
           </Button>
@@ -146,26 +129,26 @@ const RadiologyWorkbenchScreen = () => {
 
       {screen.isLoading ? (
         <LoadingSpinner
-          accessibilityRadiologyel={t('common.loading')}
-          testID="Radiology-workbench-loading"
+          accessibilityLabel={t('common.loading')}
+          testID="radiology-workbench-loading"
         />
       ) : null}
 
       {!screen.isLoading && !screen.canViewWorkbench ? (
         <ErrorState
           size={ErrorStateSizes.SMALL}
-          title={t('Radiology.workbench.states.accessDeniedTitle')}
-          description={t('Radiology.workbench.states.accessDeniedDescription')}
-          testID="Radiology-workbench-access-denied"
+          title={t('radiology.workbench.states.accessDeniedTitle')}
+          description={t('radiology.workbench.states.accessDeniedDescription')}
+          testID="radiology-workbench-access-denied"
         />
       ) : null}
 
       {!screen.isLoading && screen.hasError ? (
         <ErrorState
           size={ErrorStateSizes.SMALL}
-          title={t('Radiology.workbench.states.loadErrorTitle')}
-          description={screen.errorCode || t('Radiology.workbench.states.loadErrorDescription')}
-          testID="Radiology-workbench-error"
+          title={t('radiology.workbench.states.loadErrorTitle')}
+          description={screen.errorCode || t('radiology.workbench.states.loadErrorDescription')}
+          testID="radiology-workbench-error"
         />
       ) : null}
 
@@ -173,8 +156,8 @@ const RadiologyWorkbenchScreen = () => {
         <OfflineState
           size={OfflineStateSizes.SMALL}
           title={t('shell.banners.offline.title')}
-          description={t('Radiology.workbench.states.offlineNotice')}
-          testID="Radiology-workbench-offline"
+          description={t('radiology.workbench.states.offlineNotice')}
+          testID="radiology-workbench-offline"
           style={{ display: screen.isOffline ? 'block' : 'none' }}
         />
       ) : null}
@@ -184,7 +167,7 @@ const RadiologyWorkbenchScreen = () => {
           <StyledSummaryGrid>
             {screen.summaryCards.map((card) => (
               <StyledSummaryCard key={card.id}>
-                <StyledSummaryRadiologyel>{card.Radiologyel}</StyledSummaryRadiologyel>
+                <StyledSummaryLabel>{card.label}</StyledSummaryLabel>
                 <StyledSummaryValue>{card.value}</StyledSummaryValue>
               </StyledSummaryCard>
             ))}
@@ -193,95 +176,78 @@ const RadiologyWorkbenchScreen = () => {
           <StyledLayout>
             <StyledPanel>
               <Card variant="outlined">
-                <StyledSectionTitle>{t('Radiology.workbench.list.title')}</StyledSectionTitle>
+                <StyledSectionTitle>{t('radiology.workbench.list.title')}</StyledSectionTitle>
                 <StyledFilterGrid>
                   <TextField
-                    Radiologyel={t('Radiology.workbench.filters.search')}
+                    label={t('radiology.workbench.filters.search')}
                     value={screen.searchText}
                     onChangeText={screen.onSearchChange}
                     density="compact"
-                    testID="Radiology-workbench-search"
                   />
                   <Select
-                    Radiologyel={t('Radiology.workbench.filters.stage')}
+                    label={t('radiology.workbench.filters.stage')}
                     value={screen.stageFilter}
                     options={stageOptions}
                     onValueChange={screen.onStageFilterChange}
                     compact
                   />
                   <Select
-                    Radiologyel={t('Radiology.workbench.filters.status')}
+                    label={t('radiology.workbench.filters.status')}
                     value={screen.statusFilter}
                     options={statusOptions}
                     onValueChange={screen.onStatusFilterChange}
                     compact
                   />
                   <Select
-                    Radiologyel={t('Radiology.workbench.filters.criticality')}
-                    value={screen.criticalityFilter}
-                    options={criticalityOptions}
-                    onValueChange={screen.onCriticalityFilterChange}
+                    label={t('radiology.workbench.filters.modality')}
+                    value={screen.modalityFilter}
+                    options={modalityOptions}
+                    onValueChange={screen.onModalityFilterChange}
                     compact
                   />
                 </StyledFilterGrid>
-
                 <StyledInlineActions>
-                  <Button
-                    variant="surface"
-                    size="small"
-                    onPress={screen.onClearFilters}
-                  >
-                    {t('Radiology.workbench.filters.clear')}
+                  <Button variant="surface" size="small" onPress={screen.onClearFilters}>
+                    {t('radiology.workbench.filters.clear')}
                   </Button>
                   <Text variant="caption">
-                    {t('Radiology.workbench.list.count', { count: screen.worklist.length })}
+                    {t('radiology.workbench.list.count', { count: screen.worklist.length })}
                   </Text>
-                  {screen.pagination?.total ? (
-                    <Text variant="caption">
-                      {t('Radiology.workbench.list.total', { total: screen.pagination.total })}
-                    </Text>
-                  ) : null}
                 </StyledInlineActions>
               </Card>
 
               <Card variant="outlined">
                 {screen.worklist.length === 0 ? (
                   <EmptyState
-                    title={t('Radiology.workbench.states.emptyTitle')}
-                    description={t('Radiology.workbench.states.emptyDescription')}
-                    testID="Radiology-workbench-empty"
+                    title={t('radiology.workbench.states.emptyTitle')}
+                    description={t('radiology.workbench.states.emptyDescription')}
                   />
                 ) : (
                   <StyledWorklist>
-                    {screen.worklist.map((item, index) => {
-                      const orderId = item.display_id || item.id;
+                    {screen.worklist.map((order, index) => {
+                      const orderId = order.display_id || order.id;
                       const isSelected =
                         String(screen.selectedOrderId || '').toUpperCase() ===
                         String(orderId || '').toUpperCase();
-                      const status = String(item.status || '').toUpperCase();
-                      const iconGlyph = STATUS_ICON_MAP[status] || '\u{1F9EA}';
-
+                      const status = String(order.status || '').toUpperCase();
                       return (
                         <StyledWorklistItem
-                          key={orderId || `Radiology-order-${index + 1}`}
-                          onPress={() => screen.onSelectOrder(item)}
+                          key={orderId || `radiology-order-${index + 1}`}
                           $selected={isSelected}
+                          onPress={() => screen.onSelectOrder(order)}
                           accessibilityRole="button"
-                          testID={`Radiology-workbench-list-item-${index + 1}`}
                         >
                           <StyledItemHeader>
                             <StyledItemTitle>
-                              {item.patient_display_name || t('common.notAvaiRadiologyle')}
+                              {order.patient_display_name || t('common.notAvailable')}
                             </StyledItemTitle>
-                            <Badge>{status || t('common.notAvaiRadiologyle')}</Badge>
+                            <Badge>{status || t('common.notAvailable')}</Badge>
                           </StyledItemHeader>
                           <StyledItemMeta>
-                            <Icon glyph={iconGlyph} size="xs" decorative />{' '}
-                            {`${t('Radiology.workbench.snapshot.orderId')}: ${orderId || t('common.notAvaiRadiologyle')}`}
+                            <Icon glyph={STATUS_ICON[status] || '\u{1F3A5}'} size="xs" decorative />{' '}
+                            {`${t('radiology.workbench.snapshot.orderId')}: ${orderId || t('common.notAvailable')}`}
                           </StyledItemMeta>
-                          <StyledItemMeta>
-                            {screen.buildWorklistCountRadiologyel(item)}
-                          </StyledItemMeta>
+                          <StyledItemMeta>{screen.buildWorklistCountLabel(order)}</StyledItemMeta>
                         </StyledWorklistItem>
                       );
                     })}
@@ -293,57 +259,71 @@ const RadiologyWorkbenchScreen = () => {
             <StyledPanel>
               <Card variant="outlined">
                 <StyledInlineActions>
-                  <StyledSectionTitle>{t('Radiology.workbench.snapshot.title')}</StyledSectionTitle>
-                  {screen.isWorkflowLoading ? (
-                    <Text variant="caption">{t('common.loading')}</Text>
-                  ) : null}
+                  <StyledSectionTitle>{t('radiology.workbench.snapshot.title')}</StyledSectionTitle>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={screen.onOpenPatientProfile}
+                    disabled={!screen.selectedSummary.patientId}
+                  >
+                    {t('radiology.workbench.quickLinks.patient')}
+                  </Button>
                 </StyledInlineActions>
-
                 {!screen.selectedWorkflow?.order ? (
                   <EmptyState
-                    title={t('Radiology.workbench.states.noSelectionTitle')}
-                    description={t('Radiology.workbench.states.noSelectionDescription')}
+                    title={t('radiology.workbench.states.noSelectionTitle')}
+                    description={t('radiology.workbench.states.noSelectionDescription')}
                   />
                 ) : (
                   <StyledSnapshotGrid>
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.orderId'),
+                      t('radiology.workbench.snapshot.orderId'),
                       screen.selectedSummary.orderId,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.patient'),
+                      t('radiology.workbench.snapshot.patient'),
                       screen.selectedSummary.patientName,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.patientId'),
+                      t('radiology.workbench.snapshot.patientId'),
                       screen.selectedSummary.patientId,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.encounterId'),
+                      t('radiology.workbench.snapshot.encounterId'),
                       screen.selectedSummary.encounterId,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.status'),
+                      t('radiology.workbench.snapshot.test'),
+                      screen.selectedSummary.testName,
+                      t('common.notAvailable')
+                    )}
+                    {renderSnapshotField(
+                      t('radiology.workbench.snapshot.modality'),
+                      screen.selectedSummary.modality,
+                      t('common.notAvailable')
+                    )}
+                    {renderSnapshotField(
+                      t('radiology.workbench.snapshot.status'),
                       screen.selectedSummary.status,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.orderedAt'),
+                      t('radiology.workbench.snapshot.orderedAt'),
                       screen.selectedSummary.orderedAt,
-                      t('common.notAvaiRadiologyle')
+                      t('common.notAvailable')
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.itemCount'),
-                      String(screen.selectedSummary.itemCount || 0),
+                      t('radiology.workbench.snapshot.studyCount'),
+                      String(screen.selectedSummary.studyCount || 0),
                       '0'
                     )}
                     {renderSnapshotField(
-                      t('Radiology.workbench.snapshot.sampleCount'),
-                      String(screen.selectedSummary.sampleCount || 0),
+                      t('radiology.workbench.snapshot.resultCount'),
+                      String(screen.selectedSummary.resultCount || 0),
                       '0'
                     )}
                   </StyledSnapshotGrid>
@@ -351,251 +331,317 @@ const RadiologyWorkbenchScreen = () => {
               </Card>
 
               <Card variant="outlined">
-                <StyledSectionTitle>{t('Radiology.workbench.timeline.title')}</StyledSectionTitle>
-                {screen.timelineItems.length === 0 ? (
+                <StyledSectionTitle>{t('radiology.workbench.studies.title')}</StyledSectionTitle>
+                {screen.studies.length === 0 ? (
                   <EmptyState
-                    title={t('Radiology.workbench.timeline.emptyTitle')}
-                    description={t('Radiology.workbench.timeline.emptyDescription')}
+                    title={t('radiology.workbench.studies.emptyTitle')}
+                    description={t('radiology.workbench.studies.emptyDescription')}
                   />
                 ) : (
-                  <StyledTimeline>
-                    {screen.timelineItems.map((entry) => (
-                      <StyledTimelineItem key={entry.id}>{`${entry.Radiologyel} | ${entry.timestamp}`}</StyledTimelineItem>
-                    ))}
-                  </StyledTimeline>
+                  <StyledList>
+                    {screen.studies.map((study, index) => {
+                      const studyId = study.display_id || study.id || `study-${index + 1}`;
+                      const links = Number(study.pacs_link_count || 0);
+                      const syncLabel = links > 0 ? t('radiology.workbench.studies.synced') : t('radiology.workbench.studies.pending');
+                      return (
+                        <StyledListItem key={studyId}>
+                          {`${studyId} • ${study.modality || 'OTHER'} • ${syncLabel}`}
+                        </StyledListItem>
+                      );
+                    })}
+                  </StyledList>
                 )}
+
+                <StyledSubsection>
+                  <StyledSectionTitle>{t('radiology.workbench.studies.createTitle')}</StyledSectionTitle>
+                  <StyledActionGrid>
+                    <Select
+                      label={t('radiology.workbench.studies.modality')}
+                      value={screen.drafts.study.modality}
+                      options={modalityOptions}
+                      onValueChange={(value) => screen.onDraftChange('study', 'modality', value)}
+                      compact
+                    />
+                    <TextField
+                      label={t('radiology.workbench.studies.performedAt')}
+                      type="datetime-local"
+                      value={screen.drafts.study.performed_at}
+                      onChangeText={(value) => screen.onDraftChange('study', 'performed_at', value)}
+                      density="compact"
+                    />
+                    <TextArea
+                      label={t('radiology.workbench.studies.notes')}
+                      value={screen.drafts.study.notes}
+                      onChangeText={(value) => screen.onDraftChange('study', 'notes', value)}
+                      rows={2}
+                    />
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onPress={screen.onCreateStudy}
+                      disabled={!screen.canMutate || !screen.actionMatrix.canCreateStudy}
+                    >
+                      {t('radiology.workbench.studies.createAction')}
+                    </Button>
+                  </StyledActionGrid>
+                </StyledSubsection>
+
+                <StyledSubsection>
+                  <StyledSectionTitle>{t('radiology.workbench.studies.captureTitle')}</StyledSectionTitle>
+                  <StyledActionGrid>
+                    <Select
+                      label={t('radiology.workbench.studies.study')}
+                      value={screen.drafts.asset.study_id}
+                      options={studyOptions}
+                      onValueChange={(value) => screen.onDraftChange('asset', 'study_id', value)}
+                      compact
+                      searchable
+                    />
+                    <TextField
+                      label={t('radiology.workbench.studies.fileName')}
+                      value={screen.drafts.asset.file_name}
+                      onChangeText={(value) => screen.onDraftChange('asset', 'file_name', value)}
+                      density="compact"
+                    />
+                    <TextField
+                      label={t('radiology.workbench.studies.contentType')}
+                      value={screen.drafts.asset.content_type}
+                      onChangeText={(value) => screen.onDraftChange('asset', 'content_type', value)}
+                      density="compact"
+                    />
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={screen.onCaptureAsset}
+                      disabled={!screen.canMutate || !screen.actionMatrix.canCaptureAsset}
+                    >
+                      {t('radiology.workbench.studies.captureAction')}
+                    </Button>
+                  </StyledActionGrid>
+                </StyledSubsection>
+
+                <StyledSubsection>
+                  <StyledSectionTitle>{t('radiology.workbench.studies.syncTitle')}</StyledSectionTitle>
+                  <StyledActionGrid>
+                    <Select
+                      label={t('radiology.workbench.studies.study')}
+                      value={screen.drafts.sync.study_id}
+                      options={studyOptions}
+                      onValueChange={(value) => screen.onDraftChange('sync', 'study_id', value)}
+                      compact
+                      searchable
+                    />
+                    <TextField
+                      label={t('radiology.workbench.studies.studyUid')}
+                      value={screen.drafts.sync.study_uid}
+                      onChangeText={(value) => screen.onDraftChange('sync', 'study_uid', value)}
+                      density="compact"
+                    />
+                    <TextArea
+                      label={t('radiology.workbench.studies.notes')}
+                      value={screen.drafts.sync.notes}
+                      onChangeText={(value) => screen.onDraftChange('sync', 'notes', value)}
+                      rows={2}
+                    />
+                    <Button
+                      variant="surface"
+                      size="small"
+                      onPress={screen.onSyncStudy}
+                      disabled={!screen.canMutate || !screen.actionMatrix.canSyncStudy}
+                    >
+                      {t('radiology.workbench.studies.syncAction')}
+                    </Button>
+                  </StyledActionGrid>
+                  {screen.lastSyncStatus ? (
+                    <StyledSuccessText>
+                      {t('radiology.workbench.studies.syncStatus', {
+                        status: screen.lastSyncStatus,
+                      })}
+                    </StyledSuccessText>
+                  ) : null}
+                  {screen.lastSyncError ? <StyledErrorText>{screen.lastSyncError}</StyledErrorText> : null}
+                </StyledSubsection>
               </Card>
 
               <Card variant="outlined">
-                <StyledSectionTitle>{t('Radiology.workbench.quickLinks.title')}</StyledSectionTitle>
-                <StyledInlineActions>
-                  <Button variant="surface" size="small" onPress={screen.onOpenPatientProfile}>
-                    {t('Radiology.workbench.quickLinks.patient')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenOrderList}>
-                    {t('Radiology.workbench.quickLinks.orders')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenSampleList}>
-                    {t('Radiology.workbench.quickLinks.samples')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenResultList}>
-                    {t('Radiology.workbench.quickLinks.results')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenQcList}>
-                    {t('Radiology.workbench.quickLinks.qcLogs')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenTestList}>
-                    {t('Radiology.workbench.quickLinks.tests')}
-                  </Button>
-                  <Button variant="surface" size="small" onPress={screen.onOpenPanelList}>
-                    {t('Radiology.workbench.quickLinks.panels')}
-                  </Button>
-                </StyledInlineActions>
+                <StyledSectionTitle>{t('radiology.workbench.timeline.title')}</StyledSectionTitle>
+                {screen.timelineItems.length === 0 ? (
+                  <EmptyState
+                    title={t('radiology.workbench.timeline.emptyTitle')}
+                    description={t('radiology.workbench.timeline.emptyDescription')}
+                  />
+                ) : (
+                  <StyledList>
+                    {screen.timelineItems.map((entry) => (
+                      <StyledListItem key={entry.id}>{`${entry.label} | ${entry.timestamp}`}</StyledListItem>
+                    ))}
+                  </StyledList>
+                )}
               </Card>
             </StyledPanel>
 
             <StyledPanel>
               <Card variant="outlined">
-                <StyledSectionTitle>{t('Radiology.workbench.actions.title')}</StyledSectionTitle>
+                <StyledSectionTitle>{t('radiology.workbench.actions.title')}</StyledSectionTitle>
+                <StyledActionGrid>
+                  <TextField
+                    label={t('radiology.workbench.actions.assignee')}
+                    value={screen.drafts.assign.assignee_user_id}
+                    onChangeText={(value) => screen.onDraftChange('assign', 'assignee_user_id', value)}
+                    density="compact"
+                  />
+                  <TextArea
+                    label={t('radiology.workbench.actions.notes')}
+                    value={screen.drafts.assign.notes}
+                    onChangeText={(value) => screen.onDraftChange('assign', 'notes', value)}
+                    rows={2}
+                  />
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={screen.onAssign}
+                    disabled={!screen.canMutate || !screen.actionMatrix.canAssign}
+                  >
+                    {t('radiology.workbench.actions.assign')}
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={screen.onStart}
+                    disabled={!screen.canMutate || !screen.actionMatrix.canStart}
+                  >
+                    {t('radiology.workbench.actions.start')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onPress={screen.onComplete}
+                    disabled={!screen.canMutate || !screen.actionMatrix.canComplete}
+                  >
+                    {t('radiology.workbench.actions.complete')}
+                  </Button>
+                  <TextField
+                    label={t('radiology.workbench.actions.cancelReason')}
+                    value={screen.drafts.cancel.reason}
+                    onChangeText={(value) => screen.onDraftChange('cancel', 'reason', value)}
+                    density="compact"
+                  />
+                  <TextArea
+                    label={t('radiology.workbench.actions.cancelNotes')}
+                    value={screen.drafts.cancel.notes}
+                    onChangeText={(value) => screen.onDraftChange('cancel', 'notes', value)}
+                    rows={2}
+                  />
+                  <Button
+                    variant="surface"
+                    size="small"
+                    onPress={screen.onCancel}
+                    disabled={!screen.canMutate || !screen.actionMatrix.canCancel}
+                  >
+                    {t('radiology.workbench.actions.cancel')}
+                  </Button>
+                </StyledActionGrid>
+              </Card>
 
-                <StyledActionStack>
+              <Card variant="outlined">
+                <StyledSectionTitle>{t('radiology.workbench.reporting.title')}</StyledSectionTitle>
+                <StyledActionGrid>
+                  <TextArea
+                    label={t('radiology.workbench.reporting.findings')}
+                    value={screen.drafts.report.findings}
+                    onChangeText={(value) => screen.onDraftChange('report', 'findings', value)}
+                    rows={3}
+                  />
+                  <TextArea
+                    label={t('radiology.workbench.reporting.impression')}
+                    value={screen.drafts.report.impression}
+                    onChangeText={(value) => screen.onDraftChange('report', 'impression', value)}
+                    rows={3}
+                  />
+                  <TextArea
+                    label={t('radiology.workbench.reporting.fullReport')}
+                    value={screen.drafts.report.report_text}
+                    onChangeText={(value) => screen.onDraftChange('report', 'report_text', value)}
+                    rows={5}
+                  />
+                  <TextField
+                    label={t('radiology.workbench.reporting.reportedAt')}
+                    type="datetime-local"
+                    value={screen.drafts.report.reported_at}
+                    onChangeText={(value) => screen.onDraftChange('report', 'reported_at', value)}
+                    density="compact"
+                  />
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onPress={screen.onDraftResult}
+                    disabled={!screen.canMutate || !screen.actionMatrix.canDraftResult}
+                  >
+                    {t('radiology.workbench.reporting.saveDraft')}
+                  </Button>
+                </StyledActionGrid>
+
+                <StyledSubsection>
+                  <StyledSectionTitle>{t('radiology.workbench.reporting.finalizeTitle')}</StyledSectionTitle>
                   <StyledActionGrid>
                     <Select
-                      Radiologyel={t('Radiology.workbench.actions.collectSample')}
-                      value={screen.collectDraft.sample_id}
-                      options={sampleOptions}
-                      onValueChange={(value) =>
-                        screen.onCollectDraftChange('sample_id', value)
-                      }
+                      label={t('radiology.workbench.reporting.draftResult')}
+                      value={screen.drafts.finalize.result_id}
+                      options={draftResultOptions}
+                      onValueChange={(value) => screen.onDraftChange('finalize', 'result_id', value)}
                       compact
                       searchable
                     />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.collectedAt')}
-                      value={screen.collectDraft.collected_at}
-                      onChangeText={(value) =>
-                        screen.onCollectDraftChange('collected_at', value)
-                      }
-                      type="datetime-local"
-                      density="compact"
-                    />
                     <TextArea
-                      Radiologyel={t('Radiology.workbench.actions.collectNotes')}
-                      value={screen.collectDraft.notes}
-                      onChangeText={(value) =>
-                        screen.onCollectDraftChange('notes', value)
-                      }
-                      rows={2}
-                    />
-                    <Button
-                      variant="primary"
-                      size="small"
-                      onPress={screen.onCollect}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canCollect}
-                    >
-                      {t('Radiology.workbench.actions.collect')}
-                    </Button>
-                  </StyledActionGrid>
-
-                  <StyledActionGrid>
-                    <Select
-                      Radiologyel={t('Radiology.workbench.actions.receiveSample')}
-                      value={screen.receiveDraft.sample_id}
-                      options={sampleOptions}
-                      onValueChange={(value) =>
-                        screen.onReceiveDraftChange('sample_id', value)
-                      }
-                      compact
-                      searchable
-                    />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.receivedAt')}
-                      value={screen.receiveDraft.received_at}
-                      onChangeText={(value) =>
-                        screen.onReceiveDraftChange('received_at', value)
-                      }
-                      type="datetime-local"
-                      density="compact"
-                    />
-                    <TextArea
-                      Radiologyel={t('Radiology.workbench.actions.receiveNotes')}
-                      value={screen.receiveDraft.notes}
-                      onChangeText={(value) =>
-                        screen.onReceiveDraftChange('notes', value)
-                      }
+                      label={t('radiology.workbench.reporting.finalizeNotes')}
+                      value={screen.drafts.finalize.notes}
+                      onChangeText={(value) => screen.onDraftChange('finalize', 'notes', value)}
                       rows={2}
                     />
                     <Button
                       variant="surface"
                       size="small"
-                      onPress={screen.onReceive}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canReceive}
+                      onPress={screen.onFinalizeResult}
+                      disabled={!screen.canMutate || !screen.actionMatrix.canFinalizeResult}
                     >
-                      {t('Radiology.workbench.actions.receive')}
+                      {t('radiology.workbench.reporting.finalizeAction')}
                     </Button>
                   </StyledActionGrid>
+                </StyledSubsection>
 
+                <StyledSubsection>
+                  <StyledSectionTitle>{t('radiology.workbench.reporting.addendumTitle')}</StyledSectionTitle>
                   <StyledActionGrid>
                     <Select
-                      Radiologyel={t('Radiology.workbench.actions.rejectSample')}
-                      value={screen.rejectDraft.sample_id}
-                      options={sampleOptions}
-                      onValueChange={(value) =>
-                        screen.onRejectDraftChange('sample_id', value)
-                      }
+                      label={t('radiology.workbench.reporting.finalResult')}
+                      value={screen.drafts.addendum.result_id}
+                      options={finalResultOptions}
+                      onValueChange={(value) => screen.onDraftChange('addendum', 'result_id', value)}
                       compact
                       searchable
-                    />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.rejectReason')}
-                      value={screen.rejectDraft.reason}
-                      onChangeText={(value) =>
-                        screen.onRejectDraftChange('reason', value)
-                      }
-                      density="compact"
                     />
                     <TextArea
-                      Radiologyel={t('Radiology.workbench.actions.rejectNotes')}
-                      value={screen.rejectDraft.notes}
-                      onChangeText={(value) =>
-                        screen.onRejectDraftChange('notes', value)
-                      }
-                      rows={2}
-                    />
-                    <Button
-                      variant="surface"
-                      size="small"
-                      onPress={screen.onReject}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canReject}
-                    >
-                      {t('Radiology.workbench.actions.reject')}
-                    </Button>
-                  </StyledActionGrid>
-
-                  <StyledActionGrid>
-                    <Select
-                      Radiologyel={t('Radiology.workbench.actions.orderItem')}
-                      value={screen.releaseDraft.order_item_id}
-                      options={orderItemOptions}
-                      onValueChange={(value) =>
-                        screen.onReleaseDraftChange('order_item_id', value)
-                      }
-                      compact
-                      searchable
-                    />
-                    <Select
-                      Radiologyel={t('Radiology.workbench.actions.resultRecord')}
-                      value={screen.releaseDraft.result_id}
-                      options={resultOptions}
-                      onValueChange={(value) =>
-                        screen.onReleaseDraftChange('result_id', value)
-                      }
-                      compact
-                      searchable
-                    />
-                    <Select
-                      Radiologyel={t('Radiology.workbench.actions.resultStatus')}
-                      value={screen.releaseDraft.status}
-                      options={resultStatusOptions}
-                      onValueChange={(value) =>
-                        screen.onReleaseDraftChange('status', value)
-                      }
-                      compact
-                    />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.resultValue')}
-                      value={screen.releaseDraft.result_value}
-                      onChangeText={(value) =>
-                        screen.onReleaseDraftChange('result_value', value)
-                      }
-                      density="compact"
-                    />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.resultUnit')}
-                      value={screen.releaseDraft.result_unit}
-                      onChangeText={(value) =>
-                        screen.onReleaseDraftChange('result_unit', value)
-                      }
-                      density="compact"
-                    />
-                    <TextField
-                      Radiologyel={t('Radiology.workbench.actions.reportedAt')}
-                      value={screen.releaseDraft.reported_at}
-                      onChangeText={(value) =>
-                        screen.onReleaseDraftChange('reported_at', value)
-                      }
-                      type="datetime-local"
-                      density="compact"
-                    />
-                    <TextArea
-                      Radiologyel={t('Radiology.workbench.actions.resultText')}
-                      value={screen.releaseDraft.result_text}
-                      onChangeText={(value) =>
-                        screen.onReleaseDraftChange('result_text', value)
-                      }
+                      label={t('radiology.workbench.reporting.addendumText')}
+                      value={screen.drafts.addendum.addendum_text}
+                      onChangeText={(value) => screen.onDraftChange('addendum', 'addendum_text', value)}
                       rows={3}
                     />
-                    <TextArea
-                      Radiologyel={t('Radiology.workbench.actions.releaseNotes')}
-                      value={screen.releaseDraft.notes}
-                      onChangeText={(value) =>
-                        screen.onReleaseDraftChange('notes', value)
-                      }
-                      rows={2}
-                    />
                     <Button
-                      variant="primary"
+                      variant="surface"
                       size="small"
-                      onPress={screen.onRelease}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canRelease}
+                      onPress={screen.onAddendumResult}
+                      disabled={!screen.canMutate || !screen.actionMatrix.canAddendum}
                     >
-                      {t('Radiology.workbench.actions.release')}
+                      {t('radiology.workbench.reporting.addendumAction')}
                     </Button>
                   </StyledActionGrid>
-                </StyledActionStack>
-
-                {screen.formError ? <StyledErrorText>{screen.formError}</StyledErrorText> : null}
+                </StyledSubsection>
               </Card>
+
+              {screen.formError ? <StyledErrorText>{screen.formError}</StyledErrorText> : null}
+              {!screen.formError ? (
+                <StyledInfoText>{t('radiology.workbench.helperText')}</StyledInfoText>
+              ) : null}
             </StyledPanel>
           </StyledLayout>
         </>

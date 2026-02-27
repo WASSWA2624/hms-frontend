@@ -1,5 +1,5 @@
-import { ClinicalOverviewScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function DiagnosticsRadiologyIndexRoute() {
-  return <ClinicalOverviewScreen scope="radiology" />;
+  return <Redirect href="/radiology" />;
 }

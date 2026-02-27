@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function PacsLinksCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="pacs-links" />;
+export default function LegacyPacsLinksCreateRoute() {
+  return <Redirect href="/radiology?resource=pacs-links&action=create" />;
 }

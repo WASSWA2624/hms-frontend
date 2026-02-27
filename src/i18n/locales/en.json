@@ -14405,6 +14405,130 @@
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
       "openPrimaryItem": "Open radiology order {{item}}"
+    },
+    "workbench": {
+      "title": "Radiology Workspace",
+      "description": "Manage order intake, imaging studies, report drafting, sign-off, and PACS sync from one operational hub.",
+      "summary": {
+        "totalOrders": "Total orders",
+        "orderedQueue": "Ordered queue",
+        "processingQueue": "Processing queue",
+        "draftReports": "Draft reports",
+        "finalizedReports": "Finalized reports",
+        "amendedReports": "Amended reports",
+        "completedOrders": "Completed orders",
+        "unsyncedStudies": "Unsynced studies"
+      },
+      "list": {
+        "title": "Radiology queue",
+        "count": "{{count}} shown"
+      },
+      "filters": {
+        "search": "Search by order ID, patient, modality, or report",
+        "stage": "Stage",
+        "status": "Status",
+        "modality": "Modality",
+        "allStages": "All stages",
+        "allStatuses": "All statuses",
+        "allModalities": "All modalities",
+        "clear": "Clear filters"
+      },
+      "quickLinks": {
+        "patient": "Patient profile",
+        "openOrder": "Open order route"
+      },
+      "snapshot": {
+        "title": "Clinical context",
+        "orderId": "Order ID",
+        "patient": "Patient",
+        "patientId": "Patient ID",
+        "encounterId": "Encounter ID",
+        "test": "Requested test",
+        "modality": "Modality",
+        "status": "Status",
+        "orderedAt": "Ordered at",
+        "studyCount": "Studies",
+        "resultCount": "Reports"
+      },
+      "studies": {
+        "title": "Study manager",
+        "emptyTitle": "No studies captured yet",
+        "emptyDescription": "Create a study and capture imaging assets to continue workflow.",
+        "createTitle": "Create study",
+        "captureTitle": "Capture asset metadata",
+        "syncTitle": "PACS sync",
+        "study": "Study",
+        "modality": "Modality",
+        "performedAt": "Performed at",
+        "notes": "Notes",
+        "fileName": "File name",
+        "contentType": "Content type",
+        "studyUid": "Study UID (optional)",
+        "createAction": "Create study",
+        "captureAction": "Commit asset",
+        "syncAction": "Sync to PACS",
+        "synced": "Synced",
+        "pending": "Pending sync",
+        "syncStatus": "PACS sync status: {{status}}"
+      },
+      "timeline": {
+        "title": "Activity timeline",
+        "emptyTitle": "No timeline events yet",
+        "emptyDescription": "Order, study, reporting, and PACS events appear here."
+      },
+      "actions": {
+        "title": "Order actions",
+        "assignee": "Assignee user ID",
+        "notes": "Action notes",
+        "assign": "Assign",
+        "start": "Start order",
+        "complete": "Complete order",
+        "cancel": "Cancel order",
+        "cancelReason": "Cancellation reason",
+        "cancelNotes": "Cancellation notes"
+      },
+      "reporting": {
+        "title": "Reporting",
+        "findings": "Findings",
+        "impression": "Impression",
+        "fullReport": "Full report text",
+        "reportedAt": "Reported at",
+        "saveDraft": "Save draft",
+        "finalizeTitle": "Finalize report",
+        "draftResult": "Draft result",
+        "finalizeNotes": "Finalize notes",
+        "finalizeAction": "Finalize",
+        "addendumTitle": "Add addendum",
+        "finalResult": "Final result",
+        "addendumText": "Addendum text",
+        "addendumAction": "Add addendum",
+        "noDraftResult": "Select a draft result",
+        "noFinalResult": "Select a final result"
+      },
+      "states": {
+        "accessDeniedTitle": "Radiology access required",
+        "accessDeniedDescription": "You do not have permission to use the radiology workspace.",
+        "loadErrorTitle": "Unable to load radiology workspace",
+        "loadErrorDescription": "Retry to refresh queue and workflow data.",
+        "offlineNotice": "You are offline. Workflow actions are disabled until connection is restored.",
+        "emptyTitle": "No radiology orders found",
+        "emptyDescription": "Adjust filters or open incoming radiology requests.",
+        "noSelectionTitle": "Select an order",
+        "noSelectionDescription": "Choose an order from the queue to manage studies and reporting."
+      },
+      "validation": {
+        "orderRequired": "Select an order first.",
+        "studyRequired": "Select a study first.",
+        "reportRequired": "Enter findings, impression, or report text.",
+        "cancelReasonRequired": "Provide a cancellation reason before continuing.",
+        "addendumTextRequired": "Provide addendum text before continuing.",
+        "uploadInitFailed": "Unable to initialize upload metadata."
+      },
+      "errors": {
+        "readOnly": "You do not have write access for radiology workflow actions.",
+        "actionFailed": "Unable to complete the selected radiology workflow action."
+      },
+      "helperText": "Friendly IDs are used across the workspace; UUIDs are never displayed."
     }
   },
   "pharmacy": {
