@@ -201,7 +201,7 @@ describe('clinicalResourceConfigs', () => {
     const labOrderItemsConfig = getClinicalResourceConfig(CLINICAL_RESOURCE_IDS.LAB_ORDER_ITEMS);
     const imagingAssetsConfig = getClinicalResourceConfig(CLINICAL_RESOURCE_IDS.IMAGING_ASSETS);
 
-    expect(labOrderItemsConfig?.routePath).toBe('/diagnostics/lab/lab-order-items');
+    expect(labOrderItemsConfig?.routePath).toBe('/lab/order-items');
     expect(labOrderItemsConfig?.fields?.length).toBe(3);
     expect(labOrderItemsConfig?.requiresTenant).toBe(false);
 

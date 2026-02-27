@@ -19,6 +19,14 @@ const toPublicId = (value) => {
   return normalized;
 };
 
+const resolvePublicId = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = toPublicId(candidate);
+    if (normalized) return normalized;
+  }
+  return null;
+};
+
 const toNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -27,15 +35,27 @@ const toNumber = (value) => {
 const normalizeOrderItem = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
-  const id = toPublicId(row.id || row.display_id || row.human_friendly_id);
+  const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
   return {
     ...row,
     id,
     display_id: id,
     human_friendly_id: id,
-    lab_order_id: toPublicId(row.lab_order_id),
-    lab_test_id: toPublicId(row.lab_test_id),
-    patient_id: toPublicId(row.patient_id),
+    lab_order_id: resolvePublicId(
+      row.lab_order_display_id,
+      row.lab_order_human_friendly_id,
+      row.lab_order_id
+    ),
+    lab_test_id: resolvePublicId(
+      row.lab_test_display_id,
+      row.lab_test_human_friendly_id,
+      row.lab_test_id
+    ),
+    patient_id: resolvePublicId(
+      row.patient_display_id,
+      row.patient_human_friendly_id,
+      row.patient_id
+    ),
     status: sanitizeString(row.status).toUpperCase() || null,
     result_status: sanitizeString(row.result_status).toUpperCase() || null,
     patient_display_name: sanitizeString(row.patient_display_name) || '',
@@ -47,14 +67,22 @@ const normalizeOrderItem = (value) => {
 const normalizeSample = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
-  const id = toPublicId(row.id || row.display_id || row.human_friendly_id);
+  const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
   return {
     ...row,
     id,
     display_id: id,
     human_friendly_id: id,
-    lab_order_id: toPublicId(row.lab_order_id),
-    patient_id: toPublicId(row.patient_id),
+    lab_order_id: resolvePublicId(
+      row.lab_order_display_id,
+      row.lab_order_human_friendly_id,
+      row.lab_order_id
+    ),
+    patient_id: resolvePublicId(
+      row.patient_display_id,
+      row.patient_human_friendly_id,
+      row.patient_id
+    ),
     status: sanitizeString(row.status).toUpperCase() || null,
     patient_display_name: sanitizeString(row.patient_display_name) || '',
   };
@@ -63,16 +91,32 @@ const normalizeSample = (value) => {
 const normalizeResult = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
-  const id = toPublicId(row.id || row.display_id || row.human_friendly_id);
+  const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
   return {
     ...row,
     id,
     display_id: id,
     human_friendly_id: id,
-    lab_order_item_id: toPublicId(row.lab_order_item_id),
-    lab_order_id: toPublicId(row.lab_order_id),
-    lab_test_id: toPublicId(row.lab_test_id),
-    patient_id: toPublicId(row.patient_id),
+    lab_order_item_id: resolvePublicId(
+      row.lab_order_item_display_id,
+      row.lab_order_item_human_friendly_id,
+      row.lab_order_item_id
+    ),
+    lab_order_id: resolvePublicId(
+      row.lab_order_display_id,
+      row.lab_order_human_friendly_id,
+      row.lab_order_id
+    ),
+    lab_test_id: resolvePublicId(
+      row.lab_test_display_id,
+      row.lab_test_human_friendly_id,
+      row.lab_test_id
+    ),
+    patient_id: resolvePublicId(
+      row.patient_display_id,
+      row.patient_human_friendly_id,
+      row.patient_id
+    ),
     status: sanitizeString(row.status).toUpperCase() || null,
     result_value: sanitizeString(row.result_value) || '',
     result_unit: sanitizeString(row.result_unit) || '',
@@ -86,7 +130,7 @@ const normalizeResult = (value) => {
 const normalizeWorkbenchOrder = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
-  const id = toPublicId(row.id || row.display_id || row.human_friendly_id);
+  const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
 
   const items = normalizeArray(row.items).map(normalizeOrderItem).filter(Boolean);
   const samples = normalizeArray(row.samples).map(normalizeSample).filter(Boolean);
@@ -96,8 +140,16 @@ const normalizeWorkbenchOrder = (value) => {
     id,
     display_id: id,
     human_friendly_id: id,
-    encounter_id: toPublicId(row.encounter_id),
-    patient_id: toPublicId(row.patient_id),
+    encounter_id: resolvePublicId(
+      row.encounter_display_id,
+      row.encounter_human_friendly_id,
+      row.encounter_id
+    ),
+    patient_id: resolvePublicId(
+      row.patient_display_id,
+      row.patient_human_friendly_id,
+      row.patient_id
+    ),
     status: sanitizeString(row.status).toUpperCase() || null,
     patient_display_name: sanitizeString(row.patient_display_name) || '',
     item_count: toNumber(row.item_count),
@@ -175,7 +227,7 @@ const normalizeLabWorkflowPayload = (value) => {
 const normalizeLabLegacyResolution = (value) => {
   const payload = normalizeObject(value);
   if (!payload) return null;
-  const identifier = toPublicId(payload.identifier || payload.id);
+  const identifier = resolvePublicId(payload.identifier, payload.id);
   return {
     id: identifier,
     identifier,

@@ -186,7 +186,7 @@ export const MAIN_NAV_ITEMS = Object.freeze([
   {
     id: 'lab',
     icon: 'medkit-outline',
-    path: '/diagnostics/lab',
+    path: '/lab',
     name: `${MAIN_NAV_I18N}.diagnostics-lab`,
     roles: LAB_ACCESS_ROLES,
     children: null,

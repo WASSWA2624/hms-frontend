@@ -383,7 +383,7 @@ const useIpdWorkbenchScreen = () => {
     onFinalizeDischarge: async () => { if (!actionMatrix.canFinalizeDischarge) return; const admissionId = toPublic(selectedFlowId); if (!admissionId) return; await runMutation(() => finalizeDischarge(admissionId, { summary: sanitize(dischargeDraft.summary) || undefined, discharged_at: toIso(dischargeDraft.discharged_at) }), { refreshQueue: true, refreshOptions: true }); },
     onSelectFlow: (flow) => { const id = resolveAdmissionId(flow); if (!id) return; setSelectedFlowId(id); setSelectedFlow(flow); syncSelectedUrl(id); },
     onOpenPatientProfile: () => { const id = resolvePatientId(selectedFlow); if (id) router.push(`/patients/patients/${encodeURIComponent(id)}`); },
-    onOpenLabOrderCreate: () => router.push('/diagnostics/lab/lab-orders/create'),
+    onOpenLabOrderCreate: () => router.push('/lab/orders/create'),
     onOpenRadiologyOrderCreate: () => router.push('/diagnostics/radiology/radiology-orders/create'),
     onOpenPharmacyOrderCreate: () => router.push('/pharmacy/pharmacy-orders/create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),

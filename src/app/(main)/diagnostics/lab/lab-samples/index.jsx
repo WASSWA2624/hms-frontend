@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function LabSamplesListRoute() {
-  return <ClinicalResourceListScreen resourceId="lab-samples" />;
+export default function LegacyLabSamplesListRoute() {
+  return <Redirect href="/lab/samples" />;
 }

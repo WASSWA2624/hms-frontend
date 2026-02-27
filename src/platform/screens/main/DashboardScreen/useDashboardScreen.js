@@ -244,7 +244,7 @@ const QUICK_ACTIONS = [
     labelKey: 'home.quickActions.items.labTest',
     roles: LAB_WRITE_ROLES,
     supported: true,
-    path: '/diagnostics/lab/lab-orders/create',
+    path: '/lab/orders/create',
   },
   {
     id: 'sale',

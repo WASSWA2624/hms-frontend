@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function LabQcLogsCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="lab-qc-logs" />;
+export default function LegacyLabQcLogsCreateRoute() {
+  return <Redirect href="/lab/qc-logs/create" />;
 }

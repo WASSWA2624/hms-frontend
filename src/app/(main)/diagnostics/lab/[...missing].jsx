@@ -1,5 +1,5 @@
-import { NotFoundScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function DiagnosticsLabMissingRoute() {
-  return <NotFoundScreen />;
+  return <Redirect href="/lab" />;
 }

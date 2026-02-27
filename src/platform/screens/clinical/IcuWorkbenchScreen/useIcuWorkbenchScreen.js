@@ -1206,7 +1206,7 @@ const useIcuWorkbenchScreen = () => {
       if (id) router.push(`/patients/patients/${encodeURIComponent(id)}`);
     },
     onOpenLabOrderCreate: () =>
-      router.push('/diagnostics/lab/lab-orders/create'),
+      router.push('/lab/orders/create'),
     onOpenRadiologyOrderCreate: () =>
       router.push('/diagnostics/radiology/radiology-orders/create'),
     onOpenPharmacyOrderCreate: () =>

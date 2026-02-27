@@ -189,7 +189,7 @@ const buildNotificationRouteCandidates = (
     pushRouteCandidate(candidates, '/billing/invoices');
   }
   if (text.includes('lab') || text.includes('sample') || text.includes('result')) {
-    pushRouteCandidate(candidates, '/diagnostics/lab/lab-results');
+    pushRouteCandidate(candidates, '/lab/results');
   }
   if (text.includes('pharmacy') || text.includes('drug') || text.includes('dispense')) {
     pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
@@ -201,7 +201,7 @@ const buildNotificationRouteCandidates = (
   const type = getNotificationType(notification);
   if (type === 'APPOINTMENT') pushRouteCandidate(candidates, '/scheduling/appointments');
   if (type === 'BILLING') pushRouteCandidate(candidates, '/billing/invoices');
-  if (type === 'LAB') pushRouteCandidate(candidates, '/diagnostics/lab/lab-results');
+  if (type === 'LAB') pushRouteCandidate(candidates, '/lab/results');
   if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
   if (type === 'OPD') pushRouteCandidate(candidates, '/clinical');
   if (type === 'IPD') pushRouteCandidate(candidates, '/ipd');

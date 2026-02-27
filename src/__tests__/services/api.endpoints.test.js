@@ -106,6 +106,25 @@ describe('services/api/endpoints', () => {
     expect(endpoints.LAB_RESULTS.RELEASE('id')).toMatch(
       /\/lab-results\/id\/release$/
     );
+    expect(endpoints.LAB_WORKSPACE.WORKBENCH).toMatch(/\/lab\/workbench$/);
+    expect(endpoints.LAB_WORKSPACE.RESOLVE_LEGACY('lab-orders', 'id')).toMatch(
+      /\/lab\/resolve-legacy\/lab-orders\/id$/
+    );
+    expect(endpoints.LAB_WORKSPACE.ORDER_WORKFLOW('id')).toMatch(
+      /\/lab\/orders\/id\/workflow$/
+    );
+    expect(endpoints.LAB_WORKSPACE.COLLECT_ORDER('id')).toMatch(
+      /\/lab\/orders\/id\/collect$/
+    );
+    expect(endpoints.LAB_WORKSPACE.RECEIVE_SAMPLE('id')).toMatch(
+      /\/lab\/samples\/id\/receive$/
+    );
+    expect(endpoints.LAB_WORKSPACE.REJECT_SAMPLE('id')).toMatch(
+      /\/lab\/samples\/id\/reject$/
+    );
+    expect(endpoints.LAB_WORKSPACE.RELEASE_ORDER_ITEM('id')).toMatch(
+      /\/lab\/order-items\/id\/release$/
+    );
     expect(endpoints.RADIOLOGY_RESULTS.SIGN_OFF('id')).toMatch(
       /\/radiology-results\/id\/sign-off$/
     );

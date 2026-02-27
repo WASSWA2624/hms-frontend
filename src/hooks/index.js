@@ -102,6 +102,7 @@ export { default as useLabOrderItem } from './useLabOrderItem';
 export { default as useLabSample } from './useLabSample';
 export { default as useLabResult } from './useLabResult';
 export { default as useLabQcLog } from './useLabQcLog';
+export { default as useLabWorkspace } from './useLabWorkspace';
 export { default as useRadiologyTest } from './useRadiologyTest';
 export { default as useRadiologyOrder } from './useRadiologyOrder';
 export { default as useRadiologyResult } from './useRadiologyResult';

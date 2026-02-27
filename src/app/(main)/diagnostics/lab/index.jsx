@@ -1,5 +1,5 @@
-import { ClinicalOverviewScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
 export default function DiagnosticsLabIndexRoute() {
-  return <ClinicalOverviewScreen scope="lab" />;
+  return <Redirect href="/lab" />;
 }

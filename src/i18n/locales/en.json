@@ -14281,6 +14281,110 @@
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
       "openPrimaryItem": "Open lab order {{item}}"
+    },
+    "workbench": {
+      "title": "Lab Workbench",
+      "description": "Coordinate collection, receipt, rejection handling, and result release from one workspace.",
+      "summary": {
+        "totalOrders": "Total orders",
+        "collectionQueue": "Collection queue",
+        "processingQueue": "Processing queue",
+        "resultsQueue": "Results queue",
+        "criticalResults": "Critical results",
+        "completedOrders": "Completed orders",
+        "cancelledOrders": "Cancelled orders",
+        "rejectedSamples": "Rejected samples"
+      },
+      "list": {
+        "title": "Orders queue",
+        "count": "{{count}} shown",
+        "total": "{{total}} total"
+      },
+      "filters": {
+        "search": "Search patient, order, or sample",
+        "stage": "Stage",
+        "status": "Status",
+        "criticality": "Criticality",
+        "allStages": "All stages",
+        "allStatuses": "All statuses",
+        "allCriticality": "All criticality",
+        "clear": "Clear filters"
+      },
+      "quickLinks": {
+        "title": "Quick links",
+        "createOrder": "Create order",
+        "patient": "Patient profile",
+        "orders": "Orders list",
+        "samples": "Samples list",
+        "results": "Results list",
+        "qcLogs": "QC logs",
+        "tests": "Tests list",
+        "panels": "Panels list"
+      },
+      "snapshot": {
+        "title": "Order snapshot",
+        "orderId": "Order ID",
+        "patient": "Patient",
+        "patientId": "Patient ID",
+        "encounterId": "Encounter ID",
+        "status": "Status",
+        "orderedAt": "Ordered at",
+        "itemCount": "Items",
+        "sampleCount": "Samples"
+      },
+      "timeline": {
+        "title": "Timeline",
+        "emptyTitle": "No workflow activity yet",
+        "emptyDescription": "Collection, processing, and release events for the selected order appear here."
+      },
+      "actions": {
+        "title": "Workflow actions",
+        "collectSample": "Collect sample",
+        "collectedAt": "Collected at",
+        "collectNotes": "Collection notes",
+        "collect": "Collect",
+        "receiveSample": "Receive sample",
+        "receivedAt": "Received at",
+        "receiveNotes": "Receipt notes",
+        "receive": "Receive",
+        "rejectSample": "Reject sample",
+        "rejectReason": "Rejection reason",
+        "rejectNotes": "Rejection notes",
+        "reject": "Reject",
+        "orderItem": "Order item",
+        "resultRecord": "Result record",
+        "resultStatus": "Result status",
+        "resultValue": "Result value",
+        "resultUnit": "Result unit",
+        "reportedAt": "Reported at",
+        "resultText": "Result interpretation",
+        "releaseNotes": "Release notes",
+        "release": "Release result"
+      },
+      "states": {
+        "accessDeniedTitle": "Lab access required",
+        "accessDeniedDescription": "You do not have permission to use the lab workbench.",
+        "loadErrorTitle": "Unable to load lab workbench",
+        "loadErrorDescription": "Try again to refresh queue and workflow data.",
+        "offlineNotice": "You are offline. Workflow actions are disabled until connection is restored.",
+        "emptyTitle": "No lab orders found",
+        "emptyDescription": "Create a new order or adjust filters to view matching records.",
+        "noSelectionTitle": "Select an order",
+        "noSelectionDescription": "Choose an order from the queue to view details and run actions."
+      },
+      "validation": {
+        "sampleRequired": "Select a sample to continue.",
+        "collectNotAllowed": "Collection is not available for the selected order.",
+        "receiveNotAllowed": "Sample receipt is not available for the selected order.",
+        "rejectNotAllowed": "Sample rejection is not available for the selected order.",
+        "rejectReasonRequired": "Provide a rejection reason before continuing.",
+        "orderItemRequired": "Select an order item to release results.",
+        "releaseNotAllowed": "Result release is not available for the selected order item."
+      },
+      "errors": {
+        "readOnly": "You do not have write access for lab workflow actions.",
+        "actionFailed": "Unable to complete the selected lab workflow action."
+      }
     }
   },
   "radiology": {

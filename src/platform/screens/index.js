@@ -117,6 +117,7 @@ export { default as EmergencyWorkbenchScreen } from './clinical/EmergencyWorkben
 export { default as ClinicalResourceListScreen } from './clinical/ClinicalResourceListScreen';
 export { default as ClinicalResourceDetailScreen } from './clinical/ClinicalResourceDetailScreen';
 export { default as ClinicalResourceFormScreen } from './clinical/ClinicalResourceFormScreen';
+export { default as LabWorkbenchScreen } from './lab/LabWorkbenchScreen';
 
 // HR screens
 export { default as AddDoctorScreen } from './hr/AddDoctorScreen';
