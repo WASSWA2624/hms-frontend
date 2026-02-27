@@ -1,5 +1,5 @@
-import { NotFoundScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function InventoryMissingRoute() {
-  return <NotFoundScreen />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory" />;
 }

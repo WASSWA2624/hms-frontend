@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SCOPE_KEYS } from '@config/accessPolicy';
+import { RADIOLOGY_WORKBENCH_V2 } from '@config/feature.flags';
 import { parseRadiologyWorkbenchRouteState } from '@features/radiology-workspace';
 import {
   useAuth,
@@ -64,7 +65,16 @@ const draftDefaults = (currentUserId = '') => ({
   asset: { study_id: '', file_name: '', content_type: 'application/dicom' },
   sync: { study_id: '', study_uid: '', notes: '' },
   report: { findings: '', impression: '', report_text: '', reported_at: asLocalDateTime() },
-  finalize: { result_id: '', report_text: '', reported_at: asLocalDateTime(), notes: '' },
+  finalize: { result_id: '', notes: '' },
+  request: { result_id: '', statement: '', reason: '', requested_at: asLocalDateTime() },
+  attest: {
+    result_id: '',
+    report_text: '',
+    statement: '',
+    reason: '',
+    reported_at: asLocalDateTime(),
+    attested_at: asLocalDateTime(),
+  },
   addendum: { result_id: '', addendum_text: '', reported_at: asLocalDateTime(), notes: '' },
   cancel: { reason: '', cancelled_at: asLocalDateTime(), notes: '' },
 });
@@ -255,6 +265,10 @@ const useRadiologyWorkbenchScreen = () => {
   const results = useMemo(() => (Array.isArray(selectedWorkflow?.results) ? selectedWorkflow.results : []), [selectedWorkflow?.results]);
   const draftResults = useMemo(() => results.filter((r) => sanitize(r?.status).toUpperCase() === 'DRAFT'), [results]);
   const finalResults = useMemo(() => results.filter((r) => sanitize(r?.status).toUpperCase() === 'FINAL'), [results]);
+  const pendingFinalizationResults = useMemo(
+    () => results.filter((result) => Boolean(result?.finalization?.pending_attestation)),
+    [results]
+  );
 
   useEffect(() => {
     const order = selectedWorkflow?.order;
@@ -283,10 +297,23 @@ const useRadiologyWorkbenchScreen = () => {
             impression: template.impression,
             report_text: sanitize(draft?.report_text || final?.report_text),
           },
-      finalize: { ...prev.finalize, result_id: prev.finalize.result_id || asId(draft?.id || draft?.display_id) },
+      request: {
+        ...prev.request,
+        result_id: prev.request.result_id || asId(draft?.id || draft?.display_id),
+      },
+      finalize: {
+        ...prev.finalize,
+        result_id: prev.finalize.result_id || asId(draft?.id || draft?.display_id),
+      },
+      attest: {
+        ...prev.attest,
+        result_id:
+          prev.attest.result_id ||
+          asId(pendingFinalizationResults[0]?.id || pendingFinalizationResults[0]?.display_id),
+      },
       addendum: { ...prev.addendum, result_id: prev.addendum.result_id || asId(final?.id || final?.display_id) },
     }));
-  }, [currentUserId, draftResults, finalResults, selectedWorkflow?.order, studies]);
+  }, [currentUserId, draftResults, finalResults, pendingFinalizationResults, selectedWorkflow?.order, studies]);
 
   const onRealtime = useCallback((payload = {}) => {
     const now = Date.now();
@@ -308,35 +335,109 @@ const useRadiologyWorkbenchScreen = () => {
   useRealtimeEvent('diagnostic.radiology_result_updated', onRealtime, { enabled: canViewWorkbench && !isOffline });
   useRealtimeEvent('diagnostic.radiology_result_ready', onRealtime, { enabled: canViewWorkbench && !isOffline });
 
-  const studyOptions = useMemo(() => studies.map((study) => {
-    const id = asId(study?.id || study?.display_id);
-    if (!id) return null;
-    return { value: id, label: `${id} • ${sanitize(study?.modality).toUpperCase() || 'OTHER'} • ${sanitize(study?.performed_at) ? fmt(study?.performed_at) : t('common.notAvailable')}` };
-  }).filter(Boolean), [studies, t]);
-  const draftResultOptions = useMemo(() => draftResults.map((r) => {
-    const id = asId(r?.id || r?.display_id);
-    return id ? { value: id, label: `${id} • DRAFT` } : null;
-  }).filter(Boolean), [draftResults]);
-  const finalResultOptions = useMemo(() => finalResults.map((r) => {
-    const id = asId(r?.id || r?.display_id);
-    return id ? { value: id, label: `${id} • FINAL` } : null;
-  }).filter(Boolean), [finalResults]);
+  const studyOptions = useMemo(
+    () =>
+      studies
+        .map((study) => {
+          const id = asId(study?.id || study?.display_id);
+          if (!id) return null;
+          return {
+            value: id,
+            label: `${id} | ${sanitize(study?.modality).toUpperCase() || 'OTHER'} | ${
+              sanitize(study?.performed_at) ? fmt(study?.performed_at) : t('common.notAvailable')
+            }`,
+          };
+        })
+        .filter(Boolean),
+    [studies, t]
+  );
+  const draftResultOptions = useMemo(
+    () =>
+      draftResults
+        .map((result) => {
+          const id = asId(result?.id || result?.display_id);
+          return id ? { value: id, label: `${id} | DRAFT` } : null;
+        })
+        .filter(Boolean),
+    [draftResults]
+  );
+  const pendingFinalizationOptions = useMemo(
+    () =>
+      pendingFinalizationResults
+        .map((result) => {
+          const id = asId(result?.id || result?.display_id);
+          return id ? { value: id, label: `${id} | PENDING ATTESTATION` } : null;
+        })
+        .filter(Boolean),
+    [pendingFinalizationResults]
+  );
+  const finalResultOptions = useMemo(
+    () =>
+      finalResults
+        .map((result) => {
+          const id = asId(result?.id || result?.display_id);
+          return id ? { value: id, label: `${id} | FINAL` } : null;
+        })
+        .filter(Boolean),
+    [finalResults]
+  );
+  const finalizationStatuses = useMemo(
+    () =>
+      results.map((result) => {
+        const id = asId(result?.id || result?.display_id);
+        return {
+          id: id || 'UNKNOWN',
+          status: sanitize(result?.status).toUpperCase() || 'UNKNOWN',
+          pendingAttestation: Boolean(result?.finalization?.pending_attestation),
+          requestedAt: sanitize(result?.finalization?.requested_at),
+          attestedAt: sanitize(result?.finalization?.attested_at),
+          requestRole: sanitize(result?.finalization?.requested_by_role),
+          attestRole: sanitize(result?.finalization?.attested_by_role),
+        };
+      }),
+    [results]
+  );
 
-  const nextActions = selectedWorkflow?.next_actions || {};
-  const actionMatrix = {
-    canAssign: Boolean(nextActions.can_assign),
-    canStart: Boolean(nextActions.can_start),
-    canComplete: Boolean(nextActions.can_complete),
-    canCancel: Boolean(nextActions.can_cancel),
-    canCreateStudy: Boolean(nextActions.can_create_study),
-    canCaptureAsset: studyOptions.length > 0,
-    canSyncStudy: Boolean(nextActions.can_pacs_sync) && studyOptions.length > 0,
-    canDraftResult: Boolean(nextActions.can_create_draft_result),
-    canFinalizeResult: Boolean(nextActions.can_finalize_result) && draftResultOptions.length > 0,
-    canAddendum: Boolean(nextActions.can_add_addendum) && finalResultOptions.length > 0,
-  };
+  const actionMatrix = useMemo(() => {
+    const nextActions = selectedWorkflow?.next_actions || {};
+    return {
+      canAssign: Boolean(nextActions.can_assign),
+      canStart: Boolean(nextActions.can_start),
+      canComplete: Boolean(nextActions.can_complete),
+      canCancel: Boolean(nextActions.can_cancel),
+      canCreateStudy: Boolean(nextActions.can_create_study),
+      canCaptureAsset: studyOptions.length > 0,
+      canSyncStudy: Boolean(nextActions.can_pacs_sync) && studyOptions.length > 0,
+      canDraftResult: Boolean(nextActions.can_create_draft_result),
+      canFinalizeResult:
+        !RADIOLOGY_WORKBENCH_V2 &&
+        Boolean(nextActions.can_finalize_result) &&
+        draftResultOptions.length > 0 &&
+        Boolean(asId(drafts.finalize.result_id)),
+      canRequestFinalization:
+        RADIOLOGY_WORKBENCH_V2 &&
+        Boolean(nextActions.can_request_finalization) &&
+        draftResultOptions.length > 0 &&
+        Boolean(asId(drafts.request.result_id)),
+      canAttestFinalization:
+        RADIOLOGY_WORKBENCH_V2 &&
+        Boolean(nextActions.can_attest_finalization) &&
+        pendingFinalizationOptions.length > 0 &&
+        Boolean(asId(drafts.attest.result_id)),
+      canAddendum: Boolean(nextActions.can_add_addendum) && finalResultOptions.length > 0,
+    };
+  }, [
+    draftResultOptions.length,
+    drafts.attest.result_id,
+    drafts.finalize.result_id,
+    drafts.request.result_id,
+    finalResultOptions.length,
+    pendingFinalizationOptions.length,
+    selectedWorkflow?.next_actions,
+    studyOptions.length,
+  ]);
 
-  const selectedSummary = useMemo(() => {
+const selectedSummary = useMemo(() => {
     const o = selectedWorkflow?.order || {};
     return {
       orderId: asId(o?.id || o?.display_id),
@@ -438,16 +539,54 @@ const useRadiologyWorkbenchScreen = () => {
         { refreshQueue: true }
       );
     },
-    finalize: async () =>
-      mutate(
+    finalize: async () => {
+      const resultId = asId(drafts.finalize.result_id);
+      if (!resultId) {
+        setFormError(t('radiology.workbench.validation.resultRequired'));
+        return null;
+      }
+      return mutate(
         () =>
-          workspace.finalizeResult(drafts.finalize.result_id, {
-            report_text: sanitize(drafts.finalize.report_text) || undefined,
-            reported_at: asIso(drafts.finalize.reported_at) || new Date().toISOString(),
+          workspace.finalizeResult(resultId, {
             notes: sanitize(drafts.finalize.notes) || undefined,
           }),
         { refreshQueue: true }
-      ),
+      );
+    },
+    requestFinalization: async () => {
+      const resultId = asId(drafts.request.result_id);
+      if (!resultId) {
+        setFormError(t('radiology.workbench.validation.resultRequired'));
+        return null;
+      }
+      return mutate(
+        () =>
+          workspace.requestFinalizationResult(resultId, {
+            statement: sanitize(drafts.request.statement) || undefined,
+            reason: sanitize(drafts.request.reason) || undefined,
+            requested_at: asIso(drafts.request.requested_at) || new Date().toISOString(),
+          }),
+        { refreshQueue: true }
+      );
+    },
+    attestFinalization: async () => {
+      const resultId = asId(drafts.attest.result_id);
+      if (!resultId) {
+        setFormError(t('radiology.workbench.validation.resultRequired'));
+        return null;
+      }
+      return mutate(
+        () =>
+          workspace.attestFinalizationResult(resultId, {
+            report_text: sanitize(drafts.attest.report_text) || undefined,
+            statement: sanitize(drafts.attest.statement) || undefined,
+            reason: sanitize(drafts.attest.reason) || undefined,
+            reported_at: asIso(drafts.attest.reported_at) || new Date().toISOString(),
+            attested_at: asIso(drafts.attest.attested_at) || new Date().toISOString(),
+          }),
+        { refreshQueue: true }
+      );
+    },
     addendum: async () => {
       const addendumText = sanitize(drafts.addendum.addendum_text);
       if (!addendumText) {
@@ -518,7 +657,9 @@ const useRadiologyWorkbenchScreen = () => {
     results,
     studyOptions,
     draftResultOptions,
+    pendingFinalizationOptions,
     finalResultOptions,
+    finalizationStatuses,
     actionMatrix,
     formError,
     lastSyncStatus,
@@ -558,7 +699,10 @@ const useRadiologyWorkbenchScreen = () => {
     onSyncStudy,
     onDraftResult: mutateHandlers.draft,
     onFinalizeResult: mutateHandlers.finalize,
+    onRequestFinalization: mutateHandlers.requestFinalization,
+    onAttestFinalization: mutateHandlers.attestFinalization,
     onAddendumResult: mutateHandlers.addendum,
+    isAttestationV2: RADIOLOGY_WORKBENCH_V2,
     onRetry: () => {
       if (selectedOrderId) loadWorkflow();
       loadWorkbench(false);
@@ -575,3 +719,6 @@ const useRadiologyWorkbenchScreen = () => {
 };
 
 export default useRadiologyWorkbenchScreen;
+
+
+

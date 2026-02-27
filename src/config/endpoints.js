@@ -595,7 +595,23 @@ export const endpoints = {
     SYNC_STUDY: (id) => `${baseUrl}/radiology/studies/${id}/pacs-sync`,
     DRAFT_RESULT: (id) => `${baseUrl}/radiology/orders/${id}/results/draft`,
     FINALIZE_RESULT: (id) => `${baseUrl}/radiology/results/${id}/finalize`,
+    REQUEST_FINALIZATION_RESULT: (id) =>
+      `${baseUrl}/radiology/results/${id}/request-finalization`,
+    ATTEST_FINALIZATION_RESULT: (id) =>
+      `${baseUrl}/radiology/results/${id}/attest-finalization`,
     ADDENDUM_RESULT: (id) => `${baseUrl}/radiology/results/${id}/addendum`,
+  },
+  PHARMACY_WORKSPACE: {
+    WORKBENCH: `${baseUrl}/pharmacy/workbench`,
+    ORDER_WORKFLOW: (id) => `${baseUrl}/pharmacy/orders/${id}/workflow`,
+    PREPARE_DISPENSE: (id) => `${baseUrl}/pharmacy/orders/${id}/prepare-dispense`,
+    ATTEST_DISPENSE: (id) => `${baseUrl}/pharmacy/orders/${id}/attest-dispense`,
+    CANCEL_ORDER: (id) => `${baseUrl}/pharmacy/orders/${id}/cancel`,
+    RETURN_ORDER: (id) => `${baseUrl}/pharmacy/orders/${id}/return`,
+    INVENTORY_STOCK: `${baseUrl}/pharmacy/inventory/stock`,
+    ADJUST_INVENTORY: `${baseUrl}/pharmacy/inventory/adjust`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/pharmacy/resolve-legacy/${resource}/${id}`,
   },
   RADIOLOGY_TESTS: {
     LIST: `${baseUrl}/radiology-tests`,

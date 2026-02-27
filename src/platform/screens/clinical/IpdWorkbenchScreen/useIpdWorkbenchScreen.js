@@ -386,7 +386,7 @@ const useIpdWorkbenchScreen = () => {
     onOpenLabOrderCreate: () => router.push('/lab/orders/create'),
     onOpenRadiologyOrderCreate: () =>
       router.push('/radiology?resource=radiology-orders&action=create'),
-    onOpenPharmacyOrderCreate: () => router.push('/pharmacy/pharmacy-orders/create'),
+    onOpenPharmacyOrderCreate: () => router.push('/pharmacy?action=create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),
     onRetry: () => { if (selectedFlowId) loadSelected(); loadQueue(false); loadOptions(); },
   };

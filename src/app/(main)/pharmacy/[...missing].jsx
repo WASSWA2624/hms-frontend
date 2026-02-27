@@ -1,5 +1,5 @@
-import { NotFoundScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function PharmacyMissingRoute() {
-  return <NotFoundScreen />;
+export default function LegacyRoute() {
+  return <Redirect href="/pharmacy" />;
 }

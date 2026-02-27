@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function PurchaseRequestsListRoute() {
-  return <ClinicalResourceListScreen resourceId="purchase-requests" />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory&resource=purchase-requests" />;
 }

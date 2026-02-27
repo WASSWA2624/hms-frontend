@@ -40,3 +40,11 @@ export const EMERGENCY_WORKBENCH_V1 = parseFlag(
   process.env.EXPO_PUBLIC_EMERGENCY_WORKBENCH_V1,
   true
 );
+export const PHARMACY_WORKSPACE_V1 = parseFlag(
+  process.env.EXPO_PUBLIC_PHARMACY_WORKSPACE_V1,
+  false
+);
+export const RADIOLOGY_WORKBENCH_V2 = parseFlag(
+  process.env.EXPO_PUBLIC_RADIOLOGY_WORKBENCH_V2,
+  false
+);

@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function GoodsReceiptsCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="goods-receipts" />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory&resource=goods-receipts&action=create" />;
 }

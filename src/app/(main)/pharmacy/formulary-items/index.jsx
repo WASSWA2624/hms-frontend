@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function FormularyItemsListRoute() {
-  return <ClinicalResourceListScreen resourceId="formulary-items" />;
+export default function LegacyRoute() {
+  return <Redirect href="/pharmacy?resource=formulary-items" />;
 }

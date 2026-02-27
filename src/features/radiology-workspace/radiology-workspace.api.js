@@ -77,6 +77,18 @@ const radiologyWorkspaceApi = {
       method: 'POST',
       body: payload,
     }),
+  requestFinalizationResult: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.RADIOLOGY_WORKSPACE.REQUEST_FINALIZATION_RESULT(id),
+      method: 'POST',
+      body: payload,
+    }),
+  attestFinalizationResult: (id, payload = {}) =>
+    apiClient({
+      url: endpoints.RADIOLOGY_WORKSPACE.ATTEST_FINALIZATION_RESULT(id),
+      method: 'POST',
+      body: payload,
+    }),
   addendumResult: (id, payload = {}) =>
     apiClient({
       url: endpoints.RADIOLOGY_WORKSPACE.ADDENDUM_RESULT(id),

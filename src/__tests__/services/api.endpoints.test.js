@@ -164,8 +164,41 @@ describe('services/api/endpoints', () => {
     expect(endpoints.RADIOLOGY_WORKSPACE.FINALIZE_RESULT('id')).toMatch(
       /\/radiology\/results\/id\/finalize$/
     );
+    expect(
+      endpoints.RADIOLOGY_WORKSPACE.REQUEST_FINALIZATION_RESULT('id')
+    ).toMatch(/\/radiology\/results\/id\/request-finalization$/);
+    expect(
+      endpoints.RADIOLOGY_WORKSPACE.ATTEST_FINALIZATION_RESULT('id')
+    ).toMatch(/\/radiology\/results\/id\/attest-finalization$/);
     expect(endpoints.RADIOLOGY_WORKSPACE.ADDENDUM_RESULT('id')).toMatch(
       /\/radiology\/results\/id\/addendum$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.WORKBENCH).toMatch(
+      /\/pharmacy\/workbench$/
+    );
+    expect(
+      endpoints.PHARMACY_WORKSPACE.RESOLVE_LEGACY('pharmacy-orders', 'id')
+    ).toMatch(/\/pharmacy\/resolve-legacy\/pharmacy-orders\/id$/);
+    expect(endpoints.PHARMACY_WORKSPACE.ORDER_WORKFLOW('id')).toMatch(
+      /\/pharmacy\/orders\/id\/workflow$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.PREPARE_DISPENSE('id')).toMatch(
+      /\/pharmacy\/orders\/id\/prepare-dispense$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.ATTEST_DISPENSE('id')).toMatch(
+      /\/pharmacy\/orders\/id\/attest-dispense$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.CANCEL_ORDER('id')).toMatch(
+      /\/pharmacy\/orders\/id\/cancel$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.RETURN_ORDER('id')).toMatch(
+      /\/pharmacy\/orders\/id\/return$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.INVENTORY_STOCK).toMatch(
+      /\/pharmacy\/inventory\/stock$/
+    );
+    expect(endpoints.PHARMACY_WORKSPACE.ADJUST_INVENTORY).toMatch(
+      /\/pharmacy\/inventory\/adjust$/
     );
     expect(endpoints.RADIOLOGY_RESULTS.SIGN_OFF('id')).toMatch(
       /\/radiology-results\/id\/sign-off$/

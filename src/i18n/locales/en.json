@@ -14494,8 +14494,21 @@
         "fullReport": "Full report text",
         "reportedAt": "Reported at",
         "saveDraft": "Save draft",
-        "finalizeTitle": "Finalize report",
+        "requestTitle": "Request finalization",
         "draftResult": "Draft result",
+        "requestStatement": "Request statement",
+        "requestReason": "Request reason",
+        "requestAt": "Requested at",
+        "requestAction": "Request finalization",
+        "attestTitle": "Attest finalization",
+        "pendingResult": "Pending result",
+        "attestStatement": "Attestation statement",
+        "attestReason": "Attestation reason",
+        "attestedAt": "Attested at",
+        "attestAction": "Attest finalization",
+        "pendingAttestation": "Pending attestation",
+        "attested": "Attested",
+        "finalizeTitle": "Finalize report",
         "finalizeNotes": "Finalize notes",
         "finalizeAction": "Finalize",
         "addendumTitle": "Add addendum",
@@ -14503,6 +14516,7 @@
         "addendumText": "Addendum text",
         "addendumAction": "Add addendum",
         "noDraftResult": "Select a draft result",
+        "noPendingResult": "Select a pending result",
         "noFinalResult": "Select a final result"
       },
       "states": {
@@ -14519,6 +14533,7 @@
       "validation": {
         "orderRequired": "Select an order first.",
         "studyRequired": "Select a study first.",
+        "resultRequired": "Select a result first.",
         "reportRequired": "Enter findings, impression, or report text.",
         "cancelReasonRequired": "Provide a cancellation reason before continuing.",
         "addendumTextRequired": "Provide addendum text before continuing.",
@@ -14549,6 +14564,128 @@
       "openResource": "Open {{resource}}",
       "openResourceButton": "Open",
       "openPrimaryItem": "Open pharmacy order {{item}}"
+    },
+    "workbench": {
+      "title": "Pharmacy Workspace",
+      "description": "Run medication dispensing and inventory updates from one workspace with two-step attestation and live stock visibility.",
+      "panels": {
+        "orders": "Orders",
+        "inventory": "Inventory"
+      },
+      "summary": {
+        "totalOrders": "Total orders",
+        "orderedQueue": "Ordered queue",
+        "partiallyDispensedQueue": "Partially dispensed",
+        "pendingAttestations": "Pending attestations",
+        "totalStockRows": "Stock rows",
+        "lowStockRows": "Low stock rows"
+      },
+      "list": {
+        "title": "Pharmacy queue",
+        "count": "{{count}} shown",
+        "metrics": "{{items}} items | Pending {{pending}} | Remaining {{remaining}}"
+      },
+      "filters": {
+        "search": "Search by order ID, patient, batch ref, drug, or stock item",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "clear": "Clear filters"
+      },
+      "quickLinks": {
+        "patient": "Patient profile",
+        "openOrder": "Open order route"
+      },
+      "snapshot": {
+        "title": "Clinical context",
+        "orderId": "Order ID",
+        "patient": "Patient",
+        "patientId": "Patient ID",
+        "encounterId": "Encounter ID",
+        "status": "Status",
+        "orderedAt": "Ordered at",
+        "itemCount": "Items",
+        "prescribedTotal": "Prescribed",
+        "dispensedTotal": "Dispensed",
+        "remainingTotal": "Remaining"
+      },
+      "items": {
+        "title": "Dispense lines",
+        "emptyTitle": "No order items available",
+        "emptyDescription": "Select an order with medication lines to prepare dispensing.",
+        "metrics": "Prescribed {{prescribed}} | Dispensed {{dispensed}} | Remaining {{remaining}}"
+      },
+      "timeline": {
+        "title": "Activity timeline",
+        "emptyTitle": "No timeline events yet",
+        "emptyDescription": "Prepare, attest, return, and stock events appear here."
+      },
+      "actions": {
+        "title": "Dispense actions",
+        "prepareTitle": "Prepare dispense",
+        "attestTitle": "Attest dispense",
+        "cancelTitle": "Cancel or return",
+        "prepareQuantity": "Prepare quantity",
+        "returnQuantity": "Return quantity",
+        "batchRef": "Dispense batch ref",
+        "reason": "Reason",
+        "statement": "Statement",
+        "attestedAt": "Attested at",
+        "prepareAction": "Prepare",
+        "attestAction": "Attest",
+        "cancelReason": "Cancellation reason",
+        "cancelNotes": "Notes",
+        "cancelAction": "Cancel order",
+        "returnAction": "Return dispense"
+      },
+      "inventory": {
+        "title": "Inventory workspace",
+        "search": "Search stock by item, SKU, or stock ID",
+        "lowStockOnly": "Low stock only",
+        "emptyTitle": "No stock rows found",
+        "emptyDescription": "Adjust filters or record stock movement to continue.",
+        "metrics": "Qty {{quantity}} | Reorder {{reorder}} | Facility {{facility}}",
+        "adjustTitle": "Adjust stock",
+        "inventoryItem": "Inventory item",
+        "facilityId": "Facility ID",
+        "quantityDelta": "Quantity delta",
+        "reason": "Reason",
+        "occurredAt": "Occurred at",
+        "notes": "Notes",
+        "adjustAction": "Adjust stock"
+      },
+      "states": {
+        "accessDeniedTitle": "Pharmacy or inventory access required",
+        "accessDeniedDescription": "You do not have permission to use the pharmacy workspace.",
+        "loadErrorTitle": "Unable to load pharmacy workspace",
+        "loadErrorDescription": "Retry to refresh order and inventory workspace data.",
+        "offlineNotice": "You are offline. Mutation actions are disabled until connection is restored.",
+        "emptyTitle": "No pharmacy orders found",
+        "emptyDescription": "Adjust filters or open incoming medication orders.",
+        "noSelectionTitle": "Select an order",
+        "noSelectionDescription": "Choose an order from the queue to manage dispensing."
+      },
+      "validation": {
+        "orderRequired": "Select an order first.",
+        "batchRequired": "Select or enter a dispense batch reference.",
+        "prepareQuantityRequired": "Enter at least one valid prepare quantity.",
+        "returnQuantityRequired": "Enter at least one valid return quantity.",
+        "cancelReasonRequired": "Provide a cancellation reason before continuing.",
+        "inventoryItemRequired": "Select an inventory item before adjusting stock.",
+        "quantityDeltaRequired": "Provide a non-zero quantity delta."
+      },
+      "errors": {
+        "readOnlyPharmacy": "You do not have write access for pharmacy workflow actions.",
+        "readOnlyInventory": "You do not have write access for inventory workflow actions.",
+        "actionFailed": "Unable to complete the selected pharmacy workspace action."
+      },
+      "feedback": {
+        "prepareSuccess": "Dispense preparation captured for batch {{batch}}.",
+        "attestSuccess": "Dispense attestation completed for batch {{batch}}.",
+        "cancelSuccess": "Pharmacy order cancelled successfully.",
+        "returnSuccess": "Dispense return recorded successfully.",
+        "adjustSuccess": "Inventory adjustment saved successfully."
+      },
+      "helperText": "Friendly IDs are used across the workspace; UUIDs are never displayed."
     }
   },
   "inventory": {

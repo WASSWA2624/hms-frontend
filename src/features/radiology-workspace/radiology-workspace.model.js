@@ -27,6 +27,26 @@ const toNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const normalizeResultAttestation = (value) => {
+  const row = normalizeObject(value);
+  if (!row) return null;
+  const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
+  return {
+    ...row,
+    id,
+    display_id: id,
+    radiology_result_id: resolvePublicId(
+      row.radiology_result_display_id,
+      row.radiology_result_id
+    ),
+    phase: sanitizeString(row.phase).toUpperCase() || null,
+    attested_by_user_id: resolvePublicId(row.attested_by_user_id),
+    attested_role: sanitizeString(row.attested_role) || null,
+    statement: sanitizeString(row.statement) || null,
+    reason: sanitizeString(row.reason) || null,
+  };
+};
+
 const normalizeAsset = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
@@ -77,6 +97,11 @@ const normalizeResult = (value) => {
   const row = normalizeObject(value);
   if (!row) return null;
   const id = resolvePublicId(row.display_id, row.human_friendly_id, row.id);
+  const finalization = normalizeObject(row.finalization) || {};
+  const attestations = normalizeArray(row.attestations)
+    .map(normalizeResultAttestation)
+    .filter(Boolean);
+
   return {
     ...row,
     id,
@@ -87,6 +112,16 @@ const normalizeResult = (value) => {
     status: sanitizeString(row.status).toUpperCase() || null,
     modality: sanitizeString(row.modality).toUpperCase() || null,
     report_text: sanitizeString(row.report_text) || '',
+    finalization: {
+      requested: Boolean(finalization.requested),
+      requested_at: sanitizeString(finalization.requested_at) || null,
+      requested_by_role: sanitizeString(finalization.requested_by_role) || null,
+      attested: Boolean(finalization.attested),
+      attested_at: sanitizeString(finalization.attested_at) || null,
+      attested_by_role: sanitizeString(finalization.attested_by_role) || null,
+      pending_attestation: Boolean(finalization.pending_attestation),
+    },
+    attestations,
   };
 };
 
@@ -182,6 +217,8 @@ const normalizeRadiologyWorkflowPayload = (value) => {
       can_create_study: Boolean(nextActions.can_create_study),
       can_create_draft_result: Boolean(nextActions.can_create_draft_result),
       can_finalize_result: Boolean(nextActions.can_finalize_result),
+      can_request_finalization: Boolean(nextActions.can_request_finalization),
+      can_attest_finalization: Boolean(nextActions.can_attest_finalization),
       can_add_addendum: Boolean(nextActions.can_add_addendum),
       can_pacs_sync: Boolean(nextActions.can_pacs_sync),
     },

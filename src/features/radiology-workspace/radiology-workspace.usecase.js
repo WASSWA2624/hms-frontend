@@ -22,6 +22,8 @@ import {
   parseSyncStudyPayload,
   parseDraftResultPayload,
   parseFinalizeResultPayload,
+  parseRequestFinalizationPayload,
+  parseAttestFinalizationPayload,
   parseAddendumResultPayload,
 } from './radiology-workspace.rules';
 
@@ -522,6 +524,28 @@ const finalizeRadiologyResult = async (id, payload = {}) =>
     };
   });
 
+const requestRadiologyResultFinalization = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseRadiologyWorkspaceId(id);
+    const parsedPayload = parseRequestFinalizationPayload(payload);
+    const response = await radiologyWorkspaceApi.requestFinalizationResult(parsedId, parsedPayload);
+    return {
+      workflow: normalizeRadiologyWorkflowPayload(response.data?.workflow),
+      result: response.data?.result || null,
+    };
+  });
+
+const attestRadiologyResultFinalization = async (id, payload = {}) =>
+  execute(async () => {
+    const parsedId = parseRadiologyWorkspaceId(id);
+    const parsedPayload = parseAttestFinalizationPayload(payload);
+    const response = await radiologyWorkspaceApi.attestFinalizationResult(parsedId, parsedPayload);
+    return {
+      workflow: normalizeRadiologyWorkflowPayload(response.data?.workflow),
+      result: response.data?.result || null,
+    };
+  });
+
 const addendumRadiologyResult = async (id, payload = {}) =>
   execute(async () => {
     const parsedId = parseRadiologyWorkspaceId(id);
@@ -547,6 +571,8 @@ export {
   syncRadiologyStudy,
   draftRadiologyResult,
   finalizeRadiologyResult,
+  requestRadiologyResultFinalization,
+  attestRadiologyResultFinalization,
   addendumRadiologyResult,
   parseRadiologyWorkbenchRouteState,
 };

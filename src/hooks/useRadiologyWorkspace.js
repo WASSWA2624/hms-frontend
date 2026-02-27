@@ -11,6 +11,8 @@ import {
   completeRadiologyOrder,
   createRadiologyStudy,
   draftRadiologyResult,
+  requestRadiologyResultFinalization,
+  attestRadiologyResultFinalization,
   finalizeRadiologyResult,
   getRadiologyOrderWorkflow,
   initStudyAssetUpload,
@@ -37,6 +39,8 @@ const useRadiologyWorkspace = () => {
       syncStudy: syncRadiologyStudy,
       draftResult: draftRadiologyResult,
       finalizeResult: finalizeRadiologyResult,
+      requestFinalizationResult: requestRadiologyResultFinalization,
+      attestFinalizationResult: attestRadiologyResultFinalization,
       addendumResult: addendumRadiologyResult,
     }),
     []
@@ -46,4 +50,3 @@ const useRadiologyWorkspace = () => {
 };
 
 export default useRadiologyWorkspace;
-

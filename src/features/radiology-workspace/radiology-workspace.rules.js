@@ -139,6 +139,22 @@ const finalizeResultPayloadSchema = z.object({
   notes: z.string().trim().max(5000).optional().nullable(),
 });
 
+const requestFinalizationPayloadSchema = z.object({
+  statement: z.string().trim().max(20000).optional().nullable(),
+  reason: z.string().trim().max(255).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
+  requested_at: isoDateTimeSchema.optional(),
+});
+
+const attestFinalizationPayloadSchema = z.object({
+  report_text: z.string().trim().max(20000).optional().nullable(),
+  reported_at: isoDateTimeSchema.optional(),
+  statement: z.string().trim().max(20000).optional().nullable(),
+  reason: z.string().trim().max(255).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
+  attested_at: isoDateTimeSchema.optional(),
+});
+
 const addendumResultPayloadSchema = z.object({
   addendum_text: z.string().trim().min(2).max(20000),
   reported_at: isoDateTimeSchema.optional(),
@@ -169,6 +185,10 @@ const parseCommitUploadPayload = (value) => commitUploadPayloadSchema.parse(valu
 const parseSyncStudyPayload = (value) => syncStudyPayloadSchema.parse(value ?? {});
 const parseDraftResultPayload = (value) => draftResultPayloadSchema.parse(value ?? {});
 const parseFinalizeResultPayload = (value) => finalizeResultPayloadSchema.parse(value ?? {});
+const parseRequestFinalizationPayload = (value) =>
+  requestFinalizationPayloadSchema.parse(value ?? {});
+const parseAttestFinalizationPayload = (value) =>
+  attestFinalizationPayloadSchema.parse(value ?? {});
 const parseAddendumResultPayload = (value) => addendumResultPayloadSchema.parse(value ?? {});
 
 export {
@@ -186,6 +206,7 @@ export {
   parseSyncStudyPayload,
   parseDraftResultPayload,
   parseFinalizeResultPayload,
+  parseRequestFinalizationPayload,
+  parseAttestFinalizationPayload,
   parseAddendumResultPayload,
 };
-

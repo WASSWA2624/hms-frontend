@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function AdverseEventsListRoute() {
-  return <ClinicalResourceListScreen resourceId="adverse-events" />;
+export default function LegacyRoute() {
+  return <Redirect href="/pharmacy?resource=adverse-events" />;
 }

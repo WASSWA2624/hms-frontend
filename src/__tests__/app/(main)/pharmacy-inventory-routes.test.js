@@ -1,21 +1,14 @@
 const React = require('react');
 const { render } = require('@testing-library/react-native');
 
-const mockScreens = {
-  ClinicalOverviewScreen: jest.fn(() => null),
-  ClinicalResourceListScreen: jest.fn(() => null),
-  ClinicalResourceDetailScreen: jest.fn(() => null),
-  ClinicalResourceFormScreen: jest.fn(() => null),
-};
+const mockRedirect = jest.fn(() => null);
 
-jest.mock('@platform/screens', () => ({
-  ClinicalOverviewScreen: (...args) => mockScreens.ClinicalOverviewScreen(...args),
-  ClinicalResourceListScreen: (...args) => mockScreens.ClinicalResourceListScreen(...args),
-  ClinicalResourceDetailScreen: (...args) => mockScreens.ClinicalResourceDetailScreen(...args),
-  ClinicalResourceFormScreen: (...args) => mockScreens.ClinicalResourceFormScreen(...args),
+jest.mock('expo-router', () => ({
+  Redirect: (...args) => mockRedirect(...args),
+  useLocalSearchParams: jest.fn(() => ({ id: 'PHO0000456' })),
 }));
 
-const RESOURCES_WITH_EDIT = {
+const RESOURCES = {
   pharmacy: [
     'drugs',
     'drug-batches',
@@ -37,67 +30,72 @@ const RESOURCES_WITH_EDIT = {
   ],
 };
 
-const buildResourceRouteCases = (scope, resourceId) => {
-  const basePath = `../../../app/(main)/${scope}/${resourceId}`;
+const buildRouteCases = (scope, resource) => {
+  const isInventory = scope === 'inventory';
+  const basePath = `../../../app/(main)/${scope}/${resource}`;
+  const root = isInventory ? '/inventory?panel=inventory' : '/pharmacy';
+
   return [
     {
       routePath: `${basePath}/index`,
-      screenKey: 'ClinicalResourceListScreen',
-      expectedProps: { resourceId },
+      expectedHref: isInventory
+        ? `${root}&resource=${resource}`
+        : `${root}?resource=${resource}`,
     },
     {
       routePath: `${basePath}/create`,
-      screenKey: 'ClinicalResourceFormScreen',
-      expectedProps: { resourceId },
+      expectedHref: isInventory
+        ? `${root}&resource=${resource}&action=create`
+        : `${root}?resource=${resource}&action=create`,
     },
     {
       routePath: `${basePath}/[id]`,
-      screenKey: 'ClinicalResourceDetailScreen',
-      expectedProps: { resourceId },
+      expectedHref: isInventory
+        ? `${root}&resource=${resource}&legacyId=PHO0000456`
+        : `${root}?resource=${resource}&legacyId=PHO0000456`,
     },
     {
       routePath: `${basePath}/[id]/edit`,
-      screenKey: 'ClinicalResourceFormScreen',
-      expectedProps: { resourceId },
+      expectedHref: isInventory
+        ? `${root}&resource=${resource}&legacyId=PHO0000456&action=edit`
+        : `${root}?resource=${resource}&legacyId=PHO0000456&action=edit`,
     },
   ];
 };
 
-const OVERVIEW_ROUTE_CASES = [
+const ROUTE_CASES = [
   {
-    routePath: '../../../app/(main)/pharmacy/index',
-    screenKey: 'ClinicalOverviewScreen',
-    expectedProps: { scope: 'pharmacy' },
+    routePath: '../../../app/(main)/pharmacy/[...missing]',
+    expectedHref: '/pharmacy',
   },
   {
-    routePath: '../../../app/(main)/inventory/index',
-    screenKey: 'ClinicalOverviewScreen',
-    expectedProps: { scope: 'inventory' },
+    routePath: '../../../app/(main)/inventory/[...missing]',
+    expectedHref: '/inventory?panel=inventory',
   },
+  ...Object.entries(RESOURCES).flatMap(([scope, resources]) =>
+    resources.flatMap((resource) =>
+      buildRouteCases(scope, resource)
+    )
+  ),
 ];
 
-const RESOURCE_ROUTE_CASES = Object.entries(RESOURCES_WITH_EDIT).flatMap(([scope, resourceIds]) =>
-  resourceIds.flatMap((resourceId) => buildResourceRouteCases(scope, resourceId))
-);
-
-const TIER_9_ROUTE_CASES = [...OVERVIEW_ROUTE_CASES, ...RESOURCE_ROUTE_CASES];
-
-describe('Tier 9 Pharmacy Inventory Routes', () => {
+describe('Pharmacy and Inventory Redirect Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test.each(TIER_9_ROUTE_CASES)('$routePath renders $screenKey', ({ routePath, screenKey, expectedProps }) => {
-    const routeModule = require(routePath);
-    expect(routeModule.default).toBeDefined();
-    expect(typeof routeModule.default).toBe('function');
+  test.each(ROUTE_CASES)(
+    '$routePath redirects to workspace route',
+    ({ routePath, expectedHref }) => {
+      const routeModule = require(routePath);
+      expect(routeModule.default).toBeDefined();
+      expect(typeof routeModule.default).toBe('function');
 
-    render(React.createElement(routeModule.default));
-    expect(mockScreens[screenKey]).toHaveBeenCalledTimes(1);
+      render(React.createElement(routeModule.default));
 
-    if (expectedProps) {
-      const calledProps = mockScreens[screenKey].mock.calls[0]?.[0] || {};
-      expect(calledProps).toMatchObject(expectedProps);
+      expect(mockRedirect).toHaveBeenCalledTimes(1);
+      const redirectProps = mockRedirect.mock.calls[0]?.[0] || {};
+      expect(redirectProps.href).toBe(expectedHref);
     }
-  });
+  );
 });

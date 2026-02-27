@@ -70,6 +70,8 @@ describe('radiology-workspace.model', () => {
       can_create_study: false,
       can_create_draft_result: false,
       can_finalize_result: false,
+      can_request_finalization: false,
+      can_attest_finalization: false,
       can_add_addendum: false,
       can_pacs_sync: true,
     });
@@ -92,4 +94,3 @@ describe('radiology-workspace.model', () => {
     });
   });
 });
-

@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function StockMovementsCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="stock-movements" />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory&resource=stock-movements&action=create" />;
 }

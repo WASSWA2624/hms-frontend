@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function DrugBatchesCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="drug-batches" />;
+export default function LegacyRoute() {
+  return <Redirect href="/pharmacy?resource=drug-batches&action=create" />;
 }

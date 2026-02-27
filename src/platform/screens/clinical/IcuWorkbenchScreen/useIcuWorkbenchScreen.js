@@ -1210,7 +1210,7 @@ const useIcuWorkbenchScreen = () => {
     onOpenRadiologyOrderCreate: () =>
       router.push('/radiology?resource=radiology-orders&action=create'),
     onOpenPharmacyOrderCreate: () =>
-      router.push('/pharmacy/pharmacy-orders/create'),
+      router.push('/pharmacy?action=create'),
     onOpenBillingInvoiceCreate: () => router.push('/billing/invoices/create'),
     onRetry: () => {
       if (selectedFlowId) loadSelected();

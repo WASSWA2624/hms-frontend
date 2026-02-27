@@ -251,7 +251,7 @@ const QUICK_ACTIONS = [
     labelKey: 'home.quickActions.items.sale',
     roles: [...PHARMACY_WRITE_ROLES, ROLE_KEYS.BILLING],
     supported: true,
-    path: '/pharmacy/pharmacy-orders/create',
+    path: '/pharmacy?action=create',
   },
 ];
 

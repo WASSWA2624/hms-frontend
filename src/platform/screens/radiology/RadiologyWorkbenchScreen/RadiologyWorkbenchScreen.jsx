@@ -93,6 +93,10 @@ const RadiologyWorkbenchScreen = () => {
     screen.draftResultOptions,
     t('radiology.workbench.reporting.noDraftResult')
   );
+  const pendingFinalizationOptions = toSelectOptions(
+    screen.pendingFinalizationOptions,
+    t('radiology.workbench.reporting.noPendingResult')
+  );
   const finalResultOptions = toSelectOptions(
     screen.finalResultOptions,
     t('radiology.workbench.reporting.noFinalResult')
@@ -581,33 +585,132 @@ const RadiologyWorkbenchScreen = () => {
                   </Button>
                 </StyledActionGrid>
 
-                <StyledSubsection>
-                  <StyledSectionTitle>{t('radiology.workbench.reporting.finalizeTitle')}</StyledSectionTitle>
-                  <StyledActionGrid>
-                    <Select
-                      label={t('radiology.workbench.reporting.draftResult')}
-                      value={screen.drafts.finalize.result_id}
-                      options={draftResultOptions}
-                      onValueChange={(value) => screen.onDraftChange('finalize', 'result_id', value)}
-                      compact
-                      searchable
-                    />
-                    <TextArea
-                      label={t('radiology.workbench.reporting.finalizeNotes')}
-                      value={screen.drafts.finalize.notes}
-                      onChangeText={(value) => screen.onDraftChange('finalize', 'notes', value)}
-                      rows={2}
-                    />
-                    <Button
-                      variant="surface"
-                      size="small"
-                      onPress={screen.onFinalizeResult}
-                      disabled={!screen.canMutate || !screen.actionMatrix.canFinalizeResult}
-                    >
-                      {t('radiology.workbench.reporting.finalizeAction')}
-                    </Button>
-                  </StyledActionGrid>
-                </StyledSubsection>
+                {screen.isAttestationV2 ? (
+                  <>
+                    <StyledSubsection>
+                      <StyledSectionTitle>{t('radiology.workbench.reporting.requestTitle')}</StyledSectionTitle>
+                      <StyledActionGrid>
+                        <Select
+                          label={t('radiology.workbench.reporting.draftResult')}
+                          value={screen.drafts.request.result_id}
+                          options={draftResultOptions}
+                          onValueChange={(value) => screen.onDraftChange('request', 'result_id', value)}
+                          compact
+                          searchable
+                        />
+                        <TextArea
+                          label={t('radiology.workbench.reporting.requestStatement')}
+                          value={screen.drafts.request.statement}
+                          onChangeText={(value) => screen.onDraftChange('request', 'statement', value)}
+                          rows={2}
+                        />
+                        <TextField
+                          label={t('radiology.workbench.reporting.requestAt')}
+                          type="datetime-local"
+                          value={screen.drafts.request.requested_at}
+                          onChangeText={(value) => screen.onDraftChange('request', 'requested_at', value)}
+                          density="compact"
+                        />
+                        <TextArea
+                          label={t('radiology.workbench.reporting.requestReason')}
+                          value={screen.drafts.request.reason}
+                          onChangeText={(value) => screen.onDraftChange('request', 'reason', value)}
+                          rows={2}
+                        />
+                        <Button
+                          variant="surface"
+                          size="small"
+                          onPress={screen.onRequestFinalization}
+                          disabled={!screen.canMutate || !screen.actionMatrix.canRequestFinalization}
+                        >
+                          {t('radiology.workbench.reporting.requestAction')}
+                        </Button>
+                      </StyledActionGrid>
+                    </StyledSubsection>
+
+                    <StyledSubsection>
+                      <StyledSectionTitle>{t('radiology.workbench.reporting.attestTitle')}</StyledSectionTitle>
+                      <StyledActionGrid>
+                        <Select
+                          label={t('radiology.workbench.reporting.pendingResult')}
+                          value={screen.drafts.attest.result_id}
+                          options={pendingFinalizationOptions}
+                          onValueChange={(value) => screen.onDraftChange('attest', 'result_id', value)}
+                          compact
+                          searchable
+                        />
+                        <TextArea
+                          label={t('radiology.workbench.reporting.attestStatement')}
+                          value={screen.drafts.attest.statement}
+                          onChangeText={(value) => screen.onDraftChange('attest', 'statement', value)}
+                          rows={2}
+                        />
+                        <TextArea
+                          label={t('radiology.workbench.reporting.attestReason')}
+                          value={screen.drafts.attest.reason}
+                          onChangeText={(value) => screen.onDraftChange('attest', 'reason', value)}
+                          rows={2}
+                        />
+                        <TextField
+                          label={t('radiology.workbench.reporting.attestedAt')}
+                          type="datetime-local"
+                          value={screen.drafts.attest.attested_at}
+                          onChangeText={(value) => screen.onDraftChange('attest', 'attested_at', value)}
+                          density="compact"
+                        />
+                        <Button
+                          variant="surface"
+                          size="small"
+                          onPress={screen.onAttestFinalization}
+                          disabled={!screen.canMutate || !screen.actionMatrix.canAttestFinalization}
+                        >
+                          {t('radiology.workbench.reporting.attestAction')}
+                        </Button>
+                      </StyledActionGrid>
+                      {screen.finalizationStatuses.length > 0 ? (
+                        <StyledList>
+                          {screen.finalizationStatuses.map((entry) => (
+                            <StyledListItem key={entry.id}>
+                              {`${entry.id} | ${entry.status} | ${
+                                entry.pendingAttestation
+                                  ? t('radiology.workbench.reporting.pendingAttestation')
+                                  : t('radiology.workbench.reporting.attested')
+                              }`}
+                            </StyledListItem>
+                          ))}
+                        </StyledList>
+                      ) : null}
+                    </StyledSubsection>
+                  </>
+                ) : (
+                  <StyledSubsection>
+                    <StyledSectionTitle>{t('radiology.workbench.reporting.finalizeTitle')}</StyledSectionTitle>
+                    <StyledActionGrid>
+                      <Select
+                        label={t('radiology.workbench.reporting.draftResult')}
+                        value={screen.drafts.finalize.result_id}
+                        options={draftResultOptions}
+                        onValueChange={(value) => screen.onDraftChange('finalize', 'result_id', value)}
+                        compact
+                        searchable
+                      />
+                      <TextArea
+                        label={t('radiology.workbench.reporting.finalizeNotes')}
+                        value={screen.drafts.finalize.notes}
+                        onChangeText={(value) => screen.onDraftChange('finalize', 'notes', value)}
+                        rows={2}
+                      />
+                      <Button
+                        variant="surface"
+                        size="small"
+                        onPress={screen.onFinalizeResult}
+                        disabled={!screen.canMutate || !screen.actionMatrix.canFinalizeResult}
+                      >
+                        {t('radiology.workbench.reporting.finalizeAction')}
+                      </Button>
+                    </StyledActionGrid>
+                  </StyledSubsection>
+                )}
 
                 <StyledSubsection>
                   <StyledSectionTitle>{t('radiology.workbench.reporting.addendumTitle')}</StyledSectionTitle>
@@ -651,4 +754,3 @@ const RadiologyWorkbenchScreen = () => {
 };
 
 export default RadiologyWorkbenchScreen;
-

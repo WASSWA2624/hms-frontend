@@ -1,5 +1,5 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function PurchaseOrdersCreateRoute() {
-  return <ClinicalResourceFormScreen resourceId="purchase-orders" />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory&resource=purchase-orders&action=create" />;
 }

@@ -1,5 +1,12 @@
-import { ClinicalResourceFormScreen } from '@platform/screens';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
-export default function StockMovementsEditRoute() {
-  return <ClinicalResourceFormScreen resourceId="stock-movements" />;
+export default function LegacyRoute() {
+  const params = useLocalSearchParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const normalizedId = String(id || '').trim();
+  const href = normalizedId
+    ? `/inventory?panel=inventory&resource=stock-movements&legacyId=${encodeURIComponent(normalizedId)}&action=edit`
+    : '/inventory?panel=inventory';
+
+  return <Redirect href={href} />;
 }

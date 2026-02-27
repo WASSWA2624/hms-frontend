@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function DispenseLogsListRoute() {
-  return <ClinicalResourceListScreen resourceId="dispense-logs" />;
+export default function LegacyRoute() {
+  return <Redirect href="/pharmacy?resource=dispense-logs" />;
 }

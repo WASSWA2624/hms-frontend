@@ -1,5 +1,5 @@
-import { ClinicalResourceListScreen } from '@platform/screens';
+import { Redirect } from 'expo-router';
 
-export default function StockAdjustmentsListRoute() {
-  return <ClinicalResourceListScreen resourceId="stock-adjustments" />;
+export default function LegacyRoute() {
+  return <Redirect href="/inventory?panel=inventory&resource=stock-adjustments" />;
 }

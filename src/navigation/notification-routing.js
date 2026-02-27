@@ -203,10 +203,10 @@ const buildNotificationRouteCandidates = (
     pushRouteCandidate(candidates, '/radiology');
   }
   if (text.includes('pharmacy') || text.includes('drug') || text.includes('dispense')) {
-    pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
+    pushRouteCandidate(candidates, '/pharmacy');
   }
   if (text.includes('stock') || text.includes('inventory') || text.includes('supply')) {
-    pushRouteCandidate(candidates, '/inventory/inventory-items');
+    pushRouteCandidate(candidates, '/inventory?panel=inventory');
   }
 
   const type = getNotificationType(notification);
@@ -214,7 +214,7 @@ const buildNotificationRouteCandidates = (
   if (type === 'BILLING') pushRouteCandidate(candidates, '/billing/invoices');
   if (type === 'LAB') pushRouteCandidate(candidates, '/lab/results');
   if (type === 'RADIOLOGY') pushRouteCandidate(candidates, '/radiology');
-  if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
+  if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy');
   if (type === 'OPD') pushRouteCandidate(candidates, '/clinical');
   if (type === 'IPD') pushRouteCandidate(candidates, '/ipd');
   if (type === 'SYSTEM') pushRouteCandidate(candidates, '/dashboard');
