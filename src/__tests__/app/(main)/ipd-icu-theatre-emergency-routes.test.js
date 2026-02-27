@@ -13,6 +13,7 @@ const mockScreens = {
 jest.mock('@config/feature.flags', () => ({
   IPD_WORKBENCH_V1: false,
   ICU_WORKBENCH_V1: false,
+  EMERGENCY_WORKBENCH_V1: false,
 }));
 
 jest.mock('@platform/screens', () => ({

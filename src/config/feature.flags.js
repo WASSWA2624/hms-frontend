@@ -36,3 +36,7 @@ export const THEATRE_WORKBENCH_V1 = parseFlag(
   process.env.EXPO_PUBLIC_THEATRE_WORKBENCH_V1,
   false
 );
+export const EMERGENCY_WORKBENCH_V1 = parseFlag(
+  process.env.EXPO_PUBLIC_EMERGENCY_WORKBENCH_V1,
+  true
+);

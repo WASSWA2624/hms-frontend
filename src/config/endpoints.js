@@ -279,6 +279,8 @@ export const endpoints = {
   OPD_FLOWS: {
     LIST: `${baseUrl}/opd-flows`,
     GET: (id) => `${baseUrl}/opd-flows/${id}`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/opd-flows/resolve-legacy/${resource}/${id}`,
     START: `${baseUrl}/opd-flows/start`,
     BOOTSTRAP: `${baseUrl}/opd-flows/bootstrap`,
     PAY_CONSULTATION: (id) => `${baseUrl}/opd-flows/${id}/pay-consultation`,

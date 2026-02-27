@@ -8,8 +8,10 @@ import {
   parseDoctorReviewPayload,
   parseOpdFlowId,
   parseOpdFlowListParams,
+  parseOpdWorkbenchRouteState,
   parsePayConsultationPayload,
   parseRecordVitalsPayload,
+  parseResolveLegacyRouteParams,
   parseStartOpdFlowPayload,
 } from '@features/opd-flow';
 
@@ -21,6 +23,36 @@ describe('opd-flow.rules', () => {
       page: 1,
       limit: 20,
       stage: 'WAITING_VITALS',
+    });
+  });
+
+  it('parses emergency legacy route params', () => {
+    expect(
+      parseResolveLegacyRouteParams({
+        resource: 'ambulance-dispatches',
+        id: '550e8400-e29b-41d4-a716-446655440000',
+      })
+    ).toEqual({
+      resource: 'ambulance-dispatches',
+      id: '550e8400-e29b-41d4-a716-446655440000',
+    });
+  });
+
+  it('parses OPD workbench route state', () => {
+    expect(
+      parseOpdWorkbenchRouteState({
+        id: ['ENC001'],
+        panel: 'queue',
+        action: 'open_case',
+        resource: 'emergency-cases',
+        legacyId: 'EMC001',
+      })
+    ).toEqual({
+      id: 'ENC001',
+      panel: 'queue',
+      action: 'open_case',
+      resource: 'emergency-cases',
+      legacyId: 'EMC001',
     });
   });
 

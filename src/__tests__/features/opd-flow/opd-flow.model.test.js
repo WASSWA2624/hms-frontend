@@ -4,6 +4,7 @@
  */
 import {
   normalizeFlowMetadata,
+  normalizeOpdLegacyResolution,
   normalizeOpdFlowList,
   normalizeOpdFlowSnapshot,
 } from '@features/opd-flow';
@@ -114,5 +115,19 @@ describe('opd-flow.model', () => {
     expect(result.items[0].id).toBe('enc-3');
     expect(result.items[0].stage).toBe('DISCHARGED');
     expect(result.pagination).toBeNull();
+  });
+
+  it('normalizes emergency legacy resolution payload', () => {
+    expect(
+      normalizeOpdLegacyResolution({
+        encounter_id: 'ENC000001',
+        emergency_case_id: 'EMC000001',
+        panel: 'queue',
+      })
+    ).toEqual({
+      encounter_id: 'ENC000001',
+      emergency_case_id: 'EMC000001',
+      panel: 'queue',
+    });
   });
 });

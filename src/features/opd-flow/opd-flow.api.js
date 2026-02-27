@@ -16,6 +16,11 @@ const opdFlowApi = {
       url: endpoints.OPD_FLOWS.GET(id),
       method: 'GET',
     }),
+  resolveLegacyRoute: (resource, id) =>
+    apiClient({
+      url: endpoints.OPD_FLOWS.RESOLVE_LEGACY(resource, id),
+      method: 'GET',
+    }),
   start: (payload = {}) =>
     apiClient({
       url: endpoints.OPD_FLOWS.START,

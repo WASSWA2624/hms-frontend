@@ -5,7 +5,11 @@ const lightTheme = require('@theme/light.theme').default || require('@theme/ligh
 
 jest.mock('@hooks', () => ({
   useI18n: jest.fn(),
+  useAmbulance: jest.fn(),
+  useAmbulanceDispatch: jest.fn(),
+  useAmbulanceTrip: jest.fn(),
   useClinicalAlert: jest.fn(),
+  useEmergencyResponse: jest.fn(),
   useReferral: jest.fn(),
   useFollowUp: jest.fn(),
 }));
@@ -15,7 +19,16 @@ jest.mock('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkben
   default: jest.fn(),
 }));
 
-const { useI18n, useClinicalAlert, useReferral, useFollowUp } = require('@hooks');
+const {
+  useI18n,
+  useAmbulance,
+  useAmbulanceDispatch,
+  useAmbulanceTrip,
+  useClinicalAlert,
+  useEmergencyResponse,
+  useReferral,
+  useFollowUp,
+} = require('@hooks');
 const useOpdFlowWorkbenchScreen =
   require('@platform/screens/scheduling/OpdFlowWorkbenchScreen/useOpdFlowWorkbenchScreen').default;
 const OpdFlowWorkbenchScreen =
@@ -228,6 +241,22 @@ describe('OpdFlowWorkbenchScreen', () => {
     useClinicalAlert.mockReturnValue({
       acknowledge: jest.fn().mockResolvedValue(true),
       resolve: jest.fn().mockResolvedValue(true),
+    });
+    useEmergencyResponse.mockReturnValue({
+      list: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({}),
+    });
+    useAmbulance.mockReturnValue({
+      list: jest.fn().mockResolvedValue([]),
+    });
+    useAmbulanceDispatch.mockReturnValue({
+      list: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({}),
+    });
+    useAmbulanceTrip.mockReturnValue({
+      list: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
     });
     useReferral.mockReturnValue({
       approve: jest.fn().mockResolvedValue(true),

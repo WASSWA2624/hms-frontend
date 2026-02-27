@@ -19,7 +19,11 @@ import {
   TextField,
 } from '@platform/components';
 import {
+  useAmbulance,
+  useAmbulanceDispatch,
+  useAmbulanceTrip,
   useClinicalAlert,
+  useEmergencyResponse,
   useFollowUp,
   useI18n,
   useReferral,
@@ -177,6 +181,32 @@ const resolvePatientHumanFriendlyId = (flowItem) =>
       flowItem?.encounter?.patient_human_friendly_id
   );
 
+const resolveListItems = (value, explicitKeys = []) => {
+  if (Array.isArray(value)) return value;
+  if (!value || typeof value !== 'object') return [];
+  for (const key of explicitKeys) {
+    if (Array.isArray(value[key])) return value[key];
+  }
+  if (Array.isArray(value.items)) return value.items;
+  if (Array.isArray(value.data)) return value.data;
+  return [];
+};
+
+const resolveEmergencyCaseId = (flow) =>
+  toPublicIdText(
+    flow?.linked_record_ids?.emergency_case_id ||
+      flow?.flow?.emergency_case_id ||
+      flow?.emergency_case?.human_friendly_id ||
+      flow?.emergency_case_id
+  );
+
+const resolveAdmissionId = (flow) =>
+  toPublicIdText(
+    flow?.linked_record_ids?.admission_id ||
+      flow?.flow?.admission_id ||
+      flow?.admissions?.[0]?.human_friendly_id
+  );
+
 const resolveLookupPatientName = (patient) => {
   const firstName = toCleanText(patient?.first_name || patient?.firstName);
   const lastName = toCleanText(patient?.last_name || patient?.lastName);
@@ -197,11 +227,27 @@ const OpdFlowWorkbenchScreen = ({
 }) => {
   const { t } = useI18n();
   const router = useRouter();
-  const screen = useOpdFlowWorkbenchScreen({ routeBase });
+  const screen = useOpdFlowWorkbenchScreen({ routeBase, workspaceVariant });
   const isClinicalMode = workspaceVariant === 'clinical';
+  const isEmergencyMode = workspaceVariant === 'emergency';
   const [actionError, setActionError] = React.useState('');
   const [actionBusyId, setActionBusyId] = React.useState('');
+  const [emergencySectionError, setEmergencySectionError] = React.useState('');
+  const [emergencyActionBusy, setEmergencyActionBusy] = React.useState('');
+  const [emergencyResponses, setEmergencyResponses] = React.useState([]);
+  const [ambulanceFleet, setAmbulanceFleet] = React.useState([]);
+  const [dispatches, setDispatches] = React.useState([]);
+  const [trips, setTrips] = React.useState([]);
+  const [fleetSearchText, setFleetSearchText] = React.useState('');
+  const [responseDraft, setResponseDraft] = React.useState({ notes: '', response_at: '' });
+  const [dispatchDraft, setDispatchDraft] = React.useState({ ambulance_id: '', status: 'DISPATCHED', dispatched_at: '' });
+  const [tripDraft, setTripDraft] = React.useState({ ambulance_id: '', started_at: '', ended_at: '' });
+  const [isEmergencySectionLoading, setIsEmergencySectionLoading] = React.useState(false);
   const { acknowledge: acknowledgeClinicalAlert, resolve: resolveClinicalAlert } = useClinicalAlert();
+  const { list: listEmergencyResponses, create: createEmergencyResponse } = useEmergencyResponse();
+  const { list: listAmbulances } = useAmbulance();
+  const { list: listAmbulanceDispatches, create: createAmbulanceDispatch } = useAmbulanceDispatch();
+  const { list: listAmbulanceTrips, create: createAmbulanceTrip, update: updateAmbulanceTrip } = useAmbulanceTrip();
   const {
     approve: approveReferral,
     start: startReferral,
@@ -239,6 +285,8 @@ const OpdFlowWorkbenchScreen = ({
   const activeFlow = screen.selectedFlow;
   const activeStage = screen.activeStage;
   const linkedIds = activeFlow?.linked_record_ids || {};
+  const activeEmergencyCaseId = resolveEmergencyCaseId(activeFlow);
+  const activeAdmissionId = resolveAdmissionId(activeFlow);
   const linkedPatientName = resolveLookupPatientName(screen.startLinkedPatient);
   const linkedPatientDisplayId = toPublicIdText(screen.startLinkedPatient?.human_friendly_id);
   const linkedAppointmentDisplayId = toPublicIdText(screen.startLinkedAppointment?.human_friendly_id);
@@ -249,10 +297,16 @@ const OpdFlowWorkbenchScreen = ({
   const clinicalAlerts = Array.isArray(activeFlow?.clinical_alerts) ? activeFlow.clinical_alerts : [];
   const referrals = Array.isArray(activeFlow?.referrals) ? activeFlow.referrals : [];
   const followUps = Array.isArray(activeFlow?.follow_ups) ? activeFlow.follow_ups : [];
-  const workbenchTitle = isClinicalMode ? 'Clinical Workbench' : t('scheduling.opdFlow.title');
+  const workbenchTitle = isClinicalMode
+    ? 'Clinical Workbench'
+    : isEmergencyMode
+      ? 'Emergency Workbench'
+      : t('scheduling.opdFlow.title');
   const workbenchDescription = isClinicalMode
     ? 'Central workspace for encounter management, notes, diagnoses, procedures, vitals, plans, alerts, referrals, and follow-ups.'
-    : t('scheduling.opdFlow.description');
+    : isEmergencyMode
+      ? 'Central paperless emergency operations workspace for queue, triage, response, dispatch, trips, and admission handoff.'
+      : t('scheduling.opdFlow.description');
 
   const buildRoute = (path, params = {}) => {
     const query = new URLSearchParams();
@@ -284,6 +338,210 @@ const OpdFlowWorkbenchScreen = ({
       setActionBusyId('');
     }
   };
+
+  const ambulanceOptions = React.useMemo(
+    () =>
+      ambulanceFleet
+        .map((item) => {
+          const id =
+            toPublicIdText(item?.display_id) ||
+            toPublicIdText(item?.human_friendly_id) ||
+            toPublicIdText(item?.id);
+          if (!id) return null;
+          const identifier = toCleanText(item?.identifier);
+          const status = toCleanText(item?.status);
+          return {
+            value: id,
+            label: [identifier || id, status].filter(Boolean).join(' | '),
+          };
+        })
+        .filter(Boolean),
+    [ambulanceFleet]
+  );
+
+  const refreshEmergencyPanels = React.useCallback(async () => {
+    if (!isEmergencyMode || !screen.canViewWorkbench || screen.isOffline) return;
+
+    setIsEmergencySectionLoading(true);
+    setEmergencySectionError('');
+
+    try {
+      const [responsesResult, dispatchResult, tripResult, ambulanceResult] = await Promise.all([
+        activeEmergencyCaseId
+          ? listEmergencyResponses({
+              emergency_case_id: activeEmergencyCaseId,
+              limit: 20,
+              sort_by: 'response_at',
+              order: 'desc',
+            })
+          : Promise.resolve([]),
+        activeEmergencyCaseId
+          ? listAmbulanceDispatches({
+              emergency_case_id: activeEmergencyCaseId,
+              limit: 20,
+              sort_by: 'dispatched_at',
+              order: 'desc',
+            })
+          : Promise.resolve([]),
+        activeEmergencyCaseId
+          ? listAmbulanceTrips({
+              emergency_case_id: activeEmergencyCaseId,
+              limit: 20,
+              sort_by: 'started_at',
+              order: 'desc',
+            })
+          : Promise.resolve([]),
+        listAmbulances({
+          limit: 40,
+          sort_by: 'updated_at',
+          order: 'desc',
+          search: toCleanText(fleetSearchText) || undefined,
+        }),
+      ]);
+
+      setEmergencyResponses(
+        resolveListItems(responsesResult, ['responses']).slice(0, 20)
+      );
+      setDispatches(resolveListItems(dispatchResult, ['dispatches']).slice(0, 20));
+      setTrips(resolveListItems(tripResult, ['trips']).slice(0, 20));
+      setAmbulanceFleet(resolveListItems(ambulanceResult, ['ambulances']).slice(0, 40));
+    } catch (_error) {
+      setEmergencySectionError(t('common.error'));
+    } finally {
+      setIsEmergencySectionLoading(false);
+    }
+  }, [
+    activeEmergencyCaseId,
+    fleetSearchText,
+    isEmergencyMode,
+    listAmbulanceDispatches,
+    listAmbulanceTrips,
+    listAmbulances,
+    listEmergencyResponses,
+    screen.canViewWorkbench,
+    screen.isOffline,
+    t,
+  ]);
+
+  React.useEffect(() => {
+    refreshEmergencyPanels();
+  }, [refreshEmergencyPanels]);
+
+  const runEmergencyAction = React.useCallback(
+    async (actionId, handler) => {
+      setEmergencyActionBusy(actionId);
+      setEmergencySectionError('');
+      try {
+        const result = await handler();
+        if (!result) {
+          setEmergencySectionError(t('common.error'));
+          return null;
+        }
+        await refreshEmergencyPanels();
+        return result;
+      } catch (_error) {
+        setEmergencySectionError(t('common.error'));
+        return null;
+      } finally {
+        setEmergencyActionBusy('');
+      }
+    },
+    [refreshEmergencyPanels, t]
+  );
+
+  const handleCreateEmergencyResponse = React.useCallback(async () => {
+    const notes = toCleanText(responseDraft.notes);
+    if (!activeEmergencyCaseId || !notes) {
+      setEmergencySectionError(t('common.error'));
+      return;
+    }
+    await runEmergencyAction('create-response', async () =>
+      createEmergencyResponse({
+        emergency_case_id: activeEmergencyCaseId,
+        response_at: toCleanText(responseDraft.response_at) || new Date().toISOString(),
+        notes,
+      })
+    );
+    setResponseDraft({ notes: '', response_at: '' });
+  }, [
+    activeEmergencyCaseId,
+    createEmergencyResponse,
+    responseDraft.notes,
+    responseDraft.response_at,
+    runEmergencyAction,
+    t,
+  ]);
+
+  const handleCreateDispatch = React.useCallback(async () => {
+    const ambulanceId = toCleanText(dispatchDraft.ambulance_id);
+    if (!activeEmergencyCaseId || !ambulanceId) {
+      setEmergencySectionError(t('common.error'));
+      return;
+    }
+    await runEmergencyAction('create-dispatch', async () =>
+      createAmbulanceDispatch({
+        ambulance_id: ambulanceId,
+        emergency_case_id: activeEmergencyCaseId,
+        dispatched_at: toCleanText(dispatchDraft.dispatched_at) || new Date().toISOString(),
+        status: toCleanText(dispatchDraft.status) || 'DISPATCHED',
+      })
+    );
+    setDispatchDraft((previous) => ({ ...previous, dispatched_at: '' }));
+  }, [
+    activeEmergencyCaseId,
+    createAmbulanceDispatch,
+    dispatchDraft.ambulance_id,
+    dispatchDraft.dispatched_at,
+    dispatchDraft.status,
+    runEmergencyAction,
+    t,
+  ]);
+
+  const handleStartTrip = React.useCallback(async () => {
+    const ambulanceId =
+      toCleanText(tripDraft.ambulance_id) ||
+      toCleanText(dispatchDraft.ambulance_id) ||
+      toCleanText(dispatches[0]?.ambulance_display_id);
+    if (!activeEmergencyCaseId || !ambulanceId) {
+      setEmergencySectionError(t('common.error'));
+      return;
+    }
+    await runEmergencyAction('start-trip', async () =>
+      createAmbulanceTrip({
+        ambulance_id: ambulanceId,
+        emergency_case_id: activeEmergencyCaseId,
+        started_at: toCleanText(tripDraft.started_at) || new Date().toISOString(),
+      })
+    );
+    setTripDraft((previous) => ({ ...previous, started_at: '' }));
+  }, [
+    activeEmergencyCaseId,
+    createAmbulanceTrip,
+    dispatchDraft.ambulance_id,
+    dispatches,
+    runEmergencyAction,
+    t,
+    tripDraft.ambulance_id,
+    tripDraft.started_at,
+  ]);
+
+  const handleEndTrip = React.useCallback(async () => {
+    const openTrip = trips.find((item) => !toCleanText(item?.ended_at));
+    const tripId =
+      toPublicIdText(openTrip?.display_id) ||
+      toPublicIdText(openTrip?.human_friendly_id) ||
+      toPublicIdText(openTrip?.id);
+    if (!tripId) {
+      setEmergencySectionError(t('common.error'));
+      return;
+    }
+    await runEmergencyAction('end-trip', async () =>
+      updateAmbulanceTrip(tripId, {
+        ended_at: toCleanText(tripDraft.ended_at) || new Date().toISOString(),
+      })
+    );
+    setTripDraft((previous) => ({ ...previous, ended_at: '' }));
+  }, [t, tripDraft.ended_at, trips, runEmergencyAction, updateAmbulanceTrip]);
 
   const renderStartForm = () => (
     <Card variant="outlined" testID="opd-workbench-start-form">
@@ -1368,6 +1626,158 @@ const OpdFlowWorkbenchScreen = ({
     );
   };
 
+  const renderEmergencyOperations = () => {
+    if (!isEmergencyMode) return null;
+
+    const activeTrip = trips.find((item) => !toCleanText(item?.ended_at));
+    const activeTripDisplayId =
+      toPublicIdText(activeTrip?.display_id) ||
+      toPublicIdText(activeTrip?.human_friendly_id) ||
+      '';
+
+    return (
+      <Card variant="outlined" testID="emergency-workbench-operations">
+        <StyledSectionTitle>Emergency Operations</StyledSectionTitle>
+        <StyledMeta>
+          {`Case: ${activeEmergencyCaseId || t('common.notAvailable')}`}
+        </StyledMeta>
+        {activeAdmissionId ? (
+          <StyledInlineActions>
+            <Badge variant="success" size="small">
+              {`Admission ${activeAdmissionId}`}
+            </Badge>
+            <Button
+              variant="surface"
+              size="small"
+              onPress={screen.onOpenLinkedAdmission}
+            >
+              Open IPD Handoff
+            </Button>
+          </StyledInlineActions>
+        ) : null}
+
+        {emergencySectionError ? (
+          <Text variant="caption">{emergencySectionError}</Text>
+        ) : null}
+        {isEmergencySectionLoading ? (
+          <Text variant="caption">{t('common.loading')}</Text>
+        ) : null}
+
+        <StyledForm>
+          <TextArea
+            label="Response note"
+            value={responseDraft.notes}
+            onChangeText={(value) =>
+              setResponseDraft((previous) => ({ ...previous, notes: value }))
+            }
+          />
+          <Button
+            variant="surface"
+            size="small"
+            onPress={handleCreateEmergencyResponse}
+            disabled={
+              !activeEmergencyCaseId ||
+              !screen.canMutate ||
+              Boolean(emergencyActionBusy)
+            }
+          >
+            Add Response
+          </Button>
+        </StyledForm>
+
+        <StyledFieldRow>
+          <TextField
+            label="Fleet search"
+            value={fleetSearchText}
+            onChangeText={setFleetSearchText}
+            density="compact"
+          />
+          <Select
+            label="Ambulance"
+            value={dispatchDraft.ambulance_id}
+            options={ambulanceOptions}
+            onValueChange={(value) => {
+              setDispatchDraft((previous) => ({ ...previous, ambulance_id: value }));
+              setTripDraft((previous) => ({ ...previous, ambulance_id: value }));
+            }}
+            compact
+            searchable
+          />
+        </StyledFieldRow>
+        <StyledInlineActions>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={handleCreateDispatch}
+            disabled={
+              !activeEmergencyCaseId ||
+              !dispatchDraft.ambulance_id ||
+              !screen.canMutate ||
+              Boolean(emergencyActionBusy)
+            }
+          >
+            Dispatch Ambulance
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={handleStartTrip}
+            disabled={
+              !activeEmergencyCaseId ||
+              !dispatchDraft.ambulance_id ||
+              !screen.canMutate ||
+              Boolean(emergencyActionBusy)
+            }
+          >
+            Start Trip
+          </Button>
+          <Button
+            variant="surface"
+            size="small"
+            onPress={handleEndTrip}
+            disabled={
+              !activeTripDisplayId ||
+              !screen.canMutate ||
+              Boolean(emergencyActionBusy)
+            }
+          >
+            End Trip
+          </Button>
+        </StyledInlineActions>
+
+        <StyledCardGrid>
+          <StyledLinkedRecordItem>
+            <StyledLinkedRecordLabel>Responses</StyledLinkedRecordLabel>
+            <StyledLinkedRecordValue>
+              {String(emergencyResponses.length)}
+            </StyledLinkedRecordValue>
+          </StyledLinkedRecordItem>
+          <StyledLinkedRecordItem>
+            <StyledLinkedRecordLabel>Dispatches</StyledLinkedRecordLabel>
+            <StyledLinkedRecordValue>{String(dispatches.length)}</StyledLinkedRecordValue>
+          </StyledLinkedRecordItem>
+          <StyledLinkedRecordItem>
+            <StyledLinkedRecordLabel>Trips</StyledLinkedRecordLabel>
+            <StyledLinkedRecordValue>{String(trips.length)}</StyledLinkedRecordValue>
+          </StyledLinkedRecordItem>
+          <StyledLinkedRecordItem>
+            <StyledLinkedRecordLabel>Active Trip</StyledLinkedRecordLabel>
+            <StyledLinkedRecordValue>
+              {activeTripDisplayId || t('common.notAvailable')}
+            </StyledLinkedRecordValue>
+          </StyledLinkedRecordItem>
+        </StyledCardGrid>
+
+        {emergencyResponses.length === 0 && dispatches.length === 0 && trips.length === 0 ? (
+          <EmptyState
+            title="No emergency activity yet"
+            description="Add a response note, dispatch an ambulance, or start a trip."
+          />
+        ) : null}
+      </Card>
+    );
+  };
+
   const renderCorrectionDialog = () => (
     <Modal
       visible={isCorrectionDialogOpen}
@@ -1782,6 +2192,8 @@ const OpdFlowWorkbenchScreen = ({
               <StyledSectionTitle>{t('scheduling.opdFlow.actions.currentStep')}</StyledSectionTitle>
               {renderActionSection()}
             </Card>
+
+            {isEmergencyMode ? renderEmergencyOperations() : null}
 
             {isClinicalMode ? (
               <Card variant="outlined">

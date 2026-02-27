@@ -166,4 +166,15 @@ const normalizeOpdFlowList = (value) => {
   };
 };
 
-export { normalizeFlowMetadata, normalizeOpdFlowSnapshot, normalizeOpdFlowList };
+const normalizeOpdLegacyResolution = (value) => {
+  const resolution = normalizeObject(value);
+  if (!resolution) return null;
+  return { ...resolution };
+};
+
+export {
+  normalizeFlowMetadata,
+  normalizeOpdFlowSnapshot,
+  normalizeOpdFlowList,
+  normalizeOpdLegacyResolution,
+};

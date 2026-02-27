@@ -331,6 +331,17 @@ const DEFAULT_START_DRAFT = {
   emergency_notes: '',
   notes: '',
 };
+const createDefaultStartDraft = (isEmergencyWorkspace = false) => ({
+  ...DEFAULT_START_DRAFT,
+  arrival_mode: isEmergencyWorkspace ? 'EMERGENCY' : DEFAULT_START_DRAFT.arrival_mode,
+  require_consultation_payment: isEmergencyWorkspace
+    ? false
+    : DEFAULT_START_DRAFT.require_consultation_payment,
+  create_consultation_invoice: isEmergencyWorkspace
+    ? false
+    : DEFAULT_START_DRAFT.create_consultation_invoice,
+  emergency_severity: 'HIGH',
+});
 const DEFAULT_PAYMENT_DRAFT = {
   method: 'CASH',
   amount: '',
@@ -386,6 +397,10 @@ const DEFAULT_DISPOSITION_DRAFT = {
   admission_facility_id: '',
   notes: '',
 };
+const createDefaultDispositionDraft = (isEmergencyWorkspace = false) => ({
+  ...DEFAULT_DISPOSITION_DRAFT,
+  decision: isEmergencyWorkspace ? 'ADMIT' : DEFAULT_DISPOSITION_DRAFT.decision,
+});
 const DEFAULT_STAGE_CORRECTION_DRAFT = {
   stage_to: '',
   reason: '',
@@ -933,11 +948,16 @@ const formatRelativeTime = (isoValue, locale = 'en') => {
 
 const useOpdFlowWorkbenchScreen = (options = {}) => {
   const routeBase = sanitizeString(options?.routeBase) || '/scheduling/opd-flows';
+  const workspaceVariant = sanitizeString(options?.workspaceVariant || 'scheduling').toLowerCase();
+  const isEmergencyWorkspace = workspaceVariant === 'emergency';
   const { t, locale } = useI18n();
   const { isOffline } = useNetwork();
   const router = useRouter();
   const searchParams = useLocalSearchParams();
   const requestedFlowId = normalizeScalarParam(searchParams?.id);
+  const requestedPanel = sanitizeString(normalizeScalarParam(searchParams?.panel)).toLowerCase();
+  const requestedAction = sanitizeString(normalizeScalarParam(searchParams?.action)).toLowerCase();
+  const requestedEmergencyCaseId = normalizeScalarParam(searchParams?.emergencyCaseId);
 
   const {
     canAccessOpdFlow,
@@ -981,7 +1001,9 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
   const [selectedFlow, setSelectedFlow] = useState(null);
   const [isStartFormOpen, setIsStartFormOpen] = useState(false);
   const [isStartAdvancedOpen, setIsStartAdvancedOpen] = useState(false);
-  const [startDraft, setStartDraft] = useState(DEFAULT_START_DRAFT);
+  const [startDraft, setStartDraft] = useState(() =>
+    createDefaultStartDraft(isEmergencyWorkspace)
+  );
   const [paymentDraft, setPaymentDraft] = useState(DEFAULT_PAYMENT_DRAFT);
   const [vitalsDraft, setVitalsDraft] = useState({
     vitals: [createVitalRow()],
@@ -990,7 +1012,9 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
   });
   const [assignDraft, setAssignDraft] = useState(DEFAULT_ASSIGN_DRAFT);
   const [reviewDraft, setReviewDraft] = useState(DEFAULT_REVIEW_DRAFT);
-  const [dispositionDraft, setDispositionDraft] = useState(DEFAULT_DISPOSITION_DRAFT);
+  const [dispositionDraft, setDispositionDraft] = useState(() =>
+    createDefaultDispositionDraft(isEmergencyWorkspace)
+  );
   const [formError, setFormError] = useState('');
   const [startLinkedPatient, setStartLinkedPatient] = useState(null);
   const [startLinkedAppointment, setStartLinkedAppointment] = useState(null);
@@ -1004,7 +1028,9 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
   const [startProviderSearchText, setStartProviderSearchText] = useState('');
   const [assignProviderSearchText, setAssignProviderSearchText] = useState('');
   const [flowSearchText, setFlowSearchText] = useState('');
-  const [queueScope, setQueueScope] = useState('ASSIGNED_WAITING');
+  const [queueScope, setQueueScope] = useState(
+    isEmergencyWorkspace ? 'WAITING' : 'ASSIGNED_WAITING'
+  );
   const [debouncedFlowSearch, setDebouncedFlowSearch] = useState('');
   const [isFlowSearchLoading, setIsFlowSearchLoading] = useState(false);
   const [isSelectedFlowLoading, setIsSelectedFlowLoading] = useState(false);
@@ -1399,13 +1425,24 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
   }, [isResolved, isScopeResolved, canAccessOpdFlow, hasScope, router]);
 
   useEffect(() => {
+    const shouldOpenStartForm =
+      !requestedFlowId &&
+      (requestedPanel === 'intake' ||
+        requestedAction.startsWith('create') ||
+        requestedAction.startsWith('add') ||
+        requestedAction.startsWith('start'));
+
+    if (shouldOpenStartForm) {
+      setIsStartFormOpen(true);
+    }
+
     if (!requestedFlowId) return;
     if (isUuidLike(requestedFlowId)) {
       router.replace(routeBase);
       return;
     }
     setSelectedFlowId(requestedFlowId);
-  }, [requestedFlowId, routeBase, router]);
+  }, [requestedAction, requestedFlowId, requestedPanel, routeBase, router]);
 
   useEffect(() => {
     if (startDraft.arrival_mode !== 'ONLINE_APPOINTMENT') {
@@ -1476,6 +1513,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
       limit: 25,
       sort_by: 'started_at',
       order: 'desc',
+      ...(isEmergencyWorkspace ? { encounter_type: 'EMERGENCY' } : {}),
     };
     if (searchTerm) {
       baseParams.search = searchTerm;
@@ -1577,6 +1615,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     canViewWorkbench,
     canManageAllTenants,
     debouncedFlowSearch,
+    isEmergencyWorkspace,
     isOffline,
     scopeTenantId,
     scopeFacilityId,
@@ -1678,6 +1717,38 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
   useRealtimeEvent('opd.flow.updated', handleRealtimeOpdUpdate, {
     enabled: canViewWorkbench && !isOffline,
   });
+
+  useEffect(() => {
+    if (!isEmergencyWorkspace) return;
+    if (!requestedEmergencyCaseId || selectedFlowId) return;
+    const target = sanitizeString(requestedEmergencyCaseId).toUpperCase();
+    if (!target) return;
+
+    const match = flowList.find((item) => {
+      const linkedEmergencyCaseId = sanitizeString(item?.linked_record_ids?.emergency_case_id).toUpperCase();
+      const flowEmergencyCaseId = sanitizeString(item?.flow?.emergency_case_id).toUpperCase();
+      const emergencyCaseRecordId = sanitizeString(
+        item?.emergency_case?.human_friendly_id || item?.emergency_case_id
+      ).toUpperCase();
+      return (
+        linkedEmergencyCaseId === target ||
+        flowEmergencyCaseId === target ||
+        emergencyCaseRecordId === target
+      );
+    });
+
+    if (!match) return;
+    const encounterIdentifier = resolveEncounterIdentifier(match);
+    if (encounterIdentifier) {
+      setSelectedFlowId(encounterIdentifier);
+      setSelectedFlow(match);
+    }
+  }, [
+    flowList,
+    isEmergencyWorkspace,
+    requestedEmergencyCaseId,
+    selectedFlowId,
+  ]);
 
   const activeFlow = useMemo(() => {
     if (selectedFlow && matchesEncounterIdentifier(selectedFlow, selectedFlowId)) {
@@ -1832,7 +1903,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     });
     setAssignDraft(DEFAULT_ASSIGN_DRAFT);
     setReviewDraft(DEFAULT_REVIEW_DRAFT);
-    setDispositionDraft(DEFAULT_DISPOSITION_DRAFT);
+    setDispositionDraft(createDefaultDispositionDraft(isEmergencyWorkspace));
     setFormError('');
     setStartLookupError('');
     setStartLinkedPatient(null);
@@ -1842,7 +1913,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     setAssignProviderSearchText('');
     setIsCorrectionDialogOpen(false);
     setStageCorrectionDraft(DEFAULT_STAGE_CORRECTION_DRAFT);
-  }, [globalCurrency]);
+  }, [globalCurrency, isEmergencyWorkspace]);
 
   const applySnapshot = useCallback(
     (snapshot, { pushRoute = true } = {}) => {
@@ -1999,14 +2070,16 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     const canBootstrapEncounter =
       patientId &&
       !appointmentId &&
-      startDraft.arrival_mode === 'WALK_IN' &&
+      (isEmergencyWorkspace
+        ? startDraft.arrival_mode === 'EMERGENCY'
+        : startDraft.arrival_mode === 'WALK_IN') &&
       !startDraft.pay_now_enabled;
     if (canBootstrapEncounter) {
       snapshot = await bootstrapOpdFlow({
         patient_id: patientId,
         facility_id: !canManageAllTenants ? scopeFacilityId || undefined : undefined,
         provider_user_id: sanitizeString(startDraft.provider_user_id) || undefined,
-        encounter_type: 'OPD',
+        encounter_type: isEmergencyWorkspace ? 'EMERGENCY' : 'OPD',
         reuse_open_encounter: true,
       });
     }
@@ -2017,13 +2090,14 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
 
     applySnapshot(snapshot);
     setStartDraft({
-      ...DEFAULT_START_DRAFT,
+      ...createDefaultStartDraft(isEmergencyWorkspace),
       currency: globalCurrency || DEFAULT_CURRENCY,
     });
     await loadFlowList();
   }, [
     canManageAllTenants,
     canStartFlow,
+    isEmergencyWorkspace,
     isOffline,
     scopeFacilityId,
     scopeTenantId,
@@ -2487,6 +2561,18 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     router.push(target);
   }, [contextPatient, router, startDraft.patient_id, startLinkedPatient]);
 
+  const handleOpenLinkedAdmission = useCallback(() => {
+    const admissionId = sanitizeString(activeFlow?.linked_record_ids?.admission_id);
+    if (!admissionId || isUuidLike(admissionId)) {
+      handleOpenAdmissionShortcut();
+      return;
+    }
+    const target = IPD_WORKBENCH_V1
+      ? `/ipd?id=${encodeURIComponent(admissionId)}&panel=snapshot&action=open_admission`
+      : `/ipd/admissions/${encodeURIComponent(admissionId)}`;
+    router.push(target);
+  }, [activeFlow, handleOpenAdmissionShortcut, router]);
+
   const handleOpenOpdShortcut = useCallback(() => {
     syncSelectedFlowUrl(activeFlowPublicId);
   }, [activeFlowPublicId, syncSelectedFlowUrl]);
@@ -2529,6 +2615,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
 
   return {
     isResolved,
+    isEmergencyWorkspace,
     canViewWorkbench,
     canManageAllTenants,
     tenantId: scopeTenantId || null,
@@ -2601,7 +2688,9 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     correctionStageOptions,
     isCorrectionDialogOpen,
     stageCorrectionDraft,
-    arrivalModeOptions: ARRIVAL_MODE_OPTIONS,
+    arrivalModeOptions: isEmergencyWorkspace
+      ? ARRIVAL_MODE_OPTIONS.filter((entry) => entry.value === 'EMERGENCY')
+      : ARRIVAL_MODE_OPTIONS,
     emergencySeverityOptions: EMERGENCY_SEVERITY_OPTIONS,
     triageLevelOptions: TRIAGE_LEVEL_OPTIONS,
     triageLevelLegend: TRIAGE_LEVEL_LEGEND,
@@ -2619,6 +2708,7 @@ const useOpdFlowWorkbenchScreen = (options = {}) => {
     onResolveStartAppointment: handleResolveStartAppointment,
     onOpenPatientShortcut: handleOpenPatientShortcut,
     onOpenAdmissionShortcut: handleOpenAdmissionShortcut,
+    onOpenLinkedAdmission: handleOpenLinkedAdmission,
     onOpenOpdShortcut: handleOpenOpdShortcut,
     onStartPatientSearchChange: handleStartPatientSearchChange,
     onStartProviderSearchChange: handleStartProviderSearchChange,

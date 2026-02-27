@@ -35,6 +35,14 @@ describe('opd-flow.api', () => {
     });
   });
 
+  it('resolves legacy emergency routes', async () => {
+    await opdFlowApi.resolveLegacyRoute('emergency-cases', 'EMC-1');
+    expect(apiClient).toHaveBeenCalledWith({
+      url: endpoints.OPD_FLOWS.RESOLVE_LEGACY('emergency-cases', 'EMC-1'),
+      method: 'GET',
+    });
+  });
+
   it('starts OPD flow', async () => {
     await opdFlowApi.start({ arrival_mode: 'WALK_IN' });
     expect(apiClient).toHaveBeenCalledWith({

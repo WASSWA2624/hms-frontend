@@ -63,6 +63,9 @@ describe('services/api/endpoints', () => {
     );
     expect(endpoints.OPD_FLOWS.LIST).toMatch(/\/opd-flows$/);
     expect(endpoints.OPD_FLOWS.GET('id')).toMatch(/\/opd-flows\/id$/);
+    expect(
+      endpoints.OPD_FLOWS.RESOLVE_LEGACY('emergency-cases', 'id')
+    ).toMatch(/\/opd-flows\/resolve-legacy\/emergency-cases\/id$/);
     expect(endpoints.OPD_FLOWS.START).toMatch(/\/opd-flows\/start$/);
     expect(endpoints.OPD_FLOWS.PAY_CONSULTATION('id')).toMatch(
       /\/opd-flows\/id\/pay-consultation$/

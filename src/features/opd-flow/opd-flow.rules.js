@@ -85,6 +85,14 @@ const workflowStageSchema = z.enum([
 ]);
 const queueScopeSchema = z.enum(['ASSIGNED', 'WAITING', 'ALL']);
 const bloodPressureValueRegex = /^(\d{2,3}(?:\.\d{1,2})?)\s*\/\s*(\d{2,3}(?:\.\d{1,2})?)$/;
+const legacyResourceSchema = z.enum([
+  'emergency-cases',
+  'triage-assessments',
+  'emergency-responses',
+  'ambulances',
+  'ambulance-dispatches',
+  'ambulance-trips',
+]);
 
 const listParamsSchema = z
   .object({
@@ -102,6 +110,23 @@ const listParamsSchema = z
     search: z.string().trim().optional(),
   })
   .passthrough();
+const resolveLegacyRouteParamsSchema = z.object({
+  resource: legacyResourceSchema,
+  id: scopeIdSchema,
+});
+const normalizeRouteStateValue = (value) => {
+  const normalized = Array.isArray(value)
+    ? String(value[0] || '').trim()
+    : String(value || '').trim();
+  return normalized || undefined;
+};
+const workbenchRouteStateSchema = z.object({
+  id: scopeIdSchema.optional(),
+  panel: z.string().trim().min(1).max(64).optional(),
+  action: z.string().trim().min(1).max(80).optional(),
+  resource: legacyResourceSchema.optional(),
+  legacyId: scopeIdSchema.optional(),
+});
 
 const patientRegistrationSchema = z.object({
   first_name: z.string().trim().min(1).max(120),
@@ -294,6 +319,16 @@ const bootstrapPayloadSchema = z.object({
 
 const parseOpdFlowId = (value) => idSchema.parse(value);
 const parseOpdFlowListParams = (value) => listParamsSchema.parse(value ?? {});
+const parseResolveLegacyRouteParams = (value) =>
+  resolveLegacyRouteParamsSchema.parse(value ?? {});
+const parseOpdWorkbenchRouteState = (value) =>
+  workbenchRouteStateSchema.parse({
+    id: normalizeRouteStateValue(value?.id),
+    panel: normalizeRouteStateValue(value?.panel),
+    action: normalizeRouteStateValue(value?.action),
+    resource: normalizeRouteStateValue(value?.resource),
+    legacyId: normalizeRouteStateValue(value?.legacyId),
+  });
 const parseStartOpdFlowPayload = (value) => startPayloadSchema.parse(value ?? {});
 const parsePayConsultationPayload = (value) => payConsultationPayloadSchema.parse(value ?? {});
 const parseRecordVitalsPayload = (value) => recordVitalsPayloadSchema.parse(value ?? {});
@@ -306,6 +341,8 @@ const parseBootstrapOpdFlowPayload = (value) => bootstrapPayloadSchema.parse(val
 export {
   parseOpdFlowId,
   parseOpdFlowListParams,
+  parseResolveLegacyRouteParams,
+  parseOpdWorkbenchRouteState,
   parseStartOpdFlowPayload,
   parsePayConsultationPayload,
   parseRecordVitalsPayload,

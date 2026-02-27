@@ -12,12 +12,15 @@ describe('useOpdFlow', () => {
     expectCrudHook(result, [
       'list',
       'get',
+      'resolveLegacyRoute',
       'start',
+      'bootstrap',
       'payConsultation',
       'recordVitals',
       'assignDoctor',
       'doctorReview',
       'disposition',
+      'correctStage',
     ]);
   });
 });

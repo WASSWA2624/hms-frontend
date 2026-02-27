@@ -4,7 +4,11 @@
  */
 import { handleError } from '@errors';
 import { opdFlowApi } from './opd-flow.api';
-import { normalizeOpdFlowList, normalizeOpdFlowSnapshot } from './opd-flow.model';
+import {
+  normalizeOpdFlowList,
+  normalizeOpdFlowSnapshot,
+  normalizeOpdLegacyResolution,
+} from './opd-flow.model';
 import {
   parseAssignDoctorPayload,
   parseBootstrapOpdFlowPayload,
@@ -13,6 +17,7 @@ import {
   parseDoctorReviewPayload,
   parseOpdFlowId,
   parseOpdFlowListParams,
+  parseResolveLegacyRouteParams,
   parsePayConsultationPayload,
   parseRecordVitalsPayload,
   parseStartOpdFlowPayload,
@@ -38,6 +43,16 @@ const getOpdFlow = async (id) =>
     const parsedId = parseOpdFlowId(id);
     const response = await opdFlowApi.get(parsedId);
     return normalizeOpdFlowSnapshot(response.data);
+  });
+
+const resolveOpdLegacyRoute = async (resource, id) =>
+  execute(async () => {
+    const parsed = parseResolveLegacyRouteParams({ resource, id });
+    const response = await opdFlowApi.resolveLegacyRoute(
+      parsed.resource,
+      parsed.id
+    );
+    return normalizeOpdLegacyResolution(response.data);
   });
 
 const startOpdFlow = async (payload = {}) =>
@@ -105,6 +120,7 @@ const correctStage = async (id, payload = {}) =>
 export {
   listOpdFlows,
   getOpdFlow,
+  resolveOpdLegacyRoute,
   startOpdFlow,
   bootstrapOpdFlow,
   payConsultation,

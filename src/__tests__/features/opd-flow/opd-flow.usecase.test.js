@@ -10,6 +10,7 @@ import {
   listOpdFlows,
   payConsultation,
   recordVitals,
+  resolveOpdLegacyRoute,
   startOpdFlow,
 } from '@features/opd-flow';
 import { opdFlowApi } from '@features/opd-flow/opd-flow.api';
@@ -18,6 +19,7 @@ jest.mock('@features/opd-flow/opd-flow.api', () => ({
   opdFlowApi: {
     list: jest.fn(),
     get: jest.fn(),
+    resolveLegacyRoute: jest.fn(),
     start: jest.fn(),
     payConsultation: jest.fn(),
     recordVitals: jest.fn(),
@@ -42,6 +44,15 @@ describe('opd-flow.usecase', () => {
       },
     });
     opdFlowApi.get.mockResolvedValue({ data: buildSnapshotPayload('enc-1') });
+    opdFlowApi.resolveLegacyRoute.mockResolvedValue({
+      data: {
+        encounter_id: 'ENC-001',
+        emergency_case_id: 'EMC-001',
+        resource: 'emergency-cases',
+        panel: 'queue',
+        action: 'open_case',
+      },
+    });
     opdFlowApi.start.mockResolvedValue({ data: buildSnapshotPayload('enc-2') });
     opdFlowApi.payConsultation.mockResolvedValue({
       data: buildSnapshotPayload('enc-1', 'WAITING_VITALS'),
@@ -78,6 +89,19 @@ describe('opd-flow.usecase', () => {
     const result = await startOpdFlow(payload);
     expect(opdFlowApi.start).toHaveBeenCalledWith(payload);
     expect(result.encounter.id).toBe('enc-2');
+  });
+
+  it('resolves legacy emergency route context', async () => {
+    const result = await resolveOpdLegacyRoute('emergency-cases', 'EMC-001');
+    expect(opdFlowApi.resolveLegacyRoute).toHaveBeenCalledWith(
+      'emergency-cases',
+      'EMC-001'
+    );
+    expect(result).toMatchObject({
+      encounter_id: 'ENC-001',
+      emergency_case_id: 'EMC-001',
+      panel: 'queue',
+    });
   });
 
   it('records consultation payment', async () => {

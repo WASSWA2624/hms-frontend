@@ -13,6 +13,7 @@ import {
   getOpdFlow,
   listOpdFlows,
   payConsultation,
+  resolveOpdLegacyRoute,
   recordVitals,
   startOpdFlow,
 } from '@features/opd-flow';
@@ -22,6 +23,7 @@ const useOpdFlow = () => {
     () => ({
       list: listOpdFlows,
       get: getOpdFlow,
+      resolveLegacyRoute: resolveOpdLegacyRoute,
       start: startOpdFlow,
       bootstrap: bootstrapOpdFlow,
       payConsultation,

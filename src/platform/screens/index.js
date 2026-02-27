@@ -113,6 +113,7 @@ export { default as ClinicalOverviewScreen } from './clinical/ClinicalOverviewSc
 export { default as IpdWorkbenchScreen } from './clinical/IpdWorkbenchScreen';
 export { default as IcuWorkbenchScreen } from './clinical/IcuWorkbenchScreen';
 export { default as TheatreWorkbenchScreen } from './clinical/TheatreWorkbenchScreen';
+export { default as EmergencyWorkbenchScreen } from './clinical/EmergencyWorkbenchScreen';
 export { default as ClinicalResourceListScreen } from './clinical/ClinicalResourceListScreen';
 export { default as ClinicalResourceDetailScreen } from './clinical/ClinicalResourceDetailScreen';
 export { default as ClinicalResourceFormScreen } from './clinical/ClinicalResourceFormScreen';
