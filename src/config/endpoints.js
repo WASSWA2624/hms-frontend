@@ -580,6 +580,23 @@ export const endpoints = {
     REJECT_SAMPLE: (id) => `${baseUrl}/lab/samples/${id}/reject`,
     RELEASE_ORDER_ITEM: (id) => `${baseUrl}/lab/order-items/${id}/release`,
   },
+  RADIOLOGY_WORKSPACE: {
+    WORKBENCH: `${baseUrl}/radiology/workbench`,
+    ORDER_WORKFLOW: (id) => `${baseUrl}/radiology/orders/${id}/workflow`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/radiology/resolve-legacy/${resource}/${id}`,
+    ASSIGN_ORDER: (id) => `${baseUrl}/radiology/orders/${id}/assign`,
+    START_ORDER: (id) => `${baseUrl}/radiology/orders/${id}/start`,
+    COMPLETE_ORDER: (id) => `${baseUrl}/radiology/orders/${id}/complete`,
+    CANCEL_ORDER: (id) => `${baseUrl}/radiology/orders/${id}/cancel`,
+    CREATE_STUDY: (id) => `${baseUrl}/radiology/orders/${id}/studies`,
+    INIT_ASSET_UPLOAD: (id) => `${baseUrl}/radiology/studies/${id}/assets/init-upload`,
+    COMMIT_ASSET_UPLOAD: (id) => `${baseUrl}/radiology/studies/${id}/assets/commit-upload`,
+    SYNC_STUDY: (id) => `${baseUrl}/radiology/studies/${id}/pacs-sync`,
+    DRAFT_RESULT: (id) => `${baseUrl}/radiology/orders/${id}/results/draft`,
+    FINALIZE_RESULT: (id) => `${baseUrl}/radiology/results/${id}/finalize`,
+    ADDENDUM_RESULT: (id) => `${baseUrl}/radiology/results/${id}/addendum`,
+  },
   RADIOLOGY_TESTS: {
     LIST: `${baseUrl}/radiology-tests`,
     CREATE: `${baseUrl}/radiology-tests`,

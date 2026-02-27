@@ -194,7 +194,7 @@ export const MAIN_NAV_ITEMS = Object.freeze([
   {
     id: 'radiology',
     icon: 'image-outline',
-    path: '/diagnostics/radiology',
+    path: '/radiology',
     name: `${MAIN_NAV_I18N}.diagnostics-radiology`,
     roles: RADIOLOGY_ACCESS_ROLES,
     children: null,

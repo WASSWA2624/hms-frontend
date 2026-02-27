@@ -55,9 +55,11 @@ const resolveNotificationIcon = (notification) => {
   ).toLowerCase();
   if (routeHint.startsWith('/ipd')) return '\u{1F6CF}';
   if (routeHint.startsWith('/scheduling/opd-flows') || routeHint.startsWith('/clinical')) return '\u2695';
+  if (routeHint.startsWith('/radiology')) return '\u{1F5BB}';
   if (type === 'APPOINTMENT') return '\u{1F4C5}';
   if (type === 'BILLING') return '\u{1F4B3}';
   if (type === 'LAB') return '\u{1F9EA}';
+  if (type === 'RADIOLOGY') return '\u{1F5BB}';
   if (type === 'PHARMACY') return '\u{1F48A}';
   if (type === 'OPD') return '\u2695';
   if (type === 'IPD') return '\u{1F6CF}';
@@ -191,6 +193,15 @@ const buildNotificationRouteCandidates = (
   if (text.includes('lab') || text.includes('sample') || text.includes('result')) {
     pushRouteCandidate(candidates, '/lab/results');
   }
+  if (
+    text.includes('radiology') ||
+    text.includes('imaging') ||
+    text.includes('dicom') ||
+    text.includes('pacs') ||
+    text.includes('study')
+  ) {
+    pushRouteCandidate(candidates, '/radiology');
+  }
   if (text.includes('pharmacy') || text.includes('drug') || text.includes('dispense')) {
     pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
   }
@@ -202,6 +213,7 @@ const buildNotificationRouteCandidates = (
   if (type === 'APPOINTMENT') pushRouteCandidate(candidates, '/scheduling/appointments');
   if (type === 'BILLING') pushRouteCandidate(candidates, '/billing/invoices');
   if (type === 'LAB') pushRouteCandidate(candidates, '/lab/results');
+  if (type === 'RADIOLOGY') pushRouteCandidate(candidates, '/radiology');
   if (type === 'PHARMACY') pushRouteCandidate(candidates, '/pharmacy/pharmacy-orders');
   if (type === 'OPD') pushRouteCandidate(candidates, '/clinical');
   if (type === 'IPD') pushRouteCandidate(candidates, '/ipd');
