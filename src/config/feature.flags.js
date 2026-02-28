@@ -48,3 +48,7 @@ export const RADIOLOGY_WORKBENCH_V2 = parseFlag(
   process.env.EXPO_PUBLIC_RADIOLOGY_WORKBENCH_V2,
   false
 );
+export const BILLING_WORKSPACE_V1 = parseFlag(
+  process.env.EXPO_PUBLIC_BILLING_WORKSPACE_V1,
+  false
+);

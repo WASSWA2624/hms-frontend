@@ -439,8 +439,22 @@ const resolveClinicalResourceScope = (resourceId) => {
 };
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const sanitizeString = (value) => (value == null ? '' : String(value).trim());
+const sanitizeDisplayIdentifier = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  return UUID_LIKE_REGEX.test(normalized) ? '' : normalized;
+};
+const resolveDisplayIdentifier = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = sanitizeDisplayIdentifier(candidate);
+    if (normalized) return normalized;
+  }
+  return '';
+};
 
 const normalizeRouteId = (value) => {
   const candidate = Array.isArray(value) ? value[0] : value;
@@ -9534,15 +9548,23 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.id) || sanitizeString(item?.patient_id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.patient_display_id
+      ) ||
+      sanitizeString(item?.status) ||
+      'Invoice',
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.invoices.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      patient_id: sanitizeString(record?.patient_id || context?.patientId),
+      facility_id:
+        resolveDisplayIdentifier(record?.facility_display_id, context?.facilityId),
+      patient_id:
+        resolveDisplayIdentifier(record?.patient_display_id, context?.patientId),
       status: sanitizeString(record?.status || context?.status || 'DRAFT'),
       billing_status: sanitizeString(
         record?.billing_status || context?.billingStatus || 'DRAFT'
@@ -9575,19 +9597,19 @@ const resourceConfigs = {
     detailRows: [
       {
         labelKey: 'clinical.resources.invoices.detail.idLabel',
-        valueKey: 'id',
+        valueKey: 'display_id',
       },
       {
         labelKey: 'clinical.resources.invoices.detail.tenantLabel',
-        valueKey: 'tenant_id',
+        valueKey: 'tenant_display_id',
       },
       {
         labelKey: 'clinical.resources.invoices.detail.facilityLabel',
-        valueKey: 'facility_id',
+        valueKey: 'facility_display_id',
       },
       {
         labelKey: 'clinical.resources.invoices.detail.patientLabel',
-        valueKey: 'patient_id',
+        valueKey: 'patient_display_id',
       },
       {
         labelKey: 'clinical.resources.invoices.detail.statusLabel',
@@ -9707,16 +9729,25 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.invoice_display_id
+      ) ||
+      sanitizeString(item?.method) ||
+      'Payment',
     getItemSubtitle: (item, t) => {
       const methodValue = sanitizeString(item?.method);
       if (!methodValue) return '';
       return `${t('clinical.resources.payments.detail.methodLabel')}: ${methodValue}`;
     },
     getInitialValues: (record, context) => ({
-      facility_id: sanitizeString(record?.facility_id || context?.facilityId),
-      patient_id: sanitizeString(record?.patient_id || context?.patientId),
-      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      facility_id:
+        resolveDisplayIdentifier(record?.facility_display_id, context?.facilityId),
+      patient_id:
+        resolveDisplayIdentifier(record?.patient_display_id, context?.patientId),
+      invoice_id:
+        resolveDisplayIdentifier(record?.invoice_display_id, context?.invoiceId),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       method: sanitizeString(record?.method || context?.method || 'CASH'),
       amount: sanitizeString(record?.amount),
@@ -9753,23 +9784,23 @@ const resourceConfigs = {
     detailRows: [
       {
         labelKey: 'clinical.resources.payments.detail.idLabel',
-        valueKey: 'id',
+        valueKey: 'display_id',
       },
       {
         labelKey: 'clinical.resources.payments.detail.tenantLabel',
-        valueKey: 'tenant_id',
+        valueKey: 'tenant_display_id',
       },
       {
         labelKey: 'clinical.resources.payments.detail.facilityLabel',
-        valueKey: 'facility_id',
+        valueKey: 'facility_display_id',
       },
       {
         labelKey: 'clinical.resources.payments.detail.patientLabel',
-        valueKey: 'patient_id',
+        valueKey: 'patient_display_id',
       },
       {
         labelKey: 'clinical.resources.payments.detail.invoiceLabel',
-        valueKey: 'invoice_id',
+        valueKey: 'invoice_display_id',
       },
       {
         labelKey: 'clinical.resources.payments.detail.statusLabel',
@@ -9851,14 +9882,21 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.payment_id) || sanitizeString(item?.id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.payment_display_id
+      ) ||
+      sanitizeString(item?.reason) ||
+      'Refund',
     getItemSubtitle: (item, t) => {
       const amountValue = sanitizeString(item?.amount);
       if (!amountValue) return '';
       return `${t('clinical.resources.refunds.detail.amountLabel')}: ${amountValue}`;
     },
     getInitialValues: (record, context) => ({
-      payment_id: sanitizeString(record?.payment_id || context?.paymentId),
+      payment_id:
+        resolveDisplayIdentifier(record?.payment_display_id, context?.paymentId),
       amount: sanitizeString(record?.amount),
       refunded_at: sanitizeString(record?.refunded_at),
       reason: sanitizeString(record?.reason),
@@ -9887,10 +9925,13 @@ const resourceConfigs = {
       return errors;
     },
     detailRows: [
-      { labelKey: 'clinical.resources.refunds.detail.idLabel', valueKey: 'id' },
+      {
+        labelKey: 'clinical.resources.refunds.detail.idLabel',
+        valueKey: 'display_id',
+      },
       {
         labelKey: 'clinical.resources.refunds.detail.paymentLabel',
-        valueKey: 'payment_id',
+        valueKey: 'payment_display_id',
       },
       {
         labelKey: 'clinical.resources.refunds.detail.amountLabel',
@@ -9967,17 +10008,26 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.invoice_display_id
+      ) ||
+      sanitizeString(item?.status) ||
+      'Claim',
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.insuranceClaims.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      coverage_plan_id: sanitizeString(
-        record?.coverage_plan_id || context?.coveragePlanId
-      ),
-      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      coverage_plan_id:
+        resolveDisplayIdentifier(
+          record?.coverage_plan_display_id,
+          context?.coveragePlanId
+        ),
+      invoice_id:
+        resolveDisplayIdentifier(record?.invoice_display_id, context?.invoiceId),
       status: sanitizeString(record?.status || context?.status || 'SUBMITTED'),
       submitted_at: sanitizeString(record?.submitted_at),
     }),
@@ -9998,15 +10048,15 @@ const resourceConfigs = {
     detailRows: [
       {
         labelKey: 'clinical.resources.insuranceClaims.detail.idLabel',
-        valueKey: 'id',
+        valueKey: 'display_id',
       },
       {
         labelKey: 'clinical.resources.insuranceClaims.detail.coveragePlanLabel',
-        valueKey: 'coverage_plan_id',
+        valueKey: 'coverage_plan_display_id',
       },
       {
         labelKey: 'clinical.resources.insuranceClaims.detail.invoiceLabel',
-        valueKey: 'invoice_id',
+        valueKey: 'invoice_display_id',
       },
       {
         labelKey: 'clinical.resources.insuranceClaims.detail.statusLabel',
@@ -10080,16 +10130,24 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.coverage_plan_id) || sanitizeString(item?.id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.coverage_plan_display_id
+      ) ||
+      sanitizeString(item?.status) ||
+      'Pre-authorization',
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.preAuthorizations.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      coverage_plan_id: sanitizeString(
-        record?.coverage_plan_id || context?.coveragePlanId
-      ),
+      coverage_plan_id:
+        resolveDisplayIdentifier(
+          record?.coverage_plan_display_id,
+          context?.coveragePlanId
+        ),
       status: sanitizeString(record?.status || context?.status || 'PENDING'),
       requested_at: sanitizeString(record?.requested_at),
       approved_at: sanitizeString(record?.approved_at),
@@ -10115,12 +10173,12 @@ const resourceConfigs = {
     detailRows: [
       {
         labelKey: 'clinical.resources.preAuthorizations.detail.idLabel',
-        valueKey: 'id',
+        valueKey: 'display_id',
       },
       {
         labelKey:
           'clinical.resources.preAuthorizations.detail.coveragePlanLabel',
-        valueKey: 'coverage_plan_id',
+        valueKey: 'coverage_plan_display_id',
       },
       {
         labelKey: 'clinical.resources.preAuthorizations.detail.statusLabel',
@@ -10210,14 +10268,21 @@ const resourceConfigs = {
       },
     ],
     getItemTitle: (item) =>
-      sanitizeString(item?.invoice_id) || sanitizeString(item?.id),
+      resolveDisplayIdentifier(
+        item?.display_id,
+        item?.human_friendly_id,
+        item?.invoice_display_id
+      ) ||
+      sanitizeString(item?.status) ||
+      'Adjustment',
     getItemSubtitle: (item, t) => {
       const statusValue = sanitizeString(item?.status);
       if (!statusValue) return '';
       return `${t('clinical.resources.billingAdjustments.detail.statusLabel')}: ${statusValue}`;
     },
     getInitialValues: (record, context) => ({
-      invoice_id: sanitizeString(record?.invoice_id || context?.invoiceId),
+      invoice_id:
+        resolveDisplayIdentifier(record?.invoice_display_id, context?.invoiceId),
       amount: sanitizeString(record?.amount),
       status: sanitizeString(record?.status || context?.status || 'DRAFT'),
       reason: sanitizeString(record?.reason),
@@ -10250,11 +10315,11 @@ const resourceConfigs = {
     detailRows: [
       {
         labelKey: 'clinical.resources.billingAdjustments.detail.idLabel',
-        valueKey: 'id',
+        valueKey: 'display_id',
       },
       {
         labelKey: 'clinical.resources.billingAdjustments.detail.invoiceLabel',
-        valueKey: 'invoice_id',
+        valueKey: 'invoice_display_id',
       },
       {
         labelKey: 'clinical.resources.billingAdjustments.detail.amountLabel',

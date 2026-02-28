@@ -980,6 +980,7 @@
       "sectionLabel": "Billing sections",
       "sectionsHint": "Switch billing record section.",
       "sections": {
+        "all": "All records",
         "invoices": "Invoices",
         "payments": "Payments",
         "claims": "Insurance claims"
@@ -988,8 +989,42 @@
       "paymentWriteBlocked": "You do not have permission to create payments.",
       "viewDetails": "View details",
       "viewDetailsHint": "Open billing record details.",
+      "downloadInvoice": "Download invoice",
+      "documentOpenError": "Unable to open invoice document.",
       "emptyTitle": "No billing records found",
       "emptyMessage": "There are no billing records for this patient scope.",
+      "summary": {
+        "totalInvoiced": "Total invoiced: {{value}}",
+        "totalPaid": "Total paid: {{value}}",
+        "balanceDue": "Balance due: {{value}}"
+      },
+      "timelineType": {
+        "INVOICE": "Invoice",
+        "PAYMENT": "Payment",
+        "REFUND": "Refund",
+        "CLAIM": "Claim",
+        "ADJUSTMENT": "Adjustment",
+        "APPROVAL": "Approval",
+        "UNKNOWN": "Record"
+      },
+      "timelineStatus": {
+        "DRAFT": "Draft",
+        "ISSUED": "Issued",
+        "SENT": "Sent",
+        "PENDING": "Pending",
+        "PARTIAL": "Partial",
+        "COMPLETED": "Completed",
+        "PAID": "Paid",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "SUBMITTED": "Submitted",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "CANCELLED": "Cancelled",
+        "VOID_REQUESTED": "Void requested",
+        "OVERDUE": "Overdue",
+        "UNKNOWN": "Unknown"
+      },
       "rowInvoiceId": "Invoice: {{id}}",
       "rowInvoiceStatus": "Invoice status: {{status}}",
       "rowInvoiceBillingStatus": "Billing status: {{status}}",
@@ -1000,6 +1035,7 @@
       "rowClaimStatus": "Claim status: {{status}}",
       "detailTitle": "Billing detail",
       "detailType": "Type: {{type}}",
+      "detailStatus": "Status: {{status}}",
       "detailInvoiceStatus": "Invoice status: {{status}}",
       "detailInvoiceBillingStatus": "Billing status: {{status}}",
       "detailPaymentStatus": "Payment status: {{status}}",

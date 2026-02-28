@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
-import { Slot, usePathname, useRouter } from 'expo-router';
+import { Slot, useRouter } from 'expo-router';
 import { LoadingSpinner } from '@platform/components';
 import { useI18n, useScopeAccess } from '@hooks';
 import { ClinicalScreen } from '@platform/screens';
 
 export default function LayoutRoute() {
   const { t } = useI18n();
-  const pathname = usePathname();
   const router = useRouter();
   const { canRead, canManageAllTenants, tenantId, isResolved } = useScopeAccess('billing');
   const normalizedTenantId = String(tenantId || '').trim();
@@ -36,7 +35,7 @@ export default function LayoutRoute() {
 
   return (
     <ClinicalScreen>
-      <Slot key={pathname} />
+      <Slot />
     </ClinicalScreen>
   );
 }

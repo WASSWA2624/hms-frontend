@@ -110,6 +110,7 @@ export { default as OpdFlowWorkbenchScreen } from './scheduling/OpdFlowWorkbench
 export { default as ClinicalScreen } from './clinical/ClinicalScreen';
 export { default as ClinicalWorkbenchScreen } from './clinical/ClinicalWorkbenchScreen';
 export { default as ClinicalOverviewScreen } from './clinical/ClinicalOverviewScreen';
+export { default as BillingWorkbenchScreen } from './billing/BillingWorkbenchScreen';
 export { default as IpdWorkbenchScreen } from './clinical/IpdWorkbenchScreen';
 export { default as IcuWorkbenchScreen } from './clinical/IcuWorkbenchScreen';
 export { default as TheatreWorkbenchScreen } from './clinical/TheatreWorkbenchScreen';

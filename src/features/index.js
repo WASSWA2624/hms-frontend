@@ -117,6 +117,7 @@ export * from './coverage-plan';
 export * from './insurance-claim';
 export * from './pre-authorization';
 export * from './billing-adjustment';
+export * from './billing-workspace';
 export * from './staff-position';
 export * from './staff-profile';
 export * from './staff-assignment';

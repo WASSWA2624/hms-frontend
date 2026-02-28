@@ -862,6 +862,29 @@ export const endpoints = {
     UPDATE: (id) => `${baseUrl}/billing-adjustments/${id}`,
     DELETE: (id) => `${baseUrl}/billing-adjustments/${id}`,
   },
+  BILLING_WORKSPACE: {
+    WORKSPACE: `${baseUrl}/billing/workspace`,
+    WORK_ITEMS: `${baseUrl}/billing/work-items`,
+    PATIENT_LEDGER: (patientIdentifier) =>
+      `${baseUrl}/billing/patients/${patientIdentifier}/ledger`,
+    ISSUE_INVOICE: (invoiceIdentifier) =>
+      `${baseUrl}/billing/invoices/${invoiceIdentifier}/issue`,
+    SEND_INVOICE: (invoiceIdentifier) =>
+      `${baseUrl}/billing/invoices/${invoiceIdentifier}/send`,
+    VOID_INVOICE: (invoiceIdentifier) =>
+      `${baseUrl}/billing/invoices/${invoiceIdentifier}/void-request`,
+    RECONCILE_PAYMENT: (paymentIdentifier) =>
+      `${baseUrl}/billing/payments/${paymentIdentifier}/reconcile`,
+    REQUEST_PAYMENT_REFUND: (paymentIdentifier) =>
+      `${baseUrl}/billing/payments/${paymentIdentifier}/refund-request`,
+    REQUEST_ADJUSTMENT: `${baseUrl}/billing/adjustments/request`,
+    APPROVE_APPROVAL: (approvalIdentifier) =>
+      `${baseUrl}/billing/approvals/${approvalIdentifier}/approve`,
+    REJECT_APPROVAL: (approvalIdentifier) =>
+      `${baseUrl}/billing/approvals/${approvalIdentifier}/reject`,
+    INVOICE_DOCUMENT: (invoiceIdentifier) =>
+      `${baseUrl}/billing/invoices/${invoiceIdentifier}/document`,
+  },
   STAFF_POSITIONS: {
     LIST: `${baseUrl}/staff-positions`,
     CREATE: `${baseUrl}/staff-positions`,

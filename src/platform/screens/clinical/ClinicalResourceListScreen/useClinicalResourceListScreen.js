@@ -24,6 +24,21 @@ import {
   resolveErrorMessage,
 } from '../ClinicalScreenUtils';
 
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const sanitizeDisplayIdentifier = (value) => {
+  const normalized = sanitizeString(value);
+  if (!normalized) return '';
+  return UUID_LIKE_REGEX.test(normalized) ? '' : normalized;
+};
+const resolveDisplayIdentifier = (...candidates) => {
+  for (const candidate of candidates) {
+    const normalized = sanitizeDisplayIdentifier(candidate);
+    if (normalized) return normalized;
+  }
+  return '';
+};
+
 const buildItemContext = (resourceId, item, baseContext) => {
   if (!item || typeof item !== 'object') return baseContext;
 
@@ -610,10 +625,27 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.INVOICES) {
     return {
       ...baseContext,
-      invoiceId: sanitizeString(item.id) || baseContext.invoiceId,
-      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
-      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      invoiceId:
+        resolveDisplayIdentifier(
+          item.display_id,
+          item.human_friendly_id,
+          item.invoice_display_id
+        ) || resolveDisplayIdentifier(baseContext.invoiceId),
+      tenantId:
+        resolveDisplayIdentifier(
+          item.tenant_display_id,
+          item.tenant_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.tenantId),
+      facilityId:
+        resolveDisplayIdentifier(
+          item.facility_display_id,
+          item.facility_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.facilityId),
+      patientId:
+        resolveDisplayIdentifier(
+          item.patient_display_id,
+          item.patient_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.patientId),
       status: sanitizeString(item.status) || baseContext.status,
       billingStatus:
         sanitizeString(item.billing_status) || baseContext.billingStatus,
@@ -623,11 +655,32 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.PAYMENTS) {
     return {
       ...baseContext,
-      paymentId: sanitizeString(item.id) || baseContext.paymentId,
-      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
-      tenantId: sanitizeString(item.tenant_id) || baseContext.tenantId,
-      facilityId: sanitizeString(item.facility_id) || baseContext.facilityId,
-      patientId: sanitizeString(item.patient_id) || baseContext.patientId,
+      paymentId:
+        resolveDisplayIdentifier(
+          item.display_id,
+          item.human_friendly_id,
+          item.payment_display_id
+        ) || resolveDisplayIdentifier(baseContext.paymentId),
+      invoiceId:
+        resolveDisplayIdentifier(
+          item.invoice_display_id,
+          item.invoice_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.invoiceId),
+      tenantId:
+        resolveDisplayIdentifier(
+          item.tenant_display_id,
+          item.tenant_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.tenantId),
+      facilityId:
+        resolveDisplayIdentifier(
+          item.facility_display_id,
+          item.facility_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.facilityId),
+      patientId:
+        resolveDisplayIdentifier(
+          item.patient_display_id,
+          item.patient_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.patientId),
       status: sanitizeString(item.status) || baseContext.status,
       method: sanitizeString(item.method) || baseContext.method,
     };
@@ -636,7 +689,11 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.REFUNDS) {
     return {
       ...baseContext,
-      paymentId: sanitizeString(item.payment_id) || baseContext.paymentId,
+      paymentId:
+        resolveDisplayIdentifier(
+          item.payment_display_id,
+          item.payment_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.paymentId),
       refundedAtFrom:
         sanitizeString(item.refunded_at) || baseContext.refundedAtFrom,
     };
@@ -646,8 +703,15 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       coveragePlanId:
-        sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
-      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
+        resolveDisplayIdentifier(
+          item.coverage_plan_display_id,
+          item.coverage_plan_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.coveragePlanId),
+      invoiceId:
+        resolveDisplayIdentifier(
+          item.invoice_display_id,
+          item.invoice_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.invoiceId),
       status: sanitizeString(item.status) || baseContext.status,
       submittedAtFrom:
         sanitizeString(item.submitted_at) || baseContext.submittedAtFrom,
@@ -658,7 +722,10 @@ const buildItemContext = (resourceId, item, baseContext) => {
     return {
       ...baseContext,
       coveragePlanId:
-        sanitizeString(item.coverage_plan_id) || baseContext.coveragePlanId,
+        resolveDisplayIdentifier(
+          item.coverage_plan_display_id,
+          item.coverage_plan_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.coveragePlanId),
       status: sanitizeString(item.status) || baseContext.status,
       requestedAtFrom:
         sanitizeString(item.requested_at) || baseContext.requestedAtFrom,
@@ -670,7 +737,11 @@ const buildItemContext = (resourceId, item, baseContext) => {
   if (resourceId === CLINICAL_RESOURCE_IDS.BILLING_ADJUSTMENTS) {
     return {
       ...baseContext,
-      invoiceId: sanitizeString(item.invoice_id) || baseContext.invoiceId,
+      invoiceId:
+        resolveDisplayIdentifier(
+          item.invoice_display_id,
+          item.invoice_human_friendly_id
+        ) || resolveDisplayIdentifier(baseContext.invoiceId),
       status: sanitizeString(item.status) || baseContext.status,
     };
   }
