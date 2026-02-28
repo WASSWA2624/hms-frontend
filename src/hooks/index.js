@@ -105,6 +105,7 @@ export { default as useLabQcLog } from './useLabQcLog';
 export { default as useLabWorkspace } from './useLabWorkspace';
 export { default as useRadiologyWorkspace } from './useRadiologyWorkspace';
 export { default as usePharmacyWorkspace } from './usePharmacyWorkspace';
+export { default as useHrWorkspace } from './useHrWorkspace';
 export { default as useRadiologyTest } from './useRadiologyTest';
 export { default as useRadiologyOrder } from './useRadiologyOrder';
 export { default as useRadiologyResult } from './useRadiologyResult';

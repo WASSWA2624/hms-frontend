@@ -885,6 +885,32 @@ export const endpoints = {
     INVOICE_DOCUMENT: (invoiceIdentifier) =>
       `${baseUrl}/billing/invoices/${invoiceIdentifier}/document`,
   },
+  HR_WORKSPACE: {
+    WORKSPACE: `${baseUrl}/hr/workspace`,
+    WORK_ITEMS: `${baseUrl}/hr/work-items`,
+    ROSTER_WORKFLOW: (rosterIdentifier) =>
+      `${baseUrl}/hr/rosters/${rosterIdentifier}/workflow`,
+    GENERATE_ROSTER: (rosterIdentifier) =>
+      `${baseUrl}/hr/rosters/${rosterIdentifier}/generate`,
+    PUBLISH_ROSTER: (rosterIdentifier) =>
+      `${baseUrl}/hr/rosters/${rosterIdentifier}/publish`,
+    OVERRIDE_SHIFT: (shiftIdentifier) =>
+      `${baseUrl}/hr/shifts/${shiftIdentifier}/override`,
+    APPROVE_SWAP: (swapIdentifier) =>
+      `${baseUrl}/hr/swaps/${swapIdentifier}/approve`,
+    REJECT_SWAP: (swapIdentifier) =>
+      `${baseUrl}/hr/swaps/${swapIdentifier}/reject`,
+    APPROVE_LEAVE: (leaveIdentifier) =>
+      `${baseUrl}/hr/leaves/${leaveIdentifier}/approve`,
+    REJECT_LEAVE: (leaveIdentifier) =>
+      `${baseUrl}/hr/leaves/${leaveIdentifier}/reject`,
+    PAYROLL_PREVIEW: (payrollRunIdentifier) =>
+      `${baseUrl}/hr/payroll-runs/${payrollRunIdentifier}/preview`,
+    PAYROLL_PROCESS: (payrollRunIdentifier) =>
+      `${baseUrl}/hr/payroll-runs/${payrollRunIdentifier}/process`,
+    RESOLVE_LEGACY: (resource, id) =>
+      `${baseUrl}/hr/resolve-legacy/${resource}/${id}`,
+  },
   STAFF_POSITIONS: {
     LIST: `${baseUrl}/staff-positions`,
     CREATE: `${baseUrl}/staff-positions`,

@@ -52,3 +52,7 @@ export const BILLING_WORKSPACE_V1 = parseFlag(
   process.env.EXPO_PUBLIC_BILLING_WORKSPACE_V1,
   false
 );
+export const HR_WORKSPACE_V1 = parseFlag(
+  process.env.EXPO_PUBLIC_HR_WORKSPACE_V1,
+  false
+);
